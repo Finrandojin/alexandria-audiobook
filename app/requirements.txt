@@ -3,3 +3,4 @@ uvicorn
 pydub
 requests
 google-generativeai
+gradio_client

@@ -4,7 +4,7 @@ module.exports = {
     params: {
       venv: "env",
       path: "app",
-      message: "python process_book.py --file {{args.file}}",
+      message: "python generate_script.py --file ../{{args.file}}",
     }
   }]
 }
