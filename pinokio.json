@@ -1,5 +1,8 @@
 {
   "title": "Alexandria",
   "description": "A tool that takes a text document containing a book or a novel, ingests it with an LLM to produce an annotated script, and then uses a TTS API to generate the voice lines, finally stitching them together into an audiobook in MP3 format.",
-  "icon": "icon.png"
+  "icon": "icon.png",
+  "plugin": {
+    "menu": []
+  }
 }
