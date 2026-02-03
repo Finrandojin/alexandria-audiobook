@@ -2,5 +2,5 @@ fastapi
 uvicorn
 pydub
 requests
-google-generativeai
+openai
 gradio_client

@@ -2,18 +2,18 @@ import os
 import sys
 import json
 import re
-import google.generativeai as genai
+from openai import OpenAI
 
-SCRIPT_PROMPT = """Convert this book/novel text into an audioplay script as a JSON array.
+SYSTEM_PROMPT = """You are a script writer converting books/novels into audioplay scripts. Output ONLY valid JSON arrays, no markdown, no explanations.
 
-OUTPUT FORMAT - Return ONLY a valid JSON array:
+OUTPUT FORMAT:
 [
   {"speaker": "NARRATOR", "text": "Description text here.", "style": "tone direction"},
   {"speaker": "CHARACTER", "text": "Dialogue here.", "style": "emotional direction"}
 ]
 
 FIELDS:
-- "speaker": Character name in UPPERCASE (use "NARRATOR" for descriptions/scene-setting)
+- "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
 - "text": The spoken text, with bracketed non-verbal sounds where appropriate
 - "style": Brief delivery direction (2-5 words like "warm, nostalgic" or "cold, threatening")
 
@@ -22,40 +22,22 @@ NON-VERBAL SOUNDS - Include where emotionally appropriate:
 [whimpers], [sobs], [cries], [sniffs], [whispers], [shouts], [screams],
 [clears throat], [coughs], [pauses], [hesitates], [stammers], [gulps]
 
-Can be inline: "[sighs] I suppose you're right."
-Or standalone: {"speaker": "ELENA", "text": "[sobs]", "style": "heartbroken"}
-
 RULES:
-1. FIRST-PERSON vs THIRD-PERSON NARRATION:
-   - If text uses "I", "my", "me" (first-person), use the CHARACTER'S NAME as speaker, NOT "NARRATOR"
-   - Only use "NARRATOR" for third-person omniscient descriptions ("He walked", "The sun rose")
-   - Example: "I traveled back in time" spoken by Isaac = {"speaker": "ISAAC", ...}
-2. Character dialogue attributed to named characters (extract from context)
-3. Use style directions to convey emotional tone
-4. Break long passages into chunks under 400 characters each
-5. Output ONLY valid JSON - no markdown, no code blocks, no explanations
-6. Preserve the emotional arc of the story
-7. IMPORTANT: Always output COMPLETE sentences. Never truncate text mid-sentence.
-8. SPLIT ON TONE CHANGES: When a character's emotional tone shifts within their dialogue, create SEPARATE entries for each tone.
+1. FIRST-PERSON vs THIRD-PERSON:
+   - "I", "my", "me" (first-person) = use CHARACTER'S NAME, NOT "NARRATOR"
+   - "He", "She", "The" (third-person) = use "NARRATOR"
+2. Break long passages into chunks under 400 characters each
+3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
+4. Always output COMPLETE sentences
+5. Output ONLY valid JSON array - no markdown, no code blocks"""
 
-EXAMPLE - Notice how Marcus's dialogue is split when his tone changes from teasing to serious:
-[
-  {"speaker": "NARRATOR", "text": "The old mansion loomed against the stormy sky.", "style": "ominous, foreboding"},
-  {"speaker": "ELENA", "text": "[shivers] I don't like this place.", "style": "nervous, quiet"},
-  {"speaker": "MARCUS", "text": "[chuckles] Scared of a little dust?", "style": "teasing, playful"},
-  {"speaker": "MARCUS", "text": "But actually... you might be right.", "style": "serious, reconsidering"},
-  {"speaker": "MARCUS", "text": "Something does feel wrong here.", "style": "uneasy, cautious"},
-  {"speaker": "NARRATOR", "text": "A floorboard creaked somewhere above them.", "style": "tense, suspenseful"},
-  {"speaker": "ELENA", "text": "[gasps]", "style": "startled"},
-  {"speaker": "ELENA", "text": "What was that?!", "style": "panicked, frightened"}
-]
+USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
 
-TEXT TO CONVERT:
-"""
+{context}
+{chunk}"""
 
 def split_into_chunks(text, max_size=3000):
     """Split text into chunks at paragraph/sentence boundaries."""
-    # First split by paragraphs (double newlines)
     paragraphs = re.split(r'\n\s*\n', text)
 
     chunks = []
@@ -66,14 +48,11 @@ def split_into_chunks(text, max_size=3000):
         if not para:
             continue
 
-        # If adding this paragraph would exceed max_size
         if len(current_chunk) + len(para) + 2 > max_size:
-            # If current chunk has content, save it
             if current_chunk:
                 chunks.append(current_chunk.strip())
                 current_chunk = ""
 
-            # If single paragraph is too long, split by sentences
             if len(para) > max_size:
                 sentences = re.split(r'(?<=[.!?])\s+', para)
                 for sentence in sentences:
@@ -88,28 +67,24 @@ def split_into_chunks(text, max_size=3000):
         else:
             current_chunk += "\n\n" + para if current_chunk else para
 
-    # Don't forget the last chunk
     if current_chunk:
         chunks.append(current_chunk.strip())
 
     return chunks
 
-def process_chunk(model, chunk, chunk_num, total_chunks, previous_entries=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None):
     """Process a text chunk and return JSON script entries"""
-    # Add context about chunk position and previous speakers to help LLM
     context_parts = []
 
     if chunk_num == 1:
-        context_parts.append("(This is the beginning of the text)")
+        context_parts.append("(Beginning of text)")
     elif chunk_num == total_chunks:
-        context_parts.append("(This is the end of the text)")
+        context_parts.append("(End of text)")
     else:
-        context_parts.append(f"(This is part {chunk_num} of {total_chunks})")
+        context_parts.append(f"(Part {chunk_num} of {total_chunks})")
 
-    # Add previous speaker context (simplified - just the last speaker name)
     if previous_entries and len(previous_entries) > 0:
         last_speaker = previous_entries[-1].get("speaker", "UNKNOWN")
-        # Find the main character (most frequent non-NARRATOR speaker)
         speaker_counts = {}
         for entry in previous_entries:
             s = entry.get("speaker", "")
@@ -118,18 +93,32 @@ def process_chunk(model, chunk, chunk_num, total_chunks, previous_entries=None):
 
         if speaker_counts:
             main_char = max(speaker_counts, key=speaker_counts.get)
-            context_parts.append(f"\nCONTEXT: The main character speaking is {main_char}. Last speaker was {last_speaker}.")
-            context_parts.append(f"If the text continues in first-person ('I', 'my'), it's still {main_char} speaking.\n")
+            context_parts.append(f"Main character: {main_char}. Last speaker: {last_speaker}.")
+            context_parts.append(f"First-person text ('I', 'my') is {main_char} speaking.")
 
-    context = "\n".join(context_parts) + "\n\n"
+    context = "\n".join(context_parts)
 
-    response = model.generate_content(SCRIPT_PROMPT + context + chunk)
-    text = response.text.strip()
+    user_prompt = USER_PROMPT_TEMPLATE.format(context=context, chunk=chunk)
+
+    try:
+        response = client.chat.completions.create(
+            model=model_name,
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt}
+            ],
+            temperature=0.7,
+            max_tokens=4096
+        )
+
+        text = response.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"Error calling LLM API: {e}")
+        return []
 
     # Clean up markdown code blocks if present
     if text.startswith("```"):
         lines = text.split("\n")
-        # Find the closing ``` and remove both markers
         end_idx = -1
         for i, line in enumerate(lines[1:], 1):
             if line.strip().startswith("```"):
@@ -139,6 +128,13 @@ def process_chunk(model, chunk, chunk_num, total_chunks, previous_entries=None):
             text = "\n".join(lines[1:end_idx])
         else:
             text = "\n".join(lines[1:])
+
+    # Try to find JSON array in response
+    if not text.startswith("["):
+        # Look for JSON array in the response
+        match = re.search(r'\[[\s\S]*\]', text)
+        if match:
+            text = match.group(0)
 
     try:
         entries = json.loads(text)
@@ -150,7 +146,6 @@ def process_chunk(model, chunk, chunk_num, total_chunks, previous_entries=None):
 
         # Try to salvage partial JSON
         try:
-            # Find the last complete entry by looking for the last "},"
             last_complete = text.rfind('},')
             if last_complete > 0:
                 salvaged = text[:last_complete+1] + ']'
@@ -190,17 +185,18 @@ def main():
         config = json.load(f)
 
     llm_config = config.get("llm", {})
-    api_key = llm_config.get("api_key")
-    model_name = llm_config.get("model_name", "gemini-2.0-flash")
+    base_url = llm_config.get("base_url", "http://localhost:1234/v1")
+    api_key = llm_config.get("api_key", "local")
+    model_name = llm_config.get("model_name", "local-model")
 
-    if not api_key:
-        print("Error: LLM API Key not found in config.json")
-        sys.exit(1)
-
+    print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
 
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel(model_name)
+    # Create OpenAI client with custom base URL
+    client = OpenAI(
+        base_url=base_url,
+        api_key=api_key
+    )
 
     # Split into chunks at natural boundaries
     chunks = split_into_chunks(book_content, max_size=3000)
@@ -212,9 +208,8 @@ def main():
     for i, chunk in enumerate(chunks, 1):
         print(f"Processing chunk {i}/{total_chunks} ({len(chunk)} chars)...")
 
-        # Pass previous entries for speaker continuity context
         previous = all_entries if len(all_entries) > 0 else None
-        entries = process_chunk(model, chunk, i, total_chunks, previous_entries=previous)
+        entries = process_chunk(client, model_name, chunk, i, total_chunks, previous_entries=previous)
         all_entries.extend(entries)
         print(f"  Got {len(entries)} entries")
 
