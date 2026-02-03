@@ -26,14 +26,17 @@ Can be inline: "[sighs] I suppose you're right."
 Or standalone: {"speaker": "ELENA", "text": "[sobs]", "style": "heartbroken"}
 
 RULES:
-1. NARRATOR handles all descriptive text, scene-setting, actions, inner thoughts
+1. FIRST-PERSON vs THIRD-PERSON NARRATION:
+   - If text uses "I", "my", "me" (first-person), use the CHARACTER'S NAME as speaker, NOT "NARRATOR"
+   - Only use "NARRATOR" for third-person omniscient descriptions ("He walked", "The sun rose")
+   - Example: "I traveled back in time" spoken by Isaac = {"speaker": "ISAAC", ...}
 2. Character dialogue attributed to named characters (extract from context)
 3. Use style directions to convey emotional tone
 4. Break long passages into chunks under 400 characters each
 5. Output ONLY valid JSON - no markdown, no code blocks, no explanations
 6. Preserve the emotional arc of the story
 7. IMPORTANT: Always output COMPLETE sentences. Never truncate text mid-sentence.
-8. SPLIT ON TONE CHANGES: When a character's emotional tone shifts within their dialogue, create SEPARATE entries for each tone. This allows different voice styles to be applied.
+8. SPLIT ON TONE CHANGES: When a character's emotional tone shifts within their dialogue, create SEPARATE entries for each tone.
 
 EXAMPLE - Notice how Marcus's dialogue is split when his tone changes from teasing to serious:
 [
@@ -103,13 +106,20 @@ def process_chunk(model, chunk, chunk_num, total_chunks, previous_entries=None):
     else:
         context_parts.append(f"(This is part {chunk_num} of {total_chunks})")
 
-    # Add previous entries as context so LLM knows who was speaking
+    # Add previous speaker context (simplified - just the last speaker name)
     if previous_entries and len(previous_entries) > 0:
-        # Take last 3-5 entries to show recent context
-        recent = previous_entries[-5:]
-        context_parts.append("\nPREVIOUS ENTRIES (for speaker continuity - do NOT repeat these, continue from here):")
-        context_parts.append(json.dumps(recent, indent=2))
-        context_parts.append("\nContinue the script from where the previous entries left off:\n")
+        last_speaker = previous_entries[-1].get("speaker", "UNKNOWN")
+        # Find the main character (most frequent non-NARRATOR speaker)
+        speaker_counts = {}
+        for entry in previous_entries:
+            s = entry.get("speaker", "")
+            if s and s != "NARRATOR":
+                speaker_counts[s] = speaker_counts.get(s, 0) + 1
+
+        if speaker_counts:
+            main_char = max(speaker_counts, key=speaker_counts.get)
+            context_parts.append(f"\nCONTEXT: The main character speaking is {main_char}. Last speaker was {last_speaker}.")
+            context_parts.append(f"If the text continues in first-person ('I', 'my'), it's still {main_char} speaking.\n")
 
     context = "\n".join(context_parts) + "\n\n"
 
