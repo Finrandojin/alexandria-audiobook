@@ -36,6 +36,70 @@ USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
 {context}
 {chunk}"""
 
+def clean_json_string(text):
+    """Clean and extract valid JSON array from LLM response."""
+    # Remove markdown code blocks
+    if "```" in text:
+        # Find content between ```json and ``` or just ``` and ```
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+        if match:
+            text = match.group(1).strip()
+
+    # Find the JSON array - match from first [ to its closing ]
+    # Use a bracket counter to find the correct closing bracket
+    start = text.find('[')
+    if start == -1:
+        return None
+
+    bracket_count = 0
+    end = -1
+    in_string = False
+    escape_next = False
+
+    for i, char in enumerate(text[start:], start):
+        if escape_next:
+            escape_next = False
+            continue
+        if char == '\\':
+            escape_next = True
+            continue
+        if char == '"' and not escape_next:
+            in_string = not in_string
+            continue
+        if in_string:
+            continue
+        if char == '[':
+            bracket_count += 1
+        elif char == ']':
+            bracket_count -= 1
+            if bracket_count == 0:
+                end = i + 1
+                break
+
+    if end == -1:
+        # No closing bracket found, try to salvage
+        last_complete = text.rfind('},')
+        if last_complete > start:
+            return text[start:last_complete+1] + ']'
+        return None
+
+    json_text = text[start:end]
+
+    # Clean control characters inside strings (common LLM issue)
+    # Replace literal newlines/tabs inside JSON strings with escaped versions
+    def fix_control_chars(match):
+        s = match.group(0)
+        # Replace unescaped control characters
+        s = s.replace('\n', '\\n')
+        s = s.replace('\r', '\\r')
+        s = s.replace('\t', '\\t')
+        return s
+
+    # Fix control characters inside string values
+    json_text = re.sub(r'"[^"\\]*(?:\\.[^"\\]*)*"', fix_control_chars, json_text)
+
+    return json_text
+
 def split_into_chunks(text, max_size=3000):
     """Split text into chunks at paragraph/sentence boundaries."""
     paragraphs = re.split(r'\n\s*\n', text)
@@ -116,39 +180,27 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
         print(f"Error calling LLM API: {e}")
         return []
 
-    # Clean up markdown code blocks if present
-    if text.startswith("```"):
-        lines = text.split("\n")
-        end_idx = -1
-        for i, line in enumerate(lines[1:], 1):
-            if line.strip().startswith("```"):
-                end_idx = i
-                break
-        if end_idx > 0:
-            text = "\n".join(lines[1:end_idx])
-        else:
-            text = "\n".join(lines[1:])
+    # Clean and extract JSON from response
+    json_text = clean_json_string(text)
 
-    # Try to find JSON array in response
-    if not text.startswith("["):
-        # Look for JSON array in the response
-        match = re.search(r'\[[\s\S]*\]', text)
-        if match:
-            text = match.group(0)
+    if not json_text:
+        print(f"Warning: Could not find JSON array in chunk {chunk_num} response")
+        print(f"Response preview: {text[:300]}...")
+        return []
 
     try:
-        entries = json.loads(text)
+        entries = json.loads(json_text)
         if isinstance(entries, list):
             return entries
     except json.JSONDecodeError as e:
         print(f"Warning: Could not parse chunk {chunk_num} response as JSON: {e}")
-        print(f"Response preview: {text[:300]}...")
+        print(f"JSON preview: {json_text[:300]}...")
 
-        # Try to salvage partial JSON
+        # Try to salvage by finding last complete entry
         try:
-            last_complete = text.rfind('},')
+            last_complete = json_text.rfind('},')
             if last_complete > 0:
-                salvaged = text[:last_complete+1] + ']'
+                salvaged = json_text[:last_complete+1] + ']'
                 entries = json.loads(salvaged)
                 print(f"Salvaged {len(entries)} entries from partial response")
                 return entries
