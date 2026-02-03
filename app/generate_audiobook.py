@@ -15,17 +15,107 @@ def sanitize_filename(name):
     return name.lower()
 
 def preprocess_text_for_tts(text):
-    """Remove brackets from non-verbal cues so TTS reads them naturally.
-    [laughs] -> laughs
-    [sighs] I'm tired -> sighs... I'm tired
+    """Extract non-verbal cues and prepare text for TTS.
+
+    Returns: (processed_text, nonverbal_instructions)
+
+    Example:
+        "[laughs] That's hilarious!" -> ("That's hilarious!", "laughing")
+        "[sighs] I'm so tired" -> ("sighs... I'm so tired", "sighing, weary")
+        "[gasps] What?!" -> ("What?!", "gasping, shocked")
     """
-    # Replace bracketed non-verbals with just the word + ellipsis for pacing
-    # e.g., "[laughs]" -> "laughs...", "[sighs] I'm tired" -> "sighs... I'm tired"
-    processed = re.sub(r'\[([^\]]+)\]', r'\1...', text)
-    # Clean up multiple ellipsis or spaces
+    # Map of non-verbals to TTS style instructions
+    nonverbal_to_style = {
+        'laughs': 'laughing',
+        'laugh': 'laughing',
+        'chuckles': 'chuckling, amused',
+        'chuckle': 'chuckling',
+        'giggles': 'giggling, amused',
+        'giggle': 'giggling',
+        'scoffs': 'scoffing, dismissive',
+        'scoff': 'scoffing',
+        'sighs': 'sighing',
+        'sigh': 'sighing',
+        'gasps': 'gasping, shocked',
+        'gasp': 'gasping',
+        'groans': 'groaning',
+        'groan': 'groaning',
+        'moans': 'moaning',
+        'moan': 'moaning',
+        'whimpers': 'whimpering, distressed',
+        'whimper': 'whimpering',
+        'sobs': 'sobbing, crying',
+        'sob': 'sobbing',
+        'cries': 'crying',
+        'cry': 'crying',
+        'sniffs': 'sniffling',
+        'sniff': 'sniffling',
+        'whispers': 'whispering, quiet',
+        'whisper': 'whispering',
+        'shouts': 'shouting, loud',
+        'shout': 'shouting',
+        'screams': 'screaming',
+        'scream': 'screaming',
+        'yells': 'yelling, loud',
+        'yell': 'yelling',
+        'clears throat': 'clearing throat',
+        'coughs': 'coughing',
+        'cough': 'coughing',
+        'pauses': 'with a pause',
+        'pause': 'with a pause',
+        'hesitates': 'hesitant, uncertain',
+        'hesitate': 'hesitant',
+        'stammers': 'stammering, nervous',
+        'stammer': 'stammering',
+        'gulps': 'gulping, nervous',
+        'gulp': 'gulping',
+        'snorts': 'snorting, derisive',
+        'snort': 'snorting',
+        'hums': 'humming',
+        'hum': 'humming',
+        'growls': 'growling, menacing',
+        'growl': 'growling',
+        'purrs': 'purring, satisfied',
+        'purr': 'purring',
+        'shivers': 'shivering, cold or scared',
+        'shiver': 'shivering',
+    }
+
+    # Extract all non-verbals
+    nonverbals_found = re.findall(r'\[([^\]]+)\]', text.lower())
+
+    # Build style instructions from non-verbals
+    style_additions = []
+    for nv in nonverbals_found:
+        nv_clean = nv.strip().lower()
+        if nv_clean in nonverbal_to_style:
+            style_additions.append(nonverbal_to_style[nv_clean])
+        else:
+            # Generic handling for unknown non-verbals
+            style_additions.append(nv_clean)
+
+    # Process the text - remove brackets but keep the word for some, remove entirely for others
+    # For vocalizations that should be heard, keep them: laughs, sighs, etc.
+    # For pure actions, remove them: pauses, hesitates
+    action_only = {'pauses', 'pause', 'hesitates', 'hesitate', 'clears throat'}
+
+    def replace_nonverbal(match):
+        nv = match.group(1).strip().lower()
+        if nv in action_only:
+            return ''  # Remove completely, style will handle it
+        else:
+            return match.group(1) + '...'  # Keep as vocalization
+
+    processed = re.sub(r'\[([^\]]+)\]', replace_nonverbal, text)
+
+    # Clean up multiple ellipsis, spaces, and leading/trailing
     processed = re.sub(r'\.{4,}', '...', processed)
     processed = re.sub(r'\s+', ' ', processed).strip()
-    return processed
+    processed = re.sub(r'^\.\.\.', '', processed).strip()  # Remove leading ellipsis
+
+    nonverbal_style = ', '.join(style_additions) if style_additions else ''
+
+    return processed, nonverbal_style
 
 def test_tts_connection(tts_url, voice_config):
     """Test the TTS connection with the first configured voice"""
@@ -125,13 +215,22 @@ def generate_custom_voice(text, style, speaker, voice_config, output_path, clien
         default_style = voice_data.get("default_style", "")
         seed = int(voice_data.get("seed", -1))
 
-        # Use per-line style if available, otherwise fall back to default
-        instruct = style if style else default_style
-        if not instruct:
-            instruct = "neutral"
+        # Preprocess text and extract non-verbal style cues
+        processed_text, nonverbal_style = preprocess_text_for_tts(text)
 
-        # Preprocess text to handle non-verbal cues naturally
-        processed_text = preprocess_text_for_tts(text)
+        # Build the full style instruction:
+        # 1. Non-verbal cues take priority (laughing, sighing, etc.)
+        # 2. Then per-line style from script
+        # 3. Then default character style
+        style_parts = []
+        if nonverbal_style:
+            style_parts.append(nonverbal_style)
+        if style:
+            style_parts.append(style)
+        elif default_style:
+            style_parts.append(default_style)
+
+        instruct = ', '.join(style_parts) if style_parts else "neutral"
 
         result = client.predict(
             text=processed_text,
