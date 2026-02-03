@@ -38,6 +38,16 @@ USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
 
 def clean_json_string(text):
     """Clean and extract valid JSON array from LLM response."""
+    # Remove thinking tags (various formats used by different models)
+    # GLM, DeepSeek, Qwen, etc. use different thinking tag formats
+    text = re.sub(r'<think>[\s\S]*?</think>', '', text)
+    text = re.sub(r'<thinking>[\s\S]*?</thinking>', '', text)
+    text = re.sub(r'<reflection>[\s\S]*?</reflection>', '', text)
+    text = re.sub(r'<reasoning>[\s\S]*?</reasoning>', '', text)
+    # Handle unclosed thinking tags (model started thinking but didn't close)
+    text = re.sub(r'<think>[\s\S]*$', '', text)
+    text = re.sub(r'<thinking>[\s\S]*$', '', text)
+
     # Remove markdown code blocks
     if "```" in text:
         # Find content between ```json and ``` or just ``` and ```
