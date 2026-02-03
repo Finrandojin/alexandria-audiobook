@@ -1,3 +1,6 @@
+<img width="475" height="467" alt="Gemini_Generated_Image_yk5astyk5astyk5a" src="https://github.com/user-attachments/assets/fa2c36d3-a5f3-49ab-9dfe-30933359dfbd" />
+
+
 # Alexandria Audiobook Generator
 
 Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and voice cloning.
