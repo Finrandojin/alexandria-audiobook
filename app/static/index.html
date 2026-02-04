@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alexandria Audiobook</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f9fa; }
+        .nav-link { cursor: pointer; }
+        .log-window {
+            background-color: #1e1e1e;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .card { margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .step-indicator {
+            display: inline-block;
+            width: 25px;
+            height: 25px;
+            background-color: #e9ecef;
+            color: #6c757d;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        .step-active { background-color: #0d6efd; color: white; }
+        .voice-card { border-left: 4px solid #0d6efd; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#"><i class="fas fa-book-open me-2"></i>Alexandria</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item"><a class="nav-link active" data-tab="setup">1. Setup</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="script">2. Script</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="voices">3. Voices</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="audio">4. Audio</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- Setup Tab -->
+        <div id="setup-tab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">1</span>Configuration</h4>
+                </div>
+                <div class="card-body">
+                    <form id="config-form">
+                        <h5 class="mb-3">LLM Settings (Script Generation)</h5>
+                        <div class="mb-3">
+                            <label class="form-label">Base URL</label>
+                            <input type="text" class="form-control" id="llm-url" placeholder="http://localhost:1234/v1">
+                            <div class="form-text">URL for your OpenAI-compatible server (LM Studio, Ollama, etc.)</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Key</label>
+                            <input type="text" class="form-control" id="llm-key" value="local">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Model Name</label>
+                            <input type="text" class="form-control" id="llm-model" placeholder="local-model">
+                        </div>
+
+                        <h5 class="mb-3 mt-4">TTS Settings (Voice Generation)</h5>
+                        <div class="mb-3">
+                            <label class="form-label">TTS Server URL</label>
+                            <input type="text" class="form-control" id="tts-url" value="http://127.0.0.1:7860">
+                            <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Configuration</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Script Tab -->
+        <div id="script-tab" class="tab-content" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">2</span>Upload & Generate Script</h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-4">
+                        <label class="form-label">Upload Book/Novel (Text File)</label>
+                        <div class="input-group">
+                            <input type="file" class="form-control" id="file-upload" accept=".txt,.md">
+                            <button class="btn btn-outline-secondary" type="button" id="btn-upload">Upload</button>
+                        </div>
+                        <div id="upload-status" class="mt-2 text-success"></div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-lg" id="btn-gen-script">
+                            <i class="fas fa-magic me-2"></i>Generate Annotated Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Generation Logs</div>
+                <div class="card-body p-0">
+                    <div id="script-logs" class="log-window"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voices Tab -->
+        <div id="voices-tab" class="tab-content" style="display:none;">
+            <div class="card mb-3">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="m-0"><span class="step-indicator step-active">3</span>Voice Configuration</h4>
+                    <button class="btn btn-sm btn-outline-primary" id="btn-refresh-voices"><i class="fas fa-sync me-1"></i>Refresh Voices</button>
+                </div>
+                <div class="card-body">
+                    <p>After generating the script, click "Refresh" to load found characters.</p>
+                    <div id="voices-list"></div>
+                    <button class="btn btn-primary mt-3" id="btn-save-voices">Save Voice Config</button>
+                </div>
+            </div>
+
+             <div class="card">
+                <div class="card-header">Voice Parsing Logs</div>
+                <div class="card-body p-0">
+                    <div id="voices-logs" class="log-window" style="height: 150px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Audio Tab -->
+        <div id="audio-tab" class="tab-content" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">4</span>Generate & Play</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2 mb-4">
+                        <button class="btn btn-warning btn-lg" id="btn-gen-audio">
+                            <i class="fas fa-headphones me-2"></i>Generate Audiobook
+                        </button>
+                    </div>
+
+                    <div id="audio-player-container" class="text-center" style="display:none;">
+                        <h5>Your Audiobook</h5>
+                        <audio id="main-audio" controls class="w-100 mt-2">
+                            <source src="" type="audio/mpeg">
+                            Your browser does not support the audio element.
+                        </audio>
+                        <a id="download-link" href="#" class="btn btn-outline-dark mt-3" download="audiobook.mp3">
+                            <i class="fas fa-download me-2"></i>Download MP3
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">Generation Logs</div>
+                <div class="card-body p-0">
+                    <div id="audio-logs" class="log-window"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // --- Navigation ---
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Remove active class from all links
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                // Add active to clicked
+                e.target.classList.add('active');
+
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+                // Show target tab
+                document.getElementById(e.target.dataset.tab + '-tab').style.display = 'block';
+            });
+        });
+
+        // --- API Helpers ---
+        const API = {
+            get: async (url) => {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(res.statusText);
+                return res.json();
+            },
+            post: async (url, data) => {
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!res.ok) throw new Error(res.statusText);
+                return res.json();
+            },
+            upload: async (file) => {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error(res.statusText);
+                return res.json();
+            }
+        };
+
+        // --- Setup Tab ---
+        async function loadConfig() {
+            try {
+                const config = await API.get('/api/config');
+                document.getElementById('llm-url').value = config.llm.base_url;
+                document.getElementById('llm-key').value = config.llm.api_key;
+                document.getElementById('llm-model').value = config.llm.model_name;
+                document.getElementById('tts-url').value = config.tts.url;
+            } catch (e) {
+                console.error("Failed to load config", e);
+            }
+        }
+
+        document.getElementById('config-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const config = {
+                llm: {
+                    base_url: document.getElementById('llm-url').value,
+                    api_key: document.getElementById('llm-key').value,
+                    model_name: document.getElementById('llm-model').value
+                },
+                tts: {
+                    url: document.getElementById('tts-url').value
+                }
+            };
+            try {
+                await API.post('/api/config', config);
+                alert('Configuration Saved!');
+            } catch (e) {
+                alert('Error saving config: ' + e.message);
+            }
+        });
+
+        // --- Script Tab ---
+        document.getElementById('btn-upload').addEventListener('click', async () => {
+            const fileInput = document.getElementById('file-upload');
+            if (fileInput.files.length === 0) return alert("Select a file first");
+
+            try {
+                const res = await API.upload(fileInput.files[0]);
+                document.getElementById('upload-status').innerText = `Uploaded: ${res.filename}`;
+            } catch (e) {
+                alert("Upload failed: " + e.message);
+            }
+        });
+
+        document.getElementById('btn-gen-script').addEventListener('click', async () => {
+            try {
+                await API.post('/api/generate_script', {});
+                pollLogs('script', 'script-logs');
+            } catch (e) {
+                alert("Failed to start script gen: " + e.message);
+            }
+        });
+
+        // --- Voices Tab ---
+        const AVAILABLE_VOICES = ["Aiden", "Dylan", "Eric", "Ono_anna", "Ryan", "Serena", "Sohee", "Uncle_fu", "Vivian"];
+
+        function createVoiceCard(voice, index) {
+            const config = voice.config || {};
+            const isClone = config.type === 'clone';
+
+            return `
+                <div class="card voice-card mb-3" data-voice="${voice.name}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h5 class="card-title">${voice.name}</h5>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="mb-2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="custom" ${!isClone ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <label class="form-check-label">Custom Voice</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="clone" ${isClone ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <label class="form-check-label">Voice Clone</label>
+                                    </div>
+                                </div>
+
+                                <!-- Custom Options -->
+                                <div class="custom-opts" style="display: ${!isClone ? 'block' : 'none'}">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <select class="form-select voice-select">
+                                                ${AVAILABLE_VOICES.map(v => `<option value="${v}" ${config.voice === v ? 'selected' : ''}>${v}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control default-style" placeholder="Default Style (e.g. calm)" value="${config.default_style || ''}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Clone Options -->
+                                <div class="clone-opts" style="display: ${isClone ? 'block' : 'none'}">
+                                    <div class="alert alert-warning py-1 mb-2"><small>Note: Cloning requires manual file setup currently.</small></div>
+                                    <input type="text" class="form-control ref-text mb-2" placeholder="Reference Text" value="${config.ref_text || ''}">
+                                    <input type="text" class="form-control ref-audio" placeholder="Path to audio file" value="${config.ref_audio || ''}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.toggleVoiceType = (radio) => {
+            const card = radio.closest('.card-body');
+            const customOpts = card.querySelector('.custom-opts');
+            const cloneOpts = card.querySelector('.clone-opts');
+            if (radio.value === 'custom') {
+                customOpts.style.display = 'block';
+                cloneOpts.style.display = 'none';
+            } else {
+                customOpts.style.display = 'none';
+                cloneOpts.style.display = 'block';
+            }
+        };
+
+        document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
+             // Trigger parse
+             try {
+                await API.post('/api/parse_voices', {});
+                // Wait a bit for it to run (it's fast)
+                setTimeout(loadVoices, 1000);
+            } catch (e) {
+                console.error(e);
+            }
+        });
+
+        async function loadVoices() {
+            const voices = await API.get('/api/voices');
+            const container = document.getElementById('voices-list');
+            if (voices.length === 0) {
+                container.innerHTML = '<div class="alert alert-info">No voices found. Generate a script first.</div>';
+                return;
+            }
+            container.innerHTML = voices.map((v, i) => createVoiceCard(v, i)).join('');
+        }
+
+        document.getElementById('btn-save-voices').addEventListener('click', async () => {
+            const cards = document.querySelectorAll('.voice-card');
+            const config = {};
+
+            cards.forEach(card => {
+                const name = card.dataset.voice;
+                const type = card.querySelector('.voice-type:checked').value;
+
+                if (type === 'custom') {
+                    config[name] = {
+                        type: 'custom',
+                        voice: card.querySelector('.voice-select').value,
+                        default_style: card.querySelector('.default-style').value,
+                        seed: "-1"
+                    };
+                } else {
+                    config[name] = {
+                        type: 'clone',
+                        ref_text: card.querySelector('.ref-text').value,
+                        ref_audio: card.querySelector('.ref-audio').value,
+                        seed: "-1"
+                    };
+                }
+            });
+
+            try {
+                await API.post('/api/save_voice_config', config);
+                alert('Voice configuration saved!');
+            } catch (e) {
+                alert('Error saving voices: ' + e.message);
+            }
+        });
+
+        // --- Audio Tab ---
+        document.getElementById('btn-gen-audio').addEventListener('click', async () => {
+            try {
+                await API.post('/api/generate_audiobook', {});
+                pollLogs('audio', 'audio-logs');
+            } catch (e) {
+                alert("Failed to start audio gen: " + e.message);
+            }
+        });
+
+        // --- Polling Logic ---
+        async function pollLogs(taskName, elementId) {
+            const el = document.getElementById(elementId);
+            const interval = setInterval(async () => {
+                try {
+                    const status = await API.get(`/api/status/${taskName}`);
+                    el.innerText = status.logs.join('\n');
+                    el.scrollTop = el.scrollHeight;
+
+                    if (!status.running) {
+                        clearInterval(interval);
+                        if (taskName === 'audio' && status.logs.some(l => l.includes("complete"))) {
+                            // Load audio player
+                            const audio = document.getElementById('main-audio');
+                            audio.src = `/api/audiobook?t=${new Date().getTime()}`;
+                            document.getElementById('audio-player-container').style.display = 'block';
+                            document.getElementById('download-link').href = audio.src;
+                        }
+                    }
+                } catch (e) {
+                    console.error("Poll error", e);
+                    clearInterval(interval);
+                }
+            }, 1000);
+        }
+
+        // Init
+        loadConfig();
+        loadVoices();
+    </script>
+</body>
+</html>

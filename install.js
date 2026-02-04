@@ -7,10 +7,16 @@ module.exports = {
   }, {
     method: "shell.run",
     params: {
+      path: "app",
+      message: "python -m venv env"
+    }
+  }, {
+    method: "shell.run",
+    params: {
       venv: "env",
       path: "app",
       message: [
-        "uv pip uninstall google-genai", // Uninstall google-genai
+        "uv pip uninstall google-genai",
         "uv pip install -r requirements.txt"
       ]
     }

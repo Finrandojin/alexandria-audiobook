@@ -4,3 +4,6 @@ pydub
 requests
 openai
 gradio_client
+python-multipart
+aiofiles
+jinja2
