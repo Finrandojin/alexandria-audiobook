@@ -1,23 +1,34 @@
-<img width="475" height="467" alt="Gemini_Generated_Image_yk5astyk5astyk5a" src="https://github.com/user-attachments/assets/fa2c36d3-a5f3-49ab-9dfe-30933359dfbd" />
-
+<img width="475" height="467" alt="Alexandria Logo" src="https://github.com/user-attachments/assets/fa2c36d3-a5f3-49ab-9dfe-30933359dfbd" />
 
 # Alexandria Audiobook Generator
 
-Transform any book or novel into a fully-voiced audioplay using AI-powered script annotation and styled TTS.
+Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and styled text-to-speech. Features a browser-based editor for fine-tuning every line before final export.
 
 ## Features
 
+### AI-Powered Pipeline
 - **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
-- **LLM Script Annotation** - Parses your text into a JSON script with speakers, dialogue, and style directions
-- **Non-verbal Sounds** - Supports `[laughs]`, `[sighs]`, `[gasps]`, and other vocalizations inline with dialogue
-- **Style Instructions** - Per-line delivery directions like "nervous, whispered" or "angry, shouting"
-- **Two Voice Modes:**
-  - **Custom Voices** - 9 pre-trained voices with style direction support
-  - **Voice Cloning** - Clone any voice from a reference audio sample
+- **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and style directions
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
-- **Natural Pauses** - Automatic delays between speakers and segments
-- **Audioplay Export** - Individual voiceline files for audio editing (Audacity, etc.)
-- **Robust Parsing** - Handles thinking tags, markdown, and control characters from local LLMs
+- **Context Preservation** - Maintains character consistency across chunks during generation
+
+### Voice Generation
+- **Custom Voices** - 9 pre-trained voices with full style direction support
+- **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
+- **Non-verbal Sounds** - Supports `[laughs]`, `[sighs]`, `[gasps]`, and 20+ vocalizations
+- **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
+
+### Web UI Editor
+- **5-Tab Interface** - Setup, Script Generation, Voice Configuration, Editor, Results
+- **Chunk Editor** - Edit speaker, text, and style for any line
+- **Selective Regeneration** - Re-render individual chunks without regenerating everything
+- **Batch Processing** - Render all pending chunks or regenerate entire audiobook
+- **Live Progress** - Real-time logs and status tracking for all operations
+- **Audio Preview** - Play individual chunks or sequence through the entire audiobook
+
+### Export Options
+- **Combined Audiobook** - Single MP3 with all voices and natural pauses
+- **Individual Voicelines** - Separate MP3 per line for DAW editing (Audacity, etc.)
 
 ## Requirements
 
@@ -37,47 +48,68 @@ Transform any book or novel into a fully-voiced audioplay using AI-powered scrip
    https://github.com/Finrandojin/alexandria-audiobook
    ```
 3. Click **Install** to set up dependencies
-4. Click **Configure** and enter:
-   - **LLM Base URL**:
-     - LM Studio: `http://localhost:1234/v1`
-     - Ollama: `http://localhost:11434/v1`
-     - OpenAI: `https://api.openai.com/v1`
+4. Click **Start** to launch the web interface
+
+## Quick Start
+
+1. **Setup Tab** - Configure your LLM and TTS servers:
+   - **LLM Base URL**: `http://localhost:1234/v1` (LM Studio) or `http://localhost:11434/v1` (Ollama)
    - **LLM API Key**: Your API key (use `local` for local servers)
-   - **LLM Model Name**: The model to use (check your server's loaded model)
+   - **LLM Model Name**: The model to use (e.g., `qwen2.5-14b`)
    - **TTS Server URL**: Default `http://127.0.0.1:7860`
 
-## Usage
+2. **Script Tab** - Upload your book (.txt or .md) and click "Generate Annotated Script"
 
-1. **Select File** - Choose your book/novel text file (.txt or .md)
-2. **Generate Script** - LLM creates JSON script with speakers, text, style, and non-verbals
-3. **Parse Voices** - Extracts unique speakers from script
-4. **Configure Voices** - For each speaker, choose:
-   - **Custom Voice**: Pick from 9 pre-trained voices + style direction
-   - **Clone Voice**: Provide reference audio + transcript (style ignored)
-5. **Generate Audiobook** - Creates final MP3 and individual voicelines
+3. **Voices Tab** - Click "Refresh Voices" then configure each speaker:
+   - Choose Custom Voice (with style) or Clone Voice (from reference audio)
+   - Set voice parameters and save
 
-## Voice Options
+4. **Editor Tab** - Review and edit chunks:
+   - Click "Batch Render Pending" to generate all audio
+   - Edit any chunk's text/style/speaker and regenerate individually
+   - Click "Merge All" when satisfied
 
-### Custom Voices (with style direction)
-Pre-trained voices that respond to style instructions from the script:
-- Aiden, Dylan, Eric, Ono_anna, Ryan, Serena, Sohee, Uncle_fu, Vivian
+5. **Result Tab** - Download your finished audiobook
 
-Configuration:
-- Voice selection
-- Default style (e.g., "calm, professional narrator")
-- Seed for reproducible output (-1 for random)
+## Web Interface
 
-### Clone Voices (from reference audio)
-Clone any voice using a short audio sample:
-- Provide 5-15 seconds of clear speech
-- Include exact transcript of the reference audio
-- Voice characteristics captured from sample
+### Setup Tab
+Configure connections to your LLM and TTS servers. Optionally customize the system and user prompts used for script generation.
 
-Note: Style directions from the script are ignored for cloned voices.
+### Script Tab
+Upload a text file and generate the annotated script. The LLM converts your book into a structured JSON format with:
+- Speaker identification (NARRATOR vs character names)
+- Dialogue text with non-verbal cues
+- Style directions for TTS delivery
+
+### Voices Tab
+After script generation, parse voices to see all speakers. For each:
+
+**Custom Voice Mode:**
+- Select from 9 pre-trained voices: Aiden, Dylan, Eric, Ono_anna, Ryan, Serena, Sohee, Uncle_fu, Vivian
+- Set a default style (e.g., "calm, professional narrator")
+- Optionally set a seed for reproducible output
+
+**Clone Voice Mode:**
+- Upload 5-15 seconds of clear reference audio
+- Provide the exact transcript of the reference
+- Note: Style directions are ignored for cloned voices
+
+### Editor Tab
+Fine-tune your audiobook before export:
+- **View all chunks** in a table with status indicators
+- **Edit inline** - Click to modify speaker, text, or style
+- **Generate single** - Regenerate just one chunk after editing
+- **Batch render** - Process all pending chunks
+- **Play sequence** - Preview audio playback in order
+- **Merge all** - Combine chunks into final audiobook
+
+### Result Tab
+Download your completed audiobook as MP3.
 
 ## Script Format
 
-The generated script is a JSON array with style directions and non-verbal cues:
+The generated script is a JSON array:
 
 ```json
 [
@@ -88,34 +120,218 @@ The generated script is a JSON array with style directions and non-verbal cues:
 ```
 
 ### Supported Non-verbal Sounds
-`[laughs]`, `[chuckles]`, `[giggles]`, `[sighs]`, `[gasps]`, `[groans]`, `[moans]`, `[whimpers]`, `[sobs]`, `[cries]`, `[sniffs]`, `[whispers]`, `[shouts]`, `[screams]`, `[clears throat]`, `[coughs]`, `[pauses]`, `[hesitates]`, `[stammers]`, `[gulps]`
+`[laughs]`, `[chuckles]`, `[giggles]`, `[scoffs]`, `[sighs]`, `[gasps]`, `[groans]`, `[moans]`, `[whimpers]`, `[sobs]`, `[cries]`, `[sniffs]`, `[whispers]`, `[shouts]`, `[screams]`, `[yells]`, `[clears throat]`, `[coughs]`, `[pauses]`, `[hesitates]`, `[stammers]`, `[gulps]`, `[snorts]`, `[hums]`, `[growls]`, `[purrs]`, `[shivers]`
 
-## Output
+## Output Files
 
-**Combined Audiobook:**
-- `cloned_audiobook.mp3` - Full audiobook with natural pauses
+**Final Audiobook:**
+- `cloned_audiobook.mp3` - Combined audiobook with natural pauses
 
-**Individual Voicelines (for audio editing):**
-- `voicelines/voiceline_0001_narrator.mp3`
-- `voicelines/voiceline_0002_elena.mp3`
-- `voicelines/voiceline_0003_marcus.mp3`
-- ...
+**Individual Voicelines (for DAW editing):**
+```
+voicelines/
+├── voiceline_0001_narrator.mp3
+├── voiceline_0002_elena.mp3
+├── voiceline_0003_marcus.mp3
+└── ...
+```
 
-Files are numbered in timeline order and include the speaker name, making it easy to:
+Files are numbered in timeline order with speaker names for easy:
 - Import into Audacity or other DAWs
-- Place each character on separate tracks
-- Color-code by speaker
-- Fine-tune timing and effects
+- Placement on separate character tracks
+- Fine-tuning of timing and effects
 
-## Recommended Local Models
+## API Reference
+
+Alexandria exposes a REST API for programmatic access:
+
+### Configuration
+```bash
+# Get current config
+curl http://127.0.0.1:4200/api/config
+
+# Save config
+curl -X POST http://127.0.0.1:4200/api/config \
+  -H "Content-Type: application/json" \
+  -d '{"llm": {"base_url": "...", "api_key": "...", "model_name": "..."}}'
+```
+
+### Script Generation
+```bash
+# Upload text file
+curl -X POST http://127.0.0.1:4200/api/upload \
+  -F "file=@mybook.txt"
+
+# Generate script (returns task ID)
+curl -X POST http://127.0.0.1:4200/api/generate_script
+
+# Check status
+curl http://127.0.0.1:4200/api/status/script_generation
+```
+
+### Voice Management
+```bash
+# Get voices and config
+curl http://127.0.0.1:4200/api/voices
+
+# Parse voices from script
+curl -X POST http://127.0.0.1:4200/api/parse_voices
+
+# Save voice config
+curl -X POST http://127.0.0.1:4200/api/save_voice_config \
+  -H "Content-Type: application/json" \
+  -d '{"NARRATOR": {"type": "custom", "voice": "Ryan", "default_style": "calm"}}'
+```
+
+### Chunk Management
+```bash
+# Get all chunks
+curl http://127.0.0.1:4200/api/chunks
+
+# Update a chunk
+curl -X POST http://127.0.0.1:4200/api/chunks/5 \
+  -H "Content-Type: application/json" \
+  -d '{"text": "Updated dialogue", "style": "excited"}'
+
+# Generate audio for single chunk
+curl -X POST http://127.0.0.1:4200/api/chunks/5/generate
+
+# Merge all chunks into final audiobook
+curl -X POST http://127.0.0.1:4200/api/merge
+```
+
+### Audio Generation
+```bash
+# Generate full audiobook (legacy, bypasses editor)
+curl -X POST http://127.0.0.1:4200/api/generate_audiobook
+
+# Download audiobook
+curl http://127.0.0.1:4200/api/audiobook --output audiobook.mp3
+```
+
+## Python Integration
+
+```python
+import requests
+
+BASE = "http://127.0.0.1:4200"
+
+# Upload and generate script
+with open("mybook.txt", "rb") as f:
+    requests.post(f"{BASE}/api/upload", files={"file": f})
+
+requests.post(f"{BASE}/api/generate_script")
+
+# Poll for completion
+import time
+while True:
+    status = requests.get(f"{BASE}/api/status/script_generation").json()
+    if status.get("status") in ["completed", "error"]:
+        break
+    time.sleep(2)
+
+# Configure voices
+voice_config = {
+    "NARRATOR": {"type": "custom", "voice": "Ryan", "default_style": "calm narrator"},
+    "HERO": {"type": "custom", "voice": "Aiden", "default_style": "brave, determined"}
+}
+requests.post(f"{BASE}/api/save_voice_config", json=voice_config)
+
+# Generate and download
+requests.post(f"{BASE}/api/generate_audiobook")
+# ... poll status ...
+with open("output.mp3", "wb") as f:
+    f.write(requests.get(f"{BASE}/api/audiobook").content)
+```
+
+## JavaScript Integration
+
+```javascript
+const BASE = "http://127.0.0.1:4200";
+
+// Upload file
+const formData = new FormData();
+formData.append("file", fileInput.files[0]);
+await fetch(`${BASE}/api/upload`, { method: "POST", body: formData });
+
+// Generate script
+await fetch(`${BASE}/api/generate_script`, { method: "POST" });
+
+// Poll for completion
+async function waitForTask(taskName) {
+  while (true) {
+    const res = await fetch(`${BASE}/api/status/${taskName}`);
+    const data = await res.json();
+    if (data.status === "completed" || data.status === "error") return data;
+    await new Promise(r => setTimeout(r, 2000));
+  }
+}
+await waitForTask("script_generation");
+
+// Configure and generate
+await fetch(`${BASE}/api/save_voice_config`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    NARRATOR: { type: "custom", voice: "Ryan", default_style: "calm" }
+  })
+});
+
+await fetch(`${BASE}/api/generate_audiobook`, { method: "POST" });
+await waitForTask("audiobook_generation");
+```
+
+## Recommended LLM Models
 
 For script generation, non-thinking models work best:
-- **Qwen2.5** (any size)
+- **Qwen2.5** (any size) - Excellent JSON output
 - **Qwen3** (non-thinking variant)
-- **Llama 3.1/3.2**
-- **Mistral/Mixtral**
+- **Llama 3.1/3.2** - Good character distinction
+- **Mistral/Mixtral** - Fast and reliable
 
-Avoid "thinking" models (DeepSeek-R1, GLM4-air, etc.) as they can interfere with JSON output.
+**Avoid** thinking models (DeepSeek-R1, GLM4-air, etc.) as they can interfere with JSON output.
+
+## Troubleshooting
+
+### Script generation fails
+- Check LLM server is running and accessible
+- Verify model name matches what's loaded
+- Try a different model - some struggle with JSON output
+
+### TTS generation fails
+- Ensure Qwen3-TTS is running at the configured URL
+- Check voice_config.json has valid settings for all speakers
+- For clone voices, verify reference audio exists and transcript is accurate
+
+### Audio quality issues
+- Use 5-15 second clear reference audio for cloning
+- Avoid background noise in reference samples
+- Try different seeds for custom voices
+
+### Mojibake characters in output
+- The system automatically fixes common encoding issues
+- If problems persist, ensure your input text is UTF-8 encoded
+
+## Project Structure
+
+```
+Alexandria/
+├── app/
+│   ├── app.py                 # FastAPI server
+│   ├── generate_script.py     # LLM script annotation
+│   ├── generate_audiobook.py  # Batch TTS generation
+│   ├── tts.py                 # TTS abstraction layer
+│   ├── project.py             # Chunk management
+│   ├── parse_voices.py        # Voice extraction
+│   ├── static/index.html      # Web UI
+│   └── requirements.txt       # Python dependencies
+├── install.js                 # Pinokio installer
+├── start.js                   # Pinokio launcher
+├── reset.js                   # Reset script
+├── pinokio.js                 # Pinokio UI config
+├── pinokio.json               # Pinokio metadata
+└── README.md
+```
 
 ## License
 
