@@ -23,3 +23,15 @@ app/output_audio/
 /GEMINI.md
 /QWEN.md
 /SPEC.md
+
+# Generated runtime files
+chunks.json
+error_screenshot.png
+app/error_screenshot.png
+
+# Python cache
+__pycache__/
+*.pyc
+
+# User uploads
+app/uploads/
