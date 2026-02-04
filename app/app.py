@@ -204,7 +204,7 @@ async def generate_script(background_tasks: BackgroundTasks):
     if process_state["script"]["running"]:
          raise HTTPException(status_code=400, detail="Script generation already running")
 
-    background_tasks.add_task(run_process, [sys.executable, "generate_script.py", input_file], "script")
+    background_tasks.add_task(run_process, [sys.executable, "-u", "generate_script.py", input_file], "script")
     return {"status": "started"}
 
 @app.get("/api/status/{task_name}")
@@ -245,7 +245,7 @@ async def parse_voices(background_tasks: BackgroundTasks):
     if process_state["voices"]["running"]:
          raise HTTPException(status_code=400, detail="Voice parsing already running")
 
-    background_tasks.add_task(run_process, [sys.executable, "parse_voices.py"], "voices")
+    background_tasks.add_task(run_process, [sys.executable, "-u", "parse_voices.py"], "voices")
     return {"status": "started"}
 
 @app.post("/api/save_voice_config")
@@ -275,7 +275,7 @@ async def generate_audiobook_endpoint(background_tasks: BackgroundTasks):
     if process_state["audio"]["running"]:
          raise HTTPException(status_code=400, detail="Audio generation already running")
 
-    background_tasks.add_task(run_process, [sys.executable, "generate_audiobook.py"], "audio")
+    background_tasks.add_task(run_process, [sys.executable, "-u", "generate_audiobook.py"], "audio")
     return {"status": "started"}
 
 @app.get("/api/audiobook")

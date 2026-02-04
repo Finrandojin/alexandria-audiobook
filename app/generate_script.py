@@ -245,17 +245,20 @@ def main():
 
     # Load LLM config
     config_path = os.path.join(os.path.dirname(__file__), "config.json")
-    if not os.path.exists(config_path):
-        print("Error: config.json not found. Please run configure.js first.")
-        sys.exit(1)
-
-    with open(config_path, "r") as f:
-        config = json.load(f)
+    config = {}
+    if os.path.exists(config_path):
+        try:
+            with open(config_path, "r") as f:
+                config = json.load(f)
+        except Exception as e:
+            print(f"Warning: Failed to load config.json: {e}")
+    else:
+        print("Warning: config.json not found. Using defaults.")
 
     llm_config = config.get("llm", {})
-    base_url = llm_config.get("base_url", "http://localhost:1234/v1")
+    base_url = llm_config.get("base_url", "http://localhost:11434/v1")
     api_key = llm_config.get("api_key", "local")
-    model_name = llm_config.get("model_name", "local-model")
+    model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
