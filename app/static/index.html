@@ -87,6 +87,27 @@
                             <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
                         </div>
 
+                        <h5 class="mb-3 mt-4">
+                            <a class="text-decoration-none" data-bs-toggle="collapse" href="#promptSettings" role="button" aria-expanded="false">
+                                <i class="fas fa-chevron-right me-2" id="prompt-chevron"></i>Prompt Settings (Advanced)
+                            </a>
+                        </h5>
+                        <div class="collapse" id="promptSettings">
+                            <div class="mb-3">
+                                <label class="form-label">System Prompt</label>
+                                <textarea class="form-control font-monospace" id="system-prompt" rows="12" style="font-size: 0.85em;"></textarea>
+                                <div class="form-text">Instructions for the LLM on how to convert text to script. Defines output format, rules, and style guidelines.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">User Prompt Template</label>
+                                <textarea class="form-control font-monospace" id="user-prompt" rows="4" style="font-size: 0.85em;"></textarea>
+                                <div class="form-text">Template for each chunk. Use <code>{context}</code> for chunk context and <code>{chunk}</code> for the text content.</div>
+                            </div>
+                            <button type="button" class="btn btn-outline-secondary btn-sm mb-3" onclick="resetPrompts()">
+                                <i class="fas fa-undo me-1"></i>Reset to Defaults
+                            </button>
+                        </div>
+
                         <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Save Configuration</button>
                     </form>
                 </div>
@@ -154,7 +175,8 @@
                      <h4 class="m-0"><span class="step-indicator step-active">4</span>Audio Editor</h4>
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
-                        <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll()"><i class="fas fa-layer-group me-1"></i>Render All</button>
+                        <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
+                        <button class="btn btn-outline-success btn-sm" id="btn-regen-all" onclick="renderAll(true)"><i class="fas fa-redo me-1"></i>Regenerate All</button>
                         <button class="btn btn-danger btn-sm" id="btn-cancel-render" onclick="cancelRender()" style="display:none;"><i class="fas fa-stop me-1"></i>Cancel</button>
                         <button class="btn btn-warning btn-sm" id="btn-merge"><i class="fas fa-file-audio me-1"></i>Merge All</button>
                      </div>
@@ -274,17 +296,81 @@
         };
 
         // --- Setup Tab ---
+
+        // Default prompts (factory defaults for reset)
+        const DEFAULT_SYSTEM_PROMPT = `You are a script writer converting books/novels into audioplay scripts. Output ONLY valid JSON arrays, no markdown, no explanations.
+
+OUTPUT FORMAT:
+[
+  {"speaker": "NARRATOR", "text": "Description text here.", "style": "tone direction"},
+  {"speaker": "CHARACTER", "text": "Dialogue here.", "style": "emotional direction"}
+]
+
+FIELDS:
+- "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
+- "text": The spoken text, with bracketed non-verbal sounds where appropriate
+- "style": Acting direction for the voice actor. Describe HOW to deliver the line - voice quality, pacing, emphasis, emotional undertone.
+
+NON-VERBAL SOUNDS - Include where emotionally appropriate:
+[sighs], [laughs], [chuckles], [giggles], [scoffs], [gasps], [groans], [moans],
+[whimpers], [sobs], [cries], [sniffs], [whispers], [shouts], [screams],
+[clears throat], [coughs], [pauses], [hesitates], [stammers], [gulps]
+
+RULES:
+1. FIRST-PERSON vs THIRD-PERSON:
+   - "I", "my", "me" (first-person) = use CHARACTER'S NAME, NOT "NARRATOR"
+   - "He", "She", "The" (third-person) = use "NARRATOR"
+2. Break long passages into chunks under 400 characters each
+3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
+4. Always output COMPLETE sentences
+5. Output ONLY valid JSON array - no markdown, no code blocks
+6. STYLE should be a detailed acting direction (1-2 sentences) describing voice quality, pacing, emphasis, and emotional undertone
+7. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene.`;
+
+        const DEFAULT_USER_PROMPT = `Convert this text into an audioplay script JSON array:
+
+{context}
+{chunk}`;
+
         async function loadConfig() {
+            // Set defaults immediately so fields are never empty
+            document.getElementById('system-prompt').value = DEFAULT_SYSTEM_PROMPT;
+            document.getElementById('user-prompt').value = DEFAULT_USER_PROMPT;
+
             try {
                 const config = await API.get('/api/config');
                 document.getElementById('llm-url').value = config.llm.base_url;
                 document.getElementById('llm-key').value = config.llm.api_key;
                 document.getElementById('llm-model').value = config.llm.model_name;
                 document.getElementById('tts-url').value = config.tts.url;
+
+                // Load custom prompts if they exist and are non-empty
+                if (config.prompts) {
+                    if (config.prompts.system_prompt) {
+                        document.getElementById('system-prompt').value = config.prompts.system_prompt;
+                    }
+                    if (config.prompts.user_prompt) {
+                        document.getElementById('user-prompt').value = config.prompts.user_prompt;
+                    }
+                }
             } catch (e) {
                 console.error("Failed to load config", e);
             }
         }
+
+        // Reset prompts to factory defaults
+        window.resetPrompts = () => {
+            document.getElementById('system-prompt').value = DEFAULT_SYSTEM_PROMPT;
+            document.getElementById('user-prompt').value = DEFAULT_USER_PROMPT;
+        };
+
+        // Toggle chevron on collapse
+        document.getElementById('promptSettings')?.addEventListener('show.bs.collapse', () => {
+            document.getElementById('prompt-chevron').classList.replace('fa-chevron-right', 'fa-chevron-down');
+        });
+        document.getElementById('promptSettings')?.addEventListener('hide.bs.collapse', () => {
+            document.getElementById('prompt-chevron').classList.replace('fa-chevron-down', 'fa-chevron-right');
+        });
 
         document.getElementById('config-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -296,6 +382,10 @@
                 },
                 tts: {
                     url: document.getElementById('tts-url').value
+                },
+                prompts: {
+                    system_prompt: document.getElementById('system-prompt').value,
+                    user_prompt: document.getElementById('user-prompt').value
                 }
             };
             try {
@@ -451,18 +541,93 @@
         // --- Editor Tab ---
         let isPlayingSequence = false;
         let isRenderingAll = false;
+        let cachedChunks = []; // Cache to track changes
 
-        async function loadChunks() {
+        // Check if any audio is currently playing
+        function isAudioPlaying() {
+            const audios = document.querySelectorAll('audio');
+            for (const audio of audios) {
+                if (!audio.paused && !audio.ended) return true;
+            }
+            return false;
+        }
+
+        // Update only changed rows instead of full redraw
+        function updateChunkRow(chunk) {
+            const tr = document.querySelector(`tr[data-id="${chunk.id}"]`);
+            if (!tr) return false;
+
+            const statusColor = chunk.status === 'done' ? 'success' :
+                              chunk.status === 'generating' ? 'warning' :
+                              chunk.status === 'error' ? 'danger' : 'secondary';
+
+            // Update status badge
+            const badge = tr.querySelector('.badge');
+            if (badge) {
+                badge.className = `badge bg-${statusColor}`;
+                badge.innerText = chunk.status;
+            }
+
+            // Update action area (button/progress)
+            const actionContainer = tr.querySelector('.d-flex');
+            if (actionContainer) {
+                const existingBtn = actionContainer.querySelector('button');
+                const existingProgress = actionContainer.querySelector('.progress');
+
+                if (chunk.status === 'generating') {
+                    if (existingBtn && !existingProgress) {
+                        const progressBar = document.createElement('div');
+                        progressBar.className = 'progress';
+                        progressBar.style.width = '100px';
+                        progressBar.style.height = '20px';
+                        progressBar.innerHTML = '<div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>';
+                        actionContainer.replaceChild(progressBar, existingBtn);
+                    }
+                } else {
+                    if (existingProgress && !existingBtn) {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn btn-sm btn-primary';
+                        btn.onclick = () => generateChunk(chunk.id);
+                        btn.innerHTML = '<i class="fas fa-play"></i> Gen';
+                        actionContainer.replaceChild(btn, existingProgress);
+                    }
+                }
+
+                // Update audio player when status is done - always refresh src to bust cache
+                if (chunk.status === 'done' && chunk.audio_path) {
+                    const existingAudio = actionContainer.querySelector('audio');
+                    const existingNoAudio = actionContainer.querySelector('.text-muted');
+                    const newSrc = `/${chunk.audio_path}?t=${Date.now()}`;
+
+                    if (existingNoAudio) {
+                        // No audio element yet, create one
+                        const audioHtml = `<audio class="chunk-audio" data-id="${chunk.id}" controls src="${newSrc}" style="width: 200px; height: 30px;" onplay="stopOthers(${chunk.id})"></audio>`;
+                        existingNoAudio.outerHTML = audioHtml;
+                    } else if (existingAudio) {
+                        // Audio exists - just update the src with new cache-busting timestamp
+                        // This forces browser to fetch the regenerated file
+                        existingAudio.src = newSrc;
+                        existingAudio.load(); // Force reload
+                    }
+                }
+            }
+            return true;
+        }
+
+        async function loadChunks(forceFullRedraw = false) {
             const tbody = document.getElementById('chunks-table-body');
-            // Only show loading if empty to prevent flicker
-            if (tbody.children.length === 0) {
-                 tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading chunks...</td></tr>';
+
+            // Show loading only if empty
+            if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.children[0].children.length === 1)) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading chunks...</td></tr>';
+                forceFullRedraw = true;
             }
 
             try {
                 const chunks = await API.get('/api/chunks');
                 if (chunks.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center">No chunks found. Please generate script first.</td></tr>';
+                    cachedChunks = [];
                     return;
                 }
 
@@ -476,44 +641,71 @@
                     progressBar.innerText = `${percentage}% (${completed}/${total})`;
                 }
 
-                // Do not redraw if user is interacting or playing (simple check)
-                if (isPlayingSequence) return;
+                // Skip redraw if playing audio (unless forced)
+                if (!forceFullRedraw && (isPlayingSequence || isAudioPlaying())) {
+                    // Only update status badges and progress indicators
+                    chunks.forEach(chunk => updateChunkRow(chunk));
+                    cachedChunks = chunks;
 
-                tbody.innerHTML = chunks.map(chunk => {
-                    const statusColor = chunk.status === 'done' ? 'success' :
-                                      chunk.status === 'generating' ? 'warning' :
-                                      chunk.status === 'error' ? 'danger' : 'secondary';
+                    // Continue polling if generating
+                    if (chunks.some(c => c.status === 'generating')) {
+                        setTimeout(() => loadChunks(false), 2000);
+                    }
+                    return;
+                }
 
-                    const audioPlayer = chunk.audio_path ?
-                        `<audio class="chunk-audio" data-id="${chunk.id}" controls src="/${chunk.audio_path}?t=${Date.now()}" style="width: 200px; height: 30px;" onplay="stopOthers(${chunk.id})"></audio>` :
-                        '<span class="text-muted small">No audio</span>';
+                // Check if we can do incremental update
+                const canIncrement = !forceFullRedraw &&
+                                    cachedChunks.length === chunks.length &&
+                                    tbody.children.length === chunks.length;
 
-                    // Section Progress Bar (Indeterminate)
-                    const actionArea = chunk.status === 'generating' ?
-                        `<div class="progress" style="width: 100px; height: 20px;">
-                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
-                         </div>` :
-                        `<button class="btn btn-sm btn-primary" onclick="generateChunk(${chunk.id})"><i class="fas fa-play"></i> Gen</button>`;
+                if (canIncrement) {
+                    // Incremental update - only update changed rows
+                    chunks.forEach((chunk, i) => {
+                        const cached = cachedChunks[i];
+                        if (!cached || cached.status !== chunk.status || cached.audio_path !== chunk.audio_path) {
+                            updateChunkRow(chunk);
+                        }
+                    });
+                } else {
+                    // Full redraw needed
+                    tbody.innerHTML = chunks.map(chunk => {
+                        const statusColor = chunk.status === 'done' ? 'success' :
+                                          chunk.status === 'generating' ? 'warning' :
+                                          chunk.status === 'error' ? 'danger' : 'secondary';
 
-                    return `
-                        <tr data-id="${chunk.id}">
-                            <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
-                            <td><textarea class="form-control form-control-sm" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
-                            <td><input type="text" class="form-control form-control-sm" value="${chunk.style || ''}" onchange="updateChunk(${chunk.id}, 'style', this.value)"></td>
-                            <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    ${actionArea}
-                                    ${audioPlayer}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                        const audioPlayer = chunk.audio_path ?
+                            `<audio class="chunk-audio" data-id="${chunk.id}" controls src="/${chunk.audio_path}?t=${Date.now()}" style="width: 200px; height: 30px;" onplay="stopOthers(${chunk.id})"></audio>` :
+                            '<span class="text-muted small">No audio</span>';
 
-                // If any chunk is generating, poll
+                        const actionArea = chunk.status === 'generating' ?
+                            `<div class="progress" style="width: 100px; height: 20px;">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
+                             </div>` :
+                            `<button class="btn btn-sm btn-primary" onclick="generateChunk(${chunk.id})"><i class="fas fa-play"></i> Gen</button>`;
+
+                        return `
+                            <tr data-id="${chunk.id}">
+                                <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
+                                <td><textarea class="form-control form-control-sm" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
+                                <td><input type="text" class="form-control form-control-sm" value="${chunk.style || ''}" onchange="updateChunk(${chunk.id}, 'style', this.value)"></td>
+                                <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        ${actionArea}
+                                        ${audioPlayer}
+                                    </div>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+
+                cachedChunks = chunks;
+
+                // If any chunk is generating, poll (without full redraw)
                 if (chunks.some(c => c.status === 'generating')) {
-                    setTimeout(loadChunks, 2000);
+                    setTimeout(() => loadChunks(false), 2000);
                 }
 
             } catch (e) {
@@ -626,8 +818,38 @@
             }
         };
 
+        // Save all pending edits from a row before generation
+        async function saveRowEdits(id) {
+            const tr = document.querySelector(`tr[data-id="${id}"]`);
+            if (!tr) return;
+
+            const inputs = tr.querySelectorAll('input, textarea');
+            const data = {};
+
+            inputs.forEach(input => {
+                const changeHandler = input.getAttribute('onchange');
+                if (changeHandler) {
+                    // Extract field name from onchange="updateChunk(id, 'field', this.value)"
+                    const match = changeHandler.match(/updateChunk\(\d+,\s*'(\w+)'/);
+                    if (match) {
+                        data[match[1]] = input.value;
+                    }
+                }
+            });
+
+            // Save all fields at once
+            if (Object.keys(data).length > 0) {
+                console.log(`Saving chunk ${id} with data:`, data);
+                await API.post(`/api/chunks/${id}`, data);
+                console.log(`Chunk ${id} saved successfully`);
+            }
+        }
+
         window.generateChunk = async (id) => {
             try {
+                // First, save any pending edits in this row
+                await saveRowEdits(id);
+
                 // Optimistic UI update
                 const tr = document.querySelector(`tr[data-id="${id}"]`);
                 if (tr) {
@@ -650,42 +872,50 @@
 
                 await API.post(`/api/chunks/${id}/generate`, {});
 
-                // Start polling (or just wait a bit and reload)
-                setTimeout(loadChunks, 1000);
+                // Start polling with incremental updates (no full redraw)
+                setTimeout(() => loadChunks(false), 1000);
             } catch (e) {
                 alert("Failed to start generation: " + e.message);
-                loadChunks(); // Revert UI
+                loadChunks(true); // Revert UI with full redraw
             }
         };
 
         window.cancelRender = () => {
             isRenderingAll = false;
             document.getElementById('btn-render-all').style.display = 'inline-block';
+            document.getElementById('btn-regen-all').style.display = 'inline-block';
             document.getElementById('btn-cancel-render').style.display = 'none';
         };
 
-        window.renderAll = async () => {
+        window.renderAll = async (regenerateAll = false) => {
             isRenderingAll = true;
             document.getElementById('btn-render-all').style.display = 'none';
+            document.getElementById('btn-regen-all').style.display = 'none';
             document.getElementById('btn-cancel-render').style.display = 'inline-block';
 
             try {
                 const chunks = await API.get('/api/chunks');
-                const pending = chunks.filter(c => c.status !== 'done');
+                const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
 
-                if (pending.length === 0) {
+                if (toProcess.length === 0) {
                     alert("All chunks are already rendered!");
                     cancelRender();
                     return;
                 }
 
-                // Sequential processing
-                for (const chunk of pending) {
+                if (regenerateAll && !confirm(`Regenerate all ${chunks.length} chunks? This will replace existing audio.`)) {
+                    cancelRender();
+                    return;
+                }
+
+                // Sequential processing (no auto-scroll to avoid focus stealing)
+                for (const chunk of toProcess) {
                     if (!isRenderingAll) break;
 
-                    // Scroll to row
+                    // Highlight current row without scrolling
+                    document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
                     const tr = document.querySelector(`tr[data-id="${chunk.id}"]`);
-                    if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (tr) tr.classList.add('table-info');
 
                     // Use the existing generateChunk function to initiate
                     await generateChunk(chunk.id);
@@ -699,8 +929,8 @@
                             const updated = allChunks.find(c => c.id === chunk.id);
                             if (updated && (updated.status === 'done' || updated.status === 'error')) {
                                 isDone = true;
-                                // Force refresh to update UI
-                                await loadChunks();
+                                // Update UI without full redraw
+                                await loadChunks(false);
                             }
                         } catch (e) {
                             console.error("Polling error", e);
@@ -711,8 +941,10 @@
                 console.error("Render All error:", e);
                 alert("Error during batch rendering: " + e.message);
             } finally {
+                // Clear highlight
+                document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
                 cancelRender(); // Reset buttons
-                await loadChunks();
+                await loadChunks(false);
             }
         };
 
@@ -757,6 +989,16 @@
                             audio.src = `/api/audiobook?t=${new Date().getTime()}`;
                             document.getElementById('audio-player-container').style.display = 'block';
                             document.getElementById('download-link').href = audio.src;
+                        }
+                        // Refresh editor chunks when script generation completes
+                        if (taskName === 'script' && status.logs.some(l => l.includes("completed successfully"))) {
+                            // Clear cached chunks table so next load shows fresh data
+                            const tbody = document.getElementById('chunks-table-body');
+                            if (tbody) tbody.innerHTML = '';
+                            // If editor tab is visible, refresh immediately
+                            if (document.getElementById('editor-tab').style.display !== 'none') {
+                                loadChunks();
+                            }
                         }
                     }
                 } catch (e) {

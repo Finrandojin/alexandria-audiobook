@@ -116,6 +116,70 @@ def clean_json_string(text):
 
     return json_text
 
+
+def repair_json_array(json_text):
+    """Attempt to repair common JSON array issues from LLM output."""
+    if not json_text:
+        return None
+
+    # Try parsing as-is first
+    try:
+        result = json.loads(json_text)
+        if isinstance(result, list):
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    # Fix 1: Add missing commas between objects (}\s*{" -> },\n{")
+    fixed = re.sub(r'\}\s*\{', '},\n{', json_text)
+    try:
+        result = json.loads(fixed)
+        if isinstance(result, list):
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    # Fix 2: Remove trailing commas before ]
+    fixed = re.sub(r',\s*\]', ']', fixed)
+    try:
+        result = json.loads(fixed)
+        if isinstance(result, list):
+            return result
+    except json.JSONDecodeError:
+        pass
+
+    # Fix 3: Try to extract individual entries and rebuild
+    entries = []
+    # Match individual JSON objects
+    pattern = r'\{\s*"speaker"\s*:\s*"[^"]*"\s*,\s*"text"\s*:\s*"(?:[^"\\]|\\.)*"\s*,\s*"style"\s*:\s*"(?:[^"\\]|\\.)*"\s*\}'
+    matches = re.findall(pattern, json_text, re.DOTALL)
+
+    for match in matches:
+        try:
+            entry = json.loads(match)
+            entries.append(entry)
+        except json.JSONDecodeError:
+            continue
+
+    if entries:
+        return entries
+
+    # Fix 4: Last resort - find last complete entry and truncate
+    last_complete = json_text.rfind('},')
+    if last_complete > 0:
+        try:
+            truncated = json_text[:last_complete+1] + ']'
+            # Ensure it starts with [
+            if not truncated.strip().startswith('['):
+                truncated = '[' + truncated
+            result = json.loads(truncated)
+            if isinstance(result, list):
+                return result
+        except json.JSONDecodeError:
+            pass
+
+    return None
+
 def fix_mojibake(text):
     """Fix common mojibake characters resulting from CP1252-as-UTF8."""
     replacements = {
@@ -170,8 +234,12 @@ def split_into_chunks(text, max_size=3000):
 
     return chunks
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None):
     """Process a text chunk and return JSON script entries"""
+    # Use provided prompts or fall back to defaults
+    sys_prompt = system_prompt or SYSTEM_PROMPT
+    usr_template = user_prompt_template or USER_PROMPT_TEMPLATE
+
     context_parts = []
 
     if chunk_num == 1:
@@ -195,51 +263,55 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             context_parts.append(f"First-person text ('I', 'my') is {main_char} speaking.")
 
     context = "\n".join(context_parts)
+    user_prompt = usr_template.format(context=context, chunk=chunk)
 
-    user_prompt = USER_PROMPT_TEMPLATE.format(context=context, chunk=chunk)
+    for attempt in range(max_retries + 1):
+        try:
+            # Use lower temperature on retries to get more predictable output
+            temp = 0.7 if attempt == 0 else 0.3
 
-    try:
-        response = client.chat.completions.create(
-            model=model_name,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_prompt}
-            ],
-            temperature=0.7,
-            max_tokens=4096
-        )
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[
+                    {"role": "system", "content": sys_prompt},
+                    {"role": "user", "content": user_prompt}
+                ],
+                temperature=temp,
+                max_tokens=4096
+            )
 
-        text = response.choices[0].message.content.strip()
-    except Exception as e:
-        print(f"Error calling LLM API: {e}")
-        return []
+            text = response.choices[0].message.content.strip()
+        except Exception as e:
+            print(f"Error calling LLM API (attempt {attempt + 1}): {e}")
+            if attempt < max_retries:
+                continue
+            return []
 
-    # Clean and extract JSON from response
-    json_text = clean_json_string(text)
+        # Clean and extract JSON from response
+        json_text = clean_json_string(text)
 
-    if not json_text:
-        print(f"Warning: Could not find JSON array in chunk {chunk_num} response")
-        print(f"Response preview: {text[:300]}...")
-        return []
+        if not json_text:
+            print(f"Warning: Could not find JSON array in chunk {chunk_num} response (attempt {attempt + 1})")
+            if attempt < max_retries:
+                print("Retrying...")
+                continue
+            print(f"Response preview: {text[:300]}...")
+            return []
 
-    try:
-        entries = json.loads(json_text)
-        if isinstance(entries, list):
+        # Try to parse, with repair attempts
+        entries = repair_json_array(json_text)
+
+        if entries and len(entries) > 0:
+            if attempt > 0:
+                print(f"  Succeeded on retry {attempt + 1}")
             return entries
-    except json.JSONDecodeError as e:
-        print(f"Warning: Could not parse chunk {chunk_num} response as JSON: {e}")
+
+        # If repair failed, show warning
+        print(f"Warning: Could not parse chunk {chunk_num} response as JSON (attempt {attempt + 1})")
         print(f"JSON preview: {json_text[:300]}...")
 
-        # Try to salvage by finding last complete entry
-        try:
-            last_complete = json_text.rfind('},')
-            if last_complete > 0:
-                salvaged = json_text[:last_complete+1] + ']'
-                entries = json.loads(salvaged)
-                print(f"Salvaged {len(entries)} entries from partial response")
-                return entries
-        except:
-            pass
+        if attempt < max_retries:
+            print("Retrying with lower temperature...")
 
     return []
 
@@ -281,6 +353,11 @@ def main():
     api_key = llm_config.get("api_key", "local")
     model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
 
+    # Load custom prompts or use defaults
+    prompts_config = config.get("prompts", {})
+    system_prompt = prompts_config.get("system_prompt") or SYSTEM_PROMPT
+    user_prompt_template = prompts_config.get("user_prompt") or USER_PROMPT_TEMPLATE
+
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
 
@@ -301,7 +378,12 @@ def main():
         print(f"Processing chunk {i}/{total_chunks} ({len(chunk)} chars)...")
 
         previous = all_entries if len(all_entries) > 0 else None
-        entries = process_chunk(client, model_name, chunk, i, total_chunks, previous_entries=previous)
+        entries = process_chunk(
+            client, model_name, chunk, i, total_chunks,
+            previous_entries=previous,
+            system_prompt=system_prompt,
+            user_prompt_template=user_prompt_template
+        )
         all_entries.extend(entries)
         print(f"  Got {len(entries)} entries")
 
@@ -313,6 +395,12 @@ def main():
     output_path = os.path.join("..", "annotated_script.json")
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(all_entries, f, indent=2, ensure_ascii=False)
+
+    # Delete old chunks.json so editor regenerates from new script
+    chunks_path = os.path.join("..", "chunks.json")
+    if os.path.exists(chunks_path):
+        os.remove(chunks_path)
+        print("Cleared old chunks.json")
 
     # Summary
     speakers = set(entry.get("speaker", "UNKNOWN") for entry in all_entries)

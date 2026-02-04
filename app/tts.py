@@ -182,6 +182,8 @@ def generate_custom_voice(text, style, speaker, voice_config, output_path, clien
 
         instruct = ', '.join(style_parts) if style_parts else "neutral"
 
+        print(f"TTS generating with instruct='{instruct}' for text='{processed_text[:50]}...'")
+
         result = client.predict(
             text=processed_text,
             language="Auto",

@@ -56,6 +56,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Default prompts (also defined in generate_script.py)
+DEFAULT_SYSTEM_PROMPT = """You are a script writer converting books/novels into audioplay scripts. Output ONLY valid JSON arrays, no markdown, no explanations.
+
+OUTPUT FORMAT:
+[
+  {"speaker": "NARRATOR", "text": "Description text here.", "style": "tone direction"},
+  {"speaker": "CHARACTER", "text": "Dialogue here.", "style": "emotional direction"}
+]
+
+FIELDS:
+- "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
+- "text": The spoken text, with bracketed non-verbal sounds where appropriate
+- "style": Acting direction for the voice actor. Describe HOW to deliver the line - voice quality, pacing, emphasis, emotional undertone.
+
+NON-VERBAL SOUNDS - Include where emotionally appropriate:
+[sighs], [laughs], [chuckles], [giggles], [scoffs], [gasps], [groans], [moans],
+[whimpers], [sobs], [cries], [sniffs], [whispers], [shouts], [screams],
+[clears throat], [coughs], [pauses], [hesitates], [stammers], [gulps]
+
+RULES:
+1. FIRST-PERSON vs THIRD-PERSON:
+   - "I", "my", "me" (first-person) = use CHARACTER'S NAME, NOT "NARRATOR"
+   - "He", "She", "The" (third-person) = use "NARRATOR"
+2. Break long passages into chunks under 400 characters each
+3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
+4. Always output COMPLETE sentences
+5. Output ONLY valid JSON array - no markdown, no code blocks
+6. STYLE should be a detailed acting direction (1-2 sentences) describing voice quality, pacing, emphasis, and emotional undertone
+7. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene."""
+
+DEFAULT_USER_PROMPT = """Convert this text into an audioplay script JSON array:
+
+{context}
+{chunk}"""
+
 # Data Models
 class LLMConfig(BaseModel):
     base_url: str
@@ -65,9 +100,14 @@ class LLMConfig(BaseModel):
 class TTSConfig(BaseModel):
     url: str
 
+class PromptConfig(BaseModel):
+    system_prompt: Optional[str] = None
+    user_prompt: Optional[str] = None
+
 class AppConfig(BaseModel):
     llm: LLMConfig
     tts: TTSConfig
+    prompts: Optional[PromptConfig] = None
 
 class VoiceConfigItem(BaseModel):
     type: str = "custom"
@@ -142,27 +182,51 @@ def run_process(command: List[str], task_name: str):
 async def read_index():
     return FileResponse(os.path.join(STATIC_DIR, "index.html"))
 
+@app.get("/favicon.ico")
+async def read_favicon():
+    favicon_path = os.path.join(ROOT_DIR, "icon.png")
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path, media_type="image/png")
+    raise HTTPException(status_code=404, detail="Favicon not found")
+
 @app.get("/api/config")
 async def get_config():
-    if not os.path.exists(CONFIG_PATH):
-        # Return defaults if no config
-        return {
-            "llm": {
-                "base_url": "http://localhost:11434/v1",
-                "api_key": "local",
-                "model_name": "richardyoung/qwen3-14b-abliterated:Q8_0"
-            },
-            "tts": {
-                "url": "http://127.0.0.1:7860"
-            }
+    default_config = {
+        "llm": {
+            "base_url": "http://localhost:11434/v1",
+            "api_key": "local",
+            "model_name": "richardyoung/qwen3-14b-abliterated:Q8_0"
+        },
+        "tts": {
+            "url": "http://127.0.0.1:7860"
+        },
+        "prompts": {
+            "system_prompt": DEFAULT_SYSTEM_PROMPT,
+            "user_prompt": DEFAULT_USER_PROMPT
         }
+    }
+
+    if not os.path.exists(CONFIG_PATH):
+        return default_config
+
     with open(CONFIG_PATH, "r") as f:
-        return json.load(f)
+        config = json.load(f)
+
+    # Ensure prompts section exists with defaults
+    if "prompts" not in config:
+        config["prompts"] = default_config["prompts"]
+    else:
+        if not config["prompts"].get("system_prompt"):
+            config["prompts"]["system_prompt"] = DEFAULT_SYSTEM_PROMPT
+        if not config["prompts"].get("user_prompt"):
+            config["prompts"]["user_prompt"] = DEFAULT_USER_PROMPT
+
+    return config
 
 @app.post("/api/config")
 async def save_config(config: AppConfig):
     with open(CONFIG_PATH, "w") as f:
-        json.dump(config.dict(), f, indent=2)
+        json.dump(config.model_dump(), f, indent=2)
     return {"status": "saved"}
 
 @app.post("/api/upload")
@@ -263,7 +327,7 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
     # Update current config with new data
     for voice_name, config in config_data.items():
         # Convert Pydantic model to dict
-        current_config[voice_name] = config.dict()
+        current_config[voice_name] = config.model_dump()
 
     with open(VOICE_CONFIG_PATH, "w") as f:
         json.dump(current_config, f, indent=2)
@@ -293,10 +357,12 @@ async def get_chunks():
 
 @app.post("/api/chunks/{index}")
 async def update_chunk(index: int, update: ChunkUpdate):
-    data = update.dict(exclude_unset=True)
+    data = update.model_dump(exclude_unset=True)
+    logger.info(f"Updating chunk {index} with data: {data}")
     chunk = project_manager.update_chunk(index, data)
     if not chunk:
         raise HTTPException(status_code=404, detail="Chunk not found")
+    logger.info(f"Chunk {index} updated, style is now: '{chunk.get('style', '')}'")
     return chunk
 
 @app.post("/api/chunks/{index}/generate")
@@ -332,4 +398,4 @@ async def merge_audio_endpoint(background_tasks: BackgroundTasks):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=4200)
+    uvicorn.run(app, host="127.0.0.1", port=4200)

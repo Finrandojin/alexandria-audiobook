@@ -127,6 +127,8 @@ class ProjectManager:
         chunks = self.load_chunks()
         if 0 <= index < len(chunks):
             chunk = chunks[index]
+            old_style = chunk.get("style", "")
+
             # Update fields
             if "text" in data: chunk["text"] = data["text"]
             if "style" in data: chunk["style"] = data["style"]
@@ -136,6 +138,7 @@ class ProjectManager:
             if "text" in data or "style" in data or "speaker" in data:
                 chunk["status"] = "pending"
 
+            print(f"update_chunk({index}): style changed from '{old_style}' to '{chunk.get('style', '')}'")
             self.save_chunks(chunks)
             return chunk
         return None
@@ -164,7 +167,9 @@ class ProjectManager:
 
             speaker = chunk["speaker"]
             text = chunk["text"]
-            style = chunk["style"]
+            style = chunk.get("style", "")
+
+            print(f"Generating chunk {index}: speaker={speaker}, style='{style}', text='{text[:50]}...'")
 
             # Generate to temp file
             temp_path = os.path.join(self.root_dir, "temp_chunk.wav")

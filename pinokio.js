@@ -28,12 +28,26 @@ module.exports = {
     }
 
     if (running.start) {
-      return [{
-        default: true,
-        icon: "fa-solid fa-power-off",
-        text: "Running",
-        href: "start.js"
-      }]
+      let local = info.local("start.js")
+      if (local && local.url) {
+        return [{
+          default: true,
+          icon: "fa-solid fa-rocket",
+          text: "Open Web UI",
+          href: local.url,
+        }, {
+          icon: "fa-solid fa-terminal",
+          text: "Terminal",
+          href: "start.js",
+        }]
+      } else {
+        return [{
+          default: true,
+          icon: "fa-solid fa-terminal",
+          text: "Starting",
+          href: "start.js",
+        }]
+      }
     }
 
     if (running.reset) {
