@@ -197,6 +197,11 @@ def generate_custom_voice(text, style, speaker, voice_config, output_path, clien
             print(f"Error: No audio file generated for: '{text[:50]}...'")
             return False
 
+        # Check file size
+        if os.path.getsize(generated_audio_filepath) == 0:
+            print(f"Error: Generated audio file is empty for: '{text[:50]}...'")
+            return False
+
         shutil.copy(generated_audio_filepath, output_path)
         return True
 
@@ -243,6 +248,11 @@ def generate_clone_voice(text, speaker, voice_config, output_path, client):
         generated_audio_filepath = result[0]
         if not generated_audio_filepath or not os.path.exists(generated_audio_filepath):
             print(f"Error: No audio file generated for: '{text[:50]}...'")
+            return False
+
+        # Check file size
+        if os.path.getsize(generated_audio_filepath) == 0:
+            print(f"Error: Generated audio file is empty for: '{text[:50]}...'")
             return False
 
         shutil.copy(generated_audio_filepath, output_path)

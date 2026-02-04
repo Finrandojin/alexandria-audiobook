@@ -152,11 +152,17 @@
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
                      <h4 class="m-0"><span class="step-indicator step-active">4</span>Audio Editor</h4>
-                     <div>
+                     <div class="d-flex gap-2">
+                        <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
                         <button class="btn btn-warning btn-sm" id="btn-merge"><i class="fas fa-file-audio me-1"></i>Merge All</button>
                      </div>
                 </div>
                 <div class="card-body">
+                     <!-- Full Progress Bar -->
+                     <div class="progress mb-3" style="height: 25px;">
+                         <div id="full-progress-bar" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%">0%</div>
+                     </div>
+
                      <div class="table-responsive">
                          <table class="table table-bordered table-hover">
                              <thead>
@@ -441,9 +447,14 @@
         });
 
         // --- Editor Tab ---
+        let isPlayingSequence = false;
+
         async function loadChunks() {
             const tbody = document.getElementById('chunks-table-body');
-            tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading chunks...</td></tr>';
+            // Only show loading if empty to prevent flicker
+            if (tbody.children.length === 0) {
+                 tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading chunks...</td></tr>';
+            }
 
             try {
                 const chunks = await API.get('/api/chunks');
@@ -452,17 +463,33 @@
                     return;
                 }
 
+                // Update Full Progress Bar
+                const completed = chunks.filter(c => c.status === 'done').length;
+                const total = chunks.length;
+                const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+                const progressBar = document.getElementById('full-progress-bar');
+                if (progressBar) {
+                    progressBar.style.width = `${percentage}%`;
+                    progressBar.innerText = `${percentage}% (${completed}/${total})`;
+                }
+
+                // Do not redraw if user is interacting or playing (simple check)
+                if (isPlayingSequence) return;
+
                 tbody.innerHTML = chunks.map(chunk => {
                     const statusColor = chunk.status === 'done' ? 'success' :
                                       chunk.status === 'generating' ? 'warning' :
                                       chunk.status === 'error' ? 'danger' : 'secondary';
 
                     const audioPlayer = chunk.audio_path ?
-                        `<audio controls src="/${chunk.audio_path}?t=${Date.now()}" style="width: 200px; height: 30px;"></audio>` :
+                        `<audio class="chunk-audio" data-id="${chunk.id}" controls src="/${chunk.audio_path}?t=${Date.now()}" style="width: 200px; height: 30px;" onplay="stopOthers(${chunk.id})"></audio>` :
                         '<span class="text-muted small">No audio</span>';
 
-                    const generateBtn = chunk.status === 'generating' ?
-                        `<button class="btn btn-sm btn-secondary" disabled><i class="fas fa-spinner fa-spin"></i></button>` :
+                    // Section Progress Bar (Indeterminate)
+                    const actionArea = chunk.status === 'generating' ?
+                        `<div class="progress" style="width: 100px; height: 20px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>
+                         </div>` :
                         `<button class="btn btn-sm btn-primary" onclick="generateChunk(${chunk.id})"><i class="fas fa-play"></i> Gen</button>`;
 
                     return `
@@ -473,7 +500,7 @@
                             <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
                             <td>
                                 <div class="d-flex align-items-center gap-2">
-                                    ${generateBtn}
+                                    ${actionArea}
                                     ${audioPlayer}
                                 </div>
                             </td>
@@ -487,9 +514,101 @@
                 }
 
             } catch (e) {
-                tbody.innerHTML = `<tr><td colspan="5" class="text-danger">Error loading chunks: ${e.message}</td></tr>`;
+                console.error("Error loading chunks:", e);
             }
         }
+
+        window.stopOthers = (id) => {
+            if (isPlayingSequence) return; // Sequence player handles its own logic
+            document.querySelectorAll('audio').forEach(audio => {
+                if (audio.dataset.id != id) {
+                    audio.pause();
+                }
+            });
+        };
+
+        window.playSequence = async () => {
+            isPlayingSequence = true;
+            const btn = document.getElementById('btn-play-seq');
+            btn.innerHTML = '<i class="fas fa-stop me-1"></i>Stop';
+            btn.onclick = stopSequence;
+            btn.classList.replace('btn-primary', 'btn-danger');
+
+            const audios = Array.from(document.querySelectorAll('.chunk-audio'));
+            if (audios.length === 0) {
+                stopSequence();
+                return;
+            }
+
+            let currentIndex = 0;
+
+            const playNext = () => {
+                if (!isPlayingSequence) return;
+
+                // Find next valid audio
+                while (currentIndex < audios.length) {
+                    const audio = audios[currentIndex];
+                    if (audio.getAttribute('src')) {
+                        break;
+                    }
+                    currentIndex++;
+                }
+
+                if (currentIndex >= audios.length) {
+                    stopSequence();
+                    return;
+                }
+
+                const audio = audios[currentIndex];
+                const tr = audio.closest('tr');
+
+                // Visual feedback
+                document.querySelectorAll('tr').forEach(r => r.classList.remove('table-primary'));
+                tr.classList.add('table-primary');
+                tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                const playPromise = audio.play();
+
+                if (playPromise !== undefined) {
+                    playPromise.catch(e => {
+                        console.log("Play failed (empty or skipped):", e);
+                        // If play fails, move next
+                        currentIndex++;
+                        playNext();
+                    });
+                }
+
+                audio.onended = () => {
+                    currentIndex++;
+                    playNext();
+                };
+
+                audio.onerror = () => {
+                     console.log("Audio error, skipping");
+                     currentIndex++;
+                     playNext();
+                }
+            };
+
+            playNext();
+        };
+
+        window.stopSequence = () => {
+            isPlayingSequence = false;
+            document.querySelectorAll('audio').forEach(a => {
+                a.pause();
+                a.currentTime = 0;
+                a.onended = null;
+            });
+            document.querySelectorAll('tr').forEach(r => r.classList.remove('table-primary'));
+
+            const btn = document.getElementById('btn-play-seq');
+            if (btn) {
+                btn.innerHTML = '<i class="fas fa-play me-1"></i>Play Sequence';
+                btn.onclick = playSequence;
+                btn.classList.replace('btn-danger', 'btn-primary');
+            }
+        };
 
         window.updateChunk = async (id, field, value) => {
             try {
@@ -513,9 +632,17 @@
                     statusBadge.className = 'badge bg-warning';
                     statusBadge.innerText = 'generating';
 
-                    const btn = tr.querySelector('button');
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    // Replace button with progress bar
+                    const container = tr.querySelector('.d-flex');
+                    const btn = container.querySelector('button');
+                    if (btn) {
+                         const progressBar = document.createElement('div');
+                         progressBar.className = 'progress';
+                         progressBar.style.width = '100px';
+                         progressBar.style.height = '20px';
+                         progressBar.innerHTML = '<div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" role="progressbar" style="width: 100%"></div>';
+                         container.replaceChild(progressBar, btn);
+                    }
                 }
 
                 await API.post(`/api/chunks/${id}/generate`, {});

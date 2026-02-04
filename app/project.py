@@ -174,6 +174,14 @@ class ProjectManager:
             if success:
                 # Convert to mp3 and save to voicelines
                 segment = AudioSegment.from_wav(temp_path)
+
+                if len(segment) == 0:
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                    chunk["status"] = "error"
+                    self.save_chunks(chunks)
+                    return False, "Generated audio has 0 duration"
+
                 filename = f"voiceline_{index+1:04d}_{sanitize_filename(speaker)}.mp3"
                 filepath = os.path.join(self.voicelines_dir, filename)
                 segment.export(filepath, format="mp3")
