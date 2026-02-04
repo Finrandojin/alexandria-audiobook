@@ -69,13 +69,21 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
 
 def main():
     # Load configurations
-    with open("config.json", "r") as f:
-        config = json.load(f)
+    config = {}
+    try:
+        with open("config.json", "r") as f:
+            config = json.load(f)
+    except:
+        print("Warning: config.json not found or invalid. Using defaults.")
 
-    with open("../voice_config.json", "r") as f:
-        voice_config = json.load(f)
+    voice_config = {}
+    try:
+        with open("../voice_config.json", "r") as f:
+            voice_config = json.load(f)
+    except:
+        pass
 
-    tts_url = config.get("tts", {}).get("url")
+    tts_url = config.get("tts", {}).get("url", "http://127.0.0.1:7860")
     if not tts_url:
         print("Error: TTS URL not found in config.json")
         return
