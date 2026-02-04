@@ -14,28 +14,55 @@ OUTPUT FORMAT:
 
 FIELDS:
 - "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
-- "text": The spoken text, with bracketed non-verbal sounds where appropriate
-- "style": Acting direction for the voice actor. Describe HOW to deliver the line - voice quality, pacing, emphasis, emotional undertone. Examples:
-  - "Speak with voice trembling slightly, holding onto something slipping away. Emphasize 'keep' with rising intensity."
-  - "Deliver slowly with quiet menace, letting each word land with weight."
-  - "Bright and eager, words tumbling out quickly with barely contained excitement."
-  - "Flat and hollow, as if emotionally drained. Minimal inflection."
+- "text": The spoken text. For non-verbal sounds, use ONOMATOPOEIA in brackets - phonetic representations the TTS can vocalize:
+  - Laughter: [haha], [hehe], [ahaha], [pfft]
+  - Sighs/exhales: [haah...], [hff], [whew]
+  - Moans/pleasure: [ah..], [mmm], [ooh], [ah.. aah.. aaah..]
+  - Pain/effort: [ugh], [argh], [nngh], [gah]
+  - Surprise: [oh!], [ah!], [huh?], [wha-]
+  - Disgust: [ew], [blech], [ugh]
+  - Throat clearing: [ahem], [ehem], [*cough*]
+  - Crying: [sniff], [hic], [waaah]
+  - Hesitation: [um], [uh], [er], [hmm]
+- "style": Acting direction with THREE parts:
+  1. PACING: ALWAYS slow and deliberate. NEVER use fast/rapid/rushing/breathless/urgent.
+  2. How to deliver the line (voice quality, emphasis, emotional undertone)
+  3. If text contains bracketed onomatopoeia, describe HOW to vocalize it
 
-NON-VERBAL SOUNDS - Include where emotionally appropriate:
-[sighs], [laughs], [chuckles], [giggles], [scoffs], [gasps], [groans], [moans],
-[whimpers], [sobs], [cries], [sniffs], [whispers], [shouts], [screams],
-[clears throat], [coughs], [pauses], [hesitates], [stammers], [gulps]
+  PACING - Use ONLY these words: "slow", "measured", "deliberate", "unhurried", "taking time", "languid", "drawn-out"
+  FORBIDDEN pacing words: fast, rapid, quick, rushing, breathless, urgent, hurried, brisk, swift
+
+  Examples:
+  - text: "[haah...] I'm so tired." style: "Slow, exhausted, defeated. Vocalize [haah...] as a long weary sigh."
+  - text: "[ah.. aah..] Don't stop." style: "Slow and breathy, aroused. Vocalize brackets as drawn-out soft moans."
+  - text: "[ahem] As I was saying..." style: "Deliberate pace, formal, slightly annoyed. Vocalize [ahem] as pointed throat clearing."
+  - text: "[haha] You can't be serious!" style: "Measured pace, genuinely amused. Vocalize [haha] as unhurried real laughter."
+  - text: "Run! They're coming!" style: "Slow and intense, alarmed, emphasize each word."
 
 RULES:
-1. FIRST-PERSON vs THIRD-PERSON:
-   - "I", "my", "me" (first-person) = use CHARACTER'S NAME, NOT "NARRATOR"
-   - "He", "She", "The" (third-person) = use "NARRATOR"
+1. NARRATOR vs CHARACTER - Be strict about this:
+   NARRATOR handles:
+   - Third-person descriptions: "He walked to the door", "The room fell silent"
+   - Scene setting: "The sun was setting over the hills"
+   - Action descriptions: "She picked up the knife", "They exchanged glances"
+   - Anything with "he", "she", "they", "the", "it" as subject
+
+   CHARACTER handles:
+   - Direct speech/dialogue only
+   - First-person narration where "I", "my", "me" refers to the POV character
+   - Internal monologue clearly from character's perspective
+
+   Example - DO NOT mix these:
+   WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
+   RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
 2. Break long passages into chunks under 400 characters each
 3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
 4. Always output COMPLETE sentences
 5. Output ONLY valid JSON array - no markdown, no code blocks
-6. STYLE should be a detailed acting direction (1-2 sentences) describing voice quality, pacing, emphasis, and emotional undertone
-7. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene. If a character is distressed, maintain that emotional thread across their lines until something in the text justifies a shift. Avoid jarring tonal whiplash between consecutive lines."""
+6. EACH LINE IS INDEPENDENT: The TTS only sees "text" and "style" for each entry - NO context from previous lines. Every style direction must be SELF-CONTAINED and fully describe the delivery without assuming carryover.
+7. STYLE must be complete and explicit every time. If a character is crying, say "sobbing, voice breaking" on EVERY line they cry - don't assume it carries over.
+8. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene, but REPEAT the emotional state explicitly each time. Don't write "continues crying" - write "still sobbing, voice raw".
+9. PACING IS ALWAYS SLOW: Every style MUST include "slow", "measured", "deliberate", or "unhurried". NEVER use "fast", "rapid", "quick", "rushing", "breathless", "urgent", "hurried" - these are FORBIDDEN."""
 
 USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
 
@@ -183,13 +210,13 @@ def repair_json_array(json_text):
 def fix_mojibake(text):
     """Fix common mojibake characters resulting from CP1252-as-UTF8."""
     replacements = {
-        'â€™': '’',  # Right single quote
-        'â€˜': '‘',  # Left single quote
-        'â€œ': '“',  # Left double quote
-        'â€\x9d': '”', # Right double quote
-        'â€?': '”', # Sometimes ? if undefined
-        'â€”': '—',  # Em dash
-        'â€“': '–',  # En dash
+        'â€™': ''',  # Right single quote
+        'â€˜': ''',  # Left single quote
+        'â€œ': '"',  # Left double quote
+        'â€\x9d': '"', # Right double quote
+        'â€?': '"', # Sometimes ? if undefined
+        'â€"': '—',  # Em dash
+        'â€"': '–',  # En dash
         'â€¦': '…',  # Ellipsis
     }
 
@@ -312,6 +339,12 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
         if attempt < max_retries:
             print("Retrying with lower temperature...")
+
+        # Last resort: extract individual valid entries with regex
+        salvaged_entries = salvage_json_entries(json_text)
+        if salvaged_entries:
+            print(f"Regex-salvaged {len(salvaged_entries)} entries from malformed response")
+            return salvaged_entries
 
     return []
 
