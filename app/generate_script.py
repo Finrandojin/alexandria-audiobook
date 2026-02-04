@@ -116,6 +116,24 @@ def clean_json_string(text):
 
     return json_text
 
+def fix_mojibake(text):
+    """Fix common mojibake characters resulting from CP1252-as-UTF8."""
+    replacements = {
+        'â€™': '’',  # Right single quote
+        'â€˜': '‘',  # Left single quote
+        'â€œ': '“',  # Left double quote
+        'â€\x9d': '”', # Right double quote
+        'â€?': '”', # Sometimes ? if undefined
+        'â€”': '—',  # Em dash
+        'â€“': '–',  # En dash
+        'â€¦': '…',  # Ellipsis
+    }
+
+    for bad, good in replacements.items():
+        text = text.replace(bad, good)
+
+    return text
+
 def split_into_chunks(text, max_size=3000):
     """Split text into chunks at paragraph/sentence boundaries."""
     paragraphs = re.split(r'\n\s*\n', text)
@@ -240,6 +258,9 @@ def main():
 
     with open(input_file_path, 'r', encoding='utf-8') as f:
         book_content = f.read()
+
+    # Fix encoding artifacts
+    book_content = fix_mojibake(book_content)
 
     print(f"Read {len(book_content)} characters")
 
