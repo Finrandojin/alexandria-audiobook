@@ -9,8 +9,8 @@ module.exports = {
         title: "LLM API Base URL",
         description: "Base URL for OpenAI-compatible API. Use http://localhost:1234/v1 for LM Studio, http://localhost:11434/v1 for Ollama, or https://api.openai.com/v1 for OpenAI.",
         type: "text",
-        default: "http://localhost:1234/v1",
-        placeholder: "http://localhost:1234/v1",
+        default: "http://localhost:11434/v1",
+        placeholder: "http://localhost:11434/v1",
         required: true
       }, {
         key: "llm_api_key",
@@ -25,7 +25,7 @@ module.exports = {
         title: "LLM Model Name",
         description: "The model to use. For local servers, check your server's loaded model name. For OpenAI: gpt-4o, gpt-4o-mini, etc.",
         type: "text",
-        default: "local-model",
+        default: "richardyoung/qwen3-14b-abliterated:Q8_0",
         placeholder: "gpt-4o-mini or local-model",
         required: true
       }, {

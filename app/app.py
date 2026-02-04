@@ -147,9 +147,9 @@ async def get_config():
         # Return defaults if no config
         return {
             "llm": {
-                "base_url": "http://localhost:1234/v1",
+                "base_url": "http://localhost:11434/v1",
                 "api_key": "local",
-                "model_name": "local-model"
+                "model_name": "richardyoung/qwen3-14b-abliterated:Q8_0"
             },
             "tts": {
                 "url": "http://127.0.0.1:7860"
