@@ -172,23 +172,43 @@ class ProjectManager:
             success = generate_voice(text, style, speaker, voice_config, temp_path, client)
 
             if success:
-                # Convert to mp3 and save to voicelines
-                segment = AudioSegment.from_wav(temp_path)
+                # Check file size
+                if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
+                     chunk["status"] = "error"
+                     self.save_chunks(chunks)
+                     return False, "Generated audio file is missing or empty"
 
-                if len(segment) == 0:
-                    if os.path.exists(temp_path):
-                        os.remove(temp_path)
-                    chunk["status"] = "error"
-                    self.save_chunks(chunks)
-                    return False, "Generated audio has 0 duration"
+                print(f"Generated WAV size: {os.path.getsize(temp_path)} bytes")
 
-                filename = f"voiceline_{index+1:04d}_{sanitize_filename(speaker)}.mp3"
-                filepath = os.path.join(self.voicelines_dir, filename)
-                segment.export(filepath, format="mp3")
+                # Try to convert to mp3, fallback to wav if ffmpeg missing
+                filename_base = f"voiceline_{index+1:04d}_{sanitize_filename(speaker)}"
+
+                try:
+                    segment = AudioSegment.from_wav(temp_path)
+
+                    if len(segment) == 0:
+                         chunk["status"] = "error"
+                         self.save_chunks(chunks)
+                         return False, "Generated audio has 0 duration"
+
+                    mp3_filename = f"{filename_base}.mp3"
+                    mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
+
+                    # This might fail if ffmpeg is missing
+                    segment.export(mp3_filepath, format="mp3")
+
+                    chunk["audio_path"] = f"voicelines/{mp3_filename}"
+
+                except Exception as e:
+                    print(f"MP3 conversion failed (ffmpeg missing?): {e}")
+                    # Fallback: copy WAV
+                    wav_filename = f"{filename_base}.wav"
+                    wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
+                    shutil.copy(temp_path, wav_filepath)
+
+                    chunk["audio_path"] = f"voicelines/{wav_filename}"
 
                 chunk["status"] = "done"
-                # Store relative path for frontend
-                chunk["audio_path"] = f"voicelines/{filename}"
                 self.save_chunks(chunks)
 
                 # Cleanup
@@ -217,11 +237,12 @@ class ProjectManager:
                 full_path = os.path.join(self.root_dir, path)
                 if os.path.exists(full_path):
                     try:
-                        segment = AudioSegment.from_mp3(full_path)
+                        # Auto-detect format (mp3 or wav)
+                        segment = AudioSegment.from_file(full_path)
                         audio_segments.append(segment)
                         speakers.append(chunk["speaker"])
-                    except:
-                        pass # Skip bad files
+                    except Exception as e:
+                        print(f"Error loading audio segment {path}: {e}")
 
         if not audio_segments:
             return False, "No audio segments found"

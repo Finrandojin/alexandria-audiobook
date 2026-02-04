@@ -154,6 +154,8 @@
                      <h4 class="m-0"><span class="step-indicator step-active">4</span>Audio Editor</h4>
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
+                        <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll()"><i class="fas fa-layer-group me-1"></i>Render All</button>
+                        <button class="btn btn-danger btn-sm" id="btn-cancel-render" onclick="cancelRender()" style="display:none;"><i class="fas fa-stop me-1"></i>Cancel</button>
                         <button class="btn btn-warning btn-sm" id="btn-merge"><i class="fas fa-file-audio me-1"></i>Merge All</button>
                      </div>
                 </div>
@@ -448,6 +450,7 @@
 
         // --- Editor Tab ---
         let isPlayingSequence = false;
+        let isRenderingAll = false;
 
         async function loadChunks() {
             const tbody = document.getElementById('chunks-table-body');
@@ -652,6 +655,64 @@
             } catch (e) {
                 alert("Failed to start generation: " + e.message);
                 loadChunks(); // Revert UI
+            }
+        };
+
+        window.cancelRender = () => {
+            isRenderingAll = false;
+            document.getElementById('btn-render-all').style.display = 'inline-block';
+            document.getElementById('btn-cancel-render').style.display = 'none';
+        };
+
+        window.renderAll = async () => {
+            isRenderingAll = true;
+            document.getElementById('btn-render-all').style.display = 'none';
+            document.getElementById('btn-cancel-render').style.display = 'inline-block';
+
+            try {
+                const chunks = await API.get('/api/chunks');
+                const pending = chunks.filter(c => c.status !== 'done');
+
+                if (pending.length === 0) {
+                    alert("All chunks are already rendered!");
+                    cancelRender();
+                    return;
+                }
+
+                // Sequential processing
+                for (const chunk of pending) {
+                    if (!isRenderingAll) break;
+
+                    // Scroll to row
+                    const tr = document.querySelector(`tr[data-id="${chunk.id}"]`);
+                    if (tr) tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Use the existing generateChunk function to initiate
+                    await generateChunk(chunk.id);
+
+                    // Wait for completion by polling this specific chunk
+                    let isDone = false;
+                    while (!isDone && isRenderingAll) {
+                        await new Promise(r => setTimeout(r, 2000)); // Wait 2s
+                        try {
+                            const allChunks = await API.get('/api/chunks');
+                            const updated = allChunks.find(c => c.id === chunk.id);
+                            if (updated && (updated.status === 'done' || updated.status === 'error')) {
+                                isDone = true;
+                                // Force refresh to update UI
+                                await loadChunks();
+                            }
+                        } catch (e) {
+                            console.error("Polling error", e);
+                        }
+                    }
+                }
+            } catch (e) {
+                console.error("Render All error:", e);
+                alert("Error during batch rendering: " + e.message);
+            } finally {
+                cancelRender(); // Reset buttons
+                await loadChunks();
             }
         };
 
