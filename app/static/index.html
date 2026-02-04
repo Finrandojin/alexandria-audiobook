@@ -93,6 +93,21 @@
                             </a>
                         </h5>
                         <div class="collapse" id="promptSettings">
+                            <h6 class="mb-3">Generation Settings</h6>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Chunk Size (characters)</label>
+                                    <input type="number" class="form-control" id="chunk-size" value="3000" min="1000" max="9999">
+                                    <div class="form-text">Size of text chunks sent to LLM (1000-9999). Smaller = more precise, larger = more context.</div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Max Tokens (response)</label>
+                                    <input type="number" class="form-control" id="max-tokens" value="4096" min="1024" max="32768">
+                                    <div class="form-text">Maximum tokens for LLM response. Increase if output is being truncated.</div>
+                                </div>
+                            </div>
+                            <hr>
+                            <h6 class="mb-3">Prompt Customization</h6>
                             <div class="mb-3">
                                 <label class="form-label">System Prompt</label>
                                 <textarea class="form-control font-monospace" id="system-prompt" rows="12" style="font-size: 0.85em;"></textarea>
@@ -336,6 +351,8 @@ RULES:
             // Set defaults immediately so fields are never empty
             document.getElementById('system-prompt').value = DEFAULT_SYSTEM_PROMPT;
             document.getElementById('user-prompt').value = DEFAULT_USER_PROMPT;
+            document.getElementById('chunk-size').value = 3000;
+            document.getElementById('max-tokens').value = 4096;
 
             try {
                 const config = await API.get('/api/config');
@@ -353,15 +370,27 @@ RULES:
                         document.getElementById('user-prompt').value = config.prompts.user_prompt;
                     }
                 }
+
+                // Load generation settings
+                if (config.generation) {
+                    if (config.generation.chunk_size) {
+                        document.getElementById('chunk-size').value = config.generation.chunk_size;
+                    }
+                    if (config.generation.max_tokens) {
+                        document.getElementById('max-tokens').value = config.generation.max_tokens;
+                    }
+                }
             } catch (e) {
                 console.error("Failed to load config", e);
             }
         }
 
-        // Reset prompts to factory defaults
+        // Reset prompts and generation settings to factory defaults
         window.resetPrompts = () => {
             document.getElementById('system-prompt').value = DEFAULT_SYSTEM_PROMPT;
             document.getElementById('user-prompt').value = DEFAULT_USER_PROMPT;
+            document.getElementById('chunk-size').value = 3000;
+            document.getElementById('max-tokens').value = 4096;
         };
 
         // Toggle chevron on collapse
@@ -374,6 +403,12 @@ RULES:
 
         document.getElementById('config-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // Validate chunk_size
+            let chunkSize = parseInt(document.getElementById('chunk-size').value) || 3000;
+            chunkSize = Math.max(1000, Math.min(9999, chunkSize));
+            document.getElementById('chunk-size').value = chunkSize;
+
             const config = {
                 llm: {
                     base_url: document.getElementById('llm-url').value,
@@ -386,6 +421,10 @@ RULES:
                 prompts: {
                     system_prompt: document.getElementById('system-prompt').value,
                     user_prompt: document.getElementById('user-prompt').value
+                },
+                generation: {
+                    chunk_size: chunkSize,
+                    max_tokens: parseInt(document.getElementById('max-tokens').value) || 4096
                 }
             };
             try {

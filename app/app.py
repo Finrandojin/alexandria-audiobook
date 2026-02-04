@@ -104,10 +104,15 @@ class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
     user_prompt: Optional[str] = None
 
+class GenerationConfig(BaseModel):
+    chunk_size: int = 3000
+    max_tokens: int = 4096
+
 class AppConfig(BaseModel):
     llm: LLMConfig
     tts: TTSConfig
     prompts: Optional[PromptConfig] = None
+    generation: Optional[GenerationConfig] = None
 
 class VoiceConfigItem(BaseModel):
     type: str = "custom"

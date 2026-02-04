@@ -261,7 +261,7 @@ def split_into_chunks(text, max_size=3000):
 
     return chunks
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096):
     """Process a text chunk and return JSON script entries"""
     # Use provided prompts or fall back to defaults
     sys_prompt = system_prompt or SYSTEM_PROMPT
@@ -304,7 +304,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=temp,
-                max_tokens=4096
+                max_tokens=max_tokens
             )
 
             text = response.choices[0].message.content.strip()
@@ -391,8 +391,17 @@ def main():
     system_prompt = prompts_config.get("system_prompt") or SYSTEM_PROMPT
     user_prompt_template = prompts_config.get("user_prompt") or USER_PROMPT_TEMPLATE
 
+    # Load generation settings
+    generation_config = config.get("generation", {})
+    chunk_size = generation_config.get("chunk_size", 3000)
+    max_tokens = generation_config.get("max_tokens", 4096)
+
+    # Validate chunk_size (1000-9999)
+    chunk_size = max(1000, min(9999, chunk_size))
+
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
+    print(f"Chunk size: {chunk_size} chars, Max tokens: {max_tokens}")
 
     # Create OpenAI client with custom base URL
     client = OpenAI(
@@ -401,7 +410,7 @@ def main():
     )
 
     # Split into chunks at natural boundaries
-    chunks = split_into_chunks(book_content, max_size=3000)
+    chunks = split_into_chunks(book_content, max_size=chunk_size)
     total_chunks = len(chunks)
 
     print(f"Split into {total_chunks} chunks at paragraph/sentence boundaries")
@@ -415,7 +424,8 @@ def main():
             client, model_name, chunk, i, total_chunks,
             previous_entries=previous,
             system_prompt=system_prompt,
-            user_prompt_template=user_prompt_template
+            user_prompt_template=user_prompt_template,
+            max_tokens=max_tokens
         )
         all_entries.extend(entries)
         print(f"  Got {len(entries)} entries")
