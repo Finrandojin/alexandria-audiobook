@@ -207,6 +207,27 @@ def repair_json_array(json_text):
 
     return None
 
+def salvage_json_entries(json_text):
+    """Last resort: extract individual valid entries with regex."""
+    entries = []
+    # Match individual JSON objects with speaker, text, style fields
+    pattern = r'\{\s*"speaker"\s*:\s*"([^"]*)"\s*,\s*"text"\s*:\s*"((?:[^"\\]|\\.)*)"\s*,\s*"style"\s*:\s*"((?:[^"\\]|\\.)*)"\s*\}'
+    matches = re.finditer(pattern, json_text, re.DOTALL)
+
+    for match in matches:
+        try:
+            entry = {
+                "speaker": match.group(1),
+                "text": match.group(2).replace('\\"', '"').replace('\\n', '\n'),
+                "style": match.group(3).replace('\\"', '"').replace('\\n', '\n')
+            }
+            entries.append(entry)
+        except Exception:
+            continue
+
+    return entries if entries else None
+
+
 def fix_mojibake(text):
     """Fix common mojibake characters resulting from CP1252-as-UTF8."""
     replacements = {
@@ -261,7 +282,7 @@ def split_into_chunks(text, max_size=3000):
 
     return chunks
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=20, min_p=0, presence_penalty=0.0):
     """Process a text chunk and return JSON script entries"""
     # Use provided prompts or fall back to defaults
     sys_prompt = system_prompt or SYSTEM_PROMPT
@@ -294,17 +315,20 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
     for attempt in range(max_retries + 1):
         try:
-            # Use lower temperature on retries to get more predictable output
-            temp = 0.7 if attempt == 0 else 0.3
-
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
                     {"role": "system", "content": sys_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=temp,
-                max_tokens=max_tokens
+                temperature=temperature,
+                top_p=top_p,
+                presence_penalty=presence_penalty,
+                max_tokens=max_tokens,
+                extra_body={
+                    "top_k": top_k,
+                    "min_p": min_p
+                }
             )
 
             text = response.choices[0].message.content.strip()
@@ -395,6 +419,11 @@ def main():
     generation_config = config.get("generation", {})
     chunk_size = generation_config.get("chunk_size", 3000)
     max_tokens = generation_config.get("max_tokens", 4096)
+    temperature = generation_config.get("temperature", 0.6)
+    top_p = generation_config.get("top_p", 0.8)
+    top_k = generation_config.get("top_k", 20)
+    min_p = generation_config.get("min_p", 0)
+    presence_penalty = generation_config.get("presence_penalty", 0.0)
 
     # Validate chunk_size (1000-9999)
     chunk_size = max(1000, min(9999, chunk_size))
@@ -425,7 +454,12 @@ def main():
             previous_entries=previous,
             system_prompt=system_prompt,
             user_prompt_template=user_prompt_template,
-            max_tokens=max_tokens
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=top_k,
+            min_p=min_p,
+            presence_penalty=presence_penalty
         )
         all_entries.extend(entries)
         print(f"  Got {len(entries)} entries")
@@ -445,8 +479,8 @@ def main():
         os.remove(chunks_path)
         print("Cleared old chunks.json")
 
-    # Summary
-    speakers = set(entry.get("speaker", "UNKNOWN") for entry in all_entries)
+    # Summary (check both "speaker" and "type" fields)
+    speakers = set(entry.get("speaker") or entry.get("type") or "UNKNOWN" for entry in all_entries)
     print(f"\nGenerated {len(all_entries)} script entries")
     print(f"Speakers found: {', '.join(sorted(speakers))}")
     print(f"Output saved to: {output_path}")

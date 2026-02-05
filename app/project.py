@@ -15,18 +15,23 @@ from gradio_client import Client
 
 MAX_CHUNK_CHARS = 500
 
+def get_speaker(entry):
+    """Get speaker from entry, checking both 'speaker' and 'type' fields."""
+    return entry.get("speaker") or entry.get("type") or ""
+
+
 def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
     """Group consecutive entries by same speaker into chunks up to max_chars"""
     if not script_entries:
         return []
 
     chunks = []
-    current_speaker = script_entries[0].get("speaker")
+    current_speaker = get_speaker(script_entries[0])
     current_text = script_entries[0].get("text", "")
     current_style = script_entries[0].get("style", "")
 
     for entry in script_entries[1:]:
-        speaker = entry.get("speaker")
+        speaker = get_speaker(entry)
         text = entry.get("text", "")
         style = entry.get("style", "")
 

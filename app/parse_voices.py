@@ -12,10 +12,10 @@ def main():
     with open(input_path, 'r', encoding='utf-8') as f:
         script_data = json.load(f)
 
-    # Extract unique speakers
+    # Extract unique speakers (check both "speaker" and "type" fields)
     voices = set()
     for entry in script_data:
-        speaker = entry.get("speaker", "").strip()
+        speaker = (entry.get("speaker") or entry.get("type") or "").strip()
         if speaker:
             voices.add(speaker)
 
