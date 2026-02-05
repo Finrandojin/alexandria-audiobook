@@ -28,6 +28,8 @@ app/output_audio/
 chunks.json
 error_screenshot.png
 app/error_screenshot.png
+debug_raw_response.txt
+test.txt
 
 # Python cache
 __pycache__/
