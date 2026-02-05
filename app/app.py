@@ -99,6 +99,8 @@ class LLMConfig(BaseModel):
 
 class TTSConfig(BaseModel):
     url: str
+    parallel_workers: int = 2  # 1-8 concurrent TTS workers
+    batch_seed: Optional[int] = None  # Single seed for batch mode, None/-1 = random
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -130,6 +132,9 @@ class ChunkUpdate(BaseModel):
     text: Optional[str] = None
     style: Optional[str] = None
     speaker: Optional[str] = None
+
+class BatchGenerateRequest(BaseModel):
+    indices: List[int]
 
 # Global state for process tracking
 process_state = {
@@ -400,6 +405,115 @@ async def merge_audio_endpoint(background_tasks: BackgroundTasks):
 
     background_tasks.add_task(task)
     return {"status": "started"}
+
+@app.post("/api/generate_batch")
+async def generate_batch_endpoint(request: BatchGenerateRequest, background_tasks: BackgroundTasks):
+    """Generate multiple chunks in parallel using configured worker count."""
+    if process_state["audio"]["running"]:
+        raise HTTPException(status_code=400, detail="Audio generation already running")
+
+    # Load worker count from config
+    workers = 2
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                cfg = json.load(f)
+                workers = cfg.get("tts", {}).get("parallel_workers", 2)
+                # Clamp to valid range
+                workers = max(1, min(8, workers))
+        except:
+            pass
+
+    indices = request.indices
+    total = len(indices)
+
+    def progress_callback(completed, failed, total):
+        """Update logs with progress."""
+        process_state["audio"]["logs"].append(
+            f"Progress: {completed + failed}/{total} ({completed} done, {failed} failed)"
+        )
+
+    def task():
+        process_state["audio"]["running"] = True
+        process_state["audio"]["logs"] = [
+            f"Starting parallel generation of {total} chunks with {workers} workers..."
+        ]
+        try:
+            results = project_manager.generate_chunks_parallel(
+                indices, workers, progress_callback
+            )
+            completed = len(results["completed"])
+            failed = len(results["failed"])
+            process_state["audio"]["logs"].append(
+                f"Batch generation complete: {completed} succeeded, {failed} failed"
+            )
+            if results["failed"]:
+                for idx, msg in results["failed"]:
+                    process_state["audio"]["logs"].append(f"  Chunk {idx} failed: {msg}")
+        except Exception as e:
+            logger.error(f"Batch generation error: {e}")
+            process_state["audio"]["logs"].append(f"Batch generation error: {e}")
+        finally:
+            process_state["audio"]["running"] = False
+
+    background_tasks.add_task(task)
+    return {"status": "started", "workers": workers, "total_chunks": total}
+
+@app.post("/api/generate_batch_fast")
+async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background_tasks: BackgroundTasks):
+    """Generate multiple chunks using batch TTS API with single seed. Faster but less flexible.
+    Requires custom Qwen3-TTS with /generate_batch endpoint."""
+    if process_state["audio"]["running"]:
+        raise HTTPException(status_code=400, detail="Audio generation already running")
+
+    # Load batch_seed and batch_size from config
+    batch_seed = -1
+    batch_size = 4
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                cfg = json.load(f)
+                tts_cfg = cfg.get("tts", {})
+                seed_val = tts_cfg.get("batch_seed")
+                if seed_val is not None and seed_val != "":
+                    batch_seed = int(seed_val)
+                batch_size = max(1, min(8, tts_cfg.get("parallel_workers", 4)))
+        except:
+            pass
+
+    indices = request.indices
+    total = len(indices)
+
+    def progress_callback(completed, failed, total):
+        process_state["audio"]["logs"].append(
+            f"Progress: {completed + failed}/{total} ({completed} done, {failed} failed)"
+        )
+
+    def task():
+        process_state["audio"]["running"] = True
+        process_state["audio"]["logs"] = [
+            f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed})..."
+        ]
+        try:
+            results = project_manager.generate_chunks_batch(
+                indices, batch_seed, batch_size, progress_callback
+            )
+            completed = len(results["completed"])
+            failed = len(results["failed"])
+            process_state["audio"]["logs"].append(
+                f"Batch generation complete: {completed} succeeded, {failed} failed"
+            )
+            if results["failed"]:
+                for idx, msg in results["failed"]:
+                    process_state["audio"]["logs"].append(f"  Chunk {idx} failed: {msg}")
+        except Exception as e:
+            logger.error(f"Batch generation error: {e}")
+            process_state["audio"]["logs"].append(f"Batch generation error: {e}")
+        finally:
+            process_state["audio"]["running"] = False
+
+    background_tasks.add_task(task)
+    return {"status": "started", "batch_seed": batch_seed, "batch_size": batch_size, "total_chunks": total}
 
 if __name__ == "__main__":
     import uvicorn

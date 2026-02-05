@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import base64
 from pydub import AudioSegment
 from gradio_client import Client, handle_file
 import shutil
@@ -279,6 +280,179 @@ def generate_voice(text, style, speaker, voice_config, output_path, client):
     else:
         # Custom voice uses style directions
         return generate_custom_voice(text, style, speaker, voice_config, output_path, client)
+
+
+def generate_batch(chunks, voice_config, output_dir, client, batch_seed=-1):
+    """Generate multiple audio files in a single batch API call.
+
+    Args:
+        chunks: List of dicts with 'text', 'style', 'speaker', 'index' keys
+        voice_config: Voice configuration dict
+        output_dir: Directory to save output files
+        client: Gradio client instance
+        batch_seed: Single seed for all generations (-1 for random)
+
+    Returns:
+        dict with 'completed' (list of indices) and 'failed' (list of (index, error) tuples)
+    """
+    results = {"completed": [], "failed": []}
+
+    if not chunks:
+        return results
+
+    # Separate custom voice chunks from clone voice chunks
+    # Clone voices don't support batching, process them individually
+    custom_chunks = []
+    clone_chunks = []
+
+    for chunk in chunks:
+        speaker = chunk.get("speaker")
+        voice_data = voice_config.get(speaker, {})
+        voice_type = voice_data.get("type", "custom")
+
+        if voice_type == "clone":
+            clone_chunks.append(chunk)
+        else:
+            custom_chunks.append(chunk)
+
+    # Process custom voice chunks in batch
+    if custom_chunks:
+        batch_results = _generate_custom_voice_batch(custom_chunks, voice_config, output_dir, client, batch_seed)
+        results["completed"].extend(batch_results["completed"])
+        results["failed"].extend(batch_results["failed"])
+
+    # Process clone voice chunks individually (no batch support)
+    for chunk in clone_chunks:
+        idx = chunk["index"]
+        output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+        try:
+            success = generate_clone_voice(
+                chunk["text"], chunk["speaker"], voice_config, output_path, client
+            )
+            if success:
+                results["completed"].append(idx)
+            else:
+                results["failed"].append((idx, "Clone voice generation failed"))
+        except Exception as e:
+            results["failed"].append((idx, str(e)))
+
+    return results
+
+
+def _generate_custom_voice_batch(chunks, voice_config, output_dir, client, batch_seed=-1):
+    """Internal: Generate custom voice audio in batch with single seed."""
+    results = {"completed": [], "failed": []}
+
+    # Build batch config
+    texts = []
+    speakers = []
+    instructs = []
+    indices = []
+
+    for chunk in chunks:
+        idx = chunk["index"]
+        text = chunk.get("text", "")
+        style = chunk.get("style", "")
+        speaker_name = chunk.get("speaker", "")
+
+        voice_data = voice_config.get(speaker_name, {})
+        voice = voice_data.get("voice", "Ryan")
+        default_style = voice_data.get("default_style", "")
+
+        # Preprocess text and build instruct
+        processed_text, nonverbal_style = preprocess_text_for_tts(text)
+
+        style_parts = []
+        if nonverbal_style:
+            style_parts.append(nonverbal_style)
+        if style:
+            style_parts.append(style)
+        elif default_style:
+            style_parts.append(default_style)
+
+        instruct = ', '.join(style_parts) if style_parts else "neutral"
+
+        texts.append(processed_text)
+        speakers.append(voice)
+        instructs.append(instruct)
+        indices.append(idx)
+
+    # Build config JSON with single seed
+    config = {
+        "mode": "custom_voice",
+        "texts": texts,
+        "speaker": speakers,
+        "instruct": instructs,
+        "seed": batch_seed,
+        "language": "en",
+        "model_size": "1.7B"
+    }
+
+    print(f"Sending batch request for {len(texts)} chunks...")
+
+    try:
+        result = client.predict(
+            config_json=json.dumps(config),
+            api_name="/generate_batch"
+        )
+
+        # Parse response
+        response = json.loads(result)
+
+        if not response.get("success"):
+            error_msg = response.get("error", "Unknown batch error")
+            print(f"Batch generation failed: {error_msg}")
+            for idx in indices:
+                results["failed"].append((idx, error_msg))
+            return results
+
+        audio_files = response.get("audio_files", [])
+        sample_rate = response.get("sample_rate", 24000)
+
+        print(f"Received {len(audio_files)} audio files from batch")
+
+        # Process each audio file
+        for audio_item in audio_files:
+            item_index = audio_item.get("index")
+            audio_base64 = audio_item.get("audio_base64")
+
+            # Map batch index back to chunk index
+            if item_index is not None and item_index < len(indices):
+                chunk_idx = indices[item_index]
+            else:
+                print(f"Warning: Invalid index {item_index} in batch response")
+                continue
+
+            if not audio_base64:
+                results["failed"].append((chunk_idx, "No audio data in response"))
+                continue
+
+            try:
+                # Decode base64 and save as WAV
+                audio_bytes = base64.b64decode(audio_base64)
+                output_path = os.path.join(output_dir, f"temp_batch_{chunk_idx}.wav")
+
+                with open(output_path, "wb") as f:
+                    f.write(audio_bytes)
+
+                # Verify file was written
+                if os.path.exists(output_path) and os.path.getsize(output_path) > 0:
+                    results["completed"].append(chunk_idx)
+                    print(f"Batch chunk {chunk_idx} saved: {os.path.getsize(output_path)} bytes")
+                else:
+                    results["failed"].append((chunk_idx, "Audio file empty after decode"))
+
+            except Exception as e:
+                print(f"Error decoding audio for chunk {chunk_idx}: {e}")
+                results["failed"].append((chunk_idx, f"Decode error: {e}"))
+
+    except Exception as e:
+        print(f"Batch API call failed: {e}")
+        for idx in indices:
+            results["failed"].append((idx, f"Batch API error: {e}"))
+
+    return results
+
 
 def combine_audio_with_pauses(audio_segments, speakers, pause_ms=DEFAULT_PAUSE_MS, same_speaker_pause_ms=SAME_SPEAKER_PAUSE_MS):
     """Combine audio segments with pauses between them"""

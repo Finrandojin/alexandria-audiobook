@@ -81,10 +81,22 @@
                         </div>
 
                         <h5 class="mb-3 mt-4">TTS Settings (Voice Generation)</h5>
-                        <div class="mb-3">
-                            <label class="form-label">TTS Server URL</label>
-                            <input type="text" class="form-control" id="tts-url" value="http://127.0.0.1:7860">
-                            <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">TTS Server URL</label>
+                                <input type="text" class="form-control" id="tts-url" value="http://127.0.0.1:7860">
+                                <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Parallel Workers</label>
+                                <input type="number" class="form-control" id="parallel-workers" value="2" min="1" max="8">
+                                <div class="form-text">Concurrent requests (1-8)</div>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Batch Seed <i class="fas fa-flask text-info" title="Requires custom Qwen3-TTS"></i></label>
+                                <input type="number" class="form-control" id="batch-seed" placeholder="-1 (random)">
+                                <div class="form-text">Seed for fast batch mode (custom TTS only)</div>
+                            </div>
                         </div>
 
                         <h5 class="mb-3 mt-4">
@@ -191,6 +203,7 @@
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
                         <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
+                        <button class="btn btn-info btn-sm" id="btn-batch-fast" onclick="renderBatchFast(false)" title="Requires custom Qwen3-TTS with batch API"><i class="fas fa-bolt me-1"></i>Batch (Fast) <i class="fas fa-flask"></i></button>
                         <button class="btn btn-outline-success btn-sm" id="btn-regen-all" onclick="renderAll(true)"><i class="fas fa-redo me-1"></i>Regenerate All</button>
                         <button class="btn btn-danger btn-sm" id="btn-cancel-render" onclick="cancelRender()" style="display:none;"><i class="fas fa-stop me-1"></i>Cancel</button>
                         <button class="btn btn-warning btn-sm" id="btn-merge"><i class="fas fa-file-audio me-1"></i>Merge All</button>
@@ -360,6 +373,10 @@ RULES:
                 document.getElementById('llm-key').value = config.llm.api_key;
                 document.getElementById('llm-model').value = config.llm.model_name;
                 document.getElementById('tts-url').value = config.tts.url;
+                document.getElementById('parallel-workers').value = config.tts.parallel_workers || 2;
+                if (config.tts.batch_seed != null) {
+                    document.getElementById('batch-seed').value = config.tts.batch_seed;
+                }
 
                 // Load custom prompts if they exist and are non-empty
                 if (config.prompts) {
@@ -409,6 +426,11 @@ RULES:
             chunkSize = Math.max(1000, Math.min(9999, chunkSize));
             document.getElementById('chunk-size').value = chunkSize;
 
+            // Validate parallel workers
+            let parallelWorkers = parseInt(document.getElementById('parallel-workers').value) || 2;
+            parallelWorkers = Math.max(1, Math.min(8, parallelWorkers));
+            document.getElementById('parallel-workers').value = parallelWorkers;
+
             const config = {
                 llm: {
                     base_url: document.getElementById('llm-url').value,
@@ -416,7 +438,9 @@ RULES:
                     model_name: document.getElementById('llm-model').value
                 },
                 tts: {
-                    url: document.getElementById('tts-url').value
+                    url: document.getElementById('tts-url').value,
+                    parallel_workers: parallelWorkers,
+                    batch_seed: document.getElementById('batch-seed').value ? parseInt(document.getElementById('batch-seed').value) : null
                 },
                 prompts: {
                     system_prompt: document.getElementById('system-prompt').value,
@@ -922,6 +946,7 @@ RULES:
         window.cancelRender = () => {
             isRenderingAll = false;
             document.getElementById('btn-render-all').style.display = 'inline-block';
+            document.getElementById('btn-batch-fast').style.display = 'inline-block';
             document.getElementById('btn-regen-all').style.display = 'inline-block';
             document.getElementById('btn-cancel-render').style.display = 'none';
         };
@@ -947,43 +972,134 @@ RULES:
                     return;
                 }
 
-                // Sequential processing (no auto-scroll to avoid focus stealing)
-                for (const chunk of toProcess) {
-                    if (!isRenderingAll) break;
-
-                    // Highlight current row without scrolling
-                    document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
-                    const tr = document.querySelector(`tr[data-id="${chunk.id}"]`);
-                    if (tr) tr.classList.add('table-info');
-
-                    // Use the existing generateChunk function to initiate
-                    await generateChunk(chunk.id);
-
-                    // Wait for completion by polling this specific chunk
-                    let isDone = false;
-                    while (!isDone && isRenderingAll) {
-                        await new Promise(r => setTimeout(r, 2000)); // Wait 2s
-                        try {
-                            const allChunks = await API.get('/api/chunks');
-                            const updated = allChunks.find(c => c.id === chunk.id);
-                            if (updated && (updated.status === 'done' || updated.status === 'error')) {
-                                isDone = true;
-                                // Update UI without full redraw
-                                await loadChunks(false);
-                            }
-                        } catch (e) {
-                            console.error("Polling error", e);
+                // Mark all chunks as generating in UI
+                const indices = toProcess.map(c => c.id);
+                for (const id of indices) {
+                    const tr = document.querySelector(`tr[data-id="${id}"]`);
+                    if (tr) {
+                        tr.classList.add('table-info');
+                        const badge = tr.querySelector('.badge');
+                        if (badge) {
+                            badge.className = 'badge bg-warning';
+                            badge.innerText = 'generating';
                         }
                     }
                 }
+
+                // Call batch endpoint for parallel processing
+                const response = await API.post('/api/generate_batch', { indices });
+                console.log(`Batch generation started: ${response.total_chunks} chunks with ${response.workers} workers`);
+
+                // Poll for completion
+                const pollInterval = setInterval(async () => {
+                    if (!isRenderingAll) {
+                        clearInterval(pollInterval);
+                        return;
+                    }
+
+                    try {
+                        await loadChunks(false);
+                        const updated = await API.get('/api/chunks');
+                        const stillGenerating = updated.filter(c =>
+                            indices.includes(c.id) && c.status === 'generating'
+                        );
+
+                        if (stillGenerating.length === 0) {
+                            clearInterval(pollInterval);
+                            // Clear highlights
+                            document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
+                            cancelRender();
+                            await loadChunks(false);
+
+                            // Show completion summary
+                            const completed = updated.filter(c => indices.includes(c.id) && c.status === 'done').length;
+                            const failed = updated.filter(c => indices.includes(c.id) && c.status === 'error').length;
+                            if (failed > 0) {
+                                alert(`Batch complete: ${completed} succeeded, ${failed} failed`);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Polling error", e);
+                    }
+                }, 2000);
+
             } catch (e) {
                 console.error("Render All error:", e);
                 alert("Error during batch rendering: " + e.message);
-            } finally {
-                // Clear highlight
-                document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
-                cancelRender(); // Reset buttons
-                await loadChunks(false);
+                cancelRender();
+            }
+        };
+
+        window.renderBatchFast = async (regenerateAll = false) => {
+            isRenderingAll = true;
+            document.getElementById('btn-render-all').style.display = 'none';
+            document.getElementById('btn-batch-fast').style.display = 'none';
+            document.getElementById('btn-regen-all').style.display = 'none';
+            document.getElementById('btn-cancel-render').style.display = 'inline-block';
+
+            try {
+                const chunks = await API.get('/api/chunks');
+                const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
+
+                if (toProcess.length === 0) {
+                    alert("All chunks are already rendered!");
+                    cancelRender();
+                    return;
+                }
+
+                // Mark all chunks as generating in UI
+                const indices = toProcess.map(c => c.id);
+                for (const id of indices) {
+                    const tr = document.querySelector(`tr[data-id="${id}"]`);
+                    if (tr) {
+                        tr.classList.add('table-info');
+                        const badge = tr.querySelector('.badge');
+                        if (badge) {
+                            badge.className = 'badge bg-warning';
+                            badge.innerText = 'generating';
+                        }
+                    }
+                }
+
+                // Call fast batch endpoint (requires custom Qwen3-TTS)
+                const response = await API.post('/api/generate_batch_fast', { indices });
+                console.log(`Fast batch started: ${response.total_chunks} chunks (batch_size=${response.batch_size}, seed=${response.batch_seed})`);
+
+                // Poll for completion
+                const pollInterval = setInterval(async () => {
+                    if (!isRenderingAll) {
+                        clearInterval(pollInterval);
+                        return;
+                    }
+
+                    try {
+                        await loadChunks(false);
+                        const updated = await API.get('/api/chunks');
+                        const stillGenerating = updated.filter(c =>
+                            indices.includes(c.id) && c.status === 'generating'
+                        );
+
+                        if (stillGenerating.length === 0) {
+                            clearInterval(pollInterval);
+                            document.querySelectorAll('tr').forEach(r => r.classList.remove('table-info'));
+                            cancelRender();
+                            await loadChunks(false);
+
+                            const completed = updated.filter(c => indices.includes(c.id) && c.status === 'done').length;
+                            const failed = updated.filter(c => indices.includes(c.id) && c.status === 'error').length;
+                            if (failed > 0) {
+                                alert(`Batch complete: ${completed} succeeded, ${failed} failed`);
+                            }
+                        }
+                    } catch (e) {
+                        console.error("Polling error", e);
+                    }
+                }, 2000);
+
+            } catch (e) {
+                console.error("Batch Fast error:", e);
+                alert("Error during batch rendering: " + e.message);
+                cancelRender();
             }
         };
 

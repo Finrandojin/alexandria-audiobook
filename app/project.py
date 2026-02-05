@@ -1,8 +1,10 @@
 import os
 import json
 import shutil
+import threading
 from tts import (
     generate_voice,
+    generate_batch,
     combine_audio_with_pauses,
     sanitize_filename,
     DEFAULT_PAUSE_MS,
@@ -75,6 +77,7 @@ class ProjectManager:
         os.makedirs(self.voicelines_dir, exist_ok=True)
 
         self.client = None
+        self._chunks_lock = threading.Lock()  # Thread-safe file writes
 
     def get_client(self):
         if self.client:
@@ -120,8 +123,9 @@ class ProjectManager:
         return []
 
     def save_chunks(self, chunks):
-        with open(self.chunks_path, "w") as f:
-            json.dump(chunks, f, indent=2)
+        with self._chunks_lock:
+            with open(self.chunks_path, "w") as f:
+                json.dump(chunks, f, indent=2)
 
     def update_chunk(self, index, data):
         chunks = self.load_chunks()
@@ -171,8 +175,8 @@ class ProjectManager:
 
             print(f"Generating chunk {index}: speaker={speaker}, style='{style}', text='{text[:50]}...'")
 
-            # Generate to temp file
-            temp_path = os.path.join(self.root_dir, "temp_chunk.wav")
+            # Generate to temp file (unique per chunk for parallel processing)
+            temp_path = os.path.join(self.root_dir, f"temp_chunk_{index}.wav")
 
             success = generate_voice(text, style, speaker, voice_config, temp_path, client)
 
@@ -258,3 +262,177 @@ class ProjectManager:
         final_audio.export(output_path, format="mp3")
 
         return True, output_filename
+
+    def generate_chunks_parallel(self, indices, max_workers=2, progress_callback=None):
+        """Generate multiple chunks in parallel using ThreadPoolExecutor.
+
+        Uses individual TTS API calls with per-speaker voice settings.
+
+        Args:
+            indices: List of chunk indices to generate
+            max_workers: Number of concurrent TTS workers (1-8)
+            progress_callback: Optional callback(completed, failed, total) for progress updates
+
+        Returns:
+            dict with 'completed' and 'failed' lists
+        """
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        results = {"completed": [], "failed": []}
+        total = len(indices)
+
+        if total == 0:
+            return results
+
+        print(f"Starting parallel generation of {total} chunks with {max_workers} workers...")
+
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {
+                executor.submit(self.generate_chunk_audio, idx): idx
+                for idx in indices
+            }
+
+            for future in as_completed(futures):
+                idx = futures[future]
+                try:
+                    success, msg = future.result()
+                    if success:
+                        results["completed"].append(idx)
+                        print(f"Chunk {idx} completed: {msg}")
+                    else:
+                        results["failed"].append((idx, msg))
+                        print(f"Chunk {idx} failed: {msg}")
+                except Exception as e:
+                    results["failed"].append((idx, str(e)))
+                    print(f"Chunk {idx} error: {e}")
+
+                if progress_callback:
+                    progress_callback(len(results["completed"]), len(results["failed"]), total)
+
+        print(f"Parallel generation complete: {len(results['completed'])} succeeded, {len(results['failed'])} failed")
+        return results
+
+    def generate_chunks_batch(self, indices, batch_seed=-1, batch_size=4, progress_callback=None):
+        """Generate multiple chunks using batch TTS API with a single seed.
+
+        Faster than parallel but uses same seed for all voices. Only works with
+        custom voices (clone voices will be skipped).
+
+        Args:
+            indices: List of chunk indices to generate
+            batch_seed: Single seed for all generations (-1 for random)
+            batch_size: Number of chunks per batch request
+            progress_callback: Optional callback(completed, failed, total) for progress updates
+
+        Returns:
+            dict with 'completed' and 'failed' lists
+        """
+        results = {"completed": [], "failed": []}
+        total = len(indices)
+
+        if total == 0:
+            return results
+
+        print(f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed})...")
+
+        # Load chunks and voice config
+        chunks = self.load_chunks()
+        voice_config = {}
+        if os.path.exists(self.voice_config_path):
+            with open(self.voice_config_path, "r") as f:
+                voice_config = json.load(f)
+
+        # Get TTS client
+        client = self.get_client()
+        if not client:
+            for idx in indices:
+                results["failed"].append((idx, "TTS Client not connected"))
+            return results
+
+        # Mark all chunks as generating
+        for idx in indices:
+            if 0 <= idx < len(chunks):
+                chunks[idx]["status"] = "generating"
+        self.save_chunks(chunks)
+
+        # Split indices into batches
+        batches = [indices[i:i + batch_size] for i in range(0, len(indices), batch_size)]
+        print(f"Processing {len(batches)} batches...")
+
+        for batch_num, batch_indices in enumerate(batches):
+            print(f"Batch {batch_num + 1}/{len(batches)}: {len(batch_indices)} chunks")
+
+            # Build batch request data
+            batch_chunks = []
+            for idx in batch_indices:
+                if 0 <= idx < len(chunks):
+                    chunk = chunks[idx]
+                    batch_chunks.append({
+                        "index": idx,
+                        "text": chunk.get("text", ""),
+                        "style": chunk.get("style", ""),
+                        "speaker": chunk.get("speaker", "")
+                    })
+
+            # Call batch TTS with single seed
+            batch_results = generate_batch(batch_chunks, voice_config, self.root_dir, client, batch_seed)
+
+            # Process completed chunks - convert to MP3 and update status
+            chunks = self.load_chunks()  # Reload for each batch
+
+            for idx in batch_results["completed"]:
+                temp_path = os.path.join(self.root_dir, f"temp_batch_{idx}.wav")
+
+                if not os.path.exists(temp_path):
+                    results["failed"].append((idx, "Temp audio file not found"))
+                    chunks[idx]["status"] = "error"
+                    continue
+
+                try:
+                    chunk = chunks[idx]
+                    speaker = chunk.get("speaker", "unknown")
+                    filename_base = f"voiceline_{idx+1:04d}_{sanitize_filename(speaker)}"
+
+                    try:
+                        segment = AudioSegment.from_file(temp_path)
+                        if len(segment) == 0:
+                            results["failed"].append((idx, "Audio has 0 duration"))
+                            chunks[idx]["status"] = "error"
+                            continue
+
+                        mp3_filename = f"{filename_base}.mp3"
+                        mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
+                        segment.export(mp3_filepath, format="mp3")
+                        chunks[idx]["audio_path"] = f"voicelines/{mp3_filename}"
+
+                    except Exception as e:
+                        print(f"MP3 conversion failed for chunk {idx}: {e}")
+                        wav_filename = f"{filename_base}.wav"
+                        wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
+                        shutil.copy(temp_path, wav_filepath)
+                        chunks[idx]["audio_path"] = f"voicelines/{wav_filename}"
+
+                    chunks[idx]["status"] = "done"
+                    results["completed"].append(idx)
+                    print(f"Chunk {idx} completed: {chunks[idx]['audio_path']}")
+
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+
+                except Exception as e:
+                    print(f"Error processing chunk {idx}: {e}")
+                    results["failed"].append((idx, str(e)))
+                    chunks[idx]["status"] = "error"
+
+            for idx, error in batch_results["failed"]:
+                if 0 <= idx < len(chunks):
+                    chunks[idx]["status"] = "error"
+                results["failed"].append((idx, error))
+
+            self.save_chunks(chunks)
+
+            if progress_callback:
+                progress_callback(len(results["completed"]), len(results["failed"]), total)
+
+        print(f"Batch generation complete: {len(results['completed'])} succeeded, {len(results['failed'])} failed")
+        return results
