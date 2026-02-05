@@ -118,6 +118,34 @@
                                     <div class="form-text">Maximum tokens for LLM response. Increase if output is being truncated.</div>
                                 </div>
                             </div>
+                            <h6 class="mb-3">LLM Sampling Parameters</h6>
+                            <div class="row mb-3">
+                                <div class="col">
+                                    <label class="form-label">Temperature</label>
+                                    <input type="number" class="form-control" id="temperature" value="0.6" min="0" max="2" step="0.05">
+                                    <div class="form-text">Randomness (0 = deterministic)</div>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Top P</label>
+                                    <input type="number" class="form-control" id="top-p" value="0.8" min="0" max="1" step="0.05">
+                                    <div class="form-text">Nucleus sampling threshold</div>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Top K</label>
+                                    <input type="number" class="form-control" id="top-k" value="20" min="0" max="200" step="1">
+                                    <div class="form-text">Top-K token filtering</div>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Min P</label>
+                                    <input type="number" class="form-control" id="min-p" value="0" min="0" max="1" step="0.01">
+                                    <div class="form-text">Minimum probability cutoff</div>
+                                </div>
+                                <div class="col">
+                                    <label class="form-label">Presence Penalty</label>
+                                    <input type="number" class="form-control" id="presence-penalty" value="0" min="-2" max="2" step="0.1">
+                                    <div class="form-text">Penalize repeated topics</div>
+                                </div>
+                            </div>
                             <hr>
                             <h6 class="mb-3">Prompt Customization</h6>
                             <div class="mb-3">
@@ -396,6 +424,21 @@ RULES:
                     if (config.generation.max_tokens) {
                         document.getElementById('max-tokens').value = config.generation.max_tokens;
                     }
+                    if (config.generation.temperature != null) {
+                        document.getElementById('temperature').value = config.generation.temperature;
+                    }
+                    if (config.generation.top_p != null) {
+                        document.getElementById('top-p').value = config.generation.top_p;
+                    }
+                    if (config.generation.top_k != null) {
+                        document.getElementById('top-k').value = config.generation.top_k;
+                    }
+                    if (config.generation.min_p != null) {
+                        document.getElementById('min-p').value = config.generation.min_p;
+                    }
+                    if (config.generation.presence_penalty != null) {
+                        document.getElementById('presence-penalty').value = config.generation.presence_penalty;
+                    }
                 }
             } catch (e) {
                 console.error("Failed to load config", e);
@@ -408,6 +451,11 @@ RULES:
             document.getElementById('user-prompt').value = DEFAULT_USER_PROMPT;
             document.getElementById('chunk-size').value = 3000;
             document.getElementById('max-tokens').value = 4096;
+            document.getElementById('temperature').value = 0.6;
+            document.getElementById('top-p').value = 0.8;
+            document.getElementById('top-k').value = 20;
+            document.getElementById('min-p').value = 0;
+            document.getElementById('presence-penalty').value = 0;
         };
 
         // Toggle chevron on collapse
@@ -448,7 +496,12 @@ RULES:
                 },
                 generation: {
                     chunk_size: chunkSize,
-                    max_tokens: parseInt(document.getElementById('max-tokens').value) || 4096
+                    max_tokens: parseInt(document.getElementById('max-tokens').value) || 4096,
+                    temperature: parseFloat(document.getElementById('temperature').value),
+                    top_p: parseFloat(document.getElementById('top-p').value),
+                    top_k: parseInt(document.getElementById('top-k').value),
+                    min_p: parseFloat(document.getElementById('min-p').value),
+                    presence_penalty: parseFloat(document.getElementById('presence-penalty').value)
                 }
             };
             try {
