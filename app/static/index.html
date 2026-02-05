@@ -275,13 +275,6 @@
                     <h4><span class="step-indicator step-active">5</span>Final Result</h4>
                 </div>
                 <div class="card-body">
-                    <!-- Note: kept legacy button for quick full gen, but editor is preferred -->
-                    <div class="d-grid gap-2 mb-4">
-                        <button class="btn btn-warning btn-lg" id="btn-gen-audio">
-                            <i class="fas fa-headphones me-2"></i>Regenerate Full Audiobook (Legacy)
-                        </button>
-                    </div>
-
                     <div id="audio-player-container" class="text-center" style="display:none;">
                         <h5>Your Audiobook</h5>
                         <audio id="main-audio" controls class="w-100 mt-2">
@@ -1181,16 +1174,6 @@ RULES:
              }
         });
 
-
-        // --- Audio Tab ---
-        document.getElementById('btn-gen-audio').addEventListener('click', async () => {
-            try {
-                await API.post('/api/generate_audiobook', {});
-                pollLogs('audio', 'audio-logs');
-            } catch (e) {
-                alert("Failed to start audio gen: " + e.message);
-            }
-        });
 
         // --- Polling Logic ---
         async function pollLogs(taskName, elementId) {

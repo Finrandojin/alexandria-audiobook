@@ -350,14 +350,6 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 
     return {"status": "saved"}
 
-@app.post("/api/generate_audiobook")
-async def generate_audiobook_endpoint(background_tasks: BackgroundTasks):
-    if process_state["audio"]["running"]:
-         raise HTTPException(status_code=400, detail="Audio generation already running")
-
-    background_tasks.add_task(run_process, [sys.executable, "-u", "generate_audiobook.py"], "audio")
-    return {"status": "started"}
-
 @app.get("/api/audiobook")
 async def get_audiobook():
     if not os.path.exists(AUDIOBOOK_PATH):

@@ -2,7 +2,7 @@ module.exports = {
   run: [{
     method: "script.stop",
     params: {
-      uri: ["select_input_file.js", "generate_script.js", "parse_voices.js", "configure_voice.js", "generate_audiobook.js"]
+      uri: ["start.js"]
     }
   }, {
     method: "fs.rm",
@@ -33,11 +33,6 @@ module.exports = {
     method: "fs.rm",
     params: {
       path: "cloned_audiobook.mp3"
-    }
-  }, {
-    method: "fs.rm",
-    params: {
-      path: "app/output_audio_cloned"
     }
   }, {
     method: "fs.rm",

@@ -227,12 +227,9 @@ curl -X POST http://127.0.0.1:4200/api/chunks/5/generate
 curl -X POST http://127.0.0.1:4200/api/merge
 ```
 
-### Audio Generation
+### Audio Download
 ```bash
-# Generate full audiobook (legacy, bypasses editor)
-curl -X POST http://127.0.0.1:4200/api/generate_audiobook
-
-# Download audiobook
+# Download audiobook (after merging in editor)
 curl http://127.0.0.1:4200/api/audiobook --output audiobook.mp3
 ```
 
@@ -264,9 +261,14 @@ voice_config = {
 }
 requests.post(f"{BASE}/api/save_voice_config", json=voice_config)
 
-# Generate and download
-requests.post(f"{BASE}/api/generate_audiobook")
-# ... poll status ...
+# Render all chunks and merge
+chunks = requests.get(f"{BASE}/api/chunks").json()
+indices = [c["id"] for c in chunks]
+requests.post(f"{BASE}/api/generate_batch", json={"indices": indices})
+# ... poll until all chunks status == "done" ...
+requests.post(f"{BASE}/api/merge")
+
+# Download
 with open("output.mp3", "wb") as f:
     f.write(requests.get(f"{BASE}/api/audiobook").content)
 ```
@@ -304,8 +306,18 @@ await fetch(`${BASE}/api/save_voice_config`, {
   })
 });
 
-await fetch(`${BASE}/api/generate_audiobook`, { method: "POST" });
-await waitForTask("audiobook_generation");
+// Render all chunks
+const chunks = await (await fetch(`${BASE}/api/chunks`)).json();
+const indices = chunks.map(c => c.id);
+await fetch(`${BASE}/api/generate_batch`, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ indices })
+});
+// ... poll until all chunks done ...
+
+// Merge into final audiobook
+await fetch(`${BASE}/api/merge`, { method: "POST" });
 ```
 
 ## Recommended LLM Models
@@ -346,7 +358,6 @@ Alexandria/
 ├── app/
 │   ├── app.py                 # FastAPI server
 │   ├── generate_script.py     # LLM script annotation
-│   ├── generate_audiobook.py  # Batch TTS generation
 │   ├── tts.py                 # TTS abstraction layer
 │   ├── project.py             # Chunk management
 │   ├── parse_voices.py        # Voice extraction
