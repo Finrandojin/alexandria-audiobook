@@ -14,108 +14,6 @@ def sanitize_filename(name):
     name = re.sub(r'[^\w\-]', '_', name)
     return name.lower()
 
-def preprocess_text_for_tts(text):
-    """Extract non-verbal cues and prepare text for TTS.
-
-    Returns: (processed_text, nonverbal_instructions)
-
-    Example:
-        "[laughs] That's hilarious!" -> ("That's hilarious!", "laughing")
-        "[sighs] I'm so tired" -> ("sighs... I'm so tired", "sighing, weary")
-        "[gasps] What?!" -> ("What?!", "gasping, shocked")
-    """
-    # Map of non-verbals to TTS style instructions
-    nonverbal_to_style = {
-        'laughs': 'laughing',
-        'laugh': 'laughing',
-        'chuckles': 'chuckling, amused',
-        'chuckle': 'chuckling',
-        'giggles': 'giggling, amused',
-        'giggle': 'giggling',
-        'scoffs': 'scoffing, dismissive',
-        'scoff': 'scoffing',
-        'sighs': 'sighing',
-        'sigh': 'sighing',
-        'gasps': 'gasping, shocked',
-        'gasp': 'gasping',
-        'groans': 'groaning',
-        'groan': 'groaning',
-        'moans': 'moaning',
-        'moan': 'moaning',
-        'whimpers': 'whimpering, distressed',
-        'whimper': 'whimpering',
-        'sobs': 'sobbing, crying',
-        'sob': 'sobbing',
-        'cries': 'crying',
-        'cry': 'crying',
-        'sniffs': 'sniffling',
-        'sniff': 'sniffling',
-        'whispers': 'whispering, quiet',
-        'whisper': 'whispering',
-        'shouts': 'shouting, loud',
-        'shout': 'shouting',
-        'screams': 'screaming',
-        'scream': 'screaming',
-        'yells': 'yelling, loud',
-        'yell': 'yelling',
-        'clears throat': 'clearing throat',
-        'coughs': 'coughing',
-        'cough': 'coughing',
-        'pauses': 'with a pause',
-        'pause': 'with a pause',
-        'hesitates': 'hesitant, uncertain',
-        'hesitate': 'hesitant',
-        'stammers': 'stammering, nervous',
-        'stammer': 'stammering',
-        'gulps': 'gulping, nervous',
-        'gulp': 'gulping',
-        'snorts': 'snorting, derisive',
-        'snort': 'snorting',
-        'hums': 'humming',
-        'hum': 'humming',
-        'growls': 'growling, menacing',
-        'growl': 'growling',
-        'purrs': 'purring, satisfied',
-        'purr': 'purring',
-        'shivers': 'shivering, cold or scared',
-        'shiver': 'shivering',
-    }
-
-    # Extract all non-verbals
-    nonverbals_found = re.findall(r'\[([^\]]+)\]', text.lower())
-
-    # Build style instructions from non-verbals
-    style_additions = []
-    for nv in nonverbals_found:
-        nv_clean = nv.strip().lower()
-        if nv_clean in nonverbal_to_style:
-            style_additions.append(nonverbal_to_style[nv_clean])
-        else:
-            # Generic handling for unknown non-verbals
-            style_additions.append(nv_clean)
-
-    # Process the text - remove brackets but keep the word for some, remove entirely for others
-    # For vocalizations that should be heard, keep them: laughs, sighs, etc.
-    # For pure actions, remove them: pauses, hesitates
-    action_only = {'pauses', 'pause', 'hesitates', 'hesitate', 'clears throat'}
-
-    def replace_nonverbal(match):
-        nv = match.group(1).strip().lower()
-        if nv in action_only:
-            return ''  # Remove completely, style will handle it
-        else:
-            return match.group(1) + '...'  # Keep as vocalization
-
-    processed = re.sub(r'\[([^\]]+)\]', replace_nonverbal, text)
-
-    # Clean up multiple ellipsis, spaces, and leading/trailing
-    processed = re.sub(r'\.{4,}', '...', processed)
-    processed = re.sub(r'\s+', ' ', processed).strip()
-    processed = re.sub(r'^\.\.\.', '', processed).strip()  # Remove leading ellipsis
-
-    nonverbal_style = ', '.join(style_additions) if style_additions else ''
-
-    return processed, nonverbal_style
 
 def test_tts_connection(tts_url, voice_config):
     """Test the TTS connection with the first configured voice"""
@@ -166,27 +64,13 @@ def generate_custom_voice(text, style, speaker, voice_config, output_path, clien
         default_style = voice_data.get("default_style", "")
         seed = int(voice_data.get("seed", -1))
 
-        # Preprocess text and extract non-verbal style cues
-        processed_text, nonverbal_style = preprocess_text_for_tts(text)
+        # Build instruct from per-line style or default character style
+        instruct = style if style else (default_style if default_style else "neutral")
 
-        # Build the full style instruction:
-        # 1. Non-verbal cues take priority (laughing, sighing, etc.)
-        # 2. Then per-line style from script
-        # 3. Then default character style
-        style_parts = []
-        if nonverbal_style:
-            style_parts.append(nonverbal_style)
-        if style:
-            style_parts.append(style)
-        elif default_style:
-            style_parts.append(default_style)
-
-        instruct = ', '.join(style_parts) if style_parts else "neutral"
-
-        print(f"TTS generating with instruct='{instruct}' for text='{processed_text[:50]}...'")
+        print(f"TTS generating with instruct='{instruct}' for text='{text[:50]}...'")
 
         result = client.predict(
-            text=processed_text,
+            text=text,
             language="Auto",
             speaker=voice,
             instruct=instruct,
@@ -232,13 +116,10 @@ def generate_clone_voice(text, speaker, voice_config, output_path, client):
             print(f"Warning: Reference audio not found for '{speaker}': {ref_audio}")
             return False
 
-        # Preprocess text (strip non-verbals but don't use style since clone doesn't support it)
-        processed_text, _ = preprocess_text_for_tts(text)
-
         result = client.predict(
             handle_file(ref_audio),  # Reference audio file path (wrapped for Gradio)
             ref_text,            # Transcript of reference audio
-            processed_text,      # Text to generate
+            text,                # Text to generate
             "Auto",              # Language detection
             False,               # use_xvector_only
             "1.7B",              # Model size
@@ -359,20 +240,10 @@ def _generate_custom_voice_batch(chunks, voice_config, output_dir, client, batch
         voice = voice_data.get("voice", "Ryan")
         default_style = voice_data.get("default_style", "")
 
-        # Preprocess text and build instruct
-        processed_text, nonverbal_style = preprocess_text_for_tts(text)
+        # Build instruct from per-line style or default character style
+        instruct = style if style else (default_style if default_style else "neutral")
 
-        style_parts = []
-        if nonverbal_style:
-            style_parts.append(nonverbal_style)
-        if style:
-            style_parts.append(style)
-        elif default_style:
-            style_parts.append(default_style)
-
-        instruct = ', '.join(style_parts) if style_parts else "neutral"
-
-        texts.append(processed_text)
+        texts.append(text)
         speakers.append(voice)
         instructs.append(instruct)
         indices.append(idx)

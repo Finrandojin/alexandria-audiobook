@@ -14,55 +14,45 @@ OUTPUT FORMAT:
 
 FIELDS:
 - "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
-- "text": The spoken text. For non-verbal sounds, use ONOMATOPOEIA in brackets - phonetic representations the TTS can vocalize:
-  - Laughter: [haha], [hehe], [ahaha], [pfft]
-  - Sighs/exhales: [haah...], [hff], [whew]
-  - Moans/pleasure: [ah..], [mmm], [ooh], [ah.. aah.. aaah..]
-  - Pain/effort: [ugh], [argh], [nngh], [gah]
-  - Surprise: [oh!], [ah!], [huh?], [wha-]
-  - Disgust: [ew], [blech], [ugh]
-  - Throat clearing: [ahem], [ehem], [*cough*]
-  - Crying: [sniff], [hic], [waaah]
-  - Hesitation: [um], [uh], [er], [hmm]
+- "text": The spoken text exactly as TTS should say it. Write ALL sounds as real pronounceable words — the TTS reads this text directly.
+  WRONG: <gasp>..  [moans]  <cry>..  [sighs]  — tags/brackets are NOT speech, TTS cannot vocalize them
+  RIGHT: "Ahh!" "Mmm..." "Oh god..." "Haah..." — actual sounds the voice can produce
+  - For gasps: "Ah!" or "Oh!" — not [gasps] or <gasp>
+  - For moans: "Mmm..." or "Ahh... aah..." or "Ohhh..." — not [moans] or <moan>
+  - For sighs: "Haah..." or "Hff..." — not [sighs] or <sigh>
+  - For laughter: "Haha!" or "Ahaha..." — not [laughs] or <laugh>
+  - For crying: "Hic... sniff..." — not [cries] or <cry>
+  - ALWAYS include actual spoken words too. Pure sound-only entries cause TTS to loop.
+  - WRONG: {"text": "Ahh!"} — too short, TTS may loop
+  - RIGHT: {"text": "Ahh! Oh god..."} or merge the sound into adjacent dialogue
 - "style": Acting direction with THREE parts:
-  1. PACING: ALWAYS slow and deliberate. NEVER use fast/rapid/rushing/breathless/urgent.
-  2. How to deliver the line (voice quality, emphasis, emotional undertone)
-  3. If text contains bracketed onomatopoeia, describe HOW to vocalize it
+  1. SCENE CONTEXT: The emotional/physical situation — e.g., "intimate/aroused", "terrified", "grieving", "playful". CRITICAL: TTS sees each line in isolation and needs to know WHY the character sounds this way.
+  2. DELIVERY: Voice quality, emphasis, emotional undertone
+  3. For lines with vocalizations, describe HOW to deliver them (e.g., "the 'Ahh' is a slow moan of pleasure")
 
-  PACING - Use ONLY these words: "slow", "measured", "deliberate", "unhurried", "taking time", "languid", "drawn-out"
-  FORBIDDEN pacing words: fast, rapid, quick, rushing, breathless, urgent, hurried, brisk, swift
+  PACING - Prefer: "slow", "measured", "deliberate", "unhurried", "languid", "drawn-out"
+  AVOID: "fast", "rapid", "rushing", "breathless", "urgent", "hurried"
 
   Examples:
-  - text: "[haah...] I'm so tired." style: "Slow, exhausted, defeated. Vocalize [haah...] as a long weary sigh."
-  - text: "[ah.. aah..] Don't stop." style: "Slow and breathy, aroused. Vocalize brackets as drawn-out soft moans."
-  - text: "[ahem] As I was saying..." style: "Deliberate pace, formal, slightly annoyed. Vocalize [ahem] as pointed throat clearing."
-  - text: "[haha] You can't be serious!" style: "Measured pace, genuinely amused. Vocalize [haha] as unhurried real laughter."
-  - text: "Run! They're coming!" style: "Slow and intense, alarmed, emphasize each word."
+  - text: "Haah... I'm so tired." style: "Weary, defeated. Deliver 'Haah' as a long exhausted exhale, then speak slowly."
+  - text: "Mmm... don't stop..." style: "Intimate scene, aroused. Slow and breathy, voice thick with desire. 'Mmm' is a drawn-out moan of pleasure."
+  - text: "Ah! What are you doing here?" style: "Moment of shock, fearful. 'Ah' is a sharp startled gasp, then alarmed speech."
+  - text: "Haha! You can't be serious!" style: "Playful banter, amused. Measured pace, genuine laughter."
 
 RULES:
-1. NARRATOR vs CHARACTER - Be strict about this:
-   NARRATOR handles:
-   - Third-person descriptions: "He walked to the door", "The room fell silent"
-   - Scene setting: "The sun was setting over the hills"
-   - Action descriptions: "She picked up the knife", "They exchanged glances"
-   - Anything with "he", "she", "they", "the", "it" as subject
-
-   CHARACTER handles:
-   - Direct speech/dialogue only
-   - First-person narration where "I", "my", "me" refers to the POV character
-   - Internal monologue clearly from character's perspective
-
-   Example - DO NOT mix these:
+1. NARRATOR vs CHARACTER - Be strict:
+   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions)
+   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue
    WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
    RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
 2. Break long passages into chunks under 400 characters each
 3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
 4. Always output COMPLETE sentences
 5. Output ONLY valid JSON array - no markdown, no code blocks
-6. EACH LINE IS INDEPENDENT: The TTS only sees "text" and "style" for each entry - NO context from previous lines. Every style direction must be SELF-CONTAINED and fully describe the delivery without assuming carryover.
-7. STYLE must be complete and explicit every time. If a character is crying, say "sobbing, voice breaking" on EVERY line they cry - don't assume it carries over.
-8. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene, but REPEAT the emotional state explicitly each time. Don't write "continues crying" - write "still sobbing, voice raw".
-9. PACING IS ALWAYS SLOW: Every style MUST include "slow", "measured", "deliberate", or "unhurried". NEVER use "fast", "rapid", "quick", "rushing", "breathless", "urgent", "hurried" - these are FORBIDDEN."""
+6. EACH LINE IS INDEPENDENT: TTS sees ONLY "text" and "style" for each entry — no context from other lines. Every style direction must be SELF-CONTAINED with full scene context.
+7. STYLE must include scene context EVERY time. Don't write "gasping" — write "gasping with pleasure, intimate scene". Don't write "crying" — write "sobbing with grief, funeral scene". The TTS needs the WHY.
+8. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene, but REPEAT the emotional state explicitly each time. Don't write "continues crying" — write "still sobbing, voice raw with grief".
+9. PACING: Every style direction should include a pacing word (slow, measured, deliberate, etc.)."""
 
 USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
 

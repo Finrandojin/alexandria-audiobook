@@ -15,7 +15,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ### Voice Generation
 - **Custom Voices** - 9 pre-trained voices with full style direction support
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
-- **Non-verbal Sounds** - Supports `[laughs]`, `[sighs]`, `[gasps]`, and 20+ vocalizations
+- **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware style directions
 - **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
 
 ### Web UI Editor
@@ -77,12 +77,13 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 Configure connections to your LLM and TTS servers. Under **Prompt Settings (Advanced)**, you can tune:
 - **Generation Settings** - Chunk size and max tokens for LLM responses
 - **LLM Sampling Parameters** - Temperature, Top P, Top K, Min P, and Presence Penalty
+- **Banned Tokens** - Comma-separated list of tokens to ban from LLM output (useful for disabling thinking mode on models like GLM4, DeepSeek-R1, etc.)
 - **Prompt Customization** - System and user prompts used for script generation
 
 ### Script Tab
 Upload a text file and generate the annotated script. The LLM converts your book into a structured JSON format with:
 - Speaker identification (NARRATOR vs character names)
-- Dialogue text with non-verbal cues
+- Dialogue text with natural vocalizations (written as pronounceable text, not tags)
 - Style directions for TTS delivery
 
 ### Voices Tab
@@ -136,14 +137,19 @@ The generated script is a JSON array:
 
 ```json
 [
-  {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "style": "tense, suspenseful"},
-  {"speaker": "ELENA", "text": "[gasps] Who's there?", "style": "frightened, whispered"},
-  {"speaker": "MARCUS", "text": "[chuckles] Did you miss me?", "style": "smug, menacing"}
+  {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "style": "Tense scene, suspenseful. Slow, measured pace."},
+  {"speaker": "ELENA", "text": "Ah! Who's there?", "style": "Fearful surprise, home intrusion. 'Ah' is a sharp startled gasp, then whispered."},
+  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "style": "Menacing confrontation. 'Haha' is a smug chuckle, then slow and threatening."}
 ]
 ```
 
-### Supported Non-verbal Sounds
-`[laughs]`, `[chuckles]`, `[giggles]`, `[scoffs]`, `[sighs]`, `[gasps]`, `[groans]`, `[moans]`, `[whimpers]`, `[sobs]`, `[cries]`, `[sniffs]`, `[whispers]`, `[shouts]`, `[screams]`, `[yells]`, `[clears throat]`, `[coughs]`, `[pauses]`, `[hesitates]`, `[stammers]`, `[gulps]`, `[snorts]`, `[hums]`, `[growls]`, `[purrs]`, `[shivers]`
+### Non-verbal Sounds
+Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with context-aware style directions:
+- Gasps: "Ah!", "Oh!" with style describing the context
+- Moans: "Mmm...", "Ahh...", "Ohhh..."
+- Sighs: "Haah...", "Hff..."
+- Laughter: "Haha!", "Ahaha..."
+- Crying: "Hic... sniff..."
 
 ## Output Files
 
@@ -179,7 +185,7 @@ curl -X POST http://127.0.0.1:4200/api/config \
   -d '{
     "llm": {"base_url": "...", "api_key": "...", "model_name": "..."},
     "tts": {"url": "http://127.0.0.1:7860", "parallel_workers": 2, "batch_seed": null},
-    "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0}
+    "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0, "banned_tokens": []}
   }'
 ```
 
@@ -323,12 +329,13 @@ await fetch(`${BASE}/api/merge`, { method: "POST" });
 ## Recommended LLM Models
 
 For script generation, non-thinking models work best:
-- **Qwen2.5** (any size) - Excellent JSON output
+- **Gemma3** (27B recommended) - Excellent JSON output and style directions
+- **Qwen2.5** (any size) - Reliable JSON output
 - **Qwen3** (non-thinking variant)
 - **Llama 3.1/3.2** - Good character distinction
 - **Mistral/Mixtral** - Fast and reliable
 
-**Avoid** thinking models (DeepSeek-R1, GLM4-air, etc.) as they can interfere with JSON output.
+**Thinking models** (DeepSeek-R1, GLM4-air, etc.) can interfere with JSON output. If you must use one, add `<think>` to the **Banned Tokens** field in Setup to disable thinking mode.
 
 ## Troubleshooting
 
