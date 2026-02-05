@@ -331,7 +331,32 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 }
             )
 
-            text = response.choices[0].message.content.strip()
+            choice = response.choices[0]
+            text = choice.message.content.strip()
+            finish_reason = choice.finish_reason
+            usage = getattr(response, 'usage', None)
+
+            # Log raw response for debugging
+            log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
+            os.makedirs(log_dir, exist_ok=True)
+            log_path = os.path.join(log_dir, "llm_responses.log")
+            with open(log_path, "a", encoding="utf-8") as lf:
+                lf.write(f"\n{'='*80}\n")
+                lf.write(f"CHUNK {chunk_num}/{total_chunks} | attempt {attempt + 1} | finish_reason={finish_reason}\n")
+                if usage:
+                    lf.write(f"tokens: prompt={getattr(usage, 'prompt_tokens', '?')} completion={getattr(usage, 'completion_tokens', '?')}\n")
+                lf.write(f"{'─'*80}\n")
+                lf.write(text)
+                lf.write(f"\n{'='*80}\n")
+
+            print(f"  finish_reason={finish_reason}", end="")
+            if usage:
+                print(f" | tokens: prompt={getattr(usage, 'prompt_tokens', '?')} completion={getattr(usage, 'completion_tokens', '?')}", end="")
+            print()
+
+            if finish_reason == "length":
+                print(f"  WARNING: Response was truncated (hit max_tokens={max_tokens}). Consider increasing max_tokens.")
+
         except Exception as e:
             print(f"Error calling LLM API (attempt {attempt + 1}): {e}")
             if attempt < max_retries:
