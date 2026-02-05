@@ -100,9 +100,30 @@ Fine-tune your audiobook before export:
 - **View all chunks** in a table with status indicators
 - **Edit inline** - Click to modify speaker, text, or style
 - **Generate single** - Regenerate just one chunk after editing
-- **Batch render** - Process all pending chunks
+- **Batch render** - Process all pending chunks (see Render Modes below)
 - **Play sequence** - Preview audio playback in order
 - **Merge all** - Combine chunks into final audiobook
+
+### Render Modes
+
+Alexandria offers two methods for batch rendering audio:
+
+#### Render Pending (Standard)
+The default rendering mode. Uses parallel workers to make individual TTS API calls.
+
+- **Per-speaker seeds** - Each voice uses its configured seed for reproducible output
+- **Voice cloning support** - Works with both custom voices and cloned voices
+- **Parallel Workers** setting controls concurrency (1-8 simultaneous requests)
+
+#### Batch (Fast) ⚗️
+An experimental high-speed rendering mode that sends multiple lines to the TTS server in a single request.
+
+- **Significantly faster** - Reduces API overhead, ~5x speedup in testing
+- **Single seed** - All voices share the `Batch Seed` from config (set empty for random)
+- **Custom voices only** - Clone voices fall back to individual calls
+- **Parallel Workers** setting controls batch size
+
+> **Note:** The Batch (Fast) mode requires a custom build of Qwen3-TTS with the `/generate_batch` endpoint. This is not available in the standard Qwen3-TTS release. A pull request to add this feature is pending at [SUP3RMASS1VE/Qwen3-TTS](https://github.com/SUP3RMASS1VE/Qwen3-TTS). If you need this feature before it's merged, please open an issue to request access.
 
 ### Result Tab
 Download your completed audiobook as MP3.
