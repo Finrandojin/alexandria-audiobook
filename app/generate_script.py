@@ -80,9 +80,6 @@ def clean_json_string(text):
     # Handle unclosed thinking tags (model started thinking but didn't close)
     text = re.sub(r'<think>[\s\S]*$', '', text)
     text = re.sub(r'<thinking>[\s\S]*$', '', text)
-    # Handle missing opening tag (model outputs thinking without <think> but closes with </think>)
-    text = re.sub(r'^[\s\S]*?</think>', '', text)
-    text = re.sub(r'^[\s\S]*?</thinking>', '', text)
 
     # Remove markdown code blocks
     if "```" in text:
