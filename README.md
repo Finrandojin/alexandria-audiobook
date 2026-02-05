@@ -329,7 +329,8 @@ await fetch(`${BASE}/api/merge`, { method: "POST" });
 ## Recommended LLM Models
 
 For script generation, non-thinking models work best:
-- **Gemma3** (27B recommended) - Excellent JSON output and style directions
+- **Qwen3-next** (80B-A3B-instruct) - Excellent JSON output and style directions
+- **Gemma3** (27B recommended) - Strong JSON output and style directions
 - **Qwen2.5** (any size) - Reliable JSON output
 - **Qwen3** (non-thinking variant)
 - **Llama 3.1/3.2** - Good character distinction
