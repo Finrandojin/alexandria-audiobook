@@ -282,7 +282,7 @@ def split_into_chunks(text, max_size=3000):
 
     return chunks
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=20, min_p=0, presence_penalty=0.0):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=20, min_p=0, presence_penalty=0.0, banned_tokens=None):
     """Process a text chunk and return JSON script entries"""
     # Use provided prompts or fall back to defaults
     sys_prompt = system_prompt or SYSTEM_PROMPT
@@ -326,8 +326,11 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 presence_penalty=presence_penalty,
                 max_tokens=max_tokens,
                 extra_body={
-                    "top_k": top_k,
-                    "min_p": min_p
+                    k: v for k, v in {
+                        "top_k": top_k,
+                        "min_p": min_p,
+                        "banned_tokens": banned_tokens if banned_tokens else None,
+                    }.items() if v is not None
                 }
             )
 
@@ -449,6 +452,7 @@ def main():
     top_k = generation_config.get("top_k", 20)
     min_p = generation_config.get("min_p", 0)
     presence_penalty = generation_config.get("presence_penalty", 0.0)
+    banned_tokens = generation_config.get("banned_tokens", [])
 
     # Validate chunk_size (1000-9999)
     chunk_size = max(1000, min(9999, chunk_size))
@@ -456,6 +460,8 @@ def main():
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
     print(f"Chunk size: {chunk_size} chars, Max tokens: {max_tokens}")
+    if banned_tokens:
+        print(f"Banned tokens: {banned_tokens}")
 
     # Create OpenAI client with custom base URL
     client = OpenAI(
@@ -484,7 +490,8 @@ def main():
             top_p=top_p,
             top_k=top_k,
             min_p=min_p,
-            presence_penalty=presence_penalty
+            presence_penalty=presence_penalty,
+            banned_tokens=banned_tokens
         )
         all_entries.extend(entries)
         print(f"  Got {len(entries)} entries")

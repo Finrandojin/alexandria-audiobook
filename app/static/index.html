@@ -146,6 +146,11 @@
                                     <div class="form-text">Penalize repeated topics</div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Banned Tokens</label>
+                                <input type="text" class="form-control" id="banned-tokens" placeholder="e.g. <think>, <reasoning>">
+                                <div class="form-text">Comma-separated tokens the LLM is forbidden from generating. Use to disable thinking mode (e.g. <code>&lt;think&gt;</code>).</div>
+                            </div>
                             <hr>
                             <h6 class="mb-3">Prompt Customization</h6>
                             <div class="mb-3">
@@ -439,6 +444,9 @@ RULES:
                     if (config.generation.presence_penalty != null) {
                         document.getElementById('presence-penalty').value = config.generation.presence_penalty;
                     }
+                    if (config.generation.banned_tokens && config.generation.banned_tokens.length > 0) {
+                        document.getElementById('banned-tokens').value = config.generation.banned_tokens.join(', ');
+                    }
                 }
             } catch (e) {
                 console.error("Failed to load config", e);
@@ -456,6 +464,7 @@ RULES:
             document.getElementById('top-k').value = 20;
             document.getElementById('min-p').value = 0;
             document.getElementById('presence-penalty').value = 0;
+            document.getElementById('banned-tokens').value = '';
         };
 
         // Toggle chevron on collapse
@@ -501,7 +510,10 @@ RULES:
                     top_p: parseFloat(document.getElementById('top-p').value),
                     top_k: parseInt(document.getElementById('top-k').value),
                     min_p: parseFloat(document.getElementById('min-p').value),
-                    presence_penalty: parseFloat(document.getElementById('presence-penalty').value)
+                    presence_penalty: parseFloat(document.getElementById('presence-penalty').value),
+                    banned_tokens: document.getElementById('banned-tokens').value
+                        ? document.getElementById('banned-tokens').value.split(',').map(t => t.trim()).filter(t => t)
+                        : []
                 }
             };
             try {
