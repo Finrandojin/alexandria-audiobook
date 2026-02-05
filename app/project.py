@@ -270,7 +270,7 @@ class ProjectManager:
 
         Args:
             indices: List of chunk indices to generate
-            max_workers: Number of concurrent TTS workers (1-8)
+            max_workers: Number of concurrent TTS workers
             progress_callback: Optional callback(completed, failed, total) for progress updates
 
         Returns:

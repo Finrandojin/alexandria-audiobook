@@ -99,7 +99,7 @@ class LLMConfig(BaseModel):
 
 class TTSConfig(BaseModel):
     url: str
-    parallel_workers: int = 2  # 1-8 concurrent TTS workers
+    parallel_workers: int = 2  # concurrent TTS workers
     batch_seed: Optional[int] = None  # Single seed for batch mode, None/-1 = random
 
 class PromptConfig(BaseModel):
@@ -420,7 +420,7 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
                 cfg = json.load(f)
                 workers = cfg.get("tts", {}).get("parallel_workers", 2)
                 # Clamp to valid range
-                workers = max(1, min(8, workers))
+                workers = max(1, min(25, workers))
         except:
             pass
 
@@ -477,7 +477,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
                 seed_val = tts_cfg.get("batch_seed")
                 if seed_val is not None and seed_val != "":
                     batch_seed = int(seed_val)
-                batch_size = max(1, min(8, tts_cfg.get("parallel_workers", 4)))
+                batch_size = max(1, min(25, tts_cfg.get("parallel_workers", 4)))
         except:
             pass
 

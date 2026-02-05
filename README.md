@@ -113,7 +113,7 @@ The default rendering mode. Uses parallel workers to make individual TTS API cal
 
 - **Per-speaker seeds** - Each voice uses its configured seed for reproducible output
 - **Voice cloning support** - Works with both custom voices and cloned voices
-- **Parallel Workers** setting controls concurrency (1-8 simultaneous requests)
+- **Parallel Workers** setting controls concurrency
 
 #### Batch (Fast) ⚗️
 An experimental high-speed rendering mode that sends multiple lines to the TTS server in a single request.

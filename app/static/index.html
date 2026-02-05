@@ -89,8 +89,8 @@
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Parallel Workers</label>
-                                <input type="number" class="form-control" id="parallel-workers" value="2" min="1" max="8">
-                                <div class="form-text">Concurrent requests (1-8)</div>
+                                <input type="number" class="form-control" id="parallel-workers" value="2" min="1" max="25">
+                                <div class="form-text">Concurrent TTS requests</div>
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">Batch Seed <i class="fas fa-flask text-info" title="Requires custom Qwen3-TTS"></i></label>
@@ -428,7 +428,7 @@ RULES:
 
             // Validate parallel workers
             let parallelWorkers = parseInt(document.getElementById('parallel-workers').value) || 2;
-            parallelWorkers = Math.max(1, Math.min(8, parallelWorkers));
+            parallelWorkers = Math.max(1, Math.min(25, parallelWorkers));
             document.getElementById('parallel-workers').value = parallelWorkers;
 
             const config = {
