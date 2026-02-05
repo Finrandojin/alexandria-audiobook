@@ -74,7 +74,10 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ## Web Interface
 
 ### Setup Tab
-Configure connections to your LLM and TTS servers. Optionally customize the system and user prompts used for script generation.
+Configure connections to your LLM and TTS servers. Under **Prompt Settings (Advanced)**, you can tune:
+- **Generation Settings** - Chunk size and max tokens for LLM responses
+- **LLM Sampling Parameters** - Temperature, Top P, Top K, Min P, and Presence Penalty
+- **Prompt Customization** - System and user prompts used for script generation
 
 ### Script Tab
 Upload a text file and generate the annotated script. The LLM converts your book into a structured JSON format with:
@@ -173,7 +176,11 @@ curl http://127.0.0.1:4200/api/config
 # Save config
 curl -X POST http://127.0.0.1:4200/api/config \
   -H "Content-Type: application/json" \
-  -d '{"llm": {"base_url": "...", "api_key": "...", "model_name": "..."}}'
+  -d '{
+    "llm": {"base_url": "...", "api_key": "...", "model_name": "..."},
+    "tts": {"url": "http://127.0.0.1:7860", "parallel_workers": 2, "batch_seed": null},
+    "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0}
+  }'
 ```
 
 ### Script Generation
