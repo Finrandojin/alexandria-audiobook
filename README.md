@@ -109,11 +109,10 @@ Fine-tune your audiobook before export:
 Alexandria offers two methods for batch rendering audio:
 
 #### Render Pending (Standard)
-The default rendering mode. Uses parallel workers to make individual TTS API calls.
+The default rendering mode. Uses single worker to make individual TTS API calls.
 
 - **Per-speaker seeds** - Each voice uses its configured seed for reproducible output
 - **Voice cloning support** - Works with both custom voices and cloned voices
-- **Parallel Workers** setting controls concurrency
 
 #### Batch (Fast) ⚗️
 An experimental high-speed rendering mode that sends multiple lines to the TTS server in a single request.
