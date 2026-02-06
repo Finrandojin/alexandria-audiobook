@@ -14,6 +14,7 @@ voices.json
 annotated_script.json
 annotated_script.txt
 cloned_audiobook.mp3
+audacity_export.zip
 voicelines/
 app/config.json
 app/output_audio_cloned/

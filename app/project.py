@@ -2,6 +2,8 @@ import os
 import json
 import shutil
 import threading
+import zipfile
+import io
 from tts import (
     generate_voice,
     generate_batch,
@@ -267,6 +269,105 @@ class ProjectManager:
         final_audio.export(output_path, format="mp3")
 
         return True, output_filename
+
+    def export_audacity(self):
+        """Export project as an Audacity-compatible zip with per-speaker WAV tracks,
+        a LOF file for auto-import, and a labels file for chunk annotations."""
+        chunks = self.load_chunks()
+
+        # Phase 1 — Compute timeline (matching merge_audio pause logic exactly)
+        timeline = []  # list of (chunk, segment, abs_start_ms)
+        prev_speaker = None
+        cursor_ms = 0
+
+        for chunk in chunks:
+            path = chunk.get("audio_path")
+            if not path:
+                continue
+            full_path = os.path.join(self.root_dir, path)
+            if not os.path.exists(full_path):
+                continue
+            try:
+                segment = AudioSegment.from_file(full_path)
+            except Exception as e:
+                print(f"Error loading audio for Audacity export {path}: {e}")
+                continue
+
+            speaker = chunk["speaker"]
+            if prev_speaker is not None:
+                if speaker == prev_speaker:
+                    cursor_ms += SAME_SPEAKER_PAUSE_MS
+                else:
+                    cursor_ms += DEFAULT_PAUSE_MS
+
+            timeline.append((chunk, segment, cursor_ms))
+            cursor_ms += len(segment)
+            prev_speaker = speaker
+
+        if not timeline:
+            return False, "No audio segments found"
+
+        total_duration_ms = cursor_ms
+
+        # Phase 2 — Build per-speaker WAV tracks
+        speakers_ordered = []
+        seen = set()
+        for chunk, segment, start_ms in timeline:
+            if chunk["speaker"] not in seen:
+                speakers_ordered.append(chunk["speaker"])
+                seen.add(chunk["speaker"])
+
+        speaker_tracks = {}
+        for speaker in speakers_ordered:
+            track_cursor = 0
+            track = AudioSegment.empty()
+
+            for chunk, segment, start_ms in timeline:
+                if chunk["speaker"] != speaker:
+                    continue
+                # Insert silence gap from current track position to this chunk's start
+                gap = start_ms - track_cursor
+                if gap > 0:
+                    track += AudioSegment.silent(duration=gap)
+                track += segment
+                track_cursor = start_ms + len(segment)
+
+            # Pad to total duration so all tracks are equal length
+            remaining = total_duration_ms - track_cursor
+            if remaining > 0:
+                track += AudioSegment.silent(duration=remaining)
+
+            speaker_tracks[speaker] = track
+
+        # Phase 3 — Build LOF and labels content
+        lof_lines = []
+        for speaker in speakers_ordered:
+            safe_name = sanitize_filename(speaker)
+            lof_lines.append(f'file "{safe_name}.wav"')
+        lof_content = "\n".join(lof_lines) + "\n"
+
+        label_lines = []
+        for chunk, segment, start_ms in timeline:
+            start_sec = start_ms / 1000.0
+            end_sec = (start_ms + len(segment)) / 1000.0
+            text_preview = chunk.get("text", "")[:80]
+            label = f"[{chunk['speaker']}] {text_preview}"
+            label_lines.append(f"{start_sec:.6f}\t{end_sec:.6f}\t{label}")
+        labels_content = "\n".join(label_lines) + "\n"
+
+        # Phase 4 — Zip everything
+        zip_path = os.path.join(self.root_dir, "audacity_export.zip")
+        with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr("project.lof", lof_content)
+            zf.writestr("labels.txt", labels_content)
+
+            for speaker in speakers_ordered:
+                safe_name = sanitize_filename(speaker)
+                wav_buffer = io.BytesIO()
+                speaker_tracks[speaker].export(wav_buffer, format="wav")
+                zf.writestr(f"{safe_name}.wav", wav_buffer.getvalue())
+
+        return True, zip_path
 
     def generate_chunks_parallel(self, indices, max_workers=2, progress_callback=None):
         """Generate multiple chunks in parallel using ThreadPoolExecutor.

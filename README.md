@@ -29,6 +29,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ### Export Options
 - **Combined Audiobook** - Single MP3 with all voices and natural pauses
 - **Individual Voicelines** - Separate MP3 per line for DAW editing (Audacity, etc.)
+- **Audacity Export** - One-click zip with per-speaker WAV tracks, LOF project file, and labels for automatic multi-track import into Audacity
 
 ## Requirements
 
@@ -129,7 +130,7 @@ An experimental high-speed rendering mode that sends multiple lines to the TTS s
 > **Note:** The Batch (Fast) mode requires a custom build of Qwen3-TTS with the `/generate_batch` endpoint. This is not available in the standard Qwen3-TTS release. A pull request to add this feature is pending at [SUP3RMASS1VE/Qwen3-TTS](https://github.com/SUP3RMASS1VE/Qwen3-TTS). If you need this feature before it's merged, please open an issue to request access.
 
 ### Result Tab
-Download your completed audiobook as MP3.
+Download your completed audiobook as MP3, or click **Export to Audacity** to download a zip with per-speaker WAV tracks that import as separate Audacity tracks. Unzip and open `project.lof` in Audacity to load all tracks, then import `labels.txt` via File > Import > Labels for chunk annotations.
 
 ## Script Format
 
@@ -169,6 +170,19 @@ Files are numbered in timeline order with speaker names for easy:
 - Import into Audacity or other DAWs
 - Placement on separate character tracks
 - Fine-tuning of timing and effects
+
+**Audacity Export (per-speaker tracks):**
+```
+audacity_export.zip
+├── project.lof       # Open this in Audacity to import all tracks
+├── labels.txt        # Import via File > Import > Labels for chunk annotations
+├── narrator.wav      # Full-length track with only NARRATOR audio
+├── elena.wav         # Full-length track with only ELENA audio
+├── marcus.wav        # Full-length track with only MARCUS audio
+└── ...
+```
+
+Each WAV track is padded to the same total duration with silence where other speakers are talking. Playing all tracks simultaneously sounds identical to the merged MP3.
 
 ## API Reference
 
@@ -237,6 +251,15 @@ curl -X POST http://127.0.0.1:4200/api/merge
 ```bash
 # Download audiobook (after merging in editor)
 curl http://127.0.0.1:4200/api/audiobook --output audiobook.mp3
+
+# Export to Audacity (per-speaker tracks + LOF + labels)
+curl -X POST http://127.0.0.1:4200/api/export_audacity
+
+# Poll for completion
+curl http://127.0.0.1:4200/api/status/audacity_export
+
+# Download the zip
+curl http://127.0.0.1:4200/api/export_audacity --output audacity_export.zip
 ```
 
 ## Python Integration
@@ -277,6 +300,12 @@ requests.post(f"{BASE}/api/merge")
 # Download
 with open("output.mp3", "wb") as f:
     f.write(requests.get(f"{BASE}/api/audiobook").content)
+
+# Export to Audacity
+requests.post(f"{BASE}/api/export_audacity")
+# ... poll /api/status/audacity_export until not running ...
+with open("audacity_export.zip", "wb") as f:
+    f.write(requests.get(f"{BASE}/api/export_audacity").content)
 ```
 
 ## JavaScript Integration
@@ -324,6 +353,11 @@ await fetch(`${BASE}/api/generate_batch`, {
 
 // Merge into final audiobook
 await fetch(`${BASE}/api/merge`, { method: "POST" });
+
+// Export to Audacity
+await fetch(`${BASE}/api/export_audacity`, { method: "POST" });
+// ... poll /api/status/audacity_export until not running ...
+// Download zip from GET /api/export_audacity
 ```
 
 ## Recommended LLM Models

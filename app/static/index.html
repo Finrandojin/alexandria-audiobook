@@ -284,6 +284,10 @@
                         <a id="download-link" href="#" class="btn btn-outline-dark mt-3" download="audiobook.mp3">
                             <i class="fas fa-download me-2"></i>Download MP3
                         </a>
+                        <button class="btn btn-outline-primary mt-3 ms-2" onclick="exportAudacity()">
+                            <i class="fas fa-headphones me-2"></i>Export to Audacity
+                        </button>
+                        <span id="audacity-status" class="ms-2 mt-3 d-inline-block"></span>
                     </div>
                 </div>
             </div>
@@ -1195,6 +1199,44 @@ RULES:
              }
         });
 
+
+        // --- Audacity Export ---
+        window.exportAudacity = async () => {
+            const statusEl = document.getElementById('audacity-status');
+            statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Exporting...</span>';
+
+            try {
+                await API.post('/api/export_audacity', {});
+
+                const poll = setInterval(async () => {
+                    try {
+                        const status = await API.get('/api/status/audacity_export');
+                        if (!status.running) {
+                            clearInterval(poll);
+                            if (status.logs.some(l => l.includes("complete"))) {
+                                statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Done!</span>';
+                                // Auto-download the zip
+                                const a = document.createElement('a');
+                                a.href = `/api/export_audacity?t=${Date.now()}`;
+                                a.download = 'audacity_export.zip';
+                                document.body.appendChild(a);
+                                a.click();
+                                document.body.removeChild(a);
+                                setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
+                            } else {
+                                const lastLog = status.logs[status.logs.length - 1] || 'Unknown error';
+                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${lastLog}</span>`;
+                            }
+                        }
+                    } catch (e) {
+                        clearInterval(poll);
+                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${e.message}</span>`;
+                    }
+                }, 1000);
+            } catch (e) {
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${e.message}</span>`;
+            }
+        };
 
         // --- Polling Logic ---
         async function pollLogs(taskName, elementId) {
