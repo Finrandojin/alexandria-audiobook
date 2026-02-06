@@ -61,53 +61,32 @@ DEFAULT_SYSTEM_PROMPT = """You are a script writer converting books/novels into 
 
 OUTPUT FORMAT:
 [
-  {"speaker": "NARRATOR", "text": "Description text here.", "style": "tone direction"},
-  {"speaker": "CHARACTER", "text": "Dialogue here.", "style": "emotional direction"}
+  {"speaker": "NARRATOR", "text": "Description text here.", "instruct": "Calm, even narration."},
+  {"speaker": "CHARACTER", "text": "Dialogue here.", "instruct": "Angry, slow and forceful."}
 ]
 
 FIELDS:
 - "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
-- "text": The spoken text exactly as TTS should say it. Write ALL sounds as real pronounceable words — the TTS reads this text directly.
-  WRONG: <gasp>..  [moans]  <cry>..  [sighs]  — tags/brackets are NOT speech, TTS cannot vocalize them
-  RIGHT: "Ahh!" "Mmm..." "Oh god..." "Haah..." — actual sounds the voice can produce
-  - For gasps: "Ah!" or "Oh!" — not [gasps] or <gasp>
-  - For moans: "Mmm..." or "Ahh... aah..." or "Ohhh..." — not [moans] or <moan>
-  - For sighs: "Haah..." or "Hff..." — not [sighs] or <sigh>
-  - For laughter: "Haha!" or "Ahaha..." — not [laughs] or <laugh>
-  - For crying: "Hic... sniff..." — not [cries] or <cry>
-  - ALWAYS include actual spoken words too. Pure sound-only entries cause TTS to loop.
-  - WRONG: {"text": "Ahh!"} — too short, TTS may loop
-  - RIGHT: {"text": "Ahh! Oh god..."} or merge the sound into adjacent dialogue
-- "style": Acting direction with THREE parts:
-  1. SCENE CONTEXT: The emotional/physical situation — e.g., "intimate/aroused", "terrified", "grieving", "playful". CRITICAL: TTS sees each line in isolation and needs to know WHY the character sounds this way.
-  2. DELIVERY: Voice quality, emphasis, emotional undertone
-  3. For lines with vocalizations, describe HOW to deliver them (e.g., "the 'Ahh' is a slow moan of pleasure")
-
-  NARRATOR DELIVERY: The narrator is the listener's baseline — calm, grounded, and even. Narrator style should be plain and conversational by default. Only add subtle tonal coloring when the scene genuinely calls for it (e.g., a tense moment may warrant "quiet, careful tone"), but NEVER match the emotional intensity of the characters. The narrator OBSERVES — the characters FEEL.
-  - DEFAULT narrator style: "Calm, even narration." or "Neutral, steady narration."
-  - SUBTLE coloring when appropriate: "Quiet, somber tone." or "Light, warm tone." — never dramatic.
-  - WRONG: "Narrator sounds devastated, voice breaking with grief" — that's character-level emotion.
-  - RIGHT: "Somber, measured tone." — the narrator reflects the mood without performing it.
-
-  CHARACTER DELIVERY: Characters carry the emotional weight. Their style directions should be vivid and specific about emotion, intensity, and vocal quality.
-
-  PACING - Prefer: "slow", "measured", "deliberate", "unhurried", "languid", "drawn-out"
-  AVOID: "fast", "rapid", "rushing", "breathless", "urgent", "hurried"
-
-  Examples:
-  NARRATOR:
-  - text: "The door swung open. The hallway beyond was dark." style: "Calm, even narration."
-  - text: "She didn't move. The silence stretched between them." style: "Quiet, still tone. Measured pace."
-  - text: "The funeral procession wound through the rain-soaked streets." style: "Somber, subdued tone. Slow, steady pace."
-  CHARACTER:
-  - text: "Haah... I'm so tired." style: "Weary, defeated. Deliver 'Haah' as a long exhausted exhale, then speak slowly."
-  - text: "Mmm... don't stop..." style: "Intimate scene, aroused. Slow and breathy, voice thick with desire. 'Mmm' is a drawn-out moan of pleasure."
-  - text: "Ah! What are you doing here?" style: "Moment of shock, fearful. 'Ah' is a sharp startled gasp, then alarmed speech."
-  - text: "Haha! You can't be serious!" style: "Playful banter, amused. Measured pace, genuine laughter."
+- "text": The spoken text exactly as TTS should say it.
+  - Write all sounds as real words the voice can say. NEVER use bracket tags like [gasps], [moans], <sigh>, <cry> — TTS cannot vocalize these.
+  - Prefer merging sounds into dialogue rather than standalone sound entries. Pure sound-only entries cause TTS to loop.
+  - WRONG: {"text": "Ahh!"} — too short, will loop. Merge into dialogue instead.
+  - Non-human characters should NOT have speaking lines — describe their actions through NARRATOR.
+- "instruct": Short TTS voice direction sent directly to the text-to-speech engine. 3-8 words MAXIMUM. The TTS responds best to simple, direct emotion keywords — NOT long descriptions.
+  FORMAT: Primary emotion + one delivery modifier. End with a period.
+  NARRATOR: Always "Calm, even narration." unless the scene warrants subtle coloring:
+  - DEFAULT: "Calm, even narration." or "Neutral, steady narration."
+  - SUBTLE coloring: "Quiet, somber tone." or "Light, warm tone." — never dramatic.
+  - WRONG: "Narrator sounds devastated, voice breaking with grief" — too emotional, too long.
+  CHARACTER: Emotion + manner. Keep it SHORT.
+  - GOOD: "Angry, slow and threatening." / "Joyful, bright energy." / "Sad, quiet and defeated."
+  - WRONG: "Intimate scene, aroused. Slow and breathy, voice thick with desire." — way too long.
+  PACING words to use: "slow", "measured", "deliberate", "languid"
+  AVOID: "fast", "rapid", "rushing", "breathless", "urgent"
 
 RULES:
 1. NARRATOR vs CHARACTER - Be strict:
-   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions). The narrator is the BASELINE voice — calm, grounded, even-keeled. It anchors the listener between emotional character moments.
+   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions). The narrator is the BASELINE voice — calm, grounded, even-keeled.
    CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue. Characters carry the drama and emotion.
    WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
    RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
@@ -115,10 +94,9 @@ RULES:
 3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
 4. Always output COMPLETE sentences
 5. Output ONLY valid JSON array - no markdown, no code blocks
-6. EACH LINE IS INDEPENDENT: TTS sees ONLY "text" and "style" for each entry — no context from other lines. Every style direction must be SELF-CONTAINED with full scene context.
-7. STYLE must include scene context EVERY time. Don't write "gasping" — write "gasping with pleasure, intimate scene". Don't write "crying" — write "sobbing with grief, funeral scene". The TTS needs the WHY.
-8. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene, but REPEAT the emotional state explicitly each time. Don't write "continues crying" — write "still sobbing, voice raw with grief".
-9. PACING: Every style direction should include a pacing word (slow, measured, deliberate, etc.)."""
+6. INSTRUCT must be 3-8 words. It goes directly to TTS. Keep it simple — one emotion, one modifier.
+7. EMOTIONAL CONTINUITY: Keep instruct directions consistent within a scene. Repeat the emotional state explicitly — don't write "still crying", write "Sad, quiet sobbing."
+8. PACING: Include a pacing word in instruct when relevant (slow, measured, deliberate, etc.)."""
 
 DEFAULT_USER_PROMPT = """Convert this text into an audioplay script JSON array:
 
@@ -170,7 +148,7 @@ class ProcessStatus(BaseModel):
 
 class ChunkUpdate(BaseModel):
     text: Optional[str] = None
-    style: Optional[str] = None
+    instruct: Optional[str] = None
     speaker: Optional[str] = None
 
 class BatchGenerateRequest(BaseModel):
@@ -405,7 +383,7 @@ async def update_chunk(index: int, update: ChunkUpdate):
     chunk = project_manager.update_chunk(index, data)
     if not chunk:
         raise HTTPException(status_code=404, detail="Chunk not found")
-    logger.info(f"Chunk {index} updated, style is now: '{chunk.get('style', '')}'")
+    logger.info(f"Chunk {index} updated, instruct is now: '{chunk.get('instruct', '')}'")
     return chunk
 
 @app.post("/api/chunks/{index}/generate")

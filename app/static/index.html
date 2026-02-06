@@ -109,12 +109,12 @@
                             <div class="row mb-3">
                                 <div class="col-md-6">
                                     <label class="form-label">Chunk Size (characters)</label>
-                                    <input type="number" class="form-control" id="chunk-size" value="3000" min="1000" max="9999">
-                                    <div class="form-text">Size of text chunks sent to LLM (1000-9999). Smaller = more precise, larger = more context.</div>
+                                    <input type="number" class="form-control" id="chunk-size" value="3000" min="500">
+                                    <div class="form-text">Size of text chunks sent to LLM (characters). Smaller = more precise, larger = more context.</div>
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Max Tokens (response)</label>
-                                    <input type="number" class="form-control" id="max-tokens" value="4096" min="1024" max="32768">
+                                    <input type="number" class="form-control" id="max-tokens" value="4096" min="256">
                                     <div class="form-text">Maximum tokens for LLM response. Increase if output is being truncated.</div>
                                 </div>
                             </div>
@@ -252,11 +252,11 @@
                          <table class="table table-bordered table-hover">
                              <thead>
                                  <tr>
-                                     <th width="10%">Speaker</th>
-                                     <th width="40%">Text</th>
-                                     <th width="15%">Style</th>
+                                     <th width="8%">Speaker</th>
+                                     <th width="37%">Text</th>
+                                     <th width="18%">Instruct</th>
                                      <th width="10%">Status</th>
-                                     <th width="25%">Audio / Actions</th>
+                                     <th width="27%">Audio / Actions</th>
                                  </tr>
                              </thead>
                              <tbody id="chunks-table-body">
@@ -360,51 +360,42 @@
 
 OUTPUT FORMAT:
 [
-  {"speaker": "NARRATOR", "text": "Description text here.", "style": "tone direction"},
-  {"speaker": "CHARACTER", "text": "Dialogue here.", "style": "emotional direction"}
+  {"speaker": "NARRATOR", "text": "Description text here.", "instruct": "Calm, even narration."},
+  {"speaker": "CHARACTER", "text": "Dialogue here.", "instruct": "Angry, slow and forceful."}
 ]
 
 FIELDS:
 - "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
-- "text": The spoken text exactly as TTS should say it. Write ALL sounds as real pronounceable words — the TTS reads this text directly.
-  WRONG: <gasp>..  [moans]  <cry>..  [sighs]  — tags/brackets are NOT speech, TTS cannot vocalize them
-  RIGHT: "Ahh!" "Mmm..." "Oh god..." "Haah..." — actual sounds the voice can produce
-  - For gasps: "Ah!" or "Oh!" — not [gasps] or <gasp>
-  - For moans: "Mmm..." or "Ahh... aah..." or "Ohhh..." — not [moans] or <moan>
-  - For sighs: "Haah..." or "Hff..." — not [sighs] or <sigh>
-  - For laughter: "Haha!" or "Ahaha..." — not [laughs] or <laugh>
-  - For crying: "Hic... sniff..." — not [cries] or <cry>
-  - ALWAYS include actual spoken words too. Pure sound-only entries cause TTS to loop.
-  - WRONG: {"text": "Ahh!"} — too short, TTS may loop
-  - RIGHT: {"text": "Ahh! Oh god..."} or merge the sound into adjacent dialogue
-- "style": Acting direction with THREE parts:
-  1. SCENE CONTEXT: The emotional/physical situation — e.g., "intimate/aroused", "terrified", "grieving", "playful". CRITICAL: TTS sees each line in isolation and needs to know WHY the character sounds this way.
-  2. DELIVERY: Voice quality, emphasis, emotional undertone
-  3. For lines with vocalizations, describe HOW to deliver them (e.g., "the 'Ahh' is a slow moan of pleasure")
-
-  PACING - Prefer: "slow", "measured", "deliberate", "unhurried", "languid", "drawn-out"
-  AVOID: "fast", "rapid", "rushing", "breathless", "urgent", "hurried"
-
-  Examples:
-  - text: "Haah... I'm so tired." style: "Weary, defeated. Deliver 'Haah' as a long exhausted exhale, then speak slowly."
-  - text: "Mmm... don't stop..." style: "Intimate scene, aroused. Slow and breathy, voice thick with desire. 'Mmm' is a drawn-out moan of pleasure."
-  - text: "Ah! What are you doing here?" style: "Moment of shock, fearful. 'Ah' is a sharp startled gasp, then alarmed speech."
-  - text: "Haha! You can't be serious!" style: "Playful banter, amused. Measured pace, genuine laughter."
+- "text": The spoken text exactly as TTS should say it.
+  - Write all sounds as real words the voice can say. NEVER use bracket tags like [gasps], [moans], <sigh>, <cry> — TTS cannot vocalize these.
+  - Prefer merging sounds into dialogue rather than standalone sound entries. Pure sound-only entries cause TTS to loop.
+  - WRONG: {"text": "Ahh!"} — too short, will loop. Merge into dialogue instead.
+  - Non-human characters should NOT have speaking lines — describe their actions through NARRATOR.
+- "instruct": Short TTS voice direction sent directly to the text-to-speech engine. 3-8 words MAXIMUM. The TTS responds best to simple, direct emotion keywords — NOT long descriptions.
+  FORMAT: Primary emotion + one delivery modifier. End with a period.
+  NARRATOR: Always "Calm, even narration." unless the scene warrants subtle coloring:
+  - DEFAULT: "Calm, even narration." or "Neutral, steady narration."
+  - SUBTLE coloring: "Quiet, somber tone." or "Light, warm tone." — never dramatic.
+  - WRONG: "Narrator sounds devastated, voice breaking with grief" — too emotional, too long.
+  CHARACTER: Emotion + manner. Keep it SHORT.
+  - GOOD: "Angry, slow and threatening." / "Joyful, bright energy." / "Sad, quiet and defeated."
+  - WRONG: "Intimate scene, aroused. Slow and breathy, voice thick with desire." — way too long.
+  PACING words to use: "slow", "measured", "deliberate", "languid"
+  AVOID: "fast", "rapid", "rushing", "breathless", "urgent"
 
 RULES:
 1. NARRATOR vs CHARACTER - Be strict:
-   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions)
-   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue
+   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions). The narrator is the BASELINE voice — calm, grounded, even-keeled.
+   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue. Characters carry the drama and emotion.
    WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
    RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
 2. Break long passages into chunks under 400 characters each
 3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
 4. Always output COMPLETE sentences
 5. Output ONLY valid JSON array - no markdown, no code blocks
-6. EACH LINE IS INDEPENDENT: TTS sees ONLY "text" and "style" for each entry — no context from other lines. Every style direction must be SELF-CONTAINED with full scene context.
-7. STYLE must include scene context EVERY time. Don't write "gasping" — write "gasping with pleasure, intimate scene". Don't write "crying" — write "sobbing with grief, funeral scene". The TTS needs the WHY.
-8. EMOTIONAL CONTINUITY: Keep style directions consistent within a scene, but REPEAT the emotional state explicitly each time. Don't write "continues crying" — write "still sobbing, voice raw with grief".
-9. PACING: Every style direction should include a pacing word (slow, measured, deliberate, etc.).`;
+6. INSTRUCT must be 3-8 words. It goes directly to TTS. Keep it simple — one emotion, one modifier.
+7. EMOTIONAL CONTINUITY: Keep instruct directions consistent within a scene. Repeat the emotional state explicitly — don't write "still crying", write "Sad, quiet sobbing."
+8. PACING: Include a pacing word in instruct when relevant (slow, measured, deliberate, etc.).`;
 
         const DEFAULT_USER_PROMPT = `Convert this text into an audioplay script JSON array:
 
@@ -496,10 +487,7 @@ RULES:
         document.getElementById('config-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // Validate chunk_size
             let chunkSize = parseInt(document.getElementById('chunk-size').value) || 3000;
-            chunkSize = Math.max(1000, Math.min(9999, chunkSize));
-            document.getElementById('chunk-size').value = chunkSize;
 
             // Validate parallel workers
             let parallelWorkers = parseInt(document.getElementById('parallel-workers').value) || 2;
@@ -834,7 +822,7 @@ RULES:
                             <tr data-id="${chunk.id}">
                                 <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
                                 <td><textarea class="form-control form-control-sm" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
-                                <td><input type="text" class="form-control form-control-sm" value="${chunk.style || ''}" onchange="updateChunk(${chunk.id}, 'style', this.value)"></td>
+                                <td><input type="text" class="form-control form-control-sm" value="${chunk.instruct || ''}" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)"></td>
                                 <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">

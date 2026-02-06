@@ -52,7 +52,7 @@ def test_tts_connection(tts_url, voice_config):
         print("  2. Check if the CustomVoice model is loaded")
         return False
 
-def generate_custom_voice(text, style, speaker, voice_config, output_path, client):
+def generate_custom_voice(text, instruct_text, speaker, voice_config, output_path, client):
     """Generate audio using CustomVoice model"""
     try:
         voice_data = voice_config.get(speaker)
@@ -64,8 +64,8 @@ def generate_custom_voice(text, style, speaker, voice_config, output_path, clien
         default_style = voice_data.get("default_style", "")
         seed = int(voice_data.get("seed", -1))
 
-        # Build instruct from per-line style or default character style
-        instruct = style if style else (default_style if default_style else "neutral")
+        # Build instruct: prefer chunk instruct, fall back to voice_config default_style
+        instruct = instruct_text if instruct_text else (default_style if default_style else "neutral")
 
         print(f"TTS generating with instruct='{instruct}' for text='{text[:50]}...'")
 
@@ -146,7 +146,7 @@ def generate_clone_voice(text, speaker, voice_config, output_path, client):
         print(f"Error generating clone voice for '{speaker}': {e}")
         return False
 
-def generate_voice(text, style, speaker, voice_config, output_path, client):
+def generate_voice(text, instruct_text, speaker, voice_config, output_path, client):
     """Generate audio using either custom voice or clone voice based on config"""
     voice_data = voice_config.get(speaker)
     if not voice_data:
@@ -156,18 +156,16 @@ def generate_voice(text, style, speaker, voice_config, output_path, client):
     voice_type = voice_data.get("type", "custom")
 
     if voice_type == "clone":
-        # Clone voice ignores style
         return generate_clone_voice(text, speaker, voice_config, output_path, client)
     else:
-        # Custom voice uses style directions
-        return generate_custom_voice(text, style, speaker, voice_config, output_path, client)
+        return generate_custom_voice(text, instruct_text, speaker, voice_config, output_path, client)
 
 
 def generate_batch(chunks, voice_config, output_dir, client, batch_seed=-1):
     """Generate multiple audio files in a single batch API call.
 
     Args:
-        chunks: List of dicts with 'text', 'style', 'speaker', 'index' keys
+        chunks: List of dicts with 'text', 'instruct', 'speaker', 'index' keys
         voice_config: Voice configuration dict
         output_dir: Directory to save output files
         client: Gradio client instance
@@ -233,15 +231,15 @@ def _generate_custom_voice_batch(chunks, voice_config, output_dir, client, batch
     for chunk in chunks:
         idx = chunk["index"]
         text = chunk.get("text", "")
-        style = chunk.get("style", "")
+        instruct_text = chunk.get("instruct", "")
         speaker_name = chunk.get("speaker", "")
 
         voice_data = voice_config.get(speaker_name, {})
         voice = voice_data.get("voice", "Ryan")
         default_style = voice_data.get("default_style", "")
 
-        # Build instruct from per-line style or default character style
-        instruct = style if style else (default_style if default_style else "neutral")
+        # Build instruct: prefer chunk instruct, fall back to voice_config default_style
+        instruct = instruct_text if instruct_text else (default_style if default_style else "neutral")
 
         texts.append(text)
         speakers.append(voice)

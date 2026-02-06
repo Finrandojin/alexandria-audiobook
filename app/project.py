@@ -30,43 +30,43 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
     chunks = []
     current_speaker = get_speaker(script_entries[0])
     current_text = script_entries[0].get("text", "")
-    current_style = script_entries[0].get("style", "")
+    current_instruct = script_entries[0].get("instruct", "")
 
     for entry in script_entries[1:]:
         speaker = get_speaker(entry)
         text = entry.get("text", "")
-        style = entry.get("style", "")
+        instruct = entry.get("instruct", "")
 
         if speaker == current_speaker:
             combined = current_text + " " + text
             if len(combined) <= max_chars:
                 current_text = combined
-                # Keep the more specific style if available
-                if style and not current_style:
-                    current_style = style
+                # Keep the more specific instruct if available
+                if instruct and not current_instruct:
+                    current_instruct = instruct
             else:
                 chunks.append({
                     "speaker": current_speaker,
                     "text": current_text,
-                    "style": current_style
+                    "instruct": current_instruct,
                 })
                 current_text = text
-                current_style = style
+                current_instruct = instruct
         else:
             chunks.append({
                 "speaker": current_speaker,
                 "text": current_text,
-                "style": current_style
+                "instruct": current_instruct,
             })
             current_speaker = speaker
             current_text = text
-            current_style = style
+            current_instruct = instruct
 
     # Don't forget the last chunk
     chunks.append({
         "speaker": current_speaker,
         "text": current_text,
-        "style": current_style
+        "instruct": current_instruct,
     })
 
     return chunks
@@ -138,18 +138,16 @@ class ProjectManager:
         chunks = self.load_chunks()
         if 0 <= index < len(chunks):
             chunk = chunks[index]
-            old_style = chunk.get("style", "")
-
             # Update fields
             if "text" in data: chunk["text"] = data["text"]
-            if "style" in data: chunk["style"] = data["style"]
+            if "instruct" in data: chunk["instruct"] = data["instruct"]
             if "speaker" in data: chunk["speaker"] = data["speaker"]
 
-            # If text/style/speaker changed, reset status (but keep old audio until regen)
-            if "text" in data or "style" in data or "speaker" in data:
+            # If text/instruct/speaker changed, reset status (but keep old audio until regen)
+            if "text" in data or "instruct" in data or "speaker" in data:
                 chunk["status"] = "pending"
 
-            print(f"update_chunk({index}): style changed from '{old_style}' to '{chunk.get('style', '')}'")
+            print(f"update_chunk({index}): instruct='{chunk.get('instruct', '')}', speaker='{chunk.get('speaker', '')}'")
             self.save_chunks(chunks)
             return chunk
         return None
@@ -178,14 +176,14 @@ class ProjectManager:
 
             speaker = chunk["speaker"]
             text = chunk["text"]
-            style = chunk.get("style", "")
+            instruct = chunk.get("instruct", "")
 
-            print(f"Generating chunk {index}: speaker={speaker}, style='{style}', text='{text[:50]}...'")
+            print(f"Generating chunk {index}: speaker={speaker}, instruct='{instruct}', text='{text[:50]}...'")
 
             # Generate to temp file (unique per chunk for parallel processing)
             temp_path = os.path.join(self.root_dir, f"temp_chunk_{index}.wav")
 
-            success = generate_voice(text, style, speaker, voice_config, temp_path, client)
+            success = generate_voice(text, instruct, speaker, voice_config, temp_path, client)
 
             if success:
                 # Check file size
@@ -476,7 +474,7 @@ class ProjectManager:
                     batch_chunks.append({
                         "index": idx,
                         "text": chunk.get("text", ""),
-                        "style": chunk.get("style", ""),
+                        "instruct": chunk.get("instruct", ""),
                         "speaker": chunk.get("speaker", "")
                     })
 

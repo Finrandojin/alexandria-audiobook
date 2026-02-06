@@ -2,25 +2,25 @@
 
 # Alexandria Audiobook Generator
 
-Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and styled text-to-speech. Features a browser-based editor for fine-tuning every line before final export.
+Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and text-to-speech. Features a browser-based editor for fine-tuning every line before final export.
 
 ## Features
 
 ### AI-Powered Pipeline
 - **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
-- **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and style directions
+- **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and TTS instruct directions
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
 - **Context Preservation** - Maintains character consistency across chunks during generation
 
 ### Voice Generation
-- **Custom Voices** - 9 pre-trained voices with full style direction support
+- **Custom Voices** - 9 pre-trained voices with instruct-based emotion/tone control
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
-- **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware style directions
+- **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware instruct directions
 - **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
 
 ### Web UI Editor
 - **5-Tab Interface** - Setup, Script Generation, Voice Configuration, Editor, Results
-- **Chunk Editor** - Edit speaker, text, and style for any line
+- **Chunk Editor** - Edit speaker, text, and instruct for any line
 - **Selective Regeneration** - Re-render individual chunks without regenerating everything
 - **Batch Processing** - Render all pending chunks or regenerate entire audiobook
 - **Live Progress** - Real-time logs and status tracking for all operations
@@ -62,12 +62,12 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 2. **Script Tab** - Upload your book (.txt or .md) and click "Generate Annotated Script"
 
 3. **Voices Tab** - Click "Refresh Voices" then configure each speaker:
-   - Choose Custom Voice (with style) or Clone Voice (from reference audio)
+   - Choose Custom Voice (with instruct) or Clone Voice (from reference audio)
    - Set voice parameters and save
 
 4. **Editor Tab** - Review and edit chunks:
    - Click "Batch Render Pending" to generate all audio
-   - Edit any chunk's text/style/speaker and regenerate individually
+   - Edit any chunk's text/instruct/speaker and regenerate individually
    - Click "Merge All" when satisfied
 
 5. **Result Tab** - Download your finished audiobook
@@ -98,12 +98,12 @@ After script generation, parse voices to see all speakers. For each:
 **Clone Voice Mode:**
 - Upload 5-15 seconds of clear reference audio
 - Provide the exact transcript of the reference
-- Note: Style directions are ignored for cloned voices
+- Note: Instruct directions are ignored for cloned voices
 
 ### Editor Tab
 Fine-tune your audiobook before export:
 - **View all chunks** in a table with status indicators
-- **Edit inline** - Click to modify speaker, text, or style
+- **Edit inline** - Click to modify speaker, text, or instruct
 - **Generate single** - Regenerate just one chunk after editing
 - **Batch render** - Process all pending chunks (see Render Modes below)
 - **Play sequence** - Preview audio playback in order
@@ -134,19 +134,21 @@ Download your completed audiobook as MP3, or click **Export to Audacity** to dow
 
 ## Script Format
 
-The generated script is a JSON array:
+The generated script is a JSON array with `speaker`, `text`, and `instruct` fields:
 
 ```json
 [
-  {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "style": "Tense scene, suspenseful. Slow, measured pace."},
-  {"speaker": "ELENA", "text": "Ah! Who's there?", "style": "Fearful surprise, home intrusion. 'Ah' is a sharp startled gasp, then whispered."},
-  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "style": "Menacing confrontation. 'Haha' is a smug chuckle, then slow and threatening."}
+  {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "instruct": "Calm, even narration."},
+  {"speaker": "ELENA", "text": "Ah! Who's there?", "instruct": "Fearful, sharp whisper."},
+  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "instruct": "Menacing, slow and smug."}
 ]
 ```
 
+- **`instruct`** — Short voice direction (3-8 words) sent directly to the TTS engine. The TTS responds best to simple emotion keywords like "Angry, slow and threatening." rather than long descriptions.
+
 ### Non-verbal Sounds
-Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with context-aware style directions:
-- Gasps: "Ah!", "Oh!" with style describing the context
+Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with short instruct directions:
+- Gasps: "Ah!", "Oh!" with instruct like "Fearful, sharp gasp."
 - Moans: "Mmm...", "Ahh...", "Ohhh..."
 - Sighs: "Haah...", "Hff..."
 - Laughter: "Haha!", "Ahaha..."
@@ -238,7 +240,7 @@ curl http://127.0.0.1:4200/api/chunks
 # Update a chunk
 curl -X POST http://127.0.0.1:4200/api/chunks/5 \
   -H "Content-Type: application/json" \
-  -d '{"text": "Updated dialogue", "style": "excited"}'
+  -d '{"text": "Updated dialogue", "instruct": "Excited, bright energy."}'
 
 # Generate audio for single chunk
 curl -X POST http://127.0.0.1:4200/api/chunks/5/generate
@@ -363,8 +365,8 @@ await fetch(`${BASE}/api/export_audacity`, { method: "POST" });
 ## Recommended LLM Models
 
 For script generation, non-thinking models work best:
-- **Qwen3-next** (80B-A3B-instruct) - Excellent JSON output and style directions
-- **Gemma3** (27B recommended) - Strong JSON output and style directions
+- **Qwen3-next** (80B-A3B-instruct) - Excellent JSON output and instruct directions
+- **Gemma3** (27B recommended) - Strong JSON output and instruct directions
 - **Qwen2.5** (any size) - Reliable JSON output
 - **Qwen3** (non-thinking variant)
 - **Llama 3.1/3.2** - Good character distinction
