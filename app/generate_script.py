@@ -30,10 +30,23 @@ FIELDS:
   2. DELIVERY: Voice quality, emphasis, emotional undertone
   3. For lines with vocalizations, describe HOW to deliver them (e.g., "the 'Ahh' is a slow moan of pleasure")
 
+  NARRATOR DELIVERY: The narrator is the listener's baseline — calm, grounded, and even. Narrator style should be plain and conversational by default. Only add subtle tonal coloring when the scene genuinely calls for it (e.g., a tense moment may warrant "quiet, careful tone"), but NEVER match the emotional intensity of the characters. The narrator OBSERVES — the characters FEEL.
+  - DEFAULT narrator style: "Calm, even narration." or "Neutral, steady narration."
+  - SUBTLE coloring when appropriate: "Quiet, somber tone." or "Light, warm tone." — never dramatic.
+  - WRONG: "Narrator sounds devastated, voice breaking with grief" — that's character-level emotion.
+  - RIGHT: "Somber, measured tone." — the narrator reflects the mood without performing it.
+
+  CHARACTER DELIVERY: Characters carry the emotional weight. Their style directions should be vivid and specific about emotion, intensity, and vocal quality.
+
   PACING - Prefer: "slow", "measured", "deliberate", "unhurried", "languid", "drawn-out"
   AVOID: "fast", "rapid", "rushing", "breathless", "urgent", "hurried"
 
   Examples:
+  NARRATOR:
+  - text: "The door swung open. The hallway beyond was dark." style: "Calm, even narration."
+  - text: "She didn't move. The silence stretched between them." style: "Quiet, still tone. Measured pace."
+  - text: "The funeral procession wound through the rain-soaked streets." style: "Somber, subdued tone. Slow, steady pace."
+  CHARACTER:
   - text: "Haah... I'm so tired." style: "Weary, defeated. Deliver 'Haah' as a long exhausted exhale, then speak slowly."
   - text: "Mmm... don't stop..." style: "Intimate scene, aroused. Slow and breathy, voice thick with desire. 'Mmm' is a drawn-out moan of pleasure."
   - text: "Ah! What are you doing here?" style: "Moment of shock, fearful. 'Ah' is a sharp startled gasp, then alarmed speech."
@@ -41,8 +54,8 @@ FIELDS:
 
 RULES:
 1. NARRATOR vs CHARACTER - Be strict:
-   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions)
-   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue
+   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions). The narrator is the BASELINE voice — calm, grounded, even-keeled. It anchors the listener between emotional character moments.
+   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue. Characters carry the drama and emotion.
    WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
    RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
 2. Break long passages into chunks under 400 characters each
