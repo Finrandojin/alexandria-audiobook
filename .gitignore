@@ -16,6 +16,7 @@ annotated_script.txt
 cloned_audiobook.mp3
 audacity_export.zip
 voicelines/
+scripts/
 app/config.json
 app/output_audio_cloned/
 app/output_audio/
@@ -27,6 +28,8 @@ app/output_audio/
 
 # Generated runtime files
 chunks.json
+temp_batch_*.wav
+app/flash-attention/
 error_screenshot.png
 app/error_screenshot.png
 debug_raw_response.txt
@@ -38,3 +41,4 @@ __pycache__/
 
 # User uploads
 app/uploads/
+

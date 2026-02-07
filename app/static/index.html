@@ -82,20 +82,38 @@
 
                         <h5 class="mb-3 mt-4">TTS Settings (Voice Generation)</h5>
                         <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-3">
+                                <label class="form-label">TTS Mode</label>
+                                <select class="form-select" id="tts-mode" onchange="toggleTTSMode()">
+                                    <option value="external">External Server</option>
+                                    <option value="local">Local Model</option>
+                                </select>
+                                <div class="form-text">Local loads model in-process; External connects to a Gradio TTS server</div>
+                            </div>
+                            <div class="col-md-5" id="tts-url-group">
                                 <label class="form-label">TTS Server URL</label>
                                 <input type="text" class="form-control" id="tts-url" value="http://127.0.0.1:7860">
                                 <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4" id="tts-device-group" style="display:none;">
+                                <label class="form-label">Device</label>
+                                <select class="form-select" id="tts-device">
+                                    <option value="auto">Auto (best available)</option>
+                                    <option value="cuda:0">CUDA GPU 0</option>
+                                    <option value="cuda:1">CUDA GPU 1</option>
+                                    <option value="cpu">CPU</option>
+                                </select>
+                                <div class="form-text">Device for local model inference</div>
+                            </div>
+                            <div class="col-md-2">
                                 <label class="form-label">Parallel Workers</label>
-                                <input type="number" class="form-control" id="parallel-workers" value="2" min="1" max="25">
+                                <input type="number" class="form-control" id="parallel-workers" value="2" min="1">
                                 <div class="form-text">Concurrent TTS requests</div>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Batch Seed <i class="fas fa-flask text-info" title="Requires custom Qwen3-TTS"></i></label>
+                            <div class="col-md-2">
+                                <label class="form-label">Batch Seed</label>
                                 <input type="number" class="form-control" id="batch-seed" placeholder="-1 (random)">
-                                <div class="form-text">Seed for fast batch mode (custom TTS only)</div>
+                                <div class="form-text">Seed for reproducibility</div>
                             </div>
                         </div>
 
@@ -194,6 +212,21 @@
                         <button class="btn btn-success btn-lg" id="btn-gen-script">
                             <i class="fas fa-magic me-2"></i>Generate Annotated Script
                         </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="m-0">Saved Scripts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" id="save-script-name" placeholder="Script name (e.g. The Great Gatsby)">
+                        <button class="btn btn-outline-primary" onclick="saveScript()"><i class="fas fa-save me-1"></i>Save Current</button>
+                    </div>
+                    <div id="saved-scripts-list">
+                        <p class="text-muted mb-0">No saved scripts yet.</p>
                     </div>
                 </div>
             </div>
@@ -402,6 +435,12 @@ RULES:
 {context}
 {chunk}`;
 
+        function toggleTTSMode() {
+            const mode = document.getElementById('tts-mode').value;
+            document.getElementById('tts-url-group').style.display = mode === 'external' ? '' : 'none';
+            document.getElementById('tts-device-group').style.display = mode === 'local' ? '' : 'none';
+        }
+
         async function loadConfig() {
             // Set defaults immediately so fields are never empty
             document.getElementById('system-prompt').value = DEFAULT_SYSTEM_PROMPT;
@@ -414,11 +453,14 @@ RULES:
                 document.getElementById('llm-url').value = config.llm.base_url;
                 document.getElementById('llm-key').value = config.llm.api_key;
                 document.getElementById('llm-model').value = config.llm.model_name;
-                document.getElementById('tts-url').value = config.tts.url;
+                document.getElementById('tts-mode').value = config.tts.mode || 'external';
+                document.getElementById('tts-url').value = config.tts.url || 'http://127.0.0.1:7860';
+                document.getElementById('tts-device').value = config.tts.device || 'auto';
                 document.getElementById('parallel-workers').value = config.tts.parallel_workers || 2;
                 if (config.tts.batch_seed != null) {
                     document.getElementById('batch-seed').value = config.tts.batch_seed;
                 }
+                toggleTTSMode();
 
                 // Load custom prompts if they exist and are non-empty
                 if (config.prompts) {
@@ -491,7 +533,7 @@ RULES:
 
             // Validate parallel workers
             let parallelWorkers = parseInt(document.getElementById('parallel-workers').value) || 2;
-            parallelWorkers = Math.max(1, Math.min(25, parallelWorkers));
+            parallelWorkers = Math.max(1, parallelWorkers);
             document.getElementById('parallel-workers').value = parallelWorkers;
 
             const config = {
@@ -501,7 +543,9 @@ RULES:
                     model_name: document.getElementById('llm-model').value
                 },
                 tts: {
+                    mode: document.getElementById('tts-mode').value,
                     url: document.getElementById('tts-url').value,
+                    device: document.getElementById('tts-device').value,
                     parallel_workers: parallelWorkers,
                     batch_seed: document.getElementById('batch-seed').value ? parseInt(document.getElementById('batch-seed').value) : null
                 },
@@ -1262,9 +1306,108 @@ RULES:
             }, 1000);
         }
 
+        // ── Saved Scripts ──────────────────────────────────────
+
+        async function loadSavedScripts() {
+            try {
+                const res = await fetch('/api/scripts');
+                const scripts = await res.json();
+                const container = document.getElementById('saved-scripts-list');
+
+                if (!scripts.length) {
+                    container.innerHTML = '<p class="text-muted mb-0">No saved scripts yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = scripts.map(s => {
+                    const date = new Date(s.created * 1000).toLocaleDateString('en-US', {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    });
+                    const voiceBadge = s.has_voice_config
+                        ? '<span class="badge bg-info ms-2" title="Includes voice configuration">voices</span>'
+                        : '';
+                    return `
+                        <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                            <div>
+                                <strong>${s.name}</strong>${voiceBadge}
+                                <small class="text-muted ms-2">${date}</small>
+                            </div>
+                            <div>
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="loadScript('${s.name}')"><i class="fas fa-upload me-1"></i>Load</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteScript('${s.name}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                }).join('');
+            } catch (e) {
+                console.error('Failed to load saved scripts:', e);
+            }
+        }
+
+        async function saveScript() {
+            const nameInput = document.getElementById('save-script-name');
+            const name = nameInput.value.trim();
+            if (!name) {
+                alert('Please enter a name for the script.');
+                return;
+            }
+            try {
+                const res = await fetch('/api/scripts/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Failed to save script.');
+                    return;
+                }
+                nameInput.value = '';
+                loadSavedScripts();
+            } catch (e) {
+                alert('Error saving script: ' + e.message);
+            }
+        }
+
+        async function loadScript(name) {
+            if (!confirm(`Load "${name}"? This will replace your current script and chunks.`)) return;
+            try {
+                const res = await fetch('/api/scripts/load', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name})
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Failed to load script.');
+                    return;
+                }
+                loadSavedScripts();
+                loadChunks();
+                loadVoices();
+            } catch (e) {
+                alert('Error loading script: ' + e.message);
+            }
+        }
+
+        async function deleteScript(name) {
+            if (!confirm(`Delete saved script "${name}"? This cannot be undone.`)) return;
+            try {
+                const res = await fetch(`/api/scripts/${encodeURIComponent(name)}`, {method: 'DELETE'});
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Failed to delete script.');
+                    return;
+                }
+                loadSavedScripts();
+            } catch (e) {
+                alert('Error deleting script: ' + e.message);
+            }
+        }
+
         // Init
         loadConfig();
         loadVoices();
+        loadSavedScripts();
     </script>
 </body>
 </html>

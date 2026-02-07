@@ -17,8 +17,18 @@ module.exports = {
       path: "app",
       message: [
         "uv pip uninstall google-genai",
-        "uv pip install -r requirements.txt"
+        "uv pip install -r requirements.txt",
+        "uv pip install qwen-tts"
       ]
+    }
+  }, {
+    method: "script.start",
+    params: {
+      uri: "torch.js",
+      params: {
+        path: "app",
+        venv: "env"
+      }
     }
   }, {
     method: "notify",

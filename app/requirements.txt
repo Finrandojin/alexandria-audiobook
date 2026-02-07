@@ -4,6 +4,7 @@ pydub
 requests
 openai
 gradio_client
+soundfile
 python-multipart
 aiofiles
 jinja2

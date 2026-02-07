@@ -5,15 +5,13 @@ import threading
 import zipfile
 import io
 from tts import (
-    generate_voice,
-    generate_batch,
+    TTSEngine,
     combine_audio_with_pauses,
     sanitize_filename,
     DEFAULT_PAUSE_MS,
     SAME_SPEAKER_PAUSE_MS
 )
 from pydub import AudioSegment
-from gradio_client import Client
 
 MAX_CHUNK_CHARS = 500
 
@@ -83,28 +81,27 @@ class ProjectManager:
         # Ensure voicelines dir exists
         os.makedirs(self.voicelines_dir, exist_ok=True)
 
-        self.client = None
+        self.engine = None
         self._chunks_lock = threading.Lock()  # Thread-safe file writes
 
-    def get_client(self):
-        if self.client:
-            return self.client
+    def get_engine(self):
+        if self.engine:
+            return self.engine
 
-        # Load config to get URL
-        url = "http://127.0.0.1:7860"
+        # Load config
+        config = {}
         if os.path.exists(self.config_path):
             try:
                 with open(self.config_path, "r") as f:
                     config = json.load(f)
-                    url = config.get("tts", {}).get("url", url)
             except: pass
 
-        print(f"Connecting to TTS server at {url}...")
         try:
-            self.client = Client(url)
-            return self.client
+            self.engine = TTSEngine(config)
+            print(f"TTS engine initialized (mode={self.engine.mode})")
+            return self.engine
         except Exception as e:
-            print(f"Failed to connect to TTS: {e}")
+            print(f"Failed to initialize TTS engine: {e}")
             return None
 
     def load_chunks(self):
@@ -131,8 +128,12 @@ class ProjectManager:
 
     def save_chunks(self, chunks):
         with self._chunks_lock:
-            with open(self.chunks_path, "w") as f:
+            # Atomic write: write to temp file then rename to avoid
+            # readers seeing a truncated/empty file mid-write.
+            tmp_path = self.chunks_path + ".tmp"
+            with open(tmp_path, "w") as f:
                 json.dump(chunks, f, indent=2)
+            os.replace(tmp_path, self.chunks_path)
 
     def update_chunk(self, index, data):
         chunks = self.load_chunks()
@@ -162,11 +163,11 @@ class ProjectManager:
         self.save_chunks(chunks)
 
         try:
-            client = self.get_client()
-            if not client:
+            engine = self.get_engine()
+            if not engine:
                 chunk["status"] = "error"
                 self.save_chunks(chunks)
-                return False, "TTS Client not connected"
+                return False, "TTS engine not initialized"
 
             # Load voice config
             voice_config = {}
@@ -183,7 +184,7 @@ class ProjectManager:
             # Generate to temp file (unique per chunk for parallel processing)
             temp_path = os.path.join(self.root_dir, f"temp_chunk_{index}.wav")
 
-            success = generate_voice(text, instruct, speaker, voice_config, temp_path, client)
+            success = engine.generate_voice(text, instruct, speaker, voice_config, temp_path)
 
             if success:
                 # Check file size
@@ -446,11 +447,11 @@ class ProjectManager:
             with open(self.voice_config_path, "r") as f:
                 voice_config = json.load(f)
 
-        # Get TTS client
-        client = self.get_client()
-        if not client:
+        # Get TTS engine
+        engine = self.get_engine()
+        if not engine:
             for idx in indices:
-                results["failed"].append((idx, "TTS Client not connected"))
+                results["failed"].append((idx, "TTS engine not initialized"))
             return results
 
         # Mark all chunks as generating
@@ -479,7 +480,7 @@ class ProjectManager:
                     })
 
             # Call batch TTS with single seed
-            batch_results = generate_batch(batch_chunks, voice_config, self.root_dir, client, batch_seed)
+            batch_results = engine.generate_batch(batch_chunks, voice_config, self.root_dir, batch_seed)
 
             # Process completed chunks - convert to MP3 and update status
             chunks = self.load_chunks()  # Reload for each batch

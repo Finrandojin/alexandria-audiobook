@@ -10,6 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
+import re
 import subprocess
 import aiofiles
 
@@ -31,8 +32,11 @@ VOICE_CONFIG_PATH = os.path.join(ROOT_DIR, "voice_config.json")
 SCRIPT_PATH = os.path.join(ROOT_DIR, "annotated_script.json")
 AUDIOBOOK_PATH = os.path.join(ROOT_DIR, "cloned_audiobook.mp3")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
+SCRIPTS_DIR = os.path.join(ROOT_DIR, "scripts")
+CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
+os.makedirs(SCRIPTS_DIR, exist_ok=True)
 
 # Mount static files with absolute path
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -110,9 +114,12 @@ class LLMConfig(BaseModel):
     model_name: str
 
 class TTSConfig(BaseModel):
-    url: str
+    mode: str = "external"  # "local" or "external"
+    url: str = "http://127.0.0.1:7860"  # external mode only
+    device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
     parallel_workers: int = 2  # concurrent TTS workers
     batch_seed: Optional[int] = None  # Single seed for batch mode, None/-1 = random
+    compile_codec: bool = False  # torch.compile the codec for ~3-4x batch throughput (slow first run)
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -227,7 +234,9 @@ async def get_config():
             "model_name": "richardyoung/qwen3-14b-abliterated:Q8_0"
         },
         "tts": {
-            "url": "http://127.0.0.1:7860"
+            "mode": "external",
+            "url": "http://127.0.0.1:7860",
+            "device": "auto"
         },
         "prompts": {
             "system_prompt": DEFAULT_SYSTEM_PROMPT,
@@ -256,6 +265,8 @@ async def get_config():
 async def save_config(config: AppConfig):
     with open(CONFIG_PATH, "w") as f:
         json.dump(config.model_dump(), f, indent=2)
+    # Reset engine so it picks up new TTS settings on next use
+    project_manager.engine = None
     return {"status": "saved"}
 
 @app.post("/api/upload")
@@ -458,9 +469,7 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
         try:
             with open(CONFIG_PATH, "r") as f:
                 cfg = json.load(f)
-                workers = cfg.get("tts", {}).get("parallel_workers", 2)
-                # Clamp to valid range
-                workers = max(1, min(25, workers))
+                workers = max(1, cfg.get("tts", {}).get("parallel_workers", 2))
         except:
             pass
 
@@ -517,7 +526,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
                 seed_val = tts_cfg.get("batch_seed")
                 if seed_val is not None and seed_val != "":
                     batch_seed = int(seed_val)
-                batch_size = max(1, min(25, tts_cfg.get("parallel_workers", 4)))
+                batch_size = max(1, tts_cfg.get("parallel_workers", 4))
         except:
             pass
 
@@ -555,6 +564,91 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
     background_tasks.add_task(task)
     return {"status": "started", "batch_seed": batch_seed, "batch_size": batch_size, "total_chunks": total}
 
+## ── Saved Scripts ──────────────────────────────────────────────
+
+def _sanitize_script_name(name: str) -> str:
+    """Make a string safe for use as a filename."""
+    name = re.sub(r'[^\w\- ]', '', name).strip()
+    name = re.sub(r'\s+', '_', name)
+    return name.lower()
+
+@app.get("/api/scripts")
+async def list_saved_scripts():
+    """List all saved scripts in the scripts/ directory."""
+    scripts = []
+    for f in os.listdir(SCRIPTS_DIR):
+        if f.endswith(".json") and not f.endswith(".voice_config.json"):
+            name = f[:-5]  # strip .json
+            filepath = os.path.join(SCRIPTS_DIR, f)
+            companion = os.path.join(SCRIPTS_DIR, f"{name}.voice_config.json")
+            scripts.append({
+                "name": name,
+                "created": os.path.getmtime(filepath),
+                "has_voice_config": os.path.exists(companion)
+            })
+    scripts.sort(key=lambda x: x["created"], reverse=True)
+    return scripts
+
+class ScriptSaveRequest(BaseModel):
+    name: str
+
+@app.post("/api/scripts/save")
+async def save_script(request: ScriptSaveRequest):
+    """Save the current annotated_script.json (and voice_config.json) under a name."""
+    if not os.path.exists(SCRIPT_PATH):
+        raise HTTPException(status_code=404, detail="No annotated script to save. Generate a script first.")
+
+    safe_name = _sanitize_script_name(request.name)
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid script name.")
+
+    dest = os.path.join(SCRIPTS_DIR, f"{safe_name}.json")
+    shutil.copy2(SCRIPT_PATH, dest)
+
+    if os.path.exists(VOICE_CONFIG_PATH):
+        shutil.copy2(VOICE_CONFIG_PATH, os.path.join(SCRIPTS_DIR, f"{safe_name}.voice_config.json"))
+
+    logger.info(f"Script saved as '{safe_name}'")
+    return {"status": "saved", "name": safe_name}
+
+class ScriptLoadRequest(BaseModel):
+    name: str
+
+@app.post("/api/scripts/load")
+async def load_script(request: ScriptLoadRequest):
+    """Load a saved script, replacing the current annotated_script.json and chunks."""
+    src = os.path.join(SCRIPTS_DIR, f"{request.name}.json")
+    if not os.path.exists(src):
+        raise HTTPException(status_code=404, detail=f"Saved script '{request.name}' not found.")
+
+    shutil.copy2(src, SCRIPT_PATH)
+
+    companion = os.path.join(SCRIPTS_DIR, f"{request.name}.voice_config.json")
+    if os.path.exists(companion):
+        shutil.copy2(companion, VOICE_CONFIG_PATH)
+
+    # Delete chunks so they regenerate from the loaded script
+    if os.path.exists(CHUNKS_PATH):
+        os.remove(CHUNKS_PATH)
+
+    logger.info(f"Script '{request.name}' loaded")
+    return {"status": "loaded", "name": request.name}
+
+@app.delete("/api/scripts/{name}")
+async def delete_script(name: str):
+    """Delete a saved script."""
+    filepath = os.path.join(SCRIPTS_DIR, f"{name}.json")
+    if not os.path.exists(filepath):
+        raise HTTPException(status_code=404, detail=f"Saved script '{name}' not found.")
+
+    os.remove(filepath)
+    companion = os.path.join(SCRIPTS_DIR, f"{name}.voice_config.json")
+    if os.path.exists(companion):
+        os.remove(companion)
+
+    logger.info(f"Script '{name}' deleted")
+    return {"status": "deleted", "name": name}
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=4200)
+    uvicorn.run(app, host="127.0.0.1", port=4200, access_log=False)

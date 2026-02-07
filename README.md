@@ -2,7 +2,7 @@
 
 # Alexandria Audiobook Generator
 
-Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and text-to-speech. Features a browser-based editor for fine-tuning every line before final export.
+Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and text-to-speech. Features a built-in Qwen3-TTS engine with batch processing and a browser-based editor for fine-tuning every line before final export.
 
 ## Features
 
@@ -13,8 +13,12 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Context Preservation** - Maintains character consistency across chunks during generation
 
 ### Voice Generation
+- **Built-in TTS Engine** - Qwen3-TTS runs locally with no external server required
+- **External Server Mode** - Optionally connect to a remote Qwen3-TTS Gradio server
 - **Custom Voices** - 9 pre-trained voices with instruct-based emotion/tone control
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
+- **Batch Processing** - Generate dozens of chunks simultaneously with 3-6x real-time throughput
+- **Codec Compilation** - Optional `torch.compile` optimization for 3-4x faster batch decoding
 - **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware instruct directions
 - **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
 
@@ -22,9 +26,10 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **5-Tab Interface** - Setup, Script Generation, Voice Configuration, Editor, Results
 - **Chunk Editor** - Edit speaker, text, and instruct for any line
 - **Selective Regeneration** - Re-render individual chunks without regenerating everything
-- **Batch Processing** - Render all pending chunks or regenerate entire audiobook
+- **Batch Processing** - Two render modes: standard parallel and fast batch
 - **Live Progress** - Real-time logs and status tracking for all operations
 - **Audio Preview** - Play individual chunks or sequence through the entire audiobook
+- **Script Library** - Save and load annotated scripts with voice configurations
 
 ### Export Options
 - **Combined Audiobook** - Single MP3 with all voices and natural pauses
@@ -39,7 +44,10 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
   - [Ollama](https://ollama.ai/) (local)
   - [OpenAI API](https://platform.openai.com/) (cloud)
   - Any OpenAI-compatible API
-- [Qwen3 TTS](https://github.com/Qwen/Qwen3-TTS) server running locally (Gradio interface)
+- GPU with 16+ GB VRAM recommended (NVIDIA or AMD)
+  - CPU mode available but significantly slower
+
+> **Note:** No external TTS server is required. Alexandria includes a built-in Qwen3-TTS engine that loads models directly. Model weights are downloaded automatically on first use (~3.5 GB).
 
 ## Installation
 
@@ -53,11 +61,11 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 
 ## Quick Start
 
-1. **Setup Tab** - Configure your LLM and TTS servers:
+1. **Setup Tab** - Configure your LLM and TTS:
    - **LLM Base URL**: `http://localhost:1234/v1` (LM Studio) or `http://localhost:11434/v1` (Ollama)
    - **LLM API Key**: Your API key (use `local` for local servers)
    - **LLM Model Name**: The model to use (e.g., `qwen2.5-14b`)
-   - **TTS Server URL**: Default `http://127.0.0.1:7860`
+   - **TTS Mode**: `local` (built-in, recommended) or `external` (Gradio server)
 
 2. **Script Tab** - Upload your book (.txt or .md) and click "Generate Annotated Script"
 
@@ -66,7 +74,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
    - Set voice parameters and save
 
 4. **Editor Tab** - Review and edit chunks:
-   - Click "Batch Render Pending" to generate all audio
+   - Select "Batch (Fast)" mode and click "Batch Render Pending" for fastest generation
    - Edit any chunk's text/instruct/speaker and regenerate individually
    - Click "Merge All" when satisfied
 
@@ -75,7 +83,16 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ## Web Interface
 
 ### Setup Tab
-Configure connections to your LLM and TTS servers. Under **Prompt Settings (Advanced)**, you can tune:
+Configure connections to your LLM and TTS engine.
+
+**TTS Settings:**
+- **Mode** - `local` (built-in engine) or `external` (connect to Gradio server)
+- **Device** - `auto` (recommended), `cuda`, `cpu`, or `mps`
+- **Parallel Workers** - Batch size for fast batch rendering (higher = more VRAM usage)
+- **Batch Seed** - Fixed seed for reproducible batch output (leave empty for random)
+- **Compile Codec** - Enable `torch.compile` for 3-4x faster batch decoding (adds ~30-60s warmup on first generation)
+
+**Prompt Settings (Advanced):**
 - **Generation Settings** - Chunk size and max tokens for LLM responses
 - **LLM Sampling Parameters** - Temperature, Top P, Top K, Min P, and Presence Penalty
 - **Banned Tokens** - Comma-separated list of tokens to ban from LLM output (useful for disabling thinking mode on models like GLM4, DeepSeek-R1, etc.)
@@ -114,23 +131,54 @@ Fine-tune your audiobook before export:
 Alexandria offers two methods for batch rendering audio:
 
 #### Render Pending (Standard)
-The default rendering mode. Uses single worker to make individual TTS API calls.
+The default rendering mode. Sends individual TTS calls in parallel using the configured worker count.
 
 - **Per-speaker seeds** - Each voice uses its configured seed for reproducible output
 - **Voice cloning support** - Works with both custom voices and cloned voices
 
-#### Batch (Fast) ⚗️
-An experimental high-speed rendering mode that sends multiple lines to the TTS server in a single request.
+#### Batch (Fast)
+High-speed rendering that sends multiple lines to the TTS engine in a single batched call. Chunks are sorted by text length and processed in optimized sub-batches to minimize padding waste.
 
-- **Significantly faster** - Reduces API overhead, ~5x speedup in testing
+- **3-6x real-time throughput** - With codec compilation enabled, batches of 20-60 chunks process at 3-6x real-time speed
+- **Sub-batching** - Automatically groups similarly-sized chunks together for efficient GPU utilization
 - **Single seed** - All voices share the `Batch Seed` from config (set empty for random)
 - **Custom voices only** - Clone voices fall back to individual calls
-- **Parallel Workers** setting controls batch size
-
-> **Note:** The Batch (Fast) mode requires a custom build of Qwen3-TTS with the `/generate_batch` endpoint. This is not available in the standard Qwen3-TTS release. A pull request to add this feature is pending at [SUP3RMASS1VE/Qwen3-TTS](https://github.com/SUP3RMASS1VE/Qwen3-TTS). If you need this feature before it's merged, please open an issue to request access.
+- **Parallel Workers** setting controls batch size (higher values use more VRAM)
 
 ### Result Tab
 Download your completed audiobook as MP3, or click **Export to Audacity** to download a zip with per-speaker WAV tracks that import as separate Audacity tracks. Unzip and open `project.lof` in Audacity to load all tracks, then import `labels.txt` via File > Import > Labels for chunk annotations.
+
+## Performance
+
+### Recommended Settings for Batch Generation
+
+| Setting | Recommended | Notes |
+|---------|-------------|-------|
+| TTS Mode | `local` | Built-in engine, no external server |
+| Compile Codec | `true` | 3-4x faster decoding after one-time warmup |
+| Parallel Workers | 20-60 | Higher = more throughput, more VRAM |
+| Render Mode | Batch (Fast) | Uses batched TTS calls |
+
+### Benchmarks
+
+Tested on AMD RX 7900 XTX (24 GB VRAM, ROCm 6.3):
+
+| Configuration | Throughput |
+|--------------|------------|
+| Standard mode (sequential) | ~1x real-time |
+| Batch mode, no codec compile | ~2x real-time |
+| Batch mode + compile_codec | **3-6x real-time** |
+
+A 273-chunk audiobook (~54 minutes of audio) generates in approximately 16 minutes with batch mode and codec compilation enabled.
+
+### ROCm (AMD GPU) Notes
+
+Alexandria automatically applies ROCm-specific optimizations when running on AMD GPUs:
+- **MIOpen fast-find mode** - Prevents workspace allocation failures that cause slow GEMM fallback
+- **Triton AMD flash attention** - Enables native flash attention for the whisper encoder
+- **triton_key compatibility shim** - Fixes `torch.compile` on pytorch-triton-rocm
+
+These are applied transparently and require no configuration.
 
 ## Script Format
 
@@ -200,7 +248,13 @@ curl -X POST http://127.0.0.1:4200/api/config \
   -H "Content-Type: application/json" \
   -d '{
     "llm": {"base_url": "...", "api_key": "...", "model_name": "..."},
-    "tts": {"url": "http://127.0.0.1:7860", "parallel_workers": 2, "batch_seed": null},
+    "tts": {
+      "mode": "local",
+      "device": "auto",
+      "parallel_workers": 25,
+      "batch_seed": 12345,
+      "compile_codec": true
+    },
     "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0, "banned_tokens": []}
   }'
 ```
@@ -245,8 +299,34 @@ curl -X POST http://127.0.0.1:4200/api/chunks/5 \
 # Generate audio for single chunk
 curl -X POST http://127.0.0.1:4200/api/chunks/5/generate
 
+# Standard batch render (parallel individual calls)
+curl -X POST http://127.0.0.1:4200/api/generate_batch \
+  -H "Content-Type: application/json" \
+  -d '{"indices": [0, 1, 2, 3, 4]}'
+
+# Fast batch render (batched TTS calls, much faster)
+curl -X POST http://127.0.0.1:4200/api/generate_batch_fast \
+  -H "Content-Type: application/json" \
+  -d '{"indices": [0, 1, 2, 3, 4]}'
+
 # Merge all chunks into final audiobook
 curl -X POST http://127.0.0.1:4200/api/merge
+```
+
+### Saved Scripts
+```bash
+# List saved scripts
+curl http://127.0.0.1:4200/api/scripts
+
+# Save current script
+curl -X POST http://127.0.0.1:4200/api/scripts/save \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-novel"}'
+
+# Load a saved script
+curl -X POST http://127.0.0.1:4200/api/scripts/load \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my-novel"}'
 ```
 
 ### Audio Download
@@ -292,10 +372,10 @@ voice_config = {
 }
 requests.post(f"{BASE}/api/save_voice_config", json=voice_config)
 
-# Render all chunks and merge
+# Fast batch render all chunks
 chunks = requests.get(f"{BASE}/api/chunks").json()
 indices = [c["id"] for c in chunks]
-requests.post(f"{BASE}/api/generate_batch", json={"indices": indices})
+requests.post(f"{BASE}/api/generate_batch_fast", json={"indices": indices})
 # ... poll until all chunks status == "done" ...
 requests.post(f"{BASE}/api/merge")
 
@@ -343,10 +423,10 @@ await fetch(`${BASE}/api/save_voice_config`, {
   })
 });
 
-// Render all chunks
+// Fast batch render all chunks
 const chunks = await (await fetch(`${BASE}/api/chunks`)).json();
 const indices = chunks.map(c => c.id);
-await fetch(`${BASE}/api/generate_batch`, {
+await fetch(`${BASE}/api/generate_batch_fast`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({ indices })
@@ -382,9 +462,22 @@ For script generation, non-thinking models work best:
 - Try a different model - some struggle with JSON output
 
 ### TTS generation fails
-- Ensure Qwen3-TTS is running at the configured URL
+- Check the Pinokio terminal for model loading errors
+- Ensure sufficient VRAM (16+ GB recommended for bfloat16)
+- For external mode, ensure the Gradio TTS server is running at the configured URL
 - Check voice_config.json has valid settings for all speakers
 - For clone voices, verify reference audio exists and transcript is accurate
+
+### Slow batch generation
+- Enable **Compile Codec** in Setup (adds warmup time but 3-4x faster after)
+- Increase **Parallel Workers** (batch size) if VRAM allows
+- Use **Batch (Fast)** render mode instead of Standard
+- If you see MIOpen warnings on AMD, these are handled automatically
+
+### Out of memory errors
+- Reduce **Parallel Workers** (batch size)
+- Close other GPU-intensive applications
+- Try `device: cpu` as a fallback (much slower)
 
 ### Audio quality issues
 - Use 5-15 second clear reference audio for cloning
@@ -401,10 +494,11 @@ For script generation, non-thinking models work best:
 Alexandria/
 ├── app/
 │   ├── app.py                 # FastAPI server
+│   ├── tts.py                 # TTS engine (local + external backends)
 │   ├── generate_script.py     # LLM script annotation
-│   ├── tts.py                 # TTS abstraction layer
-│   ├── project.py             # Chunk management
+│   ├── project.py             # Chunk management & batch generation
 │   ├── parse_voices.py        # Voice extraction
+│   ├── config.json            # Runtime configuration
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
 ├── install.js                 # Pinokio installer
