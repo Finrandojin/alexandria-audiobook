@@ -95,6 +95,9 @@ Configure connections to your LLM and TTS engine.
 - **Parallel Workers** - Batch size for fast batch rendering (higher = more VRAM usage)
 - **Batch Seed** - Fixed seed for reproducible batch output (leave empty for random)
 - **Compile Codec** - Enable `torch.compile` for 3-4x faster batch decoding (adds ~30-60s warmup on first generation)
+- **Sub-batching** - Split batches by text length to reduce wasted GPU compute on padding (enabled by default)
+- **Min Sub-batch Size** - Minimum chunks per sub-batch before allowing a split (default: 4)
+- **Length Ratio** - Maximum longest/shortest text length ratio before forcing a sub-batch split (default: 5)
 
 **Prompt Settings (Advanced):**
 - **Generation Settings** - Chunk size and max tokens for LLM responses
@@ -257,7 +260,10 @@ curl -X POST http://127.0.0.1:4200/api/config \
       "device": "auto",
       "parallel_workers": 25,
       "batch_seed": 12345,
-      "compile_codec": true
+      "compile_codec": true,
+      "sub_batch_enabled": true,
+      "sub_batch_min_size": 4,
+      "sub_batch_ratio": 5
     },
     "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0, "banned_tokens": []}
   }'
