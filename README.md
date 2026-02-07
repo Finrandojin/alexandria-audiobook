@@ -206,10 +206,10 @@ The generated script is a JSON array with `speaker`, `text`, and `instruct` fiel
 ### Non-verbal Sounds
 Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with short instruct directions:
 - Gasps: "Ah!", "Oh!" with instruct like "Fearful, sharp gasp."
-- Moans: "Mmm...", "Ahh...", "Ohhh..."
 - Sighs: "Haah...", "Hff..."
 - Laughter: "Haha!", "Ahaha..."
 - Crying: "Hic... sniff..."
+- Exclamations: "Mmm...", "Hmm...", "Ugh..."
 
 ## Output Files
 
