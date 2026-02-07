@@ -120,6 +120,9 @@ class TTSConfig(BaseModel):
     parallel_workers: int = 2  # concurrent TTS workers
     batch_seed: Optional[int] = None  # Single seed for batch mode, None/-1 = random
     compile_codec: bool = False  # torch.compile the codec for ~3-4x batch throughput (slow first run)
+    sub_batch_enabled: bool = True  # split batch by text length to reduce padding waste
+    sub_batch_min_size: int = 4  # minimum chunks per sub-batch before allowing a split
+    sub_batch_ratio: float = 5.0  # max longest/shortest length ratio before splitting
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None

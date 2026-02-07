@@ -54,6 +54,11 @@ class TTSEngine:
         self._device = tts_config.get("device", "auto")
         self._compile_codec_enabled = tts_config.get("compile_codec", False)
 
+        # Sub-batching config
+        self._sub_batch_enabled = tts_config.get("sub_batch_enabled", True)
+        self._sub_batch_min_size = max(1, tts_config.get("sub_batch_min_size", 4))
+        self._sub_batch_ratio = max(1.0, float(tts_config.get("sub_batch_ratio", 5)))
+
         # Lazy-loaded backends
         self._local_custom_model = None
         self._local_clone_model = None
@@ -511,8 +516,9 @@ class TTSEngine:
 
         Autoregressive batch generation runs for as long as the longest sequence.
         Shorter sequences waste compute on padding. To minimize this, chunks are
-        sorted by text length and grouped into sub-batches where the longest text
-        is at most 2x the shortest. Each sub-batch is processed separately.
+        sorted by text length and split into sub-batches when the length ratio
+        exceeds the configured threshold. Sub-batching can be disabled entirely
+        via config, in which case everything runs as one batch.
         """
         import torch
         import time
@@ -553,18 +559,21 @@ class TTSEngine:
         instructs = [instructs[i] for i in sort_order]
         indices = [indices[i] for i in sort_order]
 
-        # Build sub-batches: split when longest > 5x shortest in group,
-        # but enforce a minimum of 4 items per sub-batch to preserve
-        # batch parallelism.
-        MIN_SUB_BATCH = 4
-        sub_batches = []
-        batch_start = 0
-        for i in range(1, len(texts)):
-            shortest = max(len(texts[batch_start]), 1)
-            if len(texts[i]) > 5 * shortest and (i - batch_start) >= MIN_SUB_BATCH:
-                sub_batches.append((batch_start, i))
-                batch_start = i
-        sub_batches.append((batch_start, len(texts)))
+        # Build sub-batches: split when longest > Nx shortest in group,
+        # but enforce a minimum items per sub-batch to preserve batch
+        # parallelism.  When sub-batching is disabled, everything runs
+        # as a single batch (faster start, but more padding waste).
+        if self._sub_batch_enabled:
+            sub_batches = []
+            batch_start = 0
+            for i in range(1, len(texts)):
+                shortest = max(len(texts[batch_start]), 1)
+                if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
+                    sub_batches.append((batch_start, i))
+                    batch_start = i
+            sub_batches.append((batch_start, len(texts)))
+        else:
+            sub_batches = [(0, len(texts))]
 
         print(f"Batch [local]: generating {len(texts)} chunks ({total_text_chars} chars) "
               f"in {len(sub_batches)} sub-batch(es)...")

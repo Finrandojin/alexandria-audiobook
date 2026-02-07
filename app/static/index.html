@@ -116,6 +116,32 @@
                                 <div class="form-text">Seed for reproducibility</div>
                             </div>
                         </div>
+                        <div class="row mb-3" id="tts-local-options" style="display:none;">
+                            <div class="col-md-2">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="compile-codec">
+                                    <label class="form-check-label" for="compile-codec">Compile Codec</label>
+                                </div>
+                                <div class="form-text">torch.compile the audio codec (~3-4x batch speed, slow first run)</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="sub-batch-enabled" checked>
+                                    <label class="form-check-label" for="sub-batch-enabled">Sub-batching</label>
+                                </div>
+                                <div class="form-text">Split batches by text length to reduce padding waste</div>
+                            </div>
+                            <div class="col-md-2" id="sub-batch-min-group">
+                                <label class="form-label">Min Sub-batch Size</label>
+                                <input type="number" class="form-control" id="sub-batch-min-size" value="4" min="1">
+                                <div class="form-text">Min chunks before splitting</div>
+                            </div>
+                            <div class="col-md-2" id="sub-batch-ratio-group">
+                                <label class="form-label">Length Ratio</label>
+                                <input type="number" class="form-control" id="sub-batch-ratio" value="5" min="1" step="0.5">
+                                <div class="form-text">Max long/short ratio before split</div>
+                            </div>
+                        </div>
 
                         <h5 class="mb-3 mt-4">
                             <a class="text-decoration-none" data-bs-toggle="collapse" href="#promptSettings" role="button" aria-expanded="false">
@@ -439,6 +465,7 @@ RULES:
             const mode = document.getElementById('tts-mode').value;
             document.getElementById('tts-url-group').style.display = mode === 'external' ? '' : 'none';
             document.getElementById('tts-device-group').style.display = mode === 'local' ? '' : 'none';
+            document.getElementById('tts-local-options').style.display = mode === 'local' ? '' : 'none';
         }
 
         async function loadConfig() {
@@ -459,6 +486,14 @@ RULES:
                 document.getElementById('parallel-workers').value = config.tts.parallel_workers || 2;
                 if (config.tts.batch_seed != null) {
                     document.getElementById('batch-seed').value = config.tts.batch_seed;
+                }
+                document.getElementById('compile-codec').checked = !!config.tts.compile_codec;
+                document.getElementById('sub-batch-enabled').checked = config.tts.sub_batch_enabled !== false;
+                if (config.tts.sub_batch_min_size != null) {
+                    document.getElementById('sub-batch-min-size').value = config.tts.sub_batch_min_size;
+                }
+                if (config.tts.sub_batch_ratio != null) {
+                    document.getElementById('sub-batch-ratio').value = config.tts.sub_batch_ratio;
                 }
                 toggleTTSMode();
 
@@ -547,7 +582,11 @@ RULES:
                     url: document.getElementById('tts-url').value,
                     device: document.getElementById('tts-device').value,
                     parallel_workers: parallelWorkers,
-                    batch_seed: document.getElementById('batch-seed').value ? parseInt(document.getElementById('batch-seed').value) : null
+                    batch_seed: document.getElementById('batch-seed').value ? parseInt(document.getElementById('batch-seed').value) : null,
+                    compile_codec: document.getElementById('compile-codec').checked,
+                    sub_batch_enabled: document.getElementById('sub-batch-enabled').checked,
+                    sub_batch_min_size: parseInt(document.getElementById('sub-batch-min-size').value) || 4,
+                    sub_batch_ratio: parseFloat(document.getElementById('sub-batch-ratio').value) || 5
                 },
                 prompts: {
                     system_prompt: document.getElementById('system-prompt').value,
