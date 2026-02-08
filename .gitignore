@@ -26,6 +26,9 @@ app/output_audio/
 /QWEN.md
 /SPEC.md
 
+audiobook.mp3
+lora.md
+
 # Generated runtime files
 chunks.json
 temp_batch_*.wav

@@ -16,7 +16,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
 - **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and TTS instruct directions
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
-- **Context Preservation** - Maintains character consistency across chunks during generation
+- **Context Preservation** - Passes character roster and last 3 script entries between chunks for name and style continuity
 
 ### Voice Generation
 - **Built-in TTS Engine** - Qwen3-TTS runs locally with no external server required
@@ -118,7 +118,7 @@ After script generation, parse voices to see all speakers. For each:
 
 **Custom Voice Mode:**
 - Select from 9 pre-trained voices: Aiden, Dylan, Eric, Ono_anna, Ryan, Serena, Sohee, Uncle_fu, Vivian
-- Set a default style (e.g., "calm, professional narrator")
+- Set a character style that appends persistent traits to every TTS instruct (e.g., "Heavy Scottish accent", "Refined aristocratic tone")
 - Optionally set a seed for reproducible output
 
 **Clone Voice Mode:**
@@ -196,12 +196,12 @@ The generated script is a JSON array with `speaker`, `text`, and `instruct` fiel
 ```json
 [
   {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "instruct": "Calm, even narration."},
-  {"speaker": "ELENA", "text": "Ah! Who's there?", "instruct": "Fearful, sharp whisper."},
-  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "instruct": "Menacing, slow and smug."}
+  {"speaker": "ELENA", "text": "Ah! Who's there?", "instruct": "Startled and fearful, sharp whispered question, voice cracking with panic."},
+  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "instruct": "Menacing confidence, low smug drawl with a dark chuckle, savoring the moment."}
 ]
 ```
 
-- **`instruct`** — Short voice direction (3-8 words) sent directly to the TTS engine. The TTS responds best to simple emotion keywords like "Angry, slow and threatening." rather than long descriptions.
+- **`instruct`** — 2-3 sentence TTS voice direction sent directly to the engine. Set tone, describe delivery, then give specific references. Example: "Devastated by grief, Sniffing between words and pausing to collect herself, end with a wracking sob."
 
 ### Non-verbal Sounds
 Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with short instruct directions:
@@ -295,7 +295,7 @@ curl -X POST http://127.0.0.1:4200/api/parse_voices
 # Save voice config
 curl -X POST http://127.0.0.1:4200/api/save_voice_config \
   -H "Content-Type: application/json" \
-  -d '{"NARRATOR": {"type": "custom", "voice": "Ryan", "default_style": "calm"}}'
+  -d '{"NARRATOR": {"type": "custom", "voice": "Ryan", "character_style": "calm"}}'
 ```
 
 ### Chunk Management
@@ -379,8 +379,8 @@ while True:
 
 # Configure voices
 voice_config = {
-    "NARRATOR": {"type": "custom", "voice": "Ryan", "default_style": "calm narrator"},
-    "HERO": {"type": "custom", "voice": "Aiden", "default_style": "brave, determined"}
+    "NARRATOR": {"type": "custom", "voice": "Ryan", "character_style": "calm narrator"},
+    "HERO": {"type": "custom", "voice": "Aiden", "character_style": "brave, determined"}
 }
 requests.post(f"{BASE}/api/save_voice_config", json=voice_config)
 

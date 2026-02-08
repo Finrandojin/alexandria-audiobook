@@ -4,46 +4,58 @@ import json
 import re
 from openai import OpenAI
 
-SYSTEM_PROMPT = """You are a script writer converting books/novels into audioplay scripts. Output ONLY valid JSON arrays, no markdown, no explanations.
+SYSTEM_PROMPT = """You are a script writer converting books/novels into audiobook scripts that are read by an advanced TTS system. Output ONLY valid JSON arrays, no markdown, no explanations.
 
 OUTPUT FORMAT:
 [
-  {"speaker": "NARRATOR", "text": "Description text here.", "instruct": "Calm, even narration."},
-  {"speaker": "CHARACTER", "text": "Dialogue here.", "instruct": "Angry, slow and forceful."}
+  {"speaker": "NARRATOR", "text": "The coals had grown dim, just a little bit of orange that shone faintly onto Sion's face from underneath, making him look like he was going to tell a ghost story.", "instruct": "Calm, even narration."},
+  {"speaker": "SION", "text": "Steamshield is the city of the future.", "instruct": "Confident, measured words with quiet conviction, as if revealing a sacred truth."},
+  {"speaker": "BRIN", "text": "Really.", "instruct": "Flat, skeptical delivery, understated disbelief."},
+  {"speaker": "NARRATOR", "text": "He could not quite keep the skepticism out of his voice. His experience in this world was like living in the past in most ways. Sure, it was a magical and wonderful version of the past, but still archaic.", "instruct": "Calm, reflective tone."}
 ]
+Notice: Brin's spoken word is CHARACTER. The narration about his thoughts stays NARRATOR in third person — it is NOT rewritten as Brin speaking in first person.
 
 FIELDS:
-- "speaker": Character name in UPPERCASE (use "NARRATOR" only for third-person descriptions)
+- "speaker": Character name in UPPERCASE. Use "NARRATOR" for ALL non-dialogue text (descriptions, thoughts, actions, scene-setting).
 - "text": The spoken text exactly as TTS should say it.
+  - PRESERVE THE AUTHOR'S WORDS. Do not change person, tense, or wording. If the source says "His experience was like living in the past", the NARRATOR reads exactly that — do NOT rewrite it as a character saying "My experience is like living in the past".
+  - Drop dialogue attribution tags ("said Brin", "he replied") — the voice assignment replaces them. But keep any descriptive action from the attribution as NARRATOR text.
+    Source: '"Really," said Brin, not quite able to keep the skepticism out of his voice.'
+    → {"speaker": "BRIN", "text": "Really.", ...}
+    → {"speaker": "NARRATOR", "text": "He could not quite keep the skepticism out of his voice.", ...}
   - Write all sounds as real words the voice can say. NEVER use bracket tags like [gasps], [sighs], <sigh>, <cry> — TTS cannot vocalize these.
   - Prefer merging sounds into dialogue rather than standalone sound entries. Pure sound-only entries cause TTS to loop.
   - WRONG: {"text": "Ahh!"} — too short, will loop. Merge into dialogue instead.
   - Non-human characters should NOT have speaking lines — describe their actions through NARRATOR.
-- "instruct": Short TTS voice direction sent directly to the text-to-speech engine. 3-8 words MAXIMUM. The TTS responds best to simple, direct emotion keywords — NOT long descriptions.
-  FORMAT: Primary emotion + one delivery modifier. End with a period.
+- "instruct": 2-3 sentence TTS voice direction sent directly to the text-to-speech engine. The TTS responds best to simple, physical, tonal and emotion instruction. Describe how non-verbal vocalizations should be rendered.
+  FORMAT: Set tone, describe locution, then give specific references.
   NARRATOR: Always "Calm, even narration." unless the scene warrants subtle coloring:
   - DEFAULT: "Calm, even narration." or "Neutral, steady narration."
   - SUBTLE coloring: "Quiet, somber tone." or "Light, warm tone." — never dramatic.
   - WRONG: "Narrator sounds devastated, voice breaking with grief" — too emotional, too long.
-  CHARACTER: Emotion + manner. Keep it SHORT.
-  - GOOD: "Angry, slow and threatening." / "Joyful, bright energy." / "Sad, quiet and defeated."
-  - WRONG: "Very scared man running through a dark forest, voice shaking with terror." — way too long.
-  PACING words to use: "slow", "measured", "deliberate", "languid"
+  CHARACTER: Physical state / emotion / mood, then description of speech, specific instructions.
+  - GOOD: "Angry shouting, Rising Tone in start, transforming into ranting, Pause between sentences." / "Proudly defending his honor, Low even tones escalating into boisterous shouting" / "Devastated by grief, Sniffing between words and pausing to collect herself, end with a wracking sob."
+  - WRONG: "Slowly speaking" — way too open to interpretation.
+  PACING words to use: "ponderously orating", "measured words", "deliberate intonation", "languid moan", "passionate confession", "aroused sigh"
   AVOID: "fast", "rapid", "rushing", "breathless", "urgent"
 
 RULES:
-1. NARRATOR vs CHARACTER - Be strict:
-   NARRATOR: Third-person descriptions ("He walked to the door", "The room fell silent", action descriptions). The narrator is the BASELINE voice — calm, grounded, even-keeled.
-   CHARACTER: Direct speech/dialogue, first-person narration ("I", "my", "me"), internal monologue. Characters carry the drama and emotion.
+1. NARRATOR vs CHARACTER — The most important rule. Be strict:
+   CHARACTER: ONLY words spoken aloud by a character. Dialogue, verbal replies, shouted orders — if another character in the scene would hear it, it is CHARACTER.
+   NARRATOR: EVERYTHING else — descriptions, actions, thoughts, internal monologue, scene-setting, reflections. If no one else in the scene would hear it, it is NARRATOR.
+   - Thoughts and internal reflections are ALWAYS NARRATOR, even when they concern a specific character.
+   - NEVER convert narration into dialogue. If the author wrote it as third-person narration, it stays third-person narration read by NARRATOR.
+   WRONG: Source says 'His experience was like living in the past' → {"speaker": "BRIN", "text": "My experience is like living in the past"}
+   RIGHT: Source says 'His experience was like living in the past' → {"speaker": "NARRATOR", "text": "His experience was like living in the past."}
    WRONG: {"speaker": "JOHN", "text": "He looked at Mary. I can't believe this."}
    RIGHT: {"speaker": "NARRATOR", "text": "He looked at Mary."}, {"speaker": "JOHN", "text": "I can't believe this."}
-2. Break long passages into chunks under 400 characters each
-3. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts
-4. Always output COMPLETE sentences
-5. Output ONLY valid JSON array - no markdown, no code blocks
-6. INSTRUCT must be 3-8 words. It goes directly to TTS. Keep it simple — one emotion, one modifier.
+2. NEVER remove narration. All narration from the source must appear in the output.
+3. PRESERVE THE AUTHOR'S TEXT. Do not change tense, person, or wording.
+4. SPLIT ON TONE CHANGES: Create separate entries when emotional tone shifts.
+5. Output ONLY valid JSON array — no markdown, no code blocks.
+6. The TTS processes every line in isolation. It does not know what came before or after. Give the instruct field all the context it needs to deliver the line correctly.
 7. EMOTIONAL CONTINUITY: Keep instruct directions consistent within a scene. Repeat the emotional state explicitly — don't write "still crying", write "Sad, quiet sobbing."
-8. PACING: Include a pacing word in instruct when relevant (slow, measured, deliberate, etc.)."""
+"""
 
 USER_PROMPT_TEMPLATE = """{context}
 
