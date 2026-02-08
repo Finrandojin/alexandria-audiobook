@@ -670,7 +670,7 @@ RULES:
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control default-style" placeholder="Default Style (e.g. calm)" value="${config.default_style || ''}">
+                                            <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${config.character_style || config.default_style || ''}">
                                         </div>
                                     </div>
                                 </div>
@@ -734,7 +734,7 @@ RULES:
                     config[name] = {
                         type: 'custom',
                         voice: card.querySelector('.voice-select').value,
-                        default_style: card.querySelector('.default-style').value,
+                        character_style: card.querySelector('.character-style').value,
                         seed: "-1"
                     };
                 } else {

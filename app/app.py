@@ -102,9 +102,11 @@ RULES:
 7. EMOTIONAL CONTINUITY: Keep instruct directions consistent within a scene. Repeat the emotional state explicitly — don't write "still crying", write "Sad, quiet sobbing."
 8. PACING: Include a pacing word in instruct when relevant (slow, measured, deliberate, etc.)."""
 
-DEFAULT_USER_PROMPT = """Convert this text into an audioplay script JSON array:
+DEFAULT_USER_PROMPT = """{context}
 
-{context}
+Remember: if another character in the scene would hear the words, it is CHARACTER dialogue. Everything else is NARRATOR. Preserve the author's original wording, person, and tense exactly.
+
+SOURCE TEXT:
 {chunk}"""
 
 # Data Models
@@ -147,7 +149,8 @@ class AppConfig(BaseModel):
 class VoiceConfigItem(BaseModel):
     type: str = "custom"
     voice: Optional[str] = "Ryan"
-    default_style: Optional[str] = ""
+    character_style: Optional[str] = ""
+    default_style: Optional[str] = ""  # backward compat, prefer character_style
     seed: Optional[str] = "-1"
     ref_audio: Optional[str] = None
     ref_text: Optional[str] = None

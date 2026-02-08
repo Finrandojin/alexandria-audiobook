@@ -45,9 +45,11 @@ RULES:
 7. EMOTIONAL CONTINUITY: Keep instruct directions consistent within a scene. Repeat the emotional state explicitly — don't write "still crying", write "Sad, quiet sobbing."
 8. PACING: Include a pacing word in instruct when relevant (slow, measured, deliberate, etc.)."""
 
-USER_PROMPT_TEMPLATE = """Convert this text into an audioplay script JSON array:
+USER_PROMPT_TEMPLATE = """{context}
 
-{context}
+Remember: if another character in the scene would hear the words, it is CHARACTER dialogue. Everything else is NARRATOR. Preserve the author's original wording, person, and tense exactly.
+
+SOURCE TEXT:
 {chunk}"""
 
 def clean_json_string(text):
@@ -279,17 +281,19 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
         context_parts.append(f"(Part {chunk_num} of {total_chunks})")
 
     if previous_entries and len(previous_entries) > 0:
-        last_speaker = previous_entries[-1].get("speaker", "UNKNOWN")
-        speaker_counts = {}
-        for entry in previous_entries:
-            s = entry.get("speaker", "")
-            if s and s != "NARRATOR":
-                speaker_counts[s] = speaker_counts.get(s, 0) + 1
+        # Build character roster for name consistency across chunks
+        characters_seen = sorted(set(
+            entry.get("speaker", "") for entry in previous_entries
+            if entry.get("speaker", "") and entry.get("speaker", "") != "NARRATOR"
+        ))
+        if characters_seen:
+            context_parts.append(f"Characters in this book: {', '.join(characters_seen)}")
 
-        if speaker_counts:
-            main_char = max(speaker_counts, key=speaker_counts.get)
-            context_parts.append(f"Main character: {main_char}. Last speaker: {last_speaker}.")
-            context_parts.append(f"First-person text ('I', 'my') is {main_char} speaking.")
+        # Include last few entries so the model can maintain style and tone continuity
+        tail = previous_entries[-3:]
+        context_parts.append("\nPrevious section ended with:")
+        for entry in tail:
+            context_parts.append(json.dumps(entry, ensure_ascii=False))
 
     context = "\n".join(context_parts)
     user_prompt = usr_template.format(context=context, chunk=chunk)

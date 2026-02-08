@@ -538,9 +538,11 @@ class TTSEngine:
 
             voice_data = voice_config.get(speaker_name, {})
             voice = voice_data.get("voice", "Ryan")
-            default_style = voice_data.get("default_style", "")
+            character_style = voice_data.get("character_style", "") or voice_data.get("default_style", "")
 
-            instruct = instruct_text if instruct_text else (default_style if default_style else "neutral")
+            instruct = instruct_text if instruct_text else "neutral"
+            if character_style:
+                instruct = f"{instruct} {character_style}"
 
             texts.append(text)
             speakers.append(voice)
