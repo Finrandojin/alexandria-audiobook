@@ -124,7 +124,8 @@ process_state = {
     "script": {"running": False, "logs": []},
     "voices": {"running": False, "logs": []},
     "audio": {"running": False, "logs": []},
-    "audacity_export": {"running": False, "logs": []}
+    "audacity_export": {"running": False, "logs": []},
+    "review": {"running": False, "logs": []}
 }
 
 def run_process(command: List[str], task_name: str):
@@ -281,6 +282,17 @@ async def generate_script(background_tasks: BackgroundTasks):
          raise HTTPException(status_code=400, detail="Script generation already running")
 
     background_tasks.add_task(run_process, [sys.executable, "-u", "generate_script.py", input_file], "script")
+    return {"status": "started"}
+
+@app.post("/api/review_script")
+async def review_script(background_tasks: BackgroundTasks):
+    if not os.path.exists(SCRIPT_PATH):
+        raise HTTPException(status_code=400, detail="No annotated script found. Generate a script first.")
+
+    if process_state["review"]["running"]:
+        raise HTTPException(status_code=400, detail="Script review already running")
+
+    background_tasks.add_task(run_process, [sys.executable, "-u", "review_script.py"], "review")
     return {"status": "started"}
 
 @app.get("/api/status/{task_name}")

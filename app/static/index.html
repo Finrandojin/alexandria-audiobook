@@ -238,6 +238,9 @@
                         <button class="btn btn-success btn-lg" id="btn-gen-script">
                             <i class="fas fa-magic me-2"></i>Generate Annotated Script
                         </button>
+                        <button class="btn btn-outline-primary btn-lg" id="btn-review-script">
+                            <i class="fas fa-check-double me-2"></i>Review Script
+                        </button>
                     </div>
                 </div>
             </div>
@@ -588,6 +591,15 @@
                 pollLogs('script', 'script-logs');
             } catch (e) {
                 alert("Failed to start script gen: " + e.message);
+            }
+        });
+
+        document.getElementById('btn-review-script').addEventListener('click', async () => {
+            try {
+                await API.post('/api/review_script', {});
+                pollLogs('review', 'script-logs');
+            } catch (e) {
+                alert("Failed to start review: " + e.message);
             }
         });
 
@@ -1283,8 +1295,8 @@
                             document.getElementById('audio-player-container').style.display = 'block';
                             document.getElementById('download-link').href = audio.src;
                         }
-                        // Refresh editor chunks when script generation completes
-                        if (taskName === 'script' && status.logs.some(l => l.includes("completed successfully"))) {
+                        // Refresh editor chunks when script generation or review completes
+                        if ((taskName === 'script' || taskName === 'review') && status.logs.some(l => l.includes("completed successfully"))) {
                             // Clear cached chunks table so next load shows fresh data
                             const tbody = document.getElementById('chunks-table-body');
                             if (tbody) tbody.innerHTML = '';
