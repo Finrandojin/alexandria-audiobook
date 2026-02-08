@@ -13,10 +13,17 @@ FIELDS:
 - "speaker": Character name in UPPERCASE. Use "NARRATOR" for ALL non-dialogue text (descriptions, thoughts, actions, scene-setting).
 - "text": The spoken text exactly as TTS should say it.
   - PRESERVE THE AUTHOR'S WORDS. Do not change person, tense, or wording. If the source says "He had always been a poor liar", the NARRATOR reads exactly that — do NOT rewrite it as the character saying "I have always been a poor liar".
-  - Drop dialogue attribution tags ("he said", "she replied") — the voice assignment replaces them. But keep any descriptive action from the attribution as NARRATOR text, using the character's name (not a pronoun) so listeners can connect the voice to the name.
+  - Drop dialogue attribution tags ("he said", "she replied") — the voice assignment replaces them. But ALWAYS keep any descriptive action from the attribution as a separate NARRATOR entry, using the character's name (not a pronoun) so listeners can connect the voice to the name.
     Source: '"There is nothing to tell," said Marcus, unable to meet her gaze.'
     → {"speaker": "MARCUS", "text": "There is nothing to tell.", ...}
     → {"speaker": "NARRATOR", "text": "Marcus was unable to meet her gaze.", ...}
+    When the attribution contains a physical action (participial phrase), extract it as NARRATOR — NEVER drop it:
+    Source: '"We should leave," he said, pulling on his coat and moving toward the door. "Now, before they notice."'
+    → {"speaker": "MARCUS", "text": "We should leave.", ...}
+    → {"speaker": "NARRATOR", "text": "Marcus pulled on his coat and moved toward the door.", ...}
+    → {"speaker": "MARCUS", "text": "Now, before they notice.", ...}
+  - When a character reads a document aloud (a letter, note, sign, etc.), attribute the text to the character who is reading, not to the document's author or another character.
+  - Preserve internal quotation marks that are NOT dialogue markers — e.g. quoted letters ('G', 'P'), foreign terms ('Gesellschaft'), or emphasis. Only remove the outermost quotation marks that delimit spoken dialogue.
   - Write all sounds as real words the voice can say. NEVER use bracket tags like [gasps], [sighs], <sigh>, <cry> — TTS cannot vocalize these.
   - Prefer merging sounds into dialogue rather than standalone sound entries. Pure sound-only entries cause TTS to loop.
   - WRONG: {"text": "Ahh!"} — too short, will loop. Merge into dialogue instead.
@@ -46,15 +53,27 @@ RULES:
    RIGHT: Source says 'He had always been a poor liar' → {"speaker": "NARRATOR", "text": "He had always been a poor liar."}
    WRONG: {"speaker": "ELENA", "text": "She turned to the window. I cannot do this anymore."}
    RIGHT: {"speaker": "NARRATOR", "text": "She turned to the window."}, {"speaker": "ELENA", "text": "I cannot do this anymore."}
-   - INTERLEAVED PARAGRAPHS: When a source paragraph mixes narration with quoted speech, you MUST split it into separate entries. Carefully track quotation marks to determine what is spoken vs narrated.
+   - INTERLEAVED PARAGRAPHS: When a source paragraph mixes narration with quoted speech, you MUST split it into separate entries. Carefully track quotation marks — every word inside quotes is CHARACTER, everything outside is NARRATOR.
+     SIMPLE — Narration then dialogue:
+     Source: 'She pulled the old map from her bag. "Here — this is where they were last seen."'
+     → {"speaker": "NARRATOR", "text": "She pulled the old map from her bag."}
+     → {"speaker": "ELENA", "text": "Here — this is where they were last seen."}
+     MULTI-SEGMENT — Dialogue → narration → dialogue in one paragraph:
      Source: '"Take a look at this." He slid the envelope across the table. "It arrived this morning," he said. "Read it carefully."'
      → {"speaker": "MARCUS", "text": "Take a look at this."}
      → {"speaker": "NARRATOR", "text": "He slid the envelope across the table."}
      → {"speaker": "MARCUS", "text": "It arrived this morning. Read it carefully."}
-     Source: 'She pulled the old map from her bag. "Here — this is where they were last seen."'
-     → {"speaker": "NARRATOR", "text": "She pulled the old map from her bag."}
-     → {"speaker": "ELENA", "text": "Here — this is where they were last seen."}
-2. NEVER remove narration. All narration from the source must appear in the output.
+     EXTENDED — Narration → dialogue → trailing narration in same paragraph:
+     Source: 'She unfolded the letter and held it to the lamp. "It is dated last Tuesday — three days before the fire." Her hands trembled as she set it down on the desk.'
+     → {"speaker": "NARRATOR", "text": "She unfolded the letter and held it to the lamp."}
+     → {"speaker": "ELENA", "text": "It is dated last Tuesday — three days before the fire."}
+     → {"speaker": "NARRATOR", "text": "Her hands trembled as she set it down on the desk."}
+     CRITICAL: NEVER merge quoted dialogue into a NARRATOR entry. If words are inside quotation marks in the source, they MUST become a CHARACTER entry, not NARRATOR.
+2. NEVER remove narration. All narration from the source must appear in the output. This includes:
+   - Standalone narration paragraphs between dialogue exchanges (e.g. "He chuckled to himself and rubbed his hands together.")
+   - Narration embedded within interleaved paragraphs (actions occurring between quoted speeches)
+   - Descriptive actions extracted from attribution tags ("she replied, turning to the window" — "turning to the window" is narration and must become a NARRATOR entry)
+   If a narration segment exists in the source, it must have a corresponding NARRATOR entry in the output.
 3. PRESERVE THE AUTHOR'S TEXT. Do not change tense, person, or wording.
 4. NARRATOR GROUPING: Keep consecutive narrator text in ONE entry unless the emotional tone genuinely shifts. Do NOT split narration into individual sentences — short narrator lines cause inconsistent TTS delivery. Only split when a real tone change occurs (e.g. reflective passage → sudden action).
 5. Output ONLY valid JSON array — no markdown, no code blocks.
