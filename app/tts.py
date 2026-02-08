@@ -183,10 +183,12 @@ class TTSEngine:
         dtype = torch.bfloat16 if "cuda" in device else torch.float32
 
         print(f"Loading Qwen3-TTS CustomVoice model on {device} ({dtype})...")
+        load_kwargs = {"dtype": dtype}
+        if device != "cpu":
+            load_kwargs["device_map"] = device
         self._local_custom_model = Qwen3TTSModel.from_pretrained(
             "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
-            device_map=device,
-            dtype=dtype,
+            **load_kwargs,
         )
         if self._compile_codec_enabled:
             self._compile_codec(self._local_custom_model)
@@ -208,10 +210,12 @@ class TTSEngine:
         dtype = torch.bfloat16 if "cuda" in device else torch.float32
 
         print(f"Loading Qwen3-TTS Base model (voice cloning) on {device} ({dtype})...")
+        load_kwargs = {"dtype": dtype}
+        if device != "cpu":
+            load_kwargs["device_map"] = device
         self._local_clone_model = Qwen3TTSModel.from_pretrained(
             "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
-            device_map=device,
-            dtype=dtype,
+            **load_kwargs,
         )
         if self._compile_codec_enabled:
             self._compile_codec(self._local_clone_model)
