@@ -37,6 +37,7 @@ error_screenshot.png
 app/error_screenshot.png
 debug_raw_response.txt
 test.txt
+tts_style_test*.json
 
 # Python cache
 __pycache__/

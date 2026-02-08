@@ -105,7 +105,7 @@ Configure connections to your LLM and TTS engine.
 - **Generation Settings** - Chunk size and max tokens for LLM responses
 - **LLM Sampling Parameters** - Temperature, Top P, Top K, Min P, and Presence Penalty
 - **Banned Tokens** - Comma-separated list of tokens to ban from LLM output (useful for disabling thinking mode on models like GLM4, DeepSeek-R1, etc.)
-- **Prompt Customization** - System and user prompts used for script generation
+- **Prompt Customization** - System and user prompts used for script generation. Defaults are loaded from `default_prompts.txt` and can be customized per-session in the UI. Click "Reset to Defaults" to reload the file-based defaults (picks up edits without restarting the app)
 
 ### Script Tab
 Upload a text file and generate the annotated script. The LLM converts your book into a structured JSON format with:
@@ -249,8 +249,11 @@ Alexandria exposes a REST API for programmatic access:
 
 ### Configuration
 ```bash
-# Get current config
+# Get current config (empty prompts fall through to file defaults)
 curl http://127.0.0.1:4200/api/config
+
+# Get file-based default prompts (hot-reloads from default_prompts.txt)
+curl http://127.0.0.1:4200/api/default_prompts
 
 # Save config
 curl -X POST http://127.0.0.1:4200/api/config \
@@ -500,6 +503,20 @@ For script generation, non-thinking models work best:
 - The system automatically fixes common encoding issues
 - If problems persist, ensure your input text is UTF-8 encoded
 
+## Prompt Customization
+
+The LLM prompts that drive script generation are stored in `default_prompts.txt` at the project root — a plain-text file split into system prompt and user prompt sections by a `---SEPARATOR---` delimiter. This is the single source of truth for prompt defaults.
+
+**How it works:**
+- `app/default_prompts.py` reads the file and exports the two prompts
+- The API endpoints (`/api/config`, `/api/default_prompts`) hot-reload from the file on every request, so edits to `default_prompts.txt` take effect immediately without restarting the app
+- `config.json` stores user overrides — when its prompt fields are empty, the file defaults are used
+- The "Reset to Defaults" button in the Web UI fetches the latest file defaults via `/api/default_prompts`
+
+**To customize prompts:**
+1. **Temporary (per-session):** Edit prompts directly in the Setup tab's Prompt Customization section
+2. **Permanent (all sessions):** Edit `default_prompts.txt` and click "Reset to Defaults" in the UI
+
 ## Project Structure
 
 ```
@@ -508,11 +525,13 @@ Alexandria/
 │   ├── app.py                 # FastAPI server
 │   ├── tts.py                 # TTS engine (local + external backends)
 │   ├── generate_script.py     # LLM script annotation
+│   ├── default_prompts.py     # Shared prompt loader (reads default_prompts.txt)
 │   ├── project.py             # Chunk management & batch generation
 │   ├── parse_voices.py        # Voice extraction
-│   ├── config.json            # Runtime configuration
+│   ├── config.json            # Runtime configuration (gitignored)
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
+├── default_prompts.txt        # Single source of truth for LLM prompts
 ├── install.js                 # Pinokio installer
 ├── start.js                   # Pinokio launcher
 ├── reset.js                   # Reset script
