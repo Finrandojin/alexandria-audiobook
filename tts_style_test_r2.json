@@ -1,0 +1,29 @@
+[
+  {"speaker": "REINF_01", "text": "You have no idea what you've done.", "instruct": "Furious accusation, seething with betrayal."},
+  {"speaker": "REINF_02", "text": "You have no idea what you've done.", "instruct": "Horrified disbelief, trembling with shock."},
+  {"speaker": "REINF_03", "text": "You have no idea what you've done.", "instruct": "Venomous contempt, dripping with disgust."},
+  {"speaker": "REINF_04", "text": "You have no idea what you've done.", "instruct": "Gloating triumph, savoring every word."},
+  {"speaker": "REINF_05", "text": "You have no idea what you've done.", "instruct": "Grief-stricken, choking back tears."},
+  {"speaker": "REINF_06", "text": "You have no idea what you've done.", "instruct": "Cold fury, dangerously quiet."},
+  {"speaker": "REINF_07", "text": "You have no idea what you've done.", "instruct": "Thunderous rage, booming and commanding."},
+  {"speaker": "REINF_08", "text": "You have no idea what you've done.", "instruct": "Bitter disappointment, weary and broken."},
+
+  {"speaker": "AMP_01", "text": "I never thought it would end like this.", "instruct": "Haunted, hollow and distant."},
+  {"speaker": "AMP_02", "text": "I never thought it would end like this.", "instruct": "Devastated, voice cracking with loss."},
+  {"speaker": "AMP_03", "text": "I never thought it would end like this.", "instruct": "Numb, flat and emptied of all feeling."},
+  {"speaker": "AMP_04", "text": "I never thought it would end like this.", "instruct": "Wistful, gentle ache of memory."},
+  {"speaker": "AMP_05", "text": "I never thought it would end like this.", "instruct": "Resigned, exhausted surrender."},
+  {"speaker": "AMP_06", "text": "I never thought it would end like this.", "instruct": "Mournful, slow and heavy with grief."},
+
+  {"speaker": "ACAD_01", "text": "You have no idea what you've done.", "instruct": "Academic, cold analytical disgust."},
+  {"speaker": "ACAD_02", "text": "You have no idea what you've done.", "instruct": "Clinical, detached and precise."},
+  {"speaker": "ACAD_03", "text": "You have no idea what you've done.", "instruct": "Intellectual, measured disapproval."},
+  {"speaker": "ACAD_04", "text": "You have no idea what you've done.", "instruct": "Analytical, dissecting with contempt."},
+
+  {"speaker": "ROLE_01", "text": "I can't believe you would do something like that.", "instruct": "Wounded soldier, gritting through pain and anger."},
+  {"speaker": "ROLE_02", "text": "I can't believe you would do something like that.", "instruct": "Stern father, deep voice heavy with disappointment."},
+  {"speaker": "ROLE_03", "text": "I can't believe you would do something like that.", "instruct": "Vengeful rival, low and seething."},
+  {"speaker": "ROLE_04", "text": "I can't believe you would do something like that.", "instruct": "Heartbroken lover, trembling with disbelief."},
+  {"speaker": "ROLE_05", "text": "I can't believe you would do something like that.", "instruct": "Imperious commander, barking with outrage."},
+  {"speaker": "ROLE_06", "text": "I can't believe you would do something like that.", "instruct": "Old mentor, sorrowful and gravely quiet."}
+]

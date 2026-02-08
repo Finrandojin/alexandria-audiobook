@@ -1,0 +1,29 @@
+[
+  {"speaker": "TEMP_01", "text": "You have no idea what you've done.", "instruct": "Frozen contempt, voice devoid of warmth."},
+  {"speaker": "TEMP_02", "text": "You have no idea what you've done.", "instruct": "Burning accusation, heated and relentless."},
+  {"speaker": "TEMP_03", "text": "I can't believe you would do something like that.", "instruct": "Icy disbelief, each word sharp and cutting."},
+  {"speaker": "TEMP_04", "text": "I can't believe you would do something like that.", "instruct": "Cold fury, voice tight with restrained rage."},
+
+  {"speaker": "QUIET_01", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Quietly furious, low and controlled."},
+  {"speaker": "QUIET_02", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Quietly desperate, voice stripped bare."},
+  {"speaker": "QUIET_03", "text": "It was always going to end this way.", "instruct": "Quietly certain, voice flat and final."},
+  {"speaker": "QUIET_04", "text": "It was always going to end this way.", "instruct": "Quietly devastated, voice emptied of everything."},
+
+  {"speaker": "DRAIN_01", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Hollow, drained of anger, only need remains."},
+  {"speaker": "DRAIN_02", "text": "You have no idea what you've done.", "instruct": "Numb, voice flat, all feeling burned away."},
+  {"speaker": "DRAIN_03", "text": "I can't believe you would do something like that.", "instruct": "Exhausted disbelief, too tired for outrage."},
+
+  {"speaker": "BLADE_01", "text": "You have no idea what you've done.", "instruct": "Each word a verdict, cold and final."},
+  {"speaker": "BLADE_02", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Each word a demand, low and unyielding."},
+  {"speaker": "BLADE_03", "text": "I can't believe you would do something like that.", "instruct": "Each word landing like a blow, heavy with accusation."},
+  {"speaker": "BLADE_04", "text": "It was always going to end this way.", "instruct": "Each word inevitable, resigned and knowing."},
+
+  {"speaker": "CROSS_01", "text": "I should have seen it coming.", "instruct": "Quietly bitter, voice drained of surprise."},
+  {"speaker": "CROSS_02", "text": "I should have seen it coming.", "instruct": "Cold self-contempt, analytical and cutting."},
+  {"speaker": "CROSS_03", "text": "I should have seen it coming.", "instruct": "Exhausted realization, numb and hollow."},
+  {"speaker": "CROSS_04", "text": "I should have seen it coming.", "instruct": "Icy resolve, voice hardening with each word."},
+  {"speaker": "CROSS_05", "text": "I trusted you.", "instruct": "Quietly devastated, voice barely above a whisper."},
+  {"speaker": "CROSS_06", "text": "I trusted you.", "instruct": "Cold accusation, each word placed like a nail."},
+  {"speaker": "CROSS_07", "text": "I trusted you.", "instruct": "Bitter and hollow, emptied of all faith."},
+  {"speaker": "CROSS_08", "text": "I trusted you.", "instruct": "Seething, low and venomous."}
+]

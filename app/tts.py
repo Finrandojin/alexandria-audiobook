@@ -209,7 +209,7 @@ class TTSEngine:
 
         print(f"Loading Qwen3-TTS Base model (voice cloning) on {device} ({dtype})...")
         self._local_clone_model = Qwen3TTSModel.from_pretrained(
-            "Qwen/Qwen3-TTS-12Hz-1.7B",
+            "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
             device_map=device,
             dtype=dtype,
         )

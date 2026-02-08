@@ -1,0 +1,30 @@
+[
+  {"speaker": "VC_01", "text": "You have no idea what you've done.", "instruct": "Quietly menacing, each word a threat.", "category": "quiet_intensity"},
+  {"speaker": "VC_02", "text": "You have no idea what you've done.", "instruct": "Thunderous rage, booming and commanding.", "category": "loud_anger"},
+  {"speaker": "VC_03", "text": "You have no idea what you've done.", "instruct": "Hollow and emptied, voice drained of all life.", "category": "depletion"},
+  {"speaker": "VC_04", "text": "You have no idea what you've done.", "instruct": "Sneering contempt, voice dripping with disdain.", "category": "contempt"},
+  {"speaker": "VC_05", "text": "You have no idea what you've done.", "instruct": "Icy precision, each word placed like a blade.", "category": "cold_control"},
+
+  {"speaker": "VC_06", "text": "I never thought it would end like this.", "instruct": "Haunted, hollow and distant.", "category": "grief"},
+  {"speaker": "VC_07", "text": "I never thought it would end like this.", "instruct": "Numb, flat and emptied of all feeling.", "category": "depletion"},
+  {"speaker": "VC_08", "text": "I never thought it would end like this.", "instruct": "Defiant, stubborn and unyielding.", "category": "defiance"},
+  {"speaker": "VC_09", "text": "I never thought it would end like this.", "instruct": "Devastated, voice cracking with loss.", "category": "devastation"},
+
+  {"speaker": "VC_10", "text": "I can't believe you would do something like that.", "instruct": "Seething, low and dangerous.", "category": "quiet_intensity"},
+  {"speaker": "VC_11", "text": "I can't believe you would do something like that.", "instruct": "Each word landing like a blow, heavy with accusation.", "category": "metaphor"},
+  {"speaker": "VC_12", "text": "I can't believe you would do something like that.", "instruct": "Heartbroken, quietly devastated.", "category": "grief"},
+  {"speaker": "VC_13", "text": "I can't believe you would do something like that.", "instruct": "Imperious outrage, commanding and furious.", "category": "loud_anger"},
+  {"speaker": "VC_14", "text": "I can't believe you would do something like that.", "instruct": "Analytical, dissecting with contempt.", "category": "cold_control"},
+
+  {"speaker": "VC_15", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Exhausted, drained of everything but this last demand.", "category": "depletion"},
+  {"speaker": "VC_16", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Quietly furious, low and controlled.", "category": "quiet_intensity"},
+  {"speaker": "VC_17", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Pleading, desperate and raw.", "category": "desperation"},
+  {"speaker": "VC_18", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Cold accusation, voice flat with finality.", "category": "cold_control"},
+
+  {"speaker": "VC_19", "text": "It was always going to end this way.", "instruct": "Quietly certain, voice flat and final.", "category": "quiet_intensity"},
+  {"speaker": "VC_20", "text": "It was always going to end this way.", "instruct": "Bitter wisdom, knowing and vindicated.", "category": "contempt"},
+  {"speaker": "VC_21", "text": "It was always going to end this way.", "instruct": "Cold satisfaction, vindicated at last.", "category": "cold_control"},
+  {"speaker": "VC_22", "text": "It was always going to end this way.", "instruct": "Hollow resignation, voice emptied of hope.", "category": "depletion"},
+  {"speaker": "VC_23", "text": "It was always going to end this way.", "instruct": "Sorrowful, low and heavy with grief.", "category": "grief"},
+  {"speaker": "VC_24", "text": "It was always going to end this way.", "instruct": "Defiant, spitting the words at an enemy.", "category": "defiance"}
+]

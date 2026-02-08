@@ -1,0 +1,27 @@
+[
+  {"speaker": "VOCAL_01", "text": "You have no idea what you've done.", "instruct": "Voice cracking with fury, raw and uncontrolled."},
+  {"speaker": "VOCAL_02", "text": "You have no idea what you've done.", "instruct": "Hollow and emptied, voice drained of all life."},
+  {"speaker": "VOCAL_03", "text": "You have no idea what you've done.", "instruct": "Gravelly whisper, barely containing rage."},
+  {"speaker": "VOCAL_04", "text": "You have no idea what you've done.", "instruct": "Icy precision, each word placed like a blade."},
+  {"speaker": "VOCAL_05", "text": "You have no idea what you've done.", "instruct": "Sorrowful and resonant, mourning what was lost."},
+  {"speaker": "VOCAL_06", "text": "You have no idea what you've done.", "instruct": "Sneering contempt, voice dripping with disdain."},
+
+  {"speaker": "META_01", "text": "I can't believe you would do something like that.", "instruct": "Analytical, dissecting the betrayal with cold precision."},
+  {"speaker": "META_02", "text": "I can't believe you would do something like that.", "instruct": "Venomous, savoring each word like poison."},
+  {"speaker": "META_03", "text": "I can't believe you would do something like that.", "instruct": "Numb disbelief, flat and hollowed out."},
+  {"speaker": "META_04", "text": "I can't believe you would do something like that.", "instruct": "Quiet devastation, voice barely holding together."},
+  {"speaker": "META_05", "text": "I can't believe you would do something like that.", "instruct": "Seething, low and dangerous."},
+  {"speaker": "META_06", "text": "I can't believe you would do something like that.", "instruct": "Weary elder, sorrowful and gravely quiet."},
+
+  {"speaker": "NEW_01", "text": "It was always going to end this way.", "instruct": "Hollow resignation, voice emptied of hope."},
+  {"speaker": "NEW_02", "text": "It was always going to end this way.", "instruct": "Bitter wisdom, knowing and unsurprised."},
+  {"speaker": "NEW_03", "text": "It was always going to end this way.", "instruct": "Prophetic certainty, resonant and final."},
+  {"speaker": "NEW_04", "text": "It was always going to end this way.", "instruct": "Cold satisfaction, vindicated at last."},
+  {"speaker": "NEW_05", "text": "It was always going to end this way.", "instruct": "Devastated acceptance, voice cracking on the last word."},
+  {"speaker": "NEW_06", "text": "It was always going to end this way.", "instruct": "Defiant, spitting the truth at an enemy."},
+
+  {"speaker": "NEW_07", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Pleading fury, voice raw and breaking."},
+  {"speaker": "NEW_08", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Cold command, low and unyielding."},
+  {"speaker": "NEW_09", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Exhausted, drained of everything but this last demand."},
+  {"speaker": "NEW_10", "text": "Tell me the truth. For once in your life, tell me the truth.", "instruct": "Quietly menacing, each word a threat."}
+]
