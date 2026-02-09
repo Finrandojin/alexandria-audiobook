@@ -54,6 +54,9 @@ class TTSEngine:
         self._device = tts_config.get("device", "auto")
         self._compile_codec_enabled = tts_config.get("compile_codec", False)
 
+        # Language setting (passed to Qwen3-TTS)
+        self._language = tts_config.get("language", "English")
+
         # Sub-batching config
         self._sub_batch_enabled = tts_config.get("sub_batch_enabled", True)
         self._sub_batch_min_size = max(1, tts_config.get("sub_batch_min_size", 4))
@@ -84,7 +87,7 @@ class TTSEngine:
         try:
             model.generate_custom_voice(
                 text="The ancient library stood at the crossroads of two forgotten paths, its weathered stone walls covered in ivy that had been growing for centuries.",
-                language="English",
+                language=self._language,
                 speaker="serena",
                 instruct="neutral",
                 non_streaming_mode=True,
@@ -399,7 +402,7 @@ class TTSEngine:
             client = self._init_external()
             result = client.predict(
                 text="Testing, one two three.",
-                language="Auto",
+                language=self._language,
                 speaker=voice,
                 instruct="neutral, clear",
                 model_size="1.7B",
@@ -445,7 +448,7 @@ class TTSEngine:
             t_start = time.time()
             wavs, sr = model.generate_custom_voice(
                 text=text,
-                language="English",
+                language=self._language,
                 speaker=voice,
                 instruct=instruct,
                 non_streaming_mode=True,
@@ -605,7 +608,7 @@ class TTSEngine:
                 t_start = time.time()
                 wavs_list, sr = model.generate_custom_voice(
                     text=sb_texts,
-                    language=["English"] * len(sb_texts),
+                    language=[self._language] * len(sb_texts),
                     speaker=sb_speakers,
                     instruct=sb_instructs,
                     non_streaming_mode=True,
@@ -669,7 +672,7 @@ class TTSEngine:
 
             result = client.predict(
                 text=text,
-                language="Auto",
+                language=self._language,
                 speaker=voice,
                 instruct=instruct,
                 model_size="1.7B",
