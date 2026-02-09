@@ -39,10 +39,11 @@ CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(SCRIPTS_DIR, exist_ok=True)
 
-# Mount static files with absolute path
+# Mount static and script files with absolute path
 STATIC_DIR = os.path.join(BASE_DIR, "static")
 os.makedirs(STATIC_DIR, exist_ok=True)
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 # Create voicelines directory if it doesn't exist to prevent startup error
 VOICELINES_DIR = os.path.join(ROOT_DIR, "voicelines")
