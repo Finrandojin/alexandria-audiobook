@@ -134,6 +134,21 @@ class ProjectManager:
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(chunks, f, indent=2, ensure_ascii=False)
             os.replace(tmp_path, self.chunks_path)
+            
+            # Also sync to annotated_script.json (the source of truth)
+            # Strip chunk-specific fields (id, status, audio_path) and keep core fields
+            script_entries = []
+            for chunk in chunks:
+                script_entries.append({
+                    "speaker": chunk.get("speaker", ""),
+                    "text": chunk.get("text", ""),
+                    "instruct": chunk.get("instruct", "")
+                })
+            
+            script_tmp_path = self.script_path + ".tmp"
+            with open(script_tmp_path, "w", encoding="utf-8") as f:
+                json.dump(script_entries, f, indent=2, ensure_ascii=False)
+            os.replace(script_tmp_path, self.script_path)
 
     def _update_chunk_fields(self, index, **fields):
         """Atomically update fields on a single chunk (thread-safe read-modify-write).
@@ -154,6 +169,22 @@ class ProjectManager:
             with open(tmp_path, "w", encoding="utf-8") as f:
                 json.dump(chunks, f, indent=2, ensure_ascii=False)
             os.replace(tmp_path, self.chunks_path)
+            
+            # If core fields (speaker, text, instruct) were updated, sync to annotated_script.json
+            if any(key in fields for key in ['speaker', 'text', 'instruct']):
+                script_entries = []
+                for chunk in chunks:
+                    script_entries.append({
+                        "speaker": chunk.get("speaker", ""),
+                        "text": chunk.get("text", ""),
+                        "instruct": chunk.get("instruct", "")
+                    })
+                
+                script_tmp_path = self.script_path + ".tmp"
+                with open(script_tmp_path, "w", encoding="utf-8") as f:
+                    json.dump(script_entries, f, indent=2, ensure_ascii=False)
+                os.replace(script_tmp_path, self.script_path)
+            
             return chunks[index]
 
     def update_chunk(self, index, data):
