@@ -21,8 +21,8 @@ def main():
 
     voice_list = sorted(list(voices))
 
-    with open(output_path, 'w') as f:
-        json.dump(voice_list, f, indent=2)
+    with open(output_path, 'w', encoding="utf-8") as f:
+        json.dump(voice_list, f, indent=2, ensure_ascii=False)
 
     print(f"Found {len(voice_list)} unique voices: {', '.join(voice_list)}")
     print(f"Saved voice list to {output_path}")

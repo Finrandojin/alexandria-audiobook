@@ -209,7 +209,7 @@ async def get_config():
         default_config["prompts"]["user_prompt"] = usr_prompt
         return default_config
 
-    with open(CONFIG_PATH, "r") as f:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = json.load(f)
 
     # Ensure prompts section exists with defaults from file
@@ -236,8 +236,8 @@ async def get_default_prompts():
 
 @app.post("/api/config")
 async def save_config(config: AppConfig):
-    with open(CONFIG_PATH, "w") as f:
-        json.dump(config.model_dump(), f, indent=2)
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(config.model_dump(), f, indent=2, ensure_ascii=False)
     # Reset engine so it picks up new TTS settings on next use
     project_manager.engine = None
     return {"status": "saved"}
@@ -253,14 +253,14 @@ async def upload_file(file: UploadFile = File(...)):
     state_path = os.path.join(ROOT_DIR, "state.json")
     state = {}
     if os.path.exists(state_path):
-        with open(state_path, "r") as f:
+        with open(state_path, "r", encoding="utf-8") as f:
             try:
                 state = json.load(f)
             except: pass
 
     state["input_file_path"] = file_path
-    with open(state_path, "w") as f:
-        json.dump(state, f, indent=2)
+    with open(state_path, "w", encoding="utf-8") as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
 
     return {"filename": file.filename, "path": file_path}
 
@@ -271,7 +271,7 @@ async def generate_script(background_tasks: BackgroundTasks):
     if not os.path.exists(state_path):
         raise HTTPException(status_code=400, detail="No input file selected")
 
-    with open(state_path, "r") as f:
+    with open(state_path, "r", encoding="utf-8") as f:
         state = json.load(f)
         input_file = state.get("input_file_path")
 
@@ -310,13 +310,13 @@ async def get_voices():
     if not os.path.exists(VOICES_PATH):
         return []
 
-    with open(VOICES_PATH, "r") as f:
+    with open(VOICES_PATH, "r", encoding="utf-8") as f:
         voices_list = json.load(f)
 
     # Combine with config
     voice_config = {}
     if os.path.exists(VOICE_CONFIG_PATH):
-        with open(VOICE_CONFIG_PATH, "r") as f:
+        with open(VOICE_CONFIG_PATH, "r", encoding="utf-8") as f:
             voice_config = json.load(f)
 
     result = []
@@ -343,7 +343,7 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 
     current_config = {}
     if os.path.exists(VOICE_CONFIG_PATH):
-        with open(VOICE_CONFIG_PATH, "r") as f:
+        with open(VOICE_CONFIG_PATH, "r", encoding="utf-8") as f:
             try:
                 current_config = json.load(f)
             except: pass
@@ -353,8 +353,8 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
         # Convert Pydantic model to dict
         current_config[voice_name] = config.model_dump()
 
-    with open(VOICE_CONFIG_PATH, "w") as f:
-        json.dump(current_config, f, indent=2)
+    with open(VOICE_CONFIG_PATH, "w", encoding="utf-8") as f:
+        json.dump(current_config, f, indent=2, ensure_ascii=False)
 
     return {"status": "saved"}
 
@@ -451,7 +451,7 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
     workers = 2
     if os.path.exists(CONFIG_PATH):
         try:
-            with open(CONFIG_PATH, "r") as f:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
                 workers = max(1, cfg.get("tts", {}).get("parallel_workers", 2))
         except:
@@ -504,7 +504,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
     batch_size = 4
     if os.path.exists(CONFIG_PATH):
         try:
-            with open(CONFIG_PATH, "r") as f:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
                 tts_cfg = cfg.get("tts", {})
                 seed_val = tts_cfg.get("batch_seed")
