@@ -15,6 +15,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ### AI-Powered Pipeline
 - **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
 - **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and TTS instruct directions
+- **LLM Script Review** - Optional second LLM pass that fixes common annotation errors: strips attribution tags from dialogue, splits misattributed narration/dialogue, merges over-split narrator entries, and validates instruct fields
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
 - **Context Preservation** - Passes character roster and last 3 script entries between chunks for name and style continuity
 
@@ -112,6 +113,15 @@ Upload a text file and generate the annotated script. The LLM converts your book
 - Speaker identification (NARRATOR vs character names)
 - Dialogue text with natural vocalizations (written as pronounceable text, not tags)
 - Style directions for TTS delivery
+
+**Review Script** - After generation, click "Review Script" to run a second LLM pass that detects and fixes common annotation errors:
+1. Attribution tags left in dialogue ("said he", "she replied") are stripped
+2. Narration mixed into character entries is split out as NARRATOR
+3. Dialogue embedded in narrator entries is extracted as the correct speaker
+4. Short consecutive narrator entries covering the same scene are merged
+5. Invalid instruct fields (physical actions instead of voice directions) are corrected
+
+Review prompts are customizable in `review_prompts.txt` (same format as `default_prompts.txt`).
 
 ### Voices Tab
 After script generation, parse voices to see all speakers. For each:
@@ -285,6 +295,12 @@ curl -X POST http://127.0.0.1:4200/api/generate_script
 
 # Check status
 curl http://127.0.0.1:4200/api/status/script_generation
+
+# Review script (fix attribution tags, misattributed lines, etc.)
+curl -X POST http://127.0.0.1:4200/api/review_script
+
+# Check review status
+curl http://127.0.0.1:4200/api/status/review
 ```
 
 ### Voice Management
@@ -494,6 +510,12 @@ For script generation, non-thinking models work best:
 - Close other GPU-intensive applications
 - Try `device: cpu` as a fallback (much slower)
 
+### Broken or tiny MP3 files (428 bytes)
+Conda's bundled ffmpeg on Windows often lacks the MP3 encoder (libmp3lame). Alexandria now detects this and automatically falls back to WAV, but if you want MP3 output:
+- Install ffmpeg with MP3 support: `conda install -c conda-forge ffmpeg`
+- Or remove conda's ffmpeg to use your system one: `conda remove ffmpeg`
+- Verify with: `ffmpeg -encoders 2>/dev/null | grep mp3`
+
 ### Audio quality issues
 - Use 5-15 second clear reference audio for cloning
 - Avoid background noise in reference samples
@@ -505,17 +527,20 @@ For script generation, non-thinking models work best:
 
 ## Prompt Customization
 
-The LLM prompts that drive script generation are stored in `default_prompts.txt` at the project root — a plain-text file split into system prompt and user prompt sections by a `---SEPARATOR---` delimiter. This is the single source of truth for prompt defaults.
+LLM prompts are stored in plain-text files at the project root, split into system prompt and user prompt sections by a `---SEPARATOR---` delimiter:
+
+- **`default_prompts.txt`** — Prompts for script generation (annotation)
+- **`review_prompts.txt`** — Prompts for script review (error correction)
 
 **How it works:**
-- `app/default_prompts.py` reads the file and exports the two prompts
-- The API endpoints (`/api/config`, `/api/default_prompts`) hot-reload from the file on every request, so edits to `default_prompts.txt` take effect immediately without restarting the app
-- `config.json` stores user overrides — when its prompt fields are empty, the file defaults are used
+- `app/default_prompts.py` and `app/review_prompts.py` read their respective files and export the prompts
+- Prompts hot-reload from disk on every request, so edits take effect immediately without restarting the app
+- `config.json` stores user overrides for generation prompts — when its prompt fields are empty, the file defaults are used
 - The "Reset to Defaults" button in the Web UI fetches the latest file defaults via `/api/default_prompts`
 
 **To customize prompts:**
-1. **Temporary (per-session):** Edit prompts directly in the Setup tab's Prompt Customization section
-2. **Permanent (all sessions):** Edit `default_prompts.txt` and click "Reset to Defaults" in the UI
+1. **Temporary (per-session):** Edit generation prompts directly in the Setup tab's Prompt Customization section
+2. **Permanent (all sessions):** Edit `default_prompts.txt` or `review_prompts.txt` directly — changes are picked up on the next request
 
 ## Project Structure
 
@@ -525,13 +550,16 @@ Alexandria/
 │   ├── app.py                 # FastAPI server
 │   ├── tts.py                 # TTS engine (local + external backends)
 │   ├── generate_script.py     # LLM script annotation
-│   ├── default_prompts.py     # Shared prompt loader (reads default_prompts.txt)
+│   ├── review_script.py       # LLM script review (second pass)
+│   ├── default_prompts.py     # Generation prompt loader (reads default_prompts.txt)
+│   ├── review_prompts.py      # Review prompt loader (reads review_prompts.txt)
 │   ├── project.py             # Chunk management & batch generation
 │   ├── parse_voices.py        # Voice extraction
 │   ├── config.json            # Runtime configuration (gitignored)
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
-├── default_prompts.txt        # Single source of truth for LLM prompts
+├── default_prompts.txt        # LLM prompts for script generation
+├── review_prompts.txt         # LLM prompts for script review
 ├── install.js                 # Pinokio installer
 ├── start.js                   # Pinokio launcher
 ├── reset.js                   # Reset script
