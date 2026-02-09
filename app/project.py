@@ -135,6 +135,27 @@ class ProjectManager:
                 json.dump(chunks, f, indent=2)
             os.replace(tmp_path, self.chunks_path)
 
+    def _update_chunk_fields(self, index, **fields):
+        """Atomically update fields on a single chunk (thread-safe read-modify-write).
+
+        Unlike load_chunks() + modify + save_chunks(), this holds the lock for the
+        entire read-modify-write cycle, preventing concurrent threads from
+        overwriting each other's updates.
+        """
+        with self._chunks_lock:
+            if not os.path.exists(self.chunks_path):
+                return None
+            with open(self.chunks_path, "r") as f:
+                chunks = json.load(f)
+            if not (0 <= index < len(chunks)):
+                return None
+            chunks[index].update(fields)
+            tmp_path = self.chunks_path + ".tmp"
+            with open(tmp_path, "w") as f:
+                json.dump(chunks, f, indent=2)
+            os.replace(tmp_path, self.chunks_path)
+            return chunks[index]
+
     def update_chunk(self, index, data):
         chunks = self.load_chunks()
         if 0 <= index < len(chunks):
@@ -159,14 +180,12 @@ class ProjectManager:
             return False, "Invalid chunk index"
 
         chunk = chunks[index]
-        chunk["status"] = "generating"
-        self.save_chunks(chunks)
+        self._update_chunk_fields(index, status="generating")
 
         try:
             engine = self.get_engine()
             if not engine:
-                chunk["status"] = "error"
-                self.save_chunks(chunks)
+                self._update_chunk_fields(index, status="error")
                 return False, "TTS engine not initialized"
 
             # Load voice config
@@ -189,56 +208,61 @@ class ProjectManager:
             if success:
                 # Check file size
                 if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
-                     chunk["status"] = "error"
-                     self.save_chunks(chunks)
+                     self._update_chunk_fields(index, status="error")
                      return False, "Generated audio file is missing or empty"
 
                 print(f"Generated WAV size: {os.path.getsize(temp_path)} bytes")
 
                 # Try to convert to mp3, fallback to wav if ffmpeg missing
                 filename_base = f"voiceline_{index+1:04d}_{sanitize_filename(speaker)}"
+                audio_path = None
 
                 try:
                     segment = AudioSegment.from_wav(temp_path)
 
                     if len(segment) == 0:
-                         chunk["status"] = "error"
-                         self.save_chunks(chunks)
+                         self._update_chunk_fields(index, status="error")
                          return False, "Generated audio has 0 duration"
 
                     mp3_filename = f"{filename_base}.mp3"
                     mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
 
-                    # This might fail if ffmpeg is missing
+                    # This might fail if ffmpeg is missing or lacks MP3 encoder
                     segment.export(mp3_filepath, format="mp3")
 
-                    chunk["audio_path"] = f"voicelines/{mp3_filename}"
+                    # Validate: conda ffmpeg often lacks libmp3lame, producing
+                    # a tiny (~428 byte) header-only file without raising an error
+                    mp3_size = os.path.getsize(mp3_filepath) if os.path.exists(mp3_filepath) else 0
+                    if mp3_size < 1024:
+                        print(f"MP3 export produced invalid file ({mp3_size} bytes) — ffmpeg likely lacks MP3 encoder (libmp3lame). Falling back to WAV.")
+                        os.remove(mp3_filepath)
+                        raise RuntimeError("MP3 export produced invalid file")
+
+                    audio_path = f"voicelines/{mp3_filename}"
 
                 except Exception as e:
-                    print(f"MP3 conversion failed (ffmpeg missing?): {e}")
+                    if "invalid file" not in str(e).lower():
+                        print(f"MP3 conversion failed (ffmpeg missing?): {e}")
                     # Fallback: copy WAV
                     wav_filename = f"{filename_base}.wav"
                     wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
                     shutil.copy(temp_path, wav_filepath)
 
-                    chunk["audio_path"] = f"voicelines/{wav_filename}"
+                    audio_path = f"voicelines/{wav_filename}"
 
-                chunk["status"] = "done"
-                self.save_chunks(chunks)
+                self._update_chunk_fields(index, status="done", audio_path=audio_path)
 
                 # Cleanup
                 if os.path.exists(temp_path):
                     os.remove(temp_path)
 
-                return True, chunk["audio_path"]
+                return True, audio_path
             else:
-                chunk["status"] = "error"
-                self.save_chunks(chunks)
+                self._update_chunk_fields(index, status="error")
                 return False, "Generation failed"
 
         except Exception as e:
-            chunk["status"] = "error"
-            self.save_chunks(chunks)
+            self._update_chunk_fields(index, status="error")
             return False, str(e)
 
     def merge_audio(self):
@@ -508,10 +532,20 @@ class ProjectManager:
                         mp3_filename = f"{filename_base}.mp3"
                         mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
                         segment.export(mp3_filepath, format="mp3")
+
+                        # Validate: conda ffmpeg often lacks libmp3lame, producing
+                        # a tiny (~428 byte) header-only file without raising an error
+                        mp3_size = os.path.getsize(mp3_filepath) if os.path.exists(mp3_filepath) else 0
+                        if mp3_size < 1024:
+                            print(f"MP3 export produced invalid file ({mp3_size} bytes) for chunk {idx} — ffmpeg likely lacks MP3 encoder (libmp3lame). Falling back to WAV.")
+                            os.remove(mp3_filepath)
+                            raise RuntimeError("MP3 export produced invalid file")
+
                         chunks[idx]["audio_path"] = f"voicelines/{mp3_filename}"
 
                     except Exception as e:
-                        print(f"MP3 conversion failed for chunk {idx}: {e}")
+                        if "invalid file" not in str(e).lower():
+                            print(f"MP3 conversion failed for chunk {idx}: {e}")
                         wav_filename = f"{filename_base}.wav"
                         wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
                         shutil.copy(temp_path, wav_filepath)
