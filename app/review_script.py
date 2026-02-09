@@ -8,6 +8,71 @@ from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
 
 
+def _is_section_break(text):
+    """Check if text looks like a chapter heading or section title."""
+    stripped = text.strip()
+    # "CHAPTER ONE", "CHAPTER II", "Chapter Three", etc.
+    if re.match(r'(?i)^chapter\b', stripped):
+        return True
+    # All-caps short text = likely a title ("A SCANDAL IN BOHEMIA", "THE RED-HEADED LEAGUE")
+    if stripped == stripped.upper() and len(stripped) < 80 and stripped.isascii():
+        return True
+    return False
+
+
+def merge_consecutive_narrators(entries, max_merged_length=800):
+    """Merge consecutive NARRATOR entries that share the same instruct value.
+
+    Skips merging across section/chapter breaks. Caps merged text at
+    max_merged_length characters to avoid creating overly long TTS entries.
+    """
+    if not entries:
+        return entries, 0
+
+    merged = []
+    merges = 0
+    i = 0
+    while i < len(entries):
+        entry = entries[i]
+
+        if entry.get("speaker") != "NARRATOR" or _is_section_break(entry.get("text", "")):
+            merged.append(entry)
+            i += 1
+            continue
+
+        # Start a narrator run — accumulate consecutive NARRATORs with same instruct
+        combined_text = entry["text"]
+        instruct = entry.get("instruct", "")
+        run_count = 1
+        j = i + 1
+
+        while j < len(entries):
+            next_entry = entries[j]
+            if next_entry.get("speaker") != "NARRATOR":
+                break
+            if next_entry.get("instruct", "") != instruct:
+                break
+            if _is_section_break(next_entry.get("text", "")):
+                break
+            candidate = combined_text + " " + next_entry["text"]
+            if len(candidate) > max_merged_length:
+                break
+            combined_text = candidate
+            run_count += 1
+            j += 1
+
+        merged.append({
+            "speaker": "NARRATOR",
+            "text": combined_text,
+            "instruct": instruct
+        })
+        if run_count > 1:
+            merges += run_count - 1
+        i = j
+
+    return merged, merges
+
+
 def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                  previous_tail=None, source_context=None, max_retries=2,
                  system_prompt=None, user_prompt_template=None,
@@ -328,6 +393,13 @@ def main():
         all_corrected.extend(corrected)
         previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
 
+    # Post-processing: merge consecutive NARRATOR entries with same instruct
+    pre_merge_count = len(all_corrected)
+    all_corrected, narrator_merges = merge_consecutive_narrators(all_corrected, max_merged_length=800)
+    if narrator_merges > 0:
+        print(f"\nPost-processing: merged {narrator_merges} consecutive narrator entries "
+              f"({pre_merge_count} -> {len(all_corrected)} entries)")
+
     # Write corrected script
     with open(script_path, "w", encoding="utf-8") as f:
         json.dump(all_corrected, f, indent=2, ensure_ascii=False)
@@ -341,7 +413,7 @@ def main():
     # Final summary
     total_changes = (total_stats["text_changed"] + total_stats["speaker_changed"] +
                      total_stats["instruct_changed"] + total_stats["entries_added"] +
-                     total_stats["entries_removed"])
+                     total_stats["entries_removed"] + narrator_merges)
 
     print(f"\n{'='*60}")
     print(f"Review complete: {len(entries)} -> {len(all_corrected)} entries")
@@ -350,13 +422,14 @@ def main():
     print(f"  Instruct changed:{total_stats['instruct_changed']}")
     print(f"  Entries added:   {total_stats['entries_added']}")
     print(f"  Entries removed: {total_stats['entries_removed']}")
+    print(f"  Narrators merged:{narrator_merges}")
     if total_stats["batches_failed"] > 0:
         print(f"  Batches failed:  {total_stats['batches_failed']}")
     print(f"  Total changes:   {total_changes}")
     print(f"{'='*60}")
 
     if total_changes == 0:
-        print("No issues found — script looks clean.")
+        print("No issues found -- script looks clean.")
     else:
         print(f"Fixed {total_changes} issues across {total_batches} batches.")
 
