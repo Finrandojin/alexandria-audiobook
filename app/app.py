@@ -362,7 +362,7 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 async def get_audiobook():
     if not os.path.exists(AUDIOBOOK_PATH):
         raise HTTPException(status_code=404, detail="Audiobook not found")
-    return FileResponse(AUDIOBOOK_PATH)
+    return FileResponse(AUDIOBOOK_PATH, filename="audiobook.mp3", media_type="audio/mpeg")
 
 # --- Chunk Management Endpoints ---
 
