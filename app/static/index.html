@@ -48,8 +48,9 @@
                     <li class="nav-item"><a class="nav-link active" data-tab="setup">1. Setup</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="script">2. Script</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="voices">3. Voices</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="editor">4. Editor</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="audio">5. Result</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="designer">4. Designer</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="editor">5. Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="audio">6. Result</a></li>
                 </ul>
             </div>
         </div>
@@ -307,11 +308,76 @@
             </div>
         </div>
 
+        <!-- Designer Tab -->
+        <div id="designer-tab" class="tab-content" style="display:none;">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">4</span>Voice Designer</h4>
+                </div>
+                <div class="card-body">
+                    <p>Design new voices from text descriptions. Generated voices can be saved and used as clone sources in the Voices tab.</p>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Voice Description</label>
+                            <textarea class="form-control" id="design-description" rows="3" placeholder="A warm, mature female voice with a British accent. Speaks clearly with gentle authority."></textarea>
+                            <div class="form-text">Describe the voice characteristics you want</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Sample Text</label>
+                            <textarea class="form-control" id="design-sample-text" rows="3" placeholder="The ancient library stood at the crossroads of two forgotten paths, its weathered stone walls covered in ivy.">The ancient library stood at the crossroads of two forgotten paths, its weathered stone walls covered in ivy that had been growing for centuries.</textarea>
+                            <div class="form-text">Text to synthesize with the designed voice</div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <button class="btn btn-primary" id="btn-design-preview" onclick="generateDesignPreview()">
+                            <i class="fas fa-magic me-1"></i>Generate Preview
+                        </button>
+                        <span id="design-status" class="text-muted"></span>
+                    </div>
+
+                    <div id="design-preview-container" style="display:none;">
+                        <div class="card bg-light mb-3">
+                            <div class="card-body py-2">
+                                <label class="form-label fw-bold mb-1">Preview</label>
+                                <audio id="design-preview-audio" controls class="w-100"></audio>
+                            </div>
+                        </div>
+
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label">Voice Name</label>
+                                <input type="text" class="form-control" id="design-voice-name" placeholder="e.g. Lady Narrator">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-success w-100" onclick="saveDesignedVoice()">
+                                    <i class="fas fa-save me-1"></i>Save Voice
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="m-0">Saved Voices</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadDesignedVoices()"><i class="fas fa-sync me-1"></i>Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div id="designed-voices-list">
+                        <p class="text-muted mb-0">No designed voices yet. Generate and save a preview above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Editor Tab -->
         <div id="editor-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                     <h4 class="m-0"><span class="step-indicator step-active">4</span>Audio Editor</h4>
+                     <h4 class="m-0"><span class="step-indicator step-active">5</span>Audio Editor</h4>
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
                         <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
@@ -351,7 +417,7 @@
         <div id="audio-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h4><span class="step-indicator step-active">5</span>Final Result</h4>
+                    <h4><span class="step-indicator step-active">6</span>Final Result</h4>
                 </div>
                 <div class="card-body">
                     <div id="audio-player-container" class="text-center" style="display:none;">
@@ -400,6 +466,8 @@
                 // Trigger tab specific loads
                 if (e.target.dataset.tab === 'editor') {
                     loadChunks();
+                } else if (e.target.dataset.tab === 'designer') {
+                    loadDesignedVoices();
                 }
             });
         });
@@ -664,9 +732,17 @@
 
                                 <!-- Clone Options -->
                                 <div class="clone-opts" style="display: ${isClone ? 'block' : 'none'}">
-                                    <div class="alert alert-warning py-1 mb-2"><small>Note: Cloning requires manual file setup currently.</small></div>
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-md-6">
+                                            <select class="form-select designed-voice-select" onchange="onDesignedVoiceSelect(this)">
+                                                <option value="">-- Select designed voice or enter manually --</option>
+                                                ${(window._designedVoicesCache || []).map(v => `<option value="${v.id}" ${config.ref_audio && config.ref_audio.includes(v.filename) ? 'selected' : ''}>${v.name}</option>`).join('')}
+                                                <option value="__manual__" ${config.ref_audio && !(window._designedVoicesCache || []).some(v => config.ref_audio.includes(v.filename)) && config.ref_audio ? 'selected' : ''}>Custom path...</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <input type="text" class="form-control ref-text mb-2" placeholder="Reference Text" value="${config.ref_text || ''}">
-                                    <input type="text" class="form-control ref-audio" placeholder="Path to audio file" value="${config.ref_audio || ''}">
+                                    <input type="text" class="form-control ref-audio" placeholder="Path to audio file" value="${config.ref_audio || ''}" ${config.ref_audio && (window._designedVoicesCache || []).some(v => config.ref_audio.includes(v.filename)) ? 'readonly' : ''}>
                                 </div>
                             </div>
                         </div>
@@ -700,6 +776,11 @@
         });
 
         async function loadVoices() {
+            // Refresh designed voices cache so clone dropdown is populated
+            try {
+                window._designedVoicesCache = await API.get('/api/voice_design/list');
+            } catch (e) { /* ignore if designer not available */ }
+
             const voices = await API.get('/api/voices');
             const container = document.getElementById('voices-list');
             if (voices.length === 0) {
@@ -1430,10 +1511,142 @@
             }
         }
 
+        // --- Voice Designer ---
+        window._designedVoicesCache = [];
+        window._currentPreviewFile = null;
+
+        async function loadDesignedVoices() {
+            try {
+                const voices = await API.get('/api/voice_design/list');
+                window._designedVoicesCache = voices;
+                const container = document.getElementById('designed-voices-list');
+
+                if (!voices.length) {
+                    container.innerHTML = '<p class="text-muted mb-0">No designed voices yet. Generate and save a preview above.</p>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table class="table table-sm table-hover mb-0">
+                        <thead><tr><th>Name</th><th>Description</th><th style="width:120px">Actions</th></tr></thead>
+                        <tbody>
+                            ${voices.map(v => `
+                                <tr>
+                                    <td><strong>${v.name}</strong></td>
+                                    <td class="text-muted" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.description}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="playDesignedVoice('${v.filename}')" title="Play"><i class="fas fa-play"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDesignedVoice('${v.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`;
+            } catch (e) {
+                console.error('Failed to load designed voices:', e);
+            }
+        }
+
+        window.generateDesignPreview = async () => {
+            const description = document.getElementById('design-description').value.trim();
+            const sampleText = document.getElementById('design-sample-text').value.trim();
+            const statusEl = document.getElementById('design-status');
+            const previewContainer = document.getElementById('design-preview-container');
+
+            if (!description) { alert('Please enter a voice description.'); return; }
+            if (!sampleText) { alert('Please enter sample text.'); return; }
+
+            const btn = document.getElementById('btn-design-preview');
+            btn.disabled = true;
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating preview (this may take a moment on first run)...';
+            previewContainer.style.display = 'none';
+
+            try {
+                const result = await API.post('/api/voice_design/preview', {
+                    description: description,
+                    sample_text: sampleText
+                });
+
+                const audio = document.getElementById('design-preview-audio');
+                audio.src = result.audio_url + '?t=' + Date.now();
+                previewContainer.style.display = 'block';
+                statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Preview ready</span>';
+
+                // Extract filename from URL for save
+                window._currentPreviewFile = result.audio_url.split('/').pop().split('?')[0];
+            } catch (e) {
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed: ${e.message}</span>`;
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        window.saveDesignedVoice = async () => {
+            const name = document.getElementById('design-voice-name').value.trim();
+            if (!name) { alert('Please enter a name for the voice.'); return; }
+            if (!window._currentPreviewFile) { alert('Generate a preview first.'); return; }
+
+            try {
+                await API.post('/api/voice_design/save', {
+                    name: name,
+                    description: document.getElementById('design-description').value.trim(),
+                    sample_text: document.getElementById('design-sample-text').value.trim(),
+                    preview_file: window._currentPreviewFile
+                });
+                document.getElementById('design-voice-name').value = '';
+                loadDesignedVoices();
+            } catch (e) {
+                alert('Error saving voice: ' + e.message);
+            }
+        };
+
+        window.playDesignedVoice = (filename) => {
+            const audio = new Audio(`/designed_voices/${filename}?t=${Date.now()}`);
+            audio.play();
+        };
+
+        window.deleteDesignedVoice = async (voiceId) => {
+            if (!confirm('Delete this designed voice?')) return;
+            try {
+                const res = await fetch(`/api/voice_design/${encodeURIComponent(voiceId)}`, {method: 'DELETE'});
+                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                loadDesignedVoices();
+            } catch (e) {
+                alert('Error deleting voice: ' + e.message);
+            }
+        };
+
+        window.onDesignedVoiceSelect = (select) => {
+            const card = select.closest('.card-body');
+            const refText = card.querySelector('.ref-text');
+            const refAudio = card.querySelector('.ref-audio');
+            const val = select.value;
+
+            if (val === '' || val === '__manual__') {
+                refAudio.readOnly = false;
+                if (val === '__manual__') {
+                    refAudio.value = '';
+                    refText.value = '';
+                }
+                refAudio.focus();
+                return;
+            }
+
+            // Find the designed voice
+            const voice = window._designedVoicesCache.find(v => v.id === val);
+            if (voice) {
+                // Use absolute path relative to project root
+                refAudio.value = `designed_voices/${voice.filename}`;
+                refText.value = voice.sample_text;
+                refAudio.readOnly = true;
+            }
+        };
+
         // Init
         loadConfig();
         loadVoices();
         loadSavedScripts();
+        loadDesignedVoices();
     </script>
 </body>
 </html>

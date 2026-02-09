@@ -46,3 +46,6 @@ __pycache__/
 # User uploads
 app/uploads/
 
+# Designed voices (user-generated)
+designed_voices/
+

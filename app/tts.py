@@ -65,6 +65,7 @@ class TTSEngine:
         # Lazy-loaded backends
         self._local_custom_model = None
         self._local_clone_model = None
+        self._local_design_model = None
         self._gradio_client = None
 
         # Clone prompt cache: speaker_name -> reusable voice_clone_prompt
@@ -225,6 +226,32 @@ class TTSEngine:
         print("Base model (voice cloning) loaded.")
         return self._local_clone_model
 
+    def _init_local_design(self):
+        """Load Qwen3-TTS VoiceDesign model on demand."""
+        if self._local_design_model is not None:
+            return self._local_design_model
+
+        self._enable_rocm_optimizations()
+
+        import torch
+        from qwen_tts import Qwen3TTSModel
+
+        device = self._resolve_device()
+        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+
+        print(f"Loading Qwen3-TTS VoiceDesign model on {device} ({dtype})...")
+        load_kwargs = {"dtype": dtype}
+        if device != "cpu":
+            load_kwargs["device_map"] = device
+        self._local_design_model = Qwen3TTSModel.from_pretrained(
+            "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+            **load_kwargs,
+        )
+        if self._compile_codec_enabled:
+            self._compile_codec(self._local_design_model)
+        print("VoiceDesign model loaded.")
+        return self._local_design_model
+
     def _init_external(self):
         """Create Gradio client on demand."""
         if self._gradio_client is not None:
@@ -250,6 +277,10 @@ class TTSEngine:
 
         if not ref_audio_path or not ref_text:
             raise ValueError(f"Clone voice for '{speaker}' missing ref_audio or ref_text")
+        # Resolve relative paths against project root (parent of app/)
+        if not os.path.isabs(ref_audio_path):
+            root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            ref_audio_path = os.path.join(root_dir, ref_audio_path)
         if not os.path.exists(ref_audio_path):
             raise FileNotFoundError(f"Reference audio not found for '{speaker}': {ref_audio_path}")
 
@@ -303,6 +334,57 @@ class TTSEngine:
             return self.generate_clone_voice(text, speaker, voice_config, output_path)
         else:
             return self.generate_custom_voice(text, instruct_text, speaker, voice_config, output_path)
+
+    # ── Voice design generation ──────────────────────────────────
+
+    def generate_voice_design(self, description, sample_text, language=None):
+        """Generate a voice from a text description using the VoiceDesign model.
+
+        Args:
+            description: Natural language description of the desired voice
+            sample_text: Text to synthesize with the designed voice
+            language: Language code (defaults to engine's configured language)
+
+        Returns:
+            (wav_path, sample_rate) on success
+
+        Raises:
+            RuntimeError: If generation fails
+        """
+        import time
+        import tempfile
+
+        lang = language or self._language
+        print(f"VoiceDesign: generating preview for description='{description[:80]}...'")
+
+        model = self._init_local_design()
+
+        t_start = time.time()
+        wavs, sr = model.generate_voice_design(
+            text=sample_text,
+            instruct=description,
+            language=lang,
+            non_streaming_mode=True,
+            max_new_tokens=2048,
+        )
+        gen_time = time.time() - t_start
+
+        if wavs is None or len(wavs) == 0:
+            raise RuntimeError("VoiceDesign model returned no audio")
+
+        audio = np.concatenate(wavs) if len(wavs) > 1 else wavs[0]
+        duration = len(audio) / sr
+        print(f"VoiceDesign: done in {gen_time:.1f}s -> {duration:.1f}s audio")
+
+        # Save to previews directory
+        previews_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "designed_voices", "previews")
+        os.makedirs(previews_dir, exist_ok=True)
+
+        filename = f"preview_{int(time.time() * 1000)}.wav"
+        wav_path = os.path.join(previews_dir, filename)
+        self._save_wav(audio, sr, wav_path)
+
+        return wav_path, sr
 
     # ── Batch generation ─────────────────────────────────────────
 
@@ -719,6 +801,11 @@ class TTSEngine:
             if not ref_audio or not ref_text:
                 print(f"Warning: Clone voice for '{speaker}' missing ref_audio or ref_text. Skipping.")
                 return False
+
+            # Resolve relative paths against project root
+            if not os.path.isabs(ref_audio):
+                root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                ref_audio = os.path.join(root_dir, ref_audio)
 
             if not os.path.exists(ref_audio):
                 print(f"Warning: Reference audio not found for '{speaker}': {ref_audio}")

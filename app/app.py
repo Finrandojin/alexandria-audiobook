@@ -35,9 +35,11 @@ AUDIOBOOK_PATH = os.path.join(ROOT_DIR, "cloned_audiobook.mp3")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
 SCRIPTS_DIR = os.path.join(ROOT_DIR, "scripts")
 CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
+DESIGNED_VOICES_DIR = os.path.join(ROOT_DIR, "designed_voices")
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(SCRIPTS_DIR, exist_ok=True)
+os.makedirs(DESIGNED_VOICES_DIR, exist_ok=True)
 
 # Mount static files with absolute path
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -48,6 +50,9 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 VOICELINES_DIR = os.path.join(ROOT_DIR, "voicelines")
 os.makedirs(VOICELINES_DIR, exist_ok=True)
 app.mount("/voicelines", StaticFiles(directory=VOICELINES_DIR), name="voicelines")
+
+# Designed voices directory for voice designer feature
+app.mount("/designed_voices", StaticFiles(directory=DESIGNED_VOICES_DIR), name="designed_voices")
 
 # Initialize Project Manager
 project_manager = ProjectManager(ROOT_DIR)
@@ -118,6 +123,17 @@ class ChunkUpdate(BaseModel):
 
 class BatchGenerateRequest(BaseModel):
     indices: List[int]
+
+class VoiceDesignPreviewRequest(BaseModel):
+    description: str
+    sample_text: str
+    language: Optional[str] = None
+
+class VoiceDesignSaveRequest(BaseModel):
+    name: str
+    description: str
+    sample_text: str
+    preview_file: str
 
 # Global state for process tracking
 process_state = {
@@ -640,6 +656,105 @@ async def delete_script(name: str):
 
     logger.info(f"Script '{name}' deleted")
     return {"status": "deleted", "name": name}
+
+## ── Voice Designer ──────────────────────────────────────────────
+
+DESIGNED_VOICES_MANIFEST = os.path.join(DESIGNED_VOICES_DIR, "manifest.json")
+
+def _load_design_manifest():
+    if os.path.exists(DESIGNED_VOICES_MANIFEST):
+        try:
+            with open(DESIGNED_VOICES_MANIFEST, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return []
+
+def _save_design_manifest(manifest):
+    with open(DESIGNED_VOICES_MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+
+@app.post("/api/voice_design/preview")
+async def voice_design_preview(request: VoiceDesignPreviewRequest):
+    """Generate a preview voice from a text description."""
+    engine = project_manager.get_engine()
+    if not engine:
+        raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
+
+    try:
+        wav_path, sr = engine.generate_voice_design(
+            description=request.description,
+            sample_text=request.sample_text,
+            language=request.language,
+        )
+        # Return relative URL for the static mount
+        filename = os.path.basename(wav_path)
+        return {"status": "ok", "audio_url": f"/designed_voices/previews/{filename}"}
+    except Exception as e:
+        logger.error(f"Voice design preview failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/voice_design/save")
+async def voice_design_save(request: VoiceDesignSaveRequest):
+    """Save a preview voice as a permanent designed voice."""
+    previews_dir = os.path.join(DESIGNED_VOICES_DIR, "previews")
+    preview_path = os.path.join(previews_dir, request.preview_file)
+
+    if not os.path.exists(preview_path):
+        raise HTTPException(status_code=404, detail="Preview file not found")
+
+    # Sanitize name for filename
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid voice name")
+
+    # Generate unique ID
+    import time
+    voice_id = f"{safe_name}_{int(time.time())}"
+    dest_filename = f"{voice_id}.wav"
+    dest_path = os.path.join(DESIGNED_VOICES_DIR, dest_filename)
+
+    shutil.copy2(preview_path, dest_path)
+
+    # Update manifest
+    manifest = _load_design_manifest()
+    manifest.append({
+        "id": voice_id,
+        "name": request.name,
+        "description": request.description,
+        "sample_text": request.sample_text,
+        "filename": dest_filename,
+    })
+    _save_design_manifest(manifest)
+
+    logger.info(f"Designed voice saved: '{request.name}' as {dest_filename}")
+    return {"status": "saved", "voice_id": voice_id}
+
+@app.get("/api/voice_design/list")
+async def voice_design_list():
+    """List all saved designed voices."""
+    return _load_design_manifest()
+
+@app.delete("/api/voice_design/{voice_id}")
+async def voice_design_delete(voice_id: str):
+    """Delete a saved designed voice."""
+    manifest = _load_design_manifest()
+    entry = next((v for v in manifest if v["id"] == voice_id), None)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Voice not found")
+
+    # Delete WAV file
+    wav_path = os.path.join(DESIGNED_VOICES_DIR, entry["filename"])
+    if os.path.exists(wav_path):
+        os.remove(wav_path)
+
+    # Remove from manifest
+    manifest = [v for v in manifest if v["id"] != voice_id]
+    _save_design_manifest(manifest)
+
+    logger.info(f"Designed voice deleted: {voice_id}")
+    return {"status": "deleted", "voice_id": voice_id}
 
 if __name__ == "__main__":
     import uvicorn
