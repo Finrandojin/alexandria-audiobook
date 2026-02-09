@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Script Reader Test</title>
+    <script src="readable.js"></script>
+    <style>
+        body {
+            font-family: Georgia, 'Times New Roman', serif;
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h1 {
+            margin-bottom: 30px;
+        }
+        .file-input {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Script Reader</h1>
+    
+    <div class="file-input">
+        <label for="fileInput">Select a JSON script file:</label><br>
+        <input type="file" id="fileInput" accept=".json" />
+    </div>
+    
+    <button id="displayButton" onclick="handleDisplay()" disabled>Display Script</button>
+    
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const displayButton = document.getElementById('displayButton');
+        
+        // Enable button when file is selected
+        fileInput.addEventListener('change', function() {
+            displayButton.disabled = !this.files.length;
+        });
+        
+        function handleDisplay() {
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+            
+            // Create a URL for the selected file
+            const fileURL = URL.createObjectURL(file);
+            
+            // Call the display function
+            displayReadableScript(fileURL);
+        }
+    </script>
+</body>
+</html>
