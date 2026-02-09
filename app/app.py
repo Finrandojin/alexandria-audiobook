@@ -295,6 +295,14 @@ async def review_script(background_tasks: BackgroundTasks):
     background_tasks.add_task(run_process, [sys.executable, "-u", "review_script.py"], "review")
     return {"status": "started"}
 
+@app.get("/api/annotated_script")
+async def get_annotated_script():
+    """Return the current working annotated_script.json."""
+    if not os.path.exists(SCRIPT_PATH):
+        raise HTTPException(status_code=404, detail="No annotated script found")
+    with open(SCRIPT_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
 @app.get("/api/status/{task_name}")
 async def get_status(task_name: str):
     if task_name not in process_state:
