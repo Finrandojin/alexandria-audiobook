@@ -35,6 +35,13 @@ const API = {
         if (!res.ok) throw new Error(res.statusText);
         return res.json();
     },
+    delete: async (url) => {
+        const res = await fetch(url, {
+            method: 'DELETE'
+        });
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+    },
     upload: async (file) => {
         const formData = new FormData();
         formData.append('file', file);
@@ -503,16 +510,24 @@ async function loadChunks(forceFullRedraw = false) {
                      </div>` :
                     `<button class="btn btn-sm btn-primary" onclick="generateChunk(${chunk.id})"><i class="fas fa-play"></i> Gen</button>`;
 
+                const mergeUpDisabled = chunk.id === 0 ? 'disabled' : '';
+
                 return `
                     <tr data-id="${chunk.id}">
                         <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
-                        <td><textarea class="form-control form-control-sm" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
-                        <td><input type="text" class="form-control form-control-sm" value="${chunk.instruct || ''}" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)"></td>
+                        <td>
+                            <textarea class="form-control form-control-sm mb-2" style="min-height: 38px; resize: vertical;" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea>
+                            <input type="text" class="form-control form-control-sm" value="${chunk.instruct || ''}" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" placeholder="Instruct (optional)" title="Short TTS direction (3-8 words)">
+                        </td>
                         <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center gap-2 mb-2">
                                 ${actionArea}
                                 ${audioPlayer}
+                            </div>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-sm btn-outline-secondary" onclick="mergeChunkUp(${chunk.id})" ${mergeUpDisabled} title="Merge with chunk above"><i class="fas fa-arrow-up me-1"></i>Merge Up</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="splitChunk(${chunk.id})" title="Split selected text into new chunk"><i class="fas fa-cut me-1"></i>Split</button>
                             </div>
                         </td>
                     </tr>
@@ -634,6 +649,154 @@ window.updateChunk = async (id, field, value) => {
     } catch (e) {
         console.error("Update failed", e);
         alert("Failed to update chunk");
+    }
+};
+
+window.insertChunk = async (index, speaker = "", text = "", instruct = "") => {
+    try {
+        const data = { index, speaker, text, instruct };
+        await API.post('/api/chunks/insert', data);
+        // Reload chunks to show the new chunk
+        await loadChunks(true);
+    } catch (e) {
+        console.error("Insert failed", e);
+        alert("Failed to insert chunk: " + e.message);
+    }
+};
+
+window.deleteChunk = async (id) => {
+    if (!confirm(`Delete chunk ${id}? This will also delete its audio file if it exists.`)) {
+        return;
+    }
+    try {
+        await API.delete(`/api/chunks/${id}`);
+        // Reload chunks to reflect deletion and renumbering
+        await loadChunks(true);
+    } catch (e) {
+        console.error("Delete failed", e);
+        alert("Failed to delete chunk: " + e.message);
+    }
+};
+
+window.mergeChunkUp = async (id) => {
+    if (id === 0) return; // Safety check - should be disabled in UI
+    
+    try {
+        // Get current chunks
+        const chunks = await API.get('/api/chunks');
+        
+        if (id >= chunks.length) {
+            alert("Invalid chunk index");
+            return;
+        }
+        
+        const targetChunk = chunks[id - 1]; // Chunk to merge into
+        const sourceChunk = chunks[id];     // Chunk to merge from
+        
+        // Merge text fields
+        const mergedText = targetChunk.text + " " + sourceChunk.text;
+        
+        // Merge instruct fields (with space separator if both exist)
+        let mergedInstruct = targetChunk.instruct || "";
+        if (sourceChunk.instruct) {
+            if (mergedInstruct) {
+                mergedInstruct += " " + sourceChunk.instruct;
+            } else {
+                mergedInstruct = sourceChunk.instruct;
+            }
+        }
+        
+        // Update the target chunk (N-1) with merged content
+        await API.post(`/api/chunks/${id - 1}`, {
+            text: mergedText,
+            instruct: mergedInstruct
+            // speaker remains unchanged
+        });
+        
+        // Delete the source chunk (N)
+        await API.delete(`/api/chunks/${id}`);
+        
+        // Reload the table to show changes
+        await loadChunks(true);
+        
+    } catch (e) {
+        console.error("Merge failed", e);
+        alert("Failed to merge chunks: " + e.message);
+    }
+};
+
+window.splitChunk = async (id) => {
+    try {
+        // Get the textarea element for this chunk
+        const tr = document.querySelector(`tr[data-id="${id}"]`);
+        if (!tr) {
+            alert("Chunk not found");
+            return;
+        }
+        
+        const textarea = tr.querySelector('textarea');
+        if (!textarea) {
+            alert("Text area not found");
+            return;
+        }
+        
+        // Get selection positions
+        const selectionStart = textarea.selectionStart;
+        const selectionEnd = textarea.selectionEnd;
+        const fullText = textarea.value;
+        
+        // Check if there's actually a selection
+        if (selectionStart === selectionEnd) {
+            alert("Please select text to split on");
+            return;
+        }
+        
+        // Split the text into sections
+        const beforeSelection = fullText.substring(0, selectionStart);
+        const selectedText = fullText.substring(selectionStart, selectionEnd);
+        const afterSelection = fullText.substring(selectionEnd);
+        
+        // Get current chunks data
+        const chunks = await API.get('/api/chunks');
+        const currentChunk = chunks[id];
+        
+        if (!currentChunk) {
+            alert("Invalid chunk index");
+            return;
+        }
+        
+        const speaker = currentChunk.speaker || "";
+        const instruct = currentChunk.instruct || "";
+        
+        // Determine sections (filter out empty strings)
+        const sections = [beforeSelection, selectedText, afterSelection].filter(s => s.trim().length > 0);
+        
+        if (sections.length < 2) {
+            alert("Split would result in empty chunks. Please select a portion of the text.");
+            return;
+        }
+        
+        // Update current chunk with first section
+        await API.post(`/api/chunks/${id}`, {
+            text: sections[0].trim()
+        });
+        
+        // Insert new chunks for remaining sections
+        for (let i = 1; i < sections.length; i++) {
+            await API.post('/api/chunks/insert', {
+                index: id + i,
+                speaker: speaker,
+                text: sections[i].trim(),
+                instruct: instruct
+            });
+        }
+        
+        // Reload the table to show changes
+        await loadChunks(true);
+        
+    } catch (e) {
+        console.error("Split failed", e);
+        alert("Failed to split chunk: " + e.message);
     }
 };
 

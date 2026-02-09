@@ -118,6 +118,12 @@ class ChunkUpdate(BaseModel):
     instruct: Optional[str] = None
     speaker: Optional[str] = None
 
+class ChunkInsert(BaseModel):
+    index: int
+    speaker: str
+    text: str
+    instruct: Optional[str] = None
+
 class BatchGenerateRequest(BaseModel):
     indices: List[int]
 
@@ -373,6 +379,20 @@ async def get_chunks():
     chunks = project_manager.load_chunks()
     return chunks
 
+@app.post("/api/chunks/insert")
+async def insert_chunk(insert_data: ChunkInsert):
+    """Insert a new chunk at the specified index."""
+    chunk_data = {
+        "speaker": insert_data.speaker,
+        "text": insert_data.text,
+        "instruct": insert_data.instruct if insert_data.instruct is not None else ""
+    }
+    new_chunk = project_manager.insert_chunk(insert_data.index, chunk_data)
+    if not new_chunk:
+        raise HTTPException(status_code=400, detail="Invalid index or insertion failed")
+    logger.info(f"Inserted chunk at index {insert_data.index}")
+    return new_chunk
+
 @app.post("/api/chunks/{index}")
 async def update_chunk(index: int, update: ChunkUpdate):
     data = update.model_dump(exclude_unset=True)
@@ -390,6 +410,15 @@ async def generate_chunk_endpoint(index: int, background_tasks: BackgroundTasks)
 
     background_tasks.add_task(task)
     return {"status": "started"}
+
+@app.delete("/api/chunks/{index}")
+async def delete_chunk(index: int):
+    """Delete a chunk at the specified index."""
+    success = project_manager.delete_chunk(index)
+    if not success:
+        raise HTTPException(status_code=404, detail="Chunk not found")
+    logger.info(f"Deleted chunk at index {index}")
+    return {"status": "deleted", "index": index}
 
 @app.post("/api/merge")
 async def merge_audio_endpoint(background_tasks: BackgroundTasks):

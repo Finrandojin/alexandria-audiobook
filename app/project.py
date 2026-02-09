@@ -174,6 +174,77 @@ class ProjectManager:
             return chunk
         return None
 
+    def insert_chunk(self, index, chunk_data):
+        """Insert a new chunk at the specified index.
+        
+        Args:
+            index: Position to insert at (0 = beginning, len(chunks) = end)
+            chunk_data: Dict with 'text', 'speaker', and optionally 'instruct'
+        
+        Returns:
+            The inserted chunk with all fields populated, or None if invalid
+        """
+        chunks = self.load_chunks()
+        
+        # Validate index
+        if not (0 <= index <= len(chunks)):
+            return None
+        
+        # Create new chunk with required fields
+        new_chunk = {
+            "id": index,  # Will be renumbered
+            "speaker": chunk_data.get("speaker", ""),
+            "text": chunk_data.get("text", ""),
+            "instruct": chunk_data.get("instruct", ""),
+            "status": "pending",
+            "audio_path": None
+        }
+        
+        # Insert the chunk
+        chunks.insert(index, new_chunk)
+        
+        # Renumber all chunk IDs
+        for i, chunk in enumerate(chunks):
+            chunk["id"] = i
+        
+        self.save_chunks(chunks)
+        return new_chunk
+
+    def delete_chunk(self, index):
+        """Delete a chunk at the specified index.
+        
+        Args:
+            index: Index of chunk to delete
+        
+        Returns:
+            True if deleted successfully, False if invalid index
+        """
+        chunks = self.load_chunks()
+        
+        # Validate index
+        if not (0 <= index < len(chunks)):
+            return False
+        
+        # Delete audio file if it exists
+        deleted_chunk = chunks[index]
+        if deleted_chunk.get("audio_path"):
+            audio_file = os.path.join(self.root_dir, deleted_chunk["audio_path"])
+            if os.path.exists(audio_file):
+                try:
+                    os.remove(audio_file)
+                except Exception as e:
+                    print(f"Warning: Could not delete audio file {audio_file}: {e}")
+        
+        # Remove the chunk
+        chunks.pop(index)
+        
+        # Renumber all chunk IDs
+        for i, chunk in enumerate(chunks):
+            chunk["id"] = i
+        
+        self.save_chunks(chunks)
+        return True
+
     def generate_chunk_audio(self, index):
         chunks = self.load_chunks()
         if not (0 <= index < len(chunks)):
