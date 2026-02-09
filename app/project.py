@@ -514,6 +514,11 @@ class ProjectManager:
             chunks = self.load_chunks()  # Reload for each batch
 
             for idx in batch_results["completed"]:
+                if not (0 <= idx < len(chunks)):
+                    print(f"Chunk {idx} skipped: index out of range (chunks changed during generation?)")
+                    results["failed"].append((idx, "Index out of range after reload"))
+                    continue
+
                 temp_path = os.path.join(self.root_dir, f"temp_batch_{idx}.wav")
 
                 if not os.path.exists(temp_path):

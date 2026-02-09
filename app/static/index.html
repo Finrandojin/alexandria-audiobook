@@ -49,8 +49,9 @@
                     <li class="nav-item"><a class="nav-link" data-tab="script">2. Script</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="voices">3. Voices</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="designer">4. Designer</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="editor">5. Editor</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="audio">6. Result</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="training">5. Training</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="editor">6. Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="audio">7. Result</a></li>
                 </ul>
             </div>
         </div>
@@ -373,11 +374,176 @@
             </div>
         </div>
 
+        <!-- Training Tab -->
+        <div id="training-tab" class="tab-content" style="display:none;">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">5</span>LoRA Training</h4>
+                </div>
+                <div class="card-body">
+                    <p>Train LoRA adapters on the Base model to create custom voice identities. Upload a dataset (ZIP with WAV files + metadata.jsonl), configure training, and run.</p>
+
+                    <!-- Dataset Upload -->
+                    <h5 class="mb-3">Dataset</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="lora-dataset-file" accept=".zip">
+                                <button class="btn btn-outline-primary" onclick="uploadLoraDataset()"><i class="fas fa-upload me-1"></i>Upload ZIP</button>
+                            </div>
+                            <div class="form-text">ZIP containing WAV files (24kHz mono) and metadata.jsonl with audio_filepath, text, instruct fields</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div id="lora-datasets-list" class="border rounded p-2" style="min-height: 60px;">
+                                <span class="text-muted">No datasets uploaded yet.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Dataset from Voice Description -->
+                    <div class="card mb-3">
+                        <div class="card-header py-2">
+                            <strong>Generate Dataset from Voice Description</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3 mb-2">
+                                <div class="col-md-3">
+                                    <label class="form-label">Dataset Name</label>
+                                    <input type="text" class="form-control" id="gen-dataset-name" placeholder="e.g. warm_narrator">
+                                </div>
+                                <div class="col-md-9">
+                                    <label class="form-label">Voice Description</label>
+                                    <input type="text" class="form-control" id="gen-dataset-description" placeholder="e.g. A warm, deep male voice with a calm and steady tone">
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Sample Texts <span class="text-muted">(one per line)</span></label>
+                                <textarea class="form-control" id="gen-dataset-texts" rows="5" placeholder="The sun set slowly behind the mountains.&#10;She opened the old leather-bound book carefully.&#10;The marketplace was bustling with merchants and travelers."></textarea>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-primary" id="btn-gen-dataset" onclick="generateLoraDataset()"><i class="fas fa-magic me-1"></i>Generate Dataset</button>
+                                <span id="gen-dataset-status" class="text-muted small"></span>
+                            </div>
+                            <pre id="gen-dataset-logs" class="bg-dark text-light p-2 rounded mt-2" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; display: none;"></pre>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Training Config -->
+                    <h5 class="mb-3">Training Configuration</h5>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Adapter Name</label>
+                            <input type="text" class="form-control" id="lora-adapter-name" placeholder="e.g. narrator_warm">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Dataset</label>
+                            <select class="form-select" id="lora-dataset-select">
+                                <option value="">-- Select dataset --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Epochs</label>
+                            <input type="number" class="form-control" id="lora-epochs" value="50" min="1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Learning Rate</label>
+                            <input type="text" class="form-control" id="lora-lr" value="5e-6">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Batch Size</label>
+                            <input type="number" class="form-control" id="lora-batch-size" value="1" min="1">
+                        </div>
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-2">
+                            <label class="form-label">LoRA Rank</label>
+                            <input type="number" class="form-control" id="lora-rank" value="64" min="1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">LoRA Alpha</label>
+                            <input type="number" class="form-control" id="lora-alpha" value="128" min="1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Grad Accum Steps</label>
+                            <input type="number" class="form-control" id="lora-grad-accum" value="8" min="1">
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button class="btn btn-success btn-lg" id="btn-lora-train" onclick="startLoraTraining()">
+                                <i class="fas fa-dumbbell me-1"></i>Start Training
+                            </button>
+                            <span id="lora-train-status" class="ms-3 text-muted"></span>
+                        </div>
+                    </div>
+
+                    <!-- Settings Info Panel -->
+                    <div class="card mb-3 border-info">
+                        <div class="card-header py-2 bg-info bg-opacity-10 d-flex justify-content-between align-items-center" style="cursor:pointer;" onclick="this.parentElement.querySelector('.card-body').classList.toggle('d-none')">
+                            <strong><i class="fas fa-info-circle me-1"></i>How Settings Affect LoRA Voice Quality</strong>
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                        <div class="card-body d-none small">
+                            <dl class="row mb-0">
+                                <dt class="col-sm-3">LoRA Rank</dt>
+                                <dd class="col-sm-9">Controls adapter capacity. <strong>High rank (64+)</strong> captures voice identity strongly but can override the model's ability to follow instruct/style prompts, producing flat delivery. <strong>Low rank (8-16)</strong> preserves expressiveness and instruct-following but captures less voice detail. Start with 16-32 for a balance.</dd>
+                                <dt class="col-sm-3">LoRA Alpha</dt>
+                                <dd class="col-sm-9">Scaling factor for LoRA weights. Effective strength = alpha / rank. Higher alpha relative to rank means the adapter has more influence. A common starting point is alpha = 2x rank.</dd>
+                                <dt class="col-sm-3">Epochs</dt>
+                                <dd class="col-sm-9">Number of full passes over the dataset. <strong>Too few</strong>: voice identity won't converge. <strong>Too many</strong>: overfitting, stuttering, repetition artifacts. 15-30 epochs is a good range for 20+ samples.</dd>
+                                <dt class="col-sm-3">Learning Rate</dt>
+                                <dd class="col-sm-9">Step size for weight updates. Default 5e-6 is conservative. Higher (1e-5) trains faster but risks instability. Lower (1e-6) is safer for longer training runs.</dd>
+                                <dt class="col-sm-3">Batch Size</dt>
+                                <dd class="col-sm-9">Samples processed per step. Limited by VRAM. Batch 1 with gradient accumulation is typical for 24GB cards.</dd>
+                                <dt class="col-sm-3">Grad Accum Steps</dt>
+                                <dd class="col-sm-9">Simulates larger batches by accumulating gradients over N steps before updating. Effective batch = batch_size x grad_accum. Higher values give smoother training at the cost of speed.</dd>
+                            </dl>
+                            <hr class="my-2">
+                            <p class="mb-0"><strong>Training data tip:</strong> For expressive voices, include samples with varied emotions (happy, sad, angry, calm). Neutral-only training data will produce a flat voice that resists instruct prompting.</p>
+                        </div>
+                    </div>
+
+                    <!-- Training Progress -->
+                    <div id="lora-progress-section" style="display:none;">
+                        <hr>
+                        <h5 class="mb-2">Training Progress</h5>
+                        <div class="row g-3 mb-2">
+                            <div class="col-md-4">
+                                <div class="d-flex justify-content-between">
+                                    <span>Epoch: <strong id="lora-epoch-display">0/0</strong></span>
+                                    <span>Loss: <strong id="lora-loss-display">--</strong></span>
+                                </div>
+                                <div class="progress mt-1" style="height: 20px;">
+                                    <div id="lora-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated bg-info" role="progressbar" style="width: 0%">0%</div>
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <div id="lora-train-logs" class="log-window" style="height: 200px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trained Adapters -->
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="m-0">Trained Adapters</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadLoraModels()"><i class="fas fa-sync me-1"></i>Refresh</button>
+                </div>
+                <div class="card-body">
+                    <div id="lora-models-list">
+                        <p class="text-muted mb-0">No trained adapters yet.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Editor Tab -->
         <div id="editor-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                     <h4 class="m-0"><span class="step-indicator step-active">5</span>Audio Editor</h4>
+                     <h4 class="m-0"><span class="step-indicator step-active">6</span>Audio Editor</h4>
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
                         <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
@@ -417,7 +583,7 @@
         <div id="audio-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h4><span class="step-indicator step-active">6</span>Final Result</h4>
+                    <h4><span class="step-indicator step-active">7</span>Final Result</h4>
                 </div>
                 <div class="card-body">
                     <div id="audio-player-container" class="text-center" style="display:none;">
@@ -468,6 +634,9 @@
                     loadChunks();
                 } else if (e.target.dataset.tab === 'designer') {
                     loadDesignedVoices();
+                } else if (e.target.dataset.tab === 'training') {
+                    loadLoraDatasets();
+                    loadLoraModels();
                 }
             });
         });
@@ -695,7 +864,7 @@
 
         function createVoiceCard(voice, index) {
             const config = voice.config || {};
-            const isClone = config.type === 'clone';
+            const voiceType = config.type || 'custom';
 
             return `
                 <div class="card voice-card mb-3" data-voice="${voice.name}">
@@ -707,17 +876,21 @@
                             <div class="col-md-9">
                                 <div class="mb-2">
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="custom" ${!isClone ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="custom" ${voiceType === 'custom' ? 'checked' : ''} onchange="toggleVoiceType(this)">
                                         <label class="form-check-label">Custom Voice</label>
                                     </div>
                                     <div class="form-check form-check-inline">
-                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="clone" ${isClone ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="clone" ${voiceType === 'clone' ? 'checked' : ''} onchange="toggleVoiceType(this)">
                                         <label class="form-check-label">Voice Clone</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="lora" ${voiceType === 'lora' ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <label class="form-check-label">LoRA Voice</label>
                                     </div>
                                 </div>
 
                                 <!-- Custom Options -->
-                                <div class="custom-opts" style="display: ${!isClone ? 'block' : 'none'}">
+                                <div class="custom-opts" style="display: ${voiceType === 'custom' ? 'block' : 'none'}">
                                     <div class="row g-2">
                                         <div class="col-md-6">
                                             <select class="form-select voice-select">
@@ -731,7 +904,7 @@
                                 </div>
 
                                 <!-- Clone Options -->
-                                <div class="clone-opts" style="display: ${isClone ? 'block' : 'none'}">
+                                <div class="clone-opts" style="display: ${voiceType === 'clone' ? 'block' : 'none'}">
                                     <div class="row g-2 mb-2">
                                         <div class="col-md-6">
                                             <select class="form-select designed-voice-select" onchange="onDesignedVoiceSelect(this)">
@@ -744,6 +917,21 @@
                                     <input type="text" class="form-control ref-text mb-2" placeholder="Reference Text" value="${config.ref_text || ''}">
                                     <input type="text" class="form-control ref-audio" placeholder="Path to audio file" value="${config.ref_audio || ''}" ${config.ref_audio && (window._designedVoicesCache || []).some(v => config.ref_audio.includes(v.filename)) ? 'readonly' : ''}>
                                 </div>
+
+                                <!-- LoRA Options -->
+                                <div class="lora-opts" style="display: ${voiceType === 'lora' ? 'block' : 'none'}">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <select class="form-select lora-adapter-select">
+                                                <option value="">-- Select trained adapter --</option>
+                                                ${(window._loraModelsCache || []).map(m => `<option value="${m.id}" ${config.adapter_id === m.id ? 'selected' : ''}>${m.name}</option>`).join('')}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control lora-character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${voiceType === 'lora' ? (config.character_style || '') : ''}">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -755,13 +943,10 @@
             const card = radio.closest('.card-body');
             const customOpts = card.querySelector('.custom-opts');
             const cloneOpts = card.querySelector('.clone-opts');
-            if (radio.value === 'custom') {
-                customOpts.style.display = 'block';
-                cloneOpts.style.display = 'none';
-            } else {
-                customOpts.style.display = 'none';
-                cloneOpts.style.display = 'block';
-            }
+            const loraOpts = card.querySelector('.lora-opts');
+            customOpts.style.display = radio.value === 'custom' ? 'block' : 'none';
+            cloneOpts.style.display = radio.value === 'clone' ? 'block' : 'none';
+            loraOpts.style.display = radio.value === 'lora' ? 'block' : 'none';
         };
 
         document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
@@ -780,6 +965,10 @@
             try {
                 window._designedVoicesCache = await API.get('/api/voice_design/list');
             } catch (e) { /* ignore if designer not available */ }
+            // Refresh LoRA models cache so adapter dropdown is populated
+            try {
+                window._loraModelsCache = await API.get('/api/lora/models');
+            } catch (e) { /* ignore if no adapters */ }
 
             const voices = await API.get('/api/voices');
             const container = document.getElementById('voices-list');
@@ -805,11 +994,21 @@
                         character_style: card.querySelector('.character-style').value,
                         seed: "-1"
                     };
-                } else {
+                } else if (type === 'clone') {
                     config[name] = {
                         type: 'clone',
                         ref_text: card.querySelector('.ref-text').value,
                         ref_audio: card.querySelector('.ref-audio').value,
+                        seed: "-1"
+                    };
+                } else if (type === 'lora') {
+                    const adapterId = card.querySelector('.lora-adapter-select').value;
+                    const adapterMeta = (window._loraModelsCache || []).find(m => m.id === adapterId);
+                    config[name] = {
+                        type: 'lora',
+                        adapter_id: adapterId,
+                        adapter_path: adapterId ? `lora_models/${adapterId}` : '',
+                        character_style: card.querySelector('.lora-character-style').value,
                         seed: "-1"
                     };
                 }
@@ -1639,6 +1838,299 @@
                 refAudio.value = `designed_voices/${voice.filename}`;
                 refText.value = voice.sample_text;
                 refAudio.readOnly = true;
+            }
+        };
+
+        // --- LoRA Training ---
+        window._loraModelsCache = [];
+
+        async function loadLoraDatasets() {
+            try {
+                const datasets = await API.get('/api/lora/datasets');
+                const listEl = document.getElementById('lora-datasets-list');
+                const selectEl = document.getElementById('lora-dataset-select');
+
+                // Update dropdown
+                const currentVal = selectEl.value;
+                selectEl.innerHTML = '<option value="">-- Select dataset --</option>' +
+                    datasets.map(d => `<option value="${d.dataset_id}">${d.dataset_id} (${d.sample_count} samples)</option>`).join('');
+                if (currentVal) selectEl.value = currentVal;
+
+                // Update list
+                if (!datasets.length) {
+                    listEl.innerHTML = '<span class="text-muted">No datasets uploaded yet.</span>';
+                    return;
+                }
+                listEl.innerHTML = datasets.map(d => `
+                    <div class="d-flex justify-content-between align-items-center py-1">
+                        <span><strong>${d.dataset_id}</strong> <small class="text-muted">(${d.sample_count} samples)</small></span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLoraDataset('${d.dataset_id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                console.error('Failed to load LoRA datasets:', e);
+            }
+        }
+
+        window.uploadLoraDataset = async () => {
+            const fileInput = document.getElementById('lora-dataset-file');
+            if (!fileInput.files.length) { alert('Select a ZIP file first.'); return; }
+
+            const file = fileInput.files[0];
+            if (!file.name.endsWith('.zip')) { alert('File must be a .zip archive.'); return; }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const res = await fetch('/api/lora/upload_dataset', { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.detail || 'Upload failed.');
+                    return;
+                }
+                const result = await res.json();
+                alert(`Dataset "${result.dataset_id}" uploaded (${result.sample_count} samples).`);
+                fileInput.value = '';
+                loadLoraDatasets();
+            } catch (e) {
+                alert('Upload error: ' + e.message);
+            }
+        };
+
+        window.deleteLoraDataset = async (datasetId) => {
+            if (!confirm(`Delete dataset "${datasetId}"?`)) return;
+            try {
+                const res = await fetch(`/api/lora/datasets/${encodeURIComponent(datasetId)}`, { method: 'DELETE' });
+                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                loadLoraDatasets();
+            } catch (e) {
+                alert('Error deleting dataset: ' + e.message);
+            }
+        };
+
+        window.generateLoraDataset = async () => {
+            const name = document.getElementById('gen-dataset-name').value.trim();
+            const description = document.getElementById('gen-dataset-description').value.trim();
+            const textsRaw = document.getElementById('gen-dataset-texts').value.trim();
+            if (!name) { alert('Enter a dataset name.'); return; }
+            if (!description) { alert('Enter a voice description.'); return; }
+            if (!textsRaw) { alert('Enter at least one sample text.'); return; }
+
+            const texts = textsRaw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
+            if (texts.length === 0) { alert('Enter at least one non-empty sample text.'); return; }
+
+            const btn = document.getElementById('btn-gen-dataset');
+            const statusEl = document.getElementById('gen-dataset-status');
+            const logsEl = document.getElementById('gen-dataset-logs');
+            btn.disabled = true;
+            statusEl.textContent = `Generating ${texts.length} samples...`;
+            logsEl.style.display = 'block';
+            logsEl.textContent = '';
+
+            try {
+                const res = await API.post('/api/lora/generate_dataset', { name, description, texts });
+                if (res.status === 'started') {
+                    // Poll for progress
+                    const interval = setInterval(async () => {
+                        try {
+                            const status = await API.get('/api/status/dataset_gen');
+                            logsEl.textContent = status.logs.join('\n');
+                            logsEl.scrollTop = logsEl.scrollHeight;
+
+                            if (!status.running) {
+                                clearInterval(interval);
+                                btn.disabled = false;
+                                statusEl.textContent = 'Done';
+                                loadLoraDatasets();
+                            }
+                        } catch (e) {
+                            clearInterval(interval);
+                            btn.disabled = false;
+                            statusEl.textContent = 'Poll error';
+                        }
+                    }, 2000);
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+                btn.disabled = false;
+                statusEl.textContent = '';
+                logsEl.style.display = 'none';
+            }
+        };
+
+        window.startLoraTraining = async () => {
+            const name = document.getElementById('lora-adapter-name').value.trim();
+            const datasetId = document.getElementById('lora-dataset-select').value;
+            if (!name) { alert('Enter an adapter name.'); return; }
+            if (!datasetId) { alert('Select a dataset.'); return; }
+
+            const request = {
+                name: name,
+                dataset_id: datasetId,
+                epochs: parseInt(document.getElementById('lora-epochs').value) || 50,
+                lr: parseFloat(document.getElementById('lora-lr').value) || 5e-6,
+                batch_size: parseInt(document.getElementById('lora-batch-size').value) || 1,
+                lora_r: parseInt(document.getElementById('lora-rank').value) || 64,
+                lora_alpha: parseInt(document.getElementById('lora-alpha').value) || 128,
+                gradient_accumulation_steps: parseInt(document.getElementById('lora-grad-accum').value) || 8
+            };
+
+            const btn = document.getElementById('btn-lora-train');
+            btn.disabled = true;
+            document.getElementById('lora-train-status').innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Starting...';
+
+            try {
+                const result = await API.post('/api/lora/train', request);
+                document.getElementById('lora-progress-section').style.display = 'block';
+                document.getElementById('lora-train-status').innerHTML = '<span class="text-info">Training in progress...</span>';
+                pollLoraTraining(request.epochs);
+            } catch (e) {
+                alert('Failed to start training: ' + e.message);
+                btn.disabled = false;
+                document.getElementById('lora-train-status').innerHTML = '';
+            }
+        };
+
+        function pollLoraTraining(totalEpochs) {
+            const logsEl = document.getElementById('lora-train-logs');
+            const progressBar = document.getElementById('lora-progress-bar');
+            const epochDisplay = document.getElementById('lora-epoch-display');
+            const lossDisplay = document.getElementById('lora-loss-display');
+
+            const interval = setInterval(async () => {
+                try {
+                    const status = await API.get('/api/status/lora_training');
+                    logsEl.innerText = status.logs.join('\n');
+                    logsEl.scrollTop = logsEl.scrollHeight;
+
+                    // Parse latest metrics from log lines
+                    for (let i = status.logs.length - 1; i >= 0; i--) {
+                        const line = status.logs[i];
+                        const epochMatch = line.match(/\[EPOCH\]\s*(\d+)\/(\d+)\s+avg_loss=([\d.]+)/);
+                        if (epochMatch) {
+                            const epoch = parseInt(epochMatch[1]);
+                            const maxEpoch = parseInt(epochMatch[2]);
+                            const loss = epochMatch[3];
+                            const pct = Math.round((epoch / maxEpoch) * 100);
+                            epochDisplay.innerText = `${epoch}/${maxEpoch}`;
+                            lossDisplay.innerText = loss;
+                            progressBar.style.width = `${pct}%`;
+                            progressBar.innerText = `${pct}%`;
+                            break;
+                        }
+                        const trainMatch = line.match(/\[TRAIN\]\s*epoch=(\d+)\/(\d+)\s+step=\d+\/\d+\s+loss=([\d.]+)/);
+                        if (trainMatch) {
+                            const epoch = parseInt(trainMatch[1]);
+                            const maxEpoch = parseInt(trainMatch[2]);
+                            const loss = trainMatch[3];
+                            const pct = Math.round(((epoch - 1) / maxEpoch) * 100);
+                            epochDisplay.innerText = `${epoch}/${maxEpoch}`;
+                            lossDisplay.innerText = loss;
+                            progressBar.style.width = `${pct}%`;
+                            progressBar.innerText = `${pct}%`;
+                            break;
+                        }
+                    }
+
+                    if (!status.running) {
+                        clearInterval(interval);
+                        const btn = document.getElementById('btn-lora-train');
+                        btn.disabled = false;
+
+                        const isDone = status.logs.some(l => l.includes('[DONE]'));
+                        const isError = status.logs.some(l => l.includes('[ERROR]'));
+
+                        if (isDone) {
+                            document.getElementById('lora-train-status').innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Training complete!</span>';
+                            progressBar.style.width = '100%';
+                            progressBar.innerText = '100%';
+                            progressBar.classList.remove('progress-bar-animated');
+                            progressBar.classList.replace('bg-info', 'bg-success');
+                            loadLoraModels();
+                        } else if (isError) {
+                            document.getElementById('lora-train-status').innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i>Training failed</span>';
+                            progressBar.classList.remove('progress-bar-animated');
+                            progressBar.classList.replace('bg-info', 'bg-danger');
+                        } else {
+                            document.getElementById('lora-train-status').innerHTML = '<span class="text-warning">Training stopped</span>';
+                        }
+                    }
+                } catch (e) {
+                    console.error('LoRA poll error:', e);
+                    clearInterval(interval);
+                }
+            }, 2000);
+        }
+
+        async function loadLoraModels() {
+            try {
+                const models = await API.get('/api/lora/models');
+                window._loraModelsCache = models;
+                const container = document.getElementById('lora-models-list');
+
+                if (!models.length) {
+                    container.innerHTML = '<p class="text-muted mb-0">No trained adapters yet.</p>';
+                    return;
+                }
+
+                container.innerHTML = `
+                    <table class="table table-sm table-hover mb-0">
+                        <thead><tr><th>Name</th><th>Dataset</th><th>Epochs</th><th>Final Loss</th><th>Samples</th><th style="width:180px">Actions</th></tr></thead>
+                        <tbody>
+                            ${models.map(m => `
+                                <tr>
+                                    <td><strong>${m.name}</strong></td>
+                                    <td>${m.dataset_id || '--'}</td>
+                                    <td>${m.epochs || '--'}</td>
+                                    <td>${m.final_loss != null ? m.final_loss.toFixed(4) : '--'}</td>
+                                    <td>${m.sample_count || '--'}</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel('${m.id}')" title="Test"><i class="fas fa-play me-1"></i>Test</button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>`;
+            } catch (e) {
+                console.error('Failed to load LoRA models:', e);
+            }
+        }
+
+        window.testLoraModel = async (adapterId) => {
+            const text = prompt('Enter text to synthesize:', 'The ancient library stood at the crossroads of two forgotten paths.');
+            if (!text) return;
+
+            const instruct = prompt('Enter instruct (optional):', '');
+
+            try {
+                const statusEl = document.getElementById('lora-train-status');
+                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating test audio...';
+
+                const result = await API.post('/api/lora/test', {
+                    adapter_id: adapterId,
+                    text: text,
+                    instruct: instruct || ''
+                });
+
+                statusEl.innerHTML = '';
+                const audio = new Audio(result.audio_url + '?t=' + Date.now());
+                audio.play();
+            } catch (e) {
+                document.getElementById('lora-train-status').innerHTML = '';
+                alert('Test failed: ' + e.message);
+            }
+        };
+
+        window.deleteLoraModel = async (adapterId) => {
+            if (!confirm('Delete this trained adapter? This cannot be undone.')) return;
+            try {
+                const res = await fetch(`/api/lora/models/${encodeURIComponent(adapterId)}`, { method: 'DELETE' });
+                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                loadLoraModels();
+            } catch (e) {
+                alert('Error deleting adapter: ' + e.message);
             }
         };
 

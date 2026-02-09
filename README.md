@@ -25,13 +25,15 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Multi-Language Support** - English, Chinese, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish, or Auto-detect
 - **Custom Voices** - 9 pre-trained voices with instruct-based emotion/tone control
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
+- **Voice Designer** - Create new voices from text descriptions (e.g. "A warm, deep male voice with a calm and steady tone")
+- **LoRA Voice Training** - Fine-tune the Base model on custom voice datasets to create persistent voice identities with instruct-following
 - **Batch Processing** - Generate dozens of chunks simultaneously with 3-6x real-time throughput
 - **Codec Compilation** - Optional `torch.compile` optimization for 3-4x faster batch decoding
 - **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware instruct directions
 - **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
 
 ### Web UI Editor
-- **5-Tab Interface** - Setup, Script Generation, Voice Configuration, Editor, Results
+- **7-Tab Interface** - Setup, Script Generation, Voices, Voice Designer, LoRA Training, Editor, Results
 - **Chunk Editor** - Edit speaker, text, and instruct for any line
 - **Selective Regeneration** - Re-render individual chunks without regenerating everything
 - **Batch Processing** - Two render modes: standard parallel and fast batch
@@ -78,15 +80,19 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 2. **Script Tab** - Upload your book (.txt or .md) and click "Generate Annotated Script"
 
 3. **Voices Tab** - Click "Refresh Voices" then configure each speaker:
-   - Choose Custom Voice (with instruct) or Clone Voice (from reference audio)
-   - Set voice parameters and save
+   - Choose Custom Voice (with instruct), Clone Voice (from reference audio), or LoRA Voice (from trained adapter)
+   - Set voice parameters and character style, then save
 
-4. **Editor Tab** - Review and edit chunks:
+4. **(Optional) Designer Tab** - Create new voices from text descriptions for use as clone references
+
+5. **(Optional) Training Tab** - Train LoRA adapters on custom voice datasets for persistent voice identities
+
+6. **Editor Tab** - Review and edit chunks:
    - Select "Batch (Fast)" mode and click "Batch Render Pending" for fastest generation
    - Edit any chunk's text/instruct/speaker and regenerate individually
    - Click "Merge All" when satisfied
 
-5. **Result Tab** - Download your finished audiobook
+7. **Result Tab** - Download your finished audiobook
 
 ## Web Interface
 
@@ -134,9 +140,42 @@ After script generation, parse voices to see all speakers. For each:
 - Optionally set a seed for reproducible output
 
 **Clone Voice Mode:**
-- Upload 5-15 seconds of clear reference audio
+- Select a designed voice or enter a custom reference audio path
 - Provide the exact transcript of the reference
 - Note: Instruct directions are ignored for cloned voices
+
+**LoRA Voice Mode:**
+- Select a trained LoRA adapter from the Training tab
+- Set a character style (same as Custom — appended to every instruct)
+- Combines voice identity from training with instruct-following from the Base model
+
+### Voice Designer Tab
+Create new voices from text descriptions without needing reference audio.
+
+- **Describe a voice** in natural language (e.g., "A warm elderly woman with a gentle, raspy voice and a slight Southern drawl")
+- **Preview** the voice with sample text before saving
+- **Save to library** for use as clone voice references in the Voices tab
+- Uses the Qwen3-TTS VoiceDesign model to synthesize voice characteristics from descriptions
+
+### Training Tab
+Train LoRA adapters on the Base model to create custom voice identities.
+
+**Dataset:**
+- **Upload ZIP** — WAV files (24kHz mono) + `metadata.jsonl` with `audio_filepath`, `text`, `instruct` fields
+- **Generate Dataset** — Auto-generate training samples from a Voice Designer description with custom sample texts
+
+**Training Configuration:**
+- **Adapter Name** — Identifier for the trained model
+- **Epochs** — Full passes over the dataset (15-30 recommended for 20+ samples)
+- **Learning Rate** — Default 5e-6 (conservative). Higher trains faster but risks instability
+- **LoRA Rank** — Adapter capacity. High (64+) locks voice identity strongly but can flatten delivery. Low (8-16) preserves expressiveness
+- **LoRA Alpha** — Scaling factor. Effective strength = alpha / rank. Common starting point: alpha = 2x rank
+- **Batch Size / Grad Accum** — Batch 1 with gradient accumulation 8 is typical for 24GB cards
+
+**Training tips:**
+- Include samples with varied emotions (happy, sad, angry, calm) for expressive voices
+- Neutral-only training data produces flat voices that resist instruct prompting
+- The settings info panel in the UI explains each parameter's effect on voice quality
 
 ### Editor Tab
 Fine-tune your audiobook before export:
@@ -163,7 +202,7 @@ High-speed rendering that sends multiple lines to the TTS engine in a single bat
 - **3-6x real-time throughput** - With codec compilation enabled, batches of 20-60 chunks process at 3-6x real-time speed
 - **Sub-batching** - Automatically groups similarly-sized chunks together for efficient GPU utilization
 - **Single seed** - All voices share the `Batch Seed` from config (set empty for random)
-- **Custom voices only** - Clone voices fall back to individual calls
+- **Custom voices batched** - Clone and LoRA voices fall back to individual sequential calls
 - **Parallel Workers** setting controls batch size (higher values use more VRAM)
 
 ### Result Tab
@@ -363,6 +402,62 @@ curl -X POST http://127.0.0.1:4200/api/scripts/load \
   -d '{"name": "my-novel"}'
 ```
 
+### Voice Designer
+```bash
+# Preview a voice from text description
+curl -X POST http://127.0.0.1:4200/api/voice_design/preview \
+  -H "Content-Type: application/json" \
+  -d '{"description": "A warm, deep male voice", "text": "Hello world."}'
+
+# Save a designed voice
+curl -X POST http://127.0.0.1:4200/api/voice_design/save \
+  -H "Content-Type: application/json" \
+  -d '{"name": "warm_narrator", "description": "A warm, deep male voice", "text": "Hello world."}'
+
+# List saved designed voices
+curl http://127.0.0.1:4200/api/voice_design/list
+
+# Delete a designed voice
+curl -X DELETE http://127.0.0.1:4200/api/voice_design/delete/voice_id_here
+```
+
+### LoRA Training
+```bash
+# Upload a training dataset (ZIP with WAV + metadata.jsonl)
+curl -X POST http://127.0.0.1:4200/api/lora/upload_dataset \
+  -F "file=@dataset.zip" -F "name=my_voice"
+
+# Generate a dataset from Voice Designer description
+curl -X POST http://127.0.0.1:4200/api/lora/generate_dataset \
+  -H "Content-Type: application/json" \
+  -d '{"name": "warm_voice", "description": "A warm male voice", "texts": ["Hello.", "Goodbye."]}'
+
+# List uploaded datasets
+curl http://127.0.0.1:4200/api/lora/datasets
+
+# Delete a dataset
+curl -X DELETE http://127.0.0.1:4200/api/lora/datasets/dataset_id_here
+
+# Start LoRA training
+curl -X POST http://127.0.0.1:4200/api/lora/train \
+  -H "Content-Type: application/json" \
+  -d '{"name": "narrator_warm", "dataset_id": "my_voice", "epochs": 25, "lr": "5e-6", "lora_r": 32, "lora_alpha": 64}'
+
+# Check training status
+curl http://127.0.0.1:4200/api/status/lora_training
+
+# List trained adapters
+curl http://127.0.0.1:4200/api/lora/models
+
+# Test a trained adapter
+curl -X POST http://127.0.0.1:4200/api/lora/test \
+  -H "Content-Type: application/json" \
+  -d '{"adapter_id": "narrator_warm_1234567890", "text": "Test line.", "instruct": "Calm narration."}'
+
+# Delete an adapter
+curl -X DELETE http://127.0.0.1:4200/api/lora/models/adapter_id_here
+```
+
 ### Audio Download
 ```bash
 # Download audiobook (after merging in editor)
@@ -554,6 +649,7 @@ Alexandria/
 ├── app/
 │   ├── app.py                 # FastAPI server
 │   ├── tts.py                 # TTS engine (local + external backends)
+│   ├── train_lora.py          # LoRA training subprocess script
 │   ├── generate_script.py     # LLM script annotation
 │   ├── review_script.py       # LLM script review (second pass)
 │   ├── default_prompts.py     # Generation prompt loader (reads default_prompts.txt)
@@ -563,6 +659,9 @@ Alexandria/
 │   ├── config.json            # Runtime configuration (gitignored)
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
+├── designed_voices/           # Saved Voice Designer outputs (gitignored)
+├── lora_datasets/             # Uploaded/generated training datasets (gitignored)
+├── lora_models/               # Trained LoRA adapters (gitignored)
 ├── default_prompts.txt        # LLM prompts for script generation
 ├── review_prompts.txt         # LLM prompts for script review
 ├── install.js                 # Pinokio installer

@@ -11,6 +11,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
 import re
+import time
+import zipfile
 import subprocess
 import aiofiles
 
@@ -36,10 +38,14 @@ UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
 SCRIPTS_DIR = os.path.join(ROOT_DIR, "scripts")
 CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
 DESIGNED_VOICES_DIR = os.path.join(ROOT_DIR, "designed_voices")
+LORA_MODELS_DIR = os.path.join(ROOT_DIR, "lora_models")
+LORA_DATASETS_DIR = os.path.join(ROOT_DIR, "lora_datasets")
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(SCRIPTS_DIR, exist_ok=True)
 os.makedirs(DESIGNED_VOICES_DIR, exist_ok=True)
+os.makedirs(LORA_MODELS_DIR, exist_ok=True)
+os.makedirs(LORA_DATASETS_DIR, exist_ok=True)
 
 # Mount static files with absolute path
 STATIC_DIR = os.path.join(BASE_DIR, "static")
@@ -53,6 +59,9 @@ app.mount("/voicelines", StaticFiles(directory=VOICELINES_DIR), name="voicelines
 
 # Designed voices directory for voice designer feature
 app.mount("/designed_voices", StaticFiles(directory=DESIGNED_VOICES_DIR), name="designed_voices")
+
+# LoRA models directory for trained adapter test audio
+app.mount("/lora_models", StaticFiles(directory=LORA_MODELS_DIR), name="lora_models")
 
 # Initialize Project Manager
 project_manager = ProjectManager(ROOT_DIR)
@@ -111,6 +120,8 @@ class VoiceConfigItem(BaseModel):
     seed: Optional[str] = "-1"
     ref_audio: Optional[str] = None
     ref_text: Optional[str] = None
+    adapter_id: Optional[str] = None
+    adapter_path: Optional[str] = None
 
 class ProcessStatus(BaseModel):
     running: bool
@@ -135,13 +146,36 @@ class VoiceDesignSaveRequest(BaseModel):
     sample_text: str
     preview_file: str
 
+class LoraTrainingRequest(BaseModel):
+    name: str
+    dataset_id: str
+    epochs: int = 50
+    lr: float = 5e-6
+    batch_size: int = 1
+    lora_r: int = 64
+    lora_alpha: int = 128
+    gradient_accumulation_steps: int = 8
+
+class LoraTestRequest(BaseModel):
+    adapter_id: str
+    text: str
+    instruct: str = ""
+
+class LoraGenerateDatasetRequest(BaseModel):
+    name: str
+    description: str
+    texts: List[str]
+    language: Optional[str] = None
+
 # Global state for process tracking
 process_state = {
     "script": {"running": False, "logs": []},
     "voices": {"running": False, "logs": []},
     "audio": {"running": False, "logs": []},
     "audacity_export": {"running": False, "logs": []},
-    "review": {"running": False, "logs": []}
+    "review": {"running": False, "logs": []},
+    "lora_training": {"running": False, "logs": []},
+    "dataset_gen": {"running": False, "logs": []}
 }
 
 def run_process(command: List[str], task_name: str):
@@ -625,6 +659,9 @@ class ScriptLoadRequest(BaseModel):
 @app.post("/api/scripts/load")
 async def load_script(request: ScriptLoadRequest):
     """Load a saved script, replacing the current annotated_script.json and chunks."""
+    if process_state["audio"]["running"]:
+        raise HTTPException(status_code=409, detail="Cannot load a script while audio generation is running.")
+
     src = os.path.join(SCRIPTS_DIR, f"{request.name}.json")
     if not os.path.exists(src):
         raise HTTPException(status_code=404, detail=f"Saved script '{request.name}' not found.")
@@ -755,6 +792,344 @@ async def voice_design_delete(voice_id: str):
 
     logger.info(f"Designed voice deleted: {voice_id}")
     return {"status": "deleted", "voice_id": voice_id}
+
+## ── LoRA Training ──────────────────────────────────────────────
+
+LORA_MODELS_MANIFEST = os.path.join(LORA_MODELS_DIR, "manifest.json")
+
+def _load_lora_manifest():
+    if os.path.exists(LORA_MODELS_MANIFEST):
+        try:
+            with open(LORA_MODELS_MANIFEST, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            pass
+    return []
+
+def _save_lora_manifest(manifest):
+    with open(LORA_MODELS_MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, ensure_ascii=False)
+
+@app.post("/api/lora/upload_dataset")
+async def lora_upload_dataset(file: UploadFile = File(...)):
+    """Upload a ZIP containing WAV files and metadata.jsonl."""
+    if not file.filename.endswith(".zip"):
+        raise HTTPException(status_code=400, detail="File must be a .zip archive")
+
+    # Derive dataset name from ZIP filename
+    dataset_name = re.sub(r'[^\w\- ]', '', os.path.splitext(file.filename)[0]).strip()
+    dataset_name = re.sub(r'\s+', '_', dataset_name).lower()
+    if not dataset_name:
+        raise HTTPException(status_code=400, detail="Invalid dataset name from filename")
+
+    dataset_dir = os.path.join(LORA_DATASETS_DIR, dataset_name)
+    if os.path.exists(dataset_dir):
+        raise HTTPException(status_code=400, detail=f"Dataset '{dataset_name}' already exists")
+
+    # Save ZIP temporarily, then extract
+    tmp_path = os.path.join(LORA_DATASETS_DIR, f"_tmp_{dataset_name}.zip")
+    try:
+        async with aiofiles.open(tmp_path, "wb") as out_file:
+            content = await file.read()
+            await out_file.write(content)
+
+        os.makedirs(dataset_dir, exist_ok=True)
+        with zipfile.ZipFile(tmp_path, "r") as zf:
+            zf.extractall(dataset_dir)
+
+        # Check for metadata.jsonl (may be inside a subdirectory)
+        metadata_path = os.path.join(dataset_dir, "metadata.jsonl")
+        if not os.path.exists(metadata_path):
+            # Check one level deep
+            for entry in os.listdir(dataset_dir):
+                candidate = os.path.join(dataset_dir, entry, "metadata.jsonl")
+                if os.path.isdir(os.path.join(dataset_dir, entry)) and os.path.exists(candidate):
+                    # Move contents up
+                    nested = os.path.join(dataset_dir, entry)
+                    for item in os.listdir(nested):
+                        shutil.move(os.path.join(nested, item), os.path.join(dataset_dir, item))
+                    os.rmdir(nested)
+                    metadata_path = os.path.join(dataset_dir, "metadata.jsonl")
+                    break
+
+        if not os.path.exists(metadata_path):
+            shutil.rmtree(dataset_dir)
+            raise HTTPException(status_code=400, detail="ZIP must contain metadata.jsonl")
+
+        # Count samples
+        sample_count = 0
+        with open(metadata_path, "r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    sample_count += 1
+
+        logger.info(f"LoRA dataset uploaded: '{dataset_name}' ({sample_count} samples)")
+        return {"status": "uploaded", "dataset_id": dataset_name, "sample_count": sample_count}
+
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+@app.post("/api/lora/generate_dataset")
+async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_tasks: BackgroundTasks):
+    """Generate a LoRA training dataset using Voice Designer.
+
+    Generates multiple audio samples with the same voice description,
+    saving them as a ready-to-train dataset.
+    """
+    if process_state["dataset_gen"]["running"]:
+        raise HTTPException(status_code=400, detail="Dataset generation already running")
+
+    if not request.texts or len(request.texts) == 0:
+        raise HTTPException(status_code=400, detail="Provide at least one sample text")
+
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid dataset name")
+
+    dataset_dir = os.path.join(LORA_DATASETS_DIR, safe_name)
+    if os.path.exists(dataset_dir):
+        raise HTTPException(status_code=400, detail=f"Dataset '{safe_name}' already exists")
+
+    total = len(request.texts)
+
+    def task():
+        process_state["dataset_gen"]["running"] = True
+        process_state["dataset_gen"]["logs"] = [
+            f"Generating {total} samples with VoiceDesign..."
+        ]
+        try:
+            engine = project_manager.get_engine()
+            if not engine:
+                process_state["dataset_gen"]["logs"].append("Error: TTS engine not initialized")
+                return
+
+            os.makedirs(dataset_dir, exist_ok=True)
+            metadata_lines = []
+            completed = 0
+
+            for i, text in enumerate(request.texts):
+                text = text.strip()
+                if not text:
+                    continue
+                process_state["dataset_gen"]["logs"].append(
+                    f"[{i+1}/{total}] Generating: \"{text[:60]}{'...' if len(text) > 60 else ''}\""
+                )
+                try:
+                    wav_path, sr = engine.generate_voice_design(
+                        description=request.description,
+                        sample_text=text,
+                        language=request.language,
+                    )
+                    # Copy to dataset dir with sequential name
+                    dest_filename = f"sample_{i:03d}.wav"
+                    dest_path = os.path.join(dataset_dir, dest_filename)
+                    shutil.copy2(wav_path, dest_path)
+
+                    metadata_lines.append(json.dumps({
+                        "audio_filepath": dest_filename,
+                        "text": text,
+                        "instruct": request.description,
+                    }, ensure_ascii=False))
+                    completed += 1
+                    process_state["dataset_gen"]["logs"].append(
+                        f"  Saved {dest_filename}"
+                    )
+                except Exception as e:
+                    process_state["dataset_gen"]["logs"].append(
+                        f"  Failed: {e}"
+                    )
+
+            # Write metadata.jsonl
+            metadata_path = os.path.join(dataset_dir, "metadata.jsonl")
+            with open(metadata_path, "w", encoding="utf-8") as f:
+                f.write("\n".join(metadata_lines) + "\n")
+
+            process_state["dataset_gen"]["logs"].append(
+                f"Dataset '{safe_name}' complete: {completed}/{total} samples generated."
+            )
+            logger.info(f"LoRA dataset generated: '{safe_name}' ({completed} samples)")
+
+        except Exception as e:
+            process_state["dataset_gen"]["logs"].append(f"Error: {e}")
+            logger.error(f"Dataset generation error: {e}")
+            # Clean up partial dataset on failure
+            if os.path.exists(dataset_dir):
+                shutil.rmtree(dataset_dir)
+        finally:
+            process_state["dataset_gen"]["running"] = False
+
+    background_tasks.add_task(task)
+    return {"status": "started", "dataset_id": safe_name, "total": total}
+
+@app.get("/api/lora/datasets")
+async def lora_list_datasets():
+    """List uploaded LoRA training datasets."""
+    datasets = []
+    if not os.path.exists(LORA_DATASETS_DIR):
+        return datasets
+
+    for name in sorted(os.listdir(LORA_DATASETS_DIR)):
+        dataset_dir = os.path.join(LORA_DATASETS_DIR, name)
+        if not os.path.isdir(dataset_dir):
+            continue
+        metadata_path = os.path.join(dataset_dir, "metadata.jsonl")
+        sample_count = 0
+        if os.path.exists(metadata_path):
+            with open(metadata_path, "r", encoding="utf-8") as f:
+                for line in f:
+                    if line.strip():
+                        sample_count += 1
+        datasets.append({"dataset_id": name, "sample_count": sample_count})
+    return datasets
+
+@app.delete("/api/lora/datasets/{dataset_id}")
+async def lora_delete_dataset(dataset_id: str):
+    """Delete an uploaded dataset."""
+    dataset_dir = os.path.join(LORA_DATASETS_DIR, dataset_id)
+    if not os.path.isdir(dataset_dir):
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    shutil.rmtree(dataset_dir)
+    logger.info(f"LoRA dataset deleted: {dataset_id}")
+    return {"status": "deleted", "dataset_id": dataset_id}
+
+@app.post("/api/lora/train")
+async def lora_start_training(request: LoraTrainingRequest, background_tasks: BackgroundTasks):
+    """Start LoRA training as a subprocess."""
+    if process_state["lora_training"]["running"]:
+        raise HTTPException(status_code=400, detail="LoRA training already running")
+
+    # Validate dataset exists
+    dataset_dir = os.path.join(LORA_DATASETS_DIR, request.dataset_id)
+    if not os.path.isdir(dataset_dir):
+        raise HTTPException(status_code=400, detail=f"Dataset '{request.dataset_id}' not found")
+
+    # Build output directory
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid adapter name")
+
+    adapter_id = f"{safe_name}_{int(time.time())}"
+    output_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+
+    # Unload TTS engine to free GPU
+    if project_manager.engine is not None:
+        logger.info("Unloading TTS engine for LoRA training...")
+        project_manager.engine = None
+        import gc
+        gc.collect()
+
+    # Build subprocess command
+    command = [
+        sys.executable, "-u", "train_lora.py",
+        "--data_dir", dataset_dir,
+        "--output_dir", output_dir,
+        "--epochs", str(request.epochs),
+        "--lr", str(request.lr),
+        "--batch_size", str(request.batch_size),
+        "--lora_r", str(request.lora_r),
+        "--lora_alpha", str(request.lora_alpha),
+        "--gradient_accumulation_steps", str(request.gradient_accumulation_steps),
+    ]
+
+    def on_training_complete():
+        """After training subprocess finishes, update manifest if adapter was saved."""
+        run_process(command, "lora_training")
+
+        # Check if training produced an adapter
+        if os.path.isdir(output_dir) and os.path.exists(os.path.join(output_dir, "training_meta.json")):
+            try:
+                with open(os.path.join(output_dir, "training_meta.json"), "r") as f:
+                    meta = json.load(f)
+
+                manifest = _load_lora_manifest()
+                manifest.append({
+                    "id": adapter_id,
+                    "name": request.name,
+                    "dataset_id": request.dataset_id,
+                    "epochs": meta.get("epochs", request.epochs),
+                    "final_loss": meta.get("final_avg_loss"),
+                    "sample_count": meta.get("sample_count"),
+                    "created": time.time(),
+                })
+                _save_lora_manifest(manifest)
+                logger.info(f"LoRA adapter registered: {adapter_id}")
+            except Exception as e:
+                logger.error(f"Failed to update LoRA manifest: {e}")
+
+    background_tasks.add_task(on_training_complete)
+    return {"status": "started", "adapter_id": adapter_id}
+
+@app.get("/api/lora/models")
+async def lora_list_models():
+    """List trained LoRA adapters."""
+    return _load_lora_manifest()
+
+@app.delete("/api/lora/models/{adapter_id}")
+async def lora_delete_model(adapter_id: str):
+    """Delete a trained LoRA adapter."""
+    manifest = _load_lora_manifest()
+    entry = next((m for m in manifest if m["id"] == adapter_id), None)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+
+    # Delete adapter directory
+    adapter_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+    if os.path.isdir(adapter_dir):
+        shutil.rmtree(adapter_dir)
+
+    # Remove from manifest
+    manifest = [m for m in manifest if m["id"] != adapter_id]
+    _save_lora_manifest(manifest)
+
+    logger.info(f"LoRA adapter deleted: {adapter_id}")
+    return {"status": "deleted", "adapter_id": adapter_id}
+
+@app.post("/api/lora/test")
+async def lora_test_model(request: LoraTestRequest):
+    """Generate test audio using a LoRA adapter."""
+    manifest = _load_lora_manifest()
+    entry = next((m for m in manifest if m["id"] == request.adapter_id), None)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+
+    adapter_dir = os.path.join(LORA_MODELS_DIR, request.adapter_id)
+    if not os.path.isdir(adapter_dir):
+        raise HTTPException(status_code=404, detail="Adapter files not found")
+
+    engine = project_manager.get_engine()
+    if not engine:
+        raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
+
+    try:
+        output_filename = f"test_{request.adapter_id}_{int(time.time())}.wav"
+        output_path = os.path.join(adapter_dir, output_filename)
+
+        voice_data = {
+            "type": "lora",
+            "adapter_id": request.adapter_id,
+            "adapter_path": adapter_dir,
+        }
+        voice_config = {"_lora_test_": voice_data}
+        engine.generate_voice(
+            text=request.text,
+            instruct_text=request.instruct or "",
+            speaker="_lora_test_",
+            voice_config=voice_config,
+            output_path=output_path,
+        )
+
+        return {
+            "status": "ok",
+            "audio_url": f"/lora_models/{request.adapter_id}/{output_filename}",
+        }
+    except Exception as e:
+        logger.error(f"LoRA test generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn

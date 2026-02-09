@@ -66,10 +66,14 @@ class TTSEngine:
         self._local_custom_model = None
         self._local_clone_model = None
         self._local_design_model = None
+        self._local_lora_model = None
+        self._lora_adapter_path = None  # track which adapter is currently loaded
         self._gradio_client = None
 
         # Clone prompt cache: speaker_name -> reusable voice_clone_prompt
         self._clone_prompt_cache = {}
+        # LoRA clone prompt cache: adapter_path -> reusable voice_clone_prompt
+        self._lora_prompt_cache = {}
 
     @property
     def mode(self):
@@ -252,6 +256,61 @@ class TTSEngine:
         print("VoiceDesign model loaded.")
         return self._local_design_model
 
+    def _init_local_lora(self, adapter_path):
+        """Load Qwen3-TTS Base model with a LoRA adapter on demand.
+
+        Caches the model; if a different adapter is requested the old one
+        is unloaded first to free VRAM.
+        """
+        if self._local_lora_model is not None and self._lora_adapter_path == adapter_path:
+            return self._local_lora_model
+
+        # Unload previous adapter if switching
+        if self._local_lora_model is not None:
+            print(f"Unloading previous LoRA adapter ({self._lora_adapter_path})...")
+            del self._local_lora_model
+            self._local_lora_model = None
+            self._lora_adapter_path = None
+            self._lora_prompt_cache.clear()
+            import gc
+            gc.collect()
+            import torch as _torch
+            _torch.cuda.empty_cache()
+
+        self._enable_rocm_optimizations()
+
+        import torch
+        from qwen_tts import Qwen3TTSModel
+        from peft import PeftModel
+
+        device = self._resolve_device()
+        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+
+        print(f"Loading Qwen3-TTS Base model + LoRA adapter on {device} ({dtype})...")
+        load_kwargs = {"dtype": dtype}
+        if device != "cpu":
+            load_kwargs["device_map"] = device
+
+        model = Qwen3TTSModel.from_pretrained(
+            "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+            **load_kwargs,
+        )
+
+        # Wrap the talker with the LoRA adapter
+        model.model.talker = PeftModel.from_pretrained(
+            model.model.talker,
+            adapter_path,
+        )
+        model.model.talker.eval()
+
+        if self._compile_codec_enabled:
+            self._compile_codec(model)
+
+        self._local_lora_model = model
+        self._lora_adapter_path = adapter_path
+        print(f"LoRA adapter loaded from {adapter_path}")
+        return model
+
     def _init_external(self):
         """Create Gradio client on demand."""
         if self._gradio_client is not None:
@@ -332,6 +391,8 @@ class TTSEngine:
 
         if voice_type == "clone":
             return self.generate_clone_voice(text, speaker, voice_config, output_path)
+        elif voice_type == "lora":
+            return self.generate_lora_voice(text, instruct_text, voice_data, output_path)
         else:
             return self.generate_custom_voice(text, instruct_text, speaker, voice_config, output_path)
 
@@ -386,6 +447,109 @@ class TTSEngine:
 
         return wav_path, sr
 
+    # ── LoRA voice generation ────────────────────────────────────
+
+    def generate_lora_voice(self, text, instruct_text, voice_data, output_path):
+        """Generate audio using a LoRA-finetuned Base model.
+
+        The adapter directory must contain:
+          - PEFT adapter weights (adapter_model.safetensors / adapter_config.json)
+          - ref_sample.wav (reference audio for voice cloning prompt)
+          - training_meta.json (with ref_sample_text)
+
+        The LoRA weights refine voice identity beyond what the reference alone provides.
+        """
+        try:
+            import torch
+            import time
+
+            adapter_path = voice_data.get("adapter_path")
+            if not adapter_path:
+                print(f"Error: No adapter_path in voice_data")
+                return False
+
+            # Resolve relative paths against project root
+            if not os.path.isabs(adapter_path):
+                root_dir = os.path.dirname(os.path.dirname(__file__))
+                adapter_path = os.path.join(root_dir, adapter_path)
+
+            if not os.path.isdir(adapter_path):
+                print(f"Error: LoRA adapter path not found: {adapter_path}")
+                return False
+
+            # Load reference audio and text from adapter directory
+            ref_wav_path = os.path.join(adapter_path, "ref_sample.wav")
+            meta_path = os.path.join(adapter_path, "training_meta.json")
+
+            if not os.path.exists(ref_wav_path):
+                print(f"Error: ref_sample.wav not found in {adapter_path}")
+                return False
+            if not os.path.exists(meta_path):
+                print(f"Error: training_meta.json not found in {adapter_path}")
+                return False
+
+            with open(meta_path, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            ref_text = meta.get("ref_sample_text", "")
+            if not ref_text:
+                print(f"Error: ref_sample_text missing from training_meta.json")
+                return False
+
+            print(f"TTS [local lora] generating for adapter={os.path.basename(adapter_path)}, "
+                  f"text='{text[:50]}...'")
+
+            model = self._init_local_lora(adapter_path)
+
+            # Build or reuse voice clone prompt for this adapter
+            if adapter_path not in self._lora_prompt_cache:
+                audio_array, sample_rate = sf.read(ref_wav_path)
+                if audio_array.ndim > 1:
+                    audio_array = audio_array.mean(axis=1)
+                print(f"Creating clone prompt for LoRA adapter...")
+                prompt = model.create_voice_clone_prompt(
+                    ref_audio=(audio_array, sample_rate),
+                    ref_text=ref_text,
+                )
+                self._lora_prompt_cache[adapter_path] = prompt
+                print(f"Clone prompt cached for LoRA adapter.")
+
+            prompt = self._lora_prompt_cache[adapter_path]
+
+            # Build instruct_ids so the Base model can follow style prompts
+            gen_extra = {}
+            instruct = instruct_text or ""
+            character_style = voice_data.get("character_style", "") or voice_data.get("default_style", "")
+            if character_style:
+                instruct = f"{instruct} {character_style}".strip()
+            if instruct:
+                instruct_formatted = f"<|im_start|>user\n{instruct}<|im_end|>\n"
+                gen_extra["instruct_ids"] = model._tokenize_texts([instruct_formatted])
+
+            t_start = time.time()
+            wavs, sr = model.generate_voice_clone(
+                text=text,
+                voice_clone_prompt=prompt,
+                non_streaming_mode=True,
+                max_new_tokens=2048,
+                **gen_extra,
+            )
+            gen_time = time.time() - t_start
+
+            if wavs is None or len(wavs) == 0:
+                print(f"Error: No audio generated for: '{text[:50]}...'")
+                return False
+
+            audio = np.concatenate(wavs) if len(wavs) > 1 else wavs[0]
+            duration = len(audio) / sr
+            rtf = duration / gen_time if gen_time > 0 else 0
+            print(f"TTS [local lora] done: {gen_time:.1f}s -> {duration:.1f}s audio ({rtf:.2f}x real-time)")
+            self._save_wav(audio, sr, output_path)
+            return True
+
+        except Exception as e:
+            print(f"Error generating LoRA voice: {e}")
+            return False
+
     # ── Batch generation ─────────────────────────────────────────
 
     def generate_batch(self, chunks, voice_config, output_dir, batch_seed=-1):
@@ -408,9 +572,10 @@ class TTSEngine:
         if not chunks:
             return results
 
-        # Separate custom voice chunks from clone voice chunks
+        # Separate chunks by voice type
         custom_chunks = []
         clone_chunks = []
+        lora_chunks = []
 
         for chunk in chunks:
             speaker = chunk.get("speaker")
@@ -419,6 +584,8 @@ class TTSEngine:
 
             if voice_type == "clone":
                 clone_chunks.append(chunk)
+            elif voice_type == "lora":
+                lora_chunks.append(chunk)
             else:
                 custom_chunks.append(chunk)
 
@@ -443,6 +610,26 @@ class TTSEngine:
                     results["completed"].append(idx)
                 else:
                     results["failed"].append((idx, "Clone voice generation failed"))
+            except Exception as e:
+                results["failed"].append((idx, str(e)))
+
+        # Process LoRA voice chunks individually (each needs adapter loading)
+        for chunk in lora_chunks:
+            idx = chunk["index"]
+            output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+            speaker = chunk.get("speaker")
+            voice_data = voice_config.get(speaker, {})
+            try:
+                success = self.generate_lora_voice(
+                    text=chunk["text"],
+                    instruct_text=chunk.get("instruct", ""),
+                    voice_data=voice_data,
+                    output_path=output_path,
+                )
+                if success:
+                    results["completed"].append(idx)
+                else:
+                    results["failed"].append((idx, "LoRA voice generation failed"))
             except Exception as e:
                 results["failed"].append((idx, str(e)))
 
@@ -670,6 +857,13 @@ class TTSEngine:
               f"in {len(sub_batches)} sub-batch(es)...")
 
         model = self._init_local_custom()
+
+        # Clear stale GPU cache from any prior generation to avoid
+        # fragmented VRAM blocking large batch allocations (ROCm especially).
+        import gc
+        gc.collect()
+        torch.cuda.empty_cache()
+
         t_total_start = time.time()
         total_audio_duration = 0.0
 
