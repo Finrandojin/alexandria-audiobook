@@ -4,6 +4,7 @@ import shutil
 import threading
 import zipfile
 import io
+import time
 from tts import (
     TTSEngine,
     combine_audio_with_pauses,
@@ -130,14 +131,28 @@ class ProjectManager:
 
         return []
 
+    def _atomic_json_write(self, data, target_path, max_retries=5):
+        """Atomically write JSON data with retry logic for Windows file locking."""
+        tmp_path = target_path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+        for attempt in range(max_retries):
+            try:
+                os.replace(tmp_path, target_path)
+                return
+            except OSError as e:
+                if attempt < max_retries - 1 and (
+                    e.errno == 5 or "Access is denied" in str(e) or "being used by another process" in str(e)
+                ):
+                    delay = 0.05 * (2 ** attempt)
+                    time.sleep(delay)
+                    continue
+                raise
+
     def save_chunks(self, chunks):
         with self._chunks_lock:
-            # Atomic write: write to temp file then rename to avoid
-            # readers seeing a truncated/empty file mid-write.
-            tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                json.dump(chunks, f, indent=2, ensure_ascii=False)
-            os.replace(tmp_path, self.chunks_path)
+            self._atomic_json_write(chunks, self.chunks_path)
 
     def _update_chunk_fields(self, index, **fields):
         """Atomically update fields on a single chunk (thread-safe read-modify-write).
@@ -154,10 +169,7 @@ class ProjectManager:
             if not (0 <= index < len(chunks)):
                 return None
             chunks[index].update(fields)
-            tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                json.dump(chunks, f, indent=2, ensure_ascii=False)
-            os.replace(tmp_path, self.chunks_path)
+            self._atomic_json_write(chunks, self.chunks_path)
             return chunks[index]
 
     def update_chunk(self, index, data):
@@ -256,9 +268,17 @@ class ProjectManager:
 
                 self._update_chunk_fields(index, status="done", audio_path=audio_path)
 
-                # Cleanup
+                # Cleanup with retry (may be locked by pydub/ffmpeg on Windows)
                 if os.path.exists(temp_path):
-                    os.remove(temp_path)
+                    for attempt in range(3):
+                        try:
+                            os.remove(temp_path)
+                            break
+                        except OSError:
+                            if attempt < 2:
+                                time.sleep(0.1 * (attempt + 1))
+                            else:
+                                print(f"Warning: Could not delete temp file {temp_path}")
 
                 return True, audio_path
             else:
@@ -266,7 +286,10 @@ class ProjectManager:
                 return False, "Generation failed"
 
         except Exception as e:
-            self._update_chunk_fields(index, status="error")
+            try:
+                self._update_chunk_fields(index, status="error")
+            except Exception as update_err:
+                print(f"Warning: Failed to update chunk {index} status to error: {update_err}")
             return False, str(e)
 
     def merge_audio(self):
@@ -565,7 +588,15 @@ class ProjectManager:
                     print(f"Chunk {idx} completed: {chunks[idx]['audio_path']}")
 
                     if os.path.exists(temp_path):
-                        os.remove(temp_path)
+                        for attempt in range(3):
+                            try:
+                                os.remove(temp_path)
+                                break
+                            except OSError:
+                                if attempt < 2:
+                                    time.sleep(0.1 * (attempt + 1))
+                                else:
+                                    print(f"Warning: Could not delete temp file {temp_path}")
 
                 except Exception as e:
                     print(f"Error processing chunk {idx}: {e}")
