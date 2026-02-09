@@ -364,7 +364,7 @@ def main():
     config = {}
     if os.path.exists(config_path):
         try:
-            with open(config_path, "r") as f:
+            with open(config_path, "r", encoding="utf-8") as f:
                 config = json.load(f)
         except Exception as e:
             print(f"Warning: Failed to load config.json: {e}")

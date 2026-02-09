@@ -92,7 +92,7 @@ class ProjectManager:
         config = {}
         if os.path.exists(self.config_path):
             try:
-                with open(self.config_path, "r") as f:
+                with open(self.config_path, "r", encoding="utf-8") as f:
                     config = json.load(f)
             except: pass
 
@@ -106,12 +106,12 @@ class ProjectManager:
 
     def load_chunks(self):
         if os.path.exists(self.chunks_path):
-            with open(self.chunks_path, "r") as f:
+            with open(self.chunks_path, "r", encoding="utf-8") as f:
                 return json.load(f)
 
         # If no chunks, generate from script
         if os.path.exists(self.script_path):
-            with open(self.script_path, "r") as f:
+            with open(self.script_path, "r", encoding="utf-8") as f:
                 script = json.load(f)
             chunks = group_into_chunks(script)
 
@@ -131,8 +131,8 @@ class ProjectManager:
             # Atomic write: write to temp file then rename to avoid
             # readers seeing a truncated/empty file mid-write.
             tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w") as f:
-                json.dump(chunks, f, indent=2)
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(chunks, f, indent=2, ensure_ascii=False)
             os.replace(tmp_path, self.chunks_path)
 
     def _update_chunk_fields(self, index, **fields):
@@ -145,14 +145,14 @@ class ProjectManager:
         with self._chunks_lock:
             if not os.path.exists(self.chunks_path):
                 return None
-            with open(self.chunks_path, "r") as f:
+            with open(self.chunks_path, "r", encoding="utf-8") as f:
                 chunks = json.load(f)
             if not (0 <= index < len(chunks)):
                 return None
             chunks[index].update(fields)
             tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w") as f:
-                json.dump(chunks, f, indent=2)
+            with open(tmp_path, "w", encoding="utf-8") as f:
+                json.dump(chunks, f, indent=2, ensure_ascii=False)
             os.replace(tmp_path, self.chunks_path)
             return chunks[index]
 
@@ -191,7 +191,7 @@ class ProjectManager:
             # Load voice config
             voice_config = {}
             if os.path.exists(self.voice_config_path):
-                with open(self.voice_config_path, "r") as f:
+                with open(self.voice_config_path, "r", encoding="utf-8") as f:
                     voice_config = json.load(f)
 
             speaker = chunk["speaker"]
@@ -468,7 +468,7 @@ class ProjectManager:
         chunks = self.load_chunks()
         voice_config = {}
         if os.path.exists(self.voice_config_path):
-            with open(self.voice_config_path, "r") as f:
+            with open(self.voice_config_path, "r", encoding="utf-8") as f:
                 voice_config = json.load(f)
 
         # Get TTS engine
