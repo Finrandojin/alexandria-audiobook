@@ -598,40 +598,54 @@ class TTSEngine:
             results["completed"].extend(batch_results["completed"])
             results["failed"].extend(batch_results["failed"])
 
-        # Process clone voice chunks individually (no batch support for clones)
-        for chunk in clone_chunks:
-            idx = chunk["index"]
-            output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
-            try:
-                success = self.generate_clone_voice(
-                    chunk["text"], chunk["speaker"], voice_config, output_path
-                )
-                if success:
-                    results["completed"].append(idx)
-                else:
-                    results["failed"].append((idx, "Clone voice generation failed"))
-            except Exception as e:
-                results["failed"].append((idx, str(e)))
+        # Process clone voice chunks (batched by speaker in local mode)
+        if clone_chunks:
+            if self._mode == "local":
+                batch_results = self._local_batch_clone(clone_chunks, voice_config, output_dir)
+            else:
+                batch_results = {"completed": [], "failed": []}
+                for chunk in clone_chunks:
+                    idx = chunk["index"]
+                    output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+                    try:
+                        success = self.generate_clone_voice(
+                            chunk["text"], chunk["speaker"], voice_config, output_path
+                        )
+                        if success:
+                            batch_results["completed"].append(idx)
+                        else:
+                            batch_results["failed"].append((idx, "Clone voice generation failed"))
+                    except Exception as e:
+                        batch_results["failed"].append((idx, str(e)))
+            results["completed"].extend(batch_results["completed"])
+            results["failed"].extend(batch_results["failed"])
 
-        # Process LoRA voice chunks individually (each needs adapter loading)
-        for chunk in lora_chunks:
-            idx = chunk["index"]
-            output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
-            speaker = chunk.get("speaker")
-            voice_data = voice_config.get(speaker, {})
-            try:
-                success = self.generate_lora_voice(
-                    text=chunk["text"],
-                    instruct_text=chunk.get("instruct", ""),
-                    voice_data=voice_data,
-                    output_path=output_path,
-                )
-                if success:
-                    results["completed"].append(idx)
-                else:
-                    results["failed"].append((idx, "LoRA voice generation failed"))
-            except Exception as e:
-                results["failed"].append((idx, str(e)))
+        # Process LoRA voice chunks (batched by adapter in local mode)
+        if lora_chunks:
+            if self._mode == "local":
+                batch_results = self._local_batch_lora(lora_chunks, voice_config, output_dir)
+            else:
+                batch_results = {"completed": [], "failed": []}
+                for chunk in lora_chunks:
+                    idx = chunk["index"]
+                    output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+                    speaker = chunk.get("speaker")
+                    voice_data = voice_config.get(speaker, {})
+                    try:
+                        success = self.generate_lora_voice(
+                            text=chunk["text"],
+                            instruct_text=chunk.get("instruct", ""),
+                            voice_data=voice_data,
+                            output_path=output_path,
+                        )
+                        if success:
+                            batch_results["completed"].append(idx)
+                        else:
+                            batch_results["failed"].append((idx, "LoRA voice generation failed"))
+                    except Exception as e:
+                        batch_results["failed"].append((idx, str(e)))
+            results["completed"].extend(batch_results["completed"])
+            results["failed"].extend(batch_results["failed"])
 
         return results
 
@@ -929,6 +943,299 @@ class TTSEngine:
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
         print(f"Batch total: {total_time:.1f}s -> {total_audio_duration:.1f}s audio ({rtf:.2f}x real-time)")
+
+        return results
+
+    def _local_batch_clone(self, chunks, voice_config, output_dir):
+        """Batch generate clone voices, grouped by speaker.
+
+        Chunks sharing the same speaker (same reference audio) are batched
+        together through generate_voice_clone(text=[list], ...).
+        Sub-batching by text length is applied within each speaker group.
+        """
+        import torch
+        import time
+        import gc
+
+        results = {"completed": [], "failed": []}
+
+        # Group chunks by speaker
+        speaker_groups = {}
+        for chunk in chunks:
+            speaker = chunk.get("speaker", "")
+            speaker_groups.setdefault(speaker, []).append(chunk)
+
+        model = self._init_local_clone()
+
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        t_total_start = time.time()
+        total_audio_duration = 0.0
+
+        for speaker, group in speaker_groups.items():
+            try:
+                prompt = self._get_clone_prompt(speaker, voice_config)
+            except Exception as e:
+                print(f"  Error building clone prompt for '{speaker}': {e}")
+                for chunk in group:
+                    results["failed"].append((chunk["index"], str(e)))
+                continue
+
+            texts = [c["text"] for c in group]
+            indices = [c["index"] for c in group]
+
+            # Sort by text length for sub-batching efficiency
+            sort_order = sorted(range(len(texts)), key=lambda i: len(texts[i]))
+            texts = [texts[i] for i in sort_order]
+            indices = [indices[i] for i in sort_order]
+
+            # Build sub-batches
+            if self._sub_batch_enabled:
+                sub_batches = []
+                batch_start = 0
+                for i in range(1, len(texts)):
+                    shortest = max(len(texts[batch_start]), 1)
+                    if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
+                        sub_batches.append((batch_start, i))
+                        batch_start = i
+                sub_batches.append((batch_start, len(texts)))
+            else:
+                sub_batches = [(0, len(texts))]
+
+            print(f"Batch [clone] speaker='{speaker}': {len(texts)} chunks "
+                  f"in {len(sub_batches)} sub-batch(es)")
+
+            for sb_idx, (start, end) in enumerate(sub_batches):
+                sb_texts = texts[start:end]
+                sb_indices = indices[start:end]
+
+                print(f"  Sub-batch {sb_idx+1}/{len(sub_batches)}: {len(sb_texts)} chunks "
+                      f"({len(sb_texts[0])}-{len(sb_texts[-1])} chars/chunk)")
+
+                try:
+                    t_start = time.time()
+                    wavs_list, sr = model.generate_voice_clone(
+                        text=sb_texts,
+                        voice_clone_prompt=prompt,
+                        non_streaming_mode=True,
+                        max_new_tokens=2048,
+                    )
+                    gen_time = time.time() - t_start
+
+                    if wavs_list is None:
+                        for idx in sb_indices:
+                            results["failed"].append((idx, "Batch returned None"))
+                        continue
+
+                    sb_audio_duration = 0.0
+                    for wav, idx in zip(wavs_list, sb_indices):
+                        try:
+                            output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+                            audio = np.concatenate(wav) if isinstance(wav, list) and len(wav) > 1 else (wav[0] if isinstance(wav, list) else wav)
+                            self._save_wav(audio, sr, output_path)
+                            results["completed"].append(idx)
+                            duration = len(audio) / sr
+                            sb_audio_duration += duration
+                        except Exception as e:
+                            print(f"    Error saving chunk {idx}: {e}")
+                            results["failed"].append((idx, str(e)))
+
+                    total_audio_duration += sb_audio_duration
+                    sb_rtf = sb_audio_duration / gen_time if gen_time > 0 else 0
+                    print(f"  Sub-batch {sb_idx+1} done: {gen_time:.1f}s -> {sb_audio_duration:.1f}s audio ({sb_rtf:.2f}x RT)")
+
+                except Exception as e:
+                    print(f"  Sub-batch {sb_idx+1} failed: {e}")
+                    for idx in sb_indices:
+                        results["failed"].append((idx, f"Batch error: {e}"))
+
+                if len(sub_batches) > 1:
+                    gc.collect()
+                    torch.cuda.empty_cache()
+
+        total_time = time.time() - t_total_start
+        rtf = total_audio_duration / total_time if total_time > 0 else 0
+        print(f"Batch [clone] total: {total_time:.1f}s -> {total_audio_duration:.1f}s audio ({rtf:.2f}x real-time)")
+
+        return results
+
+    def _local_batch_lora(self, chunks, voice_config, output_dir):
+        """Batch generate LoRA voices, grouped by adapter.
+
+        Chunks sharing the same adapter are batched together through
+        generate_voice_clone(text=[list], instruct_ids=[list], ...).
+        Sub-batching by text length is applied within each adapter group.
+        """
+        import torch
+        import time
+        import gc
+
+        results = {"completed": [], "failed": []}
+        root_dir = os.path.dirname(os.path.dirname(__file__))
+
+        # Group chunks by adapter_path (resolved to absolute)
+        adapter_groups = {}  # adapter_path -> (voice_data, [chunks])
+        for chunk in chunks:
+            speaker = chunk.get("speaker", "")
+            voice_data = voice_config.get(speaker, {})
+            adapter_path = voice_data.get("adapter_path", "")
+
+            if not adapter_path:
+                results["failed"].append((chunk["index"], "No adapter_path"))
+                continue
+
+            if not os.path.isabs(adapter_path):
+                adapter_path = os.path.join(root_dir, adapter_path)
+
+            if adapter_path not in adapter_groups:
+                adapter_groups[adapter_path] = (voice_data, [])
+            adapter_groups[adapter_path][1].append(chunk)
+
+        gc.collect()
+        torch.cuda.empty_cache()
+
+        t_total_start = time.time()
+        total_audio_duration = 0.0
+
+        for adapter_path, (voice_data, group) in adapter_groups.items():
+            if not os.path.isdir(adapter_path):
+                print(f"  Error: adapter path not found: {adapter_path}")
+                for chunk in group:
+                    results["failed"].append((chunk["index"], f"Adapter not found: {adapter_path}"))
+                continue
+
+            # Load adapter and build/get clone prompt
+            try:
+                ref_wav_path = os.path.join(adapter_path, "ref_sample.wav")
+                meta_path = os.path.join(adapter_path, "training_meta.json")
+                if not os.path.exists(ref_wav_path) or not os.path.exists(meta_path):
+                    raise FileNotFoundError(f"Missing ref_sample.wav or training_meta.json in {adapter_path}")
+
+                with open(meta_path, "r", encoding="utf-8") as f:
+                    meta = json.load(f)
+                ref_text = meta.get("ref_sample_text", "")
+                if not ref_text:
+                    raise ValueError("ref_sample_text missing from training_meta.json")
+
+                model = self._init_local_lora(adapter_path)
+
+                if adapter_path not in self._lora_prompt_cache:
+                    audio_array, sample_rate = sf.read(ref_wav_path)
+                    if audio_array.ndim > 1:
+                        audio_array = audio_array.mean(axis=1)
+                    print(f"Creating clone prompt for LoRA adapter...")
+                    prompt = model.create_voice_clone_prompt(
+                        ref_audio=(audio_array, sample_rate),
+                        ref_text=ref_text,
+                    )
+                    self._lora_prompt_cache[adapter_path] = prompt
+                    print(f"Clone prompt cached for LoRA adapter.")
+
+                prompt = self._lora_prompt_cache[adapter_path]
+            except Exception as e:
+                print(f"  Error loading LoRA adapter {os.path.basename(adapter_path)}: {e}")
+                for chunk in group:
+                    results["failed"].append((chunk["index"], str(e)))
+                continue
+
+            character_style = voice_data.get("character_style", "") or voice_data.get("default_style", "")
+
+            texts = [c["text"] for c in group]
+            instructs_raw = [c.get("instruct", "") for c in group]
+            indices = [c["index"] for c in group]
+
+            # Sort by text length
+            sort_order = sorted(range(len(texts)), key=lambda i: len(texts[i]))
+            texts = [texts[i] for i in sort_order]
+            instructs_raw = [instructs_raw[i] for i in sort_order]
+            indices = [indices[i] for i in sort_order]
+
+            # Build sub-batches
+            if self._sub_batch_enabled:
+                sub_batches = []
+                batch_start = 0
+                for i in range(1, len(texts)):
+                    shortest = max(len(texts[batch_start]), 1)
+                    if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
+                        sub_batches.append((batch_start, i))
+                        batch_start = i
+                sub_batches.append((batch_start, len(texts)))
+            else:
+                sub_batches = [(0, len(texts))]
+
+            print(f"Batch [lora] adapter='{os.path.basename(adapter_path)}': {len(texts)} chunks "
+                  f"in {len(sub_batches)} sub-batch(es)")
+
+            for sb_idx, (start, end) in enumerate(sub_batches):
+                sb_texts = texts[start:end]
+                sb_instructs = instructs_raw[start:end]
+                sb_indices = indices[start:end]
+
+                print(f"  Sub-batch {sb_idx+1}/{len(sub_batches)}: {len(sb_texts)} chunks "
+                      f"({len(sb_texts[0])}-{len(sb_texts[-1])} chars/chunk)")
+
+                try:
+                    # Build instruct_ids list for this sub-batch
+                    instruct_ids = []
+                    for inst in sb_instructs:
+                        instruct = inst or ""
+                        if character_style:
+                            instruct = f"{instruct} {character_style}".strip()
+                        if instruct:
+                            instruct_formatted = f"<|im_start|>user\n{instruct}<|im_end|>\n"
+                            instruct_ids.append(model._tokenize_texts([instruct_formatted])[0])
+                        else:
+                            instruct_ids.append(None)
+
+                    gen_extra = {}
+                    if any(iid is not None for iid in instruct_ids):
+                        gen_extra["instruct_ids"] = instruct_ids
+
+                    t_start = time.time()
+                    wavs_list, sr = model.generate_voice_clone(
+                        text=sb_texts,
+                        voice_clone_prompt=prompt,
+                        non_streaming_mode=True,
+                        max_new_tokens=2048,
+                        **gen_extra,
+                    )
+                    gen_time = time.time() - t_start
+
+                    if wavs_list is None:
+                        for idx in sb_indices:
+                            results["failed"].append((idx, "Batch returned None"))
+                        continue
+
+                    sb_audio_duration = 0.0
+                    for wav, idx in zip(wavs_list, sb_indices):
+                        try:
+                            output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+                            audio = np.concatenate(wav) if isinstance(wav, list) and len(wav) > 1 else (wav[0] if isinstance(wav, list) else wav)
+                            self._save_wav(audio, sr, output_path)
+                            results["completed"].append(idx)
+                            duration = len(audio) / sr
+                            sb_audio_duration += duration
+                        except Exception as e:
+                            print(f"    Error saving chunk {idx}: {e}")
+                            results["failed"].append((idx, str(e)))
+
+                    total_audio_duration += sb_audio_duration
+                    sb_rtf = sb_audio_duration / gen_time if gen_time > 0 else 0
+                    print(f"  Sub-batch {sb_idx+1} done: {gen_time:.1f}s -> {sb_audio_duration:.1f}s audio ({sb_rtf:.2f}x RT)")
+
+                except Exception as e:
+                    print(f"  Sub-batch {sb_idx+1} failed: {e}")
+                    for idx in sb_indices:
+                        results["failed"].append((idx, f"Batch error: {e}"))
+
+                if len(sub_batches) > 1:
+                    gc.collect()
+                    torch.cuda.empty_cache()
+
+        total_time = time.time() - t_total_start
+        rtf = total_audio_duration / total_time if total_time > 0 else 0
+        print(f"Batch [lora] total: {total_time:.1f}s -> {total_audio_duration:.1f}s audio ({rtf:.2f}x real-time)")
 
         return results
 
