@@ -22,6 +22,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ### Voice Generation
 - **Built-in TTS Engine** - Qwen3-TTS runs locally with no external server required
 - **External Server Mode** - Optionally connect to a remote Qwen3-TTS Gradio server
+- **Multi-Language Support** - English, Chinese, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish, or Auto-detect
 - **Custom Voices** - 9 pre-trained voices with instruct-based emotion/tone control
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
 - **Batch Processing** - Generate dozens of chunks simultaneously with 3-6x real-time throughput
@@ -95,6 +96,7 @@ Configure connections to your LLM and TTS engine.
 **TTS Settings:**
 - **Mode** - `local` (built-in engine) or `external` (connect to Gradio server)
 - **Device** - `auto` (recommended), `cuda`, `cpu`, or `mps`
+- **Language** - TTS synthesis language: English (default), Chinese, French, German, Italian, Japanese, Korean, Portuguese, Russian, Spanish, or Auto (let the model detect)
 - **Parallel Workers** - Batch size for fast batch rendering (higher = more VRAM usage)
 - **Batch Seed** - Fixed seed for reproducible batch output (leave empty for random)
 - **Compile Codec** - Enable `torch.compile` for 3-4x faster batch decoding (adds ~30-60s warmup on first generation)
@@ -273,6 +275,7 @@ curl -X POST http://127.0.0.1:4200/api/config \
     "tts": {
       "mode": "local",
       "device": "auto",
+      "language": "English",
       "parallel_workers": 25,
       "batch_seed": 12345,
       "compile_codec": true,
@@ -541,6 +544,8 @@ LLM prompts are stored in plain-text files at the project root, split into syste
 **To customize prompts:**
 1. **Temporary (per-session):** Edit generation prompts directly in the Setup tab's Prompt Customization section
 2. **Permanent (all sessions):** Edit `default_prompts.txt` or `review_prompts.txt` directly — changes are picked up on the next request
+
+**Non-English books:** The default LLM prompts are written for English text and reference English-specific conventions (attribution tags like "said he", quotation marks, etc.). When processing books in other languages, you'll get better results by editing the prompts to match that language's dialogue conventions — for example, French guillemets (« »), Japanese brackets (「」), or language-appropriate attribution patterns. Set the TTS **Language** dropdown to match as well.
 
 ## Project Structure
 
