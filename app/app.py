@@ -49,6 +49,7 @@ app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 VOICELINES_DIR = os.path.join(ROOT_DIR, "voicelines")
 os.makedirs(VOICELINES_DIR, exist_ok=True)
 app.mount("/voicelines", StaticFiles(directory=VOICELINES_DIR), name="voicelines")
+app.mount("/scripts", StaticFiles(directory=SCRIPTS_DIR), name="scripts")
 
 # Initialize Project Manager
 project_manager = ProjectManager(ROOT_DIR)
