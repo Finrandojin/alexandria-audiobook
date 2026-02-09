@@ -344,7 +344,7 @@ def main():
                      total_stats["entries_removed"])
 
     print(f"\n{'='*60}")
-    print(f"Review complete: {len(entries)} → {len(all_corrected)} entries")
+    print(f"Review complete: {len(entries)} -> {len(all_corrected)} entries")
     print(f"  Text changed:    {total_stats['text_changed']}")
     print(f"  Speaker changed: {total_stats['speaker_changed']}")
     print(f"  Instruct changed:{total_stats['instruct_changed']}")
