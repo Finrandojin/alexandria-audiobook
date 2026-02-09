@@ -106,10 +106,14 @@ class ProjectManager:
 
     def load_chunks(self):
         if os.path.exists(self.chunks_path):
-            with open(self.chunks_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+            try:
+                with open(self.chunks_path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except (json.JSONDecodeError, ValueError) as e:
+                print(f"WARNING: chunks.json is corrupted ({e}). Regenerating from script...")
+                os.remove(self.chunks_path)
 
-        # If no chunks, generate from script
+        # If no chunks (or corrupted), generate from script
         if os.path.exists(self.script_path):
             with open(self.script_path, "r", encoding="utf-8") as f:
                 script = json.load(f)
