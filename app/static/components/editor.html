@@ -1,0 +1,38 @@
+<!-- Editor Tab -->
+<div id="editor-tab" class="tab-content" style="display:none;">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+             <h4 class="m-0"><span class="step-indicator step-active">4</span>Audio Editor</h4>
+             <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
+                <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
+                <button class="btn btn-info btn-sm" id="btn-batch-fast" onclick="renderBatchFast(false)" title="Requires custom Qwen3-TTS with batch API"><i class="fas fa-bolt me-1"></i>Batch (Fast) <i class="fas fa-flask"></i></button>
+                <button class="btn btn-outline-success btn-sm" id="btn-regen-all" onclick="renderAll(true)"><i class="fas fa-redo me-1"></i>Regenerate All</button>
+                <button class="btn btn-danger btn-sm" id="btn-cancel-render" onclick="cancelRender()" style="display:none;"><i class="fas fa-stop me-1"></i>Cancel</button>
+                <button class="btn btn-warning btn-sm" id="btn-merge"><i class="fas fa-file-audio me-1"></i>Merge All</button>
+             </div>
+        </div>
+        <div class="card-body">
+             <!-- Full Progress Bar -->
+             <div class="progress mb-3" style="height: 25px;">
+                 <div id="full-progress-bar" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%">0%</div>
+             </div>
+
+             <div class="table-responsive">
+                 <table class="table table-bordered table-hover">
+                     <thead>
+                         <tr>
+                             <th width="15%">Speaker</th>
+                             <th width="53%">Text</th>
+                             <th width="8%">Status</th>
+                             <th width="25%">Audio / Actions</th>
+                         </tr>
+                     </thead>
+                     <tbody id="chunks-table-body">
+                         <!-- Rows will be injected here -->
+                     </tbody>
+                 </table>
+             </div>
+        </div>
+    </div>
+</div>

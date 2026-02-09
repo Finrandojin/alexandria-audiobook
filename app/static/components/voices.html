@@ -1,0 +1,21 @@
+<!-- Voices Tab -->
+<div id="voices-tab" class="tab-content" style="display:none;">
+    <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="m-0"><span class="step-indicator step-active">3</span>Voice Configuration</h4>
+            <button class="btn btn-sm btn-outline-primary" id="btn-refresh-voices"><i class="fas fa-sync me-1"></i>Refresh Voices</button>
+        </div>
+        <div class="card-body">
+            <p>After generating the script, click "Refresh" to load found characters.</p>
+            <div id="voices-list"></div>
+            <button class="btn btn-primary mt-3" id="btn-save-voices">Save Voice Config</button>
+        </div>
+    </div>
+
+     <div class="card">
+        <div class="card-header">Voice Parsing Logs</div>
+        <div class="card-body p-0">
+            <div id="voices-logs" class="log-window" style="height: 150px;"></div>
+        </div>
+    </div>
+</div>

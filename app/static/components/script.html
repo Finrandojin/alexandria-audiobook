@@ -1,0 +1,53 @@
+<!-- Script Tab -->
+<div id="script-tab" class="tab-content" style="display:none;">
+    <div class="card">
+        <div class="card-header">
+            <h4><span class="step-indicator step-active">2</span>Upload & Generate Script</h4>
+        </div>
+        <div class="card-body">
+            <div class="mb-4">
+                <label class="form-label">Upload Book/Novel (Text File)</label>
+                <div class="input-group">
+                    <input type="file" class="form-control" id="file-upload" accept=".txt,.md">
+                    <button class="btn btn-outline-secondary" type="button" id="btn-upload">Upload</button>
+                </div>
+                <div id="upload-status" class="mt-2 text-success"></div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button class="btn btn-success btn-lg" id="btn-gen-script" disabled>
+                    <i class="fas fa-magic me-2"></i>Generate Annotated Script
+                </button>
+                <button class="btn btn-outline-primary btn-lg" id="btn-review-script">
+                    <i class="fas fa-check-double me-2"></i>Review Script
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="m-0">Saved Scripts</h5>
+        </div>
+        <div class="card-body">
+            <input type="hidden" id="readableScriptTarget">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" id="save-script-name" placeholder="Script name (e.g. The Great Gatsby)">
+                <button class="btn btn-outline-primary" onclick="saveScript()"><i class="fas fa-save me-1"></i>Save Current</button>
+            </div>
+            <div class="mb-3">
+                <button class="btn btn-outline-info" onclick="if(document.getElementById('readableScriptTarget').value) displayReadableScript(document.getElementById('readableScriptTarget').value)"><i class="fas fa-eye me-1"></i>View Readable Script</button>
+            </div>
+            <div id="saved-scripts-list">
+                <p class="text-muted mb-0">No saved scripts yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Generation Logs</div>
+        <div class="card-body p-0">
+            <div id="script-logs" class="log-window"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+<!-- Audio Result Tab -->
+<div id="audio-tab" class="tab-content" style="display:none;">
+    <div class="card">
+        <div class="card-header">
+            <h4><span class="step-indicator step-active">5</span>Final Result</h4>
+        </div>
+        <div class="card-body">
+            <div id="audio-player-container" class="text-center" style="display:none;">
+                <h5>Your Audiobook</h5>
+                <audio id="main-audio" controls class="w-100 mt-2">
+                    <source src="" type="audio/mpeg">
+                    Your browser does not support the audio element.
+                </audio>
+                <a id="download-link" href="#" class="btn btn-outline-dark mt-3" download="audiobook.mp3">
+                    <i class="fas fa-download me-2"></i>Download MP3
+                </a>
+                <button class="btn btn-outline-primary mt-3 ms-2" onclick="exportAudacity()">
+                    <i class="fas fa-headphones me-2"></i>Export to Audacity
+                </button>
+                <span id="audacity-status" class="ms-2 mt-3 d-inline-block"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">Generation Logs</div>
+        <div class="card-body p-0">
+            <div id="audio-logs" class="log-window"></div>
+        </div>
+    </div>
+</div>

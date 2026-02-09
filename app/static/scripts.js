@@ -1,23 +1,25 @@
-// --- Navigation ---
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-        // Remove active class from all links
-        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-        // Add active to clicked
-        e.target.classList.add('active');
+// --- Navigation Setup ---
+function setupNavigation() {
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            // Remove active class from all links
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            // Add active to clicked
+            e.target.classList.add('active');
 
-        // Hide all tabs
-        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
-        // Show target tab
-        const targetId = e.target.dataset.tab + '-tab';
-        document.getElementById(targetId).style.display = 'block';
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+            // Show target tab
+            const targetId = e.target.dataset.tab + '-tab';
+            document.getElementById(targetId).style.display = 'block';
 
-        // Trigger tab specific loads
-        if (e.target.dataset.tab === 'editor') {
-            loadChunks();
-        }
+            // Trigger tab specific loads
+            if (e.target.dataset.tab === 'editor') {
+                loadChunks();
+            }
+        });
     });
-});
+}
 
 // --- API Helpers ---
 const API = {
@@ -153,14 +155,17 @@ window.resetPrompts = async () => {
 };
 
 // Toggle chevron on collapse
-document.getElementById('promptSettings')?.addEventListener('show.bs.collapse', () => {
-    document.getElementById('prompt-chevron').classList.replace('fa-chevron-right', 'fa-chevron-down');
-});
-document.getElementById('promptSettings')?.addEventListener('hide.bs.collapse', () => {
-    document.getElementById('prompt-chevron').classList.replace('fa-chevron-down', 'fa-chevron-right');
-});
+function setupPromptToggle() {
+    document.getElementById('promptSettings')?.addEventListener('show.bs.collapse', () => {
+        document.getElementById('prompt-chevron').classList.replace('fa-chevron-right', 'fa-chevron-down');
+    });
+    document.getElementById('promptSettings')?.addEventListener('hide.bs.collapse', () => {
+        document.getElementById('prompt-chevron').classList.replace('fa-chevron-down', 'fa-chevron-right');
+    });
+}
 
-document.getElementById('config-form').addEventListener('submit', async (e) => {
+function setupConfigForm() {
+    document.getElementById('config-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     let chunkSize = parseInt(document.getElementById('chunk-size').value) || 3000;
@@ -211,38 +216,43 @@ document.getElementById('config-form').addEventListener('submit', async (e) => {
     } catch (e) {
         alert('Error saving config: ' + e.message);
     }
-});
+    });
+}
 
 // --- Script Tab ---
-document.getElementById('btn-upload').addEventListener('click', async () => {
-    const fileInput = document.getElementById('file-upload');
-    if (fileInput.files.length === 0) return alert("Select a file first");
+function setupScriptTab() {
+    document.getElementById('btn-upload').addEventListener('click', async () => {
+        const fileInput = document.getElementById('file-upload');
+        if (fileInput.files.length === 0) return alert("Select a file first");
 
-    try {
-        const res = await API.upload(fileInput.files[0]);
-        document.getElementById('upload-status').innerText = `Uploaded: ${res.filename}`;
-    } catch (e) {
-        alert("Upload failed: " + e.message);
-    }
-});
+        try {
+            const res = await API.upload(fileInput.files[0]);
+            document.getElementById('upload-status').innerText = `Uploaded: ${res.filename}`;
+            // Enable script generation button after successful upload
+            document.getElementById('btn-gen-script').disabled = false;
+        } catch (e) {
+            alert("Upload failed: " + e.message);
+        }
+    });
 
-document.getElementById('btn-gen-script').addEventListener('click', async () => {
-    try {
-        await API.post('/api/generate_script', {});
-        pollLogs('script', 'script-logs');
-    } catch (e) {
-        alert("Failed to start script gen: " + e.message);
-    }
-});
+    document.getElementById('btn-gen-script').addEventListener('click', async () => {
+        try {
+            await API.post('/api/generate_script', {});
+            pollLogs('script', 'script-logs');
+        } catch (e) {
+            alert("Failed to start script gen: " + e.message);
+        }
+    });
 
-document.getElementById('btn-review-script').addEventListener('click', async () => {
-    try {
-        await API.post('/api/review_script', {});
-        pollLogs('review', 'script-logs');
-    } catch (e) {
-        alert("Failed to start review: " + e.message);
-    }
-});
+    document.getElementById('btn-review-script').addEventListener('click', async () => {
+        try {
+            await API.post('/api/review_script', {});
+            pollLogs('review', 'script-logs');
+        } catch (e) {
+            alert("Failed to start review: " + e.message);
+        }
+    });
+}
 
 // --- Voices Tab ---
 const AVAILABLE_VOICES = ["Aiden", "Dylan", "Eric", "Ono_anna", "Ryan", "Serena", "Sohee", "Uncle_fu", "Vivian"];
@@ -310,16 +320,51 @@ window.toggleVoiceType = (radio) => {
     }
 };
 
-document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
-     // Trigger parse
-     try {
-        await API.post('/api/parse_voices', {});
-        // Wait a bit for it to run (it's fast)
-        setTimeout(loadVoices, 1000);
-    } catch (e) {
-        console.error(e);
-    }
-});
+function setupVoicesTab() {
+    document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
+         // Trigger parse
+         try {
+            await API.post('/api/parse_voices', {});
+            // Wait a bit for it to run (it's fast)
+            setTimeout(loadVoices, 1000);
+        } catch (e) {
+            console.error(e);
+        }
+    });
+
+    document.getElementById('btn-save-voices').addEventListener('click', async () => {
+        const cards = document.querySelectorAll('.voice-card');
+        const config = {};
+
+        cards.forEach(card => {
+            const name = card.dataset.voice;
+            const type = card.querySelector('.voice-type:checked').value;
+
+            if (type === 'custom') {
+                config[name] = {
+                    type: 'custom',
+                    voice: card.querySelector('.voice-select').value,
+                    character_style: card.querySelector('.character-style').value,
+                    seed: "-1"
+                };
+            } else {
+                config[name] = {
+                    type: 'clone',
+                    ref_text: card.querySelector('.ref-text').value,
+                    ref_audio: card.querySelector('.ref-audio').value,
+                    seed: "-1"
+                };
+            }
+        });
+
+        try {
+            await API.post('/api/save_voice_config', config);
+            alert('Voice configuration saved!');
+        } catch (e) {
+                alert('Error saving voices: ' + e.message);
+            }
+        });
+}
 
 async function loadVoices() {
     const voices = await API.get('/api/voices');
@@ -330,39 +375,6 @@ async function loadVoices() {
     }
     container.innerHTML = voices.map((v, i) => createVoiceCard(v, i)).join('');
 }
-
-document.getElementById('btn-save-voices').addEventListener('click', async () => {
-    const cards = document.querySelectorAll('.voice-card');
-    const config = {};
-
-    cards.forEach(card => {
-        const name = card.dataset.voice;
-        const type = card.querySelector('.voice-type:checked').value;
-
-        if (type === 'custom') {
-            config[name] = {
-                type: 'custom',
-                voice: card.querySelector('.voice-select').value,
-                character_style: card.querySelector('.character-style').value,
-                seed: "-1"
-            };
-        } else {
-            config[name] = {
-                type: 'clone',
-                ref_text: card.querySelector('.ref-text').value,
-                ref_audio: card.querySelector('.ref-audio').value,
-                seed: "-1"
-            };
-        }
-    });
-
-    try {
-        await API.post('/api/save_voice_config', config);
-        alert('Voice configuration saved!');
-    } catch (e) {
-        alert('Error saving voices: ' + e.message);
-    }
-});
 
 // --- Editor Tab ---
 let isPlayingSequence = false;
@@ -1022,18 +1034,20 @@ window.renderBatchFast = async (regenerateAll = false) => {
     }
 };
 
-document.getElementById('btn-merge').addEventListener('click', async () => {
-     if (!confirm("Merge all valid audio chunks into final audiobook?")) return;
+function setupEditorTab() {
+    document.getElementById('btn-merge').addEventListener('click', async () => {
+         if (!confirm("Merge all valid audio chunks into final audiobook?")) return;
 
-     try {
-         await API.post('/api/merge', {});
-         // Switch to Result tab and poll
-         document.querySelector('[data-tab="audio"]').click();
-         pollLogs('audio', 'audio-logs');
-     } catch (e) {
-         alert("Merge failed: " + e.message);
-     }
-});
+         try {
+             await API.post('/api/merge', {});
+             // Switch to Result tab and poll
+             document.querySelector('[data-tab="audio"]').click();
+             pollLogs('audio', 'audio-logs');
+         } catch (e) {
+             alert("Merge failed: " + e.message);
+         }
+    });
+}
 
 
 // --- Audacity Export ---
@@ -1187,6 +1201,8 @@ async function loadScript(name) {
         }
         const data = await res.json();
         document.getElementById('readableScriptTarget').value = '/scripts/' + name + '.json';
+        // Enable script generation button after loading a saved script
+        document.getElementById('btn-gen-script').disabled = false;
         loadSavedScripts();
         loadChunks();
         loadVoices();
@@ -1210,7 +1226,19 @@ async function deleteScript(name) {
     }
 }
 
-// Init
-loadConfig();
-loadVoices();
-loadSavedScripts();
+// --- Initialization ---
+// Wait for components to load before initializing
+window.addEventListener('componentsLoaded', () => {
+    // Setup event listeners
+    setupNavigation();
+    setupPromptToggle();
+    setupConfigForm();
+    setupScriptTab();
+    setupVoicesTab();
+    setupEditorTab();
+    
+    // Load initial data
+    loadConfig();
+    loadVoices();
+    loadSavedScripts();
+});
