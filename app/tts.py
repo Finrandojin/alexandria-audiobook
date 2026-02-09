@@ -644,6 +644,12 @@ class TTSEngine:
                 for idx in sb_indices:
                     results["failed"].append((idx, f"Batch error: {e}"))
 
+            # Free GPU memory between sub-batches to prevent VRAM exhaustion
+            if len(sub_batches) > 1:
+                import gc
+                gc.collect()
+                torch.cuda.empty_cache()
+
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
         print(f"Batch total: {total_time:.1f}s -> {total_audio_duration:.1f}s audio ({rtf:.2f}x real-time)")
