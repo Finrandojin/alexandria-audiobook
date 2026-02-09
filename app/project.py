@@ -4,6 +4,7 @@ import shutil
 import threading
 import zipfile
 import io
+import time
 from tts import (
     TTSEngine,
     combine_audio_with_pauses,
@@ -126,14 +127,41 @@ class ProjectManager:
 
         return []
 
+    def _atomic_json_write(self, data, target_path, max_retries=5):
+        """Atomically write JSON data to a file with retry logic for Windows file locking.
+        
+        Args:
+            data: The data to serialize as JSON
+            target_path: The final destination file path
+            max_retries: Maximum number of retry attempts (default 5)
+            
+        Raises:
+            OSError: If all retry attempts fail
+        """
+        tmp_path = target_path + ".tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        
+        # Retry with exponential backoff for Windows file locking
+        for attempt in range(max_retries):
+            try:
+                os.replace(tmp_path, target_path)
+                return  # Success
+            except OSError as e:
+                # Check if it's a permission/access error (Windows file locking)
+                if e.errno == 5 or "Access is denied" in str(e) or "being used by another process" in str(e):
+                    if attempt < max_retries - 1:
+                        # Exponential backoff: 0.05s, 0.1s, 0.2s, 0.4s, 0.8s
+                        delay = 0.05 * (2 ** attempt)
+                        time.sleep(delay)
+                        continue
+                # Either not a locking error or we've exhausted retries
+                raise
+
     def save_chunks(self, chunks):
         with self._chunks_lock:
-            # Atomic write: write to temp file then rename to avoid
-            # readers seeing a truncated/empty file mid-write.
-            tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                json.dump(chunks, f, indent=2, ensure_ascii=False)
-            os.replace(tmp_path, self.chunks_path)
+            # Atomic write with retry logic for Windows file locking
+            self._atomic_json_write(chunks, self.chunks_path)
             
             # Also sync to annotated_script.json (the source of truth)
             # Strip chunk-specific fields (id, status, audio_path) and keep core fields
@@ -145,10 +173,7 @@ class ProjectManager:
                     "instruct": chunk.get("instruct", "")
                 })
             
-            script_tmp_path = self.script_path + ".tmp"
-            with open(script_tmp_path, "w", encoding="utf-8") as f:
-                json.dump(script_entries, f, indent=2, ensure_ascii=False)
-            os.replace(script_tmp_path, self.script_path)
+            self._atomic_json_write(script_entries, self.script_path)
 
     def _update_chunk_fields(self, index, **fields):
         """Atomically update fields on a single chunk (thread-safe read-modify-write).
@@ -165,10 +190,7 @@ class ProjectManager:
             if not (0 <= index < len(chunks)):
                 return None
             chunks[index].update(fields)
-            tmp_path = self.chunks_path + ".tmp"
-            with open(tmp_path, "w", encoding="utf-8") as f:
-                json.dump(chunks, f, indent=2, ensure_ascii=False)
-            os.replace(tmp_path, self.chunks_path)
+            self._atomic_json_write(chunks, self.chunks_path)
             
             # If core fields (speaker, text, instruct) were updated, sync to annotated_script.json
             if any(key in fields for key in ['speaker', 'text', 'instruct']):
@@ -180,10 +202,7 @@ class ProjectManager:
                         "instruct": chunk.get("instruct", "")
                     })
                 
-                script_tmp_path = self.script_path + ".tmp"
-                with open(script_tmp_path, "w", encoding="utf-8") as f:
-                    json.dump(script_entries, f, indent=2, ensure_ascii=False)
-                os.replace(script_tmp_path, self.script_path)
+                self._atomic_json_write(script_entries, self.script_path)
             
             return chunks[index]
 
@@ -354,9 +373,18 @@ class ProjectManager:
 
                 self._update_chunk_fields(index, status="done", audio_path=audio_path)
 
-                # Cleanup
+                # Cleanup temp file with retry logic (may be locked by pydub/ffmpeg on Windows)
                 if os.path.exists(temp_path):
-                    os.remove(temp_path)
+                    for attempt in range(3):
+                        try:
+                            os.remove(temp_path)
+                            break  # Success
+                        except OSError as e:
+                            if attempt < 2:
+                                time.sleep(0.1 * (attempt + 1))  # 0.1s, 0.2s delays
+                            else:
+                                # Log warning but don't fail the entire operation
+                                print(f"Warning: Could not delete temp file {temp_path}: {e}")
 
                 return True, audio_path
             else:
@@ -364,7 +392,11 @@ class ProjectManager:
                 return False, "Generation failed"
 
         except Exception as e:
-            self._update_chunk_fields(index, status="error")
+            # Try to mark as error, but don't let status update failures hide the real error
+            try:
+                self._update_chunk_fields(index, status="error")
+            except Exception as update_err:
+                print(f"Warning: Failed to update chunk {index} status to error: {update_err}")
             return False, str(e)
 
     def merge_audio(self):
