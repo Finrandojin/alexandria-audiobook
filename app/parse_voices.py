@@ -17,7 +17,7 @@ def main():
     for entry in script_data:
         speaker = (entry.get("speaker") or entry.get("type") or "").strip()
         if speaker:
-            voices.add(speaker)
+            voices.add(speaker.upper())
 
     voice_list = sorted(list(voices))
 
