@@ -544,6 +544,18 @@ def train(args):
     ref_dest = os.path.join(args.output_dir, "ref_sample.wav")
     shutil.copy2(ref_audio_path, ref_dest)
 
+    # Determine ref_sample_text: use ref_text.txt if present (written by Dataset Builder),
+    # otherwise find the sample whose audio matches ref.wav, fallback to first sample.
+    ref_text_file = os.path.join(args.data_dir, "ref_text.txt")
+    if os.path.exists(ref_text_file):
+        with open(ref_text_file, "r", encoding="utf-8") as f:
+            ref_sample_text = f.read().strip()
+        print(f"[DATA] Using ref text from ref_text.txt: '{ref_sample_text[:60]}...'", flush=True)
+    else:
+        # Legacy datasets: ref.wav is typically the first sample
+        ref_sample_text = samples[0]["text"]
+        print(f"[DATA] Using first sample text as ref text: '{ref_sample_text[:60]}...'", flush=True)
+
     # Save training metadata
     meta = {
         "model_name": args.model_name,
@@ -558,7 +570,7 @@ def train(args):
         "best_loss": best_loss,
         "training_time_seconds": round(training_time, 1),
         "ref_sample_audio": ref_audio_path,
-        "ref_sample_text": samples[0]["text"],
+        "ref_sample_text": ref_sample_text,
     }
     with open(os.path.join(args.output_dir, "training_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)

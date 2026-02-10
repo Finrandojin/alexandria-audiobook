@@ -53,3 +53,6 @@ designed_voices/
 lora_models/
 lora_datasets/
 
+# Dataset builder working directory
+dataset_builder/
+
