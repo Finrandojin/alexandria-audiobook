@@ -59,6 +59,8 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 
 > **Note:** No external TTS server is required. Alexandria includes a built-in Qwen3-TTS engine that loads models directly. Model weights are downloaded automatically on first use (~3.5 GB).
 
+> **Documentation:** For in-depth guidance on voice types, LoRA training, batch generation, and more, see the [Wiki](https://github.com/Finrandojin/alexandria-audiobook/wiki).
+
 ## Installation
 
 1. Install [Pinokio](https://pinokio.computer/) if you haven't already
@@ -80,8 +82,8 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 2. **Script Tab** - Upload your book (.txt or .md) and click "Generate Annotated Script"
 
 3. **Voices Tab** - Click "Refresh Voices" then configure each speaker:
-   - Choose Custom Voice (with instruct), Clone Voice (from reference audio), or LoRA Voice (from trained adapter)
-   - Set voice parameters and character style, then save
+   - Choose Custom Voice, Clone Voice, LoRA Voice, or Voice Design
+   - Set voice parameters and character style, then save (see [Voice Types](https://github.com/Finrandojin/alexandria-audiobook/wiki/Voice-Types) for guidance)
 
 4. **(Optional) Designer Tab** - Create new voices from text descriptions for use as clone references
 
@@ -149,6 +151,11 @@ After script generation, parse voices to see all speakers. For each:
 - Set a character style (same as Custom — appended to every instruct)
 - Combines voice identity from training with instruct-following from the Base model
 
+**Voice Design Mode:**
+- Set a base voice description (e.g., "Young strong soldier")
+- Each line's instruct is appended as delivery/emotion direction
+- Generates voice on-the-fly using the VoiceDesign model — ideal for minor characters
+
 ### Voice Designer Tab
 Create new voices from text descriptions without needing reference audio.
 
@@ -202,7 +209,7 @@ High-speed rendering that sends multiple lines to the TTS engine in a single bat
 - **3-6x real-time throughput** - With codec compilation enabled, batches of 20-60 chunks process at 3-6x real-time speed
 - **Sub-batching** - Automatically groups similarly-sized chunks together for efficient GPU utilization
 - **Single seed** - All voices share the `Batch Seed` from config (set empty for random)
-- **Custom voices batched** - Clone and LoRA voices fall back to individual sequential calls
+- **All voice types supported** - Custom, Clone, and LoRA voices are batched; Voice Design is sequential
 - **Parallel Workers** setting controls batch size (higher values use more VRAM)
 
 ### Result Tab
