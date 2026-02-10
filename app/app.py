@@ -161,10 +161,15 @@ class LoraTestRequest(BaseModel):
     text: str
     instruct: str = ""
 
+class LoraDatasetSample(BaseModel):
+    emotion: str = ""
+    text: str
+
 class LoraGenerateDatasetRequest(BaseModel):
     name: str
-    description: str
-    texts: List[str]
+    description: str  # root voice description
+    samples: Optional[List[LoraDatasetSample]] = None  # emotion+text pairs
+    texts: Optional[List[str]] = None  # legacy: flat text list (no emotions)
     language: Optional[str] = None
 
 # Global state for process tracking
@@ -881,7 +886,18 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
     if process_state["dataset_gen"]["running"]:
         raise HTTPException(status_code=400, detail="Dataset generation already running")
 
-    if not request.texts or len(request.texts) == 0:
+    # Build unified sample list from either format
+    sample_list = []
+    if request.samples:
+        for s in request.samples:
+            if s.text.strip():
+                sample_list.append({"emotion": s.emotion.strip(), "text": s.text.strip()})
+    elif request.texts:
+        for t in request.texts:
+            if t.strip():
+                sample_list.append({"emotion": "", "text": t.strip()})
+
+    if not sample_list:
         raise HTTPException(status_code=400, detail="Provide at least one sample text")
 
     safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
@@ -893,7 +909,8 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
     if os.path.exists(dataset_dir):
         raise HTTPException(status_code=400, detail=f"Dataset '{safe_name}' already exists")
 
-    total = len(request.texts)
+    total = len(sample_list)
+    root_description = request.description.strip()
 
     def task():
         process_state["dataset_gen"]["running"] = True
@@ -910,16 +927,18 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
             metadata_lines = []
             completed = 0
 
-            for i, text in enumerate(request.texts):
-                text = text.strip()
-                if not text:
-                    continue
+            for i, sample in enumerate(sample_list):
+                text = sample["text"]
+                emotion = sample["emotion"]
+                # Build full description: root + emotion if provided
+                description = f"{root_description}, {emotion}" if emotion else root_description
+
                 process_state["dataset_gen"]["logs"].append(
-                    f"[{i+1}/{total}] Generating: \"{text[:60]}{'...' if len(text) > 60 else ''}\""
+                    f"[{i+1}/{total}] {('[' + emotion + '] ' if emotion else '')}\"{ text[:60]}{'...' if len(text) > 60 else ''}\""
                 )
                 try:
                     wav_path, sr = engine.generate_voice_design(
-                        description=request.description,
+                        description=description,
                         sample_text=text,
                         language=request.language,
                     )
@@ -928,10 +947,14 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
                     dest_path = os.path.join(dataset_dir, dest_filename)
                     shutil.copy2(wav_path, dest_path)
 
+                    # Save first successful sample as ref.wav for consistent speaker embedding
+                    if completed == 0:
+                        shutil.copy2(wav_path, os.path.join(dataset_dir, "ref.wav"))
+
                     metadata_lines.append(json.dumps({
                         "audio_filepath": dest_filename,
                         "text": text,
-                        "instruct": request.description,
+                        "ref_audio": "ref.wav",
                     }, ensure_ascii=False))
                     completed += 1
                     process_state["dataset_gen"]["logs"].append(

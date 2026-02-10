@@ -79,14 +79,16 @@ def enable_rocm_optimizations():
 def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds):
     """Load metadata.jsonl and prepare training samples.
 
-    For each entry, encodes audio to codec IDs, extracts speaker embedding,
-    and tokenizes text/instruct with the chat template.
+    For each entry, encodes audio to codec IDs and tokenizes text.
+    Speaker embedding is extracted from a consistent ref_audio (same for all
+    samples) per the official Qwen3-TTS fine-tuning approach.
 
     Returns list of sample dicts with pre-computed tensors.
     """
     import librosa
     import numpy as np
     import torch
+    from qwen_tts.core.models.modeling_qwen3_tts import mel_spectrogram
 
     metadata_path = os.path.join(data_dir, "metadata.jsonl")
     if not os.path.exists(metadata_path):
@@ -102,14 +104,47 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
 
     print(f"[DATA] Found {len(entries)} entries in metadata.jsonl", flush=True)
 
+    # ── Extract speaker embedding from ref_audio (consistent across all samples) ──
+    # Check for ref_audio field in entries, or fall back to ref.wav in dataset dir,
+    # or use the first training sample as reference.
+    ref_audio_path = None
+    if entries[0].get("ref_audio"):
+        ref_rel = entries[0]["ref_audio"]
+        ref_audio_path = os.path.join(data_dir, ref_rel)
+    elif os.path.exists(os.path.join(data_dir, "ref.wav")):
+        ref_audio_path = os.path.join(data_dir, "ref.wav")
+
+    if ref_audio_path is None:
+        # Fall back to first training sample as reference
+        first_audio_rel = entries[0].get("audio_filepath") or entries[0].get("audio", "")
+        ref_audio_path = os.path.join(data_dir, first_audio_rel)
+
+    if not os.path.exists(ref_audio_path):
+        print(f"[ERROR] Reference audio not found: {ref_audio_path}", flush=True)
+        sys.exit(1)
+
+    print(f"[DATA] Using reference audio: {os.path.basename(ref_audio_path)}", flush=True)
+
+    ref_audio, ref_sr = librosa.load(ref_audio_path, sr=24000, mono=True)
+    ref_audio = ref_audio.astype(np.float32)
+
+    with torch.no_grad():
+        ref_mels = mel_spectrogram(
+            torch.from_numpy(ref_audio).unsqueeze(0),
+            n_fft=1024, num_mels=128, sampling_rate=24000,
+            hop_size=256, win_size=1024, fmin=0, fmax=12000,
+        ).transpose(1, 2).to(device).to(dtype)
+        spk_embedding = hf_model.speaker_encoder(ref_mels).detach()
+
+    print(f"[DATA] Speaker embedding extracted from reference audio", flush=True)
+
     samples = []
     skipped = 0
 
     for i, entry in enumerate(entries):
-        audio_rel = entry["audio_filepath"]
+        audio_rel = entry.get("audio_filepath") or entry.get("audio", "")
         audio_path = os.path.join(data_dir, audio_rel)
         text = entry["text"]
-        instruct = entry.get("instruct", "")
 
         if not os.path.exists(audio_path):
             print(f"[DATA] SKIP {i+1}/{len(entries)}: {audio_rel} (file not found)", flush=True)
@@ -132,15 +167,6 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
             # 12Hz tokenizer returns list of [T, num_code_groups] per sample
             codec_ids = enc.audio_codes[0]  # [T, num_code_groups]
 
-        # Extract speaker embedding (requires 24kHz mono audio)
-        if sr != 24000:
-            audio_24k = librosa.resample(audio.astype(np.float32), orig_sr=int(sr), target_sr=24000)
-        else:
-            audio_24k = audio.astype(np.float32)
-
-        with torch.no_grad():
-            spk_embedding = hf_model.extract_speaker_embedding(audio_24k, sr=24000)
-
         # Tokenize text with chat template: <|im_start|>assistant\n{text}<|im_end|>\n<|im_start|>assistant\n
         assistant_text = f"<|im_start|>assistant\n{text}<|im_end|>\n<|im_start|>assistant\n"
         text_inputs = processor(text=assistant_text, return_tensors="pt", padding=True)
@@ -148,23 +174,12 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
         if text_ids.dim() == 1:
             text_ids = text_ids.unsqueeze(0)
 
-        # Tokenize instruct with chat template: <|im_start|>user\n{instruct}<|im_end|>\n
-        instruct_ids = None
-        if instruct:
-            instruct_text = f"<|im_start|>user\n{instruct}<|im_end|>\n"
-            instruct_inputs = processor(text=instruct_text, return_tensors="pt", padding=True)
-            instruct_ids = instruct_inputs["input_ids"].to(device)
-            if instruct_ids.dim() == 1:
-                instruct_ids = instruct_ids.unsqueeze(0)
-
         samples.append({
             "codec_ids": codec_ids.to(device),          # [T, num_code_groups]
-            "spk_embedding": spk_embedding.to(device).to(dtype),  # [1, enc_dim]
+            "spk_embedding": spk_embedding,             # shared ref embedding [1, enc_dim]
             "text_ids": text_ids,                        # [1, text_len]
-            "instruct_ids": instruct_ids,                # [1, instruct_len] or None
             "audio_path": audio_path,
             "text": text,
-            "instruct": instruct,
             "duration": duration,
         })
 
@@ -173,7 +188,7 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
         print("[ERROR] No valid training samples", flush=True)
         sys.exit(1)
 
-    return samples
+    return samples, ref_audio_path
 
 
 # ── Input construction ──────────────────────────────────────────────────
@@ -199,7 +214,6 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
     codec_ids_2d = sample["codec_ids"]   # [T, num_code_groups]
     spk_embedding = sample["spk_embedding"]  # [1, enc_dim]
     text_ids = sample["text_ids"]         # [1, text_len]
-    instruct_ids = sample["instruct_ids"] # [1, instruct_len] or None
 
     T = codec_ids_2d.shape[0]  # number of audio frames
     num_code_groups = tc.num_code_groups
@@ -216,19 +230,12 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
     # ── Build prefill sequence (mirrors generate method) ──
     parts = []
 
-    # 1. Instruct embedding (prepended if present)
-    if instruct_ids is not None:
-        instruct_embed = talker.text_projection(
-            talker.get_text_embeddings()(instruct_ids)
-        )  # [1, instruct_len, D]
-        parts.append(instruct_embed)
-
-    # 2. Role tokens: first 3 tokens of text_ids = <|im_start|>assistant\n
+    # Role tokens: first 3 tokens of text_ids = <|im_start|>assistant\n
     role_embed = talker.text_projection(
         talker.get_text_embeddings()(text_ids[:, :3])
     )  # [1, 3, D]
 
-    # 3. Codec prefix: [think_id, think_bos_id, language_id, think_eos_id]
+    # Codec prefix: [think_id, think_bos_id, language_id, think_eos_id]
     language_id = tc.codec_language_id.get("english", None) if tc.codec_language_id else None
     if language_id is not None:
         codec_prefill_list = [[tc.codec_think_id, tc.codec_think_bos_id,
@@ -241,7 +248,7 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
         torch.tensor(codec_prefill_list, device=device, dtype=text_ids.dtype)
     )  # [1, 3-4, D]
 
-    # 4. Speaker embed + codec_pad + codec_bos
+    # Speaker embed + codec_pad + codec_bos
     codec_suffix_embed = talker.get_input_embeddings()(
         torch.tensor([[tc.codec_pad_id, tc.codec_bos_id]], device=device, dtype=text_ids.dtype)
     )  # [1, 2, D]
@@ -254,7 +261,7 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
 
     prefix_codec_len = codec_embed.shape[1]
 
-    # 5. Build the text-layer + codec-layer combined prefix
+    # Build the text-layer + codec-layer combined prefix
     # tts_pad for (prefix_codec_len - 2) positions + tts_bos, added to codec_embed[:-1]
     tts_prefix = torch.cat([
         tts_pad_embed.expand(-1, prefix_codec_len - 2, -1),
@@ -267,7 +274,7 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
     role_prefix = torch.cat([role_embed, prefix_embed], dim=1)  # [1, 3 + prefix_codec_len - 1, D]
     parts.append(role_prefix)
 
-    # 6. Text content (non-streaming mode): text_content + eos, with codec_pad overlay
+    # Text content (non-streaming mode): text_content + eos, with codec_pad overlay
     # text_ids[:, 3:-5] is the actual text content (strip role prefix and chat suffix)
     text_content_ids = text_ids[:, 3:-5]
     text_content_len = text_content_ids.shape[1]
@@ -286,7 +293,7 @@ def build_teacher_forcing_input(sample, hf_model, device, dtype):
     text_portion = text_with_eos + text_codec_pad_embed  # [1, text_content_len + 1, D]
     parts.append(text_portion)
 
-    # 7. End of prefill: tts_pad + codec_bos
+    # End of prefill: tts_pad + codec_bos
     codec_bos_embed = talker.get_input_embeddings()(
         torch.tensor([[tc.codec_bos_id]], device=device, dtype=text_ids.dtype)
     )
@@ -368,7 +375,7 @@ def train(args):
     print("[TRAIN] Base model loaded", flush=True)
 
     # ── Load data ──
-    samples = load_dataset(args.data_dir, hf_model, processor, device, dtype, args.max_audio_seconds)
+    samples, ref_audio_path = load_dataset(args.data_dir, hf_model, processor, device, dtype, args.max_audio_seconds)
 
     # ── Apply LoRA ──
     print("[TRAIN] Applying LoRA to talker...", flush=True)
@@ -471,8 +478,8 @@ def train(args):
                     all_codec_ids, audio_hidden
                 )
 
-                # Combined loss
-                total_loss = talker_loss + sub_loss
+                # Combined loss (0.3 weight on sub-talker per official Qwen3-TTS training)
+                total_loss = talker_loss + 0.3 * sub_loss
 
                 # Scale for gradient accumulation
                 scaled_loss = total_loss / args.gradient_accumulation_steps
@@ -533,10 +540,9 @@ def train(args):
     # Always save final adapter (overwrites best if last epoch is better)
     peft_talker.save_pretrained(args.output_dir)
 
-    # Copy a representative training audio sample as ref_sample.wav for inference
-    ref_sample = samples[0]
+    # Copy reference audio as ref_sample.wav for inference
     ref_dest = os.path.join(args.output_dir, "ref_sample.wav")
-    shutil.copy2(ref_sample["audio_path"], ref_dest)
+    shutil.copy2(ref_audio_path, ref_dest)
 
     # Save training metadata
     meta = {
@@ -551,8 +557,8 @@ def train(args):
         "final_loss": avg_loss,
         "best_loss": best_loss,
         "training_time_seconds": round(training_time, 1),
-        "ref_sample_audio": ref_sample["audio_path"],
-        "ref_sample_text": ref_sample["text"],
+        "ref_sample_audio": ref_audio_path,
+        "ref_sample_text": samples[0]["text"],
     }
     with open(os.path.join(args.output_dir, "training_meta.json"), "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)

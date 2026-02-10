@@ -412,14 +412,19 @@
                                     <input type="text" class="form-control" id="gen-dataset-name" placeholder="e.g. warm_narrator">
                                 </div>
                                 <div class="col-md-9">
-                                    <label class="form-label">Voice Description</label>
+                                    <label class="form-label">Root Voice Description</label>
                                     <input type="text" class="form-control" id="gen-dataset-description" placeholder="e.g. A warm, deep male voice with a calm and steady tone">
                                 </div>
                             </div>
                             <div class="mb-2">
-                                <label class="form-label">Sample Texts <span class="text-muted">(one per line)</span></label>
-                                <textarea class="form-control" id="gen-dataset-texts" rows="5" placeholder="The sun set slowly behind the mountains.&#10;She opened the old leather-bound book carefully.&#10;The marketplace was bustling with merchants and travelers."></textarea>
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label mb-0">Samples <span class="text-muted small">(emotion is appended to root description)</span></label>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="addDatasetSampleRow()"><i class="fas fa-plus me-1"></i>Add Row</button>
+                                </div>
+                                <div id="gen-dataset-samples" style="max-height: 300px; overflow-y: auto;">
+                                </div>
                             </div>
+                            <div class="text-muted small mb-2"><i class="fas fa-info-circle me-1"></i>The first sample is saved as the reference audio (<code>ref.wav</code>) used for speaker embedding during training. Choose a clear, representative line for it.</div>
                             <div class="d-flex align-items-center gap-2">
                                 <button class="btn btn-primary" id="btn-gen-dataset" onclick="generateLoraDataset()"><i class="fas fa-magic me-1"></i>Generate Dataset</button>
                                 <span id="gen-dataset-status" class="text-muted small"></span>
@@ -1909,29 +1914,78 @@
             }
         };
 
+        function saveDatasetForm() {
+            const data = {
+                name: document.getElementById('gen-dataset-name').value,
+                description: document.getElementById('gen-dataset-description').value,
+                samples: []
+            };
+            document.querySelectorAll('#gen-dataset-samples .dataset-sample-row').forEach(row => {
+                data.samples.push({
+                    emotion: row.querySelector('.ds-emotion').value,
+                    text: row.querySelector('.ds-text').value
+                });
+            });
+            localStorage.setItem('alexandria-dataset-form', JSON.stringify(data));
+        }
+
+        function restoreDatasetForm() {
+            const saved = localStorage.getItem('alexandria-dataset-form');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    document.getElementById('gen-dataset-name').value = data.name || '';
+                    document.getElementById('gen-dataset-description').value = data.description || '';
+                    (data.samples || []).forEach(s => addDatasetSampleRow(s.emotion, s.text));
+                } catch (e) { /* ignore corrupt data */ }
+            }
+            if (!document.querySelector('#gen-dataset-samples .dataset-sample-row')) {
+                addDatasetSampleRow();
+            }
+        }
+
+        window.addDatasetSampleRow = (emotion, text) => {
+            const container = document.getElementById('gen-dataset-samples');
+            const row = document.createElement('div');
+            row.className = 'row g-1 mb-1 dataset-sample-row';
+            row.innerHTML = `
+                <div class="col-md-3"><input type="text" class="form-control form-control-sm ds-emotion" placeholder="Emotion (e.g. Angrily shouting)"></div>
+                <div class="col-md-8"><input type="text" class="form-control form-control-sm ds-text" placeholder="Sample text expressing that emotion"></div>
+                <div class="col-md-1 d-flex align-items-center"><button class="btn btn-sm btn-outline-danger" onclick="this.closest('.dataset-sample-row').remove(); saveDatasetForm();" title="Remove"><i class="fas fa-times"></i></button></div>
+            `;
+            if (emotion) row.querySelector('.ds-emotion').value = emotion;
+            if (text) row.querySelector('.ds-text').value = text;
+            row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', saveDatasetForm));
+            container.appendChild(row);
+            if (!emotion && !text) row.querySelector('.ds-emotion').focus();
+        };
+
         window.generateLoraDataset = async () => {
             const name = document.getElementById('gen-dataset-name').value.trim();
             const description = document.getElementById('gen-dataset-description').value.trim();
-            const textsRaw = document.getElementById('gen-dataset-texts').value.trim();
             if (!name) { alert('Enter a dataset name.'); return; }
             if (!description) { alert('Enter a voice description.'); return; }
-            if (!textsRaw) { alert('Enter at least one sample text.'); return; }
 
-            const texts = textsRaw.split('\n').map(t => t.trim()).filter(t => t.length > 0);
-            if (texts.length === 0) { alert('Enter at least one non-empty sample text.'); return; }
+            const rows = document.querySelectorAll('#gen-dataset-samples .dataset-sample-row');
+            const samples = [];
+            rows.forEach(row => {
+                const emotion = row.querySelector('.ds-emotion').value.trim();
+                const text = row.querySelector('.ds-text').value.trim();
+                if (text) samples.push({ emotion, text });
+            });
+            if (samples.length === 0) { alert('Add at least one sample with text.'); return; }
 
             const btn = document.getElementById('btn-gen-dataset');
             const statusEl = document.getElementById('gen-dataset-status');
             const logsEl = document.getElementById('gen-dataset-logs');
             btn.disabled = true;
-            statusEl.textContent = `Generating ${texts.length} samples...`;
+            statusEl.textContent = `Generating ${samples.length} samples...`;
             logsEl.style.display = 'block';
             logsEl.textContent = '';
 
             try {
-                const res = await API.post('/api/lora/generate_dataset', { name, description, texts });
+                const res = await API.post('/api/lora/generate_dataset', { name, description, samples });
                 if (res.status === 'started') {
-                    // Poll for progress
                     const interval = setInterval(async () => {
                         try {
                             const status = await API.get('/api/status/dataset_gen');
@@ -2139,6 +2193,9 @@
         loadVoices();
         loadSavedScripts();
         loadDesignedVoices();
+        restoreDatasetForm();
+        document.getElementById('gen-dataset-name').addEventListener('input', saveDatasetForm);
+        document.getElementById('gen-dataset-description').addEventListener('input', saveDatasetForm);
     </script>
 </body>
 </html>
