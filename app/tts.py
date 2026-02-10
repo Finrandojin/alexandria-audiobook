@@ -393,6 +393,8 @@ class TTSEngine:
             return self.generate_clone_voice(text, speaker, voice_config, output_path)
         elif voice_type == "lora":
             return self.generate_lora_voice(text, instruct_text, voice_data, output_path)
+        elif voice_type == "design":
+            return self.generate_design_voice(text, instruct_text, voice_data, output_path)
         else:
             return self.generate_custom_voice(text, instruct_text, speaker, voice_config, output_path)
 
@@ -446,6 +448,31 @@ class TTSEngine:
         self._save_wav(audio, sr, wav_path)
 
         return wav_path, sr
+
+    def generate_design_voice(self, text, instruct_text, voice_data, output_path):
+        """Generate audio using VoiceDesign model with combined description + instruct.
+
+        The voice_data 'description' field provides the base voice identity,
+        and the per-line instruct_text is appended for delivery/emotion direction.
+        """
+        import shutil
+
+        base_desc = (voice_data.get("description") or "").strip()
+        instruct = (instruct_text or "").strip()
+
+        if base_desc and instruct:
+            description = f"{base_desc}, {instruct}"
+        elif base_desc:
+            description = base_desc
+        elif instruct:
+            description = instruct
+        else:
+            print("Warning: Design voice has no description or instruct. Using generic.")
+            description = "A clear, natural speaking voice"
+
+        wav_path, sr = self.generate_voice_design(description=description, sample_text=text)
+        shutil.copy2(wav_path, output_path)
+        return True
 
     # ── LoRA voice generation ────────────────────────────────────
 
@@ -576,6 +603,7 @@ class TTSEngine:
         custom_chunks = []
         clone_chunks = []
         lora_chunks = []
+        design_chunks = []
 
         for chunk in chunks:
             speaker = chunk.get("speaker")
@@ -586,6 +614,8 @@ class TTSEngine:
                 clone_chunks.append(chunk)
             elif voice_type == "lora":
                 lora_chunks.append(chunk)
+            elif voice_type == "design":
+                design_chunks.append(chunk)
             else:
                 custom_chunks.append(chunk)
 
@@ -646,6 +676,27 @@ class TTSEngine:
                         batch_results["failed"].append((idx, str(e)))
             results["completed"].extend(batch_results["completed"])
             results["failed"].extend(batch_results["failed"])
+
+        # Process design voice chunks (sequential — each line has unique description)
+        if design_chunks:
+            for chunk in design_chunks:
+                idx = chunk["index"]
+                output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
+                speaker = chunk.get("speaker")
+                voice_data = voice_config.get(speaker, {})
+                try:
+                    success = self.generate_design_voice(
+                        text=chunk["text"],
+                        instruct_text=chunk.get("instruct", ""),
+                        voice_data=voice_data,
+                        output_path=output_path,
+                    )
+                    if success:
+                        results["completed"].append(idx)
+                    else:
+                        results["failed"].append((idx, "Design voice generation failed"))
+                except Exception as e:
+                    results["failed"].append((idx, str(e)))
 
         return results
 

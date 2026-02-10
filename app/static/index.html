@@ -892,6 +892,10 @@
                                         <input class="form-check-input voice-type" type="radio" name="type_${index}" value="lora" ${voiceType === 'lora' ? 'checked' : ''} onchange="toggleVoiceType(this)">
                                         <label class="form-check-label">LoRA Voice</label>
                                     </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="design" ${voiceType === 'design' ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <label class="form-check-label">Voice Design</label>
+                                    </div>
                                 </div>
 
                                 <!-- Custom Options -->
@@ -937,6 +941,12 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Voice Design Options -->
+                                <div class="design-opts" style="display: ${voiceType === 'design' ? 'block' : 'none'}">
+                                    <input type="text" class="form-control design-description mb-1" placeholder="Base voice description (e.g. Young strong soldier)" value="${config.description || ''}">
+                                    <span class="text-muted small">Per-line instruct is appended to this description as delivery/emotion direction</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -946,12 +956,10 @@
 
         window.toggleVoiceType = (radio) => {
             const card = radio.closest('.card-body');
-            const customOpts = card.querySelector('.custom-opts');
-            const cloneOpts = card.querySelector('.clone-opts');
-            const loraOpts = card.querySelector('.lora-opts');
-            customOpts.style.display = radio.value === 'custom' ? 'block' : 'none';
-            cloneOpts.style.display = radio.value === 'clone' ? 'block' : 'none';
-            loraOpts.style.display = radio.value === 'lora' ? 'block' : 'none';
+            card.querySelector('.custom-opts').style.display = radio.value === 'custom' ? 'block' : 'none';
+            card.querySelector('.clone-opts').style.display = radio.value === 'clone' ? 'block' : 'none';
+            card.querySelector('.lora-opts').style.display = radio.value === 'lora' ? 'block' : 'none';
+            card.querySelector('.design-opts').style.display = radio.value === 'design' ? 'block' : 'none';
         };
 
         document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
@@ -1008,12 +1016,17 @@
                     };
                 } else if (type === 'lora') {
                     const adapterId = card.querySelector('.lora-adapter-select').value;
-                    const adapterMeta = (window._loraModelsCache || []).find(m => m.id === adapterId);
                     config[name] = {
                         type: 'lora',
                         adapter_id: adapterId,
                         adapter_path: adapterId ? `lora_models/${adapterId}` : '',
                         character_style: card.querySelector('.lora-character-style').value,
+                        seed: "-1"
+                    };
+                } else if (type === 'design') {
+                    config[name] = {
+                        type: 'design',
+                        description: card.querySelector('.design-description').value,
                         seed: "-1"
                     };
                 }

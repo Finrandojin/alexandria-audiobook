@@ -122,6 +122,7 @@ class VoiceConfigItem(BaseModel):
     ref_text: Optional[str] = None
     adapter_id: Optional[str] = None
     adapter_path: Optional[str] = None
+    description: Optional[str] = ""  # voice description (for design type)
 
 class ProcessStatus(BaseModel):
     running: bool
