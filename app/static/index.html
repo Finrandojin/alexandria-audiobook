@@ -516,6 +516,30 @@
                     <div id="lora-models-list">
                         <p class="text-muted mb-0">No trained adapters yet.</p>
                     </div>
+
+                    <!-- Test Voice Form -->
+                    <div id="lora-test-form" class="mt-3 pt-3 border-top" style="display:none;">
+                        <h6>Test Voice</h6>
+                        <div class="row g-2 mb-2">
+                            <div class="col-md-4">
+                                <label class="form-label small">Adapter</label>
+                                <select id="lora-test-adapter" class="form-select form-select-sm"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Text</label>
+                                <input type="text" id="lora-test-text" class="form-control form-control-sm" value="The ancient library stood at the crossroads of two forgotten paths.">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Instruct</label>
+                                <input type="text" id="lora-test-instruct" class="form-control form-control-sm" placeholder="e.g. Warm, gentle narration">
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-primary" onclick="runLoraTest()"><i class="fas fa-play me-1"></i>Generate</button>
+                            <span id="lora-test-status" class="text-muted small"></span>
+                        </div>
+                        <div id="lora-test-audio" class="mt-2"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2099,9 +2123,11 @@
                 const models = await API.get('/api/lora/models');
                 window._loraModelsCache = models;
                 const container = document.getElementById('lora-models-list');
+                const testForm = document.getElementById('lora-test-form');
 
                 if (!models.length) {
                     container.innerHTML = '<p class="text-muted mb-0">No trained adapters yet.</p>';
+                    testForm.style.display = 'none';
                     return;
                 }
 
@@ -2124,33 +2150,48 @@
                             `).join('')}
                         </tbody>
                     </table>`;
+
+                // Populate test dropdown
+                const dropdown = document.getElementById('lora-test-adapter');
+                const prevVal = dropdown.value;
+                dropdown.innerHTML = models.map(m =>
+                    `<option value="${m.id}">${m.name}</option>`
+                ).join('');
+                if (prevVal && models.some(m => m.id === prevVal)) dropdown.value = prevVal;
+                testForm.style.display = '';
             } catch (e) {
                 console.error('Failed to load LoRA models:', e);
             }
         }
 
-        window.testLoraModel = async (adapterId) => {
-            const text = prompt('Enter text to synthesize:', 'The ancient library stood at the crossroads of two forgotten paths.');
-            if (!text) return;
+        window.testLoraModel = (adapterId) => {
+            document.getElementById('lora-test-adapter').value = adapterId;
+            document.getElementById('lora-test-form').style.display = '';
+            document.getElementById('lora-test-text').focus();
+        };
 
-            const instruct = prompt('Enter instruct (optional):', '');
+        window.runLoraTest = async () => {
+            const adapterId = document.getElementById('lora-test-adapter').value;
+            const text = document.getElementById('lora-test-text').value.trim();
+            const instruct = document.getElementById('lora-test-instruct').value.trim();
+            if (!adapterId) { alert('Select an adapter.'); return; }
+            if (!text) { alert('Enter text to synthesize.'); return; }
+
+            const statusEl = document.getElementById('lora-test-status');
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
 
             try {
-                const statusEl = document.getElementById('lora-train-status');
-                statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating test audio...';
-
                 const result = await API.post('/api/lora/test', {
                     adapter_id: adapterId,
                     text: text,
-                    instruct: instruct || ''
+                    instruct: instruct
                 });
 
                 statusEl.innerHTML = '';
-                const audio = new Audio(result.audio_url + '?t=' + Date.now());
-                audio.play();
+                const audioDiv = document.getElementById('lora-test-audio');
+                audioDiv.innerHTML = `<audio controls autoplay src="${result.audio_url}?t=${Date.now()}"></audio>`;
             } catch (e) {
-                document.getElementById('lora-train-status').innerHTML = '';
-                alert('Test failed: ' + e.message);
+                statusEl.innerHTML = `<span class="text-danger">Failed: ${e.message}</span>`;
             }
         };
 
@@ -2171,15 +2212,19 @@
         let dsbRows = [];
         let dsbPolling = null;
         let dsbBatchRunning = false;
+        let dsbSaveTimer = null;
 
         function dsbSaveForm() {
-            const data = {
-                name: document.getElementById('dsb-name').value,
-                description: document.getElementById('dsb-description').value,
-                global_seed: document.getElementById('dsb-global-seed').value,
-                rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text, seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null })),
-            };
-            localStorage.setItem('alexandria-dsb-form', JSON.stringify(data));
+            clearTimeout(dsbSaveTimer);
+            dsbSaveTimer = setTimeout(() => {
+                const data = {
+                    name: document.getElementById('dsb-name').value,
+                    description: document.getElementById('dsb-description').value,
+                    global_seed: document.getElementById('dsb-global-seed').value,
+                    rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text, seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null })),
+                };
+                localStorage.setItem('alexandria-dsb-form', JSON.stringify(data));
+            }, 500);
         }
 
         function dsbRestoreForm() {
@@ -2222,42 +2267,63 @@
             dsbUpdateRefDropdown();
         }
 
-        function dsbRenderTable() {
+        function dsbBuildRowHtml(row, i) {
+            const statusColor = row.status === 'done' ? 'success' :
+                                row.status === 'generating' ? 'warning' :
+                                row.status === 'error' ? 'danger' : 'secondary';
+            const statusLabel = row.status || 'pending';
+
+            let actionHtml = '';
+            if (row.status === 'generating') {
+                actionHtml = '<div class="progress" style="width:80px;height:20px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width:100%"></div></div>';
+            } else {
+                const genLabel = row.status === 'done' ? '<i class="fas fa-redo"></i>' : '<i class="fas fa-play"></i>';
+                actionHtml = `<button class="btn btn-sm btn-primary" onclick="dsbGenSample(${i})" title="${row.status === 'done' ? 'Regenerate' : 'Generate'}">${genLabel}</button>`;
+            }
+
+            let audioHtml = '';
+            if (row.status === 'done' && row.audio_url) {
+                audioHtml = `<audio controls src="${row.audio_url}" style="width:180px;height:28px;" onplay="dsbStopOthers(${i})"></audio>`;
+            }
+
+            return `<tr data-dsb-idx="${i}" data-dsb-status="${row.status || 'pending'}" data-dsb-audio="${row.audio_url || ''}" class="${row.status === 'generating' ? 'table-info' : ''}">
+                <td class="text-center align-middle">${i + 1}</td>
+                <td><input type="text" class="form-control form-control-sm" value="${(row.emotion || '').replace(/"/g, '&quot;')}" onchange="dsbUpdateRow(${i}, 'emotion', this.value)" placeholder="e.g. Savagely sarcastic"></td>
+                <td><textarea class="form-control form-control-sm" rows="2" onchange="dsbUpdateRow(${i}, 'text', this.value)" placeholder="Sample text...">${(row.text || '').replace(/</g, '&lt;')}</textarea></td>
+                <td><input type="number" class="form-control form-control-sm" value="${row.seed ?? ''}" onchange="dsbUpdateRow(${i}, 'seed', this.value)" placeholder="-" style="width:65px;" min="-1"></td>
+                <td class="text-center align-middle"><span class="badge bg-${statusColor}">${statusLabel}</span></td>
+                <td class="align-middle">
+                    <div class="d-flex align-items-center gap-1">
+                        ${actionHtml}
+                        ${audioHtml}
+                        <button class="btn btn-sm btn-outline-danger ms-auto" onclick="dsbRemoveRow(${i})" title="Delete row"><i class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>`;
+        }
+
+        function dsbRenderTable(changedIndices) {
             const tbody = document.getElementById('dsb-table-body');
-            tbody.innerHTML = dsbRows.map((row, i) => {
-                const statusColor = row.status === 'done' ? 'success' :
-                                    row.status === 'generating' ? 'warning' :
-                                    row.status === 'error' ? 'danger' : 'secondary';
-                const statusLabel = row.status || 'pending';
 
-                let actionHtml = '';
-                if (row.status === 'generating') {
-                    actionHtml = '<div class="progress" style="width:80px;height:20px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width:100%"></div></div>';
-                } else {
-                    const genLabel = row.status === 'done' ? '<i class="fas fa-redo"></i>' : '<i class="fas fa-play"></i>';
-                    actionHtml = `<button class="btn btn-sm btn-primary" onclick="dsbGenSample(${i})" title="${row.status === 'done' ? 'Regenerate' : 'Generate'}">${genLabel}</button>`;
-                }
+            // Full rebuild if no specific indices or row count changed
+            if (!changedIndices || tbody.children.length !== dsbRows.length) {
+                tbody.innerHTML = dsbRows.map((row, i) => dsbBuildRowHtml(row, i)).join('');
+                dsbUpdateProgress();
+                return;
+            }
 
-                let audioHtml = '';
-                if (row.status === 'done' && row.audio_url) {
-                    audioHtml = `<audio controls src="${row.audio_url}?t=${Date.now()}" style="width:180px;height:28px;" onplay="dsbStopOthers(${i})"></audio>`;
-                }
-
-                return `<tr data-dsb-idx="${i}" class="${row.status === 'generating' ? 'table-info' : ''}">
-                    <td class="text-center align-middle">${i + 1}</td>
-                    <td><input type="text" class="form-control form-control-sm" value="${(row.emotion || '').replace(/"/g, '&quot;')}" onchange="dsbUpdateRow(${i}, 'emotion', this.value)" placeholder="e.g. Savagely sarcastic"></td>
-                    <td><textarea class="form-control form-control-sm" rows="2" onchange="dsbUpdateRow(${i}, 'text', this.value)" placeholder="Sample text...">${(row.text || '').replace(/</g, '&lt;')}</textarea></td>
-                    <td><input type="number" class="form-control form-control-sm" value="${row.seed ?? ''}" onchange="dsbUpdateRow(${i}, 'seed', this.value)" placeholder="-" style="width:65px;" min="-1"></td>
-                    <td class="text-center align-middle"><span class="badge bg-${statusColor}">${statusLabel}</span></td>
-                    <td class="align-middle">
-                        <div class="d-flex align-items-center gap-1">
-                            ${actionHtml}
-                            ${audioHtml}
-                            <button class="btn btn-sm btn-outline-danger ms-auto" onclick="dsbRemoveRow(${i})" title="Delete row"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>`;
-            }).join('');
+            // Targeted update: only re-render changed rows
+            for (const i of changedIndices) {
+                const existing = tbody.children[i];
+                if (!existing) continue;
+                const row = dsbRows[i];
+                const oldStatus = existing.getAttribute('data-dsb-status');
+                const oldAudio = existing.getAttribute('data-dsb-audio');
+                if (oldStatus === (row.status || 'pending') && oldAudio === (row.audio_url || '')) continue;
+                const temp = document.createElement('tbody');
+                temp.innerHTML = dsbBuildRowHtml(row, i);
+                existing.replaceWith(temp.firstElementChild);
+            }
             dsbUpdateProgress();
         }
 
@@ -2274,6 +2340,8 @@
             });
         };
 
+        let dsbLastDoneCount = -1;
+
         function dsbUpdateProgress() {
             const done = dsbRows.filter(r => r.status === 'done').length;
             const total = dsbRows.length;
@@ -2287,7 +2355,11 @@
             } else {
                 wrap.style.display = 'none';
             }
-            dsbUpdateRefDropdown();
+            // Only rebuild dropdown when done count actually changes
+            if (done !== dsbLastDoneCount) {
+                dsbLastDoneCount = done;
+                dsbUpdateRefDropdown();
+            }
         }
 
         function dsbUpdateRefDropdown() {
@@ -2318,7 +2390,7 @@
 
             // Optimistic UI
             dsbRows[index].status = 'generating';
-            dsbRenderTable();
+            dsbRenderTable([index]);
 
             try {
                 const result = await API.post('/api/dataset_builder/generate_sample', {
@@ -2334,7 +2406,7 @@
                 dsbRows[index].status = 'error';
                 console.error('Sample generation failed:', e);
             }
-            dsbRenderTable();
+            dsbRenderTable([index]);
         };
 
         // Batch generation
@@ -2395,10 +2467,15 @@
                 const serverSamples = result.samples || [];
 
                 // Merge server state into local rows, creating missing rows
+                const changed = [];
+                let added = false;
                 serverSamples.forEach((s, i) => {
                     if (i < dsbRows.length) {
+                        const oldStatus = dsbRows[i].status;
+                        const oldAudio = dsbRows[i].audio_url;
                         if (s.status) dsbRows[i].status = s.status;
                         if (s.audio_url) dsbRows[i].audio_url = s.audio_url;
+                        if (dsbRows[i].status !== oldStatus || dsbRows[i].audio_url !== oldAudio) changed.push(i);
                     } else {
                         dsbRows.push({
                             emotion: s.description || '',
@@ -2407,10 +2484,15 @@
                             status: s.status || 'pending',
                             audio_url: s.audio_url || null
                         });
+                        added = true;
                     }
                 });
 
-                dsbRenderTable();
+                if (added) {
+                    dsbRenderTable();
+                } else if (changed.length > 0) {
+                    dsbRenderTable(changed);
+                }
 
                 // Update logs
                 if (result.logs && result.logs.length > 0) {
