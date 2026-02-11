@@ -2394,11 +2394,19 @@
                 const result = await API.get(`/api/dataset_builder/status/${encodeURIComponent(name)}`);
                 const serverSamples = result.samples || [];
 
-                // Merge server state into local rows
+                // Merge server state into local rows, creating missing rows
                 serverSamples.forEach((s, i) => {
-                    if (i < dsbRows.length && s.status) {
-                        dsbRows[i].status = s.status;
+                    if (i < dsbRows.length) {
+                        if (s.status) dsbRows[i].status = s.status;
                         if (s.audio_url) dsbRows[i].audio_url = s.audio_url;
+                    } else {
+                        dsbRows.push({
+                            emotion: s.description || '',
+                            text: s.text || '',
+                            seed: s.seed ?? '',
+                            status: s.status || 'pending',
+                            audio_url: s.audio_url || null
+                        });
                     }
                 });
 
@@ -2410,6 +2418,15 @@
                     logsEl.style.display = '';
                     logsEl.innerText = result.logs.join('\n');
                     logsEl.scrollTop = logsEl.scrollHeight;
+                }
+
+                // Resume polling if server is still running (e.g. after page reload)
+                if (result.running && !dsbBatchRunning) {
+                    dsbBatchRunning = true;
+                    dsbStartPolling(name);
+                    document.getElementById('dsb-btn-gen-all').style.display = 'none';
+                    document.getElementById('dsb-btn-regen-all').style.display = 'none';
+                    document.getElementById('dsb-btn-cancel').style.display = '';
                 }
 
                 // Check if batch is done
@@ -2516,7 +2533,15 @@
         };
 
         // Persist on input changes
-        document.getElementById('dsb-name')?.addEventListener('input', dsbSaveForm);
+        let dsbNameDebounce = null;
+        document.getElementById('dsb-name')?.addEventListener('input', () => {
+            dsbSaveForm();
+            clearTimeout(dsbNameDebounce);
+            dsbNameDebounce = setTimeout(() => {
+                const name = document.getElementById('dsb-name').value.trim();
+                if (name) dsbPollStatus(name, true);
+            }, 500);
+        });
         document.getElementById('dsb-description')?.addEventListener('input', dsbSaveForm);
         document.getElementById('dsb-global-seed')?.addEventListener('input', dsbSaveForm);
 
