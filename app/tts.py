@@ -400,13 +400,14 @@ class TTSEngine:
 
     # ── Voice design generation ──────────────────────────────────
 
-    def generate_voice_design(self, description, sample_text, language=None):
+    def generate_voice_design(self, description, sample_text, language=None, seed=-1):
         """Generate a voice from a text description using the VoiceDesign model.
 
         Args:
             description: Natural language description of the desired voice
             sample_text: Text to synthesize with the designed voice
             language: Language code (defaults to engine's configured language)
+            seed: Random seed (-1 for random, >= 0 for reproducible)
 
         Returns:
             (wav_path, sample_rate) on success
@@ -416,11 +417,16 @@ class TTSEngine:
         """
         import time
         import tempfile
+        import torch
 
         lang = language or self._language
-        print(f"VoiceDesign: generating preview for description='{description[:80]}...'")
+        print(f"VoiceDesign: generating preview for description='{description[:80]}...'"
+              f"{f', seed={seed}' if seed >= 0 else ''}")
 
         model = self._init_local_design()
+
+        if seed >= 0:
+            torch.manual_seed(seed)
 
         t_start = time.time()
         wavs, sr = model.generate_voice_design(

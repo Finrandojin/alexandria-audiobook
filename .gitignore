@@ -27,7 +27,6 @@ app/output_audio/
 /SPEC.md
 
 audiobook.mp3
-lora.md
 
 # Generated runtime files
 chunks.json

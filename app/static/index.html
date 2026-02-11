@@ -534,9 +534,14 @@
                             <label class="form-label">Dataset Name</label>
                             <input type="text" class="form-control" id="dsb-name" placeholder="e.g. warm_narrator">
                         </div>
-                        <div class="col-md-9">
+                        <div class="col-md-7">
                             <label class="form-label">Root Voice Description</label>
                             <input type="text" class="form-control" id="dsb-description" placeholder="e.g. A male tenor with a steady, clean tone, light nasal resonance, and even delivery">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Global Seed</label>
+                            <input type="number" class="form-control" id="dsb-global-seed" placeholder="Random" min="-1" value="">
+                            <div class="text-muted" style="font-size: 0.7rem;">Empty = random. Same seed = same voice.</div>
                         </div>
                     </div>
 
@@ -566,9 +571,10 @@
                             <thead class="table-light">
                                 <tr>
                                     <th width="4%">#</th>
-                                    <th width="18%">Emotion / Style</th>
-                                    <th width="38%">Text</th>
-                                    <th width="8%">Status</th>
+                                    <th width="16%">Emotion / Style</th>
+                                    <th width="34%">Text</th>
+                                    <th width="7%">Seed</th>
+                                    <th width="7%">Status</th>
                                     <th width="32%">Audio / Actions</th>
                                 </tr>
                             </thead>
@@ -2170,7 +2176,8 @@
             const data = {
                 name: document.getElementById('dsb-name').value,
                 description: document.getElementById('dsb-description').value,
-                rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text })),
+                global_seed: document.getElementById('dsb-global-seed').value,
+                rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text, seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null })),
             };
             localStorage.setItem('alexandria-dsb-form', JSON.stringify(data));
         }
@@ -2181,8 +2188,9 @@
                 if (!saved) { if (dsbRows.length === 0) dsbAddRow(); return; }
                 document.getElementById('dsb-name').value = saved.name || '';
                 document.getElementById('dsb-description').value = saved.description || '';
+                document.getElementById('dsb-global-seed').value = saved.global_seed || '';
                 if (saved.rows && saved.rows.length > 0) {
-                    dsbRows = saved.rows.map(r => ({ emotion: r.emotion || '', text: r.text || '', status: 'pending', audio_url: null }));
+                    dsbRows = saved.rows.map(r => ({ emotion: r.emotion || '', text: r.text || '', seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null }));
                 }
                 if (dsbRows.length === 0) dsbAddRow();
                 dsbRenderTable();
@@ -2195,8 +2203,8 @@
             }
         }
 
-        function dsbAddRow(emotion = '', text = '') {
-            dsbRows.push({ emotion, text, status: 'pending', audio_url: null });
+        function dsbAddRow(emotion = '', text = '', seed = '') {
+            dsbRows.push({ emotion, text, seed, status: 'pending', audio_url: null });
             dsbRenderTable();
             dsbSaveForm();
             // Focus the new emotion field
@@ -2239,6 +2247,7 @@
                     <td class="text-center align-middle">${i + 1}</td>
                     <td><input type="text" class="form-control form-control-sm" value="${(row.emotion || '').replace(/"/g, '&quot;')}" onchange="dsbUpdateRow(${i}, 'emotion', this.value)" placeholder="e.g. Savagely sarcastic"></td>
                     <td><textarea class="form-control form-control-sm" rows="2" onchange="dsbUpdateRow(${i}, 'text', this.value)" placeholder="Sample text...">${(row.text || '').replace(/</g, '&lt;')}</textarea></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${row.seed ?? ''}" onchange="dsbUpdateRow(${i}, 'seed', this.value)" placeholder="-" style="width:65px;" min="-1"></td>
                     <td class="text-center align-middle"><span class="badge bg-${statusColor}">${statusLabel}</span></td>
                     <td class="align-middle">
                         <div class="d-flex align-items-center gap-1">
@@ -2302,6 +2311,11 @@
             const emotion = row.emotion.trim();
             const description = emotion ? `${rootDesc}, ${emotion}` : rootDesc;
 
+            // Resolve seed: per-line > global > random
+            const globalSeed = parseInt(document.getElementById('dsb-global-seed').value);
+            const lineSeed = row.seed !== '' ? parseInt(row.seed) : NaN;
+            const seed = !isNaN(lineSeed) && lineSeed >= 0 ? lineSeed : (!isNaN(globalSeed) && globalSeed >= 0 ? globalSeed : -1);
+
             // Optimistic UI
             dsbRows[index].status = 'generating';
             dsbRenderTable();
@@ -2312,6 +2326,7 @@
                     text: row.text.trim(),
                     dataset_name: name,
                     sample_index: index,
+                    seed,
                 });
                 dsbRows[index].status = 'done';
                 dsbRows[index].audio_url = result.audio_url;
@@ -2348,12 +2363,17 @@
             document.getElementById('dsb-btn-cancel').style.display = '';
             document.getElementById('dsb-logs').style.display = '';
 
+            const globalSeed = parseInt(document.getElementById('dsb-global-seed').value);
+            const perSeeds = dsbRows.map(r => r.seed !== '' && r.seed !== undefined ? parseInt(r.seed) : -1);
+
             try {
                 await API.post('/api/dataset_builder/generate_batch', {
                     name,
                     description: rootDesc,
                     samples: dsbRows.map(r => ({ emotion: r.emotion || '', text: r.text || '' })),
                     indices,
+                    global_seed: !isNaN(globalSeed) && globalSeed >= 0 ? globalSeed : -1,
+                    seeds: perSeeds,
                 });
 
                 // Start polling
@@ -2439,6 +2459,7 @@
                     dsbRows = data.map(item => ({
                         emotion: item.emotion || item.instruct || '',
                         text: item.text || '',
+                        seed: item.seed ?? '',
                         status: 'pending',
                         audio_url: null,
                     }));
@@ -2453,7 +2474,11 @@
         };
 
         window.dsbExport = () => {
-            const data = dsbRows.map(r => ({ emotion: r.emotion, text: r.text }));
+            const data = dsbRows.map(r => {
+                const entry = { emotion: r.emotion, text: r.text };
+                if (r.seed !== '' && r.seed !== undefined) entry.seed = parseInt(r.seed);
+                return entry;
+            });
             const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2493,6 +2518,7 @@
         // Persist on input changes
         document.getElementById('dsb-name')?.addEventListener('input', dsbSaveForm);
         document.getElementById('dsb-description')?.addEventListener('input', dsbSaveForm);
+        document.getElementById('dsb-global-seed')?.addEventListener('input', dsbSaveForm);
 
         // Init
         loadConfig();

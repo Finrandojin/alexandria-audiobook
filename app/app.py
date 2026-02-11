@@ -184,12 +184,15 @@ class DatasetSampleGenRequest(BaseModel):
     text: str
     dataset_name: str     # working directory name
     sample_index: int     # row number
+    seed: int = -1        # -1 = random, >= 0 = manual seed
 
 class DatasetBatchGenRequest(BaseModel):
     name: str
     description: str      # root voice description
     samples: List[LoraDatasetSample]
     indices: Optional[List[int]] = None  # which rows to generate (None = all)
+    global_seed: int = -1 # -1 = random, >= 0 = same seed for all lines
+    seeds: Optional[List[int]] = None  # per-line seeds (overrides global_seed)
 
 class DatasetSaveRequest(BaseModel):
     name: str
@@ -218,6 +221,7 @@ def run_process(command: List[str], task_name: str):
     try:
         # Use shell=True for Windows compatibility in some cases, but cleaner to pass list
         # For Windows, we might need shell=True if relying on system path resolution for python
+        env = os.environ.copy()
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
@@ -225,7 +229,8 @@ def run_process(command: List[str], task_name: str):
             text=True,
             cwd=BASE_DIR,
             bufsize=1,
-            universal_newlines=True
+            universal_newlines=True,
+            env=env,
         )
 
         for line in process.stdout:
@@ -1099,8 +1104,10 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
                     "name": request.name,
                     "dataset_id": request.dataset_id,
                     "epochs": meta.get("epochs", request.epochs),
-                    "final_loss": meta.get("final_avg_loss"),
-                    "sample_count": meta.get("sample_count"),
+                    "final_loss": meta.get("final_loss"),
+                    "sample_count": meta.get("num_samples"),
+                    "lora_r": meta.get("lora_r"),
+                    "lr": meta.get("lr"),
                     "created": time.time(),
                 })
                 _save_lora_manifest(manifest)
@@ -1212,6 +1219,7 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
         wav_path, sr = engine.generate_voice_design(
             description=request.description,
             sample_text=request.text,
+            seed=request.seed,
         )
 
         dest_filename = f"sample_{request.sample_index:03d}.wav"
@@ -1277,6 +1285,8 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
 
     # Snapshot request data for the thread (request object may not survive)
     samples_snapshot = [(s.emotion.strip(), s.text.strip()) for s in request.samples]
+    global_seed = request.global_seed
+    per_seeds = request.seeds
 
     def task():
         process_state["dataset_builder"]["running"] = True
@@ -1314,9 +1324,17 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
             )
 
             try:
+                # Resolve seed: per-line > global > random
+                seed = -1
+                if per_seeds and idx < len(per_seeds) and per_seeds[idx] >= 0:
+                    seed = per_seeds[idx]
+                elif global_seed >= 0:
+                    seed = global_seed
+
                 wav_path, sr = engine.generate_voice_design(
                     description=description,
                     sample_text=text,
+                    seed=seed,
                 )
                 dest_filename = f"sample_{idx:03d}.wav"
                 dest_path = os.path.join(work_dir, dest_filename)
