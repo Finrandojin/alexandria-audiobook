@@ -50,8 +50,9 @@
                     <li class="nav-item"><a class="nav-link" data-tab="voices">3. Voices</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="designer">4. Designer</a></li>
                     <li class="nav-item"><a class="nav-link" data-tab="training">5. Training</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="editor">6. Editor</a></li>
-                    <li class="nav-item"><a class="nav-link" data-tab="audio">7. Result</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="dataset-builder">6. Dataset</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="editor">7. Editor</a></li>
+                    <li class="nav-item"><a class="nav-link" data-tab="audio">8. Result</a></li>
                 </ul>
             </div>
         </div>
@@ -400,37 +401,12 @@
                         </div>
                     </div>
 
-                    <!-- Generate Dataset from Voice Description -->
-                    <div class="card mb-3">
-                        <div class="card-header py-2">
-                            <strong>Generate Dataset from Voice Description</strong>
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 mb-2">
-                                <div class="col-md-3">
-                                    <label class="form-label">Dataset Name</label>
-                                    <input type="text" class="form-control" id="gen-dataset-name" placeholder="e.g. warm_narrator">
-                                </div>
-                                <div class="col-md-9">
-                                    <label class="form-label">Root Voice Description</label>
-                                    <input type="text" class="form-control" id="gen-dataset-description" placeholder="e.g. A warm, deep male voice with a calm and steady tone">
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <div class="d-flex justify-content-between align-items-center mb-1">
-                                    <label class="form-label mb-0">Samples <span class="text-muted small">(emotion is appended to root description)</span></label>
-                                    <button class="btn btn-sm btn-outline-secondary" onclick="addDatasetSampleRow()"><i class="fas fa-plus me-1"></i>Add Row</button>
-                                </div>
-                                <div id="gen-dataset-samples" style="max-height: 300px; overflow-y: auto;">
-                                </div>
-                            </div>
-                            <div class="text-muted small mb-2"><i class="fas fa-info-circle me-1"></i>The first sample is saved as the reference audio (<code>ref.wav</code>) used for speaker embedding during training. Choose a clear, representative line for it.</div>
-                            <div class="d-flex align-items-center gap-2">
-                                <button class="btn btn-primary" id="btn-gen-dataset" onclick="generateLoraDataset()"><i class="fas fa-magic me-1"></i>Generate Dataset</button>
-                                <span id="gen-dataset-status" class="text-muted small"></span>
-                            </div>
-                            <pre id="gen-dataset-logs" class="bg-dark text-light p-2 rounded mt-2" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; display: none;"></pre>
-                        </div>
+                    <!-- Build New Dataset -->
+                    <div class="mb-3">
+                        <button class="btn btn-outline-primary" onclick="document.querySelector('[data-tab=dataset-builder]').click();">
+                            <i class="fas fa-flask me-1"></i>Build New Dataset
+                        </button>
+                        <span class="text-muted small ms-2">Open the Dataset Builder to create training datasets with per-line preview and generation.</span>
                     </div>
 
                     <hr>
@@ -450,7 +426,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Epochs</label>
-                            <input type="number" class="form-control" id="lora-epochs" value="50" min="1">
+                            <input type="number" class="form-control" id="lora-epochs" value="5" min="1">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Learning Rate</label>
@@ -544,11 +520,95 @@
             </div>
         </div>
 
+        <!-- Dataset Builder Tab -->
+        <div id="dataset-builder-tab" class="tab-content" style="display:none;">
+            <div class="card">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">6</span>Dataset Builder</h4>
+                    <p class="text-muted mb-0">Build LoRA training datasets with per-sample generation, preview, and re-generation.</p>
+                </div>
+                <div class="card-body">
+                    <!-- Dataset Config -->
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Dataset Name</label>
+                            <input type="text" class="form-control" id="dsb-name" placeholder="e.g. warm_narrator">
+                        </div>
+                        <div class="col-md-7">
+                            <label class="form-label">Root Voice Description</label>
+                            <input type="text" class="form-control" id="dsb-description" placeholder="e.g. A male tenor with a steady, clean tone, light nasal resonance, and even delivery">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Global Seed</label>
+                            <input type="number" class="form-control" id="dsb-global-seed" placeholder="Random" min="-1" value="">
+                            <div class="text-muted" style="font-size: 0.7rem;">Empty = random. Same seed = same voice.</div>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="dsbAddRow()"><i class="fas fa-plus me-1"></i>Add Row</button>
+                        <label class="btn btn-sm btn-outline-info mb-0">
+                            <i class="fas fa-file-import me-1"></i>Import JSON
+                            <input type="file" accept=".json" onchange="dsbImport(event)" style="display:none;">
+                        </label>
+                        <button class="btn btn-sm btn-outline-info" onclick="dsbExport()"><i class="fas fa-file-export me-1"></i>Export JSON</button>
+                        <div class="ms-auto d-flex gap-2">
+                            <button class="btn btn-sm btn-success" id="dsb-btn-gen-all" onclick="dsbGenerateAll(false)"><i class="fas fa-play me-1"></i>Generate Pending</button>
+                            <button class="btn btn-sm btn-outline-success" id="dsb-btn-regen-all" onclick="dsbGenerateAll(true)"><i class="fas fa-redo me-1"></i>Regen All</button>
+                            <button class="btn btn-sm btn-danger" id="dsb-btn-cancel" onclick="dsbCancel()" style="display:none;"><i class="fas fa-stop me-1"></i>Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div class="progress mb-3" style="height: 22px; display: none;" id="dsb-progress-wrap">
+                        <div id="dsb-progress-bar" class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: 0%">0%</div>
+                    </div>
+
+                    <!-- Spreadsheet table -->
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover table-sm">
+                            <thead class="table-light">
+                                <tr>
+                                    <th width="4%">#</th>
+                                    <th width="16%">Emotion / Style</th>
+                                    <th width="34%">Text</th>
+                                    <th width="7%">Seed</th>
+                                    <th width="7%">Status</th>
+                                    <th width="32%">Audio / Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dsb-table-body">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Save section -->
+                    <div class="card mt-3">
+                        <div class="card-body d-flex align-items-center gap-3">
+                            <button class="btn btn-primary" id="dsb-btn-save" onclick="dsbSave()"><i class="fas fa-save me-1"></i>Save as Training Dataset</button>
+                            <div>
+                                <label class="form-label mb-0 me-2">Reference Sample:</label>
+                                <select class="form-select form-select-sm d-inline-block" id="dsb-ref-select" style="width: auto;">
+                                    <option value="0">First completed sample</option>
+                                </select>
+                            </div>
+                            <span id="dsb-save-status" class="text-muted small"></span>
+                        </div>
+                        <div class="text-muted small px-3 pb-2"><i class="fas fa-info-circle me-1"></i>The reference sample is used as the speaker embedding (<code>ref.wav</code>) during LoRA training. Pick a clear, representative line.</div>
+                    </div>
+
+                    <!-- Logs -->
+                    <pre id="dsb-logs" class="bg-dark text-light p-2 rounded mt-3" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; display: none;"></pre>
+                </div>
+            </div>
+        </div>
+
         <!-- Editor Tab -->
         <div id="editor-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                     <h4 class="m-0"><span class="step-indicator step-active">6</span>Audio Editor</h4>
+                     <h4 class="m-0"><span class="step-indicator step-active">7</span>Audio Editor</h4>
                      <div class="d-flex gap-2">
                         <button class="btn btn-primary btn-sm" id="btn-play-seq" onclick="playSequence()"><i class="fas fa-play me-1"></i>Play Sequence</button>
                         <button class="btn btn-success btn-sm" id="btn-render-all" onclick="renderAll(false)"><i class="fas fa-layer-group me-1"></i>Render Pending</button>
@@ -588,7 +648,7 @@
         <div id="audio-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h4><span class="step-indicator step-active">7</span>Final Result</h4>
+                    <h4><span class="step-indicator step-active">8</span>Final Result</h4>
                 </div>
                 <div class="card-body">
                     <div id="audio-player-container" class="text-center" style="display:none;">
@@ -642,6 +702,8 @@
                 } else if (e.target.dataset.tab === 'training') {
                     loadLoraDatasets();
                     loadLoraModels();
+                } else if (e.target.dataset.tab === 'dataset-builder') {
+                    dsbRestoreForm();
                 }
             });
         });
@@ -1927,104 +1989,6 @@
             }
         };
 
-        function saveDatasetForm() {
-            const data = {
-                name: document.getElementById('gen-dataset-name').value,
-                description: document.getElementById('gen-dataset-description').value,
-                samples: []
-            };
-            document.querySelectorAll('#gen-dataset-samples .dataset-sample-row').forEach(row => {
-                data.samples.push({
-                    emotion: row.querySelector('.ds-emotion').value,
-                    text: row.querySelector('.ds-text').value
-                });
-            });
-            localStorage.setItem('alexandria-dataset-form', JSON.stringify(data));
-        }
-
-        function restoreDatasetForm() {
-            const saved = localStorage.getItem('alexandria-dataset-form');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    document.getElementById('gen-dataset-name').value = data.name || '';
-                    document.getElementById('gen-dataset-description').value = data.description || '';
-                    (data.samples || []).forEach(s => addDatasetSampleRow(s.emotion, s.text));
-                } catch (e) { /* ignore corrupt data */ }
-            }
-            if (!document.querySelector('#gen-dataset-samples .dataset-sample-row')) {
-                addDatasetSampleRow();
-            }
-        }
-
-        window.addDatasetSampleRow = (emotion, text) => {
-            const container = document.getElementById('gen-dataset-samples');
-            const row = document.createElement('div');
-            row.className = 'row g-1 mb-1 dataset-sample-row';
-            row.innerHTML = `
-                <div class="col-md-3"><input type="text" class="form-control form-control-sm ds-emotion" placeholder="Emotion (e.g. Angrily shouting)"></div>
-                <div class="col-md-8"><input type="text" class="form-control form-control-sm ds-text" placeholder="Sample text expressing that emotion"></div>
-                <div class="col-md-1 d-flex align-items-center"><button class="btn btn-sm btn-outline-danger" onclick="this.closest('.dataset-sample-row').remove(); saveDatasetForm();" title="Remove"><i class="fas fa-times"></i></button></div>
-            `;
-            if (emotion) row.querySelector('.ds-emotion').value = emotion;
-            if (text) row.querySelector('.ds-text').value = text;
-            row.querySelectorAll('input').forEach(inp => inp.addEventListener('input', saveDatasetForm));
-            container.appendChild(row);
-            if (!emotion && !text) row.querySelector('.ds-emotion').focus();
-        };
-
-        window.generateLoraDataset = async () => {
-            const name = document.getElementById('gen-dataset-name').value.trim();
-            const description = document.getElementById('gen-dataset-description').value.trim();
-            if (!name) { alert('Enter a dataset name.'); return; }
-            if (!description) { alert('Enter a voice description.'); return; }
-
-            const rows = document.querySelectorAll('#gen-dataset-samples .dataset-sample-row');
-            const samples = [];
-            rows.forEach(row => {
-                const emotion = row.querySelector('.ds-emotion').value.trim();
-                const text = row.querySelector('.ds-text').value.trim();
-                if (text) samples.push({ emotion, text });
-            });
-            if (samples.length === 0) { alert('Add at least one sample with text.'); return; }
-
-            const btn = document.getElementById('btn-gen-dataset');
-            const statusEl = document.getElementById('gen-dataset-status');
-            const logsEl = document.getElementById('gen-dataset-logs');
-            btn.disabled = true;
-            statusEl.textContent = `Generating ${samples.length} samples...`;
-            logsEl.style.display = 'block';
-            logsEl.textContent = '';
-
-            try {
-                const res = await API.post('/api/lora/generate_dataset', { name, description, samples });
-                if (res.status === 'started') {
-                    const interval = setInterval(async () => {
-                        try {
-                            const status = await API.get('/api/status/dataset_gen');
-                            logsEl.textContent = status.logs.join('\n');
-                            logsEl.scrollTop = logsEl.scrollHeight;
-
-                            if (!status.running) {
-                                clearInterval(interval);
-                                btn.disabled = false;
-                                statusEl.textContent = 'Done';
-                                loadLoraDatasets();
-                            }
-                        } catch (e) {
-                            clearInterval(interval);
-                            btn.disabled = false;
-                            statusEl.textContent = 'Poll error';
-                        }
-                    }, 2000);
-                }
-            } catch (e) {
-                alert('Error: ' + e.message);
-                btn.disabled = false;
-                statusEl.textContent = '';
-                logsEl.style.display = 'none';
-            }
-        };
 
         window.startLoraTraining = async () => {
             const name = document.getElementById('lora-adapter-name').value.trim();
@@ -2035,7 +1999,7 @@
             const request = {
                 name: name,
                 dataset_id: datasetId,
-                epochs: parseInt(document.getElementById('lora-epochs').value) || 50,
+                epochs: parseInt(document.getElementById('lora-epochs').value) || 5,
                 lr: parseFloat(document.getElementById('lora-lr').value) || 5e-6,
                 batch_size: parseInt(document.getElementById('lora-batch-size').value) || 1,
                 lora_r: parseInt(document.getElementById('lora-rank').value) || 64,
@@ -2201,14 +2165,367 @@
             }
         };
 
+        // ── Dataset Builder ──────────────────────────────────────
+
+        // In-memory row data: [{emotion, text, status, audio_url}, ...]
+        let dsbRows = [];
+        let dsbPolling = null;
+        let dsbBatchRunning = false;
+
+        function dsbSaveForm() {
+            const data = {
+                name: document.getElementById('dsb-name').value,
+                description: document.getElementById('dsb-description').value,
+                global_seed: document.getElementById('dsb-global-seed').value,
+                rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text, seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null })),
+            };
+            localStorage.setItem('alexandria-dsb-form', JSON.stringify(data));
+        }
+
+        function dsbRestoreForm() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('alexandria-dsb-form'));
+                if (!saved) { if (dsbRows.length === 0) dsbAddRow(); return; }
+                document.getElementById('dsb-name').value = saved.name || '';
+                document.getElementById('dsb-description').value = saved.description || '';
+                document.getElementById('dsb-global-seed').value = saved.global_seed || '';
+                if (saved.rows && saved.rows.length > 0) {
+                    dsbRows = saved.rows.map(r => ({ emotion: r.emotion || '', text: r.text || '', seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null }));
+                }
+                if (dsbRows.length === 0) dsbAddRow();
+                dsbRenderTable();
+                // Check for existing generated files
+                const name = document.getElementById('dsb-name').value.trim();
+                if (name) dsbPollStatus(name, true);
+            } catch (e) {
+                if (dsbRows.length === 0) dsbAddRow();
+                dsbRenderTable();
+            }
+        }
+
+        function dsbAddRow(emotion = '', text = '', seed = '') {
+            dsbRows.push({ emotion, text, seed, status: 'pending', audio_url: null });
+            dsbRenderTable();
+            dsbSaveForm();
+            // Focus the new emotion field
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#dsb-table-body tr');
+                const last = rows[rows.length - 1];
+                if (last) last.querySelector('input')?.focus();
+            }, 50);
+        }
+
+        function dsbRemoveRow(index) {
+            dsbRows.splice(index, 1);
+            dsbRenderTable();
+            dsbSaveForm();
+            dsbUpdateRefDropdown();
+        }
+
+        function dsbRenderTable() {
+            const tbody = document.getElementById('dsb-table-body');
+            tbody.innerHTML = dsbRows.map((row, i) => {
+                const statusColor = row.status === 'done' ? 'success' :
+                                    row.status === 'generating' ? 'warning' :
+                                    row.status === 'error' ? 'danger' : 'secondary';
+                const statusLabel = row.status || 'pending';
+
+                let actionHtml = '';
+                if (row.status === 'generating') {
+                    actionHtml = '<div class="progress" style="width:80px;height:20px;"><div class="progress-bar progress-bar-striped progress-bar-animated bg-warning" style="width:100%"></div></div>';
+                } else {
+                    const genLabel = row.status === 'done' ? '<i class="fas fa-redo"></i>' : '<i class="fas fa-play"></i>';
+                    actionHtml = `<button class="btn btn-sm btn-primary" onclick="dsbGenSample(${i})" title="${row.status === 'done' ? 'Regenerate' : 'Generate'}">${genLabel}</button>`;
+                }
+
+                let audioHtml = '';
+                if (row.status === 'done' && row.audio_url) {
+                    audioHtml = `<audio controls src="${row.audio_url}?t=${Date.now()}" style="width:180px;height:28px;" onplay="dsbStopOthers(${i})"></audio>`;
+                }
+
+                return `<tr data-dsb-idx="${i}" class="${row.status === 'generating' ? 'table-info' : ''}">
+                    <td class="text-center align-middle">${i + 1}</td>
+                    <td><input type="text" class="form-control form-control-sm" value="${(row.emotion || '').replace(/"/g, '&quot;')}" onchange="dsbUpdateRow(${i}, 'emotion', this.value)" placeholder="e.g. Savagely sarcastic"></td>
+                    <td><textarea class="form-control form-control-sm" rows="2" onchange="dsbUpdateRow(${i}, 'text', this.value)" placeholder="Sample text...">${(row.text || '').replace(/</g, '&lt;')}</textarea></td>
+                    <td><input type="number" class="form-control form-control-sm" value="${row.seed ?? ''}" onchange="dsbUpdateRow(${i}, 'seed', this.value)" placeholder="-" style="width:65px;" min="-1"></td>
+                    <td class="text-center align-middle"><span class="badge bg-${statusColor}">${statusLabel}</span></td>
+                    <td class="align-middle">
+                        <div class="d-flex align-items-center gap-1">
+                            ${actionHtml}
+                            ${audioHtml}
+                            <button class="btn btn-sm btn-outline-danger ms-auto" onclick="dsbRemoveRow(${i})" title="Delete row"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            dsbUpdateProgress();
+        }
+
+        window.dsbUpdateRow = (index, field, value) => {
+            if (dsbRows[index]) {
+                dsbRows[index][field] = value;
+                dsbSaveForm();
+            }
+        };
+
+        window.dsbStopOthers = (index) => {
+            document.querySelectorAll('#dsb-table-body audio').forEach((audio, i) => {
+                if (i !== index) audio.pause();
+            });
+        };
+
+        function dsbUpdateProgress() {
+            const done = dsbRows.filter(r => r.status === 'done').length;
+            const total = dsbRows.length;
+            const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+            const wrap = document.getElementById('dsb-progress-wrap');
+            const bar = document.getElementById('dsb-progress-bar');
+            if (done > 0 || dsbBatchRunning) {
+                wrap.style.display = '';
+                bar.style.width = pct + '%';
+                bar.innerText = `${pct}% (${done}/${total})`;
+            } else {
+                wrap.style.display = 'none';
+            }
+            dsbUpdateRefDropdown();
+        }
+
+        function dsbUpdateRefDropdown() {
+            const select = document.getElementById('dsb-ref-select');
+            const doneSamples = dsbRows.map((r, i) => ({ index: i, row: r })).filter(x => x.row.status === 'done');
+            select.innerHTML = doneSamples.length === 0
+                ? '<option value="0">No completed samples yet</option>'
+                : doneSamples.map(x => `<option value="${x.index}">${x.index + 1}. ${(x.row.emotion || 'neutral').substring(0, 30)} - "${(x.row.text || '').substring(0, 40)}..."</option>`).join('');
+        }
+
+        // Single sample generation
+        window.dsbGenSample = async (index) => {
+            const name = document.getElementById('dsb-name').value.trim();
+            const rootDesc = document.getElementById('dsb-description').value.trim();
+            if (!name) { alert('Enter a dataset name first.'); return; }
+            if (!rootDesc) { alert('Enter a root voice description first.'); return; }
+
+            const row = dsbRows[index];
+            if (!row || !row.text.trim()) { alert('This row has no text.'); return; }
+
+            const emotion = row.emotion.trim();
+            const description = emotion ? `${rootDesc}, ${emotion}` : rootDesc;
+
+            // Resolve seed: per-line > global > random
+            const globalSeed = parseInt(document.getElementById('dsb-global-seed').value);
+            const lineSeed = row.seed !== '' ? parseInt(row.seed) : NaN;
+            const seed = !isNaN(lineSeed) && lineSeed >= 0 ? lineSeed : (!isNaN(globalSeed) && globalSeed >= 0 ? globalSeed : -1);
+
+            // Optimistic UI
+            dsbRows[index].status = 'generating';
+            dsbRenderTable();
+
+            try {
+                const result = await API.post('/api/dataset_builder/generate_sample', {
+                    description,
+                    text: row.text.trim(),
+                    dataset_name: name,
+                    sample_index: index,
+                    seed,
+                });
+                dsbRows[index].status = 'done';
+                dsbRows[index].audio_url = result.audio_url;
+            } catch (e) {
+                dsbRows[index].status = 'error';
+                console.error('Sample generation failed:', e);
+            }
+            dsbRenderTable();
+        };
+
+        // Batch generation
+        window.dsbGenerateAll = async (regenAll = false) => {
+            const name = document.getElementById('dsb-name').value.trim();
+            const rootDesc = document.getElementById('dsb-description').value.trim();
+            if (!name) { alert('Enter a dataset name first.'); return; }
+            if (!rootDesc) { alert('Enter a root voice description first.'); return; }
+
+            const samples = dsbRows.filter(r => r.text.trim());
+            if (samples.length === 0) { alert('Add at least one sample with text.'); return; }
+
+            const indices = regenAll
+                ? dsbRows.map((_, i) => i).filter(i => dsbRows[i].text.trim())
+                : dsbRows.map((r, i) => i).filter(i => dsbRows[i].text.trim() && dsbRows[i].status !== 'done');
+
+            if (indices.length === 0) { alert('All samples are already generated.'); return; }
+            if (regenAll && !confirm(`Regenerate all ${indices.length} samples?`)) return;
+
+            // Mark as generating
+            indices.forEach(i => { dsbRows[i].status = 'generating'; });
+            dsbRenderTable();
+            dsbBatchRunning = true;
+            document.getElementById('dsb-btn-gen-all').style.display = 'none';
+            document.getElementById('dsb-btn-regen-all').style.display = 'none';
+            document.getElementById('dsb-btn-cancel').style.display = '';
+            document.getElementById('dsb-logs').style.display = '';
+
+            const globalSeed = parseInt(document.getElementById('dsb-global-seed').value);
+            const perSeeds = dsbRows.map(r => r.seed !== '' && r.seed !== undefined ? parseInt(r.seed) : -1);
+
+            try {
+                await API.post('/api/dataset_builder/generate_batch', {
+                    name,
+                    description: rootDesc,
+                    samples: dsbRows.map(r => ({ emotion: r.emotion || '', text: r.text || '' })),
+                    indices,
+                    global_seed: !isNaN(globalSeed) && globalSeed >= 0 ? globalSeed : -1,
+                    seeds: perSeeds,
+                });
+
+                // Start polling
+                dsbStartPolling(name);
+            } catch (e) {
+                alert('Batch generation failed: ' + e.message);
+                dsbStopBatch();
+            }
+        };
+
+        function dsbStartPolling(name) {
+            if (dsbPolling) clearInterval(dsbPolling);
+            dsbPolling = setInterval(() => dsbPollStatus(name), 2000);
+        }
+
+        async function dsbPollStatus(name, silent = false) {
+            try {
+                const result = await API.get(`/api/dataset_builder/status/${encodeURIComponent(name)}`);
+                const serverSamples = result.samples || [];
+
+                // Merge server state into local rows
+                serverSamples.forEach((s, i) => {
+                    if (i < dsbRows.length && s.status) {
+                        dsbRows[i].status = s.status;
+                        if (s.audio_url) dsbRows[i].audio_url = s.audio_url;
+                    }
+                });
+
+                dsbRenderTable();
+
+                // Update logs
+                if (result.logs && result.logs.length > 0) {
+                    const logsEl = document.getElementById('dsb-logs');
+                    logsEl.style.display = '';
+                    logsEl.innerText = result.logs.join('\n');
+                    logsEl.scrollTop = logsEl.scrollHeight;
+                }
+
+                // Check if batch is done
+                if (!result.running && dsbBatchRunning) {
+                    dsbStopBatch();
+                }
+
+                // If not running and this was a one-time check, stop polling
+                if (!result.running && silent && dsbPolling) {
+                    clearInterval(dsbPolling);
+                    dsbPolling = null;
+                }
+            } catch (e) {
+                if (!silent) console.error('Poll error:', e);
+                // Status endpoint may 404 if no state.json yet — ignore silently
+                if (silent && dsbPolling) {
+                    clearInterval(dsbPolling);
+                    dsbPolling = null;
+                }
+            }
+        }
+
+        function dsbStopBatch() {
+            dsbBatchRunning = false;
+            if (dsbPolling) { clearInterval(dsbPolling); dsbPolling = null; }
+            document.getElementById('dsb-btn-gen-all').style.display = '';
+            document.getElementById('dsb-btn-regen-all').style.display = '';
+            document.getElementById('dsb-btn-cancel').style.display = 'none';
+            dsbRenderTable();
+        }
+
+        window.dsbCancel = async () => {
+            try {
+                await API.post('/api/dataset_builder/cancel', {});
+            } catch (e) { console.error('Cancel error:', e); }
+        };
+
+        // Import / Export
+        window.dsbImport = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) throw new Error('Expected JSON array');
+                    dsbRows = data.map(item => ({
+                        emotion: item.emotion || item.instruct || '',
+                        text: item.text || '',
+                        seed: item.seed ?? '',
+                        status: 'pending',
+                        audio_url: null,
+                    }));
+                    dsbRenderTable();
+                    dsbSaveForm();
+                } catch (err) {
+                    alert('Import failed: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';  // reset file input
+        };
+
+        window.dsbExport = () => {
+            const data = dsbRows.map(r => {
+                const entry = { emotion: r.emotion, text: r.text };
+                if (r.seed !== '' && r.seed !== undefined) entry.seed = parseInt(r.seed);
+                return entry;
+            });
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const name = document.getElementById('dsb-name').value.trim() || 'dataset';
+            a.download = `${name}_script.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
+        // Save as training dataset
+        window.dsbSave = async () => {
+            const name = document.getElementById('dsb-name').value.trim();
+            if (!name) { alert('Enter a dataset name first.'); return; }
+
+            const doneSamples = dsbRows.filter(r => r.status === 'done');
+            if (doneSamples.length === 0) { alert('No completed samples to save. Generate some first.'); return; }
+
+            const refIdx = parseInt(document.getElementById('dsb-ref-select').value) || 0;
+
+            if (!confirm(`Save "${name}" as training dataset with ${doneSamples.length} samples?`)) return;
+
+            const statusEl = document.getElementById('dsb-save-status');
+            statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
+
+            try {
+                const result = await API.post('/api/dataset_builder/save', {
+                    name,
+                    ref_index: refIdx,
+                });
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Saved! ${result.sample_count} samples.</span>`;
+            } catch (e) {
+                statusEl.innerHTML = `<span class="text-danger">Save failed: ${e.message}</span>`;
+            }
+        };
+
+        // Persist on input changes
+        document.getElementById('dsb-name')?.addEventListener('input', dsbSaveForm);
+        document.getElementById('dsb-description')?.addEventListener('input', dsbSaveForm);
+        document.getElementById('dsb-global-seed')?.addEventListener('input', dsbSaveForm);
+
         // Init
         loadConfig();
         loadVoices();
         loadSavedScripts();
         loadDesignedVoices();
-        restoreDatasetForm();
-        document.getElementById('gen-dataset-name').addEventListener('input', saveDatasetForm);
-        document.getElementById('gen-dataset-description').addEventListener('input', saveDatasetForm);
+        dsbRestoreForm();
     </script>
 </body>
 </html>
