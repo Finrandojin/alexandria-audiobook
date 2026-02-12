@@ -2491,8 +2491,9 @@
         };
 
         window.dsbStopOthers = (index) => {
-            document.querySelectorAll('#dsb-table-body audio').forEach((audio, i) => {
-                if (i !== index) audio.pause();
+            document.querySelectorAll('#dsb-table-body audio').forEach(audio => {
+                const row = audio.closest('tr');
+                if (row && parseInt(row.getAttribute('data-dsb-idx')) !== index) audio.pause();
             });
         };
 
