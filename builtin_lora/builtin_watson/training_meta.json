@@ -1,0 +1,15 @@
+{
+  "model_name": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "epochs": 9,
+  "lr": 1e-06,
+  "lora_r": 32,
+  "lora_alpha": 128,
+  "gradient_accumulation_steps": 4,
+  "batch_size": 1,
+  "num_samples": 61,
+  "final_loss": 4.1683350039310145,
+  "best_loss": 4.1683350039310145,
+  "training_time_seconds": 100.9,
+  "ref_sample_audio": "/home/finrandojin/pinokio/api/Alexandria/lora_datasets/Watson1/ref.wav",
+  "ref_sample_text": "By night, the atmosphere shifted. Lanterns cast golden halos across the tiled floors, illuminating the room in a soft, intimate glow. The air was thick with humidity, heavy with the scent of perfume and the lingering traces of chlorine from the pool."
+}

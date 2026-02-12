@@ -971,6 +971,10 @@
                                         <label class="form-check-label">Custom Voice</label>
                                     </div>
                                     <div class="form-check form-check-inline">
+                                        <input class="form-check-input voice-type" type="radio" name="type_${index}" value="builtin_lora" ${voiceType === 'builtin_lora' ? 'checked' : ''} onchange="toggleVoiceType(this)">
+                                        <label class="form-check-label">Built-in Voice</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
                                         <input class="form-check-input voice-type" type="radio" name="type_${index}" value="clone" ${voiceType === 'clone' ? 'checked' : ''} onchange="toggleVoiceType(this)">
                                         <label class="form-check-label">Voice Clone</label>
                                     </div>
@@ -994,6 +998,37 @@
                                         </div>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${config.character_style || config.default_style || ''}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Built-in LoRA Options -->
+                                <div class="builtin-lora-opts" style="display: ${voiceType === 'builtin_lora' ? 'block' : 'none'}">
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <select class="form-select builtin-lora-select">
+                                                <option value="">-- Select built-in voice --</option>
+                                                ${(() => {
+                                                    const models = (window._loraModelsCache || []).filter(m => m.builtin);
+                                                    const males = models.filter(m => m.gender === 'male');
+                                                    const females = models.filter(m => m.gender === 'female');
+                                                    let html = '';
+                                                    if (males.length) {
+                                                        html += '<optgroup label="Male">';
+                                                        html += males.map(m => `<option value="${m.id}" ${config.adapter_id === m.id ? 'selected' : ''}>${m.name} — ${m.description || ''}</option>`).join('');
+                                                        html += '</optgroup>';
+                                                    }
+                                                    if (females.length) {
+                                                        html += '<optgroup label="Female">';
+                                                        html += females.map(m => `<option value="${m.id}" ${config.adapter_id === m.id ? 'selected' : ''}>${m.name} — ${m.description || ''}</option>`).join('');
+                                                        html += '</optgroup>';
+                                                    }
+                                                    return html;
+                                                })()}
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <input type="text" class="form-control builtin-lora-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${voiceType === 'builtin_lora' ? (config.character_style || '') : ''}">
                                         </div>
                                     </div>
                                 </div>
@@ -1043,6 +1078,7 @@
         window.toggleVoiceType = (radio) => {
             const card = radio.closest('.card-body');
             card.querySelector('.custom-opts').style.display = radio.value === 'custom' ? 'block' : 'none';
+            card.querySelector('.builtin-lora-opts').style.display = radio.value === 'builtin_lora' ? 'block' : 'none';
             card.querySelector('.clone-opts').style.display = radio.value === 'clone' ? 'block' : 'none';
             card.querySelector('.lora-opts').style.display = radio.value === 'lora' ? 'block' : 'none';
             card.querySelector('.design-opts').style.display = radio.value === 'design' ? 'block' : 'none';
@@ -1098,6 +1134,16 @@
                         type: 'clone',
                         ref_text: card.querySelector('.ref-text').value,
                         ref_audio: card.querySelector('.ref-audio').value,
+                        seed: "-1"
+                    };
+                } else if (type === 'builtin_lora') {
+                    const adapterId = card.querySelector('.builtin-lora-select').value;
+                    const adapterEntry = (window._loraModelsCache || []).find(m => m.id === adapterId);
+                    config[name] = {
+                        type: 'builtin_lora',
+                        adapter_id: adapterId,
+                        adapter_path: adapterEntry?.adapter_path || '',
+                        character_style: card.querySelector('.builtin-lora-style').value,
                         seed: "-1"
                     };
                 } else if (type === 'lora') {
@@ -2126,7 +2172,7 @@
                 const testForm = document.getElementById('lora-test-form');
 
                 if (!models.length) {
-                    container.innerHTML = '<p class="text-muted mb-0">No trained adapters yet.</p>';
+                    container.innerHTML = '<p class="text-muted mb-0">No adapters available.</p>';
                     testForm.style.display = 'none';
                     return;
                 }
@@ -2136,15 +2182,15 @@
                         <thead><tr><th>Name</th><th>Dataset</th><th>Epochs</th><th>Final Loss</th><th>Samples</th><th style="width:180px">Actions</th></tr></thead>
                         <tbody>
                             ${models.map(m => `
-                                <tr>
-                                    <td><strong>${m.name}</strong></td>
-                                    <td>${m.dataset_id || '--'}</td>
+                                <tr${m.builtin ? ' class="table-light"' : ''}>
+                                    <td><strong>${m.name}</strong>${m.builtin ? ' <span class="badge bg-secondary">built-in</span>' : ''}</td>
+                                    <td>${m.dataset_id || (m.builtin ? '--' : '--')}</td>
                                     <td>${m.epochs || '--'}</td>
                                     <td>${m.final_loss != null ? m.final_loss.toFixed(4) : '--'}</td>
                                     <td>${m.sample_count || '--'}</td>
                                     <td>
                                         <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel('${m.id}')" title="Test"><i class="fas fa-play me-1"></i>Test</button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                        ${m.builtin ? '' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>`}
                                     </td>
                                 </tr>
                             `).join('')}

@@ -41,6 +41,8 @@ CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
 DESIGNED_VOICES_DIR = os.path.join(ROOT_DIR, "designed_voices")
 LORA_MODELS_DIR = os.path.join(ROOT_DIR, "lora_models")
 LORA_DATASETS_DIR = os.path.join(ROOT_DIR, "lora_datasets")
+BUILTIN_LORA_DIR = os.path.join(ROOT_DIR, "builtin_lora")
+BUILTIN_LORA_MANIFEST = os.path.join(BUILTIN_LORA_DIR, "manifest.json")
 DATASET_BUILDER_DIR = os.path.join(ROOT_DIR, "dataset_builder")
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -65,6 +67,10 @@ app.mount("/designed_voices", StaticFiles(directory=DESIGNED_VOICES_DIR), name="
 
 # LoRA models directory for trained adapter test audio
 app.mount("/lora_models", StaticFiles(directory=LORA_MODELS_DIR), name="lora_models")
+
+# Built-in LoRA adapters directory
+os.makedirs(BUILTIN_LORA_DIR, exist_ok=True)
+app.mount("/builtin_lora", StaticFiles(directory=BUILTIN_LORA_DIR), name="builtin_lora")
 
 # Dataset builder directory for preview audio
 app.mount("/dataset_builder", StaticFiles(directory=DATASET_BUILDER_DIR), name="dataset_builder")
@@ -844,6 +850,26 @@ def _save_lora_manifest(manifest):
     with open(LORA_MODELS_MANIFEST, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
+def _load_builtin_lora_manifest():
+    """Load built-in LoRA adapter manifest, filtering to adapters with files present."""
+    if not os.path.exists(BUILTIN_LORA_MANIFEST):
+        return []
+    try:
+        with open(BUILTIN_LORA_MANIFEST, "r", encoding="utf-8") as f:
+            entries = json.load(f)
+        result = []
+        for entry in entries:
+            adapter_dir = os.path.join(BUILTIN_LORA_DIR, entry["id"])
+            if os.path.isdir(adapter_dir) and os.path.exists(
+                os.path.join(adapter_dir, "adapter_model.safetensors")
+            ):
+                entry["builtin"] = True
+                entry["adapter_path"] = f"builtin_lora/{entry['id']}"
+                result.append(entry)
+        return result
+    except (json.JSONDecodeError, ValueError):
+        return []
+
 @app.post("/api/lora/upload_dataset")
 async def lora_upload_dataset(file: UploadFile = File(...)):
     """Upload a ZIP containing WAV files and metadata.jsonl."""
@@ -1120,12 +1146,15 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
 
 @app.get("/api/lora/models")
 async def lora_list_models():
-    """List trained LoRA adapters."""
-    return _load_lora_manifest()
+    """List all LoRA adapters (built-in + user-trained)."""
+    return _load_builtin_lora_manifest() + _load_lora_manifest()
 
 @app.delete("/api/lora/models/{adapter_id}")
 async def lora_delete_model(adapter_id: str):
-    """Delete a trained LoRA adapter."""
+    """Delete a trained LoRA adapter. Built-in adapters cannot be deleted."""
+    builtin = _load_builtin_lora_manifest()
+    if any(m["id"] == adapter_id for m in builtin):
+        raise HTTPException(status_code=403, detail="Built-in adapters cannot be deleted")
     manifest = _load_lora_manifest()
     entry = next((m for m in manifest if m["id"] == adapter_id), None)
     if not entry:
@@ -1145,13 +1174,23 @@ async def lora_delete_model(adapter_id: str):
 
 @app.post("/api/lora/test")
 async def lora_test_model(request: LoraTestRequest):
-    """Generate test audio using a LoRA adapter."""
-    manifest = _load_lora_manifest()
-    entry = next((m for m in manifest if m["id"] == request.adapter_id), None)
+    """Generate test audio using a LoRA adapter (built-in or user-trained)."""
+    # Check both manifests
+    builtin = _load_builtin_lora_manifest()
+    user_trained = _load_lora_manifest()
+    all_adapters = builtin + user_trained
+    entry = next((m for m in all_adapters if m["id"] == request.adapter_id), None)
     if not entry:
         raise HTTPException(status_code=404, detail="Adapter not found")
 
-    adapter_dir = os.path.join(LORA_MODELS_DIR, request.adapter_id)
+    is_builtin = entry.get("builtin", False)
+    if is_builtin:
+        adapter_dir = os.path.join(BUILTIN_LORA_DIR, request.adapter_id)
+        audio_url_prefix = f"/builtin_lora/{request.adapter_id}"
+    else:
+        adapter_dir = os.path.join(LORA_MODELS_DIR, request.adapter_id)
+        audio_url_prefix = f"/lora_models/{request.adapter_id}"
+
     if not os.path.isdir(adapter_dir):
         raise HTTPException(status_code=404, detail="Adapter files not found")
 
@@ -1179,7 +1218,7 @@ async def lora_test_model(request: LoraTestRequest):
 
         return {
             "status": "ok",
-            "audio_url": f"/lora_models/{request.adapter_id}/{output_filename}",
+            "audio_url": f"{audio_url_prefix}/{output_filename}",
         }
     except Exception as e:
         logger.error(f"LoRA test generation failed: {e}")

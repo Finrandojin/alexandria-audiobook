@@ -52,6 +52,9 @@ designed_voices/
 lora_models/
 lora_datasets/
 
+# Built-in LoRA test audio (generated at runtime)
+builtin_lora/*/test_*.wav
+
 # Dataset builder working directory
 dataset_builder/
 

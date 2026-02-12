@@ -1,6 +1,6 @@
 {
   "title": "Alexandria",
-  "description": "Multi-voice AI audiobook generator with per-line voice direction — LLM-annotated scripts control Qwen3-TTS emotion, tone, and delivery for every spoken line ",
+  "description": "A multi-voice AI audiobook generator built on Qwen3-TTS — annotate scripts with an LLM, assign unique voices to each character, per-line style instructions for delivery, clone voices from reference audio, design new voices from text descriptions, train custom voices with LoRA fine-tuning, and export to MP3 or Audacity multi-track projects ",
   "icon": "icon.png",
   "plugin": {
     "menu": []

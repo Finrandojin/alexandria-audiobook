@@ -1,0 +1,12 @@
+[
+  {
+    "id": "builtin_watson",
+    "name": "Watson",
+    "gender": "male",
+    "description": "Warm, measured baritone",
+    "lora_r": 32,
+    "epochs": 9,
+    "final_loss": 4.17,
+    "sample_count": 61
+  }
+]

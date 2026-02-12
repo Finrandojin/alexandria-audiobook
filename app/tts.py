@@ -391,7 +391,7 @@ class TTSEngine:
 
         if voice_type == "clone":
             return self.generate_clone_voice(text, speaker, voice_config, output_path)
-        elif voice_type == "lora":
+        elif voice_type in ("lora", "builtin_lora"):
             return self.generate_lora_voice(text, instruct_text, voice_data, output_path)
         elif voice_type == "design":
             return self.generate_design_voice(text, instruct_text, voice_data, output_path)
@@ -618,7 +618,7 @@ class TTSEngine:
 
             if voice_type == "clone":
                 clone_chunks.append(chunk)
-            elif voice_type == "lora":
+            elif voice_type in ("lora", "builtin_lora"):
                 lora_chunks.append(chunk)
             elif voice_type == "design":
                 design_chunks.append(chunk)
