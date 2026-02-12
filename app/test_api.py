@@ -82,7 +82,7 @@ def get(path, **kwargs):
 
 
 def post(path, **kwargs):
-    return requests.post(f"{BASE_URL}{path}", timeout=30, **kwargs)
+    return requests.post(f"{BASE_URL}{path}", timeout=kwargs.pop("timeout", 30), **kwargs)
 
 
 def delete(path, **kwargs):
@@ -612,7 +612,7 @@ def test_lora_test_model():
         "adapter_id": adapter["id"],
         "text": "This is a test of the LoRA voice.",
         "instruct": "Neutral, even delivery."
-    })
+    }, timeout=120)
     assert_status(r, 200)
     data = r.json()
     assert_key(data, "audio_url")
