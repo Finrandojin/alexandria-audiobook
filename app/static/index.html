@@ -452,7 +452,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-2">
                             <label class="form-label">LoRA Rank</label>
-                            <input type="number" class="form-control" id="lora-rank" value="64" min="1">
+                            <input type="number" class="form-control" id="lora-rank" value="32" min="1">
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">LoRA Alpha</label>
@@ -2098,7 +2098,7 @@
                 epochs: parseInt(document.getElementById('lora-epochs').value) || 5,
                 lr: parseFloat(document.getElementById('lora-lr').value) || 5e-6,
                 batch_size: parseInt(document.getElementById('lora-batch-size').value) || 1,
-                lora_r: parseInt(document.getElementById('lora-rank').value) || 64,
+                lora_r: parseInt(document.getElementById('lora-rank').value) || 32,
                 lora_alpha: parseInt(document.getElementById('lora-alpha').value) || 128,
                 gradient_accumulation_steps: parseInt(document.getElementById('lora-grad-accum').value) || 8
             };

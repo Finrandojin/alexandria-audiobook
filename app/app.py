@@ -164,7 +164,7 @@ class LoraTrainingRequest(BaseModel):
     epochs: int = 5
     lr: float = 5e-6
     batch_size: int = 1
-    lora_r: int = 64
+    lora_r: int = 32
     lora_alpha: int = 128
     gradient_accumulation_steps: int = 8
 
