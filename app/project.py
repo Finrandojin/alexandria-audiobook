@@ -36,13 +36,10 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
         text = entry.get("text", "")
         instruct = entry.get("instruct", "")
 
-        if speaker == current_speaker:
+        if speaker == current_speaker and instruct == current_instruct:
             combined = current_text + " " + text
             if len(combined) <= max_chars:
                 current_text = combined
-                # Keep the more specific instruct if available
-                if instruct and not current_instruct:
-                    current_instruct = instruct
             else:
                 chunks.append({
                     "speaker": current_speaker,
@@ -468,17 +465,59 @@ class ProjectManager:
         print(f"Parallel generation complete: {len(results['completed'])} succeeded, {len(results['failed'])} failed")
         return results
 
-    def generate_chunks_batch(self, indices, batch_seed=-1, batch_size=4, progress_callback=None):
-        """Generate multiple chunks using batch TTS API with a single seed.
+    def _group_indices_by_voice_type(self, indices, chunks, voice_config):
+        """Reorder indices so chunks with the same voice type are contiguous.
 
-        Faster than parallel but uses same seed for all voices. Only works with
-        custom voices (clone voices will be skipped).
+        Grouping key matches how tts.py routes batches:
+        - "custom" for custom voices (all batched together)
+        - "clone:{speaker}" for clone voices (batched per speaker)
+        - "lora:{adapter}" for LoRA voices (batched per adapter)
+        - "design" for voice design (always sequential)
+
+        Within each group, original order is preserved.
+        """
+        from collections import OrderedDict
+        groups = OrderedDict()
+
+        for idx in indices:
+            if not (0 <= idx < len(chunks)):
+                groups.setdefault("custom", []).append(idx)
+                continue
+
+            speaker = chunks[idx].get("speaker", "")
+            voice_data = voice_config.get(speaker, {})
+            voice_type = voice_data.get("type", "custom")
+
+            if voice_type == "clone":
+                key = f"clone:{speaker}"
+            elif voice_type in ("lora", "builtin_lora"):
+                adapter_id = voice_data.get("adapter_id", "")
+                key = f"lora:{adapter_id}"
+            elif voice_type == "design":
+                key = "design"
+            else:
+                key = "custom"
+
+            groups.setdefault(key, []).append(idx)
+
+        reordered = []
+        for key, group_indices in groups.items():
+            print(f"  Voice group '{key}': {len(group_indices)} chunks")
+            reordered.extend(group_indices)
+
+        return reordered
+
+    def generate_chunks_batch(self, indices, batch_seed=-1, batch_size=4, progress_callback=None,
+                               batch_group_by_type=False):
+        """Generate multiple chunks using batch TTS API with a single seed.
 
         Args:
             indices: List of chunk indices to generate
             batch_seed: Single seed for all generations (-1 for random)
             batch_size: Number of chunks per batch request
             progress_callback: Optional callback(completed, failed, total) for progress updates
+            batch_group_by_type: Group indices by voice type before batching for
+                GPU efficiency. When False, indices are batched in sequential order.
 
         Returns:
             dict with 'completed' and 'failed' lists
@@ -489,7 +528,8 @@ class ProjectManager:
         if total == 0:
             return results
 
-        print(f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed})...")
+        print(f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed}, "
+              f"group_by_type={batch_group_by_type})...")
 
         # Load chunks and voice config
         chunks = self.load_chunks()
@@ -510,6 +550,12 @@ class ProjectManager:
             if 0 <= idx < len(chunks):
                 chunks[idx]["status"] = "generating"
         self.save_chunks(chunks)
+
+        # Optionally reorder indices so same voice-type chunks are contiguous.
+        # This produces larger homogeneous batches (e.g. all custom voices
+        # together) instead of fragmenting each batch across voice types.
+        if batch_group_by_type:
+            indices = self._group_indices_by_voice_type(indices, chunks, voice_config)
 
         # Split indices into batches
         batches = [indices[i:i + batch_size] for i in range(0, len(indices), batch_size)]

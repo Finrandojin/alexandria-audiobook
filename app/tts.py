@@ -61,6 +61,7 @@ class TTSEngine:
         self._sub_batch_enabled = tts_config.get("sub_batch_enabled", True)
         self._sub_batch_min_size = max(1, tts_config.get("sub_batch_min_size", 4))
         self._sub_batch_ratio = max(1.0, float(tts_config.get("sub_batch_ratio", 5)))
+        self._sub_batch_max_chars = max(500, int(tts_config.get("sub_batch_max_chars", 3000)))
 
         # Lazy-loaded backends
         self._local_custom_model = None
@@ -78,6 +79,46 @@ class TTSEngine:
     @property
     def mode(self):
         return self._mode
+
+    def _build_sub_batches(self, texts):
+        """Split sorted-by-length texts into sub-batches.
+
+        Splits on three criteria (checked in order):
+        1. Length ratio: when longest/shortest > sub_batch_ratio
+        2. Total chars: when cumulative chars exceed sub_batch_max_chars
+        3. Minimum size: splits only happen after sub_batch_min_size items
+
+        Returns list of (start, end) index tuples.
+        """
+        if not self._sub_batch_enabled or len(texts) <= 1:
+            return [(0, len(texts))]
+
+        sub_batches = []
+        batch_start = 0
+        batch_chars = len(texts[0])
+
+        for i in range(1, len(texts)):
+            shortest = max(len(texts[batch_start]), 1)
+            batch_chars += len(texts[i])
+            should_split = False
+
+            # Chars split: too much total text risks OOM — always split
+            # regardless of min_size (memory safety takes priority)
+            if batch_chars > self._sub_batch_max_chars and (i - batch_start) >= 1:
+                should_split = True
+            # Ratio split: large length disparity wastes padding —
+            # only split after min_size items to preserve parallelism
+            elif (i - batch_start) >= self._sub_batch_min_size:
+                if len(texts[i]) > self._sub_batch_ratio * shortest:
+                    should_split = True
+
+            if should_split:
+                sub_batches.append((batch_start, i))
+                batch_start = i
+                batch_chars = len(texts[i])
+
+        sub_batches.append((batch_start, len(texts)))
+        return sub_batches
 
     # ── Lazy initialization ──────────────────────────────────────
 
@@ -908,21 +949,7 @@ class TTSEngine:
         instructs = [instructs[i] for i in sort_order]
         indices = [indices[i] for i in sort_order]
 
-        # Build sub-batches: split when longest > Nx shortest in group,
-        # but enforce a minimum items per sub-batch to preserve batch
-        # parallelism.  When sub-batching is disabled, everything runs
-        # as a single batch (faster start, but more padding waste).
-        if self._sub_batch_enabled:
-            sub_batches = []
-            batch_start = 0
-            for i in range(1, len(texts)):
-                shortest = max(len(texts[batch_start]), 1)
-                if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
-                    sub_batches.append((batch_start, i))
-                    batch_start = i
-            sub_batches.append((batch_start, len(texts)))
-        else:
-            sub_batches = [(0, len(texts))]
+        sub_batches = self._build_sub_batches(texts)
 
         print(f"Batch [local]: generating {len(texts)} chunks ({total_text_chars} chars) "
               f"in {len(sub_batches)} sub-batch(es)...")
@@ -1048,17 +1075,7 @@ class TTSEngine:
             indices = [indices[i] for i in sort_order]
 
             # Build sub-batches
-            if self._sub_batch_enabled:
-                sub_batches = []
-                batch_start = 0
-                for i in range(1, len(texts)):
-                    shortest = max(len(texts[batch_start]), 1)
-                    if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
-                        sub_batches.append((batch_start, i))
-                        batch_start = i
-                sub_batches.append((batch_start, len(texts)))
-            else:
-                sub_batches = [(0, len(texts))]
+            sub_batches = self._build_sub_batches(texts)
 
             print(f"Batch [clone] speaker='{speaker}': {len(texts)} chunks "
                   f"in {len(sub_batches)} sub-batch(es)")
@@ -1208,18 +1225,7 @@ class TTSEngine:
             instructs_raw = [instructs_raw[i] for i in sort_order]
             indices = [indices[i] for i in sort_order]
 
-            # Build sub-batches
-            if self._sub_batch_enabled:
-                sub_batches = []
-                batch_start = 0
-                for i in range(1, len(texts)):
-                    shortest = max(len(texts[batch_start]), 1)
-                    if len(texts[i]) > self._sub_batch_ratio * shortest and (i - batch_start) >= self._sub_batch_min_size:
-                        sub_batches.append((batch_start, i))
-                        batch_start = i
-                sub_batches.append((batch_start, len(texts)))
-            else:
-                sub_batches = [(0, len(texts))]
+            sub_batches = self._build_sub_batches(texts)
 
             print(f"Batch [lora] adapter='{os.path.basename(adapter_path)}': {len(texts)} chunks "
                   f"in {len(sub_batches)} sub-batch(es)")
