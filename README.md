@@ -27,13 +27,15 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Voice Cloning** - Clone any voice from a 5-15 second reference audio sample
 - **Voice Designer** - Create new voices from text descriptions (e.g. "A warm, deep male voice with a calm and steady tone")
 - **LoRA Voice Training** - Fine-tune the Base model on custom voice datasets to create persistent voice identities with instruct-following
+- **Built-in LoRA Presets** - Pre-trained voice adapters included out of the box, ready to assign to characters
+- **Dataset Builder** - Interactive tool for creating LoRA training datasets with per-sample text, emotion, and audio preview
 - **Batch Processing** - Generate dozens of chunks simultaneously with 3-6x real-time throughput
 - **Codec Compilation** - Optional `torch.compile` optimization for 3-4x faster batch decoding
 - **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware instruct directions
 - **Natural Pauses** - Intelligent delays between speakers (500ms) and same-speaker segments (250ms)
 
 ### Web UI Editor
-- **7-Tab Interface** - Setup, Script Generation, Voices, Voice Designer, LoRA Training, Editor, Results
+- **8-Tab Interface** - Setup, Script Generation, Voices, Voice Designer, LoRA Training, Dataset Builder, Editor, Results
 - **Chunk Editor** - Edit speaker, text, and instruct for any line
 - **Selective Regeneration** - Re-render individual chunks without regenerating everything
 - **Batch Processing** - Two render modes: standard parallel and fast batch
@@ -89,12 +91,14 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 
 5. **(Optional) Training Tab** - Train LoRA adapters on custom voice datasets for persistent voice identities
 
-6. **Editor Tab** - Review and edit chunks:
+6. **(Optional) Dataset Builder Tab** - Build training datasets interactively with per-sample preview
+
+7. **Editor Tab** - Review and edit chunks:
    - Select "Batch (Fast)" mode and click "Batch Render Pending" for fastest generation
    - Edit any chunk's text/instruct/speaker and regenerate individually
    - Click "Merge All" when satisfied
 
-7. **Result Tab** - Download your finished audiobook
+8. **Result Tab** - Download your finished audiobook
 
 ## Web Interface
 
@@ -111,6 +115,7 @@ Configure connections to your LLM and TTS engine.
 - **Sub-batching** - Split batches by text length to reduce wasted GPU compute on padding (enabled by default)
 - **Min Sub-batch Size** - Minimum chunks per sub-batch before allowing a split (default: 4)
 - **Length Ratio** - Maximum longest/shortest text length ratio before forcing a sub-batch split (default: 5)
+- **Max Chars** - Maximum total characters per sub-batch; lower values reduce VRAM usage (default: 3000)
 
 **Prompt Settings (Advanced):**
 - **Generation Settings** - Chunk size and max tokens for LLM responses
@@ -165,11 +170,12 @@ Create new voices from text descriptions without needing reference audio.
 - Uses the Qwen3-TTS VoiceDesign model to synthesize voice characteristics from descriptions
 
 ### Training Tab
-Train LoRA adapters on the Base model to create custom voice identities.
+Train LoRA adapters on the Base model to create custom voice identities. Several built-in LoRA presets are included out of the box and appear alongside your trained adapters.
 
 **Dataset:**
 - **Upload ZIP** — WAV files (24kHz mono) + `metadata.jsonl` with `audio_filepath`, `text`, `instruct` fields
 - **Generate Dataset** — Auto-generate training samples from a Voice Designer description with custom sample texts
+- **Dataset Builder** — Interactive tool in its own tab (see below) for building datasets sample-by-sample with preview
 
 **Training Configuration:**
 - **Adapter Name** — Identifier for the trained model
@@ -183,6 +189,16 @@ Train LoRA adapters on the Base model to create custom voice identities.
 - Include samples with varied emotions (happy, sad, angry, calm) for expressive voices
 - Neutral-only training data produces flat voices that resist instruct prompting
 - The settings info panel in the UI explains each parameter's effect on voice quality
+
+### Dataset Builder Tab
+Build LoRA training datasets interactively, one sample at a time.
+
+- **Create a project** with a voice description and optional global seed
+- **Define samples** — Set text and emotion/style per row
+- **Preview audio** — Generate and listen to individual samples or batch-generate all at once
+- **Cancel batch** — Stop a running batch generation without losing completed samples
+- **Save as dataset** — Export the project as a training-ready dataset that appears in the Training tab
+- Designed voices and Voice Designer descriptions drive the audio generation via Qwen3-TTS VoiceDesign model
 
 ### Editor Tab
 Fine-tune your audiobook before export:
@@ -327,9 +343,9 @@ curl -X POST http://127.0.0.1:4200/api/config \
       "compile_codec": true,
       "sub_batch_enabled": true,
       "sub_batch_min_size": 4,
-      "sub_batch_ratio": 5
-    },
-    "generation": {"chunk_size": 3000, "max_tokens": 4096, "temperature": 0.6, "top_p": 0.8, "top_k": 20, "min_p": 0, "presence_penalty": 0.0, "banned_tokens": []}
+      "sub_batch_ratio": 5,
+      "sub_batch_max_chars": 3000
+    }
   }'
 ```
 
@@ -465,6 +481,53 @@ curl -X POST http://127.0.0.1:4200/api/lora/test \
 curl -X DELETE http://127.0.0.1:4200/api/lora/models/adapter_id_here
 ```
 
+### Dataset Builder
+```bash
+# List all dataset builder projects
+curl http://127.0.0.1:4200/api/dataset_builder/list
+
+# Create a new project
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/create \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset"}'
+
+# Update project metadata (description and global seed)
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/update_meta \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset", "description": "A warm male narrator", "global_seed": "42"}'
+
+# Update sample rows
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/update_rows \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset", "rows": [{"text": "Hello world.", "emotion": "cheerful"}]}'
+
+# Generate a single sample preview
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/generate_sample \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset", "description": "A warm male voice", "sample_index": 0, "samples": [{"text": "Hello.", "emotion": "cheerful"}]}'
+
+# Batch generate all samples
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/generate_batch \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset", "description": "A warm male voice", "samples": [{"text": "Hello.", "emotion": "cheerful"}]}'
+
+# Check batch generation status
+curl http://127.0.0.1:4200/api/dataset_builder/status/my_voice_dataset
+
+# Cancel a running batch generation
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/cancel \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset"}'
+
+# Save project as a training dataset
+curl -X POST http://127.0.0.1:4200/api/dataset_builder/save \
+  -H "Content-Type: application/json" \
+  -d '{"name": "my_voice_dataset", "ref_sample_index": 0}'
+
+# Delete a project
+curl -X DELETE http://127.0.0.1:4200/api/dataset_builder/my_voice_dataset
+```
+
 ### Audio Download
 ```bash
 # Download audiobook (after merging in editor)
@@ -555,7 +618,7 @@ await fetch(`${BASE}/api/save_voice_config`, {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
-    NARRATOR: { type: "custom", voice: "Ryan", default_style: "calm" }
+    NARRATOR: { type: "custom", voice: "Ryan", character_style: "calm" }
   })
 });
 
@@ -666,6 +729,8 @@ Alexandria/
 │   ├── config.json            # Runtime configuration (gitignored)
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
+├── builtin_lora/              # Pre-trained LoRA voice presets
+├── dataset_builder/           # Dataset builder project workspace (gitignored)
 ├── designed_voices/           # Saved Voice Designer outputs (gitignored)
 ├── lora_datasets/             # Uploaded/generated training datasets (gitignored)
 ├── lora_models/               # Trained LoRA adapters (gitignored)
