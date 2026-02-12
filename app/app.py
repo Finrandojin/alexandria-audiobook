@@ -1,12 +1,12 @@
 import os
 import sys
+import gc
 import json
 import shutil
-import asyncio
 import logging
 from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -110,21 +110,10 @@ class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
     user_prompt: Optional[str] = None
 
-class GenerationConfig(BaseModel):
-    chunk_size: int = 3000
-    max_tokens: int = 4096
-    temperature: float = 0.6
-    top_p: float = 0.8
-    top_k: int = 20
-    min_p: float = 0
-    presence_penalty: float = 0.0
-    banned_tokens: List[str] = []
-
 class AppConfig(BaseModel):
     llm: LLMConfig
     tts: TTSConfig
     prompts: Optional[PromptConfig] = None
-    generation: Optional[GenerationConfig] = None
 
 class VoiceConfigItem(BaseModel):
     type: str = "custom"
@@ -137,10 +126,6 @@ class VoiceConfigItem(BaseModel):
     adapter_id: Optional[str] = None
     adapter_path: Optional[str] = None
     description: Optional[str] = ""  # voice description (for design type)
-
-class ProcessStatus(BaseModel):
-    running: bool
-    logs: List[str]
 
 class ChunkUpdate(BaseModel):
     text: Optional[str] = None
@@ -239,8 +224,6 @@ def run_process(command: List[str], task_name: str):
     logger.info(f"Starting task {task_name}: {' '.join(command)}")
 
     try:
-        # Use shell=True for Windows compatibility in some cases, but cleaner to pass list
-        # For Windows, we might need shell=True if relying on system path resolution for python
         env = os.environ.copy()
         process = subprocess.Popen(
             command,
@@ -360,7 +343,8 @@ async def upload_file(file: UploadFile = File(...)):
         with open(state_path, "r", encoding="utf-8") as f:
             try:
                 state = json.load(f)
-            except: pass
+            except (json.JSONDecodeError, ValueError):
+                pass
 
     state["input_file_path"] = file_path
     with open(state_path, "w", encoding="utf-8") as f:
@@ -458,7 +442,8 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
         with open(VOICE_CONFIG_PATH, "r", encoding="utf-8") as f:
             try:
                 current_config = json.load(f)
-            except: pass
+            except (json.JSONDecodeError, ValueError):
+                pass
 
     # Update current config with new data
     for voice_name, config in config_data.items():
@@ -566,7 +551,7 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
                 cfg = json.load(f)
                 workers = max(1, cfg.get("tts", {}).get("parallel_workers", 2))
-        except:
+        except (json.JSONDecodeError, ValueError):
             pass
 
     indices = request.indices
@@ -625,7 +610,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
                     batch_seed = int(seed_val)
                 batch_size = max(1, tts_cfg.get("parallel_workers", 4))
                 batch_group_by_type = tts_cfg.get("batch_group_by_type", False)
-        except:
+        except (json.JSONDecodeError, ValueError):
             pass
 
     indices = request.indices
@@ -665,7 +650,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
 
 ## ── Saved Scripts ──────────────────────────────────────────────
 
-def _sanitize_script_name(name: str) -> str:
+def _sanitize_name(name: str) -> str:
     """Make a string safe for use as a filename."""
     name = re.sub(r'[^\w\- ]', '', name).strip()
     name = re.sub(r'\s+', '_', name)
@@ -697,7 +682,7 @@ async def save_script(request: ScriptSaveRequest):
     if not os.path.exists(SCRIPT_PATH):
         raise HTTPException(status_code=404, detail="No annotated script to save. Generate a script first.")
 
-    safe_name = _sanitize_script_name(request.name)
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid script name.")
 
@@ -755,17 +740,19 @@ async def delete_script(name: str):
 
 DESIGNED_VOICES_MANIFEST = os.path.join(DESIGNED_VOICES_DIR, "manifest.json")
 
-def _load_design_manifest():
-    if os.path.exists(DESIGNED_VOICES_MANIFEST):
+def _load_manifest(path):
+    """Load a JSON manifest file, returning [] on missing or corrupt file."""
+    if os.path.exists(path):
         try:
-            with open(DESIGNED_VOICES_MANIFEST, "r", encoding="utf-8") as f:
+            with open(path, "r", encoding="utf-8") as f:
                 return json.load(f)
         except (json.JSONDecodeError, ValueError):
             pass
     return []
 
-def _save_design_manifest(manifest):
-    with open(DESIGNED_VOICES_MANIFEST, "w", encoding="utf-8") as f:
+def _save_manifest(path, manifest):
+    """Write a JSON manifest file."""
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2, ensure_ascii=False)
 
 @app.post("/api/voice_design/preview")
@@ -797,14 +784,11 @@ async def voice_design_save(request: VoiceDesignSaveRequest):
     if not os.path.exists(preview_path):
         raise HTTPException(status_code=404, detail="Preview file not found")
 
-    # Sanitize name for filename
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
-    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid voice name")
 
     # Generate unique ID
-    import time
     voice_id = f"{safe_name}_{int(time.time())}"
     dest_filename = f"{voice_id}.wav"
     dest_path = os.path.join(DESIGNED_VOICES_DIR, dest_filename)
@@ -812,7 +796,7 @@ async def voice_design_save(request: VoiceDesignSaveRequest):
     shutil.copy2(preview_path, dest_path)
 
     # Update manifest
-    manifest = _load_design_manifest()
+    manifest = _load_manifest(DESIGNED_VOICES_MANIFEST)
     manifest.append({
         "id": voice_id,
         "name": request.name,
@@ -820,7 +804,7 @@ async def voice_design_save(request: VoiceDesignSaveRequest):
         "sample_text": request.sample_text,
         "filename": dest_filename,
     })
-    _save_design_manifest(manifest)
+    _save_manifest(DESIGNED_VOICES_MANIFEST, manifest)
 
     logger.info(f"Designed voice saved: '{request.name}' as {dest_filename}")
     return {"status": "saved", "voice_id": voice_id}
@@ -828,12 +812,12 @@ async def voice_design_save(request: VoiceDesignSaveRequest):
 @app.get("/api/voice_design/list")
 async def voice_design_list():
     """List all saved designed voices."""
-    return _load_design_manifest()
+    return _load_manifest(DESIGNED_VOICES_MANIFEST)
 
 @app.delete("/api/voice_design/{voice_id}")
 async def voice_design_delete(voice_id: str):
     """Delete a saved designed voice."""
-    manifest = _load_design_manifest()
+    manifest = _load_manifest(DESIGNED_VOICES_MANIFEST)
     entry = next((v for v in manifest if v["id"] == voice_id), None)
     if not entry:
         raise HTTPException(status_code=404, detail="Voice not found")
@@ -845,7 +829,7 @@ async def voice_design_delete(voice_id: str):
 
     # Remove from manifest
     manifest = [v for v in manifest if v["id"] != voice_id]
-    _save_design_manifest(manifest)
+    _save_manifest(DESIGNED_VOICES_MANIFEST, manifest)
 
     logger.info(f"Designed voice deleted: {voice_id}")
     return {"status": "deleted", "voice_id": voice_id}
@@ -854,38 +838,19 @@ async def voice_design_delete(voice_id: str):
 
 LORA_MODELS_MANIFEST = os.path.join(LORA_MODELS_DIR, "manifest.json")
 
-def _load_lora_manifest():
-    if os.path.exists(LORA_MODELS_MANIFEST):
-        try:
-            with open(LORA_MODELS_MANIFEST, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, ValueError):
-            pass
-    return []
-
-def _save_lora_manifest(manifest):
-    with open(LORA_MODELS_MANIFEST, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, ensure_ascii=False)
-
 def _load_builtin_lora_manifest():
     """Load built-in LoRA adapter manifest, filtering to adapters with files present."""
-    if not os.path.exists(BUILTIN_LORA_MANIFEST):
-        return []
-    try:
-        with open(BUILTIN_LORA_MANIFEST, "r", encoding="utf-8") as f:
-            entries = json.load(f)
-        result = []
-        for entry in entries:
-            adapter_dir = os.path.join(BUILTIN_LORA_DIR, entry["id"])
-            if os.path.isdir(adapter_dir) and os.path.exists(
-                os.path.join(adapter_dir, "adapter_model.safetensors")
-            ):
-                entry["builtin"] = True
-                entry["adapter_path"] = f"builtin_lora/{entry['id']}"
-                result.append(entry)
-        return result
-    except (json.JSONDecodeError, ValueError):
-        return []
+    entries = _load_manifest(BUILTIN_LORA_MANIFEST)
+    result = []
+    for entry in entries:
+        adapter_dir = os.path.join(BUILTIN_LORA_DIR, entry["id"])
+        if os.path.isdir(adapter_dir) and os.path.exists(
+            os.path.join(adapter_dir, "adapter_model.safetensors")
+        ):
+            entry["builtin"] = True
+            entry["adapter_path"] = f"builtin_lora/{entry['id']}"
+            result.append(entry)
+    return result
 
 @app.post("/api/lora/upload_dataset")
 async def lora_upload_dataset(file: UploadFile = File(...)):
@@ -972,8 +937,7 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
     if not sample_list:
         raise HTTPException(status_code=400, detail="Provide at least one sample text")
 
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
-    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid dataset name")
 
@@ -1103,8 +1067,7 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
         raise HTTPException(status_code=400, detail=f"Dataset '{request.dataset_id}' not found")
 
     # Build output directory
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
-    safe_name = re.sub(r'\s+', '_', safe_name).lower()
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid adapter name")
 
@@ -1115,7 +1078,6 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
     if project_manager.engine is not None:
         logger.info("Unloading TTS engine for LoRA training...")
         project_manager.engine = None
-        import gc
         gc.collect()
 
     # Build subprocess command
@@ -1141,7 +1103,7 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
                 with open(os.path.join(output_dir, "training_meta.json"), "r") as f:
                     meta = json.load(f)
 
-                manifest = _load_lora_manifest()
+                manifest = _load_manifest(LORA_MODELS_MANIFEST)
                 manifest.append({
                     "id": adapter_id,
                     "name": request.name,
@@ -1153,7 +1115,7 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
                     "lr": meta.get("lr"),
                     "created": time.time(),
                 })
-                _save_lora_manifest(manifest)
+                _save_manifest(LORA_MODELS_MANIFEST, manifest)
                 logger.info(f"LoRA adapter registered: {adapter_id}")
             except Exception as e:
                 logger.error(f"Failed to update LoRA manifest: {e}")
@@ -1164,7 +1126,7 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
 @app.get("/api/lora/models")
 async def lora_list_models():
     """List all LoRA adapters (built-in + user-trained)."""
-    return _load_builtin_lora_manifest() + _load_lora_manifest()
+    return _load_builtin_lora_manifest() + _load_manifest(LORA_MODELS_MANIFEST)
 
 @app.delete("/api/lora/models/{adapter_id}")
 async def lora_delete_model(adapter_id: str):
@@ -1172,7 +1134,7 @@ async def lora_delete_model(adapter_id: str):
     builtin = _load_builtin_lora_manifest()
     if any(m["id"] == adapter_id for m in builtin):
         raise HTTPException(status_code=403, detail="Built-in adapters cannot be deleted")
-    manifest = _load_lora_manifest()
+    manifest = _load_manifest(LORA_MODELS_MANIFEST)
     entry = next((m for m in manifest if m["id"] == adapter_id), None)
     if not entry:
         raise HTTPException(status_code=404, detail="Adapter not found")
@@ -1184,7 +1146,7 @@ async def lora_delete_model(adapter_id: str):
 
     # Remove from manifest
     manifest = [m for m in manifest if m["id"] != adapter_id]
-    _save_lora_manifest(manifest)
+    _save_manifest(LORA_MODELS_MANIFEST, manifest)
 
     logger.info(f"LoRA adapter deleted: {adapter_id}")
     return {"status": "deleted", "adapter_id": adapter_id}
@@ -1194,7 +1156,7 @@ async def lora_test_model(request: LoraTestRequest):
     """Generate test audio using a LoRA adapter (built-in or user-trained)."""
     # Check both manifests
     builtin = _load_builtin_lora_manifest()
-    user_trained = _load_lora_manifest()
+    user_trained = _load_manifest(LORA_MODELS_MANIFEST)
     all_adapters = builtin + user_trained
     entry = next((m for m in all_adapters if m["id"] == request.adapter_id), None)
     if not entry:
@@ -1287,8 +1249,7 @@ async def dataset_builder_list():
 @app.post("/api/dataset_builder/create")
 async def dataset_builder_create(request: DatasetBuilderCreateRequest):
     """Create a new dataset builder project."""
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
-    safe_name = re.sub(r'\s+', '_', safe_name)
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid dataset name")
     work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
@@ -1300,7 +1261,7 @@ async def dataset_builder_create(request: DatasetBuilderCreateRequest):
 @app.post("/api/dataset_builder/update_meta")
 async def dataset_builder_update_meta(request: DatasetBuilderUpdateMetaRequest):
     """Update project description and global seed without touching samples."""
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = _sanitize_name(request.name)
     work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Project not found")
@@ -1313,7 +1274,7 @@ async def dataset_builder_update_meta(request: DatasetBuilderUpdateMetaRequest):
 @app.post("/api/dataset_builder/update_rows")
 async def dataset_builder_update_rows(request: DatasetBuilderUpdateRowsRequest):
     """Update row definitions, preserving existing generation status/audio."""
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = _sanitize_name(request.name)
     work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Project not found")
@@ -1406,7 +1367,7 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
     if not request.samples or len(request.samples) == 0:
         raise HTTPException(status_code=400, detail="No samples provided")
 
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid dataset name")
 
@@ -1528,7 +1489,7 @@ async def dataset_builder_status(name: str):
 @app.post("/api/dataset_builder/save")
 async def dataset_builder_save(request: DatasetSaveRequest):
     """Finalize dataset builder project as a training dataset."""
-    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = _sanitize_name(request.name)
     if not safe_name:
         raise HTTPException(status_code=400, detail="Invalid dataset name")
 

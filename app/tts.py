@@ -1,7 +1,6 @@
 import os
 import re
 import json
-import shutil
 import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
@@ -79,6 +78,21 @@ class TTSEngine:
     @property
     def mode(self):
         return self._mode
+
+    @staticmethod
+    def _concat_audio(wav):
+        """Concatenate audio array(s) into a single numpy array."""
+        if isinstance(wav, list):
+            return np.concatenate(wav) if len(wav) > 1 else wav[0]
+        return wav
+
+    @staticmethod
+    def _clear_gpu_cache():
+        """Free GPU memory: garbage-collect Python objects, then clear CUDA cache."""
+        import gc
+        gc.collect()
+        import torch
+        torch.cuda.empty_cache()
 
     def _build_sub_batches(self, texts):
         """Split sorted-by-length texts into sub-batches.
@@ -313,10 +327,7 @@ class TTSEngine:
             self._local_lora_model = None
             self._lora_adapter_path = None
             self._lora_prompt_cache.clear()
-            import gc
-            gc.collect()
-            import torch as _torch
-            _torch.cuda.empty_cache()
+            self._clear_gpu_cache()
 
         self._enable_rocm_optimizations()
 
@@ -400,10 +411,6 @@ class TTSEngine:
         self._clone_prompt_cache[speaker] = prompt
         print(f"Clone prompt cached for '{speaker}'.")
         return prompt
-
-    def clear_clone_cache(self):
-        """Clear cached clone prompts (e.g. when voice config changes)."""
-        self._clone_prompt_cache.clear()
 
     # ── Core generation methods ──────────────────────────────────
 
@@ -749,56 +756,6 @@ class TTSEngine:
 
     # ── Connection test ──────────────────────────────────────────
 
-    def test_connection(self, voice_config=None):
-        """Test TTS connectivity. Returns True on success."""
-        if self._mode == "local":
-            return self._test_local()
-        else:
-            return self._test_external(voice_config)
-
-    def _test_local(self):
-        """Test local mode by loading the CustomVoice model."""
-        try:
-            self._init_local_custom()
-            print("Local TTS test: CustomVoice model loaded successfully.")
-            return True
-        except Exception as e:
-            print(f"Local TTS test FAILED: {e}")
-            return False
-
-    def _test_external(self, voice_config=None):
-        """Test external mode by making a test prediction."""
-        print(f"Testing TTS connection to {self._url}...")
-
-        speaker = list(voice_config.keys())[0] if voice_config else None
-        if not speaker:
-            print("Error: No voices configured in voice_config.json")
-            return False
-
-        voice_data = voice_config[speaker]
-        voice = voice_data.get("voice", "Ryan")
-        seed = int(voice_data.get("seed", -1))
-
-        try:
-            client = self._init_external()
-            result = client.predict(
-                text="Testing, one two three.",
-                language=self._language,
-                speaker=voice,
-                instruct="neutral, clear",
-                model_size="1.7B",
-                seed=seed,
-                api_name="/generate_custom_voice"
-            )
-            print(f"  Test successful! Output: {result[0]}")
-            return True
-        except Exception as e:
-            print(f"  TTS Test FAILED: {e}")
-            print("\nTroubleshooting tips:")
-            print("  1. Make sure the TTS server is running")
-            print("  2. Check if the CustomVoice model is loaded")
-            return False
-
     # ── Local backend methods ────────────────────────────────────
 
     def _local_generate_custom(self, text, instruct_text, speaker, voice_config, output_path):
@@ -958,9 +915,7 @@ class TTSEngine:
 
         # Clear stale GPU cache from any prior generation to avoid
         # fragmented VRAM blocking large batch allocations (ROCm especially).
-        import gc
-        gc.collect()
-        torch.cuda.empty_cache()
+        self._clear_gpu_cache()
 
         t_total_start = time.time()
         total_audio_duration = 0.0
@@ -999,7 +954,7 @@ class TTSEngine:
                 for i, (wav, idx) in enumerate(zip(wavs_list, sb_indices)):
                     try:
                         output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
-                        audio = np.concatenate(wav) if isinstance(wav, list) and len(wav) > 1 else (wav[0] if isinstance(wav, list) else wav)
+                        audio = self._concat_audio(wav)
                         self._save_wav(audio, sr, output_path)
                         results["completed"].append(idx)
                         duration = len(audio) / sr
@@ -1020,9 +975,7 @@ class TTSEngine:
 
             # Free GPU memory between sub-batches to prevent VRAM exhaustion
             if len(sub_batches) > 1:
-                import gc
-                gc.collect()
-                torch.cuda.empty_cache()
+                self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
@@ -1039,7 +992,6 @@ class TTSEngine:
         """
         import torch
         import time
-        import gc
 
         results = {"completed": [], "failed": []}
 
@@ -1051,8 +1003,7 @@ class TTSEngine:
 
         model = self._init_local_clone()
 
-        gc.collect()
-        torch.cuda.empty_cache()
+        self._clear_gpu_cache()
 
         t_total_start = time.time()
         total_audio_duration = 0.0
@@ -1106,7 +1057,7 @@ class TTSEngine:
                     for wav, idx in zip(wavs_list, sb_indices):
                         try:
                             output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
-                            audio = np.concatenate(wav) if isinstance(wav, list) and len(wav) > 1 else (wav[0] if isinstance(wav, list) else wav)
+                            audio = self._concat_audio(wav)
                             self._save_wav(audio, sr, output_path)
                             results["completed"].append(idx)
                             duration = len(audio) / sr
@@ -1125,8 +1076,7 @@ class TTSEngine:
                         results["failed"].append((idx, f"Batch error: {e}"))
 
                 if len(sub_batches) > 1:
-                    gc.collect()
-                    torch.cuda.empty_cache()
+                    self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
@@ -1143,7 +1093,6 @@ class TTSEngine:
         """
         import torch
         import time
-        import gc
 
         results = {"completed": [], "failed": []}
         root_dir = os.path.dirname(os.path.dirname(__file__))
@@ -1166,8 +1115,7 @@ class TTSEngine:
                 adapter_groups[adapter_path] = (voice_data, [])
             adapter_groups[adapter_path][1].append(chunk)
 
-        gc.collect()
-        torch.cuda.empty_cache()
+        self._clear_gpu_cache()
 
         t_total_start = time.time()
         total_audio_duration = 0.0
@@ -1274,7 +1222,7 @@ class TTSEngine:
                     for wav, idx in zip(wavs_list, sb_indices):
                         try:
                             output_path = os.path.join(output_dir, f"temp_batch_{idx}.wav")
-                            audio = np.concatenate(wav) if isinstance(wav, list) and len(wav) > 1 else (wav[0] if isinstance(wav, list) else wav)
+                            audio = self._concat_audio(wav)
                             self._save_wav(audio, sr, output_path)
                             results["completed"].append(idx)
                             duration = len(audio) / sr
@@ -1293,8 +1241,7 @@ class TTSEngine:
                         results["failed"].append((idx, f"Batch error: {e}"))
 
                 if len(sub_batches) > 1:
-                    gc.collect()
-                    torch.cuda.empty_cache()
+                    self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
