@@ -578,8 +578,12 @@ def test_generate_batch():
 def test_generate_batch_fast():
     if not shared.get("has_chunks"):
         raise TestFailure("SKIP: no chunks available")
-    # Wait for any prior batch to finish
-    time.sleep(2)
+    # Wait for prior batch to finish
+    for _ in range(30):
+        r = get("/api/status/audio")
+        if not r.json().get("running"):
+            break
+        time.sleep(1)
     r = post("/api/generate_batch_fast", json={"indices": [0]})
     if r.status_code == 400:
         raise TestFailure("SKIP: audio generation already running")
