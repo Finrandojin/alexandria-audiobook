@@ -103,6 +103,8 @@ class TTSConfig(BaseModel):
     sub_batch_enabled: bool = True  # split batch by text length to reduce padding waste
     sub_batch_min_size: int = 4  # minimum chunks per sub-batch before allowing a split
     sub_batch_ratio: float = 5.0  # max longest/shortest length ratio before splitting
+    sub_batch_max_chars: int = 3000  # max total chars per sub-batch (lower for less VRAM)
+    batch_group_by_type: bool = False  # group chunks by voice type for efficient batching
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -203,6 +205,18 @@ class DatasetBatchGenRequest(BaseModel):
 class DatasetSaveRequest(BaseModel):
     name: str
     ref_index: int = 0    # which sample to use as ref.wav
+
+class DatasetBuilderCreateRequest(BaseModel):
+    name: str
+
+class DatasetBuilderUpdateMetaRequest(BaseModel):
+    name: str
+    description: str = ""
+    global_seed: str = ""
+
+class DatasetBuilderUpdateRowsRequest(BaseModel):
+    name: str
+    rows: List[dict]  # [{emotion, text, seed}]
 
 # Global state for process tracking
 process_state = {
@@ -600,6 +614,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
     # Load batch_seed and batch_size from config
     batch_seed = -1
     batch_size = 4
+    batch_group_by_type = False
     if os.path.exists(CONFIG_PATH):
         try:
             with open(CONFIG_PATH, "r", encoding="utf-8") as f:
@@ -609,6 +624,7 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
                 if seed_val is not None and seed_val != "":
                     batch_seed = int(seed_val)
                 batch_size = max(1, tts_cfg.get("parallel_workers", 4))
+                batch_group_by_type = tts_cfg.get("batch_group_by_type", False)
         except:
             pass
 
@@ -627,7 +643,8 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
         ]
         try:
             results = project_manager.generate_chunks_batch(
-                indices, batch_seed, batch_size, progress_callback
+                indices, batch_seed, batch_size, progress_callback,
+                batch_group_by_type=batch_group_by_type,
             )
             completed = len(results["completed"])
             failed = len(results["failed"])
@@ -1227,15 +1244,20 @@ async def lora_test_model(request: LoraTestRequest):
 ## ── Dataset Builder ──────────────────────────────────────────
 
 def _load_builder_state(name):
-    """Load per-sample state from dataset builder working directory."""
+    """Load project state from dataset builder working directory."""
     state_path = os.path.join(DATASET_BUILDER_DIR, name, "state.json")
     if os.path.exists(state_path):
         try:
             with open(state_path, "r", encoding="utf-8") as f:
-                return json.load(f)
+                state = json.load(f)
+            # Ensure new fields exist for backward compat
+            state.setdefault("description", "")
+            state.setdefault("global_seed", "")
+            state.setdefault("samples", [])
+            return state
         except Exception:
             pass
-    return {"samples": []}
+    return {"description": "", "global_seed": "", "samples": []}
 
 def _save_builder_state(name, state):
     """Save per-sample state to dataset builder working directory."""
@@ -1243,6 +1265,80 @@ def _save_builder_state(name, state):
     os.makedirs(work_dir, exist_ok=True)
     with open(os.path.join(work_dir, "state.json"), "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, ensure_ascii=False)
+
+@app.get("/api/dataset_builder/list")
+async def dataset_builder_list():
+    """List existing dataset builder projects."""
+    projects = []
+    if os.path.isdir(DATASET_BUILDER_DIR):
+        for name in sorted(os.listdir(DATASET_BUILDER_DIR)):
+            state_path = os.path.join(DATASET_BUILDER_DIR, name, "state.json")
+            if os.path.isfile(state_path):
+                state = _load_builder_state(name)
+                samples = state.get("samples", [])
+                projects.append({
+                    "name": name,
+                    "description": state.get("description", ""),
+                    "sample_count": len(samples),
+                    "done_count": sum(1 for s in samples if s.get("status") == "done"),
+                })
+    return projects
+
+@app.post("/api/dataset_builder/create")
+async def dataset_builder_create(request: DatasetBuilderCreateRequest):
+    """Create a new dataset builder project."""
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    safe_name = re.sub(r'\s+', '_', safe_name)
+    if not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid dataset name")
+    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    if os.path.exists(work_dir):
+        raise HTTPException(status_code=400, detail=f"Project '{safe_name}' already exists")
+    _save_builder_state(safe_name, {"description": "", "global_seed": "", "samples": []})
+    return {"name": safe_name}
+
+@app.post("/api/dataset_builder/update_meta")
+async def dataset_builder_update_meta(request: DatasetBuilderUpdateMetaRequest):
+    """Update project description and global seed without touching samples."""
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    if not os.path.exists(work_dir):
+        raise HTTPException(status_code=404, detail="Project not found")
+    state = _load_builder_state(safe_name)
+    state["description"] = request.description
+    state["global_seed"] = request.global_seed
+    _save_builder_state(safe_name, state)
+    return {"status": "ok"}
+
+@app.post("/api/dataset_builder/update_rows")
+async def dataset_builder_update_rows(request: DatasetBuilderUpdateRowsRequest):
+    """Update row definitions, preserving existing generation status/audio."""
+    safe_name = re.sub(r'[^\w\- ]', '', request.name).strip()
+    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    if not os.path.exists(work_dir):
+        raise HTTPException(status_code=404, detail="Project not found")
+    state = _load_builder_state(safe_name)
+    existing = state.get("samples", [])
+    # Merge: keep status/audio_url from existing samples where text unchanged
+    new_samples = []
+    for i, row in enumerate(request.rows):
+        sample = {
+            "emotion": row.get("emotion", ""),
+            "text": row.get("text", "").strip(),
+            "seed": row.get("seed", ""),
+            "status": "pending",
+            "audio_url": None,
+        }
+        if i < len(existing):
+            old = existing[i]
+            # Preserve generation state if text unchanged (trimmed comparison)
+            if old.get("text", "").strip() == sample["text"]:
+                sample["status"] = old.get("status", "pending")
+                sample["audio_url"] = old.get("audio_url")
+        new_samples.append(sample)
+    state["samples"] = new_samples
+    _save_builder_state(safe_name, state)
+    return {"status": "ok", "sample_count": len(new_samples)}
 
 @app.post("/api/dataset_builder/generate_sample")
 async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
@@ -1265,16 +1361,20 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
         dest_path = os.path.join(work_dir, dest_filename)
         shutil.copy2(wav_path, dest_path)
 
-        # Update state
+        # Update state (cache-bust URL so browser loads fresh audio on regen)
+        cache_bust = int(time.time())
+        audio_url = f"/dataset_builder/{request.dataset_name}/{dest_filename}?t={cache_bust}"
         state = _load_builder_state(request.dataset_name)
         samples = state.get("samples", [])
         # Ensure list is large enough
         while len(samples) <= request.sample_index:
             samples.append({"status": "pending"})
+        existing_sample = samples[request.sample_index] if request.sample_index < len(samples) else {}
         samples[request.sample_index] = {
+            **existing_sample,
             "status": "done",
-            "audio_url": f"/dataset_builder/{request.dataset_name}/{dest_filename}",
-            "text": request.text,
+            "audio_url": audio_url,
+            "text": request.text.strip(),
             "description": request.description,
         }
         state["samples"] = samples
@@ -1283,7 +1383,7 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
         return {
             "status": "done",
             "sample_index": request.sample_index,
-            "audio_url": f"/dataset_builder/{request.dataset_name}/{dest_filename}",
+            "audio_url": audio_url,
         }
     except Exception as e:
         logger.error(f"Dataset builder sample generation failed: {e}")
@@ -1353,8 +1453,9 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
             emotion, text = samples_snapshot[idx]
             description = f"{root_desc}, {emotion}" if emotion else root_desc
 
-            # Mark as generating
-            samples_state[idx] = {"status": "generating", "text": text, "description": description}
+            # Mark as generating (preserve existing fields like emotion, seed)
+            existing_s = samples_state[idx] if idx < len(samples_state) else {}
+            samples_state[idx] = {**existing_s, "status": "generating", "text": text, "emotion": emotion, "description": description}
             state["samples"] = samples_state
             _save_builder_state(safe_name, state)
 
@@ -1380,16 +1481,18 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
                 shutil.copy2(wav_path, dest_path)
 
                 samples_state[idx] = {
+                    **samples_state[idx],
                     "status": "done",
-                    "audio_url": f"/dataset_builder/{safe_name}/{dest_filename}",
+                    "audio_url": f"/dataset_builder/{safe_name}/{dest_filename}?t={int(time.time())}",
                     "text": text,
+                    "emotion": emotion,
                     "description": description,
                 }
                 completed += 1
             except Exception as e:
                 logger.error(f"Dataset builder sample {idx} failed: {e}")
                 process_state["dataset_builder"]["logs"].append(f"  Error: {e}")
-                samples_state[idx] = {"status": "error", "error": str(e), "text": text}
+                samples_state[idx] = {**samples_state[idx], "status": "error", "error": str(e), "text": text, "emotion": emotion}
 
             state["samples"] = samples_state
             _save_builder_state(safe_name, state)
@@ -1415,6 +1518,8 @@ async def dataset_builder_status(name: str):
     """Get per-sample generation status for a dataset builder project."""
     state = _load_builder_state(name)
     return {
+        "description": state.get("description", ""),
+        "global_seed": state.get("global_seed", ""),
         "samples": state.get("samples", []),
         "running": process_state["dataset_builder"]["running"],
         "logs": process_state["dataset_builder"]["logs"],

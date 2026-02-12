@@ -146,6 +146,13 @@
                             </div>
                             <div class="col-md-2">
                                 <div class="form-check form-switch mt-4">
+                                    <input class="form-check-input" type="checkbox" id="batch-group-by-type">
+                                    <label class="form-check-label" for="batch-group-by-type">Optimize Batch Order</label>
+                                </div>
+                                <div class="form-text">Group by voice type for GPU efficiency (disables sequential order)</div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-check form-switch mt-4">
                                     <input class="form-check-input" type="checkbox" id="sub-batch-enabled" checked>
                                     <label class="form-check-label" for="sub-batch-enabled">Sub-batching</label>
                                 </div>
@@ -160,6 +167,11 @@
                                 <label class="form-label">Length Ratio</label>
                                 <input type="number" class="form-control" id="sub-batch-ratio" value="5" min="1" step="0.5">
                                 <div class="form-text">Max long/short ratio before split</div>
+                            </div>
+                            <div class="col-md-2" id="sub-batch-max-chars-group">
+                                <label class="form-label">Max Chars/Batch</label>
+                                <input type="number" class="form-control" id="sub-batch-max-chars" value="3000" min="500" step="500">
+                                <div class="form-text">VRAM safety limit per sub-batch (lower for 12-16GB GPUs)</div>
                             </div>
                         </div>
 
@@ -552,17 +564,23 @@
                     <p class="text-muted mb-0">Build LoRA training datasets with per-sample generation, preview, and re-generation.</p>
                 </div>
                 <div class="card-body">
-                    <!-- Dataset Config -->
+                    <!-- Project Selector -->
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <select class="form-select" id="dsb-project-select" style="max-width: 300px;" onchange="dsbOnProjectChange()">
+                            <option value="">-- Select project --</option>
+                        </select>
+                        <button class="btn btn-primary btn-sm" onclick="dsbCreateProject()"><i class="fas fa-plus me-1"></i>New Dataset</button>
+                        <button class="btn btn-outline-danger btn-sm" id="dsb-btn-delete-project" onclick="dsbDeleteProject()" style="display:none;"><i class="fas fa-trash me-1"></i>Delete</button>
+                    </div>
+
+                    <!-- Dataset Config (shown when project selected) -->
+                    <div id="dsb-form-area" style="display:none;">
                     <div class="row g-3 mb-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Dataset Name</label>
-                            <input type="text" class="form-control" id="dsb-name" placeholder="e.g. warm_narrator">
-                        </div>
-                        <div class="col-md-7">
+                        <div class="col-md-9">
                             <label class="form-label">Root Voice Description</label>
                             <input type="text" class="form-control" id="dsb-description" placeholder="e.g. A male tenor with a steady, clean tone, light nasal resonance, and even delivery">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label">Global Seed</label>
                             <input type="number" class="form-control" id="dsb-global-seed" placeholder="Random" min="-1" value="">
                             <div class="text-muted" style="font-size: 0.7rem;">Empty = random. Same seed = same voice.</div>
@@ -624,6 +642,7 @@
 
                     <!-- Logs -->
                     <pre id="dsb-logs" class="bg-dark text-light p-2 rounded mt-3" style="max-height: 150px; overflow-y: auto; font-size: 0.8rem; display: none;"></pre>
+                    </div><!-- /dsb-form-area -->
                 </div>
             </div>
         </div>
@@ -727,7 +746,7 @@
                     loadLoraDatasets();
                     loadLoraModels();
                 } else if (e.target.dataset.tab === 'dataset-builder') {
-                    dsbRestoreForm();
+                    dsbLoadProjects(dsbCurrentProject);
                 }
             });
         });
@@ -787,12 +806,16 @@
                     document.getElementById('batch-seed').value = config.tts.batch_seed;
                 }
                 document.getElementById('compile-codec').checked = !!config.tts.compile_codec;
+                document.getElementById('batch-group-by-type').checked = !!config.tts.batch_group_by_type;
                 document.getElementById('sub-batch-enabled').checked = config.tts.sub_batch_enabled !== false;
                 if (config.tts.sub_batch_min_size != null) {
                     document.getElementById('sub-batch-min-size').value = config.tts.sub_batch_min_size;
                 }
                 if (config.tts.sub_batch_ratio != null) {
                     document.getElementById('sub-batch-ratio').value = config.tts.sub_batch_ratio;
+                }
+                if (config.tts.sub_batch_max_chars != null) {
+                    document.getElementById('sub-batch-max-chars').value = config.tts.sub_batch_max_chars;
                 }
                 toggleTTSMode();
 
@@ -890,9 +913,11 @@
                     parallel_workers: parallelWorkers,
                     batch_seed: document.getElementById('batch-seed').value ? parseInt(document.getElementById('batch-seed').value) : null,
                     compile_codec: document.getElementById('compile-codec').checked,
+                    batch_group_by_type: document.getElementById('batch-group-by-type').checked,
                     sub_batch_enabled: document.getElementById('sub-batch-enabled').checked,
                     sub_batch_min_size: parseInt(document.getElementById('sub-batch-min-size').value) || 4,
-                    sub_batch_ratio: parseFloat(document.getElementById('sub-batch-ratio').value) || 5
+                    sub_batch_ratio: parseFloat(document.getElementById('sub-batch-ratio').value) || 5,
+                    sub_batch_max_chars: parseInt(document.getElementById('sub-batch-max-chars').value) || 3000
                 },
                 prompts: {
                     system_prompt: document.getElementById('system-prompt').value,
@@ -2258,46 +2283,130 @@
         let dsbRows = [];
         let dsbPolling = null;
         let dsbBatchRunning = false;
-        let dsbSaveTimer = null;
+        let dsbSaveMetaTimer = null;
+        let dsbSaveRowsTimer = null;
+        let dsbCurrentProject = '';
+
+        // Clean up legacy localStorage
+        localStorage.removeItem('alexandria-dsb-form');
+
+        async function dsbLoadProjects(selectName) {
+            try {
+                const projects = await API.get('/api/dataset_builder/list');
+                const select = document.getElementById('dsb-project-select');
+                select.innerHTML = '<option value="">-- Select project --</option>' +
+                    projects.map(p => `<option value="${p.name}">${p.name} (${p.done_count}/${p.sample_count})</option>`).join('');
+                if (selectName) {
+                    select.value = selectName;
+                    dsbOnProjectChange();
+                }
+            } catch (e) { console.error('Failed to load projects:', e); }
+        }
+
+        window.dsbOnProjectChange = async () => {
+            const name = document.getElementById('dsb-project-select').value;
+            const formArea = document.getElementById('dsb-form-area');
+            const deleteBtn = document.getElementById('dsb-btn-delete-project');
+            if (!name) {
+                dsbCurrentProject = '';
+                formArea.style.display = 'none';
+                deleteBtn.style.display = 'none';
+                dsbRows = [];
+                dsbRenderTable();
+                return;
+            }
+            dsbCurrentProject = name;
+            formArea.style.display = '';
+            deleteBtn.style.display = '';
+            await dsbLoadProject(name);
+        };
+
+        async function dsbLoadProject(name) {
+            try {
+                const result = await API.get(`/api/dataset_builder/status/${encodeURIComponent(name)}`);
+                document.getElementById('dsb-description').value = result.description || '';
+                document.getElementById('dsb-global-seed').value = result.global_seed || '';
+                dsbRows = (result.samples || []).map(s => ({
+                    emotion: s.emotion || s.description || '',
+                    text: s.text || '',
+                    seed: s.seed ?? '',
+                    status: s.status || 'pending',
+                    audio_url: s.audio_url || null,
+                }));
+                if (dsbRows.length === 0) dsbAddRow();
+                dsbRenderTable();
+                // Resume polling if batch is running
+                if (result.running) {
+                    dsbBatchRunning = true;
+                    dsbStartPolling(name);
+                    document.getElementById('dsb-btn-gen-all').style.display = 'none';
+                    document.getElementById('dsb-btn-regen-all').style.display = 'none';
+                    document.getElementById('dsb-btn-cancel').style.display = '';
+                }
+            } catch (e) {
+                dsbRows = [];
+                dsbAddRow();
+            }
+        }
+
+        window.dsbCreateProject = async () => {
+            const name = prompt('Dataset name:');
+            if (!name || !name.trim()) return;
+            try {
+                const result = await API.post('/api/dataset_builder/create', { name: name.trim() });
+                await dsbLoadProjects(result.name);
+            } catch (e) {
+                alert('Failed to create project: ' + e.message);
+            }
+        };
+
+        window.dsbDeleteProject = async () => {
+            if (!dsbCurrentProject) return;
+            if (!confirm(`Delete project "${dsbCurrentProject}" and all its samples?`)) return;
+            try {
+                await fetch(`/api/dataset_builder/${encodeURIComponent(dsbCurrentProject)}`, { method: 'DELETE' });
+                dsbCurrentProject = '';
+                document.getElementById('dsb-form-area').style.display = 'none';
+                document.getElementById('dsb-btn-delete-project').style.display = 'none';
+                dsbRows = [];
+                dsbRenderTable();
+                await dsbLoadProjects();
+            } catch (e) {
+                alert('Delete failed: ' + e.message);
+            }
+        };
 
         function dsbSaveForm() {
-            clearTimeout(dsbSaveTimer);
-            dsbSaveTimer = setTimeout(() => {
-                const data = {
-                    name: document.getElementById('dsb-name').value,
-                    description: document.getElementById('dsb-description').value,
-                    global_seed: document.getElementById('dsb-global-seed').value,
-                    rows: dsbRows.map(r => ({ emotion: r.emotion, text: r.text, seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null })),
-                };
-                localStorage.setItem('alexandria-dsb-form', JSON.stringify(data));
+            if (!dsbCurrentProject) return;
+            clearTimeout(dsbSaveMetaTimer);
+            dsbSaveMetaTimer = setTimeout(async () => {
+                try {
+                    await API.post('/api/dataset_builder/update_meta', {
+                        name: dsbCurrentProject,
+                        description: document.getElementById('dsb-description').value,
+                        global_seed: document.getElementById('dsb-global-seed').value,
+                    });
+                } catch (e) { console.error('Failed to save meta:', e); }
             }, 500);
         }
 
-        function dsbRestoreForm() {
-            try {
-                const saved = JSON.parse(localStorage.getItem('alexandria-dsb-form'));
-                if (!saved) { if (dsbRows.length === 0) dsbAddRow(); return; }
-                document.getElementById('dsb-name').value = saved.name || '';
-                document.getElementById('dsb-description').value = saved.description || '';
-                document.getElementById('dsb-global-seed').value = saved.global_seed || '';
-                if (saved.rows && saved.rows.length > 0) {
-                    dsbRows = saved.rows.map(r => ({ emotion: r.emotion || '', text: r.text || '', seed: r.seed ?? '', status: r.status || 'pending', audio_url: r.audio_url || null }));
-                }
-                if (dsbRows.length === 0) dsbAddRow();
-                dsbRenderTable();
-                // Check for existing generated files
-                const name = document.getElementById('dsb-name').value.trim();
-                if (name) dsbPollStatus(name, true);
-            } catch (e) {
-                if (dsbRows.length === 0) dsbAddRow();
-                dsbRenderTable();
-            }
+        function dsbSaveRows() {
+            if (!dsbCurrentProject) return;
+            clearTimeout(dsbSaveRowsTimer);
+            dsbSaveRowsTimer = setTimeout(async () => {
+                try {
+                    await API.post('/api/dataset_builder/update_rows', {
+                        name: dsbCurrentProject,
+                        rows: dsbRows.map(r => ({ emotion: r.emotion || '', text: (r.text || '').trim(), seed: r.seed ?? '' })),
+                    });
+                } catch (e) { console.error('Failed to save rows:', e); }
+            }, 500);
         }
 
         function dsbAddRow(emotion = '', text = '', seed = '') {
             dsbRows.push({ emotion, text, seed, status: 'pending', audio_url: null });
             dsbRenderTable();
-            dsbSaveForm();
+            dsbSaveRows();
             // Focus the new emotion field
             setTimeout(() => {
                 const rows = document.querySelectorAll('#dsb-table-body tr');
@@ -2309,7 +2418,7 @@
         function dsbRemoveRow(index) {
             dsbRows.splice(index, 1);
             dsbRenderTable();
-            dsbSaveForm();
+            dsbSaveRows();
             dsbUpdateRefDropdown();
         }
 
@@ -2376,7 +2485,7 @@
         window.dsbUpdateRow = (index, field, value) => {
             if (dsbRows[index]) {
                 dsbRows[index][field] = value;
-                dsbSaveForm();
+                dsbSaveRows();
             }
         };
 
@@ -2418,9 +2527,9 @@
 
         // Single sample generation
         window.dsbGenSample = async (index) => {
-            const name = document.getElementById('dsb-name').value.trim();
+            const name = dsbCurrentProject;
             const rootDesc = document.getElementById('dsb-description').value.trim();
-            if (!name) { alert('Enter a dataset name first.'); return; }
+            if (!name) { alert('Select or create a project first.'); return; }
             if (!rootDesc) { alert('Enter a root voice description first.'); return; }
 
             const row = dsbRows[index];
@@ -2457,9 +2566,9 @@
 
         // Batch generation
         window.dsbGenerateAll = async (regenAll = false) => {
-            const name = document.getElementById('dsb-name').value.trim();
+            const name = dsbCurrentProject;
             const rootDesc = document.getElementById('dsb-description').value.trim();
-            if (!name) { alert('Enter a dataset name first.'); return; }
+            if (!name) { alert('Select or create a project first.'); return; }
             if (!rootDesc) { alert('Enter a root voice description first.'); return; }
 
             const samples = dsbRows.filter(r => r.text.trim());
@@ -2609,7 +2718,7 @@
                         audio_url: null,
                     }));
                     dsbRenderTable();
-                    dsbSaveForm();
+                    dsbSaveRows();
                 } catch (err) {
                     alert('Import failed: ' + err.message);
                 }
@@ -2628,7 +2737,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const name = document.getElementById('dsb-name').value.trim() || 'dataset';
+            const name = dsbCurrentProject || 'dataset';
             a.download = `${name}_script.json`;
             a.click();
             URL.revokeObjectURL(url);
@@ -2636,8 +2745,8 @@
 
         // Save as training dataset
         window.dsbSave = async () => {
-            const name = document.getElementById('dsb-name').value.trim();
-            if (!name) { alert('Enter a dataset name first.'); return; }
+            const name = dsbCurrentProject;
+            if (!name) { alert('Select or create a project first.'); return; }
 
             const doneSamples = dsbRows.filter(r => r.status === 'done');
             if (doneSamples.length === 0) { alert('No completed samples to save. Generate some first.'); return; }
@@ -2661,15 +2770,6 @@
         };
 
         // Persist on input changes
-        let dsbNameDebounce = null;
-        document.getElementById('dsb-name')?.addEventListener('input', () => {
-            dsbSaveForm();
-            clearTimeout(dsbNameDebounce);
-            dsbNameDebounce = setTimeout(() => {
-                const name = document.getElementById('dsb-name').value.trim();
-                if (name) dsbPollStatus(name, true);
-            }, 500);
-        });
         document.getElementById('dsb-description')?.addEventListener('input', dsbSaveForm);
         document.getElementById('dsb-global-seed')?.addEventListener('input', dsbSaveForm);
 
@@ -2678,7 +2778,7 @@
         loadVoices();
         loadSavedScripts();
         loadDesignedVoices();
-        dsbRestoreForm();
+        dsbLoadProjects();
     </script>
 </body>
 </html>
