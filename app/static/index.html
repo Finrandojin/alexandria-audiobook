@@ -1173,10 +1173,11 @@
                     };
                 } else if (type === 'lora') {
                     const adapterId = card.querySelector('.lora-adapter-select').value;
+                    const adapterEntry = (window._loraModelsCache || []).find(m => m.id === adapterId);
                     config[name] = {
                         type: 'lora',
                         adapter_id: adapterId,
-                        adapter_path: adapterId ? `lora_models/${adapterId}` : '',
+                        adapter_path: adapterEntry?.adapter_path || (adapterId ? `lora_models/${adapterId}` : ''),
                         character_style: card.querySelector('.lora-character-style').value,
                         seed: "-1"
                     };

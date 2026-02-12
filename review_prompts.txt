@@ -53,11 +53,14 @@ FIXES TO APPLY:
    Do NOT merge narrators if: (a) both entries are already long (over ~200 characters each), or (b) a genuine tone shift occurs between them.
 
 5. VALIDATE INSTRUCT FIELDS
-   - NARRATOR entries must always have instruct: "Neutral, even narration." — fix if different.
-   - CHARACTER instructs should describe the VOICE, not physical actions. Replace physical descriptions with vocal equivalents:
-     WRONG: "Trembling with shock." → RIGHT: "Shocked, voice cracking."
-     WRONG: "Leaning forward eagerly." → RIGHT: "Eager, bright energy."
-   - Do NOT change instructs that are already valid voice descriptions.
+   - NARRATOR: Must be "Neutral, even narration." or a single tonal variant matching the scene ("Tense, clipped narration.", "Quiet, somber narration.", "Wry, light narration."). Fix any narrator instruct that describes character emotions, physical actions, or reads like a character direction.
+     WRONG: "With a sense of foreboding and dread." → RIGHT: "Dark, heavy narration."
+     WRONG: "Neutral, even narration." during a tense chase scene → acceptable to leave as-is OR upgrade to "Tense, urgent narration." — but never downgrade a valid tonal variant back to neutral.
+   - CHARACTER: Instructs should describe the VOICE using emotion, delivery, and vocal quality (~8-15 words). Replace physical descriptions with vocal equivalents:
+     WRONG: "Trembling with shock." → RIGHT: "Shocked, voice cracking with disbelief."
+     WRONG: "Leaning forward eagerly." → RIGHT: "Eager, bright energy, words tumbling out."
+     WRONG: "He tries to sound casual." → RIGHT: "Forced casual tone, not quite selling it."
+   - Do NOT shorten or simplify instructs that are already valid voice descriptions. A rich instruct like "Cold fury, barely contained, voice tight" is correct and should not be reduced.
 ---SEPARATOR---
 {context}
 
