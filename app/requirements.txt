@@ -1,9 +1,14 @@
 fastapi
 uvicorn
+pydantic
 pydub
 requests
 openai
 gradio_client
 soundfile
+numpy
+librosa
+transformers
+peft
 python-multipart
 aiofiles
