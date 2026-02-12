@@ -4,7 +4,8 @@
 
 Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and text-to-speech. Features a built-in Qwen3-TTS engine with batch processing and a browser-based editor for fine-tuning every line before final export.
 
-## Example: [sample.mp3](https://github.com/user-attachments/files/25157069/sample.mp3)
+## Example: [sample.mp3](https://github.com/user-attachments/files/25276110/sample.mp3)
+
 
 ## Screenshots
 
