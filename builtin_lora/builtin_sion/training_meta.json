@@ -1,0 +1,15 @@
+{
+  "model_name": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+  "epochs": 10,
+  "lr": 1e-06,
+  "lora_r": 32,
+  "lora_alpha": 128,
+  "gradient_accumulation_steps": 4,
+  "batch_size": 1,
+  "num_samples": 61,
+  "final_loss": 4.10159650005278,
+  "best_loss": 4.10159650005278,
+  "training_time_seconds": 119.9,
+  "ref_sample_audio": "/home/finrandojin/pinokio/api/Alexandria/lora_datasets/sion/ref.wav",
+  "ref_sample_text": "\"The wooden table stood in the center of the room. Four chairs were placed around it, each at an equal distance from the edge. A white ceramic bowl sat on the flat surface. Inside the bowl, three green apples remained stationary."
+}
