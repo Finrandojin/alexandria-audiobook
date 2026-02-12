@@ -97,6 +97,7 @@ class TTSConfig(BaseModel):
     mode: str = "external"  # "local" or "external"
     url: str = "http://127.0.0.1:7860"  # external mode only
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
+    language: str = "English"  # TTS language
     parallel_workers: int = 2  # concurrent TTS workers
     batch_seed: Optional[int] = None  # Single seed for batch mode, None/-1 = random
     compile_codec: bool = False  # torch.compile the codec for ~3-4x batch throughput (slow first run)
@@ -106,6 +107,16 @@ class TTSConfig(BaseModel):
     sub_batch_max_chars: int = 3000  # max total chars per sub-batch (lower for less VRAM)
     batch_group_by_type: bool = False  # group chunks by voice type for efficient batching
 
+class GenerationConfig(BaseModel):
+    chunk_size: int = 3000
+    max_tokens: int = 4096
+    temperature: float = 0.6
+    top_p: float = 0.8
+    top_k: int = 20
+    min_p: float = 0
+    presence_penalty: float = 0.0
+    banned_tokens: List[str] = []
+
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
     user_prompt: Optional[str] = None
@@ -114,6 +125,7 @@ class AppConfig(BaseModel):
     llm: LLMConfig
     tts: TTSConfig
     prompts: Optional[PromptConfig] = None
+    generation: Optional[GenerationConfig] = None
 
 class VoiceConfigItem(BaseModel):
     type: str = "custom"
