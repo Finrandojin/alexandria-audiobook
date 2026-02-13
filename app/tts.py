@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import threading
 import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
@@ -62,7 +63,8 @@ class TTSEngine:
         self._sub_batch_ratio = max(1.0, float(tts_config.get("sub_batch_ratio", 5)))
         self._sub_batch_max_chars = max(500, int(tts_config.get("sub_batch_max_chars", 3000)))
 
-        # Lazy-loaded backends
+        # Lazy-loaded backends (guarded by _model_lock to prevent concurrent loads)
+        self._model_lock = threading.Lock()
         self._local_custom_model = None
         self._local_clone_model = None
         self._local_design_model = None
@@ -233,17 +235,32 @@ class TTSEngine:
             print(f"Codec compilation skipped (non-fatal): {e}")
 
     @staticmethod
+    def _resolve_local_model_path(model_id):
+        """Check if a HuggingFace model is cached locally and return its snapshot path.
+
+        Uses try_to_load_from_cache to find the local snapshot directory.
+        Returns the local path string if cached, or None if not cached.
+        """
+        from huggingface_hub import try_to_load_from_cache
+        result = try_to_load_from_cache(model_id, "config.json")
+        if isinstance(result, str):
+            # result is the full path to config.json inside the snapshot dir
+            return os.path.dirname(result)
+        return None
+
+    @staticmethod
     def _load_model(model_cls, model_id, load_kwargs):
         """Load a model, preferring local cache to avoid network issues.
 
-        Tries local_files_only=True first (instant, no HF connection).
+        Checks if the model snapshot exists in the HF cache and loads from
+        the local directory path directly, bypassing all HF Hub network calls.
         Falls back to normal download on first install when cache is empty.
         """
-        try:
-            return model_cls.from_pretrained(
-                model_id, local_files_only=True, **load_kwargs,
-            )
-        except OSError:
+        local_path = TTSEngine._resolve_local_model_path(model_id)
+        if local_path:
+            print(f"  Loading from local cache: {local_path}")
+            return model_cls.from_pretrained(local_path, **load_kwargs)
+        else:
             print(f"  Model not cached locally, downloading {model_id}...")
             return model_cls.from_pretrained(model_id, **load_kwargs)
 
@@ -252,76 +269,88 @@ class TTSEngine:
         if self._local_custom_model is not None:
             return self._local_custom_model
 
-        self._enable_rocm_optimizations()
+        with self._model_lock:
+            if self._local_custom_model is not None:
+                return self._local_custom_model
 
-        import torch
-        from qwen_tts import Qwen3TTSModel
+            self._enable_rocm_optimizations()
 
-        device = self._resolve_device()
-        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+            import torch
+            from qwen_tts import Qwen3TTSModel
 
-        print(f"Loading Qwen3-TTS CustomVoice model on {device} ({dtype})...")
-        load_kwargs = {"dtype": dtype}
-        if device != "cpu":
-            load_kwargs["device_map"] = device
-        self._local_custom_model = self._load_model(
-            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice", load_kwargs,
-        )
-        if self._compile_codec_enabled:
-            self._compile_codec(self._local_custom_model)
-        print("CustomVoice model loaded. Running warmup generation...")
-        self._warmup_model(self._local_custom_model)
-        return self._local_custom_model
+            device = self._resolve_device()
+            dtype = torch.bfloat16 if "cuda" in device else torch.float32
+
+            print(f"Loading Qwen3-TTS CustomVoice model on {device} ({dtype})...")
+            load_kwargs = {"dtype": dtype}
+            if device != "cpu":
+                load_kwargs["device_map"] = device
+            self._local_custom_model = self._load_model(
+                Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice", load_kwargs,
+            )
+            if self._compile_codec_enabled:
+                self._compile_codec(self._local_custom_model)
+            print("CustomVoice model loaded. Running warmup generation...")
+            self._warmup_model(self._local_custom_model)
+            return self._local_custom_model
 
     def _init_local_clone(self):
         """Load Qwen3-TTS Base model (for voice cloning) on demand."""
         if self._local_clone_model is not None:
             return self._local_clone_model
 
-        self._enable_rocm_optimizations()
+        with self._model_lock:
+            if self._local_clone_model is not None:
+                return self._local_clone_model
 
-        import torch
-        from qwen_tts import Qwen3TTSModel
+            self._enable_rocm_optimizations()
 
-        device = self._resolve_device()
-        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+            import torch
+            from qwen_tts import Qwen3TTSModel
 
-        print(f"Loading Qwen3-TTS Base model (voice cloning) on {device} ({dtype})...")
-        load_kwargs = {"dtype": dtype}
-        if device != "cpu":
-            load_kwargs["device_map"] = device
-        self._local_clone_model = self._load_model(
-            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
-        )
-        if self._compile_codec_enabled:
-            self._compile_codec(self._local_clone_model)
-        print("Base model (voice cloning) loaded.")
-        return self._local_clone_model
+            device = self._resolve_device()
+            dtype = torch.bfloat16 if "cuda" in device else torch.float32
+
+            print(f"Loading Qwen3-TTS Base model (voice cloning) on {device} ({dtype})...")
+            load_kwargs = {"dtype": dtype}
+            if device != "cpu":
+                load_kwargs["device_map"] = device
+            self._local_clone_model = self._load_model(
+                Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
+            )
+            if self._compile_codec_enabled:
+                self._compile_codec(self._local_clone_model)
+            print("Base model (voice cloning) loaded.")
+            return self._local_clone_model
 
     def _init_local_design(self):
         """Load Qwen3-TTS VoiceDesign model on demand."""
         if self._local_design_model is not None:
             return self._local_design_model
 
-        self._enable_rocm_optimizations()
+        with self._model_lock:
+            if self._local_design_model is not None:
+                return self._local_design_model
 
-        import torch
-        from qwen_tts import Qwen3TTSModel
+            self._enable_rocm_optimizations()
 
-        device = self._resolve_device()
-        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+            import torch
+            from qwen_tts import Qwen3TTSModel
 
-        print(f"Loading Qwen3-TTS VoiceDesign model on {device} ({dtype})...")
-        load_kwargs = {"dtype": dtype}
-        if device != "cpu":
-            load_kwargs["device_map"] = device
-        self._local_design_model = self._load_model(
-            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign", load_kwargs,
-        )
-        if self._compile_codec_enabled:
-            self._compile_codec(self._local_design_model)
-        print("VoiceDesign model loaded.")
-        return self._local_design_model
+            device = self._resolve_device()
+            dtype = torch.bfloat16 if "cuda" in device else torch.float32
+
+            print(f"Loading Qwen3-TTS VoiceDesign model on {device} ({dtype})...")
+            load_kwargs = {"dtype": dtype}
+            if device != "cpu":
+                load_kwargs["device_map"] = device
+            self._local_design_model = self._load_model(
+                Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign", load_kwargs,
+            )
+            if self._compile_codec_enabled:
+                self._compile_codec(self._local_design_model)
+            print("VoiceDesign model loaded.")
+            return self._local_design_model
 
     def _init_local_lora(self, adapter_path):
         """Load Qwen3-TTS Base model with a LoRA adapter on demand.
@@ -332,47 +361,51 @@ class TTSEngine:
         if self._local_lora_model is not None and self._lora_adapter_path == adapter_path:
             return self._local_lora_model
 
-        # Unload previous adapter if switching
-        if self._local_lora_model is not None:
-            print(f"Unloading previous LoRA adapter ({self._lora_adapter_path})...")
-            del self._local_lora_model
-            self._local_lora_model = None
-            self._lora_adapter_path = None
-            self._lora_prompt_cache.clear()
-            self._clear_gpu_cache()
+        with self._model_lock:
+            if self._local_lora_model is not None and self._lora_adapter_path == adapter_path:
+                return self._local_lora_model
 
-        self._enable_rocm_optimizations()
+            # Unload previous adapter if switching
+            if self._local_lora_model is not None:
+                print(f"Unloading previous LoRA adapter ({self._lora_adapter_path})...")
+                del self._local_lora_model
+                self._local_lora_model = None
+                self._lora_adapter_path = None
+                self._lora_prompt_cache.clear()
+                self._clear_gpu_cache()
 
-        import torch
-        from qwen_tts import Qwen3TTSModel
-        from peft import PeftModel
+            self._enable_rocm_optimizations()
 
-        device = self._resolve_device()
-        dtype = torch.bfloat16 if "cuda" in device else torch.float32
+            import torch
+            from qwen_tts import Qwen3TTSModel
+            from peft import PeftModel
 
-        print(f"Loading Qwen3-TTS Base model + LoRA adapter on {device} ({dtype})...")
-        load_kwargs = {"dtype": dtype}
-        if device != "cpu":
-            load_kwargs["device_map"] = device
+            device = self._resolve_device()
+            dtype = torch.bfloat16 if "cuda" in device else torch.float32
 
-        model = self._load_model(
-            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
-        )
+            print(f"Loading Qwen3-TTS Base model + LoRA adapter on {device} ({dtype})...")
+            load_kwargs = {"dtype": dtype}
+            if device != "cpu":
+                load_kwargs["device_map"] = device
 
-        # Wrap the talker with the LoRA adapter
-        model.model.talker = PeftModel.from_pretrained(
-            model.model.talker,
-            adapter_path,
-        )
-        model.model.talker.eval()
+            model = self._load_model(
+                Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
+            )
 
-        if self._compile_codec_enabled:
-            self._compile_codec(model)
+            # Wrap the talker with the LoRA adapter
+            model.model.talker = PeftModel.from_pretrained(
+                model.model.talker,
+                adapter_path,
+            )
+            model.model.talker.eval()
 
-        self._local_lora_model = model
-        self._lora_adapter_path = adapter_path
-        print(f"LoRA adapter loaded from {adapter_path}")
-        return model
+            if self._compile_codec_enabled:
+                self._compile_codec(model)
+
+            self._local_lora_model = model
+            self._lora_adapter_path = adapter_path
+            print(f"LoRA adapter loaded from {adapter_path}")
+            return model
 
     def _init_external(self):
         """Create Gradio client on demand."""
@@ -692,6 +725,7 @@ class TTSEngine:
                 batch_results = self._sequential_custom(custom_chunks, voice_config, output_dir, batch_seed)
             results["completed"].extend(batch_results["completed"])
             results["failed"].extend(batch_results["failed"])
+            self._clear_gpu_cache()
 
         # Process clone voice chunks (batched by speaker in local mode)
         if clone_chunks:
@@ -714,6 +748,7 @@ class TTSEngine:
                         batch_results["failed"].append((idx, str(e)))
             results["completed"].extend(batch_results["completed"])
             results["failed"].extend(batch_results["failed"])
+            self._clear_gpu_cache()
 
         # Process LoRA voice chunks (batched by adapter in local mode)
         if lora_chunks:
@@ -741,6 +776,7 @@ class TTSEngine:
                         batch_results["failed"].append((idx, str(e)))
             results["completed"].extend(batch_results["completed"])
             results["failed"].extend(batch_results["failed"])
+            self._clear_gpu_cache()
 
         # Process design voice chunks (sequential — each line has unique description)
         if design_chunks:
@@ -985,8 +1021,7 @@ class TTSEngine:
                     results["failed"].append((idx, f"Batch error: {e}"))
 
             # Free GPU memory between sub-batches to prevent VRAM exhaustion
-            if len(sub_batches) > 1:
-                self._clear_gpu_cache()
+            self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
@@ -1086,8 +1121,7 @@ class TTSEngine:
                     for idx in sb_indices:
                         results["failed"].append((idx, f"Batch error: {e}"))
 
-                if len(sub_batches) > 1:
-                    self._clear_gpu_cache()
+                self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
@@ -1251,8 +1285,7 @@ class TTSEngine:
                     for idx in sb_indices:
                         results["failed"].append((idx, f"Batch error: {e}"))
 
-                if len(sub_batches) > 1:
-                    self._clear_gpu_cache()
+                self._clear_gpu_cache()
 
         total_time = time.time() - t_total_start
         rtf = total_audio_duration / total_time if total_time > 0 else 0
