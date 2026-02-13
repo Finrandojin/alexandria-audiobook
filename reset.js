@@ -32,6 +32,11 @@ module.exports = {
   }, {
     method: "fs.rm",
     params: {
+      path: "chunks.json"
+    }
+  }, {
+    method: "fs.rm",
+    params: {
       path: "cloned_audiobook.mp3"
     }
   }, {
