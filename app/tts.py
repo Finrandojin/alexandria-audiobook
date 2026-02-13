@@ -232,6 +232,21 @@ class TTSEngine:
         except Exception as e:
             print(f"Codec compilation skipped (non-fatal): {e}")
 
+    @staticmethod
+    def _load_model(model_cls, model_id, load_kwargs):
+        """Load a model, preferring local cache to avoid network issues.
+
+        Tries local_files_only=True first (instant, no HF connection).
+        Falls back to normal download on first install when cache is empty.
+        """
+        try:
+            return model_cls.from_pretrained(
+                model_id, local_files_only=True, **load_kwargs,
+            )
+        except OSError:
+            print(f"  Model not cached locally, downloading {model_id}...")
+            return model_cls.from_pretrained(model_id, **load_kwargs)
+
     def _init_local_custom(self):
         """Load Qwen3-TTS CustomVoice model on demand."""
         if self._local_custom_model is not None:
@@ -249,9 +264,8 @@ class TTSEngine:
         load_kwargs = {"dtype": dtype}
         if device != "cpu":
             load_kwargs["device_map"] = device
-        self._local_custom_model = Qwen3TTSModel.from_pretrained(
-            "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
-            **load_kwargs,
+        self._local_custom_model = self._load_model(
+            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice", load_kwargs,
         )
         if self._compile_codec_enabled:
             self._compile_codec(self._local_custom_model)
@@ -276,9 +290,8 @@ class TTSEngine:
         load_kwargs = {"dtype": dtype}
         if device != "cpu":
             load_kwargs["device_map"] = device
-        self._local_clone_model = Qwen3TTSModel.from_pretrained(
-            "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
-            **load_kwargs,
+        self._local_clone_model = self._load_model(
+            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
         )
         if self._compile_codec_enabled:
             self._compile_codec(self._local_clone_model)
@@ -302,9 +315,8 @@ class TTSEngine:
         load_kwargs = {"dtype": dtype}
         if device != "cpu":
             load_kwargs["device_map"] = device
-        self._local_design_model = Qwen3TTSModel.from_pretrained(
-            "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
-            **load_kwargs,
+        self._local_design_model = self._load_model(
+            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign", load_kwargs,
         )
         if self._compile_codec_enabled:
             self._compile_codec(self._local_design_model)
@@ -343,9 +355,8 @@ class TTSEngine:
         if device != "cpu":
             load_kwargs["device_map"] = device
 
-        model = Qwen3TTSModel.from_pretrained(
-            "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
-            **load_kwargs,
+        model = self._load_model(
+            Qwen3TTSModel, "Qwen/Qwen3-TTS-12Hz-1.7B-Base", load_kwargs,
         )
 
         # Wrap the talker with the LoRA adapter
