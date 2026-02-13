@@ -57,10 +57,13 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
   - [Ollama](https://ollama.ai/) (local)
   - [OpenAI API](https://platform.openai.com/) (cloud)
   - Any OpenAI-compatible API
-- GPU with 16+ GB VRAM recommended (NVIDIA or AMD)
+- **GPU:** 8 GB VRAM minimum, 16 GB+ recommended (NVIDIA CUDA 11.8+ or AMD ROCm 6.0+)
+  - Each TTS model uses ~3.4 GB; remaining VRAM determines batch size
   - CPU mode available but significantly slower
+- **RAM:** 16 GB recommended (8 GB minimum)
+- **Disk:** ~20 GB (8 GB venv/PyTorch, ~7 GB for model weights, working space for audio)
 
-> **Note:** No external TTS server is required. Alexandria includes a built-in Qwen3-TTS engine that loads models directly. Model weights are downloaded automatically on first use (~3.5 GB).
+> **Note:** No external TTS server is required. Alexandria includes a built-in Qwen3-TTS engine that loads models directly. Model weights are downloaded automatically on first use (~3.5 GB per model variant).
 
 > **Documentation:** For in-depth guidance on voice types, LoRA training, batch generation, and more, see the [Wiki](https://github.com/Finrandojin/alexandria-audiobook/wiki).
 
@@ -675,6 +678,7 @@ For script generation, non-thinking models work best:
 - If you see MIOpen warnings on AMD, these are handled automatically
 
 ### Out of memory errors
+- Reduce **Max Chars/Batch** in Setup (especially with long reference audio for clone/LoRA voices)
 - Reduce **Parallel Workers** (batch size)
 - Close other GPU-intensive applications
 - Try `device: cpu` as a fallback (much slower)
