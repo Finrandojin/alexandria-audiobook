@@ -173,6 +173,11 @@
                                 <input type="number" class="form-control" id="sub-batch-max-chars" value="3000" min="500" step="500">
                                 <div class="form-text">VRAM safety limit per sub-batch. Reduce if you encounter HIP OOM errors or crashes (especially with long reference audio)</div>
                             </div>
+                            <div class="col-md-2" id="sub-batch-max-items-group">
+                                <label class="form-label">Max Items/Batch</label>
+                                <input type="number" class="form-control" id="sub-batch-max-items" value="0" min="0" step="1">
+                                <div class="form-text">Hard cap on sequences per sub-batch (0 = auto from VRAM estimate)</div>
+                            </div>
                         </div>
 
                         <h5 class="mb-3 mt-4">
@@ -822,6 +827,9 @@
                 if (config.tts.sub_batch_max_chars != null) {
                     document.getElementById('sub-batch-max-chars').value = config.tts.sub_batch_max_chars;
                 }
+                if (config.tts.sub_batch_max_items != null) {
+                    document.getElementById('sub-batch-max-items').value = config.tts.sub_batch_max_items;
+                }
                 toggleTTSMode();
 
                 // Load custom prompts if they exist and are non-empty
@@ -924,7 +932,8 @@
                     sub_batch_enabled: document.getElementById('sub-batch-enabled').checked,
                     sub_batch_min_size: parseInt(document.getElementById('sub-batch-min-size').value) || 4,
                     sub_batch_ratio: parseFloat(document.getElementById('sub-batch-ratio').value) || 5,
-                    sub_batch_max_chars: parseInt(document.getElementById('sub-batch-max-chars').value) || 3000
+                    sub_batch_max_chars: parseInt(document.getElementById('sub-batch-max-chars').value) || 3000,
+                    sub_batch_max_items: parseInt(document.getElementById('sub-batch-max-items').value) || 0
                 },
                 prompts: {
                     system_prompt: document.getElementById('system-prompt').value,
