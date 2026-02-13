@@ -748,3 +748,7 @@ Alexandria/
 ## License
 
 MIT
+
+### Third-Party Licenses
+
+- [qwen_tts](https://github.com/Qwen/Qwen3-TTS) — Apache License 2.0, Copyright Alibaba Qwen Team
