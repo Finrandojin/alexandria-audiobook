@@ -62,6 +62,7 @@ class TTSEngine:
         self._sub_batch_min_size = max(1, tts_config.get("sub_batch_min_size", 4))
         self._sub_batch_ratio = max(1.0, float(tts_config.get("sub_batch_ratio", 5)))
         self._sub_batch_max_chars = max(500, int(tts_config.get("sub_batch_max_chars", 3000)))
+        self._sub_batch_max_items = int(tts_config.get("sub_batch_max_items", 0))  # 0 = auto
 
         # Lazy-loaded backends (guarded by _model_lock to prevent concurrent loads)
         self._model_lock = threading.Lock()
@@ -96,18 +97,75 @@ class TTSEngine:
         import torch
         torch.cuda.empty_cache()
 
-    def _build_sub_batches(self, texts):
+    def _estimate_max_batch_size(self, model, clone_prompt_tokens=0,
+                                ref_text_chars=0, max_text_chars=0,
+                                max_new_tokens=2048):
+        """Estimate how many sequences fit in free VRAM based on KV cache math.
+
+        Uses the talker's architecture (num_layers, num_kv_heads, head_dim) to
+        calculate KV cache bytes per token, then estimates total tokens per
+        sequence from clone prompt size + text length + max generation length.
+
+        Returns max batch size (>= 1).  Falls back to a large default on CPU
+        or if the model config is inaccessible.
+        """
+        import torch
+        if not torch.cuda.is_available():
+            return 9999
+
+        try:
+            config = model.model.talker.config
+            num_layers = config.num_hidden_layers
+            num_kv_heads = config.num_key_value_heads
+            head_dim = config.hidden_size // config.num_attention_heads
+        except AttributeError:
+            return 9999  # can't read config, skip estimation
+
+        dtype_bytes = 2  # bf16
+        kv_per_token = num_layers * 2 * num_kv_heads * head_dim * dtype_bytes
+
+        # Total tokens per sequence (worst case: padded to longest + full generation)
+        overhead = 10  # role tokens + prefix + special tokens
+        ref_text_tokens = ref_text_chars // 3 if ref_text_chars else 0
+        text_tokens = max_text_chars // 3 if max_text_chars else 0
+        total_tokens = overhead + clone_prompt_tokens + ref_text_tokens + text_tokens + max_new_tokens
+
+        # Overhead factor covers prefill activations, codec, allocator fragmentation
+        OVERHEAD_FACTOR = 2.0
+        mem_per_seq = total_tokens * kv_per_token * OVERHEAD_FACTOR
+
+        # Available = driver-level free + PyTorch reserved-but-unallocated
+        free_driver, _ = torch.cuda.mem_get_info()
+        reserved_unused = torch.cuda.memory_reserved() - torch.cuda.memory_allocated()
+        free_total = free_driver + reserved_unused
+
+        budget = int(free_total * 0.8)
+        max_batch = max(1, budget // mem_per_seq)
+
+        print(f"VRAM estimate: {free_total / 1e9:.1f}GB free, "
+              f"{total_tokens} tok/seq ({clone_prompt_tokens} prompt + "
+              f"{ref_text_tokens + text_tokens} text + {max_new_tokens} gen), "
+              f"{mem_per_seq / 1e6:.0f}MB/seq -> max_batch={max_batch}")
+
+        return max_batch
+
+    def _build_sub_batches(self, texts, max_items=None):
         """Split sorted-by-length texts into sub-batches.
 
-        Splits on three criteria (checked in order):
-        1. Length ratio: when longest/shortest > sub_batch_ratio
+        Splits on four criteria (checked in order):
+        1. VRAM item limit: when max_items is set (from _estimate_max_batch_size)
         2. Total chars: when cumulative chars exceed sub_batch_max_chars
-        3. Minimum size: splits only happen after sub_batch_min_size items
+        3. Length ratio: when longest/shortest > sub_batch_ratio
+        4. Minimum size: ratio splits only happen after sub_batch_min_size items
 
         Returns list of (start, end) index tuples.
         """
         if not self._sub_batch_enabled or len(texts) <= 1:
             return [(0, len(texts))]
+
+        # Manual cap overrides VRAM estimate when set (take the stricter of the two)
+        if self._sub_batch_max_items > 0:
+            max_items = min(max_items, self._sub_batch_max_items) if max_items else self._sub_batch_max_items
 
         sub_batches = []
         batch_start = 0
@@ -118,9 +176,13 @@ class TTSEngine:
             batch_chars += len(texts[i])
             should_split = False
 
+            # VRAM-estimated item limit (highest priority — based on actual
+            # free GPU memory and per-sequence KV cache cost)
+            if max_items is not None and (i - batch_start) >= max_items:
+                should_split = True
             # Chars split: too much total text risks OOM — always split
             # regardless of min_size (memory safety takes priority)
-            if batch_chars > self._sub_batch_max_chars and (i - batch_start) >= 1:
+            elif batch_chars > self._sub_batch_max_chars and (i - batch_start) >= 1:
                 should_split = True
             # Ratio split: large length disparity wastes padding —
             # only split after min_size items to preserve parallelism
@@ -953,16 +1015,19 @@ class TTSEngine:
         instructs = [instructs[i] for i in sort_order]
         indices = [indices[i] for i in sort_order]
 
-        sub_batches = self._build_sub_batches(texts)
-
-        print(f"Batch [local]: generating {len(texts)} chunks ({total_text_chars} chars) "
-              f"in {len(sub_batches)} sub-batch(es)...")
-
         model = self._init_local_custom()
 
         # Clear stale GPU cache from any prior generation to avoid
         # fragmented VRAM blocking large batch allocations (ROCm especially).
         self._clear_gpu_cache()
+
+        max_items = self._estimate_max_batch_size(
+            model, max_text_chars=len(texts[-1]),
+        )
+        sub_batches = self._build_sub_batches(texts, max_items=max_items)
+
+        print(f"Batch [local]: generating {len(texts)} chunks ({total_text_chars} chars) "
+              f"in {len(sub_batches)} sub-batch(es)...")
 
         t_total_start = time.time()
         total_audio_duration = 0.0
@@ -1071,8 +1136,13 @@ class TTSEngine:
             texts = [texts[i] for i in sort_order]
             indices = [indices[i] for i in sort_order]
 
-            # Build sub-batches
-            sub_batches = self._build_sub_batches(texts)
+            # Estimate max batch size from VRAM + clone prompt overhead
+            clone_tokens = prompt[0].ref_code.shape[0] if prompt[0].ref_code is not None else 0
+            ref_text_chars = len(prompt[0].ref_text) if prompt[0].ref_text else 0
+            max_items = self._estimate_max_batch_size(
+                model, clone_tokens, ref_text_chars, len(texts[-1]),
+            )
+            sub_batches = self._build_sub_batches(texts, max_items=max_items)
 
             print(f"Batch [clone] speaker='{speaker}': {len(texts)} chunks "
                   f"in {len(sub_batches)} sub-batch(es)")
@@ -1218,7 +1288,13 @@ class TTSEngine:
             instructs_raw = [instructs_raw[i] for i in sort_order]
             indices = [indices[i] for i in sort_order]
 
-            sub_batches = self._build_sub_batches(texts)
+            # Estimate max batch size from VRAM + clone prompt overhead
+            clone_tokens = prompt[0].ref_code.shape[0] if prompt[0].ref_code is not None else 0
+            ref_text_chars = len(prompt[0].ref_text) if prompt[0].ref_text else 0
+            max_items = self._estimate_max_batch_size(
+                model, clone_tokens, ref_text_chars, len(texts[-1]),
+            )
+            sub_batches = self._build_sub_batches(texts, max_items=max_items)
 
             print(f"Batch [lora] adapter='{os.path.basename(adapter_path)}': {len(texts)} chunks "
                   f"in {len(sub_batches)} sub-batch(es)")

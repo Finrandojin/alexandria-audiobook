@@ -105,6 +105,7 @@ class TTSConfig(BaseModel):
     sub_batch_min_size: int = 4  # minimum chunks per sub-batch before allowing a split
     sub_batch_ratio: float = 5.0  # max longest/shortest length ratio before splitting
     sub_batch_max_chars: int = 3000  # max total chars per sub-batch (lower for less VRAM)
+    sub_batch_max_items: int = 0  # hard cap on sequences per sub-batch (0 = auto from VRAM estimate)
     batch_group_by_type: bool = False  # group chunks by voice type for efficient batching
 
 class GenerationConfig(BaseModel):
