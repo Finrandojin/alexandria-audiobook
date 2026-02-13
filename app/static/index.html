@@ -227,6 +227,11 @@
                                 <input type="text" class="form-control" id="banned-tokens" placeholder="e.g. <think>, <reasoning>">
                                 <div class="form-text">Comma-separated tokens the LLM is forbidden from generating. Use to disable thinking mode (e.g. <code>&lt;think&gt;</code>).</div>
                             </div>
+                            <div class="mb-3 form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="merge-narrators">
+                                <label class="form-check-label" for="merge-narrators">Merge consecutive narrator lines</label>
+                                <div class="form-text">During script review, combine adjacent NARRATOR entries that share the same instruct into a single longer entry. Disable for better per-line voice direction control.</div>
+                            </div>
                             <hr>
                             <h6 class="mb-3">Prompt Customization</h6>
                             <div class="mb-3">
@@ -855,6 +860,7 @@
                     if (config.generation.banned_tokens && config.generation.banned_tokens.length > 0) {
                         document.getElementById('banned-tokens').value = config.generation.banned_tokens.join(', ');
                     }
+                    document.getElementById('merge-narrators').checked = !!config.generation.merge_narrators;
                 }
             } catch (e) {
                 console.error("Failed to load config", e);
@@ -879,6 +885,7 @@
             document.getElementById('min-p').value = 0;
             document.getElementById('presence-penalty').value = 0;
             document.getElementById('banned-tokens').value = '';
+            document.getElementById('merge-narrators').checked = false;
         };
 
         // Toggle chevron on collapse
@@ -933,7 +940,8 @@
                     presence_penalty: parseFloat(document.getElementById('presence-penalty').value),
                     banned_tokens: document.getElementById('banned-tokens').value
                         ? document.getElementById('banned-tokens').value.split(',').map(t => t.trim()).filter(t => t)
-                        : []
+                        : [],
+                    merge_narrators: document.getElementById('merge-narrators').checked
                 }
             };
             try {

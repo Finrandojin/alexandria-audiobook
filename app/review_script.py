@@ -394,11 +394,16 @@ def main():
         previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
 
     # Post-processing: merge consecutive NARRATOR entries with same instruct
-    pre_merge_count = len(all_corrected)
-    all_corrected, narrator_merges = merge_consecutive_narrators(all_corrected, max_merged_length=800)
-    if narrator_merges > 0:
-        print(f"\nPost-processing: merged {narrator_merges} consecutive narrator entries "
-              f"({pre_merge_count} -> {len(all_corrected)} entries)")
+    merge_narrators_enabled = generation_config.get("merge_narrators", False)
+    narrator_merges = 0
+    if merge_narrators_enabled:
+        pre_merge_count = len(all_corrected)
+        all_corrected, narrator_merges = merge_consecutive_narrators(all_corrected, max_merged_length=800)
+        if narrator_merges > 0:
+            print(f"\nPost-processing: merged {narrator_merges} consecutive narrator entries "
+                  f"({pre_merge_count} -> {len(all_corrected)} entries)")
+    else:
+        print("\nNarrator merging: disabled (enable in Setup > Advanced)")
 
     # Write corrected script
     with open(script_path, "w", encoding="utf-8") as f:

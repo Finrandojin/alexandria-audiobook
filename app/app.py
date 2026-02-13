@@ -116,6 +116,7 @@ class GenerationConfig(BaseModel):
     min_p: float = 0
     presence_penalty: float = 0.0
     banned_tokens: List[str] = []
+    merge_narrators: bool = False
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
