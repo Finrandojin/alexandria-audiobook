@@ -546,6 +546,12 @@ async def delete_chunk(index: int):
 
 @app.post("/api/chunks/{index}/generate")
 async def generate_chunk_endpoint(index: int, background_tasks: BackgroundTasks):
+    chunks = project_manager.load_chunks()
+    if not (0 <= index < len(chunks)):
+        raise HTTPException(status_code=404, detail="Invalid chunk index")
+    if not chunks[index].get("text", "").strip():
+        raise HTTPException(status_code=400, detail="Cannot generate audio for an empty line")
+
     def task():
         project_manager.generate_chunk_audio(index)
 

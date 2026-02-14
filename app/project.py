@@ -500,6 +500,12 @@ class ProjectManager:
         from concurrent.futures import ThreadPoolExecutor, as_completed
 
         results = {"completed": [], "failed": []}
+
+        # Filter out empty-text chunks
+        chunks = self.load_chunks()
+        if chunks:
+            indices = [i for i in indices if 0 <= i < len(chunks) and chunks[i].get("text", "").strip()]
+
         total = len(indices)
 
         if total == 0:
@@ -591,6 +597,14 @@ class ProjectManager:
             dict with 'completed' and 'failed' lists
         """
         results = {"completed": [], "failed": []}
+
+        # Load chunks and voice config
+        chunks = self.load_chunks()
+
+        # Filter out empty-text chunks
+        if chunks:
+            indices = [i for i in indices if 0 <= i < len(chunks) and chunks[i].get("text", "").strip()]
+
         total = len(indices)
 
         if total == 0:
@@ -598,9 +612,6 @@ class ProjectManager:
 
         print(f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed}, "
               f"group_by_type={batch_group_by_type})...")
-
-        # Load chunks and voice config
-        chunks = self.load_chunks()
         voice_config = {}
         if os.path.exists(self.voice_config_path):
             with open(self.voice_config_path, "r", encoding="utf-8") as f:

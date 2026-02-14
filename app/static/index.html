@@ -1751,8 +1751,17 @@
                 // First, save any pending edits in this row
                 await saveRowEdits(id);
 
-                // Optimistic UI update
+                // Skip empty lines
                 const tr = document.querySelector(`tr[data-id="${id}"]`);
+                if (tr) {
+                    const textArea = tr.querySelector('.chunk-text');
+                    if (textArea && !textArea.value.trim()) {
+                        showToast('Cannot generate audio for an empty line', 'error');
+                        return;
+                    }
+                }
+
+                // Optimistic UI update
                 if (tr) {
                     const statusBadge = tr.querySelector('.badge');
                     statusBadge.className = 'badge bg-warning';
@@ -1797,15 +1806,16 @@
 
             try {
                 const chunks = await API.get('/api/chunks');
-                const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
+                const toProcess = (regenerateAll ? chunks : chunks.filter(c => c.status !== 'done'))
+                    .filter(c => c.text && c.text.trim());
 
                 if (toProcess.length === 0) {
-                    showToast("All chunks are already rendered!", 'warning');
+                    showToast("No non-empty chunks to render!", 'warning');
                     cancelRender();
                     return;
                 }
 
-                if (regenerateAll && !await showConfirm(`Regenerate all ${chunks.length} chunks? This will replace existing audio.`)) {
+                if (regenerateAll && !await showConfirm(`Regenerate all ${toProcess.length} non-empty chunks? This will replace existing audio.`)) {
                     cancelRender();
                     return;
                 }
@@ -1877,10 +1887,11 @@
 
             try {
                 const chunks = await API.get('/api/chunks');
-                const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
+                const toProcess = (regenerateAll ? chunks : chunks.filter(c => c.status !== 'done'))
+                    .filter(c => c.text && c.text.trim());
 
                 if (toProcess.length === 0) {
-                    showToast("All chunks are already rendered!", 'warning');
+                    showToast("No non-empty chunks to render!", 'warning');
                     cancelRender();
                     return;
                 }
