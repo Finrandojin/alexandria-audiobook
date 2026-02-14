@@ -276,7 +276,10 @@ def run_process(command: List[str], task_name: str):
 
 @app.get("/")
 async def read_index():
-    return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+    return FileResponse(
+        os.path.join(STATIC_DIR, "index.html"),
+        headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
+    )
 
 @app.get("/favicon.ico")
 async def read_favicon():
