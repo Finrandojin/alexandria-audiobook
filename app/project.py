@@ -169,6 +169,74 @@ class ProjectManager:
             self._atomic_json_write(chunks, self.chunks_path)
             return chunks[index]
 
+    def insert_chunk(self, after_index):
+        """Insert an empty chunk after the given index. Returns the new chunk list."""
+        with self._chunks_lock:
+            if not os.path.exists(self.chunks_path):
+                return None
+            with open(self.chunks_path, "r", encoding="utf-8") as f:
+                chunks = json.load(f)
+            if not (0 <= after_index < len(chunks)):
+                return None
+
+            # Copy speaker from the row we're splitting from
+            source = chunks[after_index]
+            new_chunk = {
+                "id": after_index + 1,
+                "speaker": source.get("speaker", "NARRATOR"),
+                "text": "",
+                "instruct": "",
+                "status": "pending",
+                "audio_path": None
+            }
+            chunks.insert(after_index + 1, new_chunk)
+
+            # Re-number all IDs
+            for i, chunk in enumerate(chunks):
+                chunk["id"] = i
+
+            self._atomic_json_write(chunks, self.chunks_path)
+            return chunks
+
+    def delete_chunk(self, index):
+        """Delete a chunk at the given index. Returns (deleted_chunk, updated_chunks) or None."""
+        with self._chunks_lock:
+            if not os.path.exists(self.chunks_path):
+                return None
+            with open(self.chunks_path, "r", encoding="utf-8") as f:
+                chunks = json.load(f)
+            if not (0 <= index < len(chunks)):
+                return None
+            if len(chunks) <= 1:
+                return None  # don't allow deleting the last chunk
+
+            deleted = chunks.pop(index)
+
+            # Re-number all IDs
+            for i, chunk in enumerate(chunks):
+                chunk["id"] = i
+
+            self._atomic_json_write(chunks, self.chunks_path)
+            return deleted, chunks
+
+    def restore_chunk(self, at_index, chunk_data):
+        """Re-insert a chunk at a specific index. Returns the updated chunk list."""
+        with self._chunks_lock:
+            if not os.path.exists(self.chunks_path):
+                return None
+            with open(self.chunks_path, "r", encoding="utf-8") as f:
+                chunks = json.load(f)
+
+            at_index = max(0, min(at_index, len(chunks)))
+            chunks.insert(at_index, chunk_data)
+
+            # Re-number all IDs
+            for i, chunk in enumerate(chunks):
+                chunk["id"] = i
+
+            self._atomic_json_write(chunks, self.chunks_path)
+            return chunks
+
     def update_chunk(self, index, data):
         chunks = self.load_chunks()
         if 0 <= index < len(chunks):

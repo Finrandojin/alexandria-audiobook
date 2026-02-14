@@ -308,10 +308,10 @@ async def get_config():
         sys_prompt, usr_prompt = load_default_prompts()
         default_config["prompts"]["system_prompt"] = sys_prompt
         default_config["prompts"]["user_prompt"] = usr_prompt
-        return default_config
-
-    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-        config = json.load(f)
+        config = default_config
+    else:
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            config = json.load(f)
 
     # Ensure prompts section exists with defaults from file
     if "prompts" not in config:
@@ -324,6 +324,18 @@ async def get_config():
                 config["prompts"]["system_prompt"] = sys_prompt
             if not config["prompts"].get("user_prompt"):
                 config["prompts"]["user_prompt"] = usr_prompt
+
+    # Include current input file info if available
+    state_path = os.path.join(ROOT_DIR, "state.json")
+    if os.path.exists(state_path):
+        try:
+            with open(state_path, "r", encoding="utf-8") as sf:
+                state = json.load(sf)
+            input_path = state.get("input_file_path", "")
+            if input_path and os.path.exists(input_path):
+                config["current_file"] = os.path.basename(input_path)
+        except (json.JSONDecodeError, ValueError):
+            pass
 
     return config
 
@@ -413,15 +425,26 @@ async def get_status(task_name: str):
 
 @app.get("/api/voices")
 async def get_voices():
-    # Run parse_voices first to ensure we have latest
-    # But we don't want to block, so we'll just read what's there
-    # User can trigger parse manually if needed
+    # Parse voices directly from the current script (no stale cache)
+    voices_list = []
+    if os.path.exists(SCRIPT_PATH):
+        try:
+            with open(SCRIPT_PATH, "r", encoding="utf-8") as f:
+                script_data = json.load(f)
+            voices_set = set()
+            for entry in script_data:
+                speaker = (entry.get("speaker") or entry.get("type") or "").strip()
+                if speaker:
+                    voices_set.add(speaker)
+            voices_list = sorted(voices_set)
+            # Update voices.json for compatibility with other tools
+            with open(VOICES_PATH, "w", encoding="utf-8") as f:
+                json.dump(voices_list, f, indent=2, ensure_ascii=False)
+        except (json.JSONDecodeError, ValueError):
+            pass
 
-    if not os.path.exists(VOICES_PATH):
+    if not voices_list:
         return []
-
-    with open(VOICES_PATH, "r", encoding="utf-8") as f:
-        voices_list = json.load(f)
 
     # Combine with config
     voice_config = {}
@@ -482,6 +505,18 @@ async def get_chunks():
     chunks = project_manager.load_chunks()
     return chunks
 
+class ChunkRestoreRequest(BaseModel):
+    chunk: dict
+    at_index: int
+
+@app.post("/api/chunks/restore")
+async def restore_chunk(request: ChunkRestoreRequest):
+    """Re-insert a previously deleted chunk at a specific index."""
+    chunks = project_manager.restore_chunk(request.at_index, request.chunk)
+    if chunks is None:
+        raise HTTPException(status_code=400, detail="Failed to restore chunk")
+    return {"status": "ok", "total": len(chunks)}
+
 @app.post("/api/chunks/{index}")
 async def update_chunk(index: int, update: ChunkUpdate):
     data = update.model_dump(exclude_unset=True)
@@ -491,6 +526,23 @@ async def update_chunk(index: int, update: ChunkUpdate):
         raise HTTPException(status_code=404, detail="Chunk not found")
     logger.info(f"Chunk {index} updated, instruct is now: '{chunk.get('instruct', '')}'")
     return chunk
+
+@app.post("/api/chunks/{index}/insert")
+async def insert_chunk(index: int):
+    """Insert an empty chunk after the given index."""
+    chunks = project_manager.insert_chunk(index)
+    if chunks is None:
+        raise HTTPException(status_code=404, detail="Invalid chunk index")
+    return {"status": "ok", "total": len(chunks)}
+
+@app.delete("/api/chunks/{index}")
+async def delete_chunk(index: int):
+    """Delete a chunk at the given index."""
+    result = project_manager.delete_chunk(index)
+    if result is None:
+        raise HTTPException(status_code=400, detail="Cannot delete chunk (invalid index or last remaining chunk)")
+    deleted, chunks = result
+    return {"status": "ok", "deleted": deleted, "total": len(chunks)}
 
 @app.post("/api/chunks/{index}/generate")
 async def generate_chunk_endpoint(index: int, background_tasks: BackgroundTasks):
@@ -1140,7 +1192,19 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
 @app.get("/api/lora/models")
 async def lora_list_models():
     """List all LoRA adapters (built-in + user-trained)."""
-    return _load_builtin_lora_manifest() + _load_manifest(LORA_MODELS_MANIFEST)
+    models = _load_builtin_lora_manifest() + _load_manifest(LORA_MODELS_MANIFEST)
+    for m in models:
+        # Add ref sample URL if available
+        is_builtin = m.get("builtin", False)
+        if is_builtin:
+            adapter_dir = os.path.join(BUILTIN_LORA_DIR, m["id"])
+            url_prefix = f"/builtin_lora/{m['id']}"
+        else:
+            adapter_dir = os.path.join(LORA_MODELS_DIR, m["id"])
+            url_prefix = f"/lora_models/{m['id']}"
+        preview_path = os.path.join(adapter_dir, "preview_sample.wav")
+        m["preview_audio_url"] = f"{url_prefix}/preview_sample.wav" if os.path.exists(preview_path) else None
+    return models
 
 @app.delete("/api/lora/models/{adapter_id}")
 async def lora_delete_model(adapter_id: str):
@@ -1215,6 +1279,59 @@ async def lora_test_model(request: LoraTestRequest):
         }
     except Exception as e:
         logger.error(f"LoRA test generation failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+LORA_PREVIEW_TEXT = "The ancient library stood at the crossroads of two forgotten paths, its weathered stone walls covered in ivy that had been growing for centuries."
+
+@app.post("/api/lora/preview/{adapter_id}")
+async def lora_preview(adapter_id: str):
+    """Generate or return cached preview audio for a LoRA adapter."""
+    builtin = _load_builtin_lora_manifest()
+    user_trained = _load_manifest(LORA_MODELS_MANIFEST)
+    all_adapters = builtin + user_trained
+    entry = next((m for m in all_adapters if m["id"] == adapter_id), None)
+    if not entry:
+        raise HTTPException(status_code=404, detail="Adapter not found")
+
+    is_builtin = entry.get("builtin", False)
+    if is_builtin:
+        adapter_dir = os.path.join(BUILTIN_LORA_DIR, adapter_id)
+        url_prefix = f"/builtin_lora/{adapter_id}"
+    else:
+        adapter_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+        url_prefix = f"/lora_models/{adapter_id}"
+
+    if not os.path.isdir(adapter_dir):
+        raise HTTPException(status_code=404, detail="Adapter files not found")
+
+    preview_path = os.path.join(adapter_dir, "preview_sample.wav")
+
+    # Return cached if exists
+    if os.path.exists(preview_path):
+        return {"status": "cached", "audio_url": f"{url_prefix}/preview_sample.wav"}
+
+    # Generate preview
+    engine = project_manager.get_engine()
+    if not engine:
+        raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
+
+    try:
+        voice_data = {
+            "type": "lora",
+            "adapter_id": adapter_id,
+            "adapter_path": adapter_dir,
+        }
+        voice_config = {"_lora_preview_": voice_data}
+        engine.generate_voice(
+            text=LORA_PREVIEW_TEXT,
+            instruct_text="",
+            speaker="_lora_preview_",
+            voice_config=voice_config,
+            output_path=preview_path,
+        )
+        return {"status": "generated", "audio_url": f"{url_prefix}/preview_sample.wav"}
+    except Exception as e:
+        logger.error(f"LoRA preview generation failed: {e}")
         raise HTTPException(status_code=500, detail=str(e))
 
 ## ── Dataset Builder ──────────────────────────────────────────

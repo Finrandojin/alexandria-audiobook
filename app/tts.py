@@ -70,6 +70,7 @@ class TTSEngine:
         self._local_clone_model = None
         self._local_design_model = None
         self._local_lora_model = None
+        self._warmup_needed = True  # cleared after first batch warmup
         self._lora_adapter_path = None  # track which adapter is currently loaded
         self._gradio_client = None
 
@@ -352,8 +353,7 @@ class TTSEngine:
             )
             if self._compile_codec_enabled:
                 self._compile_codec(self._local_custom_model)
-            print("CustomVoice model loaded. Running warmup generation...")
-            self._warmup_model(self._local_custom_model)
+            print("CustomVoice model loaded.")
             return self._local_custom_model
 
     def _init_local_clone(self):
@@ -1017,6 +1017,12 @@ class TTSEngine:
 
         model = self._init_local_custom()
 
+        # Warmup on first batch to pre-tune MIOpen/GPU solvers
+        if self._warmup_needed:
+            print("Running batch warmup generation...")
+            self._warmup_model(model)
+            self._warmup_needed = False
+
         # Clear stale GPU cache from any prior generation to avoid
         # fragmented VRAM blocking large batch allocations (ROCm especially).
         self._clear_gpu_cache()
@@ -1113,6 +1119,12 @@ class TTSEngine:
             speaker_groups.setdefault(speaker, []).append(chunk)
 
         model = self._init_local_clone()
+
+        # Warmup on first batch to pre-tune MIOpen/GPU solvers
+        if self._warmup_needed:
+            print("Running batch warmup generation...")
+            self._warmup_model(model)
+            self._warmup_needed = False
 
         self._clear_gpu_cache()
 
@@ -1231,6 +1243,13 @@ class TTSEngine:
             adapter_groups[adapter_path][1].append(chunk)
 
         self._clear_gpu_cache()
+
+        # Warmup on first batch to pre-tune MIOpen/GPU solvers
+        if self._warmup_needed:
+            warmup_model = self._init_local_clone()
+            print("Running batch warmup generation...")
+            self._warmup_model(warmup_model)
+            self._warmup_needed = False
 
         t_total_start = time.time()
         total_audio_duration = 0.0

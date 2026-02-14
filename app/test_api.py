@@ -106,6 +106,8 @@ def test_get_config():
     data = r.json()
     assert_key(data, "llm")
     assert_key(data, "tts")
+    # current_file should always be present (may be null)
+    assert_key(data, "current_file")
 
 
 def test_save_config_roundtrip():
@@ -303,6 +305,97 @@ def test_update_chunk_404():
     assert_status(r, 404)
 
 
+def test_insert_chunk():
+    if not shared.get("has_chunks"):
+        raise TestFailure("SKIP: no chunks available")
+
+    # Get initial count
+    r = get("/api/chunks")
+    assert_status(r, 200)
+    initial_chunks = r.json()
+    initial_count = len(initial_chunks)
+
+    # Insert after index 0
+    r = post("/api/chunks/0/insert")
+    assert_status(r, 200)
+    data = r.json()
+    if data.get("status") != "ok":
+        raise TestFailure(f"Expected status=ok, got {data}")
+    if data.get("total") != initial_count + 1:
+        raise TestFailure(f"Expected total={initial_count + 1}, got {data.get('total')}")
+
+    # Verify the new chunk exists at index 1 with empty text
+    r = get("/api/chunks")
+    assert_status(r, 200)
+    chunks = r.json()
+    if len(chunks) != initial_count + 1:
+        raise TestFailure(f"Chunk count mismatch: expected {initial_count + 1}, got {len(chunks)}")
+    if chunks[1].get("text") != "":
+        raise TestFailure(f"Inserted chunk should have empty text, got: {chunks[1].get('text')}")
+
+    # Store index for cleanup in delete test
+    shared["inserted_chunk_index"] = 1
+
+
+def test_insert_chunk_404():
+    r = post("/api/chunks/99999/insert")
+    assert_status(r, 404)
+
+
+def test_delete_chunk():
+    if not shared.get("has_chunks"):
+        raise TestFailure("SKIP: no chunks available")
+
+    idx = shared.get("inserted_chunk_index")
+    if idx is None:
+        raise TestFailure("SKIP: no inserted chunk to delete")
+
+    # Get count before delete
+    r = get("/api/chunks")
+    assert_status(r, 200)
+    before_count = len(r.json())
+
+    r = delete(f"/api/chunks/{idx}")
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "deleted")
+    assert_key(data, "total")
+    if data["total"] != before_count - 1:
+        raise TestFailure(f"Expected total={before_count - 1}, got {data['total']}")
+
+    # Save deleted chunk for restore test
+    shared["deleted_chunk"] = data["deleted"]
+    shared["deleted_chunk_index"] = idx
+
+
+def test_delete_chunk_invalid():
+    r = delete("/api/chunks/99999")
+    assert_status(r, 400)
+
+
+def test_restore_chunk():
+    if not shared.get("deleted_chunk"):
+        raise TestFailure("SKIP: no deleted chunk to restore")
+
+    r = get("/api/chunks")
+    assert_status(r, 200)
+    before_count = len(r.json())
+
+    r = post("/api/chunks/restore", json={
+        "chunk": shared["deleted_chunk"],
+        "at_index": shared["deleted_chunk_index"]
+    })
+    assert_status(r, 200)
+    data = r.json()
+    if data.get("status") != "ok":
+        raise TestFailure(f"Expected status=ok, got {data}")
+    if data.get("total") != before_count + 1:
+        raise TestFailure(f"Expected total={before_count + 1}, got {data.get('total')}")
+
+    # Clean up: delete the restored chunk so we leave chunks as we found them
+    delete(f"/api/chunks/{shared['deleted_chunk_index']}")
+
+
 # ── Section 8: Status Polling ────────────────────────────────
 
 def test_status_known_tasks():
@@ -419,6 +512,22 @@ def test_lora_train_bad_dataset():
     # Should fail — dataset does not exist
     if r.status_code < 400:
         raise TestFailure(f"Expected error for bad dataset, got {r.status_code}")
+
+
+def test_lora_preview_404():
+    r = post(f"/api/lora/preview/{TEST_PREFIX}fake_adapter")
+    assert_status(r, 404)
+
+
+def test_lora_preview():
+    models = shared.get("lora_models", [])
+    if not models:
+        raise TestFailure("SKIP: no LoRA models available")
+    adapter = models[0]
+    r = post(f"/api/lora/preview/{adapter['id']}", timeout=120)
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "audio_url")
 
 
 # ── Section 12: Dataset Builder CRUD ────────────────────────
@@ -690,6 +799,11 @@ def run_all_tests():
     run_test("get_chunks", test_get_chunks)
     run_test("update_chunk", test_update_chunk)
     run_test("update_chunk_404", test_update_chunk_404)
+    run_test("insert_chunk", test_insert_chunk)
+    run_test("insert_chunk_404", test_insert_chunk_404)
+    run_test("delete_chunk", test_delete_chunk)
+    run_test("delete_chunk_invalid", test_delete_chunk_invalid)
+    run_test("restore_chunk", test_restore_chunk)
 
     section("Status Polling")
     run_test("status_known_tasks", test_status_known_tasks)
@@ -710,6 +824,8 @@ def run_all_tests():
     run_test("lora_list_models", test_lora_list_models)
     run_test("lora_delete_model_404", test_lora_delete_model_404)
     run_test("lora_train_bad_dataset", test_lora_train_bad_dataset)
+    run_test("lora_preview_404", test_lora_preview_404)
+    run_test("lora_preview", test_lora_preview, requires_full=True)
 
     section("Dataset Builder")
     run_test("dataset_builder_list", test_dataset_builder_list)

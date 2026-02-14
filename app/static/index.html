@@ -8,6 +8,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         body { background-color: #f8f9fa; }
+        .container-wide { max-width: 85%; margin-left: auto; margin-right: auto; padding-left: 12px; padding-right: 12px; }
         .nav-link { cursor: pointer; }
         .log-window {
             background-color: #1e1e1e;
@@ -34,6 +35,19 @@
         }
         .step-active { background-color: #0d6efd; color: white; }
         .voice-card { border-left: 4px solid #0d6efd; }
+        /* Editor row expand/collapse */
+        .chunk-expand-btn {
+            border: none;
+            background: none;
+            padding: 2px 4px;
+            cursor: pointer;
+            color: #6c757d;
+            font-size: 0.85em;
+            transition: transform 0.2s ease;
+        }
+        .chunk-row.expanded .chunk-expand-btn {
+            transform: rotate(180deg);
+        }
     </style>
 </head>
 <body>
@@ -58,7 +72,7 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container-wide">
 
         <!-- Setup Tab -->
         <div id="setup-tab" class="tab-content">
@@ -264,16 +278,13 @@
         <div id="script-tab" class="tab-content" style="display:none;">
             <div class="card">
                 <div class="card-header">
-                    <h4><span class="step-indicator step-active">2</span>Upload & Generate Script</h4>
+                    <h4><span class="step-indicator step-active">2</span>Generate Script</h4>
                 </div>
                 <div class="card-body">
                     <div class="mb-4">
-                        <label class="form-label">Upload Book/Novel (Text File)</label>
-                        <div class="input-group">
-                            <input type="file" class="form-control" id="file-upload" accept=".txt,.md">
-                            <button class="btn btn-outline-secondary" type="button" id="btn-upload">Upload</button>
-                        </div>
-                        <div id="upload-status" class="mt-2 text-success"></div>
+                        <label class="form-label">Select Book/Novel (Text File)</label>
+                        <input type="file" class="form-control" id="file-upload" accept=".txt,.md">
+                        <div id="upload-status" class="mt-2"></div>
                     </div>
 
                     <div class="d-grid gap-2">
@@ -315,12 +326,11 @@
             <div class="card mb-3">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4 class="m-0"><span class="step-indicator step-active">3</span>Voice Configuration</h4>
-                    <button class="btn btn-sm btn-outline-primary" id="btn-refresh-voices"><i class="fas fa-sync me-1"></i>Refresh Voices</button>
+                    <span id="voice-save-status" class="text-muted small"></span>
                 </div>
                 <div class="card-body">
-                    <p>After generating the script, click "Refresh" to load found characters.</p>
+                    <p>Voices are detected from the generated script. Changes are saved automatically.</p>
                     <div id="voices-list"></div>
-                    <button class="btn btn-primary mt-3" id="btn-save-voices">Save Voice Config</button>
                 </div>
             </div>
 
@@ -681,10 +691,11 @@
                          <table class="table table-bordered table-hover">
                              <thead>
                                  <tr>
-                                     <th width="8%">Speaker</th>
-                                     <th width="37%">Text</th>
-                                     <th width="18%">Instruct</th>
-                                     <th width="10%">Status</th>
+                                     <th width="3%"></th>
+                                     <th width="9%">Speaker</th>
+                                     <th width="40%">Text</th>
+                                     <th width="14%">Instruct</th>
+                                     <th width="7%">Status</th>
                                      <th width="27%">Audio / Actions</th>
                                  </tr>
                              </thead>
@@ -731,8 +742,70 @@
 
     </div>
 
+    <!-- Toast container -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1090;"></div>
+
+    <!-- Confirm modal -->
+    <div class="modal fade" id="confirmModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-body fs-6" id="confirmModalBody"></div>
+                <div class="modal-footer py-2">
+                    <button type="button" class="btn btn-secondary btn-sm" id="confirmModalCancel" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary btn-sm" id="confirmModalOk">OK</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // --- Toast & Confirm utilities ---
+        function showToast(message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toast-container');
+            const bgClass = type === 'success' ? 'bg-success' :
+                           type === 'error' ? 'bg-danger' :
+                           type === 'warning' ? 'bg-warning text-dark' : 'bg-info';
+            const id = 'toast-' + Date.now();
+            const html = `
+                <div id="${id}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
+                    <div class="d-flex">
+                        <div class="toast-body">${message}</div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            const el = document.getElementById(id);
+            const toast = new bootstrap.Toast(el, { delay: duration });
+            toast.show();
+            el.addEventListener('hidden.bs.toast', () => el.remove());
+        }
+
+        function showConfirm(message) {
+            return new Promise((resolve) => {
+                const body = document.getElementById('confirmModalBody');
+                body.textContent = message;
+                const modal = new bootstrap.Modal(document.getElementById('confirmModal'));
+                const okBtn = document.getElementById('confirmModalOk');
+                const cancelBtn = document.getElementById('confirmModalCancel');
+
+                function cleanup() {
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                    document.getElementById('confirmModal').removeEventListener('hidden.bs.modal', onHidden);
+                }
+                let resolved = false;
+                function onOk() { resolved = true; cleanup(); modal.hide(); resolve(true); }
+                function onCancel() { resolved = true; cleanup(); modal.hide(); resolve(false); }
+                function onHidden() { if (!resolved) { cleanup(); resolve(false); } }
+
+                okBtn.addEventListener('click', onOk);
+                cancelBtn.addEventListener('click', onCancel);
+                document.getElementById('confirmModal').addEventListener('hidden.bs.modal', onHidden);
+                modal.show();
+            });
+        }
+
         // --- Navigation ---
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -750,6 +823,8 @@
                 // Trigger tab specific loads
                 if (e.target.dataset.tab === 'editor') {
                     loadChunks();
+                } else if (e.target.dataset.tab === 'voices') {
+                    loadVoices();
                 } else if (e.target.dataset.tab === 'designer') {
                     loadDesignedVoices();
                 } else if (e.target.dataset.tab === 'training') {
@@ -763,9 +838,19 @@
 
         // --- API Helpers ---
         const API = {
+            _handleError: async (res) => {
+                if (res.ok) return;
+                try {
+                    const body = await res.json();
+                    throw new Error(body.detail || res.statusText);
+                } catch (e) {
+                    if (e.message) throw e;
+                    throw new Error(res.statusText);
+                }
+            },
             get: async (url) => {
                 const res = await fetch(url);
-                if (!res.ok) throw new Error(res.statusText);
+                await API._handleError(res);
                 return res.json();
             },
             post: async (url, data) => {
@@ -774,7 +859,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                if (!res.ok) throw new Error(res.statusText);
+                await API._handleError(res);
                 return res.json();
             },
             upload: async (file) => {
@@ -784,7 +869,7 @@
                     method: 'POST',
                     body: formData
                 });
-                if (!res.ok) throw new Error(res.statusText);
+                await API._handleError(res);
                 return res.json();
             }
         };
@@ -870,6 +955,12 @@
                     }
                     document.getElementById('merge-narrators').checked = !!config.generation.merge_narrators;
                 }
+
+                // Show previously loaded file
+                if (config.current_file) {
+                    document.getElementById('upload-status').innerHTML =
+                        `<span class="text-success"><i class="fas fa-check me-1"></i>Loaded: ${config.current_file}</span>`;
+                }
             } catch (e) {
                 console.error("Failed to load config", e);
             }
@@ -883,7 +974,7 @@
                 document.getElementById('user-prompt').value = defaults.user_prompt;
             } catch (e) {
                 console.error("Failed to fetch default prompts", e);
-                alert("Failed to load default prompts from server.");
+                showToast("Failed to load default prompts from server.", 'error');
             }
             document.getElementById('chunk-size').value = 3000;
             document.getElementById('max-tokens').value = 4096;
@@ -955,31 +1046,49 @@
             };
             try {
                 await API.post('/api/config', config);
-                alert('Configuration Saved!');
+                showToast('Configuration Saved!', 'success');
             } catch (e) {
-                alert('Error saving config: ' + e.message);
+                showToast('Error saving config: ' + e.message, 'error');
             }
         });
 
         // --- Script Tab ---
-        document.getElementById('btn-upload').addEventListener('click', async () => {
+        document.getElementById('file-upload').addEventListener('change', async () => {
             const fileInput = document.getElementById('file-upload');
-            if (fileInput.files.length === 0) return alert("Select a file first");
+            const statusEl = document.getElementById('upload-status');
+            if (fileInput.files.length === 0) return;
 
+            statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Loading file...</span>';
             try {
                 const res = await API.upload(fileInput.files[0]);
-                document.getElementById('upload-status').innerText = `Uploaded: ${res.filename}`;
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Loaded: ${res.filename}</span>`;
             } catch (e) {
-                alert("Upload failed: " + e.message);
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed to load file: ${e.message}</span>`;
             }
         });
 
         document.getElementById('btn-gen-script').addEventListener('click', async () => {
+            const fileInput = document.getElementById('file-upload');
+            const statusEl = document.getElementById('upload-status');
+
+            // Check if a file has been loaded (status shows success) or if one was previously uploaded
+            const hasLoadedFile = statusEl.innerHTML.includes('text-success');
+
+            if (!hasLoadedFile && fileInput.files.length === 0) {
+                statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Please select a text file first using the file picker above.</span>';
+                return;
+            }
+
             try {
                 await API.post('/api/generate_script', {});
                 pollLogs('script', 'script-logs');
             } catch (e) {
-                alert("Failed to start script gen: " + e.message);
+                const detail = e.message || 'Unknown error';
+                if (detail.includes('No input file')) {
+                    statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>No file loaded. Please select a text file first.</span>';
+                } else {
+                    statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${detail}</span>`;
+                }
             }
         });
 
@@ -988,7 +1097,7 @@
                 await API.post('/api/review_script', {});
                 pollLogs('review', 'script-logs');
             } catch (e) {
-                alert("Failed to start review: " + e.message);
+                showToast("Failed to start review: " + e.message, 'error');
             }
         });
 
@@ -1124,18 +1233,8 @@
             card.querySelector('.clone-opts').style.display = radio.value === 'clone' ? 'block' : 'none';
             card.querySelector('.lora-opts').style.display = radio.value === 'lora' ? 'block' : 'none';
             card.querySelector('.design-opts').style.display = radio.value === 'design' ? 'block' : 'none';
+            debouncedSaveVoices();
         };
-
-        document.getElementById('btn-refresh-voices').addEventListener('click', async () => {
-             // Trigger parse
-             try {
-                await API.post('/api/parse_voices', {});
-                // Wait a bit for it to run (it's fast)
-                setTimeout(loadVoices, 1000);
-            } catch (e) {
-                console.error(e);
-            }
-        });
 
         async function loadVoices() {
             // Refresh designed voices cache so clone dropdown is populated
@@ -1154,9 +1253,14 @@
                 return;
             }
             container.innerHTML = voices.map((v, i) => createVoiceCard(v, i)).join('');
+
+            // If any voice has no saved config, save defaults immediately
+            if (voices.some(v => !v.config || Object.keys(v.config).length === 0)) {
+                debouncedSaveVoices();
+            }
         }
 
-        document.getElementById('btn-save-voices').addEventListener('click', async () => {
+        function collectVoiceConfig() {
             const cards = document.querySelectorAll('.voice-card');
             const config = {};
 
@@ -1206,13 +1310,34 @@
                     };
                 }
             });
+            return config;
+        }
 
-            try {
-                await API.post('/api/save_voice_config', config);
-                alert('Voice configuration saved!');
-            } catch (e) {
-                alert('Error saving voices: ' + e.message);
-            }
+        let _voiceSaveTimer = null;
+        function debouncedSaveVoices() {
+            const statusEl = document.getElementById('voice-save-status');
+            statusEl.innerHTML = '<i class="fas fa-circle text-warning" style="font-size:0.5em;"></i> unsaved';
+            clearTimeout(_voiceSaveTimer);
+            _voiceSaveTimer = setTimeout(async () => {
+                const cards = document.querySelectorAll('.voice-card');
+                if (cards.length === 0) return;
+                try {
+                    const config = collectVoiceConfig();
+                    await API.post('/api/save_voice_config', config);
+                    statusEl.innerHTML = '<i class="fas fa-check text-success me-1"></i>saved';
+                    setTimeout(() => { statusEl.innerHTML = ''; }, 2000);
+                } catch (e) {
+                    statusEl.innerHTML = '<i class="fas fa-times text-danger me-1"></i>save failed';
+                }
+            }, 800);
+        }
+
+        // Auto-save on any change inside the voices list
+        document.getElementById('voices-list').addEventListener('change', () => {
+            debouncedSaveVoices();
+        });
+        document.getElementById('voices-list').addEventListener('input', () => {
+            debouncedSaveVoices();
         });
 
         // --- Editor Tab ---
@@ -1296,14 +1421,14 @@
 
             // Show loading only if empty
             if (tbody.children.length === 0 || (tbody.children.length === 1 && tbody.children[0].children.length === 1)) {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Loading chunks...</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">Loading chunks...</td></tr>';
                 forceFullRedraw = true;
             }
 
             try {
                 const chunks = await API.get('/api/chunks');
                 if (chunks.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" class="text-center">No chunks found. Please generate script first.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" class="text-center">No chunks found. Please generate script first.</td></tr>';
                     cachedChunks = [];
                     return;
                 }
@@ -1362,10 +1487,13 @@
                             `<button class="btn btn-sm btn-primary" onclick="generateChunk(${chunk.id})"><i class="fas fa-play"></i> Gen</button>`;
 
                         return `
-                            <tr data-id="${chunk.id}">
+                            <tr data-id="${chunk.id}" class="chunk-row">
+                                <td class="text-center align-middle" style="white-space:nowrap;">
+                                    <button class="chunk-expand-btn" onclick="toggleChunkExpand(this)" title="Expand/collapse"><i class="fas fa-chevron-down"></i></button><button class="chunk-expand-btn" onclick="insertChunkAfter(${chunk.id})" title="Insert line below"><i class="fas fa-plus"></i></button><button class="chunk-expand-btn" onclick="deleteChunk(${chunk.id})" title="Delete line"><i class="fas fa-trash" style="color:#dc3545;"></i></button>
+                                </td>
                                 <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
-                                <td><textarea class="form-control form-control-sm" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
-                                <td><input type="text" class="form-control form-control-sm" value="${chunk.instruct || ''}" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)"></td>
+                                <td><textarea class="form-control form-control-sm chunk-text" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
+                                <td><textarea class="form-control form-control-sm chunk-instruct" rows="2" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)">${chunk.instruct || ''}</textarea></td>
                                 <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
@@ -1389,6 +1517,102 @@
                 console.error("Error loading chunks:", e);
             }
         }
+
+        window.toggleChunkExpand = (btn) => {
+            const row = btn.closest('tr');
+            const expanding = !row.classList.contains('expanded');
+            row.classList.toggle('expanded');
+
+            row.querySelectorAll('.chunk-text, .chunk-instruct').forEach(ta => {
+                if (expanding) {
+                    // Auto-size to content
+                    ta.style.height = 'auto';
+                    ta.style.height = ta.scrollHeight + 'px';
+                    ta.style.overflow = 'visible';
+                } else {
+                    // Collapse back to 2 rows
+                    ta.style.height = '';
+                    ta.style.overflow = '';
+                }
+            });
+        };
+
+        window.insertChunkAfter = async (id) => {
+            try {
+                await API.post(`/api/chunks/${id}/insert`, {});
+                await loadChunks(true);
+            } catch (e) {
+                showToast('Failed to insert line: ' + e.message, 'error');
+            }
+        };
+
+        let _lastDeleted = null;
+        let _undoTimer = null;
+
+        window.deleteChunk = async (id) => {
+            try {
+                const res = await fetch(`/api/chunks/${id}`, { method: 'DELETE' });
+                await API._handleError(res);
+                const data = await res.json();
+
+                // Store for undo
+                _lastDeleted = { chunk: data.deleted, at_index: id };
+                clearTimeout(_undoTimer);
+
+                // Show toast with undo action
+                const toastId = 'toast-undo-' + Date.now();
+                const container = document.getElementById('toast-container');
+                container.insertAdjacentHTML('beforeend', `
+                    <div id="${toastId}" class="toast align-items-center text-white bg-warning border-0" role="alert">
+                        <div class="d-flex">
+                            <div class="toast-body text-dark">
+                                Line deleted (${data.deleted.speaker}: "${(data.deleted.text || '').substring(0, 40)}...")
+                                <a href="#" class="ms-2 fw-bold text-dark" onclick="event.preventDefault(); undoDeleteChunk('${toastId}');">Undo</a>
+                            </div>
+                            <button type="button" class="btn-close me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>`);
+                const el = document.getElementById(toastId);
+                const toast = new bootstrap.Toast(el, { delay: 8000 });
+                toast.show();
+                el.addEventListener('hidden.bs.toast', () => { el.remove(); });
+
+                // Clear undo data after timeout
+                _undoTimer = setTimeout(() => { _lastDeleted = null; }, 8000);
+
+                await loadChunks(true);
+            } catch (e) {
+                showToast('Failed to delete line: ' + e.message, 'error');
+            }
+        };
+
+        window.undoDeleteChunk = async (toastId) => {
+            if (!_lastDeleted) {
+                showToast('Nothing to undo', 'warning');
+                return;
+            }
+
+            try {
+                await API.post('/api/chunks/restore', {
+                    chunk: _lastDeleted.chunk,
+                    at_index: _lastDeleted.at_index
+                });
+
+                // Dismiss the toast
+                const el = document.getElementById(toastId);
+                if (el) {
+                    const toast = bootstrap.Toast.getInstance(el);
+                    if (toast) toast.hide();
+                }
+
+                _lastDeleted = null;
+                clearTimeout(_undoTimer);
+                showToast('Line restored', 'success');
+                await loadChunks(true);
+            } catch (e) {
+                showToast('Undo failed: ' + e.message, 'error');
+            }
+        };
 
         window.stopOthers = (id) => {
             if (isPlayingSequence) return; // Sequence player handles its own logic
@@ -1491,7 +1715,7 @@
                 // For now, next loadChunks will show updated status (pending)
             } catch (e) {
                 console.error("Update failed", e);
-                alert("Failed to update chunk");
+                showToast("Failed to update chunk", 'error');
             }
         };
 
@@ -1552,7 +1776,7 @@
                 // Start polling with incremental updates (no full redraw)
                 setTimeout(() => loadChunks(false), 1000);
             } catch (e) {
-                alert("Failed to start generation: " + e.message);
+                showToast("Failed to start generation: " + e.message, 'error');
                 loadChunks(true); // Revert UI with full redraw
             }
         };
@@ -1576,12 +1800,12 @@
                 const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
 
                 if (toProcess.length === 0) {
-                    alert("All chunks are already rendered!");
+                    showToast("All chunks are already rendered!", 'warning');
                     cancelRender();
                     return;
                 }
 
-                if (regenerateAll && !confirm(`Regenerate all ${chunks.length} chunks? This will replace existing audio.`)) {
+                if (regenerateAll && !await showConfirm(`Regenerate all ${chunks.length} chunks? This will replace existing audio.`)) {
                     cancelRender();
                     return;
                 }
@@ -1629,7 +1853,7 @@
                             const completed = updated.filter(c => indices.includes(c.id) && c.status === 'done').length;
                             const failed = updated.filter(c => indices.includes(c.id) && c.status === 'error').length;
                             if (failed > 0) {
-                                alert(`Batch complete: ${completed} succeeded, ${failed} failed`);
+                                showToast(`Batch complete: ${completed} succeeded, ${failed} failed`, 'warning');
                             }
                         }
                     } catch (e) {
@@ -1639,7 +1863,7 @@
 
             } catch (e) {
                 console.error("Render All error:", e);
-                alert("Error during batch rendering: " + e.message);
+                showToast("Error during batch rendering: " + e.message, 'error');
                 cancelRender();
             }
         };
@@ -1656,7 +1880,7 @@
                 const toProcess = regenerateAll ? chunks : chunks.filter(c => c.status !== 'done');
 
                 if (toProcess.length === 0) {
-                    alert("All chunks are already rendered!");
+                    showToast("All chunks are already rendered!", 'warning');
                     cancelRender();
                     return;
                 }
@@ -1702,7 +1926,7 @@
                             const completed = updated.filter(c => indices.includes(c.id) && c.status === 'done').length;
                             const failed = updated.filter(c => indices.includes(c.id) && c.status === 'error').length;
                             if (failed > 0) {
-                                alert(`Batch complete: ${completed} succeeded, ${failed} failed`);
+                                showToast(`Batch complete: ${completed} succeeded, ${failed} failed`, 'warning');
                             }
                         }
                     } catch (e) {
@@ -1712,13 +1936,13 @@
 
             } catch (e) {
                 console.error("Batch Fast error:", e);
-                alert("Error during batch rendering: " + e.message);
+                showToast("Error during batch rendering: " + e.message, 'error');
                 cancelRender();
             }
         };
 
         document.getElementById('btn-merge').addEventListener('click', async () => {
-             if (!confirm("Merge all valid audio chunks into final audiobook?")) return;
+             if (!await showConfirm("Merge all valid audio chunks into final audiobook?")) return;
 
              try {
                  await API.post('/api/merge', {});
@@ -1726,7 +1950,7 @@
                  document.querySelector('[data-tab="audio"]').click();
                  pollLogs('audio', 'audio-logs');
              } catch (e) {
-                 alert("Merge failed: " + e.message);
+                 showToast("Merge failed: " + e.message, 'error');
              }
         });
 
@@ -1846,7 +2070,7 @@
             const nameInput = document.getElementById('save-script-name');
             const name = nameInput.value.trim();
             if (!name) {
-                alert('Please enter a name for the script.');
+                showToast('Please enter a name for the script.', 'warning');
                 return;
             }
             try {
@@ -1857,18 +2081,18 @@
                 });
                 if (!res.ok) {
                     const err = await res.json();
-                    alert(err.detail || 'Failed to save script.');
+                    showToast(err.detail || 'Failed to save script.', 'error');
                     return;
                 }
                 nameInput.value = '';
                 loadSavedScripts();
             } catch (e) {
-                alert('Error saving script: ' + e.message);
+                showToast('Error saving script: ' + e.message, 'error');
             }
         }
 
         async function loadScript(name) {
-            if (!confirm(`Load "${name}"? This will replace your current script and chunks.`)) return;
+            if (!await showConfirm(`Load "${name}"? This will replace your current script and chunks.`)) return;
             try {
                 const res = await fetch('/api/scripts/load', {
                     method: 'POST',
@@ -1877,29 +2101,29 @@
                 });
                 if (!res.ok) {
                     const err = await res.json();
-                    alert(err.detail || 'Failed to load script.');
+                    showToast(err.detail || 'Failed to load script.', 'error');
                     return;
                 }
                 loadSavedScripts();
                 loadChunks();
                 loadVoices();
             } catch (e) {
-                alert('Error loading script: ' + e.message);
+                showToast('Error loading script: ' + e.message, 'error');
             }
         }
 
         async function deleteScript(name) {
-            if (!confirm(`Delete saved script "${name}"? This cannot be undone.`)) return;
+            if (!await showConfirm(`Delete saved script "${name}"? This cannot be undone.`)) return;
             try {
                 const res = await fetch(`/api/scripts/${encodeURIComponent(name)}`, {method: 'DELETE'});
                 if (!res.ok) {
                     const err = await res.json();
-                    alert(err.detail || 'Failed to delete script.');
+                    showToast(err.detail || 'Failed to delete script.', 'error');
                     return;
                 }
                 loadSavedScripts();
             } catch (e) {
-                alert('Error deleting script: ' + e.message);
+                showToast('Error deleting script: ' + e.message, 'error');
             }
         }
 
@@ -1945,8 +2169,8 @@
             const statusEl = document.getElementById('design-status');
             const previewContainer = document.getElementById('design-preview-container');
 
-            if (!description) { alert('Please enter a voice description.'); return; }
-            if (!sampleText) { alert('Please enter sample text.'); return; }
+            if (!description) { showToast('Please enter a voice description.', 'warning'); return; }
+            if (!sampleText) { showToast('Please enter sample text.', 'warning'); return; }
 
             const btn = document.getElementById('btn-design-preview');
             btn.disabled = true;
@@ -1975,8 +2199,8 @@
 
         window.saveDesignedVoice = async () => {
             const name = document.getElementById('design-voice-name').value.trim();
-            if (!name) { alert('Please enter a name for the voice.'); return; }
-            if (!window._currentPreviewFile) { alert('Generate a preview first.'); return; }
+            if (!name) { showToast('Please enter a name for the voice.', 'warning'); return; }
+            if (!window._currentPreviewFile) { showToast('Generate a preview first.', 'warning'); return; }
 
             try {
                 await API.post('/api/voice_design/save', {
@@ -1988,7 +2212,7 @@
                 document.getElementById('design-voice-name').value = '';
                 loadDesignedVoices();
             } catch (e) {
-                alert('Error saving voice: ' + e.message);
+                showToast('Error saving voice: ' + e.message, 'error');
             }
         };
 
@@ -1998,13 +2222,13 @@
         };
 
         window.deleteDesignedVoice = async (voiceId) => {
-            if (!confirm('Delete this designed voice?')) return;
+            if (!await showConfirm('Delete this designed voice?')) return;
             try {
                 const res = await fetch(`/api/voice_design/${encodeURIComponent(voiceId)}`, {method: 'DELETE'});
-                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                if (!res.ok) { const err = await res.json(); showToast(err.detail || 'Failed to delete.', 'error'); return; }
                 loadDesignedVoices();
             } catch (e) {
-                alert('Error deleting voice: ' + e.message);
+                showToast('Error deleting voice: ' + e.message, 'error');
             }
         };
 
@@ -2067,10 +2291,10 @@
 
         window.uploadLoraDataset = async () => {
             const fileInput = document.getElementById('lora-dataset-file');
-            if (!fileInput.files.length) { alert('Select a ZIP file first.'); return; }
+            if (!fileInput.files.length) { showToast('Select a ZIP file first.', 'warning'); return; }
 
             const file = fileInput.files[0];
-            if (!file.name.endsWith('.zip')) { alert('File must be a .zip archive.'); return; }
+            if (!file.name.endsWith('.zip')) { showToast('File must be a .zip archive.', 'warning'); return; }
 
             const formData = new FormData();
             formData.append('file', file);
@@ -2079,26 +2303,26 @@
                 const res = await fetch('/api/lora/upload_dataset', { method: 'POST', body: formData });
                 if (!res.ok) {
                     const err = await res.json();
-                    alert(err.detail || 'Upload failed.');
+                    showToast(err.detail || 'Upload failed.', 'error');
                     return;
                 }
                 const result = await res.json();
-                alert(`Dataset "${result.dataset_id}" uploaded (${result.sample_count} samples).`);
+                showToast(`Dataset "${result.dataset_id}" uploaded (${result.sample_count} samples).`, 'success');
                 fileInput.value = '';
                 loadLoraDatasets();
             } catch (e) {
-                alert('Upload error: ' + e.message);
+                showToast('Upload error: ' + e.message, 'error');
             }
         };
 
         window.deleteLoraDataset = async (datasetId) => {
-            if (!confirm(`Delete dataset "${datasetId}"?`)) return;
+            if (!await showConfirm(`Delete dataset "${datasetId}"?`)) return;
             try {
                 const res = await fetch(`/api/lora/datasets/${encodeURIComponent(datasetId)}`, { method: 'DELETE' });
-                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                if (!res.ok) { const err = await res.json(); showToast(err.detail || 'Failed to delete.', 'error'); return; }
                 loadLoraDatasets();
             } catch (e) {
-                alert('Error deleting dataset: ' + e.message);
+                showToast('Error deleting dataset: ' + e.message, 'error');
             }
         };
 
@@ -2106,8 +2330,8 @@
         window.startLoraTraining = async () => {
             const name = document.getElementById('lora-adapter-name').value.trim();
             const datasetId = document.getElementById('lora-dataset-select').value;
-            if (!name) { alert('Enter an adapter name.'); return; }
-            if (!datasetId) { alert('Select a dataset.'); return; }
+            if (!name) { showToast('Enter an adapter name.', 'warning'); return; }
+            if (!datasetId) { showToast('Select a dataset.', 'warning'); return; }
 
             const request = {
                 name: name,
@@ -2130,7 +2354,7 @@
                 document.getElementById('lora-train-status').innerHTML = '<span class="text-info">Training in progress...</span>';
                 pollLoraTraining(request.epochs);
             } catch (e) {
-                alert('Failed to start training: ' + e.message);
+                showToast('Failed to start training: ' + e.message, 'error');
                 btn.disabled = false;
                 document.getElementById('lora-train-status').innerHTML = '';
             }
@@ -2222,7 +2446,7 @@
 
                 container.innerHTML = `
                     <table class="table table-sm table-hover mb-0">
-                        <thead><tr><th>Name</th><th>Dataset</th><th>Epochs</th><th>Final Loss</th><th>Samples</th><th style="width:180px">Actions</th></tr></thead>
+                        <thead><tr><th>Name</th><th>Dataset</th><th>Epochs</th><th>Final Loss</th><th>Samples</th><th style="width:240px">Actions</th></tr></thead>
                         <tbody>
                             ${models.map(m => `
                                 <tr${m.builtin ? ' class="table-light"' : ''}>
@@ -2232,7 +2456,8 @@
                                     <td>${m.final_loss != null ? m.final_loss.toFixed(4) : '--'}</td>
                                     <td>${m.sample_count || '--'}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel('${m.id}')" title="Test"><i class="fas fa-play me-1"></i>Test</button>
+                                        <button class="btn btn-sm ${m.preview_audio_url ? 'btn-outline-success' : 'btn-outline-secondary'} me-1" id="lora-preview-btn-${m.id}" onclick="playLoraPreview('${m.id}')" title="${m.preview_audio_url ? 'Play preview' : 'Generate and play preview (first time may take a moment)'}"><i class="fas fa-volume-up"></i></button>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel('${m.id}')" title="Generate test line with custom text"><i class="fas fa-flask me-1"></i>Test</button>
                                         ${m.builtin ? '' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>`}
                                     </td>
                                 </tr>
@@ -2253,6 +2478,27 @@
             }
         }
 
+        window.playLoraPreview = async (adapterId) => {
+            const btn = document.getElementById(`lora-preview-btn-${adapterId}`);
+            const origHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+            try {
+                const result = await API.post(`/api/lora/preview/${encodeURIComponent(adapterId)}`, {});
+                const audio = new Audio(`${result.audio_url}?t=${Date.now()}`);
+                audio.play();
+                // Update button now that preview is cached
+                btn.title = 'Play preview';
+                btn.classList.replace('btn-outline-secondary', 'btn-outline-success');
+            } catch (e) {
+                showToast('Preview failed: ' + e.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = origHtml;
+            }
+        };
+
         window.testLoraModel = (adapterId) => {
             document.getElementById('lora-test-adapter').value = adapterId;
             document.getElementById('lora-test-form').style.display = '';
@@ -2263,8 +2509,8 @@
             const adapterId = document.getElementById('lora-test-adapter').value;
             const text = document.getElementById('lora-test-text').value.trim();
             const instruct = document.getElementById('lora-test-instruct').value.trim();
-            if (!adapterId) { alert('Select an adapter.'); return; }
-            if (!text) { alert('Enter text to synthesize.'); return; }
+            if (!adapterId) { showToast('Select an adapter.', 'warning'); return; }
+            if (!text) { showToast('Enter text to synthesize.', 'warning'); return; }
 
             const statusEl = document.getElementById('lora-test-status');
             statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generating...';
@@ -2285,13 +2531,13 @@
         };
 
         window.deleteLoraModel = async (adapterId) => {
-            if (!confirm('Delete this trained adapter? This cannot be undone.')) return;
+            if (!await showConfirm('Delete this trained adapter? This cannot be undone.')) return;
             try {
                 const res = await fetch(`/api/lora/models/${encodeURIComponent(adapterId)}`, { method: 'DELETE' });
-                if (!res.ok) { const err = await res.json(); alert(err.detail || 'Failed to delete.'); return; }
+                if (!res.ok) { const err = await res.json(); showToast(err.detail || 'Failed to delete.', 'error'); return; }
                 loadLoraModels();
             } catch (e) {
-                alert('Error deleting adapter: ' + e.message);
+                showToast('Error deleting adapter: ' + e.message, 'error');
             }
         };
 
@@ -2374,13 +2620,13 @@
                 const result = await API.post('/api/dataset_builder/create', { name: name.trim() });
                 await dsbLoadProjects(result.name);
             } catch (e) {
-                alert('Failed to create project: ' + e.message);
+                showToast('Failed to create project: ' + e.message, 'error');
             }
         };
 
         window.dsbDeleteProject = async () => {
             if (!dsbCurrentProject) return;
-            if (!confirm(`Delete project "${dsbCurrentProject}" and all its samples?`)) return;
+            if (!await showConfirm(`Delete project "${dsbCurrentProject}" and all its samples?`)) return;
             try {
                 await fetch(`/api/dataset_builder/${encodeURIComponent(dsbCurrentProject)}`, { method: 'DELETE' });
                 dsbCurrentProject = '';
@@ -2390,7 +2636,7 @@
                 dsbRenderTable();
                 await dsbLoadProjects();
             } catch (e) {
-                alert('Delete failed: ' + e.message);
+                showToast('Delete failed: ' + e.message, 'error');
             }
         };
 
@@ -2548,11 +2794,11 @@
         window.dsbGenSample = async (index) => {
             const name = dsbCurrentProject;
             const rootDesc = document.getElementById('dsb-description').value.trim();
-            if (!name) { alert('Select or create a project first.'); return; }
-            if (!rootDesc) { alert('Enter a root voice description first.'); return; }
+            if (!name) { showToast('Select or create a project first.', 'warning'); return; }
+            if (!rootDesc) { showToast('Enter a root voice description first.', 'warning'); return; }
 
             const row = dsbRows[index];
-            if (!row || !row.text.trim()) { alert('This row has no text.'); return; }
+            if (!row || !row.text.trim()) { showToast('This row has no text.', 'warning'); return; }
 
             const emotion = row.emotion.trim();
             const description = emotion ? `${rootDesc}, ${emotion}` : rootDesc;
@@ -2587,18 +2833,18 @@
         window.dsbGenerateAll = async (regenAll = false) => {
             const name = dsbCurrentProject;
             const rootDesc = document.getElementById('dsb-description').value.trim();
-            if (!name) { alert('Select or create a project first.'); return; }
-            if (!rootDesc) { alert('Enter a root voice description first.'); return; }
+            if (!name) { showToast('Select or create a project first.', 'warning'); return; }
+            if (!rootDesc) { showToast('Enter a root voice description first.', 'warning'); return; }
 
             const samples = dsbRows.filter(r => r.text.trim());
-            if (samples.length === 0) { alert('Add at least one sample with text.'); return; }
+            if (samples.length === 0) { showToast('Add at least one sample with text.', 'warning'); return; }
 
             const indices = regenAll
                 ? dsbRows.map((_, i) => i).filter(i => dsbRows[i].text.trim())
                 : dsbRows.map((r, i) => i).filter(i => dsbRows[i].text.trim() && dsbRows[i].status !== 'done');
 
-            if (indices.length === 0) { alert('All samples are already generated.'); return; }
-            if (regenAll && !confirm(`Regenerate all ${indices.length} samples?`)) return;
+            if (indices.length === 0) { showToast('All samples are already generated.', 'warning'); return; }
+            if (regenAll && !await showConfirm(`Regenerate all ${indices.length} samples?`)) return;
 
             // Mark as generating
             indices.forEach(i => { dsbRows[i].status = 'generating'; });
@@ -2625,7 +2871,7 @@
                 // Start polling
                 dsbStartPolling(name);
             } catch (e) {
-                alert('Batch generation failed: ' + e.message);
+                showToast('Batch generation failed: ' + e.message, 'error');
                 dsbStopBatch();
             }
         };
@@ -2739,7 +2985,7 @@
                     dsbRenderTable();
                     dsbSaveRows();
                 } catch (err) {
-                    alert('Import failed: ' + err.message);
+                    showToast('Import failed: ' + err.message, 'error');
                 }
             };
             reader.readAsText(file);
@@ -2765,14 +3011,14 @@
         // Save as training dataset
         window.dsbSave = async () => {
             const name = dsbCurrentProject;
-            if (!name) { alert('Select or create a project first.'); return; }
+            if (!name) { showToast('Select or create a project first.', 'warning'); return; }
 
             const doneSamples = dsbRows.filter(r => r.status === 'done');
-            if (doneSamples.length === 0) { alert('No completed samples to save. Generate some first.'); return; }
+            if (doneSamples.length === 0) { showToast('No completed samples to save. Generate some first.', 'warning'); return; }
 
             const refIdx = parseInt(document.getElementById('dsb-ref-select').value) || 0;
 
-            if (!confirm(`Save "${name}" as training dataset with ${doneSamples.length} samples?`)) return;
+            if (!await showConfirm(`Save "${name}" as training dataset with ${doneSamples.length} samples?`)) return;
 
             const statusEl = document.getElementById('dsb-save-status');
             statusEl.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Saving...';
