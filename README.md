@@ -2,6 +2,10 @@
 
 # Alexandria Audiobook Generator
 
+English | [中文](README_CN.md)
+
+> **A note to new users:** Alexandria has recently seen a sudden surge of attention and new users. As a small project, I may not be able to respond to every issue promptly. Before opening an issue, please read this README and the [Wiki](https://github.com/Finrandojin/alexandria-audiobook/wiki) thoroughly — most common questions are already answered there. Thank you for your patience!
+
 Transform any book or novel into a fully-voiced audiobook using AI-powered script annotation and text-to-speech. Features a built-in Qwen3-TTS engine with batch processing and a browser-based editor for fine-tuning every line before final export.
 
 ## Example: [sample.mp3](https://github.com/user-attachments/files/25276110/sample.mp3)
@@ -57,11 +61,22 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
   - [Ollama](https://ollama.ai/) (local)
   - [OpenAI API](https://platform.openai.com/) (cloud)
   - Any OpenAI-compatible API
-- **GPU:** 8 GB VRAM minimum, 16 GB+ recommended (NVIDIA CUDA 11.8+ or AMD ROCm 6.0+)
+- **GPU:** 8 GB VRAM minimum, 16 GB+ recommended — see compatibility table below
   - Each TTS model uses ~3.4 GB; remaining VRAM determines batch size
-  - CPU mode available but significantly slower
+  - CPU mode available on all platforms but significantly slower
 - **RAM:** 16 GB recommended (8 GB minimum)
 - **Disk:** ~20 GB (8 GB venv/PyTorch, ~7 GB for model weights, working space for audio)
+
+### GPU Compatibility
+
+| GPU | OS | Status | Driver Requirement | Notes |
+|-----|-----|--------|-------------------|-------|
+| **NVIDIA** | Windows | Full support | Driver 550+ (CUDA 12.8) | Flash attention included for faster encoding |
+| **NVIDIA** | Linux | Full support | Driver 550+ (CUDA 12.8) | Flash attention + triton included |
+| **AMD** | Linux | Full support | ROCm 6.3 | ROCm optimizations applied automatically |
+| **AMD** | Windows | CPU only | N/A | GPU acceleration is not supported — the app runs in CPU mode. For GPU acceleration with AMD, use Linux |
+| **Apple Silicon** | macOS | CPU only | N/A | MPS acceleration is not currently supported. Functional but slow |
+| **Intel** | macOS | CPU only | N/A | |
 
 > **Note:** No external TTS server is required. Alexandria includes a built-in Qwen3-TTS engine that loads models directly. Model weights are downloaded automatically on first use (~3.5 GB per model variant).
 
@@ -76,6 +91,66 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
    ```
 3. Click **Install** to set up dependencies
 4. Click **Start** to launch the web interface
+
+## First Launch — What to Expect
+
+If this is your first time running Alexandria, read this before anything else.
+
+### 1. You Need an LLM Server Running First
+
+Alexandria does **not** include an LLM — it connects to one over an API. Before generating a script, you must have one of these running:
+
+| Server | Default URL | Install |
+|--------|-------------|---------|
+| [LM Studio](https://lmstudio.ai/) | `http://localhost:1234/v1` | Download, load a model, start server |
+| [Ollama](https://ollama.ai/) | `http://localhost:11434/v1` | `ollama run qwen3` |
+| [OpenAI API](https://platform.openai.com/) | `https://api.openai.com/v1` | Get an API key |
+
+If the LLM server isn't running when you click "Generate Script", the generation will fail. Check the Pinokio terminal for error details.
+
+### 2. First TTS Generation Downloads ~3.5 GB
+
+The TTS models are **not** included in the install. They download automatically from Hugging Face the first time you generate audio. This is normal:
+
+- **Each model variant is ~3.5 GB** (CustomVoice, Base/Clone, VoiceDesign)
+- Only the variant you use gets downloaded (most users start with CustomVoice)
+- Downloads happen in the background — **check the Pinokio terminal** for progress
+- The web UI may appear frozen during this time. It is not — it's waiting for the download to finish
+- After the first download, models are cached locally and load in seconds
+
+> **Tip:** If the download seems stuck, check your internet connection. If it fails, restart the app and try again — it will resume from where it left off.
+
+### 3. First Batch Has Extra Warmup Time
+
+The very first batch generation in a session takes longer than subsequent ones:
+
+- **MIOpen autotuning** (AMD GPUs): The GPU kernel optimizer runs once per session, adding 30-60 seconds
+- **Codec compilation** (if enabled): One-time ~30-60 second warmup, then 3-4x faster for all remaining batches
+- **This is expected.** After the first batch, generation speed stabilizes
+
+### 4. VRAM Determines What You Can Do
+
+| Available VRAM | What Works |
+|---------------|------------|
+| 8 GB | One model at a time, small batches (2-5 chunks), CPU offload may be needed |
+| 16 GB | Comfortable for most use cases, batches of 10-20 chunks |
+| 24 GB+ | Full speed, batches of 40-60 chunks with codec compilation |
+
+- If you run out of VRAM, reduce **Parallel Workers** or **Max Chars/Batch** in the Setup tab
+- Close other GPU applications (games, other AI tools) before generating
+- Switching between voice types (Custom → Clone → LoRA) unloads and reloads models, which temporarily frees VRAM
+
+### 5. Where to Look When Something Goes Wrong
+
+The web UI shows high-level status, but **detailed logs are in the Pinokio terminal**:
+
+- Click **Terminal** in the Pinokio sidebar to see real-time output
+- Model loading, download progress, VRAM estimates, and errors all appear here
+- If generation fails silently in the UI, the terminal will show why
+
+For common issues and solutions, see [Troubleshooting](https://github.com/Finrandojin/alexandria-audiobook/wiki/Troubleshooting).
+
+---
 
 ## Quick Start
 
@@ -259,6 +334,8 @@ Tested on AMD RX 7900 XTX (24 GB VRAM, ROCm 6.3):
 A 273-chunk audiobook (~54 minutes of audio) generates in approximately 16 minutes with batch mode and codec compilation enabled.
 
 ### ROCm (AMD GPU) Notes
+
+> **Linux only.** AMD GPU acceleration requires ROCm 6.3 on Linux. AMD GPUs on Windows run in CPU mode — see [GPU Compatibility](#gpu-compatibility).
 
 Alexandria automatically applies ROCm-specific optimizations when running on AMD GPUs:
 - **MIOpen fast-find mode** - Prevents workspace allocation failures that cause slow GEMM fallback

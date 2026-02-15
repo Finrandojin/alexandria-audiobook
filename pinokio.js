@@ -11,7 +11,8 @@ module.exports = {
     let running = {
       install: info.running("install.js"),
       start: info.running("start.js"),
-      reset: info.running("reset.js")
+      reset: info.running("reset.js"),
+      update: info.running("update.js")
     }
 
     // Check file existence states
@@ -59,6 +60,15 @@ module.exports = {
       }]
     }
 
+    if (running.update) {
+      return [{
+        default: true,
+        icon: "fa-solid fa-arrows-rotate",
+        text: "Updating",
+        href: "update.js"
+      }]
+    }
+
     // STATE: NOT_INSTALLED - auto-run install
     if (!installed) {
       return [{
@@ -79,6 +89,10 @@ module.exports = {
       icon: "fa-solid fa-folder-open",
       text: "Open Voicelines",
       href: "voicelines"
+    }, {
+      icon: "fa-solid fa-arrows-rotate",
+      text: "Update",
+      href: "update.js"
     }, {
       icon: "fa-solid fa-plug",
       text: "Reinstall",
