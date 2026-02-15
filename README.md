@@ -252,7 +252,7 @@ Create new voices from text descriptions without needing reference audio.
 Train LoRA adapters on the Base model to create custom voice identities. Several built-in LoRA presets are included out of the box and appear alongside your trained adapters.
 
 **Dataset:**
-- **Upload ZIP** — WAV files (24kHz mono) + `metadata.jsonl` with `audio_filepath`, `text`, `instruct` fields
+- **Upload ZIP** — WAV files (24kHz mono) + `metadata.jsonl` with `audio_filepath` and `text` fields
 - **Generate Dataset** — Auto-generate training samples from a Voice Designer description with custom sample texts
 - **Dataset Builder** — Interactive tool in its own tab (see below) for building datasets sample-by-sample with preview
 

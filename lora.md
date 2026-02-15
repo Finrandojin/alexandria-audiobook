@@ -60,7 +60,7 @@
 
 ```
 lora_datasets/{name}/
-├── metadata.jsonl      # {audio_filepath, text, instruct} per line
+├── metadata.jsonl      # {audio_filepath, text} per line
 ├── ref.wav             # Reference audio for speaker embedding
 ├── ref_text.txt        # Transcript of ref.wav (must match exactly)
 └── sample_000.wav ...  # Training audio files
@@ -69,8 +69,8 @@ lora_datasets/{name}/
 ### Metadata Format
 
 ```json
-{"audio_filepath": "sample_000.wav", "text": "I told you never to come back here!", "instruct": "Angry, forceful shout."}
-{"audio_filepath": "sample_001.wav", "text": "I just don't know what to do anymore.", "instruct": "Sad, quiet whispering."}
+{"audio_filepath": "sample_000.wav", "text": "I told you never to come back here!"}
+{"audio_filepath": "sample_001.wav", "text": "I just don't know what to do anymore."}
 ```
 
 ## Troubleshooting
