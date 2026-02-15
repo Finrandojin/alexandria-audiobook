@@ -79,11 +79,21 @@
 
 ## 安装
 
+### 方式 A：Pinokio（推荐）
+
 1. 安装 [Pinokio](https://pinokio.computer/)（如尚未安装）
 2. 在 Pinokio 中打开 Alexandria：**[通过 Pinokio 安装](https://beta.pinokio.co/apps/github-com-finrandojin-alexandria-audiobook)**
    - 或手动操作：在 Pinokio 中点击 **Download**，粘贴 `https://github.com/Finrandojin/alexandria-audiobook`
 3. 点击 **Install** 安装依赖
 4. 点击 **Start** 启动 Web 界面
+
+### 方式 B：Google Colab（无需安装）
+
+没有 GPU 或系统不兼容？在浏览器中使用免费 T4 GPU 运行 Alexandria：
+
+[![在 Colab 中打开](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Finrandojin/alexandria-audiobook/blob/main/alexandria_colab.ipynb)
+
+需要免费的 [ngrok 账号](https://dashboard.ngrok.com/signup) 用于 Web UI 隧道。详细说明请参阅 notebook。
 
 ---
 
