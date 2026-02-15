@@ -739,6 +739,14 @@ For script generation, non-thinking models work best:
 - Verify model name matches what's loaded
 - Try a different model - some struggle with JSON output
 
+### Model download fails or is very slow
+- TTS models (~3.5 GB each) are downloaded from Hugging Face on first use
+- If downloads are slow or fail due to network restrictions (common in mainland China), set a Hugging Face mirror before launching:
+  - Set the environment variable `HF_ENDPOINT=https://hf-mirror.com` before starting the app
+  - Or in Pinokio, add it to start.js `env` field: `env: { HF_ENDPOINT: "https://hf-mirror.com" }`
+- If you hit rate limits, create a free [Hugging Face account](https://huggingface.co/join) and set `HF_TOKEN` to your access token
+- Downloads resume automatically if interrupted — just restart the app
+
 ### TTS generation fails
 - Check the Pinokio terminal for model loading errors
 - Ensure sufficient VRAM (16+ GB recommended for bfloat16)

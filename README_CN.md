@@ -115,6 +115,8 @@ TTS 模型**不包含在安装中**，首次生成音频时会自动从 Hugging 
 
 > **提示：** 如果下载似乎卡住了，请检查网络连接。如果失败，重启应用再试 — 会从断点处继续下载。
 
+> **中国大陆用户：** 如果 Hugging Face 下载缓慢或无法连接，请在启动前设置镜像：将环境变量 `HF_ENDPOINT` 设为 `https://hf-mirror.com`。也可以在 start.js 的 `env` 字段中添加：`env: { HF_ENDPOINT: "https://hf-mirror.com" }`。如果遇到速率限制，可注册免费的 [Hugging Face 账号](https://huggingface.co/join) 并设置 `HF_TOKEN` 为你的访问令牌。
+
 ### 3. 首批生成需要额外预热时间
 
 每个会话中的首次批量生成比后续生成更慢：
@@ -182,6 +184,12 @@ Web UI 显示的是高层状态，**详细日志在 Pinokio 终端中**：
 - 验证模型名称与已加载模型一致
 - 尝试使用其他模型 — 某些模型在 JSON 输出方面表现不佳
 - 思维链模型（DeepSeek-R1、GLM4 等）可能干扰 JSON 输出。如需使用，请在设置中的 **Banned Tokens** 字段添加 `<think>` 以禁用思考模式
+
+### 模型下载失败或速度很慢
+- TTS 模型（每个约 3.5 GB）在首次使用时从 Hugging Face 下载
+- **中国大陆用户**：设置环境变量 `HF_ENDPOINT=https://hf-mirror.com` 使用国内镜像
+- 如遇速率限制，注册免费 [Hugging Face 账号](https://huggingface.co/join) 并设置 `HF_TOKEN`
+- 下载中断后会自动续传 — 重启应用即可
 
 ### TTS 生成失败
 - 查看 Pinokio 终端中的模型加载错误
