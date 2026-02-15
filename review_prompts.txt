@@ -50,7 +50,20 @@ FIXES TO APPLY:
      {"speaker": "NARRATOR", "text": "Then there was a loud and authoritative tap.", "instruct": "Neutral, even narration."}
    RIGHT:
      {"speaker": "NARRATOR", "text": "A slow and heavy step was heard upon the stairs. Then there was a loud and authoritative tap.", "instruct": "Neutral, even narration."}
-   Do NOT merge narrators if: (a) both entries are already long (over ~200 characters each), or (b) a genuine tone shift occurs between them.
+   Do NOT merge narrators if: (a) both entries are already long (over ~200 characters each), (b) a genuine tone shift occurs between them, or (c) either entry is NOT a full narrative sentence. Short fragments like book titles, author names, dedications, chapter numbers, chapter titles, section headings, or other front-matter/structural text must always remain as separate entries — they are distinct items, not choppy narration.
+   WRONG (merging structural text):
+     {"speaker": "NARRATOR", "text": "THE GREAT GATSBY BY F. SCOTT FITZGERALD To my wife. CHAPTER ONE", "instruct": "Neutral, even narration."}
+   RIGHT (kept separate):
+     {"speaker": "NARRATOR", "text": "THE GREAT GATSBY", "instruct": "Neutral, even narration."}
+     {"speaker": "NARRATOR", "text": "BY F. SCOTT FITZGERALD", "instruct": "Neutral, even narration."}
+     {"speaker": "NARRATOR", "text": "To my wife.", "instruct": "Neutral, even narration."}
+     {"speaker": "NARRATOR", "text": "CHAPTER ONE", "instruct": "Neutral, even narration."}
+   EXCEPTION: A bare chapter number and its chapter title, when split across two entries, SHOULD be merged into one entry so TTS reads them together naturally.
+   WRONG (split number and title):
+     {"speaker": "NARRATOR", "text": "1", "instruct": "Neutral, even narration."}
+     {"speaker": "NARRATOR", "text": "SPADE & ARCHER", "instruct": "Neutral, even narration."}
+   RIGHT (combined):
+     {"speaker": "NARRATOR", "text": "1 SPADE & ARCHER", "instruct": "Neutral, even narration."}
 
 5. VALIDATE INSTRUCT FIELDS
    - NARRATOR: Must be "Neutral, even narration." or a single tonal variant matching the scene ("Tense, clipped narration.", "Quiet, somber narration.", "Wry, light narration."). Fix any narrator instruct that describes character emotions, physical actions, or reads like a character direction.

@@ -21,6 +21,17 @@ def get_speaker(entry):
     return entry.get("speaker") or entry.get("type") or ""
 
 
+def _is_structural_text(text):
+    """Check if text is a title, chapter heading, dedication, or other structural fragment."""
+    stripped = text.strip()
+    if not stripped:
+        return True
+    # Very short and not a full sentence (no sentence-ending punctuation)
+    if len(stripped) < 80 and not stripped[-1] in '.!?':
+        return True
+    return False
+
+
 def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
     """Group consecutive entries by same speaker into chunks up to max_chars"""
     if not script_entries:
@@ -36,7 +47,10 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
         text = entry.get("text", "")
         instruct = entry.get("instruct", "")
 
-        if speaker == current_speaker and instruct == current_instruct:
+        # Don't merge structural text (titles, chapter headings, dedications)
+        if (speaker == current_speaker and instruct == current_instruct
+                and not _is_structural_text(current_text)
+                and not _is_structural_text(text)):
             combined = current_text + " " + text
             if len(combined) <= max_chars:
                 current_text = combined

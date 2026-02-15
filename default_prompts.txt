@@ -33,6 +33,7 @@ RULES:
    → MARCUS: "There is nothing to tell." → NARRATOR: "Marcus was unable to meet her gaze."
 
 5. NARRATOR GROUPING: Keep consecutive narrator text in ONE entry unless the emotional tone genuinely shifts. Do not split narration sentence-by-sentence.
+   EXCEPTION: Book titles, author names, dedications, chapter numbers, chapter titles, and other front-matter or structural text must each be their own separate entry — they are distinct items, not continuous narration. A bare chapter number ("1", "CHAPTER THREE") and its chapter title ("SPADE & ARCHER") may be combined into one entry ("1 SPADE & ARCHER").
 
 6. TEXT FORMATTING:
    - No bracket sounds ([gasps], <sigh>). Use real words: "Ah!", "Oh!", "Haha!", "Haah...", "Mmm..."
