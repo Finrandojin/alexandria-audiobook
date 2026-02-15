@@ -1,0 +1,98 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug! Before submitting, please check:
+        - [ ] The [Troubleshooting](https://github.com/Finrandojin/alexandria-audiobook/wiki/Troubleshooting) wiki page
+        - [ ] The [First Launch](https://github.com/Finrandojin/alexandria-audiobook#first-launch--what-to-expect) section in the README
+        - [ ] Existing [issues](https://github.com/Finrandojin/alexandria-audiobook/issues) for duplicates
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the bug.
+      placeholder: "When I click X, Y happens instead of Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce this?
+      placeholder: |
+        1. Go to the Editor tab
+        2. Click "Batch Render Pending"
+        3. See error in terminal
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Terminal / log output
+      description: |
+        Copy the relevant output from the **Pinokio terminal** (click Terminal in the sidebar).
+        This is the most important part for diagnosing issues.
+      render: shell
+    validations:
+      required: false
+
+  - type: dropdown
+    id: gpu
+    attributes:
+      label: GPU
+      options:
+        - NVIDIA (Windows)
+        - NVIDIA (Linux)
+        - AMD (Linux / ROCm)
+        - AMD (Windows)
+        - Apple Silicon (macOS)
+        - CPU only
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: gpu_model
+    attributes:
+      label: GPU model and VRAM
+      placeholder: "e.g., RTX 4090 24GB, RX 7900 XTX 24GB, GTX 1080 8GB"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: tts_mode
+    attributes:
+      label: TTS Mode
+      options:
+        - Local (built-in)
+        - External (Gradio server)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: voice_type
+    attributes:
+      label: Voice type (if relevant)
+      options:
+        - Custom Voice
+        - Clone Voice
+        - LoRA Voice
+        - Voice Design
+        - Not applicable
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Any other details, screenshots, or config that might help.
+    validations:
+      required: false

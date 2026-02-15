@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Troubleshooting Wiki
+    url: https://github.com/Finrandojin/alexandria-audiobook/wiki/Troubleshooting
+    about: Check here first — most common issues are already documented.
+  - name: README (First Launch Guide)
+    url: https://github.com/Finrandojin/alexandria-audiobook#first-launch--what-to-expect
+    about: First-time setup, model downloads, VRAM requirements, and common pitfalls.

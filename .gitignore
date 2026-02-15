@@ -5,6 +5,8 @@ env
 app/env/
 .env
 .*
+!.github/
+!.gitignore
 ~*
 /logs/
 /cache/
