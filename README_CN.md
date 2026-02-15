@@ -80,10 +80,8 @@
 ## 安装
 
 1. 安装 [Pinokio](https://pinokio.computer/)（如尚未安装）
-2. 在 Pinokio 中点击 **Download**，粘贴以下 URL：
-   ```
-   https://github.com/Finrandojin/alexandria-audiobook
-   ```
+2. 在 Pinokio 中打开 Alexandria：**[通过 Pinokio 安装](https://beta.pinokio.co/apps/github-com-finrandojin-alexandria-audiobook)**
+   - 或手动操作：在 Pinokio 中点击 **Download**，粘贴 `https://github.com/Finrandojin/alexandria-audiobook`
 3. 点击 **Install** 安装依赖
 4. 点击 **Start** 启动 Web 界面
 

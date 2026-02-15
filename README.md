@@ -85,10 +85,8 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ## Installation
 
 1. Install [Pinokio](https://pinokio.computer/) if you haven't already
-2. In Pinokio, click **Download** and paste this URL:
-   ```
-   https://github.com/Finrandojin/alexandria-audiobook
-   ```
+2. Open Alexandria on Pinokio: **[Install via Pinokio](https://beta.pinokio.co/apps/github-com-finrandojin-alexandria-audiobook)**
+   - Or manually: in Pinokio, click **Download** and paste `https://github.com/Finrandojin/alexandria-audiobook`
 3. Click **Install** to set up dependencies
 4. Click **Start** to launch the web interface
 
