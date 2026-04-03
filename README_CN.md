@@ -17,7 +17,7 @@
 ## 主要功能
 
 ### AI 驱动流水线
-- **本地与云端 LLM 支持** — 兼容任何 OpenAI 兼容 API（LM Studio、Ollama、OpenAI 等）
+- **本地与云端 LLM 支持** — 兼容任何 OpenAI 兼容 API（LM Studio、Ollama、OpenAI、MiniMax 等）
 - **自动脚本标注** — LLM 将文本解析为包含说话人、对话和 TTS 指令的 JSON 格式
 - **LLM 脚本审校** — 可选的二次 LLM 校验，修复常见标注错误
 - **智能分块** — 按说话人连续分组（最多 500 字符），保持自然语流

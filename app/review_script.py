@@ -5,7 +5,7 @@ import re
 import argparse
 from openai import OpenAI
 from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
-from generate_script import clean_json_string, repair_json_array, salvage_json_entries
+from generate_script import clean_json_string, repair_json_array, salvage_json_entries, is_minimax_url, clamp_temperature_for_minimax
 
 
 def _is_section_break(text):
@@ -307,6 +307,11 @@ def main():
     min_p = generation_config.get("min_p", 0)
     presence_penalty = generation_config.get("presence_penalty", 0.0)
     banned_tokens = generation_config.get("banned_tokens", [])
+
+    # MiniMax: clamp temperature and log provider
+    if is_minimax_url(base_url):
+        print(f"Provider: MiniMax (OpenAI-compatible)")
+    temperature = clamp_temperature_for_minimax(temperature, base_url)
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")

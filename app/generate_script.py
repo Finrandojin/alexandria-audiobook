@@ -5,6 +5,19 @@ import re
 from openai import OpenAI
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
 
+
+def is_minimax_url(base_url: str) -> bool:
+    """Return True if the base URL points to MiniMax's API."""
+    return bool(base_url and ("minimax.io" in base_url or "minimax.chat" in base_url))
+
+
+def clamp_temperature_for_minimax(temperature: float, base_url: str) -> float:
+    """MiniMax requires temperature in (0.0, 1.0]; clamp 0 to 0.01."""
+    if is_minimax_url(base_url) and temperature <= 0.0:
+        print(f"  [MiniMax] temperature={temperature} clamped to 0.01 (MiniMax requires > 0)")
+        return 0.01
+    return temperature
+
 def clean_json_string(text):
     """Clean and extract valid JSON array from LLM response."""
     # Remove thinking tags (various formats used by different models)
@@ -398,6 +411,11 @@ def main():
     min_p = generation_config.get("min_p", 0)
     presence_penalty = generation_config.get("presence_penalty", 0.0)
     banned_tokens = generation_config.get("banned_tokens", [])
+
+    # MiniMax: clamp temperature and log provider
+    if is_minimax_url(base_url):
+        print(f"Provider: MiniMax (OpenAI-compatible)")
+    temperature = clamp_temperature_for_minimax(temperature, base_url)
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")

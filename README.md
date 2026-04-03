@@ -18,7 +18,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 ## Features
 
 ### AI-Powered Pipeline
-- **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
+- **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, MiniMax, etc.)
 - **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and TTS instruct directions
 - **LLM Script Review** - Optional second LLM pass that fixes common annotation errors: strips attribution tags from dialogue, splits misattributed narration/dialogue, merges over-split narrator entries, and validates instruct fields
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
@@ -114,6 +114,7 @@ Alexandria does **not** include an LLM — it connects to one over an API. Befor
 | [LM Studio](https://lmstudio.ai/) | `http://localhost:1234/v1` | Download, load a model, start server |
 | [Ollama](https://ollama.ai/) | `http://localhost:11434/v1` | `ollama run qwen3` |
 | [OpenAI API](https://platform.openai.com/) | `https://api.openai.com/v1` | Get an API key |
+| [MiniMax](https://www.minimaxi.com/) | `https://api.minimax.io/v1` | Get a `MINIMAX_API_KEY` |
 
 If the LLM server isn't running when you click "Generate Script", the generation will fail. Check the Pinokio terminal for error details.
 
@@ -768,8 +769,11 @@ For script generation, non-thinking models work best:
 - **Qwen3** (non-thinking variant)
 - **Llama 3.1/3.2** - Good character distinction
 - **Mistral/Mixtral** - Fast and reliable
+- **MiniMax-M2.7 / MiniMax-M2.7-highspeed** - 204K context, OpenAI-compatible API via `https://api.minimax.io/v1`
 
 **Thinking models** (DeepSeek-R1, GLM4-air, etc.) can interfere with JSON output. If you must use one, add `<think>` to the **Banned Tokens** field in Setup to disable thinking mode.
+
+> **MiniMax users:** Alexandria automatically clamps temperature to a minimum of `0.01` when using the MiniMax API, since MiniMax requires temperature > 0. Use the **Provider Preset** dropdown in Setup to auto-fill the base URL and model name.
 
 ## Troubleshooting
 

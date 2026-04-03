@@ -92,9 +92,18 @@
                     <form id="config-form">
                         <h5 class="mb-3">LLM Settings (Script Generation)</h5>
                         <div class="mb-3">
+                            <label class="form-label">Provider Preset</label>
+                            <select class="form-select" id="llm-provider-preset" onchange="applyLLMPreset(this.value)">
+                                <option value="">Custom / Local</option>
+                                <option value="minimax">MiniMax Cloud (MiniMax-M2.7)</option>
+                                <option value="openai">OpenAI (GPT-4o)</option>
+                            </select>
+                            <div class="form-text">Select a cloud provider to auto-fill the URL and model. Set your API key below.</div>
+                        </div>
+                        <div class="mb-3">
                             <label class="form-label">Base URL</label>
                             <input type="text" class="form-control" id="llm-url" placeholder="http://localhost:1234/v1">
-                            <div class="form-text">URL for your OpenAI-compatible server (LM Studio, Ollama, etc.)</div>
+                            <div class="form-text">URL for your OpenAI-compatible server (LM Studio, Ollama, MiniMax, OpenAI, etc.)</div>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">API Key</label>
@@ -968,6 +977,20 @@
         };
 
         // --- Setup Tab ---
+
+        const LLM_PRESETS = {
+            minimax: { url: 'https://api.minimax.io/v1', model: 'MiniMax-M2.7', key_hint: 'Enter your MINIMAX_API_KEY' },
+            openai:  { url: 'https://api.openai.com/v1', model: 'gpt-4o', key_hint: 'Enter your OpenAI API key' },
+        };
+
+        function applyLLMPreset(preset) {
+            if (!preset || !LLM_PRESETS[preset]) return;
+            const p = LLM_PRESETS[preset];
+            document.getElementById('llm-url').value = p.url;
+            document.getElementById('llm-model').value = p.model;
+            document.getElementById('llm-key').placeholder = p.key_hint;
+            document.getElementById('llm-key').value = '';
+        }
 
         function toggleTTSMode() {
             const mode = document.getElementById('tts-mode').value;
