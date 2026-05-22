@@ -293,6 +293,14 @@ def main():
     api_key = llm_config.get("api_key", "local")
     model_name = llm_config.get("model_name", "local-model")
 
+    try:
+        from security import validate_http_url
+        base_url = validate_http_url(base_url, "LLM base URL")
+    except Exception as e:
+        detail = getattr(e, "detail", str(e))
+        print(f"Error: Invalid LLM base URL: {detail}")
+        sys.exit(1)
+
     # Load custom review prompts or use defaults from review_prompts.txt
     prompts_config = config.get("prompts", {})
     review_sys = prompts_config.get("review_system_prompt") or REVIEW_SYSTEM_PROMPT

@@ -880,7 +880,7 @@
             const html = `
                 <div id="${id}" class="toast align-items-center text-white ${bgClass} border-0" role="alert">
                     <div class="d-flex">
-                        <div class="toast-body">${message}</div>
+                        <div class="toast-body">${escapeHtml(message)}</div>
                         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
                     </div>
                 </div>`;
@@ -914,6 +914,16 @@
                 document.getElementById('confirmModal').addEventListener('hidden.bs.modal', onHidden);
                 modal.show();
             });
+        }
+
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         // --- Navigation ---
@@ -1204,9 +1214,9 @@
             statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Loading file...</span>';
             try {
                 const res = await API.upload(fileInput.files[0]);
-                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Loaded: ${res.filename}</span>`;
+                statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Loaded: ${escapeHtml(res.filename)}</span>`;
             } catch (e) {
-                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed to load file: ${e.message}</span>`;
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed to load file: ${escapeHtml(e.message)}</span>`;
             }
         });
 
@@ -1230,7 +1240,7 @@
                 if (detail.includes('No input file')) {
                     statusEl.innerHTML = '<span class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>No file loaded. Please select a text file first.</span>';
                 } else {
-                    statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${detail}</span>`;
+                    statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${escapeHtml(detail)}</span>`;
                 }
             }
         });
@@ -1252,11 +1262,11 @@
             const voiceType = config.type || 'custom';
 
             return `
-                <div class="card voice-card mb-3" data-voice="${voice.name}">
+                <div class="card voice-card mb-3" data-voice="${escapeHtml(voice.name)}">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <h5 class="card-title">${voice.name}</h5>
+                                <h5 class="card-title">${escapeHtml(voice.name)}</h5>
                             </div>
                             <div class="col-md-9">
                                 <div class="mb-2">
@@ -1291,7 +1301,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${config.character_style || config.default_style || ''}">
+                                            <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${escapeHtml(config.character_style || config.default_style || '')}">
                                         </div>
                                     </div>
                                 </div>
@@ -1309,12 +1319,12 @@
                                                     let html = '';
                                                     if (males.length) {
                                                         html += '<optgroup label="Male">';
-                                                        html += males.map(m => `<option value="${m.id}" ${config.adapter_id === m.id ? 'selected' : ''} ${m.downloaded === false ? 'disabled' : ''}>${m.name}${m.downloaded === false ? ' (not downloaded)' : ''} — ${m.description || ''}</option>`).join('');
+                                                        html += males.map(m => `<option value="${escapeHtml(m.id)}" ${config.adapter_id === m.id ? 'selected' : ''} ${m.downloaded === false ? 'disabled' : ''}>${escapeHtml(m.name)}${m.downloaded === false ? ' (not downloaded)' : ''} — ${escapeHtml(m.description || '')}</option>`).join('');
                                                         html += '</optgroup>';
                                                     }
                                                     if (females.length) {
                                                         html += '<optgroup label="Female">';
-                                                        html += females.map(m => `<option value="${m.id}" ${config.adapter_id === m.id ? 'selected' : ''} ${m.downloaded === false ? 'disabled' : ''}>${m.name}${m.downloaded === false ? ' (not downloaded)' : ''} — ${m.description || ''}</option>`).join('');
+                                                        html += females.map(m => `<option value="${escapeHtml(m.id)}" ${config.adapter_id === m.id ? 'selected' : ''} ${m.downloaded === false ? 'disabled' : ''}>${escapeHtml(m.name)}${m.downloaded === false ? ' (not downloaded)' : ''} — ${escapeHtml(m.description || '')}</option>`).join('');
                                                         html += '</optgroup>';
                                                     }
                                                     return html;
@@ -1322,7 +1332,7 @@
                                             </select>
                                         </div>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control builtin-lora-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${voiceType === 'builtin_lora' ? (config.character_style || '') : ''}">
+                                            <input type="text" class="form-control builtin-lora-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${escapeHtml(voiceType === 'builtin_lora' ? (config.character_style || '') : '')}">
                                         </div>
                                     </div>
                                     <small class="text-muted mt-1 d-block">Grayed-out voices need to be downloaded first. Go to the <strong>Training</strong> tab to download them.</small>
@@ -1650,16 +1660,16 @@
                                 <td class="text-center align-middle" style="white-space:nowrap;">
                                     <button class="chunk-expand-btn" onclick="toggleChunkExpand(this)" title="Expand/collapse"><i class="fas fa-chevron-down"></i></button><button class="chunk-expand-btn" onclick="insertChunkAfter(${chunk.id})" title="Insert line below"><i class="fas fa-plus"></i></button><button class="chunk-expand-btn" onclick="deleteChunk(${chunk.id})" title="Delete line"><i class="fas fa-trash" style="color:#dc3545;"></i></button>
                                 </td>
-                                <td><input type="text" class="form-control form-control-sm" value="${chunk.speaker}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
-                                <td><textarea class="form-control form-control-sm chunk-text" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${chunk.text}</textarea></td>
+                                <td><input type="text" class="form-control form-control-sm" value="${escapeHtml(chunk.speaker)}" onchange="updateChunk(${chunk.id}, 'speaker', this.value)"></td>
+                                <td><textarea class="form-control form-control-sm chunk-text" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${escapeHtml(chunk.text)}</textarea></td>
                                 <td>
-                                    <textarea class="form-control form-control-sm chunk-instruct" rows="2" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)">${chunk.instruct || ''}</textarea>
+                                    <textarea class="form-control form-control-sm chunk-instruct" rows="2" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)">${escapeHtml(chunk.instruct || '')}</textarea>
                                     <div class="chunk-pause-row d-none mt-1 align-items-center gap-1">
                                         <small class="text-muted text-nowrap">Pause after (ms):</small>
                                         <input type="number" class="form-control form-control-sm chunk-pause-after" style="width:80px;" value="${chunk.pause_after ?? ''}" placeholder="default" min="0" step="50" onchange="updateChunk(${chunk.id}, 'pause_after', this.value === '' ? null : parseInt(this.value))">
                                     </div>
                                 </td>
-                                <td><span class="badge bg-${statusColor}">${chunk.status}</span></td>
+                                <td><span class="badge bg-${statusColor}">${escapeHtml(chunk.status)}</span></td>
                                 <td>
                                     <div class="d-flex align-items-center gap-2">
                                         ${actionArea}
@@ -2185,16 +2195,16 @@
                                 setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
                             } else {
                                 const lastLog = status.logs[status.logs.length - 1] || 'Unknown error';
-                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${lastLog}</span>`;
+                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${escapeHtml(lastLog)}</span>`;
                             }
                         }
                     } catch (e) {
                         clearInterval(poll);
-                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${e.message}</span>`;
+                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${escapeHtml(e.message)}</span>`;
                     }
                 }, 1000);
             } catch (e) {
-                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${e.message}</span>`;
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${escapeHtml(e.message)}</span>`;
             }
         };
 
@@ -2247,16 +2257,16 @@
                                 setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
                             } else {
                                 const lastLog = status.logs[status.logs.length - 1] || 'Unknown error';
-                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${lastLog}</span>`;
+                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${escapeHtml(lastLog)}</span>`;
                             }
                         }
                     } catch (e) {
                         clearInterval(poll);
-                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${e.message}</span>`;
+                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${escapeHtml(e.message)}</span>`;
                     }
                 }, 1000);
             } catch (e) {
-                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${e.message}</span>`;
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${escapeHtml(e.message)}</span>`;
             }
         };
 
@@ -2319,12 +2329,12 @@
                     return `
                         <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
                             <div>
-                                <strong>${s.name}</strong>${voiceBadge}
+                                <strong>${escapeHtml(s.name)}</strong>${voiceBadge}
                                 <small class="text-muted ms-2">${date}</small>
                             </div>
                             <div>
-                                <button class="btn btn-sm btn-outline-success me-1" onclick="loadScript('${s.name}')"><i class="fas fa-upload me-1"></i>Load</button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteScript('${s.name}')"><i class="fas fa-trash"></i></button>
+                                <button class="btn btn-sm btn-outline-success me-1" onclick="loadScript(${JSON.stringify(s.name)})"><i class="fas fa-upload me-1"></i>Load</button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteScript(${JSON.stringify(s.name)})"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>`;
                 }).join('');
@@ -2416,11 +2426,11 @@
                         <tbody>
                             ${voices.map(v => `
                                 <tr>
-                                    <td><strong>${v.name}</strong></td>
-                                    <td class="text-muted" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${v.description}</td>
+                                    <td><strong>${escapeHtml(v.name)}</strong></td>
+                                    <td class="text-muted" style="max-width:400px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(v.description)}</td>
                                     <td>
-                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="playDesignedVoice('${v.filename}')" title="Play"><i class="fas fa-play"></i></button>
-                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDesignedVoice('${v.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                                        <button class="btn btn-sm btn-outline-primary me-1" onclick="playDesignedVoice(${JSON.stringify(v.filename)})" title="Play"><i class="fas fa-play"></i></button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteDesignedVoice(${JSON.stringify(v.id)})" title="Delete"><i class="fas fa-trash"></i></button>
                                     </td>
                                 </tr>
                             `).join('')}
@@ -2459,7 +2469,7 @@
                 // Extract filename from URL for save
                 window._currentPreviewFile = result.audio_url.split('/').pop().split('?')[0];
             } catch (e) {
-                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed: ${e.message}</span>`;
+                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed: ${escapeHtml(e.message)}</span>`;
             } finally {
                 btn.disabled = false;
             }
@@ -2625,7 +2635,7 @@
                 // Update dropdown
                 const currentVal = selectEl.value;
                 selectEl.innerHTML = '<option value="">-- Select dataset --</option>' +
-                    datasets.map(d => `<option value="${d.dataset_id}">${d.dataset_id} (${d.sample_count} samples)</option>`).join('');
+                    datasets.map(d => `<option value="${escapeHtml(d.dataset_id)}">${escapeHtml(d.dataset_id)} (${d.sample_count} samples)</option>`).join('');
                 if (currentVal) selectEl.value = currentVal;
 
                 // Update list
@@ -2635,8 +2645,8 @@
                 }
                 listEl.innerHTML = datasets.map(d => `
                     <div class="d-flex justify-content-between align-items-center py-1">
-                        <span><strong>${d.dataset_id}</strong> <small class="text-muted">(${d.sample_count} samples)</small></span>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLoraDataset('${d.dataset_id}')"><i class="fas fa-trash"></i></button>
+                        <span><strong>${escapeHtml(d.dataset_id)}</strong> <small class="text-muted">(${d.sample_count} samples)</small></span>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteLoraDataset(${JSON.stringify(d.dataset_id)})"><i class="fas fa-trash"></i></button>
                     </div>
                 `).join('');
             } catch (e) {
@@ -2806,18 +2816,18 @@
                         <tbody>
                             ${models.map(m => `
                                 <tr${m.builtin ? ' class="table-light"' : ''}>
-                                    <td><strong>${m.name}</strong>${m.builtin ? ` <span class="badge bg-secondary">built-in</span>${m.downloaded === false ? ' <span class="badge bg-warning text-dark">not downloaded</span>' : ''}` : ''}</td>
-                                    <td>${m.dataset_id || (m.builtin ? '--' : '--')}</td>
+                                    <td><strong>${escapeHtml(m.name)}</strong>${m.builtin ? ` <span class="badge bg-secondary">built-in</span>${m.downloaded === false ? ' <span class="badge bg-warning text-dark">not downloaded</span>' : ''}` : ''}</td>
+                                    <td>${escapeHtml(m.dataset_id || (m.builtin ? '--' : '--'))}</td>
                                     <td>${m.epochs || '--'}</td>
                                     <td>${m.final_loss != null ? m.final_loss.toFixed(4) : '--'}</td>
                                     <td>${m.sample_count || '--'}</td>
                                     <td>
                                         ${m.builtin && m.downloaded === false ? `
-                                            <button class="btn btn-sm btn-outline-warning" id="lora-dl-btn-${m.id}" onclick="downloadBuiltinAdapter('${m.id}')" title="Download from HuggingFace"><i class="fas fa-download me-1"></i>Download</button>
+                                            <button class="btn btn-sm btn-outline-warning" id="lora-dl-btn-${escapeHtml(m.id)}" onclick="downloadBuiltinAdapter(${JSON.stringify(m.id)})" title="Download from HuggingFace"><i class="fas fa-download me-1"></i>Download</button>
                                         ` : `
-                                            <button class="btn btn-sm ${m.preview_audio_url ? 'btn-outline-success' : 'btn-outline-secondary'} me-1" id="lora-preview-btn-${m.id}" onclick="playLoraPreview('${m.id}')" title="${m.preview_audio_url ? 'Play preview' : 'Generate and play preview (first time may take a moment)'}"><i class="fas fa-volume-up"></i></button>
-                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel('${m.id}')" title="Generate test line with custom text"><i class="fas fa-flask me-1"></i>Test</button>
-                                            ${m.builtin ? '' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel('${m.id}')" title="Delete"><i class="fas fa-trash"></i></button>`}
+                                            <button class="btn btn-sm ${m.preview_audio_url ? 'btn-outline-success' : 'btn-outline-secondary'} me-1" id="lora-preview-btn-${escapeHtml(m.id)}" onclick="playLoraPreview(${JSON.stringify(m.id)})" title="${m.preview_audio_url ? 'Play preview' : 'Generate and play preview (first time may take a moment)'}"><i class="fas fa-volume-up"></i></button>
+                                            <button class="btn btn-sm btn-outline-primary me-1" onclick="testLoraModel(${JSON.stringify(m.id)})" title="Generate test line with custom text"><i class="fas fa-flask me-1"></i>Test</button>
+                                            ${m.builtin ? '' : `<button class="btn btn-sm btn-outline-danger" onclick="deleteLoraModel(${JSON.stringify(m.id)})" title="Delete"><i class="fas fa-trash"></i></button>`}
                                         `}
                                     </td>
                                 </tr>
@@ -2829,7 +2839,7 @@
                 const dropdown = document.getElementById('lora-test-adapter');
                 const prevVal = dropdown.value;
                 dropdown.innerHTML = models.filter(m => m.downloaded !== false).map(m =>
-                    `<option value="${m.id}">${m.name}</option>`
+                    `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`
                 ).join('');
                 if (prevVal && models.some(m => m.id === prevVal)) dropdown.value = prevVal;
                 testForm.style.display = '';
@@ -3407,7 +3417,7 @@
                 });
                 statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Saved! ${result.sample_count} samples.</span>`;
             } catch (e) {
-                statusEl.innerHTML = `<span class="text-danger">Save failed: ${e.message}</span>`;
+                statusEl.innerHTML = `<span class="text-danger">Save failed: ${escapeHtml(e.message)}</span>`;
             }
         };
 

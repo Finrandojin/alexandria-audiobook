@@ -1046,6 +1046,37 @@ def test_dataset_builder_generate_sample():
     delete(f"/api/dataset_builder/{TEST_PREFIX}gen_proj")
 
 
+# ── Section: Security ────────────────────────────────────────
+
+def test_config_masks_api_key():
+    r = get("/api/config")
+    assert_status(r, 200)
+    data = r.json()
+    api_key = data.get("llm", {}).get("api_key", "")
+    if api_key and api_key not in ("local", ""):
+        if "***" not in api_key:
+            raise TestFailure("Expected masked api_key in GET /api/config response")
+
+
+def test_upload_rejects_path_traversal():
+    files = {"file": ("../../evil.txt", io.BytesIO(b"bad"), "text/plain")}
+    r = post("/api/upload", files=files)
+    if r.status_code == 200:
+        raise TestFailure("Path traversal upload should be rejected")
+
+
+def test_script_load_rejects_path_traversal():
+    r = post("/api/scripts/load", json={"name": "../../annotated_script"})
+    if r.status_code == 200:
+        raise TestFailure("Path traversal script load should be rejected")
+
+
+def test_lora_dataset_delete_rejects_path_traversal():
+    r = delete("/api/lora/datasets/../../secret")
+    if r.status_code == 200:
+        raise TestFailure("Path traversal dataset delete should be rejected")
+
+
 # ── Run all tests ────────────────────────────────────────────
 
 def run_all_tests():
@@ -1054,6 +1085,7 @@ def run_all_tests():
 
     section("Config")
     run_test("get_config", test_get_config)
+    run_test("config_masks_api_key", test_config_masks_api_key)
     run_test("save_config_roundtrip", test_save_config_roundtrip)
     run_test("save_pause_config_roundtrip", test_save_pause_config_roundtrip)
     run_test("pause_config_defaults", test_pause_config_defaults)
@@ -1062,6 +1094,7 @@ def run_all_tests():
 
     section("Upload")
     run_test("upload_file", test_upload_file)
+    run_test("upload_rejects_path_traversal", test_upload_rejects_path_traversal)
 
     section("Annotated Script")
     run_test("get_annotated_script", test_get_annotated_script)
@@ -1072,6 +1105,7 @@ def run_all_tests():
     run_test("load_script", test_load_script)
     run_test("delete_script", test_delete_script)
     run_test("delete_script_404", test_delete_script_404)
+    run_test("script_load_rejects_path_traversal", test_script_load_rejects_path_traversal)
 
     section("Voices")
     run_test("get_voices", test_get_voices)
@@ -1109,6 +1143,7 @@ def run_all_tests():
     section("LoRA Datasets")
     run_test("lora_list_datasets", test_lora_list_datasets)
     run_test("lora_delete_dataset_404", test_lora_delete_dataset_404)
+    run_test("lora_dataset_delete_rejects_path_traversal", test_lora_dataset_delete_rejects_path_traversal)
     run_test("lora_upload_bad_file", test_lora_upload_bad_file)
 
     section("LoRA Models")

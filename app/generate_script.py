@@ -383,6 +383,14 @@ def main():
     api_key = llm_config.get("api_key", "local")
     model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
 
+    try:
+        from security import validate_http_url
+        base_url = validate_http_url(base_url, "LLM base URL")
+    except Exception as e:
+        detail = getattr(e, "detail", str(e))
+        print(f"Error: Invalid LLM base URL: {detail}")
+        sys.exit(1)
+
     # Load custom prompts or use defaults
     prompts_config = config.get("prompts", {})
     system_prompt = prompts_config.get("system_prompt") or DEFAULT_SYSTEM_PROMPT

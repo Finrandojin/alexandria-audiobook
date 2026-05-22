@@ -4,9 +4,9 @@ import gc
 import json
 import shutil
 import logging
-from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import FastAPI, UploadFile, File, HTTPException, BackgroundTasks, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict
@@ -24,6 +24,19 @@ from project import ProjectManager
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT, load_default_prompts
 from review_prompts import load_review_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
+from security import (
+    API_TOKEN,
+    mask_config_secrets,
+    merge_preserved_secret,
+    read_upload_limited,
+    require_resource_name,
+    safe_basename,
+    safe_extract_zip,
+    safe_join,
+    safe_upload_filename,
+    validate_input_file_path,
+    validate_http_url,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -101,14 +114,34 @@ if _startup_chunks:
         print(f"Startup: reset {_reset_count} stuck 'generating' chunk(s) to 'pending'")
     del _startup_chunks, _reset_count
 
-# CORS for development
+# CORS — restrict to local origins by default (override with ALEXANDRIA_CORS_ORIGINS)
+_cors_origins = os.environ.get(
+    "ALEXANDRIA_CORS_ORIGINS",
+    "http://127.0.0.1:4200,http://localhost:4200",
+)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[o.strip() for o in _cors_origins.split(",") if o.strip()],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def optional_api_token_auth(request: Request, call_next):
+    """When ALEXANDRIA_API_TOKEN is set, require it on /api/* routes."""
+    if not API_TOKEN:
+        return await call_next(request)
+    path = request.url.path
+    if not path.startswith("/api/"):
+        return await call_next(request)
+    auth = request.headers.get("Authorization", "")
+    if auth.startswith("Bearer ") and auth[7:] == API_TOKEN:
+        return await call_next(request)
+    if request.headers.get("X-API-Key") == API_TOKEN:
+        return await call_next(request)
+    return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
 
 # Data Models
 class LLMConfig(BaseModel):
@@ -391,7 +424,7 @@ async def get_config():
         except (json.JSONDecodeError, ValueError):
             pass
 
-    return config
+    return mask_config_secrets(config)
 
 @app.get("/api/default_prompts")
 async def get_default_prompts():
@@ -410,8 +443,26 @@ async def get_default_prompts():
 
 @app.post("/api/config")
 async def save_config(config: AppConfig):
+    new_config = config.model_dump()
+    validate_http_url(new_config["llm"]["base_url"], "LLM base URL")
+    if new_config["tts"].get("mode") == "external":
+        validate_http_url(new_config["tts"].get("url", ""), "TTS URL")
+
+    existing_config = {}
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+                existing_config = json.load(f)
+        except (json.JSONDecodeError, ValueError):
+            pass
+
+    existing_key = existing_config.get("llm", {}).get("api_key")
+    new_config["llm"]["api_key"] = merge_preserved_secret(
+        new_config["llm"].get("api_key"), existing_key
+    )
+
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(config.model_dump(), f, indent=2, ensure_ascii=False)
+        json.dump(new_config, f, indent=2, ensure_ascii=False)
     # Reset engine so it picks up new TTS settings on next use
     project_manager.engine = None
     return {"status": "saved"}
@@ -514,9 +565,10 @@ def extract_epub_text(epub_path: str) -> str:
 
 @app.post("/api/upload")
 async def upload_file(file: UploadFile = File(...)):
-    file_path = os.path.join(UPLOADS_DIR, file.filename)
+    safe_name = safe_upload_filename(file.filename or "")
+    file_path = safe_join(UPLOADS_DIR, safe_name)
+    content = await read_upload_limited(file)
     async with aiofiles.open(file_path, 'wb') as out_file:
-        content = await file.read()
         await out_file.write(content)
 
     # Convert EPUB to plain text
@@ -548,7 +600,7 @@ async def upload_file(file: UploadFile = File(...)):
     with open(state_path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2, ensure_ascii=False)
 
-    return {"filename": file.filename, "path": file_path}
+    return {"filename": safe_name, "path": file_path}
 
 @app.post("/api/generate_script")
 async def generate_script(background_tasks: BackgroundTasks):
@@ -563,6 +615,8 @@ async def generate_script(background_tasks: BackgroundTasks):
 
     if not input_file:
          raise HTTPException(status_code=400, detail="No input file found in state")
+
+    input_file = validate_input_file_path(input_file, [UPLOADS_DIR])
 
     if process_state["script"]["running"]:
          raise HTTPException(status_code=400, detail="Script generation already running")
@@ -829,10 +883,17 @@ async def get_audiobook_m4b():
 @app.post("/api/m4b_cover")
 async def upload_m4b_cover(file: UploadFile = File(...)):
     """Upload a cover image for M4B export."""
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(status_code=400, detail="File must be an image")
+    content = await read_upload_limited(file, max_bytes=10 * 1024 * 1024)
+    is_image = (
+        content.startswith(b"\xff\xd8\xff")
+        or content.startswith(b"\x89PNG\r\n\x1a\n")
+        or content.startswith(b"GIF87a")
+        or content.startswith(b"GIF89a")
+        or (content.startswith(b"RIFF") and b"WEBP" in content[:16])
+    )
+    if not is_image:
+        raise HTTPException(status_code=400, detail="File must be a valid image")
     cover_path = os.path.join(ROOT_DIR, "m4b_cover.jpg")
-    content = await file.read()
     with open(cover_path, "wb") as f:
         f.write(content)
     return {"status": "uploaded", "path": cover_path}
@@ -991,12 +1052,6 @@ async def cancel_audio():
 
 ## ── Saved Scripts ──────────────────────────────────────────────
 
-def _sanitize_name(name: str) -> str:
-    """Make a string safe for use as a filename."""
-    name = re.sub(r'[^\w\- ]', '', name).strip()
-    name = re.sub(r'\s+', '_', name)
-    return name.lower()
-
 @app.get("/api/scripts")
 async def list_saved_scripts():
     """List all saved scripts in the scripts/ directory."""
@@ -1023,11 +1078,8 @@ async def save_script(request: ScriptSaveRequest):
     if not os.path.exists(SCRIPT_PATH):
         raise HTTPException(status_code=404, detail="No annotated script to save. Generate a script first.")
 
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid script name.")
-
-    dest = os.path.join(SCRIPTS_DIR, f"{safe_name}.json")
+    safe_name = require_resource_name(request.name, "script name")
+    dest = safe_join(SCRIPTS_DIR, f"{safe_name}.json")
     shutil.copy2(SCRIPT_PATH, dest)
 
     if os.path.exists(VOICE_CONFIG_PATH):
@@ -1045,13 +1097,14 @@ async def load_script(request: ScriptLoadRequest):
     if process_state["audio"]["running"]:
         raise HTTPException(status_code=409, detail="Cannot load a script while audio generation is running.")
 
-    src = os.path.join(SCRIPTS_DIR, f"{request.name}.json")
+    safe_name = require_resource_name(request.name, "script name")
+    src = safe_join(SCRIPTS_DIR, f"{safe_name}.json")
     if not os.path.exists(src):
-        raise HTTPException(status_code=404, detail=f"Saved script '{request.name}' not found.")
+        raise HTTPException(status_code=404, detail=f"Saved script '{safe_name}' not found.")
 
     shutil.copy2(src, SCRIPT_PATH)
 
-    companion = os.path.join(SCRIPTS_DIR, f"{request.name}.voice_config.json")
+    companion = safe_join(SCRIPTS_DIR, f"{safe_name}.voice_config.json")
     if os.path.exists(companion):
         shutil.copy2(companion, VOICE_CONFIG_PATH)
 
@@ -1059,23 +1112,24 @@ async def load_script(request: ScriptLoadRequest):
     if os.path.exists(CHUNKS_PATH):
         os.remove(CHUNKS_PATH)
 
-    logger.info(f"Script '{request.name}' loaded")
-    return {"status": "loaded", "name": request.name}
+    logger.info(f"Script '{safe_name}' loaded")
+    return {"status": "loaded", "name": safe_name}
 
 @app.delete("/api/scripts/{name}")
 async def delete_script(name: str):
     """Delete a saved script."""
-    filepath = os.path.join(SCRIPTS_DIR, f"{name}.json")
+    safe_name = require_resource_name(name, "script name")
+    filepath = safe_join(SCRIPTS_DIR, f"{safe_name}.json")
     if not os.path.exists(filepath):
-        raise HTTPException(status_code=404, detail=f"Saved script '{name}' not found.")
+        raise HTTPException(status_code=404, detail=f"Saved script '{safe_name}' not found.")
 
     os.remove(filepath)
-    companion = os.path.join(SCRIPTS_DIR, f"{name}.voice_config.json")
+    companion = safe_join(SCRIPTS_DIR, f"{safe_name}.voice_config.json")
     if os.path.exists(companion):
         os.remove(companion)
 
-    logger.info(f"Script '{name}' deleted")
-    return {"status": "deleted", "name": name}
+    logger.info(f"Script '{safe_name}' deleted")
+    return {"status": "deleted", "name": safe_name}
 
 ## ── Voice Designer ──────────────────────────────────────────────
 
@@ -1120,14 +1174,13 @@ async def voice_design_preview(request: VoiceDesignPreviewRequest):
 async def voice_design_save(request: VoiceDesignSaveRequest):
     """Save a preview voice as a permanent designed voice."""
     previews_dir = os.path.join(DESIGNED_VOICES_DIR, "previews")
-    preview_path = os.path.join(previews_dir, request.preview_file)
+    preview_file = safe_basename(request.preview_file, "preview file")
+    preview_path = safe_join(previews_dir, preview_file)
 
     if not os.path.exists(preview_path):
         raise HTTPException(status_code=404, detail="Preview file not found")
 
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid voice name")
+    safe_name = require_resource_name(request.name, "voice name")
 
     # Generate unique ID
     voice_id = f"{safe_name}_{int(time.time())}"
@@ -1192,17 +1245,15 @@ async def clone_voices_upload(file: UploadFile = File(...)):
     if ext not in ALLOWED_AUDIO_EXTS:
         raise HTTPException(status_code=400, detail=f"Unsupported format. Use: {', '.join(ALLOWED_AUDIO_EXTS)}")
 
-    base_name = os.path.splitext(file.filename)[0]
-    safe_name = _sanitize_name(base_name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid filename")
+    base_name = os.path.splitext(file.filename or "")[0]
+    safe_name = require_resource_name(base_name, "filename")
 
     voice_id = f"{safe_name}_{int(time.time())}"
     dest_filename = f"{voice_id}{ext}"
-    dest_path = os.path.join(CLONE_VOICES_DIR, dest_filename)
+    dest_path = safe_join(CLONE_VOICES_DIR, dest_filename)
 
+    content = await read_upload_limited(file)
     async with aiofiles.open(dest_path, "wb") as out_file:
-        content = await file.read()
         await out_file.write(content)
 
     manifest = _load_manifest(CLONE_VOICES_MANIFEST)
@@ -1256,29 +1307,26 @@ def _load_builtin_lora_manifest():
 @app.post("/api/lora/upload_dataset")
 async def lora_upload_dataset(file: UploadFile = File(...)):
     """Upload a ZIP containing WAV files and metadata.jsonl."""
-    if not file.filename.endswith(".zip"):
+    if not file.filename or not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="File must be a .zip archive")
 
-    # Derive dataset name from ZIP filename
-    dataset_name = re.sub(r'[^\w\- ]', '', os.path.splitext(file.filename)[0]).strip()
-    dataset_name = re.sub(r'\s+', '_', dataset_name).lower()
-    if not dataset_name:
-        raise HTTPException(status_code=400, detail="Invalid dataset name from filename")
+    dataset_name = require_resource_name(
+        os.path.splitext(os.path.basename(file.filename))[0],
+        "dataset name",
+    )
 
-    dataset_dir = os.path.join(LORA_DATASETS_DIR, dataset_name)
+    dataset_dir = safe_join(LORA_DATASETS_DIR, dataset_name)
     if os.path.exists(dataset_dir):
         raise HTTPException(status_code=400, detail=f"Dataset '{dataset_name}' already exists")
 
-    # Save ZIP temporarily, then extract
-    tmp_path = os.path.join(LORA_DATASETS_DIR, f"_tmp_{dataset_name}.zip")
+    tmp_path = safe_join(LORA_DATASETS_DIR, f"_tmp_{dataset_name}.zip")
     try:
+        content = await read_upload_limited(file)
         async with aiofiles.open(tmp_path, "wb") as out_file:
-            content = await file.read()
             await out_file.write(content)
 
         os.makedirs(dataset_dir, exist_ok=True)
-        with zipfile.ZipFile(tmp_path, "r") as zf:
-            zf.extractall(dataset_dir)
+        safe_extract_zip(tmp_path, dataset_dir)
 
         # Check for metadata.jsonl (may be inside a subdirectory)
         metadata_path = os.path.join(dataset_dir, "metadata.jsonl")
@@ -1338,11 +1386,9 @@ async def lora_generate_dataset(request: LoraGenerateDatasetRequest, background_
     if not sample_list:
         raise HTTPException(status_code=400, detail="Provide at least one sample text")
 
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid dataset name")
+    safe_name = require_resource_name(request.name, "dataset name")
 
-    dataset_dir = os.path.join(LORA_DATASETS_DIR, safe_name)
+    dataset_dir = safe_join(LORA_DATASETS_DIR, safe_name)
     if os.path.exists(dataset_dir):
         raise HTTPException(status_code=400, detail=f"Dataset '{safe_name}' already exists")
 
@@ -1448,13 +1494,14 @@ async def lora_list_datasets():
 @app.delete("/api/lora/datasets/{dataset_id}")
 async def lora_delete_dataset(dataset_id: str):
     """Delete an uploaded dataset."""
-    dataset_dir = os.path.join(LORA_DATASETS_DIR, dataset_id)
+    safe_id = require_resource_name(dataset_id, "dataset id")
+    dataset_dir = safe_join(LORA_DATASETS_DIR, safe_id)
     if not os.path.isdir(dataset_dir):
         raise HTTPException(status_code=404, detail="Dataset not found")
 
     shutil.rmtree(dataset_dir)
-    logger.info(f"LoRA dataset deleted: {dataset_id}")
-    return {"status": "deleted", "dataset_id": dataset_id}
+    logger.info(f"LoRA dataset deleted: {safe_id}")
+    return {"status": "deleted", "dataset_id": safe_id}
 
 @app.post("/api/lora/train")
 async def lora_start_training(request: LoraTrainingRequest, background_tasks: BackgroundTasks):
@@ -1463,17 +1510,15 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
         raise HTTPException(status_code=400, detail="LoRA training already running")
 
     # Validate dataset exists
-    dataset_dir = os.path.join(LORA_DATASETS_DIR, request.dataset_id)
+    safe_dataset_id = require_resource_name(request.dataset_id, "dataset id")
+    dataset_dir = safe_join(LORA_DATASETS_DIR, safe_dataset_id)
     if not os.path.isdir(dataset_dir):
-        raise HTTPException(status_code=400, detail=f"Dataset '{request.dataset_id}' not found")
+        raise HTTPException(status_code=400, detail=f"Dataset '{safe_dataset_id}' not found")
 
-    # Build output directory
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid adapter name")
+    safe_name = require_resource_name(request.name, "adapter name")
 
     adapter_id = f"{safe_name}_{int(time.time())}"
-    output_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+    output_dir = safe_join(LORA_MODELS_DIR, adapter_id)
 
     # Unload TTS engine to free GPU
     if project_manager.engine is not None:
@@ -1509,7 +1554,7 @@ async def lora_start_training(request: LoraTrainingRequest, background_tasks: Ba
                 manifest.append({
                     "id": adapter_id,
                     "name": request.name,
-                    "dataset_id": request.dataset_id,
+                    "dataset_id": safe_dataset_id,
                     "epochs": meta.get("epochs", request.epochs),
                     "final_loss": meta.get("final_loss"),
                     "sample_count": meta.get("num_samples"),
@@ -1559,7 +1604,7 @@ async def lora_delete_model(adapter_id: str):
         raise HTTPException(status_code=404, detail="Adapter not found")
 
     # Delete adapter directory
-    adapter_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+    adapter_dir = safe_join(LORA_MODELS_DIR, adapter_id)
     if os.path.isdir(adapter_dir):
         shutil.rmtree(adapter_dir)
 
@@ -1665,7 +1710,7 @@ async def lora_preview(adapter_id: str):
         adapter_dir = os.path.join(BUILTIN_LORA_DIR, adapter_id)
         url_prefix = f"/builtin_lora/{adapter_id}"
     else:
-        adapter_dir = os.path.join(LORA_MODELS_DIR, adapter_id)
+        adapter_dir = safe_join(LORA_MODELS_DIR, adapter_id)
         url_prefix = f"/lora_models/{adapter_id}"
 
     if not os.path.isdir(adapter_dir) and is_builtin:
@@ -1753,10 +1798,8 @@ async def dataset_builder_list():
 @app.post("/api/dataset_builder/create")
 async def dataset_builder_create(request: DatasetBuilderCreateRequest):
     """Create a new dataset builder project."""
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid dataset name")
-    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    safe_name = require_resource_name(request.name, "dataset name")
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     if os.path.exists(work_dir):
         raise HTTPException(status_code=400, detail=f"Project '{safe_name}' already exists")
     _save_builder_state(safe_name, {"description": "", "global_seed": "", "samples": []})
@@ -1765,8 +1808,8 @@ async def dataset_builder_create(request: DatasetBuilderCreateRequest):
 @app.post("/api/dataset_builder/update_meta")
 async def dataset_builder_update_meta(request: DatasetBuilderUpdateMetaRequest):
     """Update project description and global seed without touching samples."""
-    safe_name = _sanitize_name(request.name)
-    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    safe_name = require_resource_name(request.name, "dataset name")
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Project not found")
     state = _load_builder_state(safe_name)
@@ -1778,8 +1821,8 @@ async def dataset_builder_update_meta(request: DatasetBuilderUpdateMetaRequest):
 @app.post("/api/dataset_builder/update_rows")
 async def dataset_builder_update_rows(request: DatasetBuilderUpdateRowsRequest):
     """Update row definitions, preserving existing generation status/audio."""
-    safe_name = _sanitize_name(request.name)
-    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    safe_name = require_resource_name(request.name, "dataset name")
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Project not found")
     state = _load_builder_state(safe_name)
@@ -1812,7 +1855,8 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
     if not engine:
         raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
 
-    work_dir = os.path.join(DATASET_BUILDER_DIR, request.dataset_name)
+    safe_dataset_name = require_resource_name(request.dataset_name, "dataset name")
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_dataset_name)
     os.makedirs(work_dir, exist_ok=True)
 
     try:
@@ -1828,8 +1872,8 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
 
         # Update state (cache-bust URL so browser loads fresh audio on regen)
         cache_bust = int(time.time())
-        audio_url = f"/dataset_builder/{request.dataset_name}/{dest_filename}?t={cache_bust}"
-        state = _load_builder_state(request.dataset_name)
+        audio_url = f"/dataset_builder/{safe_dataset_name}/{dest_filename}?t={cache_bust}"
+        state = _load_builder_state(safe_dataset_name)
         samples = state.get("samples", [])
         # Ensure list is large enough
         while len(samples) <= request.sample_index:
@@ -1843,7 +1887,7 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
             "description": request.description,
         }
         state["samples"] = samples
-        _save_builder_state(request.dataset_name, state)
+        _save_builder_state(safe_dataset_name, state)
 
         return {
             "status": "done",
@@ -1853,13 +1897,13 @@ async def dataset_builder_generate_sample(request: DatasetSampleGenRequest):
     except Exception as e:
         logger.error(f"Dataset builder sample generation failed: {e}")
         # Mark as error in state
-        state = _load_builder_state(request.dataset_name)
+        state = _load_builder_state(safe_dataset_name)
         samples = state.get("samples", [])
         while len(samples) <= request.sample_index:
             samples.append({"status": "pending"})
         samples[request.sample_index] = {"status": "error", "error": str(e)}
         state["samples"] = samples
-        _save_builder_state(request.dataset_name, state)
+        _save_builder_state(safe_dataset_name, state)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/api/dataset_builder/generate_batch")
@@ -1871,11 +1915,9 @@ async def dataset_builder_generate_batch(request: DatasetBatchGenRequest):
     if not request.samples or len(request.samples) == 0:
         raise HTTPException(status_code=400, detail="No samples provided")
 
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid dataset name")
+    safe_name = require_resource_name(request.name, "dataset name")
 
-    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     os.makedirs(work_dir, exist_ok=True)
     root_desc = request.description.strip()
 
@@ -1981,7 +2023,8 @@ async def dataset_builder_cancel():
 @app.get("/api/dataset_builder/status/{name}")
 async def dataset_builder_status(name: str):
     """Get per-sample generation status for a dataset builder project."""
-    state = _load_builder_state(name)
+    safe_name = require_resource_name(name, "dataset name")
+    state = _load_builder_state(safe_name)
     return {
         "description": state.get("description", ""),
         "global_seed": state.get("global_seed", ""),
@@ -1993,11 +2036,9 @@ async def dataset_builder_status(name: str):
 @app.post("/api/dataset_builder/save")
 async def dataset_builder_save(request: DatasetSaveRequest):
     """Finalize dataset builder project as a training dataset."""
-    safe_name = _sanitize_name(request.name)
-    if not safe_name:
-        raise HTTPException(status_code=400, detail="Invalid dataset name")
+    safe_name = require_resource_name(request.name, "dataset name")
 
-    work_dir = os.path.join(DATASET_BUILDER_DIR, safe_name)
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Dataset builder project not found")
 
@@ -2018,7 +2059,7 @@ async def dataset_builder_save(request: DatasetSaveRequest):
         ref_sample = done_samples[0][1]
 
     # Create training dataset directory
-    dataset_dir = os.path.join(LORA_DATASETS_DIR, safe_name)
+    dataset_dir = safe_join(LORA_DATASETS_DIR, safe_name)
     if os.path.exists(dataset_dir):
         raise HTTPException(status_code=400, detail=f"Dataset '{safe_name}' already exists in training datasets")
 
@@ -2070,12 +2111,13 @@ async def dataset_builder_save(request: DatasetSaveRequest):
 @app.delete("/api/dataset_builder/{name}")
 async def dataset_builder_delete(name: str):
     """Discard a dataset builder working project."""
-    work_dir = os.path.join(DATASET_BUILDER_DIR, name)
+    safe_name = require_resource_name(name, "dataset name")
+    work_dir = safe_join(DATASET_BUILDER_DIR, safe_name)
     if not os.path.exists(work_dir):
         raise HTTPException(status_code=404, detail="Dataset builder project not found")
     shutil.rmtree(work_dir, ignore_errors=True)
-    logger.info(f"Dataset builder project discarded: {name}")
-    return {"status": "deleted", "name": name}
+    logger.info(f"Dataset builder project discarded: {safe_name}")
+    return {"status": "deleted", "name": safe_name}
 
 if __name__ == "__main__":
     import uvicorn
