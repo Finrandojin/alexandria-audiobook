@@ -1434,8 +1434,16 @@ def _wipe_temp_dir(temp_dir):
     """Remove all preparer-generated files from temp_dir but keep the directory itself."""
     if not os.path.exists(temp_dir):
         return
+    # Protect intermediate files used across phases
+    protected = {
+        "asr_segments.json",       # ASR phase output
+        "audio_24k_scratch.wav",   # Audio scratch file
+        "enriched_segments.json",  # LLM enrichment output
+        "asr_chunks_for_enrich.json",  # Enrichment input chunks
+        "diarization.json",        # Speaker diarization output
+    }
     for name in os.listdir(temp_dir):
-        if name in ("asr_segments.json", "audio_24k_scratch.wav"):
+        if name in protected:
             continue
         full_path = os.path.join(temp_dir, name)
         try:
