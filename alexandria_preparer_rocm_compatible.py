@@ -68,6 +68,15 @@ def _lazy_import_librosa():
         librosa = l
     return librosa
 
+def _lazy_import_intervaltree():
+    global IntervalTree, Interval
+    if "IntervalTree" not in globals():
+        from intervaltree import IntervalTree as IT, Interval as I
+        IntervalTree = IT
+        Interval = I
+    return IntervalTree, Interval
+
+
 # Setup logging
 log_dir = "logs"
 os.makedirs(log_dir, exist_ok=True)
@@ -143,6 +152,22 @@ try:
     logger.info("✓ WhisperX-ROCm available")
 except ImportError as e:
     logger.debug(f"WhisperX not available: {e}")
+
+try:
+    from pyannote.audio import Pipeline
+    PYANNOTE_AVAILABLE = True
+    logger.info("✓ pyannote.audio available")
+except ImportError as e:
+    PYANNOTE_AVAILABLE = False
+    logger.debug(f"pyannote.audio not available: {e}")
+
+try:
+    from intervaltree import IntervalTree, Interval
+    INTERVALTREE_AVAILABLE = True
+    logger.info("✓ intervaltree available")
+except ImportError as e:
+    INTERVALTREE_AVAILABLE = False
+    logger.debug(f"intervaltree not available: {e}")
 
 try:
     from transformers import pipeline
@@ -458,7 +483,8 @@ def transcribe_with_whisperx_cpu(audio_16k: np.ndarray, language: str = "en") ->
                         word_segments.append({
                             "word": word_info["word"].strip(),
                             "start": word_info["start"],
-                            "end": word_info["end"]
+                            "end": word_info["end"],
+                            "confidence": word_info.get("score", 1.0)
                         })
 
         logger.info(f"✓ WhisperX complete: {len(word_segments)} words extracted")
@@ -540,6 +566,10 @@ def transcribe_with_wav2vec2(audio_16k: np.ndarray, language: str = "en", limit:
                 inputs = {k: v.to(device_str) for k, v in inputs.items()}
                 logits = model(**inputs).logits
                 predicted_ids = torch_module.argmax(logits, dim=-1)
+                
+                # Get probabilities and confidence scores
+                probs = torch_module.nn.functional.softmax(logits, dim=-1)
+                confidence = torch_module.max(probs, dim=-1).values.squeeze().cpu().numpy()
 
             # CTC decode with word-level frame offsets
             decoded = processor.batch_decode(predicted_ids, output_word_offsets=True)
@@ -560,10 +590,16 @@ def transcribe_with_wav2vec2(audio_16k: np.ndarray, language: str = "en", limit:
                 # Use word center to decide ownership (avoids splitting across chunks)
                 word_center = (word_start + word_end) / 2.0
                 if owned_start <= word_center < owned_end:
+                    # Calculate average confidence for the word
+                    start_frame = wo["start_offset"]
+                    end_frame = wo["end_offset"]
+                    word_confidence = np.mean(confidence[start_frame:end_frame]) if end_frame > start_frame else confidence[start_frame]
+                    
                     word_segments.append({
                         "word": wo["word"].strip(),
                         "start": word_start,
-                        "end": word_end
+                        "end": word_end,
+                        "confidence": float(word_confidence)
                     })
 
             chunk_times.append(time.monotonic() - chunk_t0)
@@ -881,6 +917,58 @@ def transcribe_with_insanely_fast_whisper(audio_16k: np.ndarray, language: str =
                 logger.debug(f"✓ Removed temp directory: {temp_dir}")
             except Exception as e:
                 logger.warning(f"Failed to clean up temp directory: {e}")
+
+def diarize_audio(audio_path: str, hf_token: str = None, device: str = "cuda") -> list:
+    """Perform speaker diarization using pyannote.audio.
+    Requires a Hugging Face token with access to pyannote/speaker-diarization-3.1.
+    """
+    try:
+        from pyannote.audio import Pipeline
+        import torch as torch_module
+    except ImportError:
+        logger.error("pyannote.audio not installed. Diarization skipped.")
+        return []
+
+    if not hf_token:
+        logger.warning("No Hugging Face token provided. Diarization requires a token for model access.")
+        logger.warning("Pass --hf-token or set HF_TOKEN environment variable.")
+        return []
+
+    logger.info(f"▶ Initializing pyannote.audio diarization (device={device})...")
+    try:
+        pipeline = Pipeline.from_pretrained(
+            "pyannote/speaker-diarization-3.1",
+            use_auth_token=hf_token
+        )
+        if pipeline is None:
+            raise ValueError("Failed to load pyannote pipeline. Check your token and model permissions.")
+            
+        pipeline.to(torch_module.device(device))
+        
+        logger.info(f"Running diarization on {audio_path}...")
+        t0 = time.monotonic()
+        diarization = pipeline(audio_path)
+        elapsed = time.monotonic() - t0
+        
+        speaker_segments = []
+        for turn, _, speaker in diarization.itertracks(yield_label=True):
+            speaker_segments.append({
+                "start": turn.start,
+                "end": turn.end,
+                "speaker": speaker
+            })
+            
+        logger.info(f"✓ Diarization complete in {format_duration(elapsed)}")
+        unique_speakers = sorted(list(set(s["speaker"] for s in speaker_segments)))
+        logger.info(f"  └─ Detected {len(unique_speakers)} unique speaker(s): {', '.join(unique_speakers)}")
+        
+        return speaker_segments
+
+    except Exception as e:
+        logger.error(f"✗ Diarization failed: {e}")
+        logger.debug(traceback.format_exc())
+        return []
+
 
 def choose_and_transcribe(audio_16k: np.ndarray, device: str, language: str, limit: int = None) -> tuple:
     """Transcribe using Wav2Vec2 (continuous context-aware) as primary with fallbacks."""
@@ -1436,10 +1524,45 @@ TTS_ANNOTATION_SYSTEM_PROMPT = (
 )
 
 
+def _calculate_chunk_snr(chunk_audio: np.ndarray) -> float:
+    """Calculate the Signal-to-Noise Ratio (SNR) for an audio chunk."""
+    librosa = _lazy_import_librosa()
+    if chunk_audio.size == 0:
+        return -100.0  # Represents silent or empty chunk
+
+    # A simple method to estimate SNR:
+    # 1. Signal power is the mean square of the entire signal.
+    # 2. Noise is estimated from the quietest part of the signal.
+    
+    signal_power = np.mean(chunk_audio ** 2)
+    if signal_power == 0:
+        return -100.0
+
+    # For noise, find the lowest 10% of energy frames
+    frame_length = 2048
+    hop_length = 512
+    frames = librosa.util.frame(chunk_audio, frame_length=frame_length, hop_length=hop_length)
+    frame_energies = np.mean(frames ** 2, axis=0)
+    
+    if frame_energies.size == 0:
+        return -100.0
+
+    # Sort frame energies and take the average of the lowest 10% as noise
+    sorted_energies = np.sort(frame_energies)
+    noise_power = np.mean(sorted_energies[:int(len(sorted_energies) * 0.1) + 1])
+
+    if noise_power == 0:
+        # If no noise is detected, SNR is effectively infinite, return a large value
+        return 100.0
+
+    snr = 10 * np.log10(signal_power / noise_power)
+    return snr
+
 def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     resume=False, audio_source_path=None, fallback_model_path=None,
                     source_state=None, source_threshold=0.65, keep_unaligned=False,
-                    min_chunk_duration=2.0, book_title=None, character=None, narrator_style=None):
+                    min_chunk_duration=2.0, min_confidence=0.85, min_snr=25,
+                    book_title=None, character=None, narrator_style=None):
     """Create and annotate chunks with periodic checkpointing and resume support.
 
     audio_24k_source: either a numpy array (in-memory) or a path to a 24kHz WAV file.
@@ -1536,7 +1659,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
     from collections import Counter
     stats = {
         'cut_strategy':    Counter(),   # which look-back path picked the cut
-        'source_action':   Counter(),   # 'replace' / 'keep_asr' / 'dropped' / 'dropped_short' / 'deduplicated'
+        'source_action':   Counter(),   # 'replace' / 'keep_asr' / 'dropped' / 'dropped_short' / 'deduplicated' / 'dropped_low_quality'
         'llm_success':     0,
         'llm_fail':        0,
         'sanitize_changed':0,           # times _sanitize_annotation altered text
@@ -1606,7 +1729,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                 current_start = word_start_time
                 started = True
 
-            current_words.append(word)
+            current_words.append(word_data)
             current_word_starts.append(word_start_time)
             current_word_ends.append(word_data["end"])
             current_end = word_data["end"]
@@ -1644,11 +1767,12 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                 else:
                     cut_at, cut_strategy = _find_best_cut(
                         current_word_starts, current_word_ends,
-                        current_words, current_start,
+                        [w['word'] for w in current_words], current_start,
                     )
                 stats['cut_strategy'][cut_strategy] += 1
 
-                chunk_words    = current_words[:cut_at + 1]
+                chunk_word_data = current_words[:cut_at + 1]
+                chunk_words    = [w['word'] for w in chunk_word_data]
                 chunk_end_time = current_word_ends[cut_at]
                 chunk_duration = chunk_end_time - current_start
                 trimmed_tail   = len(current_words) - 1 - cut_at  # words carried forward
@@ -1672,6 +1796,28 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         reason_rejected = f"too_short ({chunk_duration:.2f}s < {min_chunk_duration}s)"
                         stats['source_action']['dropped_short'] += 1
                         logger.info(f"  ↪ DROPPED chunk at {current_start:.2f}s (too short: {chunk_duration:.2f}s)")
+                    
+                    if not drop_chunk:
+                        # Read audio for confidence and SNR checks
+                        audio_slice = _read_audio_segment(audio_24k_source, current_start, chunk_end_time)
+
+                        # Check confidence
+                        confidences = [w.get("confidence", 1.0) for w in chunk_word_data]
+                        avg_confidence = np.mean(confidences) if confidences else 1.0
+                        if avg_confidence < min_confidence:
+                            drop_chunk = True
+                            reason_rejected = f"low_confidence ({avg_confidence:.2f} < {min_confidence})"
+                            stats['source_action']['dropped_low_quality'] += 1
+                            logger.info(f"  ↪ DROPPED chunk at {current_start:.2f}s ({reason_rejected})")
+
+                        # Check SNR
+                        if not drop_chunk:
+                            snr = _calculate_chunk_snr(audio_slice)
+                            if snr < min_snr:
+                                drop_chunk = True
+                                reason_rejected = f"low_snr ({snr:.1f}dB < {min_snr}dB)"
+                                stats['source_action']['dropped_low_quality'] += 1
+                                logger.info(f"  ↪ DROPPED chunk at {current_start:.2f}s ({reason_rejected})")
 
                     # 2. Deduplication: Check for narrator retakes
                     if not drop_chunk and prev_raw_text:
@@ -1924,7 +2070,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             "text": annotated,
                             "duration": len(audio_slice) / 24000,
                             "start": current_start,
-                            "end": chunk_end_time
+                            "end": chunk_end_time,
+                            "speaker": Counter(w.get("speaker", "UNKNOWN") for w in chunk_word_data).most_common(1)[0][0]
                         }
                         if character:
                             entry["character"] = character
@@ -1998,7 +2145,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         sa_drop    = stats['source_action']['dropped']
         sa_short   = stats['source_action']['dropped_short']
         sa_dedup   = stats['source_action']['deduplicated']
-        sa_total   = sa_replace + sa_keep + sa_drop + sa_short + sa_dedup
+        sa_low_qual = stats['source_action']['dropped_low_quality']
+        sa_total   = sa_replace + sa_keep + sa_drop + sa_short + sa_dedup + sa_low_qual
         if sa_total:
             logger.info(f"  Source-guided actions ({sa_total} chunks aligned):")
             logger.info(f"    replace        : {sa_replace:>6} ({100*sa_replace/sa_total:5.1f}%)")
@@ -2008,6 +2156,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                 logger.info(f"    dropped_short  : {sa_short:>6} ({100*sa_short/sa_total:5.1f}%)")
             if sa_dedup:
                 logger.info(f"    deduplicated   : {sa_dedup:>6} ({100*sa_dedup/sa_total:5.1f}%)")
+            if sa_low_qual:
+                logger.info(f"    dropped_low_qual: {sa_low_qual:>6} ({100*sa_low_qual/sa_total:5.1f}%)")
         _src_cursor = source_state['cursor']
         _src_total  = len(source_state['orig_match'])
         _src_pct    = 100 * _src_cursor / _src_total if _src_total else 0
@@ -2144,25 +2294,106 @@ def maybe_autoname_output(output: str, source_path: Optional[str], title: Option
     return os.path.join(parent, derived) if parent else derived
 
 
-def _create_zip_dataset(metadata: List[Dict], output_path: str, val_split: float = 0.10, zip_max_files: int = 200):
+def _assign_speakers_to_words(word_segments, speaker_segments):
+    """Assign a speaker to each word based on diarization results."""
+    if not speaker_segments:
+        for word in word_segments:
+            word["speaker"] = "UNKNOWN"
+        return word_segments, {"UNKNOWN"}
+
+    IntervalTree, Interval = _lazy_import_intervaltree()
+    tree = IntervalTree()
+    for seg in speaker_segments:
+        tree.add(Interval(seg["start"], seg["end"], seg["speaker"]))
+
+    unassigned_words = 0
+    speaker_counts = Counter()
+
+    for word in word_segments:
+        word_mid_point = (word["start"] + word["end"]) / 2
+        overlapping_intervals = tree.at(word_mid_point)
+        
+        if overlapping_intervals:
+            speaker = next(iter(overlapping_intervals)).data
+            word["speaker"] = speaker
+            speaker_counts[speaker] += 1
+        else:
+            word["speaker"] = "UNKNOWN"
+            unassigned_words += 1
+
+    logger.info("▶ Speaker assignment summary:")
+    for speaker, count in speaker_counts.most_common():
+        logger.info(f"  - {speaker}: {count} words")
+    if unassigned_words > 0:
+        logger.warning(f"  - UNKNOWN: {unassigned_words} words (no speaker segment overlap)")
+        
+    unique_speakers = set(speaker_counts.keys())
+    if unassigned_words > 0:
+        unique_speakers.add("UNKNOWN")
+        
+    return word_segments, unique_speakers
+
+
+def _assign_speakers_to_words(word_segments, speaker_segments):
+    """Assign a speaker to each word based on diarization results."""
+    if not speaker_segments:
+        for word in word_segments:
+            word["speaker"] = "UNKNOWN"
+        return word_segments, {"UNKNOWN"}
+
+    IntervalTree, Interval = _lazy_import_intervaltree()
+    tree = IntervalTree()
+    for seg in speaker_segments:
+        tree.add(Interval(seg["start"], seg["end"], seg["speaker"]))
+
+    unassigned_words = 0
+    speaker_counts = Counter()
+
+    for word in word_segments:
+        word_mid_point = (word["start"] + word["end"]) / 2
+        overlapping_intervals = tree.at(word_mid_point)
+        
+        if overlapping_intervals:
+            speaker = next(iter(overlapping_intervals)).data
+            word["speaker"] = speaker
+            speaker_counts[speaker] += 1
+        else:
+            word["speaker"] = "UNKNOWN"
+            unassigned_words += 1
+
+    logger.info("▶ Speaker assignment summary:")
+    for speaker, count in speaker_counts.most_common():
+        logger.info(f"  - {speaker}: {count} words")
+    if unassigned_words > 0:
+        logger.warning(f"  - UNKNOWN: {unassigned_words} words (no speaker segment overlap)")
+        
+    unique_speakers = set(speaker_counts.keys())
+    if unassigned_words > 0:
+        unique_speakers.add("UNKNOWN")
+        
+    return word_segments, unique_speakers
+
+
+def _create_zip_dataset(metadata: List[Dict], output_path: str, val_split: float = 0.10, zip_max_files: int = 200, unique_speakers: set = None):
     """Bundle annotated chunks and metadata into segmented ZIP files (volumes),
-    grouped by character and narrator style."""
+    grouped by speaker, character, and narrator style."""
     temp_dir = "dataset_temp"
     
     if not metadata:
         logger.warning("No metadata to save to ZIP.")
         return
 
-    # 1. Group metadata by (character, style)
+    # 1. Group metadata by speaker, then (character, style)
     groups = {}
     for entry in metadata:
+        speaker = entry.get("speaker", "UNKNOWN")
         char = entry.get("character", "narrator")
         style = entry.get("narrator_style", "default")
-        key = (char, style)
+        key = (speaker, char, style)
         groups.setdefault(key, []).append(entry)
 
     logger.info(f"▶ Creating segmented ZIP volumes (max {zip_max_files} files/vol, val_split={val_split:.0%})")
-    logger.info(f"  ├─ Unique character/style combinations: {len(groups)}")
+    logger.info(f"  ├─ Unique speaker/character/style combinations: {len(groups)}")
 
     import random
     base, ext = os.path.splitext(output_path)
@@ -2171,10 +2402,11 @@ def _create_zip_dataset(metadata: List[Dict], output_path: str, val_split: float
     total_val = 0
     total_vols = 0
 
-    for (char, style), group_metadata in groups.items():
+    for (speaker, char, style), group_metadata in groups.items():
         num_vols = (len(group_metadata) + zip_max_files - 1) // zip_max_files
         
-        # Sanitise character/style for filenames
+        # Sanitise for filenames
+        safe_speaker = _sanitize_name_part(speaker)
         safe_char = _sanitize_name_part(char)
         safe_style = _sanitize_name_part(style)
         
@@ -2183,16 +2415,20 @@ def _create_zip_dataset(metadata: List[Dict], output_path: str, val_split: float
             end_idx = min(start_idx + zip_max_files, len(group_metadata))
             vol_metadata = group_metadata[start_idx:end_idx]
             
-            # Generate volume path: base_Character_Style_volNN.zip
-            # If only one character/style and one volume, keep original path.
-            if len(groups) == 1 and num_vols == 1:
+            # Generate volume path: base_Speaker_Character_Style_volNN.zip
+            parts = [base]
+            if unique_speakers and len(unique_speakers) > 1:
+                parts.append(safe_speaker)
+            if safe_char != "narrator":
+                parts.append(safe_char)
+            if safe_style != "default":
+                parts.append(safe_style)
+            if num_vols > 1:
+                parts.append(f"vol{vol_idx + 1:02d}")
+            
+            if len(parts) == 1:
                 vol_path = output_path
             else:
-                parts = [base, safe_char]
-                if safe_style != "default":
-                    parts.append(safe_style)
-                if num_vols > 1:
-                    parts.append(f"vol{vol_idx + 1:02d}")
                 vol_path = "_".join(parts) + ext
 
             # Partition this volume into train/val
@@ -2272,9 +2508,11 @@ def main():
     parser.add_argument("--skip-annotation", action="store_true")
     parser.add_argument("--chunk-size", type=float, default=10.0)
     parser.add_argument("--min-chunk-duration", type=float, default=2.0, help="Minimum duration for an audio chunk to be kept (default: 2.0s)")
+    parser.add_argument("--min-confidence", type=float, default=0.85, help="Minimum average word confidence for a chunk to be kept (default: 0.85)")
+    parser.add_argument("--min-snr", type=int, default=25, help="Minimum Signal-to-Noise Ratio (SNR) in dB for a chunk to be kept (default: 25)")
     parser.add_argument("--lang", default="en")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of chunks to process")
-    parser.add_argument("--phase", choices=["asr", "annotate"], help="Run only a specific phase (internal use for ROCm isolation)")
+    parser.add_argument("--phase", choices=["asr", "enrich", "annotate"], help="Run only a specific phase (internal use for ROCm isolation)")
     parser.add_argument("--asr-output", help="Path to save/load ASR word segments (default: dataset_temp/asr_segments.json)")
     parser.add_argument("--scratch-audio", help="Path to 24k scratch WAV (default: dataset_temp/audio_24k.wav)")
     parser.add_argument("--output", default="alexandria_dataset.zip",
@@ -2320,11 +2558,26 @@ def main():
     parser.add_argument("--book-title", help="Book title for metadata tagging (overrides ePub title)")
     parser.add_argument("--character", help="Character name for metadata tagging")
     parser.add_argument("--narrator-style", help="Narrator style for metadata tagging")
+    
+    # ── Speaker Diarization ───────────────────────────────────────────────────
+    parser.add_argument("--diarize", action="store_true", help="Enable speaker diarization using pyannote.audio")
+    parser.add_argument("--hf-token", default=os.environ.get("HF_TOKEN"), help="Hugging Face token for pyannote access")
+    parser.add_argument("--auto-detect-speakers", action="store_true", help="Auto-detect narrator count by analyzing audio and logging the number of unique speakers.")
+    
+    # ── LLM Enrichment ────────────────────────────────────────────────────────
+    parser.add_argument("--enrich-with-llm", action="store_true", help="Enable LLM-based transcript enrichment.")
+    parser.add_argument("--llm-model-path", help="Path to the GGUF LLM model file for transcript enrichment. Required if --enrich-with-llm is set.")
+    parser.add_argument("--enrich-speaker-attribution", action="store_true", help="Instruct LLM to extract speaker attribution.")
+    parser.add_argument("--enrich-narration-style", action="store_true", help="Instruct LLM to extract narration style.")
+    parser.add_argument("--enrich-emotional-tone", action="store_true", help="Instruct LLM to extract emotional tone.")
 
     args = parser.parse_args()
 
     if not args.skip_annotation and not args.model:
         parser.error("--model required unless --skip-annotation")
+
+    if args.enrich_with_llm and not args.llm_model_path:
+        parser.error("--llm-model-path is required when --enrich-with-llm is set.")
 
     # Auto-derive --output filename from --source metadata when the caller left
     # the default (or another generic placeholder). Pinned names pass through.
@@ -2350,26 +2603,49 @@ def main():
         if args.resume and os.path.exists(asr_output_path):
             logger.info(f"▶ ASR output found at {asr_output_path}, skipping ASR phase due to --resume")
             should_run_asr = False
-            
+
         if should_run_asr:
             asr_cmd = [sys.executable, __file__, "--phase", "asr"]
             # Pass all original arguments except potentially conflicting ones
             for arg in sys.argv[1:]:
-                if arg not in ["--phase", "asr", "annotate"]:
+                if arg not in ["--phase", "asr", "enrich", "annotate"]:
                     asr_cmd.append(arg)
-            
+
             logger.info("▶ Launching ASR Phase...")
             res = subprocess.run(asr_cmd)
             if res.returncode != 0:
                 logger.error(f"ASR Phase failed with exit code {res.returncode}")
                 sys.exit(res.returncode)
-                
-        # 2. Run Annotation Phase
+
+        # 2. Run LLM Enrichment Phase (if requested)
+        enriched_output_path = os.path.join("dataset_temp", "enriched_segments.json")
+        should_run_enrich = args.enrich_with_llm
+        if should_run_enrich and args.resume and os.path.exists(enriched_output_path):
+            logger.info(f"▶ Enriched output found at {enriched_output_path}, skipping enrichment phase due to --resume")
+            should_run_enrich = False
+
+        if should_run_enrich:
+            if not args.llm_model_path:
+                logger.error("▶ LLM enrichment requested but --llm-model-path not provided")
+                sys.exit(1)
+
+            enrich_cmd = [sys.executable, "llm_enricher.py",
+                         "--model-path", args.llm_model_path,
+                         "--input-file", asr_output_path,
+                         "--output-file", enriched_output_path]
+
+            logger.info("▶ Launching LLM Enrichment Phase...")
+            res = subprocess.run(enrich_cmd)
+            if res.returncode != 0:
+                logger.error(f"LLM Enrichment Phase failed with exit code {res.returncode}")
+                sys.exit(res.returncode)
+
+        # 3. Run Annotation Phase
         ann_cmd = [sys.executable, __file__, "--phase", "annotate"]
         for arg in sys.argv[1:]:
-            if arg not in ["--phase", "asr", "annotate"]:
+            if arg not in ["--phase", "asr", "enrich", "annotate"]:
                 ann_cmd.append(arg)
-                
+
         logger.info("▶ Launching Annotation Phase...")
         res = subprocess.run(ann_cmd)
         if res.returncode == 0:
@@ -2448,10 +2724,23 @@ def main():
 
             progress.complete()
 
+            # Diarize speakers if requested
+            if args.diarize:
+                progress.start("Diarize speakers")
+                device_str = "cuda" if _lazy_import_torch().cuda.is_available() else "cpu"
+                speaker_segments = diarize_audio(audio_24k_path, args.hf_token, device=device_str)
+                if speaker_segments:
+                    diarization_path = os.path.join(temp_dir, "diarization.json")
+                    with open(diarization_path, "w") as f:
+                        json.dump(speaker_segments, f, indent=2)
+                    logger.info(f"  ✓ Found {len(speaker_segments)} speaker segments. Saved to {diarization_path}")
+                else:
+                    logger.warning("  ⚠ Diarization produced no segments. Continuing without speaker data.")
+                progress.complete()
+
             progress.start("Transcribe audio")
             word_segments, detected_lang = choose_and_transcribe(audio_16k, device, args.lang, limit=args.limit)
             logger.info(f"  Detected language: {detected_lang}")
-            logger.info(f"  Segments extracted: {len(word_segments)}")
 
             # Save ASR results for next phase
             logger.info(f"▶ Saving ASR segments to {asr_output_path}...")
@@ -2468,6 +2757,94 @@ def main():
             logger.info("✓ ASR Phase completed successfully.")
             return 0
 
+        elif args.phase == "enrich":
+            logger.info("-" * 70)
+            logger.info("PHASE: LLM Enrichment")
+            logger.info("-" * 70)
+
+            if not os.path.exists(asr_output_path):
+                logger.error(f"ASR results not found at {asr_output_path}. Run ASR phase first.")
+                sys.exit(1)
+
+            if not args.llm_model_path:
+                logger.error("--llm-model-path is required for enrichment phase")
+                sys.exit(1)
+
+            enriched_output_path = os.path.join("dataset_temp", "enriched_segments.json")
+            
+            logger.info(f"▶ Loading ASR results from {asr_output_path}...")
+            with open(asr_output_path, "r", encoding="utf-8") as f:
+                asr_data = json.load(f)
+
+            # Extract word_segments and group into chunks for enrichment
+            word_segments = asr_data.get("word_segments", [])
+            
+            # Group words into chunks (e.g., 10 seconds per chunk)
+            chunk_duration = 10.0  # seconds
+            chunks = []
+            current_chunk_words = []
+            chunk_start = None
+            chunk_end = None
+            
+            for word in word_segments:
+                if chunk_start is None:
+                    chunk_start = word.get("start", 0)
+                    chunk_end = chunk_start + chunk_duration
+                
+                if word.get("start", 0) <= chunk_end:
+                    current_chunk_words.append(word)
+                else:
+                    # Save current chunk and start new one
+                    if current_chunk_words:
+                        chunk_text = " ".join(w.get("word", "") for w in current_chunk_words)
+                        chunks.append({
+                            "text": chunk_text,
+                            "start": current_chunk_words[0].get("start", 0),
+                            "end": current_chunk_words[-1].get("end", 0),
+                            "speaker": "UNKNOWN",
+                            "words": current_chunk_words
+                        })
+                    current_chunk_words = [word]
+                    chunk_start = word.get("start", 0)
+                    chunk_end = chunk_start + chunk_duration
+            
+            # Don't forget the last chunk
+            if current_chunk_words:
+                chunk_text = " ".join(w.get("word", "") for w in current_chunk_words)
+                chunks.append({
+                    "text": chunk_text,
+                    "start": current_chunk_words[0].get("start", 0),
+                    "end": current_chunk_words[-1].get("end", 0),
+                    "speaker": "UNKNOWN",
+                    "words": current_chunk_words
+                })
+            
+            logger.info(f"  Created {len(chunks)} chunks for LLM enrichment")
+            
+            # Save chunks for llm_enricher.py
+            asr_chunks_path = os.path.join("dataset_temp", "asr_chunks_for_enrich.json")
+            with open(asr_chunks_path, "w", encoding="utf-8") as f:
+                json.dump(chunks, f, indent=2)
+
+            # Build command for llm_enricher.py
+            enrich_cmd = [sys.executable, "llm_enricher.py",
+                         "--model-path", args.llm_model_path,
+                         "--input-file", asr_chunks_path,
+                         "--output-file", enriched_output_path]
+
+            logger.info(f"▶ Running LLM enrichment: {' '.join(enrich_cmd)}")
+            res = subprocess.run(enrich_cmd)
+            if res.returncode != 0:
+                logger.error(f"LLM enrichment failed with exit code {res.returncode}")
+                sys.exit(res.returncode)
+
+            if not os.path.exists(enriched_output_path):
+                logger.error(f"Enrichment output file not found at {enriched_output_path}")
+                sys.exit(1)
+
+            logger.info("✓ LLM Enrichment Phase completed successfully.")
+            return 0
+
         elif args.phase == "annotate":
             logger.info("-" * 70)
             logger.info(f"PHASE: Annotation")
@@ -2477,11 +2854,45 @@ def main():
                 logger.error(f"ASR results not found at {asr_output_path}. Run ASR phase first.")
                 sys.exit(1)
 
-            logger.info(f"▶ Loading ASR results from {asr_output_path}...")
-            with open(asr_output_path, "r", encoding="utf-8") as f:
-                asr_data = json.load(f)
-                word_segments = asr_data["word_segments"]
-                detected_lang = asr_data["detected_lang"]
+            # Check if enriched data exists (from LLM enrichment phase)
+            enriched_output_path = os.path.join("dataset_temp", "enriched_segments.json")
+            use_enriched = os.path.exists(enriched_output_path)
+
+            if use_enriched:
+                logger.info(f"▶ Loading enriched results from {enriched_output_path}...")
+                with open(enriched_output_path, "r", encoding="utf-8") as f:
+                    enriched_data = json.load(f)
+                # The enriched data should contain word_segments with additional metadata
+                if isinstance(enriched_data, dict) and "word_segments" in enriched_data:
+                    word_segments = enriched_data["word_segments"]
+                    detected_lang = enriched_data.get("detected_lang", "en")
+                else:
+                    # Assume it's a list of enriched segments
+                    word_segments = enriched_data
+                    # Try to load detected_lang from original ASR output
+                    with open(asr_output_path, "r", encoding="utf-8") as f:
+                        asr_data = json.load(f)
+                        detected_lang = asr_data.get("detected_lang", "en")
+                logger.info("  Using LLM-enriched transcript data")
+            else:
+                logger.info(f"▶ Loading ASR results from {asr_output_path}...")
+                with open(asr_output_path, "r", encoding="utf-8") as f:
+                    asr_data = json.load(f)
+                    word_segments = asr_data["word_segments"]
+                    detected_lang = asr_data["detected_lang"]
+
+            # Load diarization results if they exist
+            diarization_path = os.path.join(temp_dir, "diarization.json")
+            speaker_segments = []
+            if os.path.exists(diarization_path):
+                logger.info(f"▶ Loading diarization results from {diarization_path}...")
+                with open(diarization_path, "r") as f:
+                    speaker_segments = json.load(f)
+                word_segments, unique_speakers = _assign_speakers_to_words(word_segments, speaker_segments)
+            else:
+                unique_speakers = {"UNKNOWN"}
+                for word in word_segments:
+                    word["speaker"] = "UNKNOWN"
 
             # ── Optional: source-guided chunking ──────────────────────────────────
             source_state = None
@@ -2526,6 +2937,8 @@ def main():
                     source_threshold=args.source_threshold,
                     keep_unaligned=args.keep_unaligned,
                     min_chunk_duration=args.min_chunk_duration,
+                    min_confidence=args.min_confidence,
+                    min_snr=args.min_snr,
                     book_title=book_title,
                     character=args.character,
                     narrator_style=args.narrator_style,
@@ -2537,7 +2950,7 @@ def main():
             progress.complete()
 
             progress.start("Create output dataset")
-            _create_zip_dataset(metadata, args.output, val_split=args.val_split, zip_max_files=args.zip_max_files)
+            _create_zip_dataset(metadata, args.output, val_split=args.val_split, zip_max_files=args.zip_max_files, unique_speakers=unique_speakers)
             progress.complete()
 
             logger.info("✓ Annotation Phase completed successfully.")
