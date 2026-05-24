@@ -939,7 +939,7 @@ def diarize_audio(audio_path: str, hf_token: str = None, device: str = "cuda") -
     try:
         pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1",
-            use_auth_token=hf_token
+            token=hf_token
         )
         if pipeline is None:
             raise ValueError("Failed to load pyannote pipeline. Check your token and model permissions.")
