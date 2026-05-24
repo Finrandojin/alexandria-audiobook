@@ -113,3 +113,13 @@ build_logs/
 
 # Web wrapper's own log directory
 app/logs/
+
+# Session handoff artifacts
+HANDOFF.md
+
+# Random corpus test outputs (user-generated runtime data)
+random_test_output/
+sample_*.wav
+epub_files.txt
+wav_files.txt
+selected_pairs.txt
