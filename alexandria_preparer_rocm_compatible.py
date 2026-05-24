@@ -8,7 +8,9 @@ import os
 import sys
 import tempfile
 
-# Force llama_cpp to load first to ensure system ROCm libs are prioritized over torch's bundled ones
+# Force llama_cpp to load first to ensure system ROCm libs are prioritized over torch's bundled ones.
+# Do NOT defer this import — llama_cpp's ggml_cuda_init() must bind to the system HIP libs before
+# torch's bundled copies get loaded, otherwise ROCm detection fails at runtime.
 try:
     from llama_cpp import Llama
     LLAMA_CPP_AVAILABLE = True
@@ -1527,38 +1529,38 @@ TTS_ANNOTATION_SYSTEM_PROMPT = (
 
 
 def _calculate_chunk_snr(chunk_audio: np.ndarray) -> float:
-    """Calculate the Signal-to-Noise Ratio (SNR) for an audio chunk."""
-    librosa = _lazy_import_librosa()
+    """Calculate the Signal-to-Noise Ratio (SNR) for an audio chunk.
+
+    Uses a pure-numpy approach: signal power = mean of squared samples,
+    noise power = mean energy of quietest 10% of 2048-sample blocks.
+    Avoids librosa.util.frame() which creates expensive 2D arrays.
+    """
     if chunk_audio.size == 0:
         return -100.0  # Represents silent or empty chunk
 
-    # A simple method to estimate SNR:
-    # 1. Signal power is the mean square of the entire signal.
-    # 2. Noise is estimated from the quietest part of the signal.
-    
     signal_power = np.mean(chunk_audio ** 2)
     if signal_power == 0:
         return -100.0
 
-    # For noise, find the lowest 10% of energy frames
-    frame_length = 2048
-    hop_length = 512
-    frames = librosa.util.frame(chunk_audio, frame_length=frame_length, hop_length=hop_length)
-    frame_energies = np.mean(frames ** 2, axis=0)
-    
-    if frame_energies.size == 0:
-        return -100.0
+    # Block-based noise estimation (2048-sample blocks)
+    block_size = 2048
+    n_blocks = len(chunk_audio) // block_size
+    if n_blocks == 0:
+        return 100.0  # Too short to estimate noise
 
-    # Sort frame energies and take the average of the lowest 10% as noise
-    sorted_energies = np.sort(frame_energies)
-    noise_power = np.mean(sorted_energies[:int(len(sorted_energies) * 0.1) + 1])
+    # Compute per-block energy efficiently using reshape (no loop, no 2D copy)
+    n_samples = n_blocks * block_size
+    blocks = chunk_audio[:n_samples].reshape(n_blocks, block_size)
+    block_energies = np.mean(blocks ** 2, axis=1)
 
-    if noise_power == 0:
-        # If no noise is detected, SNR is effectively infinite, return a large value
-        return 100.0
+    # Noise = mean energy of quietest 10% of blocks
+    n_quiet = max(1, int(len(block_energies) * 0.1))
+    noise_power = np.mean(np.partition(block_energies, n_quiet)[:n_quiet])
 
-    snr = 10 * np.log10(signal_power / noise_power)
-    return snr
+    if noise_power <= 0:
+        return 100.0  # No detectable noise
+
+    return 10 * np.log10(signal_power / noise_power)
 
 def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     resume=False, audio_source_path=None, fallback_model_path=None,
