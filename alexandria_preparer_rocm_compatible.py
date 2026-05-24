@@ -2591,10 +2591,11 @@ def main():
                 logger.error("▶ LLM enrichment requested but --llm-model-path not provided")
                 sys.exit(1)
 
-            enrich_cmd = [sys.executable, "llm_enricher.py",
-                         "--model-path", args.llm_model_path,
-                         "--input-file", asr_output_path,
-                         "--output-file", enriched_output_path]
+            # Run enrichment as a subprocess to reuse the same chunking logic
+            enrich_cmd = [sys.executable, __file__, "--phase", "enrich"]
+            for arg in sys.argv[1:]:
+                if arg not in ["--phase", "asr", "enrich", "annotate"]:
+                    enrich_cmd.append(arg)
 
             logger.info("▶ Launching LLM Enrichment Phase...")
             res = subprocess.run(enrich_cmd)
