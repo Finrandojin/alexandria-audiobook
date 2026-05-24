@@ -747,7 +747,9 @@ def transcribe_with_insanely_fast_whisper(audio_16k: np.ndarray, language: str =
         # Set LD_LIBRARY_PATH to use conda's FFmpeg 7 libraries (REPLACE system FFmpeg 8.1)
         conda_prefixes = [
             os.environ.get("CONDA_PREFIX", ""),
-            "/home/fakemitch/pinokio/bin/miniconda",  # Pinokio's conda location
+            os.environ.get("PINOKIO_CONDA_PREFIX", ""),
+            os.path.join(os.environ.get("PINOKIO_HOME", ""), "bin", "miniconda"),
+            sys.prefix,  # Current Python's conda prefix
         ]
 
         for prefix in conda_prefixes:
