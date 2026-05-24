@@ -2326,46 +2326,6 @@ def _assign_speakers_to_words(word_segments, speaker_segments):
     return word_segments, unique_speakers
 
 
-def _assign_speakers_to_words(word_segments, speaker_segments):
-    """Assign a speaker to each word based on diarization results."""
-    if not speaker_segments:
-        for word in word_segments:
-            word["speaker"] = "UNKNOWN"
-        return word_segments, {"UNKNOWN"}
-
-    IntervalTree, Interval = _lazy_import_intervaltree()
-    tree = IntervalTree()
-    for seg in speaker_segments:
-        tree.add(Interval(seg["start"], seg["end"], seg["speaker"]))
-
-    unassigned_words = 0
-    speaker_counts = Counter()
-
-    for word in word_segments:
-        word_mid_point = (word["start"] + word["end"]) / 2
-        overlapping_intervals = tree.at(word_mid_point)
-        
-        if overlapping_intervals:
-            speaker = next(iter(overlapping_intervals)).data
-            word["speaker"] = speaker
-            speaker_counts[speaker] += 1
-        else:
-            word["speaker"] = "UNKNOWN"
-            unassigned_words += 1
-
-    logger.info("▶ Speaker assignment summary:")
-    for speaker, count in speaker_counts.most_common():
-        logger.info(f"  - {speaker}: {count} words")
-    if unassigned_words > 0:
-        logger.warning(f"  - UNKNOWN: {unassigned_words} words (no speaker segment overlap)")
-        
-    unique_speakers = set(speaker_counts.keys())
-    if unassigned_words > 0:
-        unique_speakers.add("UNKNOWN")
-        
-    return word_segments, unique_speakers
-
-
 def _create_zip_dataset(metadata: List[Dict], output_path: str, val_split: float = 0.10, zip_max_files: int = 200, unique_speakers: set = None):
     """Bundle annotated chunks and metadata into segmented ZIP files (volumes),
     grouped by speaker, character, and narrator style."""
