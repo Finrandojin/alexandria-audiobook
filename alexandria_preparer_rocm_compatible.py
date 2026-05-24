@@ -2611,7 +2611,21 @@ def main():
         logger.info("▶ Launching Annotation Phase...")
         res = subprocess.run(ann_cmd)
         if res.returncode == 0:
-            completed_successfully = True
+            # Clean up scratch audio and temp dir on success
+            audio_24k_scratch = args.scratch_audio or os.path.join("dataset_temp", "audio_24k_scratch.wav")
+            if os.path.exists(audio_24k_scratch):
+                try:
+                    os.remove(audio_24k_scratch)
+                    logger.debug(f"Removed scratch audio: {audio_24k_scratch}")
+                except Exception:
+                    pass
+            if os.path.exists("dataset_temp"):
+                try:
+                    shutil.rmtree("dataset_temp")
+                    logger.debug("Cleaned up dataset_temp/")
+                except Exception:
+                    pass
+            logger.info(f"Log file saved to: {log_file}")
         sys.exit(res.returncode)
 
     # ── Individual Phase Execution ───────────────────────────────────────────
@@ -2622,8 +2636,7 @@ def main():
     asr_output_path = args.asr_output or os.path.join(temp_dir, "asr_segments.json")
     audio_24k_path = args.scratch_audio or os.path.join(temp_dir, "audio_24k_scratch.wav")
 
-    completed_successfully = False
-    audio_24k_scratch = audio_24k_path # for the finally block cleanup and use in phases
+    audio_24k_scratch = audio_24k_path  # for the finally block cleanup
 
     try:
         if args.phase == "asr":
@@ -2916,7 +2929,6 @@ def main():
             progress.complete()
 
             logger.info("✓ Annotation Phase completed successfully.")
-            completed_successfully = True
             return 0
 
     except KeyboardInterrupt:
@@ -2938,15 +2950,6 @@ def main():
                 logger.debug(f"Removed scratch audio: {audio_24k_scratch}")
             except Exception as e:
                 logger.warning(f"Failed to remove scratch audio: {e}")
-
-        # Only remove dataset_temp on successful completion of the ORCHESTRATOR 
-        # (preserves resume state on failure, and handoff between phases)
-        if args.phase is None and completed_successfully and os.path.exists("dataset_temp"):
-            try:
-                shutil.rmtree("dataset_temp")
-                logger.debug("Cleaned up dataset_temp/")
-            except Exception as e:
-                logger.warning(f"Failed to cleanup temp directory: {e}")
 
         logger.info(f"Log file saved to: {log_file}")
 
