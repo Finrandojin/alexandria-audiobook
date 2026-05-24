@@ -774,18 +774,17 @@ def transcribe_with_insanely_fast_whisper(audio_16k: np.ndarray, language: str =
 
         # Parse GPU info from subprocess output
         if result.stdout:
-            import re as regex_module
-            cuda_match = regex_module.search(r'ASR using device:\s*(cuda:\d+)', result.stdout)
+            cuda_match = re.search(r'ASR using device:\s*(cuda:\d+)', result.stdout)
             if cuda_match:
                 device_info = cuda_match.group(1)
                 logger.info(f"  ├─ GPU Device: {device_info} (confirmed in subprocess)")
 
-            torch_match = regex_module.search(r'cuda_available=(\w+)', result.stdout)
+            torch_match = re.search(r'cuda_available=(\w+)', result.stdout)
             if torch_match:
                 cuda_status = torch_match.group(1)
                 logger.info(f"  ├─ CUDA Available: {cuda_status}")
 
-            hip_match = regex_module.search(r'hip=([0-9.]+)', result.stdout)
+            hip_match = re.search(r'hip=([0-9.]+)', result.stdout)
             if hip_match:
                 hip_version = hip_match.group(1)
                 logger.info(f"  └─ HIP (ROCm) Version: {hip_version}")
@@ -1188,20 +1187,13 @@ def _log_word_segment_stats(word_segments, label="ASR word segments"):
     ]
     gaps = [g for g in gaps if g >= 0]   # filter rare ASR overlaps
 
-    def _pct(xs, p):
-        if not xs:
-            return 0.0
-        xs = sorted(xs)
-        k = max(0, min(len(xs) - 1, int(round(p / 100.0 * (len(xs) - 1)))))
-        return xs[k]
-
     logger.info(f"  {label}: {len(valid):,} words over {total_t:.1f}s "
                 f"(rate {len(valid)/max(total_t,1e-9):.1f} words/s)")
-    logger.info(f"    ├─ word duration  : median {_pct(durations, 50):.3f}s, "
-                f"p95 {_pct(durations, 95):.3f}s, max {max(durations):.3f}s")
+    logger.info(f"    ├─ word duration  : median {_percentile(durations, 50):.3f}s, "
+                f"p95 {_percentile(durations, 95):.3f}s, max {max(durations):.3f}s")
     if gaps:
-        logger.info(f"    ├─ inter-word gap : median {_pct(gaps, 50):.3f}s, "
-                    f"p95 {_pct(gaps, 95):.3f}s, max {max(gaps):.3f}s")
+        logger.info(f"    ├─ inter-word gap : median {_percentile(gaps, 50):.3f}s, "
+                    f"p95 {_percentile(gaps, 95):.3f}s, max {max(gaps):.3f}s")
         long_gaps = sum(1 for g in gaps if g >= 0.5)
         logger.info(f"    └─ pauses ≥ 0.5s  : {long_gaps:,} "
                     f"({100*long_gaps/len(gaps):.1f}% of gaps)")
