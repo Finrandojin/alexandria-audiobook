@@ -2839,6 +2839,33 @@ def main():
                 logger.error(f"Enrichment output file not found at {enriched_output_path}")
                 sys.exit(1)
 
+            # Load enriched chunks and flatten back to word_segments format
+            # so the annotation phase can process them correctly
+            logger.info(f"▶ Loading enriched chunks for word-level reconstruction...")
+            with open(enriched_output_path, "r", encoding="utf-8") as f:
+                enriched_chunks = json.load(f)
+
+            # Flatten enriched chunks back to word_segments, adding enrichment metadata
+            enriched_word_segments = []
+            for chunk in enriched_chunks:
+                chunk_words = chunk.get("words", [])
+                for word in chunk_words:
+                    enriched_word = dict(word)  # copy original word segment
+                    # Add enrichment metadata from the chunk
+                    enriched_word["speaker_attribution"] = chunk.get("speaker_attribution", "N/A")
+                    enriched_word["narration_style"] = chunk.get("narration_style", "N/A")
+                    enriched_word["emotional_tone"] = chunk.get("emotional_tone", "N/A")
+                    enriched_word_segments.append(enriched_word)
+
+            # Save in the same format as ASR output
+            enriched_asr_data = {
+                "word_segments": enriched_word_segments,
+                "detected_lang": asr_data.get("detected_lang", "en"),
+            }
+            with open(enriched_output_path, "w", encoding="utf-8") as f:
+                json.dump(enriched_asr_data, f, indent=2)
+
+            logger.info(f"  Reconstructed {len(enriched_word_segments)} word segments from {len(enriched_chunks)} enriched chunks")
             logger.info("✓ LLM Enrichment Phase completed successfully.")
             return 0
 
@@ -2850,6 +2877,25 @@ def main():
             if not os.path.exists(asr_output_path):
                 logger.error(f"ASR results not found at {asr_output_path}. Run ASR phase first.")
                 sys.exit(1)
+
+            # Ensure scratch audio exists — recreate if missing (e.g., after phase subprocess restart)
+            if not os.path.exists(audio_24k_path):
+                logger.info(f"▶ Scratch audio not found at {audio_24k_path}, recreating from source...")
+                is_oversized, _, _ = _wav_overflow_info(args.audio)
+                if is_oversized:
+                    logger.info("  Using ffmpeg loader (oversized WAV)")
+                    _ffmpeg_decode_to_wav(args.audio, audio_24k_path, 24000, mono=True)
+                else:
+                    l = _lazy_import_librosa()
+                    audio_native, native_sr = l.load(args.audio, sr=None, mono=True)
+                    if native_sr == 24000:
+                        audio_24k = audio_native
+                    else:
+                        logger.debug(f"  Resampling to 24kHz (in memory)...")
+                        audio_24k = l.resample(audio_native, orig_sr=native_sr, target_sr=24000)
+                    sf.write(audio_24k_path, audio_24k, 24000, subtype="PCM_16")
+                    del audio_native, audio_24k
+                logger.info(f"  Scratch audio recreated: {audio_24k_path}")
 
             # Check if enriched data exists (from LLM enrichment phase)
             enriched_output_path = os.path.join("dataset_temp", "enriched_segments.json")
