@@ -2039,8 +2039,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         logger.debug(f"llm-fail idx={segment_idx}: {traceback.format_exc()}")
                         annotated = text
 
-                    # Read audio segment (in-memory slice or disk seek)
-                    audio_slice = _read_audio_segment(audio_24k_source, current_start, chunk_end_time)
+                    # Reuse the audio_slice read earlier for SNR check (line 1825).
+                    # No need to re-read from disk/memory — it's the same time range.
                     actual_duration = len(audio_slice) / 24000.0
                     expected_duration = chunk_end_time - current_start
                     if abs(actual_duration - expected_duration) > 0.1:
@@ -2068,38 +2068,21 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         finally:
                             os.close(wav_fd)
 
-                        # ── Metadata Tagging ──
-                        try:
-                            import mutagen.wave
-                            import mutagen.id3
-                            audio_tags = mutagen.wave.WAVE(wav_path)
-                            if audio_tags.tags is None:
-                                audio_tags.add_tags()
-                            if book_title:
-                                audio_tags.tags.add(mutagen.id3.TALB(encoding=3, text=book_title))
-                            if character:
-                                audio_tags.tags.add(mutagen.id3.TPE1(encoding=3, text=character))
-                            if narrator_style:
-                                audio_tags.tags.add(mutagen.id3.COMM(encoding=3, text=narrator_style, lang="eng", desc=""))
-                            audio_tags.tags.add(mutagen.id3.TIT2(encoding=3, text=seg_name))
-                            audio_tags.save()
-                        except ImportError:
-                            logger.debug("mutagen not installed, skipping metadata tagging")
-                        except Exception as tag_e:
-                            logger.warning(f"Failed to write metadata tags to {seg_name}: {tag_e}")
-
                         entry = {
                             "audio_filepath": seg_name,
                             "text": annotated,
-                            "duration": len(audio_slice) / 24000,
+                            "duration": actual_duration,
                             "start": current_start,
                             "end": chunk_end_time,
-                            "speaker": Counter(w.get("speaker", "UNKNOWN") for w in chunk_word_data).most_common(1)[0][0]
+                            "speaker": Counter(w.get("speaker", "UNKNOWN") for w in chunk_word_data).most_common(1)[0][0],
+                            "wav_path": wav_path,  # Keep for batch mutagen tagging
                         }
                         if character:
                             entry["character"] = character
                         if narrator_style:
                             entry["narrator_style"] = narrator_style
+                        if book_title:
+                            entry["book_title"] = book_title
                         metadata.append(entry)
 
                         # Append to checkpoint and fsync immediately so power
@@ -2140,6 +2123,38 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         checkpoint_file.close()
         del llm
         clear_vram()
+
+    # ── Batch metadata tagging (avoids per-chunk WAV open/read/write) ─────────
+    try:
+        import mutagen.wave
+        import mutagen.id3
+        taggable = [e for e in metadata if e.get("wav_path") and os.path.exists(e["wav_path"])]
+        if taggable:
+            logger.info(f"▶ Batch-writing ID3 tags to {len(taggable)} WAV files...")
+            for entry in taggable:
+                try:
+                    wav_path = entry["wav_path"]
+                    audio_tags = mutagen.wave.WAVE(wav_path)
+                    if audio_tags.tags is None:
+                        audio_tags.add_tags()
+                    if entry.get("book_title"):
+                        audio_tags.tags.add(mutagen.id3.TALB(encoding=3, text=entry["book_title"]))
+                    if entry.get("character"):
+                        audio_tags.tags.add(mutagen.id3.TPE1(encoding=3, text=entry["character"]))
+                    if entry.get("narrator_style"):
+                        audio_tags.tags.add(mutagen.id3.COMM(encoding=3, text=entry["narrator_style"], lang="eng", desc=""))
+                    audio_tags.tags.add(mutagen.id3.TIT2(encoding=3, text=entry["audio_filepath"]))
+                    audio_tags.save()
+                except Exception as tag_e:
+                    logger.warning(f"Failed to write metadata tags to {entry.get('audio_filepath', '?')}: {tag_e}")
+            logger.info(f"  ✓ Batch tagging complete")
+    except ImportError:
+        logger.debug("mutagen not installed, skipping batch metadata tagging")
+
+    # Clean up internal fields from metadata before writing outputs
+    for entry in metadata:
+        entry.pop("wav_path", None)
+        entry.pop("book_title", None)
 
     # ── Comprehensive end-of-chunker summary ──────────────────────────────────
     # Most of what's useful for iterating on the chunker / source mode is in
