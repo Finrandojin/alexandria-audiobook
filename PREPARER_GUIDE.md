@@ -124,9 +124,11 @@ Rough rule of thumb on an AMD Radeon RX 9070 XT:
 **Key Features:**
 - **Wav2Vec2 ASR (primary)** with true CTC-aligned word timestamps
 - Insanely Fast Whisper / WhisperX-CPU fallbacks
-- Gemma 4 LLM annotations on GPU
+- **LLM Pre-Processing (Enrichment)** — optional phase that adds speaker attribution, narration style, and emotional tone metadata to transcript chunks using a local GGUF LLM (e.g. Gemma-4-E2B)
+- Gemma 4 / Qwen LLM annotations on GPU
 - **Source-guided chunking** (`--source`): align ASR against an EPUB/TXT, use source spelling for chunk text, drop audio-only material
 - **Pause-aware chunk boundaries**: chunks end at sentence punctuation or natural narrator pauses in the last 30% of each chunk, not wherever the duration threshold landed
+- **3-phase pipeline** (ASR → Enrich → Annotate) with subprocess isolation for ROCm safety
 - Resume capability — never lose work from a crash
 - Periodic checkpointing every 50 segments
 - Dynamic ETA based on actual measured throughput
@@ -154,6 +156,18 @@ python alexandria_preparer_rocm_compatible.py \
   --lang en
 ```
 
+### With LLM enrichment (recommended for character-heavy books)
+
+```bash
+python alexandria_preparer_rocm_compatible.py \
+  --audio audiobook.wav \
+  --model Qwen2.5-14B-Instruct-Q6_K.gguf \
+  --enrich-with-llm \
+  --llm-model-path /path/to/gemma-4-E2B-it-Uncensored-MAX.BF16.gguf
+```
+
+This runs the **full 3-phase pipeline** (ASR → Enrich → Annotate). The enrichment phase uses a small local LLM to add `speaker_attribution`, `narration_style`, and `emotional_tone` metadata to every transcript chunk before annotation.
+
 ## Command Line Options
 
 ### Required
@@ -167,6 +181,14 @@ python alexandria_preparer_rocm_compatible.py \
 - `--output PATH` — Output ZIP path (default: `alexandria_dataset.zip`)
 - `--resume` — Resume from existing `dataset_temp/` instead of starting over
 - `--skip-annotation` — Stop after transcription (not fully implemented)
+
+### LLM Pre-Processing (Enrichment)
+Add metadata to transcript chunks before annotation using a local GGUF LLM.
+- `--enrich-with-llm` — Enable the enrichment phase (runs between ASR and annotation)
+- `--llm-model-path PATH` — Path to the GGUF LLM model file for enrichment (required if `--enrich-with-llm` is set; recommended: Gemma-4-E2B or similar small model)
+- `--enrich-speaker-attribution` — Instruct LLM to extract speaker attribution (e.g. "main character", "narrator", "secondary character")
+- `--enrich-narration-style` — Instruct LLM to extract narration style (e.g. "calm", "energetic", "sad", "questioning")
+- `--enrich-emotional-tone` — Instruct LLM to extract emotional tone (e.g. "happy", "anxious", "neutral", "excited")
 
 ### Source-guided chunking (optional)
 Pass an EPUB or text file matching the audiobook to fix ASR mistranscriptions
@@ -427,12 +449,23 @@ Memory is from `torch.cuda.memory_allocated()`. Utilization is from `rocm-smi --
 
 ## Progress Tracking
 
-### Wav2Vec2 phase
+The pipeline runs in **three phases**, each launched as a separate subprocess for ROCm isolation:
+
+### Phase 1: Wav2Vec2 (ASR)
 ```
 ↳ Chunk 50/725 | avg 0.51s/chunk | ETA 5m 47s
 ```
 
-### Annotation phase
+### Phase 2: LLM Enrichment (optional, requires `--enrich-with-llm`)
+```
+▶ Created 72 chunks for LLM enrichment
+▶ Running LLM enrichment: python llm_enricher.py --model-path ... --input-file ... --output-file ...
+Enriching chunk: 10.00s - 20.14s
+...
+✓ LLM Enrichment Phase completed successfully.
+```
+
+### Phase 3: Annotation
 ```
 ↳ Progress: 50/4713 chunks | Avg: 46.2s/chunk | Elapsed: 38m 42s | ETA: 59h 31m
 ```
