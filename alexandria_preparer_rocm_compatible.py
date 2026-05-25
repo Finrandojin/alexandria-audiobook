@@ -4,6 +4,13 @@ Alexandria Master Preparer - ROCm Compatible Version
 Handles CUDA/ROCm version mismatches gracefully
 """
 
+# Suppress known noisy warnings before any other imports
+import warnings
+warnings.filterwarnings("ignore", message=".*torchcodec is not installed correctly.*")
+warnings.filterwarnings("ignore", message=".*expandable_segments not supported.*")
+warnings.filterwarnings("ignore", message=".*Flash Efficient attention.*")
+warnings.filterwarnings("ignore", message=".*Mem Efficient attention.*")
+
 import os
 import sys
 import tempfile
@@ -1494,12 +1501,24 @@ def _load_llm(model_path):
     """
     logger.debug(f"Loading GGUF model from: {model_path}")
     gc.collect()  # let dead Wav2Vec2 tensor refs drop without touching torch.cuda
-    llm = Llama(
-        model_path=model_path,
-        n_gpu_layers=99,   # explicit count > total; -1 was misinterpreted on some HIP builds
-        n_ctx=8192,
-        verbose=True,      # let llama-cpp's own "offloaded N/M layers" line into the log
-    )
+    try:
+        llm = Llama(
+            model_path=model_path,
+            n_gpu_layers=99,   # explicit count > total; -1 was misinterpreted on some HIP builds
+            n_ctx=8192,
+            verbose=True,      # let llama-cpp's own "offloaded N/M layers" line into the log
+        )
+    except BrokenPipeError:
+        # llama_cpp prints system info to stderr during init; if stderr is
+        # piped (e.g. | tee | head), the pipe may close before the print
+        # completes. Retry with verbose=False — the model still loads fine.
+        logger.debug("BrokenPipeError during Llama init (stderr pipe closed); retrying with verbose=False")
+        llm = Llama(
+            model_path=model_path,
+            n_gpu_layers=99,
+            n_ctx=8192,
+            verbose=False,
+        )
     logger.info(f"✓ LLM loaded: {os.path.basename(model_path)}")
     if hasattr(llm, 'n_gpu_layers'):
         logger.info(f"  ├─ GPU Layers Loaded: {llm.n_gpu_layers}")
