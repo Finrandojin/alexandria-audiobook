@@ -203,6 +203,18 @@ class PreparerConfig(BaseModel):
     source_start: Optional[int] = None
     source_start_text: Optional[str] = None
     no_auto_anchor: bool = False
+    # Optimization: LLM annotation batch size (3 = ~25% faster)
+    batch_size: int = 1
+    # LLM enrichment
+    enrich_with_llm: bool = False
+    llm_model_path: Optional[str] = None
+    enrich_speaker_attribution: bool = False
+    enrich_narration_style: bool = False
+    enrich_emotional_tone: bool = False
+    # Quality filtering
+    min_chunk_duration: float = 2.0
+    min_confidence: float = 0.85
+    min_snr: int = 25
 
 class LoraTrainingRequest(BaseModel):
     name: str
@@ -380,6 +392,29 @@ def _run_preparer_task(config: PreparerConfig, audio_file_path: str, source_file
         preparer_cmd.append("--resume")
     if config.skip_annotation:
         preparer_cmd.append("--skip-annotation")
+
+    # Batch annotation optimization (default: 1 = per-chunk, 3 = ~25% faster)
+    if config.batch_size > 1:
+        preparer_cmd.extend(["--batch-size", str(config.batch_size)])
+
+    # LLM enrichment
+    if config.enrich_with_llm and config.llm_model_path:
+        preparer_cmd.append("--enrich-with-llm")
+        preparer_cmd.extend(["--llm-model-path", config.llm_model_path])
+        if config.enrich_speaker_attribution:
+            preparer_cmd.append("--enrich-speaker-attribution")
+        if config.enrich_narration_style:
+            preparer_cmd.append("--enrich-narration-style")
+        if config.enrich_emotional_tone:
+            preparer_cmd.append("--enrich-emotional-tone")
+
+    # Quality filtering
+    if config.min_chunk_duration != 2.0:
+        preparer_cmd.extend(["--min-chunk-duration", str(config.min_chunk_duration)])
+    if config.min_confidence != 0.85:
+        preparer_cmd.extend(["--min-confidence", str(config.min_confidence)])
+    if config.min_snr != 25:
+        preparer_cmd.extend(["--min-snr", str(config.min_snr)])
 
     output_path = os.path.join(ROOT_DIR, config.output_filename)
     process_state["preparer"]["output_file"] = None
