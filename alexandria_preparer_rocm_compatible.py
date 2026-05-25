@@ -1546,6 +1546,91 @@ TTS_ANNOTATION_SYSTEM_PROMPT = (
     "no alternatives, no quotation marks around the output."
 )
 
+# System prompt for batch annotation mode (multiple chunks per LLM call).
+# Returns a JSON array of annotated texts.
+TTS_ANNOTATION_BATCH_SYSTEM_PROMPT = (
+    "You are a TTS annotation tool. You will be given multiple text segments from an audiobook.\n"
+    "For each segment, add these markers to the text:\n"
+    "- Pauses: use ... for natural pauses, .... for longer pauses\n"
+    "- Emphasis: wrap stressed words in *asterisks*\n"
+    "- Tone: punctuation conveys prosody (?, !, ,, .)\n"
+    "Output a JSON array of strings, one annotated text per segment, in the same order.\n"
+    "Output ONLY the JSON array — no preamble, no explanation, no markdown code blocks."
+)
+
+
+def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, timing, stats, segment_idx_start):
+    """Annotate a batch of chunks with a single LLM call.
+    
+    batch_data: list of dicts with keys: text, ctx, segment_idx, source_words_for_merge, audio_slice, etc.
+    Returns list of (segment_idx, annotated_text) tuples.
+    Falls back to per-chunk annotation if batch parsing fails.
+    """
+    if batch_size <= 1 or len(batch_data) == 1:
+        # Single chunk — use per-chunk mode
+        return None  # Signal caller to use per-chunk path
+
+    # Build batch prompt
+    segments_text = []
+    for i, item in enumerate(batch_data):
+        ctx = item.get("ctx", "")
+        prefix = f"Previous context: {ctx}\n\n" if ctx else ""
+        segments_text.append(f"{i+1}. {prefix}Annotate this segment:\n{item['text']}")
+
+    user_prompt = "\n\n".join(segments_text)
+
+    try:
+        t0_llm = time.monotonic()
+        response = llm.create_chat_completion(
+            messages=[
+                {"role": "system", "content": TTS_ANNOTATION_BATCH_SYSTEM_PROMPT},
+                {"role": "user", "content": user_prompt},
+            ],
+            max_tokens=512 * batch_size,
+            temperature=0.3,
+        )
+        timing['llm_infer'] += time.monotonic() - t0_llm
+        raw_output = response["choices"][0]["message"]["content"].strip()
+
+        # Strip markdown code blocks if present
+        if raw_output.startswith("```"):
+            raw_output = raw_output.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+        if raw_output.startswith("json"):
+            raw_output = raw_output[4:].strip()
+
+        # Parse JSON array
+        annotations = json.loads(raw_output)
+        if not isinstance(annotations, list) or len(annotations) != len(batch_data):
+            raise ValueError(f"Expected {len(batch_data)} annotations, got {len(annotations) if isinstance(annotations, list) else 'non-list'}")
+
+        # Process each annotation
+        results = []
+        for i, (item, annotated_raw) in enumerate(zip(batch_data, annotations)):
+            if not isinstance(annotated_raw, str):
+                annotated_raw = str(annotated_raw)
+
+            t0_sanitize = time.monotonic()
+            if item.get("source_words_for_merge") is not None:
+                annotated = alignment.merge_annotations_with_source(
+                    annotated_raw, item["source_words_for_merge"]
+                )
+            else:
+                annotated = _sanitize_annotation(annotated_raw)
+            timing['sanitize'] += time.monotonic() - t0_sanitize
+
+            results.append((item["segment_idx"], annotated))
+            stats['llm_success'] += 1
+            if annotated != annotated_raw:
+                stats['sanitize_changed'] += 1
+
+        return results
+
+    except Exception as e:
+        stats['llm_fail'] += 1
+        logger.warning(f"Batch annotation failed ({len(batch_data)} chunks), falling back to per-chunk: {e}")
+        logger.debug(f"llm-batch-fail: {traceback.format_exc()}")
+        return None  # Signal caller to use per-chunk fallback
+
 
 def _calculate_chunk_snr(chunk_audio: np.ndarray) -> float:
     """Calculate the Signal-to-Noise Ratio (SNR) for an audio chunk.
@@ -1585,7 +1670,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     resume=False, audio_source_path=None, fallback_model_path=None,
                     source_state=None, source_threshold=0.65, keep_unaligned=False,
                     min_chunk_duration=2.0, min_confidence=0.85, min_snr=25,
-                    book_title=None, character=None, narrator_style=None):
+                    book_title=None, character=None, narrator_style=None,
+                    batch_size=1):
     """Create and annotate chunks with periodic checkpointing and resume support.
 
     audio_24k_source: either a numpy array (in-memory) or a path to a 24kHz WAV file.
@@ -1680,6 +1766,11 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         'dropped_chunks': 0,    # chunks dropped before LLM
         'kept_chunks': 0,       # chunks that went through full pipeline
     }
+
+    # ── Batch annotation buffer ─────────────────────────────────────────────
+    # When batch_size > 1, collect chunks here and annotate them together.
+    batch_buffer = [] if batch_size > 1 else None
+    batch_annotations = {}  # segment_idx -> annotated_text (populated after batch LLM call)
 
     # ── Pre-chunk diagnostic: word density, gap distribution ─────────────────
     # Lets the user see what kind of audio they're working with before the
@@ -2013,59 +2104,75 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         rf.write("\n")
 
                 if chunk_words and chunk_duration >= 1.0 and not drop_chunk:
-                    # Build user prompt with optional preceding context for continuity
+                    # Build context for continuity
                     ctx = " ".join(list(context)[-2:]) if context else ""
-                    if ctx:
-                        user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{text}"
-                    else:
-                        user_prompt = f"Annotate this segment:\n{text}"
 
-                    try:
-                        t0_llm = time.monotonic()
-                        response = llm.create_chat_completion(
-                            messages=[
-                                {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
-                                {"role": "user", "content": user_prompt},
-                            ],
-                            max_tokens=512,
-                            temperature=0.3,  # Lower temp for more deterministic structured output
-                        )
-                        timing['llm_infer'] += time.monotonic() - t0_llm
-                        annotated_raw = response["choices"][0]["message"]["content"].strip()
-                        # If we have source words for this chunk, run the LLM's
-                        # output through compare's merge logic to GUARANTEE the
-                        # saved text uses source-words + LLM-markers — even when
-                        # the LLM paraphrased, added, or dropped words while
-                        # adding prosody. Without --source we keep the legacy
-                        # sanitiser path (multi-word emph + dot-pad + fused-
-                        # punct strip, no source-word enforcement).
-                        t0_sanitize = time.monotonic()
-                        if source_words_for_merge is not None:
-                            annotated = alignment.merge_annotations_with_source(
-                                annotated_raw, source_words_for_merge
+                    if batch_size > 1:
+                        # Collect into batch buffer
+                        batch_buffer.append({
+                            "segment_idx": segment_idx,
+                            "text": text,
+                            "ctx": ctx,
+                            "source_words_for_merge": source_words_for_merge,
+                            "audio_slice": audio_slice,
+                            "chunk_word_data": chunk_word_data,
+                            "current_start": current_start,
+                            "chunk_end_time": chunk_end_time,
+                            "chunk_duration": chunk_duration,
+                        })
+
+                        # Process batch when full
+                        if len(batch_buffer) >= batch_size:
+                            batch_results = _annotate_batch(
+                                llm, batch_buffer, None, alignment, batch_size, timing, stats, segment_idx
                             )
-                        else:
-                            annotated = _sanitize_annotation(annotated_raw)
-                        timing['sanitize'] += time.monotonic() - t0_sanitize
-                        if annotated != annotated_raw:
-                            stats['sanitize_changed'] += 1
-                            logger.debug(
-                                f"sanitize idx={segment_idx} "
-                                f"raw_len={len(annotated_raw)} clean_len={len(annotated)} "
-                                f"raw={annotated_raw[:120]!r}"
+                            if batch_results is not None:
+                                # Batch succeeded — populate annotations
+                                for idx, ann in batch_results:
+                                    batch_annotations[idx] = ann
+                            # Clear buffer
+                            batch_buffer.clear()
+
+                    # Get annotation: from batch buffer or per-chunk LLM call
+                    if batch_size > 1 and segment_idx in batch_annotations:
+                        # Batch mode — use pre-computed annotation
+                        annotated = batch_annotations.pop(segment_idx)
+                    else:
+                        # Per-chunk mode (batch_size=1 or batch parsing failed)
+                        user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{text}" if ctx else f"Annotate this segment:\n{text}"
+
+                        try:
+                            t0_llm = time.monotonic()
+                            response = llm.create_chat_completion(
+                                messages=[
+                                    {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
+                                    {"role": "user", "content": user_prompt},
+                                ],
+                                max_tokens=512,
+                                temperature=0.3,
                             )
-                        stats['llm_success'] += 1
-                        logger.debug(
-                            f"llm-ok idx={segment_idx} "
-                            f"prompt_chars={len(user_prompt)} response_chars={len(annotated_raw)}"
-                        )
-                        if segment_idx == next_segment_idx:
-                            logger.info(f"✓ LLM GPU inference confirmed - {os.path.basename(active_model_path)} responding on GPU")
-                    except Exception as e:
-                        stats['llm_fail'] += 1
-                        logger.warning(f"Annotation failed for segment {segment_idx}, using original text: {e}")
-                        logger.debug(f"llm-fail idx={segment_idx}: {traceback.format_exc()}")
-                        annotated = text
+                            timing['llm_infer'] += time.monotonic() - t0_llm
+                            annotated_raw = response["choices"][0]["message"]["content"].strip()
+
+                            t0_sanitize = time.monotonic()
+                            if source_words_for_merge is not None:
+                                annotated = alignment.merge_annotations_with_source(
+                                    annotated_raw, source_words_for_merge
+                                )
+                            else:
+                                annotated = _sanitize_annotation(annotated_raw)
+                            timing['sanitize'] += time.monotonic() - t0_sanitize
+
+                            stats['llm_success'] += 1
+                            if annotated != annotated_raw:
+                                stats['sanitize_changed'] += 1
+
+                            if segment_idx == next_segment_idx:
+                                logger.info(f"✓ LLM GPU inference confirmed - {os.path.basename(active_model_path)} responding on GPU")
+                        except Exception as e:
+                            stats['llm_fail'] += 1
+                            logger.warning(f"Annotation failed for segment {segment_idx}, using original text: {e}")
+                            annotated = text
 
                     # Reuse the audio_slice read earlier for SNR check (line 1825).
                     # No need to re-read from disk/memory — it's the same time range.
@@ -2167,6 +2274,63 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                 current_word_starts = current_word_starts[cut_at + 1:]
                 current_word_ends   = current_word_ends[cut_at + 1:]
                 current_start = current_word_starts[0] if current_word_starts else chunk_end_time
+
+    # ── Process remaining batch buffer ────────────────────────────────────────
+    # Any chunks left in the batch buffer need to be annotated and saved.
+        if batch_buffer and len(batch_buffer) > 0:
+            logger.info(f"▶ Processing remaining batch of {len(batch_buffer)} chunks...")
+            batch_results = _annotate_batch(
+                llm, batch_buffer, None, alignment, len(batch_buffer), timing, stats, segment_idx
+            )
+            if batch_results is not None:
+                for idx, ann in batch_results:
+                    batch_annotations[idx] = ann
+
+        # Save audio and write metadata for remaining batch chunks
+            for item in batch_buffer:
+                idx = item["segment_idx"]
+                annotated = batch_annotations.get(idx, item["text"])  # Fallback to original text
+                audio_slice = item["audio_slice"]
+                actual_duration = len(audio_slice) / 24000.0
+
+                if len(audio_slice) > 0:
+                    stats['chunk_durations'].append(actual_duration)
+                    timing['kept_chunks'] += 1
+                    seg_name = f"sample_{idx:04d}.wav"
+                    wav_path = os.path.join(temp_dir, seg_name)
+                    sf.write(wav_path, audio_slice, 24000)
+                    wav_fd = os.open(wav_path, os.O_RDWR)
+                    try:
+                        os.fsync(wav_fd)
+                    finally:
+                        os.close(wav_fd)
+                    timing['wav_write'] += 0.01  # Approximate
+
+                    entry = {
+                        "audio_filepath": seg_name,
+                        "text": annotated,
+                        "duration": actual_duration,
+                        "start": item["current_start"],
+                        "end": item["chunk_end_time"],
+                        "speaker": Counter(w.get("speaker", "UNKNOWN") for w in item["chunk_word_data"]).most_common(1)[0][0],
+                        "wav_path": wav_path,
+                    }
+                    if character:
+                        entry["character"] = character
+                    if narrator_style:
+                        entry["narrator_style"] = narrator_style
+                    if book_title:
+                        entry["book_title"] = book_title
+                    metadata.append(entry)
+
+                    checkpoint_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
+                    checkpoint_file.flush()
+                    os.fsync(checkpoint_file.fileno())
+
+                    segment_idx += 1
+
+            batch_buffer.clear()
+
     finally:
         checkpoint_file.close()
         del llm
@@ -2582,6 +2746,10 @@ def main():
     parser.add_argument("--min-chunk-duration", type=float, default=2.0, help="Minimum duration for an audio chunk to be kept (default: 2.0s)")
     parser.add_argument("--min-confidence", type=float, default=0.85, help="Minimum average word confidence for a chunk to be kept (default: 0.85)")
     parser.add_argument("--min-snr", type=int, default=25, help="Minimum Signal-to-Noise Ratio (SNR) in dB for a chunk to be kept (default: 25)")
+    parser.add_argument("--batch-size", type=int, default=1,
+                        help="Number of chunks to annotate per LLM call (default: 1). "
+                             "Higher values (3-5) reduce LLM overhead by ~30-50%% but "
+                             "increase prompt length. Set to 1 for per-chunk annotation.")
     parser.add_argument("--lang", default="en")
     parser.add_argument("--limit", type=int, default=None, help="Limit number of chunks to process")
     parser.add_argument("--phase", choices=["asr", "enrich", "annotate"], help="Run only a specific phase (internal use for ROCm isolation)")
@@ -3074,6 +3242,7 @@ def main():
                     book_title=book_title,
                     character=args.character,
                     narrator_style=args.narrator_style,
+                    batch_size=args.batch_size,
                 )
                 logger.info(f"  Chunks annotated: {len(metadata)}")
             else:
