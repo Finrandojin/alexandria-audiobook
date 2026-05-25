@@ -173,6 +173,84 @@ For common issues and solutions, see [Troubleshooting](https://github.com/Finran
 
 ---
 
+## Beginner's Guide: Your First Audiobook (No Coding Required)
+
+If you've never used Alexandria before, follow these steps exactly. You don't need to know how to code — just click buttons in order.
+
+### Before You Start
+
+1. **Install Pinokio** — Download from [pinokio.computer](https://pinokio.computer/) and install it
+2. **Install Alexandria in Pinokio** — Open Pinokio, click **Download**, paste `https://github.com/Finrandojin/alexandria-audiobook`, and click **Install**
+3. **Get your book file** — Have a .txt, .md, or .epub file ready. If you don't have one, Project Gutenberg (gutenberg.org) has thousands of free public-domain books
+4. **Set up an LLM server** (one-time setup):
+   - **Easiest:** Download [LM Studio](https://lmstudio.ai/), open it, search for "qwen2.5-14b", download it, then click **Start Server**
+   - That's it. Leave LM Studio running in the background
+
+### Step 1: Launch Alexandria
+
+1. Open Pinokio
+2. Find **Alexandria** in your apps list
+3. Click **Start** — a web browser window will open with the Alexandria interface
+
+### Step 2: Configure the Setup Tab
+
+1. Click the **Setup** tab (it's the first tab, marked with a green "1")
+2. Fill in these fields:
+   - **LLM Base URL:** `http://localhost:1234/v1` (this is where LM Studio runs)
+   - **LLM API Key:** Type `local` (LM Studio doesn't need a real key)
+   - **LLM Model Name:** `qwen2.5-14b` (or whatever model you loaded in LM Studio)
+   - **TTS Mode:** Leave as `local` (built-in, no extra server needed)
+3. Click **Save Configuration**
+
+### Step 3: Upload Your Book (Script Tab)
+
+1. Click the **Script** tab (green "2")
+2. Click **Choose File** and select your book (.txt, .md, or .epub)
+3. Click **Generate Annotated Script**
+4. Wait — this takes 1-5 minutes depending on book length. The LLM reads the whole book and labels every line with a speaker name and voice directions
+5. When it finishes, you'll see the annotated script in the window. You can review it if you want, but it's usually accurate
+
+### Step 4: Choose Voices (Voices Tab)
+
+1. Click the **Voices** tab (green "3")
+2. You'll see a card for each character the LLM detected
+3. For each speaker:
+   - **Voice Type:** Pick `Custom Voice` (easiest — no setup needed)
+   - **Voice:** Choose from the dropdown (Ryan, Serena, Aiden, etc.)
+   - **Character Style (optional):** Type something like "Heavy Scottish accent" or "Whispering" to change how this character sounds
+4. Changes save automatically
+
+### Step 5: Generate Audio (Editor Tab)
+
+1. Click the **Editor** tab (green "4")
+2. Click **Render Pending** — this generates audio for every chunk. You'll see progress bars
+3. While it's rendering, you can:
+   - Listen to individual chunks as they finish
+   - Edit the text, speaker, or voice direction for any chunk and re-render it
+4. When everything is done, click **Merge All** to combine all chunks into one audiobook
+
+### Step 6: Download (Result Tab)
+
+1. Click the **Result** tab (green "5")
+2. Click **Play** to listen to the finished audiobook
+3. Click **Download** to save it as an MP3 file
+
+### That's It!
+
+You now have an AI-narrated audiobook. The whole process typically takes 10-30 minutes for a short book.
+
+### If Something Goes Wrong
+
+| Problem | What to Do |
+|---------|-----------|
+| "Connection refused" error | Make sure LM Studio is running and the server is started |
+| Download seems stuck (3.5 GB) | This is the TTS model downloading. Check the Pinokio terminal for progress. It will resume if interrupted |
+| First batch is very slow | Normal — the GPU is warming up. Subsequent batches are faster |
+| "Out of memory" error | In the Setup tab, reduce **Parallel Workers** to 2-4 |
+| Wrong speaker names | In the Editor tab, click on any chunk and change the speaker field, then re-render |
+
+---
+
 ## Quick Start
 
 The interface is split into a **5-step core pipeline** (green tabs, numbered) and **advanced tools** (blue tabs, unnumbered). You only need the core pipeline to produce an audiobook.

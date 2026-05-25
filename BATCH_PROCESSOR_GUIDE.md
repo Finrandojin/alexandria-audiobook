@@ -2,6 +2,64 @@
 
 Process multiple audiobook files sequentially with a single command.
 
+## What This Tool Does (Plain English)
+
+The Batch Processor runs the Preparer (see `PREPARER_GUIDE.md`) on **multiple audiobook files at once**. Instead of running the preparer one file at a time manually, you give it a list of files (or a folder full of files) and it processes them all in order, one after another.
+
+### Who Is This For?
+
+- **You have multiple audiobooks** and want to create training datasets for all of them
+- **You don't need this** if you only have one audiobook — use the Preparer instead
+
+### How It Relates to the Preparer
+
+The Batch Processor is just a wrapper around the Preparer. It:
+1. Takes a list of audio files
+2. Runs the Preparer on each one
+3. Saves each output with a unique name so they don't overwrite each other
+4. Shows you a summary when all files are done
+
+---
+
+## Quick Start for Non-Programmers
+
+### Step 1: Gather Your Files
+
+Put all the audiobook WAV files you want to process into one folder. For example:
+```
+/home/fakemitch/Desktop/my_audiobooks/
+  ├── book1.wav
+  ├── book2.wav
+  └── book3.wav
+```
+
+### Step 2: Open a Terminal
+
+- **Windows:** Press `Win + R`, type `cmd`, press Enter
+- **Mac:** Open Spotlight (Cmd + Space), type `terminal`, press Enter
+- **Linux:** Open your applications menu and search for "Terminal"
+
+### Step 3: Run the Batch Processor
+
+Copy and paste this command (replace the folder path with your actual path):
+
+```bash
+cd ~/.pinokio/api/alexandria-audiobook.git
+./app/env/bin/python alexandria_batch_processor.py \
+  --folder "/path/to/your/audiobooks" \
+  --model Qwen2.5-14B-Instruct-Q6_K.gguf
+```
+
+### Step 4: Wait
+
+Each file takes about 1 hour per 5 hours of audio. If you have 3 audiobooks that are each 5 hours long, expect about 3 hours total.
+
+### Step 5: Check the Results
+
+When finished, each audiobook will have its own output folder with a `.zip` dataset file.
+
+---
+
 ## Overview
 
 The batch processor allows you to queue multiple audio files for processing. Each file is processed one after another (sequentially), creating a complete annotated dataset for each.

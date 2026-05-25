@@ -2,6 +2,52 @@
 
 A comprehensive vocal direction lexicon compiled from professional acting glossaries and voice-over direction databases, combined with empirical findings from Qwen3-TTS VoiceDesign testing.
 
+## How to Use This Document (Start Here)
+
+This document has two parts:
+
+### Part 1: Director's Lexicon — Words to Describe Voices
+
+This is a dictionary of professional terms for describing how a voice sounds. Use these words when:
+
+1. **Designing a new voice** (Voice Designer tab) — pick words from **Section I: Texture, Timbre & Quality**
+   - Example: Instead of "a nice old man voice", use "male baritone, warm chest resonance, hint of gravelly texture"
+
+2. **Directing a character's delivery** (Editor tab, `instruct` field) — pick words from **Sections II-IV: Emotion, Delivery, Archetypes**
+   - Example: Instead of "say it sadly", use "mournful, breathy, slow pace, trembling"
+
+### Part 2: VoiceDesign Findings — What Actually Works
+
+This section documents experiments testing how well the AI follows different types of voice descriptions. The key finding:
+
+> **Anatomy-first descriptions work best.** Always start with the voice's register (bass/baritone/tenor for men, contralto/mezzo/soprano for women), then add 2-3 texture words. Never mix "how it sounds" with "how the person behaves" — the AI gets confused.
+
+### Quick Example: Bad vs Good Voice Description
+
+**Bad:** "A nice grandpa who reads slowly"
+- Too vague, no acoustic information
+
+**Good:** "Male baritone, rich chest resonance, warm smooth timbre, hint of gravelly texture, slow deliberate pacing"
+- Specific register (baritone)
+- Physical qualities (chest resonance, gravelly texture)
+- Delivery style (slow deliberate pacing)
+
+**Bad:** "An energetic young woman who's always excited"
+- Behavioral, not acoustic
+
+**Good:** "Female mezzo-soprano, bright clear timbre, light breathy quality, upbeat rhyth delivery"
+- Specific register (mezzo-soprano)
+- Physical qualities (bright, breathy)
+- Delivery style (upbeat rhythmic)
+
+### TL;DR Rules
+
+1. **Always lead with register:** bass/baritone/tenor (men), contralto/mezzo/soprano (women)
+2. **Add 2-3 texture words:** smooth, gravelly, breathy, rich, thin, etc.
+3. **Add 1 delivery word:** slow, fast, deliberate, rhythmic, etc.
+4. **Never mix acoustic + behavioral terms:** "warm gravelly baritone" ✓ vs "friendly confident baritone" ✗
+5. **Use emotion words in `instruct`, not `description`**
+
 ---
 
 # Part 1: Director's Vocal Lexicon

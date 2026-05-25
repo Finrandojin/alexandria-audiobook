@@ -9,6 +9,90 @@ The preparer takes an audio file (audiobook) and produces a ZIP archive containi
 - `metadata.jsonl` with text annotations, durations, and time ranges
 - Ready for use as a TTS training dataset
 
+# Alexandria Preparer Guide
+
+## What This Tool Does (Really Simple Version)
+
+The Preparer converts an audiobook (audio file) into a training dataset for the Alexandria TTS engine. It does three things:
+
+1. **Listens to the audio** and writes down every word with exact timestamps (called "transcription" or "ASR")
+2. **Optionally matches the words against the original book** so the text uses the book's spelling (not what the AI misheard)
+3. **Cuts the audio into small chunks** (about 10 seconds each) and saves them as WAV files with a metadata file
+
+The output is a `.zip` file that you can feed into Alexandria's LoRA Training tab to teach the TTS engine a new voice.
+
+### Who Is This For?
+
+- **You have an audiobook** (WAV file) and want to clone a voice
+- **You want to train a custom voice** using the Training tab
+- **You don't need this** if you're just using Alexandria to generate audiobooks from books — the web UI handles everything automatically
+
+---
+
+## Quick Start for Non-Programmers
+
+### Prerequisites
+
+Before running the Preparer, make sure:
+
+1. **You have Pinokio installed** and Alexandria is installed in Pinokio
+2. **You have an audiobook WAV file** — if you have an MP3, convert it to WAV first (you can use an online converter or Audacity)
+3. **You have the original book file** (.epub or .txt) — this is optional but highly recommended for better results
+
+### Step 1: Open a Terminal
+
+- **Windows:** Press `Win + R`, type `cmd`, press Enter
+- **Mac:** Open Spotlight (Cmd + Space), type `terminal`, press Enter
+- **Linux:** Open your applications menu and search for "Terminal"
+
+### Step 2: Navigate to the Alexandria Folder
+
+Type this command and press Enter:
+
+```bash
+cd ~/.pinokio/api/alexandria-audiobook.git
+```
+
+If you installed Alexandria in a different location, use that path instead.
+
+### Step 3: Run the Preparer
+
+Copy and paste this command (replace the paths with your actual file paths):
+
+```bash
+./app/env/bin/python alexandria_preparer_rocm_compatible.py \
+  --audio "path/to/your/audiobook.wav" \
+  --model Qwen2.5-14B-Instruct-Q6_K.gguf \
+  --source "path/to/your/book.epub"
+```
+
+**What each part means:**
+- `./app/env/bin/python` — This is the Python that comes with Alexandria (don't use your system Python)
+- `--audio` — The path to your audiobook WAV file
+- `--model` — The AI model that labels each chunk with speaker and voice directions
+- `--source` — The original book file (optional, but improves accuracy)
+
+### Step 4: Wait
+
+The preparer will:
+1. Transcribe the audio (takes ~1 hour per 5 hours of audio)
+2. Match words against the book (if you provided `--source`)
+3. Cut into chunks and save the ZIP
+
+When it finishes, you'll see:
+```
+✓ Dataset written to: alexandria_dataset.zip
+```
+
+### Step 5: Use the Output
+
+1. Unzip `alexandria_dataset.zip` — it contains WAV files and a `metadata.jsonl` file
+2. In Alexandria's web UI, go to the **Dataset** tab
+3. Upload the `metadata.jsonl` file and the WAV files
+4. Use it to train a custom voice in the **Training** tab
+
+---
+
 ## What This Tool Does (Really Simple Version)
 
 Imagine you have a long audiobook — someone reading a whole novel out loud,

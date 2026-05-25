@@ -3,6 +3,76 @@
 Diff your `metadata.jsonl` transcriptions against the original EPUB or text file.
 Every change requires your sign-off — nothing is written automatically.
 
+## What This Tool Does (Plain English)
+
+After the Preparer listens to your audiobook and writes down what it hears, sometimes it gets words wrong — especially names, unusual words, or words that sound similar. The Compare tool lets you **check what the AI heard against what the book actually says**, and fix mistakes one by one.
+
+### Who Is This For?
+
+- **You ran the Preparer** and got a `metadata.jsonl` file
+- **You have the original book** (.epub or .txt) that the audiobook was read from
+- **You want to fix transcription errors** before using the data for training
+
+### Why Bother?
+
+If the AI misheard "Sherlock" as "sure lock", the TTS training will learn the wrong word. Fixing these errors makes your trained voice more accurate.
+
+---
+
+## Quick Start for Non-Programmers
+
+### Step 1: Extract Your Dataset
+
+If your preparer output is a `.zip` file, unzip it first:
+```bash
+unzip alexandria_dataset.zip -d my_dataset/
+```
+
+You should now have a folder with `metadata.jsonl` and many `sample_NNNN.wav` files.
+
+### Step 2: Open a Terminal
+
+- **Windows:** Press `Win + R`, type `cmd`, press Enter
+- **Mac:** Open Spotlight (Cmd + Space), type `terminal`, press Enter
+- **Linux:** Open your applications menu and search for "Terminal"
+
+### Step 3: Run the Compare Tool
+
+Copy and paste this command (replace paths with your actual paths):
+
+```bash
+cd ~/.pinokio/api/alexandria-audiobook.git
+./app/env/bin/python alexandria_compare.py \
+  --jsonl /path/to/my_dataset/metadata.jsonl \
+  --source /path/to/original/book.epub
+```
+
+### Step 4: Review and Fix Mistakes
+
+The tool will show you each chunk where the AI's transcription differs from the book. You'll see something like:
+
+```
+[ANNOTATED] sure lock looked at the clock
+[ORIGINAL]  Sherlock looked at the clock
+[a]ccept [m]erge [k]eep [e]dit [s]kip [q]uit
+```
+
+**What each key does:**
+- **`a` (accept):** The AI was right — keep the AI's version
+- **`m` (merge):** Combine both versions — this is usually the best choice because it keeps the book's correct spelling AND any voice direction markers the AI added
+- **`k` (keep):** Keep the AI's version unchanged
+- **`e` (edit):** Type a custom correction
+- **`s` (skip):** Skip this one for now (you can come back later)
+- **`q` (quit):** Save your progress and exit
+
+**Pro tip:** Press **`m` (merge)** most of the time. It keeps the book's correct words while preserving any voice directions (like "*whispered*" or "*excitedly*") that the AI added.
+
+### Step 5: Use the Corrected Data
+
+When the compare tool finishes, it saves a corrected `metadata.jsonl`. Use this corrected file instead of the original when training your voice.
+
+---
+
 ## Overview
 
 The compare tool:
