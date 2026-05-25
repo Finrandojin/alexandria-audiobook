@@ -1865,6 +1865,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
     # When batch_size > 1, collect chunks here and annotate them together.
     logger.info(f"  ├─ Batch size       : {batch_size} {'(batch mode)' if batch_size > 1 else '(per-chunk mode)'}")
     batch_buffer = [] if batch_size > 1 else None
+    logger.info(f"  ├─ Batch size       : {batch_size} {'(batch mode)' if batch_size > 1 else '(per-chunk mode)'}")
 
     # ── Pre-chunk diagnostic: word density, gap distribution ─────────────────
     # Lets the user see what kind of audio they're working with before the
@@ -2201,6 +2202,9 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     ctx = " ".join(list(context)[-2:]) if context else ""
 
                     if batch_size > 1:
+                        # Snap timing when first item enters a fresh batch buffer
+                        if not batch_buffer:
+                            batch_start_t0 = time.monotonic()
                         # Collect into batch buffer
                         batch_buffer.append({
                             "segment_idx": segment_idx,
