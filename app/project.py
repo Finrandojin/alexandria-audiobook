@@ -110,7 +110,8 @@ class ProjectManager:
             try:
                 with open(self.config_path, "r", encoding="utf-8") as f:
                     config = json.load(f)
-            except: pass
+            except (json.JSONDecodeError, FileNotFoundError, OSError):
+                pass
 
         try:
             self.engine = TTSEngine(config)
