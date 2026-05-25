@@ -1554,12 +1554,10 @@ TTS_ANNOTATION_BATCH_SYSTEM_PROMPT = (
     "- Pauses: ... for short pauses, .... for longer pauses\n"
     "- Emphasis: *asterisks* around stressed words\n"
     "- Tone: use ?, !, ,, . to convey prosody\n\n"
-    "Output format: Return each annotated segment on a separate line, prefixed with its number.\n"
-    "Example:\n"
-    "1. *Sherlock* looked at the clock...\n"
-    "2. The room was silent....\n"
-    "3. *Watson* entered quietly!\n"
-    "Do NOT include explanations, only the numbered annotated lines."
+    "CRITICAL: You MUST return a valid JSON array of strings, one annotated text per segment.\n"
+    "The array must have exactly the same number of elements as input segments.\n"
+    "Example output: [\"*Sherlock* looked at the clock...\", \"The room was silent....\", \"*Watson* entered quietly!\"]\n"
+    "Return ONLY the JSON array. Do NOT include explanations, code blocks, or any other text."
 )
 
 
@@ -1596,29 +1594,40 @@ def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, t
         timing['llm_infer'] += time.monotonic() - t0_llm
         raw_output = response["choices"][0]["message"]["content"].strip()
 
-        # Parse numbered format: "1. text\n2. text\n3. text"
-        # Also handle JSON array format as fallback
+        # Extract JSON array from output (handle markdown code blocks, extra text)
         annotations = []
-        
-        # Try JSON array first
+
+        # Try to find JSON array in output
+        json_match = None
         if raw_output.startswith("["):
-            # Strip markdown if present
-            if raw_output.startswith("```"):
-                raw_output = raw_output.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-            if raw_output.startswith("json"):
-                raw_output = raw_output[4:].strip()
+            json_match = raw_output
+        elif "```" in raw_output:
+            # Extract from code block
+            parts = raw_output.split("```")
+            for part in parts:
+                if part.strip().startswith("["):
+                    json_match = part.strip()
+                    if json_match.startswith("json"):
+                        json_match = json_match[4:].strip()
+                    break
+        elif "[" in raw_output:
+            # Find first [ and last ]
+            start = raw_output.index("[")
+            end = raw_output.rindex("]") + 1
+            json_match = raw_output[start:end]
+
+        if json_match:
             try:
-                parsed = json.loads(raw_output)
-                if isinstance(parsed, list) and len(parsed) == len(batch_data):
+                parsed = json.loads(json_match)
+                if isinstance(parsed, list):
                     annotations = parsed
             except json.JSONDecodeError:
                 pass
-        
-        # Fall back to numbered format parsing
+
+        # If JSON parsing failed, try numbered format as fallback
         if not annotations:
             lines = raw_output.split("\n")
             for line in lines:
-                # Match "N. text" or "N) text" format
                 import re as _re
                 match = _re.match(r"^\s*(\d+)[\.\)]\s*(.+)$", line)
                 if match:
@@ -1626,9 +1635,9 @@ def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, t
                     text = match.group(2).strip()
                     if 1 <= num <= len(batch_data):
                         annotations.append(text)
-        
+
         if len(annotations) != len(batch_data):
-            raise ValueError(f"Expected {len(batch_data)} annotations, got {len(annotations)}")
+            raise ValueError(f"Expected {len(batch_data)} annotations, got {len(annotations)}. Output: {raw_output[:200]}")
 
         # Process each annotation
         results = []
@@ -1854,6 +1863,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
 
     # ── Batch annotation buffer ─────────────────────────────────────────────
     # When batch_size > 1, collect chunks here and annotate them together.
+    logger.info(f"  ├─ Batch size       : {batch_size} {'(batch mode)' if batch_size > 1 else '(per-chunk mode)'}")
     batch_buffer = [] if batch_size > 1 else None
     batch_annotations = {}  # segment_idx -> annotated_text (populated after batch LLM call)
 
