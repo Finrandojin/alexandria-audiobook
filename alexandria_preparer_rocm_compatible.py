@@ -1666,6 +1666,21 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
 
     log_gpu_stats(f"after LLM load ({os.path.basename(active_model_path)})")
 
+    # ── Detailed timing instrumentation ──────────────────────────────────────
+    # Track where time is spent per chunk to identify optimization opportunities.
+    # Logged every 100 chunks and at the end of annotation.
+    timing = {
+        'audio_read': 0.0,      # _read_audio_segment for SNR check
+        'snr_calc': 0.0,        # _calculate_chunk_snr
+        'alignment': 0.0,       # source-guided alignment (3 tiers)
+        'llm_infer': 0.0,       # LLM create_chat_completion
+        'sanitize': 0.0,        # _sanitize_annotation or merge_with_source
+        'wav_write': 0.0,       # sf.write + fsync
+        'batch_tag': 0.0,       # batch mutagen tagging (post-loop)
+        'dropped_chunks': 0,    # chunks dropped before LLM
+        'kept_chunks': 0,       # chunks that went through full pipeline
+    }
+
     # ── Pre-chunk diagnostic: word density, gap distribution ─────────────────
     # Lets the user see what kind of audio they're working with before the
     # 60+ hour annotation starts. If gaps are uniformly tiny, expect the
@@ -1822,7 +1837,9 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     
                     if not drop_chunk:
                         # Read audio for confidence and SNR checks
+                        t0 = time.monotonic()
                         audio_slice = _read_audio_segment(audio_24k_source, current_start, chunk_end_time)
+                        timing['audio_read'] += time.monotonic() - t0
 
                         # Check confidence
                         confidences = [w.get("confidence", 1.0) for w in chunk_word_data]
@@ -1831,15 +1848,19 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             drop_chunk = True
                             reason_rejected = f"low_confidence ({avg_confidence:.2f} < {min_confidence})"
                             stats['source_action']['dropped_low_quality'] += 1
+                            timing['dropped_chunks'] += 1
                             logger.info(f"  ↪ DROPPED chunk at {current_start:.2f}s ({reason_rejected})")
 
                         # Check SNR
                         if not drop_chunk:
+                            t0 = time.monotonic()
                             snr = _calculate_chunk_snr(audio_slice)
+                            timing['snr_calc'] += time.monotonic() - t0
                             if snr < min_snr:
                                 drop_chunk = True
                                 reason_rejected = f"low_snr ({snr:.1f}dB < {min_snr}dB)"
                                 stats['source_action']['dropped_low_quality'] += 1
+                                timing['dropped_chunks'] += 1
                                 logger.info(f"  ↪ DROPPED chunk at {current_start:.2f}s ({reason_rejected})")
 
                     # 2. Deduplication: Check for narrator retakes
@@ -1857,6 +1878,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     # ── Source-guided alignment (only when --source is set) ──
                     source_words_for_merge = None
                     if not drop_chunk and source_state is not None:
+                        t0_align = time.monotonic()
                         chunk_match_words = alignment.to_words(text)
                         cursor_before = source_state['cursor']
                         sa_start, sa_end, sa_ratio = alignment.find_best_match(
@@ -1975,6 +1997,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             drop_chunk = True
                             reason_rejected = f"low_source_ratio ({sa_ratio:.2f} < {source_threshold})"
 
+                        timing['alignment'] += time.monotonic() - t0_align
+
                 if drop_chunk and reason_rejected:
                     # Log rejected chunk separately for review
                     with open(os.path.join(temp_dir, "rejected_chunks.jsonl"), "a", encoding="utf-8") as rf:
@@ -1997,6 +2021,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         user_prompt = f"Annotate this segment:\n{text}"
 
                     try:
+                        t0_llm = time.monotonic()
                         response = llm.create_chat_completion(
                             messages=[
                                 {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
@@ -2005,6 +2030,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             max_tokens=512,
                             temperature=0.3,  # Lower temp for more deterministic structured output
                         )
+                        timing['llm_infer'] += time.monotonic() - t0_llm
                         annotated_raw = response["choices"][0]["message"]["content"].strip()
                         # If we have source words for this chunk, run the LLM's
                         # output through compare's merge logic to GUARANTEE the
@@ -2013,12 +2039,14 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         # adding prosody. Without --source we keep the legacy
                         # sanitiser path (multi-word emph + dot-pad + fused-
                         # punct strip, no source-word enforcement).
+                        t0_sanitize = time.monotonic()
                         if source_words_for_merge is not None:
                             annotated = alignment.merge_annotations_with_source(
                                 annotated_raw, source_words_for_merge
                             )
                         else:
                             annotated = _sanitize_annotation(annotated_raw)
+                        timing['sanitize'] += time.monotonic() - t0_sanitize
                         if annotated != annotated_raw:
                             stats['sanitize_changed'] += 1
                             logger.debug(
@@ -2055,8 +2083,10 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
 
                     if len(audio_slice) > 0:
                         stats['chunk_durations'].append(actual_duration)
+                        timing['kept_chunks'] += 1
                         seg_name = f"sample_{segment_idx:04d}.wav"
                         wav_path = os.path.join(temp_dir, seg_name)
+                        t0_wav = time.monotonic()
                         sf.write(wav_path, audio_slice, 24000)
                         # Force the WAV to disk before recording metadata that
                         # references it — otherwise power loss can leave a
@@ -2067,6 +2097,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             os.fsync(wav_fd)
                         finally:
                             os.close(wav_fd)
+                        timing['wav_write'] += time.monotonic() - t0_wav
 
                         entry = {
                             "audio_filepath": seg_name,
@@ -2108,6 +2139,23 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             )
                             log_gpu_stats(f"annotation segment {segment_idx + 1}/{estimated_chunks_total}")
 
+                        # Periodic timing breakdown (every 100 chunks)
+                        if (segment_idx + 1) % 100 == 0:
+                            total_timed = timing['audio_read'] + timing['snr_calc'] + timing['alignment'] + \
+                                          timing['llm_infer'] + timing['sanitize'] + timing['wav_write']
+                            logger.info(
+                                f"  ⏱ Timing breakdown (chunk {segment_idx + 1}): "
+                                f"audio_read={timing['audio_read']:.1f}s "
+                                f"snr={timing['snr_calc']:.1f}s "
+                                f"alignment={timing['alignment']:.1f}s "
+                                f"llm={timing['llm_infer']:.1f}s "
+                                f"sanitize={timing['sanitize']:.1f}s "
+                                f"wav_write={timing['wav_write']:.1f}s "
+                                f"total_timed={total_timed:.1f}s "
+                                f"dropped={timing['dropped_chunks']} "
+                                f"kept={timing['kept_chunks']}"
+                            )
+
                         segment_idx += 1
                         prev_raw_text = text  # Record for next chunk deduplication check
 
@@ -2125,6 +2173,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         clear_vram()
 
     # ── Batch metadata tagging (avoids per-chunk WAV open/read/write) ─────────
+    t0_tag = time.monotonic()
     try:
         import mutagen.wave
         import mutagen.id3
@@ -2150,11 +2199,36 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
             logger.info(f"  ✓ Batch tagging complete")
     except ImportError:
         logger.debug("mutagen not installed, skipping batch metadata tagging")
+    timing['batch_tag'] = time.monotonic() - t0_tag
 
     # Clean up internal fields from metadata before writing outputs
     for entry in metadata:
         entry.pop("wav_path", None)
         entry.pop("book_title", None)
+
+    # ── Timing summary ───────────────────────────────────────────────────────
+    total_timed = sum(v for k, v in timing.items() if k not in ('dropped_chunks', 'kept_chunks'))
+    logger.info("─" * 60)
+    logger.info("ANNOTATION TIMING BREAKDOWN")
+    logger.info("─" * 60)
+    for key, label in [
+        ('audio_read', 'Audio slice read (SNR check)'),
+        ('snr_calc', 'SNR calculation'),
+        ('alignment', 'Source-guided alignment'),
+        ('llm_infer', 'LLM inference'),
+        ('sanitize', 'Sanitization / merge'),
+        ('wav_write', 'WAV write + fsync'),
+        ('batch_tag', 'Batch ID3 tagging'),
+    ]:
+        pct = 100 * timing[key] / max(total_timed, 1e-9)
+        logger.info(f"  {label:<30} {timing[key]:>8.1f}s  ({pct:5.1f}%)")
+    logger.info(f"  {'TOTAL TIMED':<30} {total_timed:>8.1f}s  (100.0%)")
+    logger.info(f"  Dropped chunks (before LLM):    {timing['dropped_chunks']}")
+    logger.info(f"  Kept chunks (full pipeline):     {timing['kept_chunks']}")
+    if timing['kept_chunks'] > 0:
+        per_kept = total_timed / timing['kept_chunks']
+        logger.info(f"  Avg time per kept chunk:         {per_kept:.3f}s")
+    logger.info("─" * 60)
 
     # ── Comprehensive end-of-chunker summary ──────────────────────────────────
     # Most of what's useful for iterating on the chunker / source mode is in
