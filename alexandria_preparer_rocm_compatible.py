@@ -2306,7 +2306,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         current_word_ends   = current_word_ends[cut_at + 1:]
                         current_start = current_word_starts[0] if current_word_starts else chunk_end_time
                         prev_raw_text = text
-                        context.append(text)
+                        # Context is updated by full-flush and tail paths — don't double-append here (BUG E fix)
                         continue  # Skip the per-chunk code below
 
                     # Per-chunk mode (batch_size=1)
