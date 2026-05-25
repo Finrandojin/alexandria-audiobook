@@ -812,7 +812,6 @@ def transcribe_with_insanely_fast_whisper(audio_16k: np.ndarray, language: str =
 
         # The tool ignores --output and saves to transcripts/ with its own naming
         # Parse stdout to find where it actually saved the JSON
-        import re
         actual_json_file = None
 
         if result.stdout:
@@ -1561,9 +1560,9 @@ TTS_ANNOTATION_BATCH_SYSTEM_PROMPT = (
 )
 
 
-def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, timing, stats, segment_idx_start):
+def _annotate_batch(llm, batch_data, alignment, batch_size, timing, stats):
     """Annotate a batch of chunks with a single LLM call.
-    
+
     batch_data: list of dicts with keys: text, ctx, segment_idx, source_words_for_merge, audio_slice, etc.
     Returns list of (segment_idx, annotated_text) tuples.
     Falls back to per-chunk annotation if batch parsing fails.
@@ -1628,8 +1627,7 @@ def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, t
         if not annotations:
             lines = raw_output.split("\n")
             for line in lines:
-                import re as _re
-                match = _re.match(r"^\s*(\d+)[\.\)]\s*(.+)$", line)
+                match = re.match(r"^\s*(\d+)[\.\)]\s*(.+)$", line)
                 if match:
                     num = int(match.group(1))
                     text = match.group(2).strip()
@@ -2218,15 +2216,39 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         # Process batch when full
                         if len(batch_buffer) >= batch_size:
                             batch_results = _annotate_batch(
-                                llm, batch_buffer, None, alignment, batch_size, timing, stats, segment_idx
+                                llm, batch_buffer, alignment, batch_size, timing, stats
                             )
                             # Process all chunks in this batch
                             for i, item in enumerate(batch_buffer):
-                                # Get annotation from batch results or fallback to original text
+                                # Update context for each batch chunk (BUG 3 fix)
+                                context.append(item["text"])
+                                # Get annotation from batch results or fallback to per-chunk LLM
                                 if batch_results is not None and i < len(batch_results):
                                     annotated = batch_results[i][1]
                                 else:
-                                    annotated = item["text"]  # Fallback
+                                    # Fallback: run per-chunk LLM instead of using raw text
+                                    user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{item['text']}" if ctx else f"Annotate this segment:\n{item['text']}"
+                                    try:
+                                        response = llm.create_chat_completion(
+                                            messages=[
+                                                {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
+                                                {"role": "user", "content": user_prompt},
+                                            ],
+                                            max_tokens=512,
+                                            temperature=0.3,
+                                        )
+                                        annotated_raw = response["choices"][0]["message"]["content"].strip()
+                                        if item.get("source_words_for_merge") is not None:
+                                            annotated = alignment.merge_annotations_with_source(
+                                                annotated_raw, item["source_words_for_merge"]
+                                            )
+                                        else:
+                                            annotated = _sanitize_annotation(annotated_raw)
+                                        stats['llm_success'] += 1
+                                    except Exception as e:
+                                        stats['llm_fail'] += 1
+                                        logger.warning(f"Batch fallback LLM failed for chunk {segment_idx + i}: {e}")
+                                        annotated = item["text"]
 
                                 # Save audio and write metadata for this chunk
                                 _save_chunk_metadata(
@@ -2238,8 +2260,12 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             # Skip per-chunk processing for batched chunks
                             segment_idx += batch_size
                             prev_raw_text = text
-                            context.append(text)
                             chunk_t0 = time.monotonic()
+                            # Carry-forward MUST happen before continue (BUG 1 fix)
+                            current_words       = current_words[cut_at + 1:]
+                            current_word_starts = current_word_starts[cut_at + 1:]
+                            current_word_ends   = current_word_ends[cut_at + 1:]
+                            current_start = current_word_starts[0] if current_word_starts else chunk_end_time
                             continue  # Skip the per-chunk code below
 
                     # Per-chunk mode (batch_size=1)
@@ -2344,12 +2370,14 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         if batch_buffer and len(batch_buffer) > 0:
             logger.info(f"▶ Processing remaining batch of {len(batch_buffer)} chunks...")
             batch_results = _annotate_batch(
-                llm, batch_buffer, None, alignment, len(batch_buffer), timing, stats, segment_idx
+                llm, batch_buffer, alignment, len(batch_buffer), timing, stats
             )
 
         # Save audio and write metadata for remaining batch chunks
             for i, item in enumerate(batch_buffer):
-                idx = item["segment_idx"]
+            # BUG 2 fix: use positional index instead of item["segment_idx"]
+            # (all items in a partial batch share the same segment_idx)
+                idx = segment_idx + i
                 if batch_results is not None and i < len(batch_results):
                     annotated = batch_results[i][1]
                 else:
