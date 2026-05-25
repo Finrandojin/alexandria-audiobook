@@ -2225,14 +2225,10 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                 # Update context for each batch chunk (BUG 3 fix)
                                 context.append(item["text"])
                                 # Get annotation from batch results or fallback to per-chunk LLM
-                                # IMPROVEMENT 3: Use segment_idx-based lookup instead of positional indexing
-                                seg_idx = item["segment_idx"]
+                                # Use positional indexing — batch results are in same order as input
                                 annotated = None
-                                if batch_results is not None:
-                                    for result_idx, result_annotated in batch_results:
-                                        if result_idx == seg_idx:
-                                            annotated = result_annotated
-                                            break
+                                if batch_results is not None and i < len(batch_results):
+                                    annotated = batch_results[i][1]
                                 if annotated is None:
                                     # Fallback: run per-chunk LLM instead of using raw text
                                     user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{item['text']}" if ctx else f"Annotate this segment:\n{item['text']}"
@@ -2411,14 +2407,38 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
             )
 
         # Save audio and write metadata for remaining batch chunks
+            tail_count = len(batch_buffer)
             for i, item in enumerate(batch_buffer):
-            # BUG 2 fix: use positional index instead of item["segment_idx"]
-            # (all items in a partial batch share the same segment_idx)
                 idx = segment_idx + i
+            # Get annotation from batch results or fallback
+                annotated = None
                 if batch_results is not None and i < len(batch_results):
                     annotated = batch_results[i][1]
-                else:
-                    annotated = item["text"]  # Fallback
+                if annotated is None:
+                # BUG C fix: single-item tail batch — run per-chunk LLM fallback
+                    ctx_tail = " ".join(list(context)[-2:]) if context else ""
+                    user_prompt = f"Previous context: {ctx_tail}\n\nAnnotate this segment:\n{item['text']}" if ctx_tail else f"Annotate this segment:\n{item['text']}"
+                    try:
+                        response = llm.create_chat_completion(
+                            messages=[
+                            {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
+                            {"role": "user", "content": user_prompt},
+                            ],
+                            max_tokens=512,
+                            temperature=0.3,
+                        )
+                        annotated_raw = response["choices"][0]["message"]["content"].strip()
+                        if item.get("source_words_for_merge") is not None:
+                            annotated = alignment.merge_annotations_with_source(
+                            annotated_raw, item["source_words_for_merge"]
+                            )
+                        else:
+                            annotated = _sanitize_annotation(annotated_raw)
+                        stats['llm_success'] += 1
+                    except Exception as e:
+                        stats['llm_fail'] += 1
+                        logger.warning(f"Tail batch fallback LLM failed for chunk {idx}: {e}")
+                        annotated = item["text"]
 
                 _save_chunk_metadata(
                     item, annotated, character, narrator_style, book_title,
@@ -2426,6 +2446,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                 )
 
             batch_buffer.clear()
+        # BUG B fix: increment segment_idx for tail batch
+            segment_idx += tail_count
 
     finally:
         checkpoint_file.close()
@@ -2944,7 +2966,7 @@ def main():
             asr_cmd = [sys.executable, __file__, "--phase", "asr"]
             # Pass all original arguments except potentially conflicting ones
             for arg in sys.argv[1:]:
-                if arg not in ["--phase", "asr", "enrich", "annotate"]:
+                if arg not in ["--phase", "asr", "enrich", "annotate"] and not arg.startswith("--phase="):
                     asr_cmd.append(arg)
 
             logger.info("▶ Launching ASR Phase...")
@@ -2968,7 +2990,7 @@ def main():
             # Run enrichment as a subprocess to reuse the same chunking logic
             enrich_cmd = [sys.executable, __file__, "--phase", "enrich"]
             for arg in sys.argv[1:]:
-                if arg not in ["--phase", "asr", "enrich", "annotate"]:
+                if arg not in ["--phase", "asr", "enrich", "annotate"] and not arg.startswith("--phase="):
                     enrich_cmd.append(arg)
 
             logger.info("▶ Launching LLM Enrichment Phase...")
@@ -2980,7 +3002,7 @@ def main():
         # 3. Run Annotation Phase
         ann_cmd = [sys.executable, __file__, "--phase", "annotate"]
         for arg in sys.argv[1:]:
-            if arg not in ["--phase", "asr", "enrich", "annotate"]:
+            if arg not in ["--phase", "asr", "enrich", "annotate"] and not arg.startswith("--phase="):
                 ann_cmd.append(arg)
 
         logger.info("▶ Launching Annotation Phase...")
