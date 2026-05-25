@@ -1549,13 +1549,17 @@ TTS_ANNOTATION_SYSTEM_PROMPT = (
 # System prompt for batch annotation mode (multiple chunks per LLM call).
 # Returns a JSON array of annotated texts.
 TTS_ANNOTATION_BATCH_SYSTEM_PROMPT = (
-    "You are a TTS annotation tool. You will be given multiple text segments from an audiobook.\n"
-    "For each segment, add these markers to the text:\n"
-    "- Pauses: use ... for natural pauses, .... for longer pauses\n"
-    "- Emphasis: wrap stressed words in *asterisks*\n"
-    "- Tone: punctuation conveys prosody (?, !, ,, .)\n"
-    "Output a JSON array of strings, one annotated text per segment, in the same order.\n"
-    "Output ONLY the JSON array — no preamble, no explanation, no markdown code blocks."
+    "You are a TTS annotation tool. You will be given numbered text segments.\n"
+    "For EACH segment, add these markers:\n"
+    "- Pauses: ... for short pauses, .... for longer pauses\n"
+    "- Emphasis: *asterisks* around stressed words\n"
+    "- Tone: use ?, !, ,, . to convey prosody\n\n"
+    "Output format: Return each annotated segment on a separate line, prefixed with its number.\n"
+    "Example:\n"
+    "1. *Sherlock* looked at the clock...\n"
+    "2. The room was silent....\n"
+    "3. *Watson* entered quietly!\n"
+    "Do NOT include explanations, only the numbered annotated lines."
 )
 
 
@@ -1592,16 +1596,39 @@ def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, t
         timing['llm_infer'] += time.monotonic() - t0_llm
         raw_output = response["choices"][0]["message"]["content"].strip()
 
-        # Strip markdown code blocks if present
-        if raw_output.startswith("```"):
-            raw_output = raw_output.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
-        if raw_output.startswith("json"):
-            raw_output = raw_output[4:].strip()
-
-        # Parse JSON array
-        annotations = json.loads(raw_output)
-        if not isinstance(annotations, list) or len(annotations) != len(batch_data):
-            raise ValueError(f"Expected {len(batch_data)} annotations, got {len(annotations) if isinstance(annotations, list) else 'non-list'}")
+        # Parse numbered format: "1. text\n2. text\n3. text"
+        # Also handle JSON array format as fallback
+        annotations = []
+        
+        # Try JSON array first
+        if raw_output.startswith("["):
+            # Strip markdown if present
+            if raw_output.startswith("```"):
+                raw_output = raw_output.split("\n", 1)[-1].rsplit("```", 1)[0].strip()
+            if raw_output.startswith("json"):
+                raw_output = raw_output[4:].strip()
+            try:
+                parsed = json.loads(raw_output)
+                if isinstance(parsed, list) and len(parsed) == len(batch_data):
+                    annotations = parsed
+            except json.JSONDecodeError:
+                pass
+        
+        # Fall back to numbered format parsing
+        if not annotations:
+            lines = raw_output.split("\n")
+            for line in lines:
+                # Match "N. text" or "N) text" format
+                import re as _re
+                match = _re.match(r"^\s*(\d+)[\.\)]\s*(.+)$", line)
+                if match:
+                    num = int(match.group(1))
+                    text = match.group(2).strip()
+                    if 1 <= num <= len(batch_data):
+                        annotations.append(text)
+        
+        if len(annotations) != len(batch_data):
+            raise ValueError(f"Expected {len(batch_data)} annotations, got {len(annotations)}")
 
         # Process each annotation
         results = []
