@@ -1602,6 +1602,15 @@ def _annotate_batch(llm, batch_data, alignment, batch_size, timing, stats):
         json_match = None
         if raw_output.startswith("["):
             json_match = raw_output
+            # IMPROVEMENT B: Try to extract [first..last] in case there's trailing text
+            try:
+                json.loads(json_match)
+            except json.JSONDecodeError:
+                try:
+                    end = json_match.rindex("]") + 1
+                    json_match = json_match[:end]
+                except ValueError:
+                    json_match = None
         elif "```" in raw_output:
             # Extract from code block
             parts = raw_output.split("```")
@@ -1610,6 +1619,14 @@ def _annotate_batch(llm, batch_data, alignment, batch_size, timing, stats):
                     json_match = part.strip()
                     if json_match.startswith("json"):
                         json_match = json_match[4:].strip()
+                    try:
+                        json.loads(json_match)
+                    except json.JSONDecodeError:
+                        try:
+                            end = json_match.rindex("]") + 1
+                            json_match = json_match[:end]
+                        except ValueError:
+                            json_match = None
                     break
         elif "[" in raw_output:
             # Find first [ and last ]
@@ -2234,7 +2251,9 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                     annotated = batch_results[i][1]
                                 if annotated is None:
                                     # Fallback: run per-chunk LLM instead of using raw text
-                                    user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{item['text']}" if ctx else f"Annotate this segment:\n{item['text']}"
+                                    # Use live context (IMPROVEMENT A) instead of stale pre-batch ctx
+                                    ctx_fallback = " ".join(list(context)[-2:]) if context else ""
+                                    user_prompt = f"Previous context: {ctx_fallback}\n\nAnnotate this segment:\n{item['text']}" if ctx_fallback else f"Annotate this segment:\n{item['text']}"
                                     try:
                                         response = llm.create_chat_completion(
                                             messages=[
@@ -2278,11 +2297,11 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                     f"| ETA: {format_duration(remaining_s)}"
                                 )
                                 log_gpu_stats(f"annotation segment {segment_idx + 1}/{estimated_chunks_total}")
-                            if (segment_idx + 1) % 100 == 0:
+                            if (completed % 100) < batch_size:
                                 total_timed = timing['audio_read'] + timing['snr_calc'] + timing['alignment'] + \
                                               timing['llm_infer'] + timing['sanitize'] + timing['wav_write']
                                 logger.info(
-                                    f"  ⏱ Timing breakdown (chunk {segment_idx + 1}): "
+                                    f"  ⏱ Timing breakdown (chunk {completed}): "
                                     f"audio_read={timing['audio_read']:.1f}s "
                                     f"snr={timing['snr_calc']:.1f}s "
                                     f"alignment={timing['alignment']:.1f}s "
