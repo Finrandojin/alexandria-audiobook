@@ -1384,6 +1384,8 @@ def _load_existing_checkpoint(temp_dir):
         try:
             with open(checkpoint_path, "w", encoding="utf-8") as f:
                 f.writelines(good_lines)
+                f.flush()
+                os.fsync(f.fileno())
             logger.info(f"  Checkpoint rewritten to {len(entries)} good entries (corrupt tail removed)")
         except Exception as e:
             logger.warning(f"Could not rewrite checkpoint after truncation ({e}); "
@@ -1761,7 +1763,7 @@ def _calculate_chunk_snr(chunk_audio: np.ndarray) -> float:
 def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     resume=False, audio_source_path=None, fallback_model_path=None,
                     source_state=None, source_threshold=0.65, keep_unaligned=False,
-                    min_chunk_duration=2.0, min_confidence=0.85, min_snr=25,
+                    min_chunk_duration=2.0, min_confidence=0.85, min_snr=15,
                     book_title=None, character=None, narrator_style=None,
                     batch_size=1):
     """Create and annotate chunks with periodic checkpointing and resume support.
@@ -2223,9 +2225,15 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                 # Update context for each batch chunk (BUG 3 fix)
                                 context.append(item["text"])
                                 # Get annotation from batch results or fallback to per-chunk LLM
-                                if batch_results is not None and i < len(batch_results):
-                                    annotated = batch_results[i][1]
-                                else:
+                                # IMPROVEMENT 3: Use segment_idx-based lookup instead of positional indexing
+                                seg_idx = item["segment_idx"]
+                                annotated = None
+                                if batch_results is not None:
+                                    for result_idx, result_annotated in batch_results:
+                                        if result_idx == seg_idx:
+                                            annotated = result_annotated
+                                            break
+                                if annotated is None:
                                     # Fallback: run per-chunk LLM instead of using raw text
                                     user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{item['text']}" if ctx else f"Annotate this segment:\n{item['text']}"
                                     try:
@@ -2257,6 +2265,35 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                     segment_idx + i, temp_dir,
                                 )
                             batch_buffer.clear()
+                            # IMPROVEMENT 1: Add timing/ETA logging for batch mode
+                            chunk_times.append(time.monotonic() - chunk_t0)
+                            if (segment_idx + 1) % 10 == 0:
+                                avg_chunk_s = sum(chunk_times) / len(chunk_times)
+                                elapsed_s = time.monotonic() - annotation_start_time
+                                remaining_chunks = max(0, estimated_chunks_total - segment_idx - 1)
+                                remaining_s = remaining_chunks * avg_chunk_s
+                                logger.info(
+                                    f"  ↳ Progress: {segment_idx + 1}/{estimated_chunks_total} chunks "
+                                    f"| Avg: {avg_chunk_s:.1f}s/chunk "
+                                    f"| Elapsed: {format_duration(elapsed_s)} "
+                                    f"| ETA: {format_duration(remaining_s)}"
+                                )
+                                log_gpu_stats(f"annotation segment {segment_idx + 1}/{estimated_chunks_total}")
+                            if (segment_idx + 1) % 100 == 0:
+                                total_timed = timing['audio_read'] + timing['snr_calc'] + timing['alignment'] + \
+                                              timing['llm_infer'] + timing['sanitize'] + timing['wav_write']
+                                logger.info(
+                                    f"  ⏱ Timing breakdown (chunk {segment_idx + 1}): "
+                                    f"audio_read={timing['audio_read']:.1f}s "
+                                    f"snr={timing['snr_calc']:.1f}s "
+                                    f"alignment={timing['alignment']:.1f}s "
+                                    f"llm={timing['llm_infer']:.1f}s "
+                                    f"sanitize={timing['sanitize']:.1f}s "
+                                    f"wav_write={timing['wav_write']:.1f}s "
+                                    f"total_timed={total_timed:.1f}s "
+                                    f"dropped={timing['dropped_chunks']} "
+                                    f"kept={timing['kept_chunks']}"
+                                )
                             # Skip per-chunk processing for batched chunks
                             segment_idx += batch_size
                             prev_raw_text = text
@@ -2804,7 +2841,7 @@ def main():
     parser.add_argument("--chunk-size", type=float, default=10.0)
     parser.add_argument("--min-chunk-duration", type=float, default=2.0, help="Minimum duration for an audio chunk to be kept (default: 2.0s)")
     parser.add_argument("--min-confidence", type=float, default=0.85, help="Minimum average word confidence for a chunk to be kept (default: 0.85)")
-    parser.add_argument("--min-snr", type=int, default=25, help="Minimum Signal-to-Noise Ratio (SNR) in dB for a chunk to be kept (default: 25)")
+    parser.add_argument("--min-snr", type=int, default=15, help="Minimum Signal-to-Noise Ratio (SNR) in dB for a chunk to be kept (default: 15)")
     parser.add_argument("--batch-size", type=int, default=1,
                         help="Number of chunks to annotate per LLM call (default: 1). "
                              "Higher values (3-5) reduce LLM overhead by ~30-50%% but "
@@ -3028,12 +3065,12 @@ def main():
                 logger.info(f"  Audio: {duration_secs:.1f}s @ {len(audio_24k)} samples (loaded in {time.monotonic()-load_t0:.1f}s)")
 
                 logger.debug(f"  Spilling 24kHz audio to scratch file: {audio_24k_scratch}")
-                sf.write(audio_24k_scratch, audio_24k, 24000, subtype="FLOAT")
+                sf.write(audio_24k_scratch, audio_24k, 24000, subtype="PCM_16")
                 del audio_24k
                 gc.collect()
 
                 scratch_size_mb = os.path.getsize(audio_24k_scratch) / (1024 * 1024)
-                logger.info(f"  ├─ Scratch audio: {audio_24k_scratch} ({scratch_size_mb:.1f} MB) - freed from RAM")
+                logger.info(f"  ├─ Scratch audio: {audio_24k_scratch} ({scratch_size_mb:.1f} MB, PCM_16) - freed from RAM")
 
             progress.complete()
 
@@ -3247,6 +3284,9 @@ def main():
                 logger.info(f"▶ Loading diarization results from {diarization_path}...")
                 with open(diarization_path, "r") as f:
                     speaker_segments = json.load(f)
+                if not INTERVALTREE_AVAILABLE:
+                    logger.error("✗ 'intervaltree' package required for speaker diarization assignment. Install with: pip install intervaltree")
+                    sys.exit(1)
                 word_segments, unique_speakers = _assign_speakers_to_words(word_segments, speaker_segments)
             else:
                 unique_speakers = {"UNKNOWN"}
