@@ -55,7 +55,7 @@ import shutil
 import soundfile as sf
 import numpy as np
 import traceback
-from collections import deque
+from collections import deque, Counter
 from typing import List, Dict, Optional
 from datetime import datetime
 
@@ -1659,6 +1659,64 @@ def _annotate_batch(llm, batch_data, source_words_list, alignment, batch_size, t
         return None  # Signal caller to use per-chunk fallback
 
 
+def _save_chunk_metadata(item, annotated, character, narrator_style, book_title,
+                         metadata, checkpoint_file, stats, timing, segment_idx, temp_dir):
+    """Save audio WAV and write metadata for a single chunk.
+    
+    Used by both per-chunk and batch annotation modes.
+    """
+    audio_slice = item["audio_slice"]
+    chunk_word_data = item["chunk_word_data"]
+    current_start = item["current_start"]
+    chunk_end_time = item["chunk_end_time"]
+    chunk_duration = item["chunk_duration"]
+
+    actual_duration = len(audio_slice) / 24000.0
+    expected_duration = chunk_end_time - current_start
+    if abs(actual_duration - expected_duration) > 0.1:
+        stats['audio_short'] += 1
+        logger.warning(
+            f"audio slice mismatch idx={segment_idx} "
+            f"expected {expected_duration:.3f}s got {actual_duration:.3f}s "
+            f"(req {current_start:.3f}-{chunk_end_time:.3f}s)"
+        )
+
+    if len(audio_slice) > 0:
+        stats['chunk_durations'].append(actual_duration)
+        timing['kept_chunks'] += 1
+        seg_name = f"sample_{segment_idx:04d}.wav"
+        wav_path = os.path.join(temp_dir, seg_name)
+        t0_wav = time.monotonic()
+        sf.write(wav_path, audio_slice, 24000)
+        wav_fd = os.open(wav_path, os.O_RDWR)
+        try:
+            os.fsync(wav_fd)
+        finally:
+            os.close(wav_fd)
+        timing['wav_write'] += time.monotonic() - t0_wav
+
+        entry = {
+            "audio_filepath": seg_name,
+            "text": annotated,
+            "duration": actual_duration,
+            "start": current_start,
+            "end": chunk_end_time,
+            "speaker": Counter(w.get("speaker", "UNKNOWN") for w in chunk_word_data).most_common(1)[0][0],
+            "wav_path": wav_path,
+        }
+        if character:
+            entry["character"] = character
+        if narrator_style:
+            entry["narrator_style"] = narrator_style
+        if book_title:
+            entry["book_title"] = book_title
+        metadata.append(entry)
+
+        checkpoint_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        checkpoint_file.flush()
+        os.fsync(checkpoint_file.fileno())
+
+
 def _calculate_chunk_snr(chunk_audio: np.ndarray) -> float:
     """Calculate the Signal-to-Noise Ratio (SNR) for an audio chunk.
 
@@ -1812,7 +1870,6 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
         logger.info(f"  └─ Initial cursor : source word {source_state['cursor']}")
 
     # ── Per-run summary metrics (logged at the end of annotate_chunks) ───────
-    from collections import Counter
     stats = {
         'cut_strategy':    Counter(),   # which look-back path picked the cut
         'source_action':   Counter(),   # 'replace' / 'keep_asr' / 'dropped' / 'dropped_short' / 'deduplicated' / 'dropped_low_quality'
@@ -2153,145 +2210,115 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             batch_results = _annotate_batch(
                                 llm, batch_buffer, None, alignment, batch_size, timing, stats, segment_idx
                             )
-                            if batch_results is not None:
-                                # Batch succeeded — populate annotations
-                                for idx, ann in batch_results:
-                                    batch_annotations[idx] = ann
-                            # Clear buffer
-                            batch_buffer.clear()
+                            # Process all chunks in this batch
+                            for i, item in enumerate(batch_buffer):
+                                # Get annotation from batch results or fallback to original text
+                                if batch_results is not None and i < len(batch_results):
+                                    annotated = batch_results[i][1]
+                                else:
+                                    annotated = item["text"]  # Fallback
 
-                    # Get annotation: from batch buffer or per-chunk LLM call
-                    if batch_size > 1 and segment_idx in batch_annotations:
-                        # Batch mode — use pre-computed annotation
-                        annotated = batch_annotations.pop(segment_idx)
-                    else:
-                        # Per-chunk mode (batch_size=1 or batch parsing failed)
-                        user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{text}" if ctx else f"Annotate this segment:\n{text}"
-
-                        try:
-                            t0_llm = time.monotonic()
-                            response = llm.create_chat_completion(
-                                messages=[
-                                    {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
-                                    {"role": "user", "content": user_prompt},
-                                ],
-                                max_tokens=512,
-                                temperature=0.3,
-                            )
-                            timing['llm_infer'] += time.monotonic() - t0_llm
-                            annotated_raw = response["choices"][0]["message"]["content"].strip()
-
-                            t0_sanitize = time.monotonic()
-                            if source_words_for_merge is not None:
-                                annotated = alignment.merge_annotations_with_source(
-                                    annotated_raw, source_words_for_merge
+                                # Save audio and write metadata for this chunk
+                                _save_chunk_metadata(
+                                    item, annotated, character, narrator_style, book_title,
+                                    metadata, checkpoint_file, stats, timing,
+                                    segment_idx + i, temp_dir,
                                 )
-                            else:
-                                annotated = _sanitize_annotation(annotated_raw)
-                            timing['sanitize'] += time.monotonic() - t0_sanitize
+                            batch_buffer.clear()
+                            # Skip per-chunk processing for batched chunks
+                            segment_idx += batch_size
+                            prev_raw_text = text
+                            context.append(text)
+                            chunk_t0 = time.monotonic()
+                            continue  # Skip the per-chunk code below
 
-                            stats['llm_success'] += 1
-                            if annotated != annotated_raw:
-                                stats['sanitize_changed'] += 1
+                    # Per-chunk mode (batch_size=1)
+                    # Get annotation via per-chunk LLM call
+                    user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{text}" if ctx else f"Annotate this segment:\n{text}"
 
-                            if segment_idx == next_segment_idx:
-                                logger.info(f"✓ LLM GPU inference confirmed - {os.path.basename(active_model_path)} responding on GPU")
-                        except Exception as e:
-                            stats['llm_fail'] += 1
-                            logger.warning(f"Annotation failed for segment {segment_idx}, using original text: {e}")
-                            annotated = text
+                    try:
+                        t0_llm = time.monotonic()
+                        response = llm.create_chat_completion(
+                            messages=[
+                                {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
+                                {"role": "user", "content": user_prompt},
+                            ],
+                            max_tokens=512,
+                            temperature=0.3,
+                        )
+                        timing['llm_infer'] += time.monotonic() - t0_llm
+                        annotated_raw = response["choices"][0]["message"]["content"].strip()
 
-                    # Reuse the audio_slice read earlier for SNR check (line 1825).
-                    # No need to re-read from disk/memory — it's the same time range.
-                    actual_duration = len(audio_slice) / 24000.0
-                    expected_duration = chunk_end_time - current_start
-                    if abs(actual_duration - expected_duration) > 0.1:
-                        # 0.1s mismatch is normally just rounding; bigger means
-                        # we hit end-of-file or _read_audio_segment ran short.
-                        stats['audio_short'] += 1
-                        logger.warning(
-                            f"audio slice mismatch idx={segment_idx} "
-                            f"expected {expected_duration:.3f}s got {actual_duration:.3f}s "
-                            f"(req {current_start:.3f}-{chunk_end_time:.3f}s)"
+                        t0_sanitize = time.monotonic()
+                        if source_words_for_merge is not None:
+                            annotated = alignment.merge_annotations_with_source(
+                                annotated_raw, source_words_for_merge
+                            )
+                        else:
+                            annotated = _sanitize_annotation(annotated_raw)
+                        timing['sanitize'] += time.monotonic() - t0_sanitize
+
+                        stats['llm_success'] += 1
+                        if annotated != annotated_raw:
+                            stats['sanitize_changed'] += 1
+
+                        if segment_idx == next_segment_idx:
+                            logger.info(f"✓ LLM GPU inference confirmed - {os.path.basename(active_model_path)} responding on GPU")
+                    except Exception as e:
+                        stats['llm_fail'] += 1
+                        logger.warning(f"Annotation failed for segment {segment_idx}, using original text: {e}")
+                        annotated = text
+
+                    # Save audio and write metadata
+                    _save_chunk_metadata(
+                        {
+                            "audio_slice": audio_slice,
+                            "chunk_word_data": chunk_word_data,
+                            "current_start": current_start,
+                            "chunk_end_time": chunk_end_time,
+                            "chunk_duration": chunk_duration,
+                        },
+                        annotated, character, narrator_style, book_title,
+                        metadata, checkpoint_file, stats, timing,
+                        segment_idx, temp_dir,
+                    )
+
+                    chunk_times.append(time.monotonic() - chunk_t0)
+
+                    # Dynamic ETA from rolling average
+                    if (segment_idx + 1) % 10 == 0:
+                        avg_chunk_s = sum(chunk_times) / len(chunk_times)
+                        completed_this_run = segment_idx - next_segment_idx + 1
+                        elapsed_s = time.monotonic() - annotation_start_time
+                        remaining_chunks = max(0, estimated_chunks_total - segment_idx - 1)
+                        remaining_s = remaining_chunks * avg_chunk_s
+                        logger.info(
+                            f"  ↳ Progress: {segment_idx + 1}/{estimated_chunks_total} chunks "
+                            f"| Avg: {avg_chunk_s:.1f}s/chunk "
+                            f"| Elapsed: {format_duration(elapsed_s)} "
+                            f"| ETA: {format_duration(remaining_s)}"
+                        )
+                        log_gpu_stats(f"annotation segment {segment_idx + 1}/{estimated_chunks_total}")
+
+                    # Periodic timing breakdown (every 100 chunks)
+                    if (segment_idx + 1) % 100 == 0:
+                        total_timed = timing['audio_read'] + timing['snr_calc'] + timing['alignment'] + \
+                                      timing['llm_infer'] + timing['sanitize'] + timing['wav_write']
+                        logger.info(
+                            f"  ⏱ Timing breakdown (chunk {segment_idx + 1}): "
+                            f"audio_read={timing['audio_read']:.1f}s "
+                            f"snr={timing['snr_calc']:.1f}s "
+                            f"alignment={timing['alignment']:.1f}s "
+                            f"llm={timing['llm_infer']:.1f}s "
+                            f"sanitize={timing['sanitize']:.1f}s "
+                            f"wav_write={timing['wav_write']:.1f}s "
+                            f"total_timed={total_timed:.1f}s "
+                            f"dropped={timing['dropped_chunks']} "
+                            f"kept={timing['kept_chunks']}"
                         )
 
-                    if len(audio_slice) > 0:
-                        stats['chunk_durations'].append(actual_duration)
-                        timing['kept_chunks'] += 1
-                        seg_name = f"sample_{segment_idx:04d}.wav"
-                        wav_path = os.path.join(temp_dir, seg_name)
-                        t0_wav = time.monotonic()
-                        sf.write(wav_path, audio_slice, 24000)
-                        # Force the WAV to disk before recording metadata that
-                        # references it — otherwise power loss can leave a
-                        # truncated WAV with a metadata line claiming the full
-                        # duration.
-                        wav_fd = os.open(wav_path, os.O_RDWR)
-                        try:
-                            os.fsync(wav_fd)
-                        finally:
-                            os.close(wav_fd)
-                        timing['wav_write'] += time.monotonic() - t0_wav
-
-                        entry = {
-                            "audio_filepath": seg_name,
-                            "text": annotated,
-                            "duration": actual_duration,
-                            "start": current_start,
-                            "end": chunk_end_time,
-                            "speaker": Counter(w.get("speaker", "UNKNOWN") for w in chunk_word_data).most_common(1)[0][0],
-                            "wav_path": wav_path,  # Keep for batch mutagen tagging
-                        }
-                        if character:
-                            entry["character"] = character
-                        if narrator_style:
-                            entry["narrator_style"] = narrator_style
-                        if book_title:
-                            entry["book_title"] = book_title
-                        metadata.append(entry)
-
-                        # Append to checkpoint and fsync immediately so power
-                        # loss can lose at most the in-progress chunk.
-                        checkpoint_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
-                        checkpoint_file.flush()
-                        os.fsync(checkpoint_file.fileno())
-
-                        chunk_times.append(time.monotonic() - chunk_t0)
-
-                        # Dynamic ETA from rolling average
-                        if (segment_idx + 1) % 10 == 0:
-                            avg_chunk_s = sum(chunk_times) / len(chunk_times)
-                            completed_this_run = segment_idx - next_segment_idx + 1
-                            elapsed_s = time.monotonic() - annotation_start_time
-                            remaining_chunks = max(0, estimated_chunks_total - segment_idx - 1)
-                            remaining_s = remaining_chunks * avg_chunk_s
-                            logger.info(
-                                f"  ↳ Progress: {segment_idx + 1}/{estimated_chunks_total} chunks "
-                                f"| Avg: {avg_chunk_s:.1f}s/chunk "
-                                f"| Elapsed: {format_duration(elapsed_s)} "
-                                f"| ETA: {format_duration(remaining_s)}"
-                            )
-                            log_gpu_stats(f"annotation segment {segment_idx + 1}/{estimated_chunks_total}")
-
-                        # Periodic timing breakdown (every 100 chunks)
-                        if (segment_idx + 1) % 100 == 0:
-                            total_timed = timing['audio_read'] + timing['snr_calc'] + timing['alignment'] + \
-                                          timing['llm_infer'] + timing['sanitize'] + timing['wav_write']
-                            logger.info(
-                                f"  ⏱ Timing breakdown (chunk {segment_idx + 1}): "
-                                f"audio_read={timing['audio_read']:.1f}s "
-                                f"snr={timing['snr_calc']:.1f}s "
-                                f"alignment={timing['alignment']:.1f}s "
-                                f"llm={timing['llm_infer']:.1f}s "
-                                f"sanitize={timing['sanitize']:.1f}s "
-                                f"wav_write={timing['wav_write']:.1f}s "
-                                f"total_timed={total_timed:.1f}s "
-                                f"dropped={timing['dropped_chunks']} "
-                                f"kept={timing['kept_chunks']}"
-                            )
-
-                        segment_idx += 1
-                        prev_raw_text = text  # Record for next chunk deduplication check
+                    segment_idx += 1
+                    prev_raw_text = text  # Record for next chunk deduplication check
 
                     context.append(text)
                 # Carry the post-cut tail forward as the start of the next chunk.
@@ -2309,52 +2336,19 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
             batch_results = _annotate_batch(
                 llm, batch_buffer, None, alignment, len(batch_buffer), timing, stats, segment_idx
             )
-            if batch_results is not None:
-                for idx, ann in batch_results:
-                    batch_annotations[idx] = ann
 
         # Save audio and write metadata for remaining batch chunks
-            for item in batch_buffer:
+            for i, item in enumerate(batch_buffer):
                 idx = item["segment_idx"]
-                annotated = batch_annotations.get(idx, item["text"])  # Fallback to original text
-                audio_slice = item["audio_slice"]
-                actual_duration = len(audio_slice) / 24000.0
+                if batch_results is not None and i < len(batch_results):
+                    annotated = batch_results[i][1]
+                else:
+                    annotated = item["text"]  # Fallback
 
-                if len(audio_slice) > 0:
-                    stats['chunk_durations'].append(actual_duration)
-                    timing['kept_chunks'] += 1
-                    seg_name = f"sample_{idx:04d}.wav"
-                    wav_path = os.path.join(temp_dir, seg_name)
-                    sf.write(wav_path, audio_slice, 24000)
-                    wav_fd = os.open(wav_path, os.O_RDWR)
-                    try:
-                        os.fsync(wav_fd)
-                    finally:
-                        os.close(wav_fd)
-                    timing['wav_write'] += 0.01  # Approximate
-
-                    entry = {
-                        "audio_filepath": seg_name,
-                        "text": annotated,
-                        "duration": actual_duration,
-                        "start": item["current_start"],
-                        "end": item["chunk_end_time"],
-                        "speaker": Counter(w.get("speaker", "UNKNOWN") for w in item["chunk_word_data"]).most_common(1)[0][0],
-                        "wav_path": wav_path,
-                    }
-                    if character:
-                        entry["character"] = character
-                    if narrator_style:
-                        entry["narrator_style"] = narrator_style
-                    if book_title:
-                        entry["book_title"] = book_title
-                    metadata.append(entry)
-
-                    checkpoint_file.write(json.dumps(entry, ensure_ascii=False) + "\n")
-                    checkpoint_file.flush()
-                    os.fsync(checkpoint_file.fileno())
-
-                    segment_idx += 1
+                _save_chunk_metadata(
+                    item, annotated, character, narrator_style, book_title,
+                    metadata, checkpoint_file, stats, timing, idx, temp_dir,
+                )
 
             batch_buffer.clear()
 
