@@ -1865,7 +1865,6 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
     # When batch_size > 1, collect chunks here and annotate them together.
     logger.info(f"  ├─ Batch size       : {batch_size} {'(batch mode)' if batch_size > 1 else '(per-chunk mode)'}")
     batch_buffer = [] if batch_size > 1 else None
-    batch_annotations = {}  # segment_idx -> annotated_text (populated after batch LLM call)
 
     # ── Pre-chunk diagnostic: word density, gap distribution ─────────────────
     # Lets the user see what kind of audio they're working with before the
@@ -2301,6 +2300,15 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                             current_start = current_word_starts[0] if current_word_starts else chunk_end_time
                             continue  # Skip the per-chunk code below
 
+                        # Batch not full yet — buffer this chunk and skip per-chunk processing (BUG D fix)
+                        current_words       = current_words[cut_at + 1:]
+                        current_word_starts = current_word_starts[cut_at + 1:]
+                        current_word_ends   = current_word_ends[cut_at + 1:]
+                        current_start = current_word_starts[0] if current_word_starts else chunk_end_time
+                        prev_raw_text = text
+                        context.append(text)
+                        continue  # Skip the per-chunk code below
+
                     # Per-chunk mode (batch_size=1)
                     # Get annotation via per-chunk LLM call
                     user_prompt = f"Previous context: {ctx}\n\nAnnotate this segment:\n{text}" if ctx else f"Annotate this segment:\n{text}"
@@ -2421,8 +2429,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                     try:
                         response = llm.create_chat_completion(
                             messages=[
-                            {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
-                            {"role": "user", "content": user_prompt},
+                                {"role": "system", "content": TTS_ANNOTATION_SYSTEM_PROMPT},
+                                {"role": "user", "content": user_prompt},
                             ],
                             max_tokens=512,
                             temperature=0.3,
@@ -2430,7 +2438,7 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         annotated_raw = response["choices"][0]["message"]["content"].strip()
                         if item.get("source_words_for_merge") is not None:
                             annotated = alignment.merge_annotations_with_source(
-                            annotated_raw, item["source_words_for_merge"]
+                                annotated_raw, item["source_words_for_merge"]
                             )
                         else:
                             annotated = _sanitize_annotation(annotated_raw)
@@ -2439,6 +2447,8 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                         stats['llm_fail'] += 1
                         logger.warning(f"Tail batch fallback LLM failed for chunk {idx}: {e}")
                         annotated = item["text"]
+            # Update context after each tail item so subsequent items see it
+                context.append(item["text"])
 
                 _save_chunk_metadata(
                     item, annotated, character, narrator_style, book_title,
