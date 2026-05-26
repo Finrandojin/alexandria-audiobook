@@ -2284,8 +2284,9 @@ def annotate_chunks(word_segments, model_path, chunk_size, audio_24k_source,
                                 )
                             batch_buffer.clear()
                             # IMPROVEMENT 1: Add timing/ETA logging for batch mode
+                            completed = segment_idx + batch_size
                             chunk_times.append(time.monotonic() - chunk_t0)
-                            if (segment_idx + 1) % 10 == 0:
+                            if (completed % 10) < batch_size:
                                 avg_chunk_s = sum(chunk_times) / len(chunk_times)
                                 elapsed_s = time.monotonic() - annotation_start_time
                                 remaining_chunks = max(0, estimated_chunks_total - segment_idx - 1)
