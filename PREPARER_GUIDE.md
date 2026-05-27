@@ -139,12 +139,12 @@ or any other bits that don't match the actual story.
 
 ```bash
 app/env/bin/python alexandria_preparer_rocm_compatible.py \
-  --audio "/home/fakemitch/Desktop/audiobook.wav" \
+  --audio "/path/to/audiobook.wav" \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf
 ```
 
 What this does, in plain English:
-- Reads the audiobook at `/home/fakemitch/Desktop/audiobook.wav`.
+- Reads the audiobook at `/path/to/audiobook.wav`.
 - Uses the AI helper at `models/Qwen2.5-14B-Instruct-Q6_K.gguf` to label the clips.
 - Saves the result as `alexandria_dataset.zip` in the current folder.
 
@@ -152,9 +152,9 @@ What this does, in plain English:
 
 ```bash
 app/env/bin/python alexandria_preparer_rocm_compatible.py \
-  --audio "/home/fakemitch/Desktop/audiobook.wav" \
+  --audio "/path/to/audiobook.wav" \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf \
-  --source "/home/fakemitch/Desktop/books/My Happy Marriage - Volume 01.epub"
+  --source "/path/to/books/My Happy Marriage - Volume 01.epub"
 ```
 
 The only difference: that last line tells the tool where the book is. Names
@@ -165,9 +165,9 @@ thrown away.
 
 ```bash
 app/env/bin/python alexandria_preparer_rocm_compatible.py \
-  --audio "/home/fakemitch/Desktop/audiobook.wav" \
+  --audio "/path/to/audiobook.wav" \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf \
-  --source "/home/fakemitch/Desktop/books/book.epub" \
+  --source "/path/to/books/book.epub" \
   --keep-unaligned
 ```
 
@@ -183,7 +183,7 @@ attempt left junk behind, it gets cleaned up automatically.
 
 ```bash
 app/env/bin/python alexandria_preparer_rocm_compatible.py \
-  --audio "/home/fakemitch/Desktop/audiobook.wav" \
+  --audio "/path/to/audiobook.wav" \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf \
   --resume
 ```
@@ -379,7 +379,7 @@ still tries to align from where the prose was last known to match.
 app/env/bin/python alexandria_preparer_rocm_compatible.py \
   --audio audiobook.wav \
   --model Qwen2.5-14B-Instruct-Q6_K.gguf \
-  --source "/home/fakemitch/Desktop/books/My Happy Marriage - Volume 01.epub"
+  --source "/path/to/books/My Happy Marriage - Volume 01.epub"
 ```
 
 ### What you'll see in the logs

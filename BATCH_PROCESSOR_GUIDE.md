@@ -27,7 +27,7 @@ The Batch Processor is just a wrapper around the Preparer. It:
 
 Put all the audiobook WAV files you want to process into one folder. For example:
 ```
-/home/fakemitch/Desktop/my_audiobooks/
+/path/to/my_audiobooks/
   ├── book1.wav
   ├── book2.wav
   └── book3.wav
@@ -268,8 +268,8 @@ just in legacy ASR-only mode (with a startup warning).
 
 ```bash
 app/env/bin/python alexandria_batch_processor.py \
-  --folder /home/fakemitch/Desktop/audiobooks/ \
-  --source-folder /home/fakemitch/Desktop/books/ \
+  --folder /path/to/audiobooks/ \
+  --source-folder /path/to/books/ \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf
 ```
 
@@ -282,7 +282,7 @@ same source file is applied to all of them:
 ```bash
 app/env/bin/python alexandria_batch_processor.py \
   narrator_a.wav narrator_b.wav narrator_c.wav \
-  --source "/home/fakemitch/Desktop/books/My Happy Marriage - Volume 01.epub" \
+  --source "/path/to/books/My Happy Marriage - Volume 01.epub" \
   --model models/Qwen2.5-14B-Instruct-Q6_K.gguf
 ```
 

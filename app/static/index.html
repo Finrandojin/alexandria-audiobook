@@ -73,9 +73,18 @@
                     <li class="nav-item"><a class="nav-link nav-pipeline" data-tab="editor">4. Editor</a></li>
                     <li class="nav-item"><a class="nav-link nav-pipeline" data-tab="audio">5. Result</a></li>
                     <li class="nav-item ms-3 border-start border-secondary ps-3"><a class="nav-link nav-advanced" data-tab="designer">Designer</a></li>
+                    <li class="nav-item"><a class="nav-link nav-advanced" data-tab="preparer">Preparer</a></li>
                     <li class="nav-item"><a class="nav-link nav-advanced" data-tab="dataset-builder">Dataset</a></li>
                     <li class="nav-item"><a class="nav-link nav-advanced" data-tab="training">Training</a></li>
                 </ul>
+                <div class="d-flex align-items-center text-light small opacity-75">
+                    <div id="sys-status-gpu" class="me-3" title="GPU VRAM Usage">
+                        <i class="fas fa-microchip me-1"></i><span id="sys-gpu-val">--</span>
+                    </div>
+                    <div id="sys-status-disk" title="Free Disk Space">
+                        <i class="fas fa-hdd me-1"></i><span id="sys-disk-val">--</span>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -315,13 +324,19 @@
                     </div>
 
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success btn-lg" id="btn-gen-script">
-                            <i class="fas fa-magic me-2"></i>Generate Annotated Script
-                        </button>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-success btn-lg flex-grow-1" id="btn-gen-script">
+                                <i class="fas fa-magic me-2"></i>Generate Annotated Script
+                            </button>
+                            <span id="script-status" class="ms-3 text-muted small" style="min-width: 120px;"></span>
+                        </div>
                         <small class="text-muted">Sends the book to your LLM to split it into annotated chunks with speaker labels and voice directions.</small>
-                        <button class="btn btn-outline-secondary btn-lg" id="btn-review-script">
-                            <i class="fas fa-check-double me-2"></i>Review Script (Optional)
-                        </button>
+                        <div class="d-flex align-items-center">
+                            <button class="btn btn-outline-secondary btn-lg flex-grow-1" id="btn-review-script">
+                                <i class="fas fa-check-double me-2"></i>Review Script (Optional)
+                            </button>
+                            <span id="review-status" class="ms-3 text-muted small" style="min-width: 120px;"></span>
+                        </div>
                         <small class="text-muted">Runs a second LLM pass to fix speaker misattributions or formatting issues. Only needed if the generated script has problems.</small>
                     </div>
                 </div>
@@ -431,6 +446,117 @@
                 <div class="card-body">
                     <div id="designed-voices-list">
                         <p class="text-muted mb-0">No designed voices yet. Generate and save a preview above.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preparer Tab -->
+        <div id="preparer-tab" class="tab-content" style="display:none;">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h4><span class="step-indicator step-active">P</span>Dataset Preparer</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <p class="mb-0">Prepare LoRA training datasets from existing audiobooks. Align audio with text and split into clean samples.</p>
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="prep-batch-mode" onchange="togglePrepBatchMode()">
+                            <label class="form-check-label" for="prep-batch-mode">Batch Mode</label>
+                        </div>
+                    </div>
+                    
+                    <!-- Single Mode -->
+                    <div id="prep-single-area">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">1. Select Audiobook (WAV/MP3)</label>
+                                <input type="file" class="form-control" id="prep-audio-file" accept=".wav,.mp3">
+                                <div class="form-text">Choose the high-quality audio file for training.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">2. Select Source Text (EPUB/TXT)</label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="prep-source-file" accept=".epub,.txt">
+                                    <button class="btn btn-outline-primary" type="button" onclick="suggestPrepSource()" title="Automatically match with previously uploaded text files">
+                                        <i class="fas fa-search me-1"></i>Match
+                                    </button>
+                                </div>
+                                <div id="prep-match-status" class="form-text">Choose the corresponding book text for alignment.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Batch Mode -->
+                    <div id="prep-batch-area" style="display:none;">
+                        <div class="alert alert-info py-2 small mb-3">
+                            <i class="fas fa-info-circle me-1"></i><strong>Batch Mode:</strong> Select multiple audio files. The app will automatically try to find matching EPUBs in your <code>uploads/</code> folder.
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Select Multiple Audiobooks</label>
+                            <input type="file" class="form-control" id="prep-batch-files" accept=".wav,.mp3" multiple onchange="onPrepBatchFilesChange()">
+                        </div>
+                        <div id="prep-batch-queue-container" class="mb-4" style="display:none;">
+                            <h6>Processing Queue</h6>
+                            <div class="table-responsive border rounded bg-white">
+                                <table class="table table-sm table-hover mb-0" style="font-size: 0.85rem;">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Audio File</th>
+                                            <th>Matched Source</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="prep-batch-queue-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3">Configuration</h5>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-3">
+                            <label class="form-label">Output Filename</label>
+                            <input type="text" class="form-control" id="prep-output" value="my_dataset.zip">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Language</label>
+                            <select class="form-select" id="prep-lang">
+                                <option value="en">English</option>
+                                <option value="zh">Chinese</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Confidence</label>
+                            <input type="number" class="form-control" id="prep-confidence" value="0.85" step="0.01" min="0" max="1">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Min SNR</label>
+                            <input type="number" class="form-control" id="prep-snr" value="25" min="0">
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="prep-keep-unaligned">
+                                <label class="form-check-label">Keep Unaligned</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-lg" id="btn-prep-start" onclick="startPreparer()">
+                            <i class="fas fa-cogs me-2"></i>Start Preparation
+                        </button>
+                        <span id="preparer-status" class="text-center text-muted small"></span>
+                        <span id="batch_preparer-status" class="text-center text-muted small"></span>
+                    </div>
+
+                    <div id="preparer-progress-section" class="mt-4" style="display:none;">
+                        <hr>
+                        <h5 class="mb-2">Execution Logs</h5>
+                        <div id="preparer-logs" class="log-window" style="height: 300px;"></div>
                     </div>
                 </div>
             </div>
@@ -775,6 +901,7 @@
                     <h4><span class="step-indicator step-active">5</span>Final Result</h4>
                 </div>
                 <div class="card-body">
+                    <div id="audio-status" class="mb-3 text-center"></div>
                     <div id="audio-player-container" class="text-center" style="display:none;">
                         <h5>Your Audiobook</h5>
                         <audio id="main-audio" controls class="w-100 mt-2">
@@ -787,7 +914,7 @@
                         <button class="btn btn-outline-primary mt-3 ms-2" onclick="exportAudacity()">
                             <i class="fas fa-headphones me-2"></i>Export to Audacity
                         </button>
-                        <span id="audacity-status" class="ms-2 mt-3 d-inline-block"></span>
+                        <span id="audacity_export-status" class="ms-2 mt-3 d-inline-block"></span>
                         <div class="w-100 mt-3">
                             <a class="text-decoration-none" data-bs-toggle="collapse" href="#m4b-options" role="button" aria-expanded="false">
                                 <i class="fas fa-book-reader me-1"></i>M4B Export Options <i class="fas fa-chevron-down fa-xs ms-1"></i>
@@ -833,7 +960,7 @@
                                         <button class="btn btn-outline-success btn-sm" onclick="exportM4B()">
                                             <i class="fas fa-book-reader me-1"></i>Export M4B
                                         </button>
-                                        <span id="m4b-status" class="ms-2 d-inline-block"></span>
+                                        <span id="m4b_export-status" class="ms-2 d-inline-block"></span>
                                     </div>
                                 </div>
                             </div>
@@ -2162,37 +2289,28 @@
 
         // --- Audacity Export ---
         window.exportAudacity = async () => {
-            const statusEl = document.getElementById('audacity-status');
+            const statusEl = document.getElementById('audacity_export-status');
             statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Exporting...</span>';
 
             try {
                 await API.post('/api/export_audacity', {});
-
+                pollLogs('audacity_export', 'audio-logs');
+                
+                // Add specific success listener
                 const poll = setInterval(async () => {
-                    try {
-                        const status = await API.get('/api/status/audacity_export');
-                        if (!status.running) {
-                            clearInterval(poll);
-                            if (status.logs.some(l => l.includes("complete"))) {
-                                statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Done!</span>';
-                                // Auto-download the zip
-                                const a = document.createElement('a');
-                                a.href = `/api/export_audacity?t=${Date.now()}`;
-                                a.download = 'audacity_export.zip';
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
-                            } else {
-                                const lastLog = status.logs[status.logs.length - 1] || 'Unknown error';
-                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${lastLog}</span>`;
-                            }
-                        }
-                    } catch (e) {
+                    const status = await API.get('/api/status/audacity_export');
+                    if (!status.running) {
                         clearInterval(poll);
-                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${e.message}</span>`;
+                        if (status.status === 'done') {
+                            const a = document.createElement('a');
+                            a.href = `/api/export_audacity?t=${Date.now()}`;
+                            a.download = 'audacity_export.zip';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
                     }
-                }, 1000);
+                }, 2000);
             } catch (e) {
                 statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${e.message}</span>`;
             }
@@ -2217,7 +2335,7 @@
         });
 
         window.exportM4B = async () => {
-            const statusEl = document.getElementById('m4b-status');
+            const statusEl = document.getElementById('m4b_export-status');
             const perChunk = document.getElementById('m4b-per-chunk').checked;
             statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Exporting M4B...</span>';
 
@@ -2230,31 +2348,22 @@
                     year: document.getElementById('m4b-year').value,
                     description: document.getElementById('m4b-description').value
                 });
+                pollLogs('m4b_export', 'audio-logs');
 
                 const poll = setInterval(async () => {
-                    try {
-                        const status = await API.get('/api/status/m4b_export');
-                        if (!status.running) {
-                            clearInterval(poll);
-                            if (status.logs.some(l => l.includes("complete"))) {
-                                statusEl.innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Done!</span>';
-                                const a = document.createElement('a');
-                                a.href = `/api/audiobook_m4b?t=${Date.now()}`;
-                                a.download = 'audiobook.m4b';
-                                document.body.appendChild(a);
-                                a.click();
-                                document.body.removeChild(a);
-                                setTimeout(() => { statusEl.innerHTML = ''; }, 5000);
-                            } else {
-                                const lastLog = status.logs[status.logs.length - 1] || 'Unknown error';
-                                statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${lastLog}</span>`;
-                            }
-                        }
-                    } catch (e) {
+                    const status = await API.get('/api/status/m4b_export');
+                    if (!status.running) {
                         clearInterval(poll);
-                        statusEl.innerHTML = `<span class="text-danger">Poll error: ${e.message}</span>`;
+                        if (status.status === 'done') {
+                            const a = document.createElement('a');
+                            a.href = `/api/audiobook_m4b?t=${Date.now()}`;
+                            a.download = 'audiobook.m4b';
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
                     }
-                }, 1000);
+                }, 2000);
             } catch (e) {
                 statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>${e.message}</span>`;
             }
@@ -2266,8 +2375,73 @@
             const interval = setInterval(async () => {
                 try {
                     const status = await API.get(`/api/status/${taskName}`);
+                    
+                    // Display latest logs
                     el.innerText = status.logs.join('\n');
                     el.scrollTop = el.scrollHeight;
+
+                    // Update UI status if available
+                    const statusEl = document.getElementById(`${taskName}-status`);
+                    if (statusEl) {
+                        if (status.running) {
+                            statusEl.innerHTML = `<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Processing (${status.progress_pct}%)...</span>`;
+                        } else if (status.status === 'done') {
+                            statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check me-1"></i>Complete</span>`;
+                            
+                            // Map task name to button ID
+                            const btnMap = {
+                                'script': 'btn-gen-script',
+                                'review': 'btn-review-script',
+                                'lora_training': 'btn-lora-train',
+                                'preparer': 'btn-prep-start',
+                                'batch_preparer': 'btn-prep-start',
+                                'audio': 'btn-batch-fast',
+                                'audacity_export': 'btn-export-audacity', // may not exist
+                                'm4b_export': 'btn-export-m4b' // may not exist
+                            };
+                            const btn = document.getElementById(btnMap[taskName]) || document.getElementById(`btn-${taskName}-start`) || document.getElementById('btn-prep-start');
+                            if (btn) btn.disabled = false;
+                        } else if (status.status === 'failed') {
+                            const errorSummary = status.error_snapshot.length > 0 ? status.error_snapshot.slice(-3).join('<br>') : 'Unknown error';
+                            statusEl.innerHTML = `<span class="text-danger" title="${errorSummary.replace(/"/g, '&quot;')}"><i class="fas fa-exclamation-triangle me-1"></i>Failed</span>`;
+                            const btnMap = {
+                                'script': 'btn-gen-script',
+                                'review': 'btn-review-script',
+                                'lora_training': 'btn-lora-train',
+                                'preparer': 'btn-prep-start',
+                                'batch_preparer': 'btn-prep-start',
+                                'audio': 'btn-batch-fast'
+                            };
+                            const btn = document.getElementById(btnMap[taskName]) || document.getElementById(`btn-${taskName}-start`) || document.getElementById('btn-prep-start');
+                            if (btn) btn.disabled = false;
+                        } else if (status.status === 'cancelled') {
+                            statusEl.innerHTML = `<span class="text-warning"><i class="fas fa-ban me-1"></i>Cancelled</span>`;
+                            const btnMap = {
+                                'script': 'btn-gen-script',
+                                'review': 'btn-review-script',
+                                'lora_training': 'btn-lora-train',
+                                'preparer': 'btn-prep-start',
+                                'batch_preparer': 'btn-prep-start',
+                                'audio': 'btn-batch-fast'
+                            };
+                            const btn = document.getElementById(btnMap[taskName]) || document.getElementById(`btn-${taskName}-start`) || document.getElementById('btn-prep-start');
+                            if (btn) btn.disabled = false;
+                        }
+                    }
+
+                    // Special handling for Batch Preparer queue table
+                    if (taskName === 'batch_preparer' && status.tasks) {
+                        status.tasks.forEach((t, i) => {
+                            const badgeEl = document.getElementById(`prep-batch-status-${i}`);
+                            if (!badgeEl) return;
+                            let color = 'secondary';
+                            if (t.status === 'running') color = 'info';
+                            if (t.status === 'done') color = 'success';
+                            if (t.status === 'failed') color = 'danger';
+                            if (t.status === 'cancelled') color = 'warning';
+                            badgeEl.innerHTML = `<span class="badge bg-${color}">${t.status.charAt(0).toUpperCase() + t.status.slice(1)}</span>`;
+                        });
+                    }
 
                     if (!status.running) {
                         clearInterval(interval);
@@ -2279,7 +2453,7 @@
                             document.getElementById('download-link').href = audio.src;
                         }
                         // Refresh editor chunks when script generation or review completes
-                        if ((taskName === 'script' || taskName === 'review') && status.logs.some(l => l.includes("completed successfully"))) {
+                        if ((taskName === 'script' || taskName === 'review') && status.status === 'done') {
                             // Clear cached chunks table so next load shows fresh data
                             const tbody = document.getElementById('chunks-table-body');
                             if (tbody) tbody.innerHTML = '';
@@ -2728,7 +2902,13 @@
                     logsEl.innerText = status.logs.join('\n');
                     logsEl.scrollTop = logsEl.scrollHeight;
 
-                    // Parse latest metrics from log lines
+                    // Sync with backend progress
+                    if (status.progress_pct > 0) {
+                        progressBar.style.width = `${status.progress_pct}%`;
+                        progressBar.innerText = `${status.progress_pct}%`;
+                    }
+
+                    // Parse latest metrics from log lines for detailed UI
                     for (let i = status.logs.length - 1; i >= 0; i--) {
                         const line = status.logs[i];
                         const epochMatch = line.match(/\[EPOCH\]\s*(\d+)\/(\d+)\s+avg_loss=([\d.]+)/);
@@ -2736,23 +2916,8 @@
                             const epoch = parseInt(epochMatch[1]);
                             const maxEpoch = parseInt(epochMatch[2]);
                             const loss = epochMatch[3];
-                            const pct = Math.round((epoch / maxEpoch) * 100);
                             epochDisplay.innerText = `${epoch}/${maxEpoch}`;
                             lossDisplay.innerText = loss;
-                            progressBar.style.width = `${pct}%`;
-                            progressBar.innerText = `${pct}%`;
-                            break;
-                        }
-                        const trainMatch = line.match(/\[TRAIN\]\s*epoch=(\d+)\/(\d+)\s+step=\d+\/\d+\s+loss=([\d.]+)/);
-                        if (trainMatch) {
-                            const epoch = parseInt(trainMatch[1]);
-                            const maxEpoch = parseInt(trainMatch[2]);
-                            const loss = trainMatch[3];
-                            const pct = Math.round(((epoch - 1) / maxEpoch) * 100);
-                            epochDisplay.innerText = `${epoch}/${maxEpoch}`;
-                            lossDisplay.innerText = loss;
-                            progressBar.style.width = `${pct}%`;
-                            progressBar.innerText = `${pct}%`;
                             break;
                         }
                     }
@@ -2762,18 +2927,16 @@
                         const btn = document.getElementById('btn-lora-train');
                         btn.disabled = false;
 
-                        const isDone = status.logs.some(l => l.includes('[DONE]'));
-                        const isError = status.logs.some(l => l.includes('[ERROR]'));
-
-                        if (isDone) {
+                        if (status.status === 'done') {
                             document.getElementById('lora-train-status').innerHTML = '<span class="text-success"><i class="fas fa-check me-1"></i>Training complete!</span>';
                             progressBar.style.width = '100%';
                             progressBar.innerText = '100%';
                             progressBar.classList.remove('progress-bar-animated');
                             progressBar.classList.replace('bg-info', 'bg-success');
                             loadLoraModels();
-                        } else if (isError) {
-                            document.getElementById('lora-train-status').innerHTML = '<span class="text-danger"><i class="fas fa-times me-1"></i>Training failed</span>';
+                        } else if (status.status === 'failed') {
+                            const errorSummary = status.error_snapshot.length > 0 ? status.error_snapshot.slice(-3).join('\n') : 'Unknown error';
+                            document.getElementById('lora-train-status').innerHTML = `<span class="text-danger" title="${errorSummary.replace(/"/g, '&quot;')}"><i class="fas fa-times me-1"></i>Training failed</span>`;
                             progressBar.classList.remove('progress-bar-animated');
                             progressBar.classList.replace('bg-info', 'bg-danger');
                         } else {
@@ -3415,12 +3578,203 @@
         document.getElementById('dsb-description')?.addEventListener('input', dsbSaveForm);
         document.getElementById('dsb-global-seed')?.addEventListener('input', dsbSaveForm);
 
+        // --- Preparer Tab ---
+
+        let prepBatchQueue = [];
+
+        window.togglePrepBatchMode = () => {
+            const isBatch = document.getElementById('prep-batch-mode').checked;
+            document.getElementById('prep-single-area').style.display = isBatch ? 'none' : 'block';
+            document.getElementById('prep-batch-area').style.display = isBatch ? 'block' : 'none';
+        };
+
+        window.onPrepBatchFilesChange = async () => {
+            const files = document.getElementById('prep-batch-files').files;
+            const tbody = document.getElementById('prep-batch-queue-body');
+            tbody.innerHTML = '';
+            prepBatchQueue = [];
+
+            if (files.length === 0) {
+                document.getElementById('prep-batch-queue-container').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('prep-batch-queue-container').style.display = 'block';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td class="text-truncate" style="max-width: 250px;">${file.name}</td>
+                    <td id="prep-batch-match-${i}"><span class="text-muted small">Searching...</span></td>
+                    <td id="prep-batch-status-${i}"><span class="badge bg-secondary">Pending</span></td>
+                `;
+                tbody.appendChild(row);
+
+                // Try to find a match
+                try {
+                    const result = await API.get(`/api/preparer/suggest_source?audio_filename=${encodeURIComponent(file.name)}`);
+                    const matchEl = document.getElementById(`prep-batch-match-${i}`);
+                    if (result.suggested) {
+                        matchEl.innerHTML = `<span class="text-success small"><i class="fas fa-check me-1"></i>${result.suggested}</span>`;
+                        prepBatchQueue.push({ audio: file.name, source: result.suggested });
+                    } else {
+                        matchEl.innerHTML = `<span class="text-danger small"><i class="fas fa-times me-1"></i>No match in uploads</span>`;
+                        prepBatchQueue.push({ audio: file.name, source: null });
+                    }
+                } catch (e) {
+                    document.getElementById(`prep-batch-match-${i}`).innerHTML = `<span class="text-danger small">Error</span>`;
+                }
+            }
+        };
+
+        window.suggestPrepSource = async () => {
+            const audioInput = document.getElementById('prep-audio-file');
+            const statusEl = document.getElementById('prep-match-status');
+            
+            if (audioInput.files.length === 0) {
+                statusEl.innerHTML = '<span class="text-danger">Select an audio file first to match against.</span>';
+                return;
+            }
+
+            const filename = audioInput.files[0].name;
+            statusEl.innerHTML = '<span class="text-info"><i class="fas fa-spinner fa-spin me-1"></i>Searching uploads...</span>';
+            
+            try {
+                const result = await API.get(`/api/preparer/suggest_source?audio_filename=${encodeURIComponent(filename)}`);
+                if (result.suggested) {
+                    statusEl.innerHTML = `<span class="text-success"><i class="fas fa-check-circle me-1"></i>Suggested match: <strong>${result.suggested}</strong> (${result.match_type} match)</span>`;
+                    showToast(`Suggested source text: ${result.suggested}`, 'info');
+                } else {
+                    statusEl.innerHTML = '<span class="text-warning">No match found in uploads. Please select file manually.</span>';
+                }
+            } catch (e) {
+                statusEl.innerHTML = `<span class="text-danger">Search failed: ${e.message}</span>`;
+            }
+        };
+
+        window.startPreparer = async () => {
+            const isBatch = document.getElementById('prep-batch-mode').checked;
+            if (isBatch) {
+                return startBatchPreparer();
+            }
+
+            const audioFile = document.getElementById('prep-audio-file').files[0];
+            const sourceFile = document.getElementById('prep-source-file').files[0];
+            const btn = document.getElementById('btn-prep-start');
+            const statusEl = document.getElementById('preparer-status');
+
+            if (!audioFile) { showToast('Audio file required', 'error'); return; }
+
+            btn.disabled = true;
+            statusEl.innerHTML = '<span class="text-info">Starting preparer...</span>';
+            document.getElementById('preparer-progress-section').style.display = 'block';
+
+            const config = {
+                audio_filename: audioFile.name,
+                source_filename: sourceFile ? sourceFile.name : null,
+                output_filename: document.getElementById('prep-output').value,
+                lang: document.getElementById('prep-lang').value,
+                min_confidence: parseFloat(document.getElementById('prep-confidence').value),
+                min_snr: parseInt(document.getElementById('prep-snr').value),
+                keep_unaligned: document.getElementById('prep-keep-unaligned').checked,
+                resume: false
+            };
+
+            const formData = new FormData();
+            formData.append('config_json', JSON.stringify(config));
+            formData.append('audio_file', audioFile);
+            if (sourceFile) {
+                formData.append('source_file', sourceFile);
+            }
+
+            try {
+                const res = await fetch('/api/preparer/start', { method: 'POST', body: formData });
+                if (!res.ok) throw new Error((await res.json()).detail || res.statusText);
+                
+                pollLogs('preparer', 'preparer-logs');
+            } catch (e) {
+                showToast('Failed to start: ' + e.message, 'error');
+                btn.disabled = false;
+                statusEl.innerHTML = '';
+            }
+        };
+
+        async function startBatchPreparer() {
+            if (prepBatchQueue.length === 0) { showToast('No files selected', 'warning'); return; }
+            
+            const btn = document.getElementById('btn-prep-start');
+            const statusEl = document.getElementById('batch_preparer-status');
+            const singleStatusEl = document.getElementById('preparer-status');
+            
+            btn.disabled = true;
+            statusEl.innerHTML = '<span class="text-info">Starting batch...</span>';
+            document.getElementById('preparer-progress-section').style.display = 'block';
+
+            const tasks = prepBatchQueue.map(t => ({
+                audio_filename: t.audio,
+                source_filename: t.source,
+                output_filename: `alexandria_dataset_${t.audio.replace(/\.[^.]+$/, '')}.zip`
+            }));
+
+            const request = {
+                tasks: tasks,
+                lang: document.getElementById('prep-lang').value,
+                min_confidence: parseFloat(document.getElementById('prep-confidence').value),
+                min_snr: parseInt(document.getElementById('prep-snr').value),
+                keep_unaligned: document.getElementById('prep-keep-unaligned').checked
+            };
+
+            try {
+                await API.post('/api/preparer/batch/start', request);
+                pollLogs('batch_preparer', 'preparer-logs');
+            } catch (e) {
+                showToast('Failed to start batch: ' + e.message, 'error');
+                btn.disabled = false;
+                statusEl.innerHTML = '';
+            }
+        }
+
+        async function updateSystemStats() {
+            try {
+                const stats = await API.get('/api/system/stats');
+                const gpuEl = document.getElementById('sys-gpu-val');
+                const diskEl = document.getElementById('sys-disk-val');
+
+                if (stats.gpu) {
+                    const used = stats.gpu.reserved_gb.toFixed(1);
+                    const total = stats.gpu.total_gb.toFixed(1);
+                    gpuEl.innerText = `${used}/${total} GB`;
+                    if (stats.gpu.allocated_percent > 90) {
+                        gpuEl.parentElement.classList.add('text-danger');
+                        gpuEl.parentElement.classList.remove('text-light');
+                    } else {
+                        gpuEl.parentElement.classList.remove('text-danger');
+                        gpuEl.parentElement.classList.add('text-light');
+                    }
+                } else {
+                    gpuEl.innerText = 'N/A';
+                }
+
+                diskEl.innerText = `${stats.disk.free_gb} GB`;
+                if (stats.disk.low_space) {
+                    diskEl.parentElement.classList.add('text-danger');
+                    diskEl.parentElement.classList.remove('text-light');
+                } else {
+                    diskEl.parentElement.classList.remove('text-danger');
+                    diskEl.parentElement.classList.add('text-light');
+                }
+            } catch (e) { console.error('Failed to update system stats', e); }
+        }
+
         // Init
         loadConfig();
         loadVoices();
         loadSavedScripts();
         loadDesignedVoices();
         dsbLoadProjects();
+        updateSystemStats();
+        setInterval(updateSystemStats, 10000); // Update every 10s
     </script>
 </body>
 </html>

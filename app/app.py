@@ -5,6 +5,8 @@ import json
 import shutil
 import signal
 import logging
+import torch
+import select
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTasks, Query
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -32,7 +34,107 @@ logger = logging.getLogger("AlexandriaUI")
 
 app = FastAPI(title="Alexandria Audiobook")
 
-# Paths
+# --- System Helpers ---
+
+def get_gpu_stats():
+    """Get current GPU memory and utilization stats."""
+    if not torch.cuda.is_available():
+        return None
+
+    stats = {}
+    try:
+        # Memory stats (works for both NVIDIA and AMD ROCm)
+        allocated = torch.cuda.memory_allocated() / 1e9  # GB
+        reserved = torch.cuda.memory_reserved() / 1e9    # GB
+        total = torch.cuda.get_device_properties(0).total_memory / 1e9  # GB
+
+        stats['allocated_gb'] = allocated
+        stats['reserved_gb'] = reserved
+        stats['total_gb'] = total
+        stats['allocated_percent'] = (allocated / total * 100) if total > 0 else 0
+
+        # Try to get utilization via rocm-smi for AMD GPUs
+        try:
+            result = subprocess.run(
+                ['/opt/rocm/bin/rocm-smi', '--showuse', '--json'],
+                capture_output=True,
+                text=True,
+                timeout=2
+            )
+            if result.returncode == 0:
+                json_lines = [line for line in result.stdout.split('\n') if line.strip().startswith('{')]
+                if json_lines:
+                    data = json.loads(json_lines[0])
+                    for card_key, card_data in data.items():
+                        gpu_use_str = card_data.get('GPU use (%)', 'N/A')
+                        if gpu_use_str != 'N/A':
+                            stats['utilization_percent'] = float(gpu_use_str)
+                        break 
+        except:
+            stats['utilization_percent'] = None
+
+    except Exception as e:
+        logger.debug(f"Could not get GPU stats: {e}")
+        return None
+
+    return stats
+
+def check_disk_space(path, required_gb):
+    """Check if disk has enough space. Returns (has_space, free_gb)."""
+    try:
+        stat = shutil.disk_usage(path)
+        free_gb = stat.free / (1024 ** 3)
+        return free_gb >= required_gb, free_gb
+    except:
+        return True, 0
+
+# --- Text Matching Helpers ---
+
+def _normalize_filename_tokens(stem):
+    """Simple alphanumeric tokenizer for matching audio files to text sources."""
+    return re.findall(r'[a-z0-9]+', stem.lower())
+
+def _fuzzy_score(audio_tokens, book_tokens):
+    if not audio_tokens or not book_tokens: return 0.0
+    a, b = set(audio_tokens), set(book_tokens)
+    common = a & b
+    if not common: return 0.0
+    precision = len(common) / len(b)
+    recall    = len(common) / len(a)
+    return 2 * precision * recall / (precision + recall)
+
+@app.get("/api/preparer/suggest_source")
+async def suggest_source(audio_filename: str):
+    """Suggest the best matching EPUB/TXT from the uploads directory."""
+    audio_stem = os.path.splitext(audio_filename)[0]
+    audio_tokens = _normalize_filename_tokens(audio_stem)
+    
+    best_match = None
+    best_score = 0.0
+    
+    if not os.path.exists(UPLOADS_DIR):
+        return {"suggested": None}
+
+    for f in os.listdir(UPLOADS_DIR):
+        if f.lower().endswith(('.epub', '.txt')):
+            # Check exact match first
+            f_stem = os.path.splitext(f)[0]
+            if f_stem == audio_stem:
+                return {"suggested": f, "score": 1.0, "match_type": "exact"}
+            
+            # Fuzzy match
+            f_tokens = _normalize_filename_tokens(f_stem)
+            score = _fuzzy_score(audio_tokens, f_tokens)
+            if score > best_score:
+                best_score = score
+                best_match = f
+
+    if best_match and best_score > 0.4: # Low threshold for suggestion
+        return {"suggested": best_match, "score": round(best_score, 2), "match_type": "fuzzy"}
+    
+    return {"suggested": None}
+
+# --- Paths ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
@@ -110,6 +212,21 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/api/system/stats")
+async def get_system_stats():
+    """Return GPU and Disk statistics."""
+    gpu = get_gpu_stats()
+    # Check root dir for disk space
+    has_space, free_gb = check_disk_space(ROOT_DIR, 1.0) # 1GB threshold for generic warning
+    
+    return {
+        "gpu": gpu,
+        "disk": {
+            "free_gb": round(free_gb, 2),
+            "low_space": not has_space
+        }
+    }
 
 # Data Models
 class LLMConfig(BaseModel):
@@ -274,17 +391,29 @@ class DatasetBuilderUpdateRowsRequest(BaseModel):
     name: str
     rows: List[dict]  # [{emotion, text, seed}]
 
+class BatchPreparerTask(BaseModel):
+    audio_filename: str
+    source_filename: Optional[str] = None
+    output_filename: str
+
+class BatchPreparerRequest(BaseModel):
+    tasks: List[BatchPreparerTask]
+    lang: str = "en"
+    min_confidence: float = 0.85
+    min_snr: int = 25
+    keep_unaligned: bool = False
+
 # Global state for process tracking
 process_state = {
-    "script": {"running": False, "logs": []},
-    "voices": {"running": False, "logs": []},
-    "audio": {"running": False, "logs": [], "cancel": False},
-    "audacity_export": {"running": False, "logs": []},
-    "m4b_export": {"running": False, "logs": []},
-    "review": {"running": False, "logs": []},
-    "lora_training": {"running": False, "logs": []},
-    "dataset_gen": {"running": False, "logs": []},
-    "dataset_builder": {"running": False, "logs": [], "cancel": False},
+    "script": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "voices": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "audio": {"running": False, "logs": [], "cancel": False, "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "audacity_export": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "m4b_export": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "review": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "lora_training": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "dataset_gen": {"running": False, "logs": [], "error_snapshot": [], "progress_pct": 0, "eta": ""},
+    "dataset_builder": {"running": False, "logs": [], "cancel": False, "error_snapshot": [], "progress_pct": 0, "eta": ""},
     "preparer": {
         "running": False,
         "logs": [],
@@ -293,6 +422,20 @@ process_state = {
         "pid": None,
         "output_file": None,
         "cancel": False,
+        "error_snapshot": [],
+        "progress_pct": 0,
+        "eta": "",
+    },
+    "batch_preparer": {
+        "running": False,
+        "logs": [],
+        "status": "idle",
+        "tasks": [],            # List of task statuses
+        "current_task_idx": -1,
+        "cancel": False,
+        "error_snapshot": [],
+        "progress_pct": 0,
+        "eta": "",
     }
 }
 
@@ -300,11 +443,15 @@ process_state = {
 CLONE_VOICES_MANIFEST = os.path.join(CLONE_VOICES_DIR, "manifest.json")
 ALLOWED_AUDIO_EXTS = {".wav", ".mp3", ".flac", ".ogg", ".txt", ".epub"}
 
-def run_process(command: List[str], task_name: str, cwd: str = None):
-    """Run a subprocess and capture logs."""
+def run_process(command: List[str], task_name: str, cwd: str = None, timeout: Optional[int] = 3600 * 24):
+    """Run a subprocess and capture logs, progress, and error context."""
     state = process_state[task_name]
     state["running"] = True
     state["logs"] = []
+    state["error_snapshot"] = []
+    state["progress_pct"] = 0
+    state["eta"] = ""
+    
     if "status"      in state: state["status"]      = "running"
     if "return_code" in state: state["return_code"] = None
     if "pid"         in state: state["pid"]         = None
@@ -313,38 +460,92 @@ def run_process(command: List[str], task_name: str, cwd: str = None):
     logger.info(f"Starting task {task_name}: {' '.join(command)}")
 
     return_code = None
+    start_time = time.monotonic()
+    
     try:
         env = os.environ.copy()
+        # Unbuffered output is preferred for real-time capture
+        if "-u" not in command and "python" in command[0]:
+            command.insert(1, "-u")
+            
         process = subprocess.Popen(
             command,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
-            text=True,
             cwd=cwd or BASE_DIR,
-            bufsize=1,
-            universal_newlines=True,
             env=env,
         )
 
         if "pid" in state:
             state["pid"] = process.pid
 
-        for line in process.stdout:
-            log_line = line.strip()
-            if log_line:
-                state["logs"].append(log_line)
-                if len(state["logs"]) > 2000:
-                    state["logs"].pop(0)
+        timeout_at = start_time + timeout if timeout else None
+        buf = ""
+
+        while True:
+            # Check timeout on every iteration (works even with no output)
+            if timeout_at and time.monotonic() > timeout_at:
+                logger.error(f"Task {task_name} timed out after {timeout} seconds")
+                process.kill()
+                state["logs"].append(f"ERROR: Task timed out after {timeout} seconds")
+                break
+
+            reads, _, _ = select.select([process.stdout], [], [], 1.0)
+            if not reads:
+                # Check if process exited while we were waiting
+                if process.poll() is not None:
+                    break
+                continue
+
+            # Read available bytes. Binary read() with select won't block indefinitely.
+            raw_data = process.stdout.read(4096)
+            if not raw_data:
+                break  # EOF
+
+            buf += raw_data.decode('utf-8', errors='replace')
+            while "\n" in buf:
+                line, buf = buf.split("\n", 1)
+                log_line = line.strip()
+                if log_line:
+                    state["logs"].append(log_line)
+
+                    # Maintain error snapshot (last 20 lines)
+                    state["error_snapshot"].append(log_line)
+                    if len(state["error_snapshot"]) > 20:
+                        state["error_snapshot"].pop(0)
+
+                    # History limit
+                    if len(state["logs"]) > 2000:
+                        state["logs"].pop(0)
+
+                    # Progress parsing
+                    # LoRA: [EPOCH] 1/5 avg_loss=4.5
+                    epoch_match = re.search(r'\[EPOCH\]\s*(\d+)/(\d+)', log_line)
+                    if epoch_match:
+                        curr, total = map(int, epoch_match.groups())
+                        state["progress_pct"] = int((curr / total) * 100)
+
+                    # Preparer: [1/3] Loading...
+                    prep_match = re.search(r'\[(\d+)/(\d+)\]', log_line)
+                    if prep_match:
+                        curr, total = map(int, prep_match.groups())
+                        state["progress_pct"] = int((curr / total) * 100)
+
+                    # Generic Step: Step 10/100
+                    step_match = re.search(r'Step\s*(\d+)/(\d+)', log_line, re.IGNORECASE)
+                    if step_match:
+                        curr, total = map(int, step_match.groups())
+                        state["progress_pct"] = int((curr / total) * 100)
 
         process.wait()
         return_code = process.returncode
 
         if return_code == 0:
             state["logs"].append(f"Task {task_name} completed successfully.")
+            state["progress_pct"] = 100
             if "status" in state: state["status"] = "done"
         elif return_code < 0:
-            # Killed by signal (e.g. SIGTERM from cancel)
-            state["logs"].append(f"Task {task_name} was cancelled (signal {-return_code}).")
+            state["logs"].append(f"Task {task_name} was cancelled or timed out (signal {-return_code}).")
             if "status" in state: state["status"] = "cancelled"
         else:
             state["logs"].append(f"Task {task_name} failed with return code {return_code}.")
@@ -361,7 +562,7 @@ def run_process(command: List[str], task_name: str, cwd: str = None):
 
 
 PREPARER_SCRIPT_PATH = os.path.join(ROOT_DIR, "alexandria_preparer_rocm_compatible.py")
-
+DEFAULT_PREP_MODEL = os.path.join(ROOT_DIR, "Qwen2.5-14B-Instruct-Q6_K.gguf")
 
 def _run_preparer_task(config: PreparerConfig, audio_file_path: str, source_file_path: Optional[str] = None):
     """Internal function to run the preparer script in a subprocess."""
@@ -381,8 +582,10 @@ def _run_preparer_task(config: PreparerConfig, audio_file_path: str, source_file
         if config.no_auto_anchor:
             preparer_cmd.append("--no-auto-anchor")
 
-    if config.model:
-        preparer_cmd.extend(["--model", config.model])
+    # Use specified model or project default
+    model_path = config.model or DEFAULT_PREP_MODEL
+    preparer_cmd.extend(["--model", model_path])
+    
     if config.fallback_model:
         preparer_cmd.extend(["--fallback-model", config.fallback_model])
 
@@ -426,6 +629,131 @@ def _run_preparer_task(config: PreparerConfig, audio_file_path: str, source_file
         process_state["preparer"]["output_file"] = config.output_filename
 
 
+@app.post("/api/preparer/batch/start")
+async def start_batch_preparer(request: BatchPreparerRequest, background_tasks: BackgroundTasks):
+    """Start sequential processing of multiple audiobooks."""
+    if process_state["batch_preparer"]["running"]:
+        raise HTTPException(status_code=400, detail="Batch preparer already running")
+
+    # Disk Space Check (Require 5GB for a batch run to be safe)
+    has_space, free_gb = check_disk_space(ROOT_DIR, 5.0)
+    if not has_space:
+         raise HTTPException(status_code=400, detail=f"Insufficient disk space ({free_gb:.1f}GB available, 5.0GB recommended for batch)")
+
+    def batch_task():
+        state = process_state["batch_preparer"]
+        state["running"] = True
+        state["status"] = "running"
+        state["logs"] = [f"Starting batch of {len(request.tasks)} tasks..."]
+        state["tasks"] = [{"audio": t.audio_filename, "status": "pending"} for t in request.tasks]
+        state["cancel"] = False
+        
+        for i, task in enumerate(request.tasks):
+            if state["cancel"]:
+                state["logs"].append("Batch processing cancelled by user.")
+                state["status"] = "cancelled"
+                break
+                
+            state["current_task_idx"] = i
+            state["tasks"][i]["status"] = "running"
+            
+            # Base progress is (completed_tasks / total_tasks)
+            base_progress = (i / len(request.tasks)) * 100
+            state["progress_pct"] = int(base_progress)
+            
+            audio_path = os.path.join(UPLOADS_DIR, task.audio_filename)
+            source_path = os.path.join(UPLOADS_DIR, task.source_filename) if task.source_filename else None
+            
+            if not os.path.exists(audio_path):
+                state["logs"].append(f"Skipping task {i+1}: Audio file not found {task.audio_filename}")
+                state["tasks"][i]["status"] = "failed"
+                continue
+
+            state["logs"].append(f"--- Processing [{i+1}/{len(request.tasks)}] {task.audio_filename} ---")
+            
+            # Setup command
+            preparer_cmd = [sys.executable, "-u", PREPARER_SCRIPT_PATH]
+            preparer_cmd.extend(["--audio", audio_path])
+            preparer_cmd.extend(["--output", os.path.join(ROOT_DIR, task.output_filename)])
+            preparer_cmd.extend(["--lang", request.lang])
+            preparer_cmd.extend(["--min-confidence", str(request.min_confidence)])
+            preparer_cmd.extend(["--min-snr", str(request.min_snr)])
+            preparer_cmd.extend(["--model", DEFAULT_PREP_MODEL])
+            
+            if request.keep_unaligned:
+                preparer_cmd.append("--keep-unaligned")
+            
+            if source_path and os.path.exists(source_path):
+                preparer_cmd.extend(["--source", source_path])
+
+            try:
+                process = subprocess.Popen(
+                    preparer_cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    cwd=ROOT_DIR,
+                    env=os.environ.copy()
+                )
+                
+                buf = ""
+                while True:
+                    if state["cancel"]:
+                        process.kill()
+                        break
+                        
+                    reads, _, _ = select.select([process.stdout], [], [], 1.0)
+                    if not reads:
+                        if process.poll() is not None:
+                            break
+                        continue
+                        
+                    raw_data = process.stdout.read(4096)
+                    if not raw_data:
+                        break # EOF
+                        
+                    buf += raw_data.decode('utf-8', errors='replace')
+                    while "\n" in buf:
+                        line, buf = buf.split("\n", 1)
+                        log_line = line.strip()
+                        if log_line:
+                            state["logs"].append(f"[{i+1}] {log_line}")
+                            if len(state["logs"]) > 5000: state["logs"].pop(0)
+                            
+                            # Try to parse inner progress [X/Y] and update global progress
+                            inner_match = re.search(r'\[(\d+)/(\d+)\]', log_line)
+                            if inner_match:
+                                curr_step, total_steps = map(int, inner_match.groups())
+                                inner_pct = (curr_step / total_steps) * (100 / len(request.tasks))
+                                state["progress_pct"] = int(base_progress + inner_pct)
+                
+                process.wait()
+                if process.returncode == 0:
+                    state["tasks"][i]["status"] = "done"
+                    state["logs"].append(f"Successfully processed {task.audio_filename}")
+                else:
+                    state["tasks"][i]["status"] = "failed"
+                    state["logs"].append(f"Failed task {i+1} with code {process.returncode}")
+                    
+            except Exception as e:
+                state["logs"].append(f"Error in task {i+1}: {e}")
+                state["tasks"][i]["status"] = "failed"
+
+        state["running"] = False
+        if state["status"] == "cancelled":
+            pass  # keep progress as-is; don't overwrite
+        else:
+            state["progress_pct"] = 100
+            state["status"] = "done"
+        state["logs"].append("Batch processing finished.")
+
+    background_tasks.add_task(batch_task)
+    return {"status": "batch_started", "task_count": len(request.tasks)}
+
+@app.post("/api/preparer/batch/cancel")
+async def cancel_batch_preparer():
+    process_state["batch_preparer"]["cancel"] = True
+    return {"status": "cancel_requested"}
+
 @app.post("/api/preparer/start")
 async def start_preparer(
     background_tasks: BackgroundTasks,
@@ -443,6 +771,11 @@ async def start_preparer(
 
     if process_state["preparer"]["running"]:
         raise HTTPException(status_code=400, detail="Preparer process is already running.")
+
+    # Disk Space Check (Require at least 2GB for the preparer process)
+    has_space, free_gb = check_disk_space(ROOT_DIR, 2.0)
+    if not has_space:
+        raise HTTPException(status_code=400, detail=f"Insufficient disk space ({free_gb:.1f}GB available, 2.0GB required for preparer)")
 
     # Save uploaded audio file
     audio_upload_path = os.path.join(UPLOADS_DIR, config.audio_filename)
@@ -824,7 +1157,20 @@ async def get_annotated_script():
 async def get_status(task_name: str):
     if task_name not in process_state:
         raise HTTPException(status_code=404, detail="Task not found")
-    return process_state[task_name]
+    state = process_state[task_name]
+    response = {
+        "running": state["running"],
+        "logs": state["logs"],
+        "progress_pct": state.get("progress_pct", 0),
+        "eta": state.get("eta", ""),
+        "error_snapshot": state.get("error_snapshot", []),
+        "status": state.get("status", "idle")
+    }
+    # Include batch-specific fields for batch_preparer
+    if "tasks" in state:
+        response["tasks"] = state["tasks"]
+        response["current_task_idx"] = state.get("current_task_idx", -1)
+    return response
 
 @app.get("/api/voices")
 async def get_voices():
@@ -970,14 +1316,20 @@ async def merge_audio_endpoint(background_tasks: BackgroundTasks):
     def task():
         process_state["audio"]["running"] = True
         process_state["audio"]["logs"] = ["Starting merge..."]
+        process_state["audio"]["status"] = "running"
+        process_state["audio"]["progress_pct"] = 0
         try:
             success, msg = project_manager.merge_audio()
             if success:
                 process_state["audio"]["logs"].append(f"Merge complete: {msg}")
+                process_state["audio"]["status"] = "done"
+                process_state["audio"]["progress_pct"] = 100
             else:
                 process_state["audio"]["logs"].append(f"Merge failed: {msg}")
+                process_state["audio"]["status"] = "failed"
         except Exception as e:
             process_state["audio"]["logs"].append(f"Merge error: {e}")
+            process_state["audio"]["status"] = "failed"
         finally:
             process_state["audio"]["running"] = False
 
@@ -992,14 +1344,19 @@ async def export_audacity_endpoint(background_tasks: BackgroundTasks):
     def task():
         process_state["audacity_export"]["running"] = True
         process_state["audacity_export"]["logs"] = ["Starting Audacity export..."]
+        process_state["audacity_export"]["status"] = "running"
         try:
             success, msg = project_manager.export_audacity()
             if success:
                 process_state["audacity_export"]["logs"].append(f"Export complete: {msg}")
+                process_state["audacity_export"]["status"] = "done"
+                process_state["audacity_export"]["progress_pct"] = 100
             else:
                 process_state["audacity_export"]["logs"].append(f"Export failed: {msg}")
+                process_state["audacity_export"]["status"] = "failed"
         except Exception as e:
             process_state["audacity_export"]["logs"].append(f"Export error: {e}")
+            process_state["audacity_export"]["status"] = "failed"
         finally:
             process_state["audacity_export"]["running"] = False
 
@@ -1026,9 +1383,15 @@ async def merge_m4b_endpoint(request: M4bExportRequest, background_tasks: Backgr
     if process_state["m4b_export"]["running"]:
         raise HTTPException(status_code=400, detail="M4B export already running")
 
+    # Disk Space Check (Require at least 1GB for the M4B export process)
+    has_space, free_gb = check_disk_space(ROOT_DIR, 1.0)
+    if not has_space:
+        raise HTTPException(status_code=400, detail=f"Insufficient disk space ({free_gb:.1f}GB available, 1.0GB required for M4B export)")
+
     def task():
         process_state["m4b_export"]["running"] = True
         process_state["m4b_export"]["logs"] = ["Starting M4B export..."]
+        process_state["m4b_export"]["status"] = "running"
         try:
             meta = {
                 "title": request.title,
@@ -1041,10 +1404,14 @@ async def merge_m4b_endpoint(request: M4bExportRequest, background_tasks: Backgr
             success, msg = project_manager.merge_m4b(per_chunk_chapters=request.per_chunk_chapters, metadata=meta)
             if success:
                 process_state["m4b_export"]["logs"].append(f"Export complete: {msg}")
+                process_state["m4b_export"]["status"] = "done"
+                process_state["m4b_export"]["progress_pct"] = 100
             else:
                 process_state["m4b_export"]["logs"].append(f"Export failed: {msg}")
+                process_state["m4b_export"]["status"] = "failed"
         except Exception as e:
             process_state["m4b_export"]["logs"].append(f"Export error: {e}")
+            process_state["m4b_export"]["status"] = "failed"
         finally:
             process_state["m4b_export"]["running"] = False
 
@@ -1107,6 +1474,8 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
     def task():
         process_state["audio"]["running"] = True
         process_state["audio"]["cancel"] = False
+        process_state["audio"]["status"] = "running"
+        process_state["audio"]["progress_pct"] = 0
         process_state["audio"]["logs"] = [
             f"Starting parallel generation of {total} chunks with {workers} workers..."
         ]
@@ -1121,12 +1490,15 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
             if cancelled:
                 msg += f", {cancelled} cancelled"
             process_state["audio"]["logs"].append(msg)
+            process_state["audio"]["status"] = "done" if failed == 0 else "failed"
+            process_state["audio"]["progress_pct"] = 100
             if results["failed"]:
                 for idx, err in results["failed"]:
                     process_state["audio"]["logs"].append(f"  Chunk {idx} failed: {err}")
         except Exception as e:
             logger.error(f"Batch generation error: {e}")
             process_state["audio"]["logs"].append(f"Batch generation error: {e}")
+            process_state["audio"]["status"] = "failed"
         finally:
             process_state["audio"]["running"] = False
             process_state["audio"]["cancel"] = False
@@ -1172,6 +1544,8 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
     def task():
         process_state["audio"]["running"] = True
         process_state["audio"]["cancel"] = False
+        process_state["audio"]["status"] = "running"
+        process_state["audio"]["progress_pct"] = 0
         process_state["audio"]["logs"] = [
             f"Starting batch generation of {total} chunks (batch_size={batch_size}, seed={batch_seed})..."
         ]
@@ -1188,12 +1562,15 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
             if cancelled:
                 msg += f", {cancelled} cancelled"
             process_state["audio"]["logs"].append(msg)
+            process_state["audio"]["status"] = "done" if failed == 0 else "failed"
+            process_state["audio"]["progress_pct"] = 100
             if results["failed"]:
                 for idx, err in results["failed"]:
                     process_state["audio"]["logs"].append(f"  Chunk {idx} failed: {err}")
         except Exception as e:
             logger.error(f"Batch generation error: {e}")
             process_state["audio"]["logs"].append(f"Batch generation error: {e}")
+            process_state["audio"]["status"] = "failed"
         finally:
             process_state["audio"]["running"] = False
             process_state["audio"]["cancel"] = False
@@ -1489,6 +1866,11 @@ async def lora_upload_dataset(file: UploadFile = File(...)):
     """Upload a ZIP containing WAV files and metadata.jsonl."""
     if not file.filename.endswith(".zip"):
         raise HTTPException(status_code=400, detail="File must be a .zip archive")
+
+    # Disk Space Check (Require at least 0.5GB for the upload and extraction)
+    has_space, free_gb = check_disk_space(ROOT_DIR, 0.5)
+    if not has_space:
+        raise HTTPException(status_code=400, detail=f"Insufficient disk space ({free_gb:.1f}GB available, 0.5GB required for upload)")
 
     # Derive dataset name from ZIP filename
     dataset_name = re.sub(r'[^\w\- ]', '', os.path.splitext(file.filename)[0]).strip()

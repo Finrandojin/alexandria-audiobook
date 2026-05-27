@@ -1,0 +1,10 @@
+# ── ROCm: AMD GPU ───────────────────────────────────────────
+-r requirements.base.txt
+torch==2.7.0+rocm6.3 --index-url https://download.pytorch.org/whl/rocm6.3
+torchaudio==2.7.0+rocm6.3 --index-url https://download.pytorch.org/whl/rocm6.3
+torchvision==0.22.0+rocm6.3 --index-url https://download.pytorch.org/whl/rocm6.3
+transformers==4.57.3
+accelerate==1.12.0
+triton>=3.0.0
+scipy
+scikit-learn
