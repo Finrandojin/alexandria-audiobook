@@ -10,6 +10,7 @@ from openai import OpenAI
 
 from tts import TTSEngine, sanitize_filename
 from utils import atomic_json_write as _atomic_json_write
+from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 
 
 def extract_json_object(text):
@@ -406,7 +407,7 @@ def _fallback_batch_characters(batch):
     return list(by_speaker.values())
 
 
-def _compile_character_prompt(character_ref):
+def _compile_character_prompt(character_ref, prompt_template=None):
     compact = {
         "name": character_ref.get("name", ""),
         "aliases": character_ref.get("aliases", [])[:20],
@@ -417,6 +418,8 @@ def _compile_character_prompt(character_ref):
         "sample_lines": character_ref.get("sample_lines", [])[:30],
         "observations": character_ref.get("observations", [])[-30:],
     }
+    if prompt_template:
+        return prompt_template.format(character_ref=_json_preview(compact))
     return (
         "You are compiling an audiobook character reference into a final TTS voice persona.\n"
         "Use only supported observations. The final description should be practical for voice design.\n"
@@ -518,7 +521,7 @@ def _save_generated_preview(root, engine, voice_config, speaker, description, re
         return False
 
 
-def run_advanced_persona_generation(script, selected_speakers, samples, voice_config, client, model_name, engine, root, args):
+def run_advanced_persona_generation(script, selected_speakers, samples, voice_config, client, model_name, engine, root, args, system_prompt=None, advanced_prompt=None):
     ref_dir = os.path.join(root, "persona_refs")
     os.makedirs(ref_dir, exist_ok=True)
 
@@ -589,8 +592,8 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": "You produce concise JSON only."},
-                    {"role": "user", "content": _compile_character_prompt(ref)}
+                    {"role": "system", "content": system_prompt or "You produce concise JSON only."},
+                    {"role": "user", "content": _compile_character_prompt(ref, advanced_prompt)}
                 ],
                 temperature=0.25,
                 max_tokens=600,
@@ -676,6 +679,12 @@ def main():
 
     client = OpenAI(base_url=base_url, api_key=api_key)
 
+    # Load persona prompts from config, fall back to defaults
+    prompts_cfg = config.get("prompts", {})
+    persona_system = prompts_cfg.get("persona_system_prompt") or PERSONA_SYSTEM_PROMPT
+    persona_user = prompts_cfg.get("persona_user_prompt") or PERSONA_USER_PROMPT
+    persona_advanced = prompts_cfg.get("persona_advanced_prompt") or PERSONA_ADVANCED_PROMPT
+
     # Load existing voice_config (preserve other fields)
     voice_config = {}
     if os.path.exists(voice_config_path):
@@ -714,6 +723,8 @@ def main():
             engine=engine,
             root=root,
             args=args,
+            system_prompt=persona_system,
+            advanced_prompt=persona_advanced,
         )
         try:
             _atomic_json_write(voice_config, voice_config_path)
@@ -813,20 +824,16 @@ def main():
             intro_ctx = narrator_context.get(speaker, [])
             intro_blob = "\n".join(intro_ctx) if intro_ctx else "(No nearby narrator intro lines found.)"
 
-            user_prompt = (
-                f"You are a voice designer assistant. Given the following narrator-intro context and lines by character '{speaker}':\n\n"
-                f"Narrator context before first appearance:\n{intro_blob}\n\n"
-                f"Character lines:\n{sample_text}\n\n"
-                "Produce a JSON object with two keys: 'description' and 'ref_text'.\n"
-                "- 'description': a concise natural-language voice persona describing age, gender, timbre, accent, speaking rate, typical emotional tone, and delivery guidance (2-3 sentences).\n"
-                "- 'ref_text': a 1-2 sentence short sample that best captures this character's voice and can be used as a TTS reference.\n"
-                "Only output the JSON object and nothing else."
+            user_prompt = persona_user.format(
+                speaker=speaker,
+                narrator_context=intro_blob,
+                sample_lines=sample_text
             )
 
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
-                    {"role": "system", "content": "You produce concise JSON only."},
+                    {"role": "system", "content": persona_system},
                     {"role": "user", "content": user_prompt}
                 ],
                 temperature=0.3,

@@ -408,6 +408,20 @@ Alexandria automatically applies ROCm-specific optimizations when running on AMD
 
 These are applied transparently and require no configuration.
 
+> **ROCm 7.x GPU downclocking fix:** ROCm 7.x has a regression where the GPU's DPM controller aggressively downclocks the shader engine between autoregressive generation steps, causing batch generation to slow to a crawl or appear to hang. The fix is to set the GPU power profile to COMPUTE, which enforces a minimum clock frequency floor:
+>
+> ```bash
+> echo 5 | sudo tee /sys/class/drm/card1/device/pp_power_profile_mode
+> ```
+>
+> This needs to be run once per boot (it does not persist across reboots). You can add it to your system startup or run it manually before launching Alexandria. To verify it's active, check for `COMPUTE*` in the output of:
+>
+> ```bash
+> cat /sys/class/drm/card1/device/pp_power_profile_mode
+> ```
+>
+> ROCm 6.x users and NVIDIA users are not affected.
+
 ## Script Format
 
 The generated script is a JSON array with `speaker`, `text`, and `instruct` fields:
@@ -925,6 +939,7 @@ Alexandria/
 ## Acknowledgements
 
 - [Ayush Naphade](https://github.com/aayushnaphade) — Persona generation, speaker alias resolution, and contextual script review ([PR #42](https://github.com/Finrandojin/alexandria-audiobook/pull/42)). Check out his project [Lily](https://lily.rayoneai.in/) — looking forward to seeing where it goes!
+- [Michii](https://github.com/on22s) — System Health Dashboard with real-time GPU/disk monitoring ([PR #45](https://github.com/Finrandojin/alexandria-audiobook/pull/45)), cross-platform subprocess runner ([PR #46](https://github.com/Finrandojin/alexandria-audiobook/pull/46)), Voice Training Dataset Preparer tab ([PR #47](https://github.com/Finrandojin/alexandria-audiobook/pull/47))
 
 ## License
 

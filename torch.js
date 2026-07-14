@@ -43,14 +43,21 @@ module.exports = {
       },
       "next": null
     },
-    // amd linux (rocm)
+    // amd linux (rocm) — auto-detect version
     {
       "when": "{{gpu === 'amd' && platform === 'linux'}}",
       "method": "shell.run",
       "params": {
         "venv": "{{args && args.venv ? args.venv : null}}",
         "path": "{{args && args.path ? args.path : '.'}}",
-        "message": "uv pip install torch==2.7.0 torchvision==0.22.0 torchaudio==2.7.0 pytorch-triton-rocm --index-url https://download.pytorch.org/whl/rocm6.3 --force-reinstall --no-deps"
+        "message": [
+          "ROCM_VER=$(cat /opt/rocm/.info/version 2>/dev/null | grep -oP '^[0-9]+\\.[0-9]+' || echo '6.3')",
+          "echo \"Detected ROCm version: $ROCM_VER\"",
+          "case $ROCM_VER in 7.*) ROCM_INDEX=rocm7.2 ;; 6.3*) ROCM_INDEX=rocm6.3 ;; 6.2*) ROCM_INDEX=rocm6.2.4 ;; *) ROCM_INDEX=rocm6.3 ;; esac",
+          "echo \"Using PyTorch index: $ROCM_INDEX\"",
+          "uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/$ROCM_INDEX --force-reinstall --no-deps",
+          "uv pip install pytorch-triton-rocm --index-url https://download.pytorch.org/whl/$ROCM_INDEX || true"
+        ]
       },
       "next": null
     },

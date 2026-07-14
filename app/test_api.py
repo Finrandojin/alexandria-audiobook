@@ -160,6 +160,11 @@ def test_save_config_roundtrip():
         if not readback_prompts.get("review_system_prompt"):
             raise TestFailure("Config round-trip failed: review_system_prompt dropped")
 
+    # Verify persona prompts persist through config save
+    if original.get("prompts", {}).get("persona_system_prompt"):
+        if not readback_prompts.get("persona_system_prompt"):
+            raise TestFailure("Config round-trip failed: persona_system_prompt dropped")
+
     # Restore original
     restore = {
         "llm": original["llm"],
@@ -271,6 +276,49 @@ def test_save_review_prompts_roundtrip():
     post("/api/config", json=restore)
 
 
+def test_save_persona_prompts_roundtrip():
+    # Read current config
+    r = get("/api/config")
+    assert_status(r, 200)
+    original = r.json()
+
+    # Save config with custom persona prompts
+    test_config = {
+        "llm": original["llm"],
+        "tts": original.get("tts", {"mode": "local", "url": "http://127.0.0.1:7860", "device": "auto"}),
+        "prompts": {
+            **(original.get("prompts") or {}),
+            "persona_system_prompt": f"{TEST_PREFIX}persona_sys",
+            "persona_user_prompt": f"{TEST_PREFIX}persona_usr",
+            "persona_advanced_prompt": f"{TEST_PREFIX}persona_adv",
+        },
+        "generation": original.get("generation"),
+    }
+    r = post("/api/config", json=test_config)
+    assert_status(r, 200)
+
+    # Read back and verify
+    r = get("/api/config")
+    assert_status(r, 200)
+    readback = r.json()
+    prompts = readback.get("prompts", {})
+    if prompts.get("persona_system_prompt") != f"{TEST_PREFIX}persona_sys":
+        raise TestFailure(f"persona_system_prompt not persisted: {prompts.get('persona_system_prompt')}")
+    if prompts.get("persona_user_prompt") != f"{TEST_PREFIX}persona_usr":
+        raise TestFailure(f"persona_user_prompt not persisted: {prompts.get('persona_user_prompt')}")
+    if prompts.get("persona_advanced_prompt") != f"{TEST_PREFIX}persona_adv":
+        raise TestFailure(f"persona_advanced_prompt not persisted: {prompts.get('persona_advanced_prompt')}")
+
+    # Restore original
+    restore = {
+        "llm": original["llm"],
+        "tts": original.get("tts", {"mode": "local", "url": "http://127.0.0.1:7860", "device": "auto"}),
+        "prompts": original.get("prompts"),
+        "generation": original.get("generation"),
+    }
+    post("/api/config", json=restore)
+
+
 def test_get_default_prompts():
     r = get("/api/default_prompts")
     assert_status(r, 200)
@@ -285,6 +333,32 @@ def test_get_default_prompts():
         raise TestFailure("review_system_prompt is empty")
     if not data["review_user_prompt"]:
         raise TestFailure("review_user_prompt is empty")
+    assert_key(data, "persona_system_prompt")
+    assert_key(data, "persona_user_prompt")
+    assert_key(data, "persona_advanced_prompt")
+    if not data["persona_system_prompt"]:
+        raise TestFailure("persona_system_prompt is empty")
+    if not data["persona_user_prompt"]:
+        raise TestFailure("persona_user_prompt is empty")
+    if not data["persona_advanced_prompt"]:
+        raise TestFailure("persona_advanced_prompt is empty")
+
+
+# ── Section 2b: System Stats ───────────────────────────────
+
+def test_system_stats():
+    r = get("/api/system/stats")
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "gpu")
+    assert_key(data, "disk")
+    disk = data["disk"]
+    assert_key(disk, "free_gb")
+    assert_key(disk, "low_space")
+    if not isinstance(disk["free_gb"], (int, float)):
+        raise TestFailure(f"disk.free_gb should be numeric, got {type(disk['free_gb']).__name__}")
+    if not isinstance(disk["low_space"], bool):
+        raise TestFailure(f"disk.low_space should be bool, got {type(disk['low_space']).__name__}")
 
 
 # ── Section 3: Upload ───────────────────────────────────────
@@ -600,8 +674,10 @@ def test_restore_chunk():
 
 def test_status_known_tasks():
     task_names = [
-        "script", "voices", "audio", "audacity_export",
-        "review", "lora_training", "dataset_gen", "dataset_builder"
+        "script", "audio", "audacity_export",
+        "review", "lora_training", "dataset_gen", "dataset_builder",
+        "persona",
+        "preparer", "batch_preparer"
     ]
     for name in task_names:
         r = get(f"/api/status/{name}")
@@ -616,6 +692,59 @@ def test_status_known_tasks():
 def test_status_unknown_task():
     r = get(f"/api/status/{TEST_PREFIX}fake_task")
     assert_status(r, 404)
+
+
+# ── Section: Preparer ─────────────────────────────────────────
+
+def test_preparer_status():
+    r = get("/api/status/preparer")
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "running")
+    assert_key(data, "logs")
+    assert_key(data, "status")
+
+
+def test_batch_preparer_status():
+    r = get("/api/status/batch_preparer")
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "running")
+    assert_key(data, "logs")
+    assert_key(data, "tasks")
+
+
+def test_preparer_cancel_when_idle():
+    r = post("/api/preparer/cancel", json={})
+    assert_status(r, 400)
+
+
+def test_preparer_list_outputs():
+    r = get("/api/preparer/list")
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "files")
+
+
+def test_preparer_download_404():
+    r = get("/api/preparer/download/nonexistent_xyz.zip")
+    assert_status(r, 404)
+
+
+def test_batch_preparer_start_schema():
+    r = post("/api/preparer/batch/start", json={"tasks": [
+        {"audio_filename": "test.wav", "output_filename": "test.zip"}
+    ]})
+    # 200 = started (script present), 400 = already running, 503 = script absent
+    if r.status_code not in (200, 400, 503):
+        raise TestFailure(f"Unexpected status {r.status_code}: {r.text[:200]}")
+
+
+def test_batch_preparer_cancel():
+    r = post("/api/preparer/batch/cancel", json={})
+    assert_status(r, 200)
+    data = r.json()
+    assert_key(data, "status")
 
 
 # ── Section 9: Voice Design ─────────────────────────────────
@@ -885,12 +1014,30 @@ def test_dataset_builder_delete_404():
     assert_status(r, 404)
 
 
-# ── Section 13: Merge / Export ──────────────────────────────
+# ── Section 13: Persona Generation ──────────────────────────
+
+def test_cancel_persona_not_running():
+    """Cancel endpoint returns idle when not running."""
+    r = post("/api/cancel_persona", json={})
+    assert_status(r, 200)
+    data = r.json()
+    if data.get("status") not in ("idle", "cancelling"):
+        raise TestFailure(f"Expected status idle or cancelling, got {data}")
+
+
+# ── Section 14: Merge / Export ──────────────────────────────
 
 def test_get_audiobook():
     r = get("/api/audiobook")
     if r.status_code == 404:
         return  # acceptable — no audiobook generated yet
+    assert_status(r, 200)
+
+
+def test_get_audiobook_m4b():
+    r = get("/api/audiobook_m4b")
+    if r.status_code == 404:
+        return  # acceptable — no M4B generated yet
     assert_status(r, 200)
 
 
@@ -924,15 +1071,6 @@ def test_review_script():
     if data.get("status") != "started":
         raise TestFailure(f"Expected status=started, got {data}")
 
-
-def test_parse_voices():
-    r = post("/api/parse_voices")
-    if r.status_code == 400:
-        raise TestFailure("SKIP: already running")
-    assert_status(r, 200)
-    data = r.json()
-    if data.get("status") != "started":
-        raise TestFailure(f"Expected status=started, got {data}")
 
 
 def test_generate_chunk():
@@ -1058,7 +1196,11 @@ def run_all_tests():
     run_test("save_pause_config_roundtrip", test_save_pause_config_roundtrip)
     run_test("pause_config_defaults", test_pause_config_defaults)
     run_test("save_review_prompts_roundtrip", test_save_review_prompts_roundtrip)
+    run_test("save_persona_prompts_roundtrip", test_save_persona_prompts_roundtrip)
     run_test("get_default_prompts", test_get_default_prompts)
+
+    section("System Stats")
+    run_test("system_stats", test_system_stats)
 
     section("Upload")
     run_test("upload_file", test_upload_file)
@@ -1093,6 +1235,15 @@ def run_all_tests():
     section("Status Polling")
     run_test("status_known_tasks", test_status_known_tasks)
     run_test("status_unknown_task", test_status_unknown_task)
+
+    section("Preparer")
+    run_test("preparer_status", test_preparer_status)
+    run_test("batch_preparer_status", test_batch_preparer_status)
+    run_test("preparer_cancel_when_idle", test_preparer_cancel_when_idle)
+    run_test("preparer_list_outputs", test_preparer_list_outputs)
+    run_test("preparer_download_404", test_preparer_download_404)
+    run_test("batch_preparer_start_schema", test_batch_preparer_start_schema)
+    run_test("batch_preparer_cancel", test_batch_preparer_cancel)
 
     section("Voice Design")
     run_test("voice_design_list", test_voice_design_list)
@@ -1130,14 +1281,17 @@ def run_all_tests():
     run_test("dataset_builder_delete", test_dataset_builder_delete)
     run_test("dataset_builder_delete_404", test_dataset_builder_delete_404)
 
+    section("Persona Generation")
+    run_test("cancel_persona_not_running", test_cancel_persona_not_running)
+
     section("Merge / Export")
     run_test("get_audiobook", test_get_audiobook)
+    run_test("get_audiobook_m4b", test_get_audiobook_m4b)
     run_test("get_audacity_export", test_get_audacity_export)
 
     section("Generation (TTS/LLM)")
     run_test("generate_script", test_generate_script, requires_full=True)
     run_test("review_script", test_review_script, requires_full=True)
-    run_test("parse_voices", test_parse_voices, requires_full=True)
     run_test("generate_chunk", test_generate_chunk, requires_full=True)
     run_test("generate_batch", test_generate_batch, requires_full=True)
     run_test("generate_batch_fast", test_generate_batch_fast, requires_full=True)

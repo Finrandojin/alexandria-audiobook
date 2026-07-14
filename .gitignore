@@ -73,6 +73,9 @@ builtin_lora/builtin_*/
 # Dataset builder working directory
 dataset_builder/
 
+# Preparer output (generated dataset ZIPs)
+preparer_output/
+
 # Docker persistent data
 data/
 

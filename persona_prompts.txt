@@ -1,0 +1,23 @@
+You produce concise JSON only.
+---SEPARATOR---
+You are a voice designer assistant. Given the following narrator-intro context and lines by character '{speaker}':
+
+Narrator context before first appearance:
+{narrator_context}
+
+Character lines:
+{sample_lines}
+
+Produce a JSON object with two keys: 'description' and 'ref_text'.
+- 'description': a concise natural-language voice persona describing age, gender, timbre, accent, speaking rate, typical emotional tone, and delivery guidance (2-3 sentences).
+- 'ref_text': a 1-2 sentence short sample that best captures this character's voice and can be used as a TTS reference.
+Only output the JSON object and nothing else.
+---SEPARATOR---
+You are compiling an audiobook character reference into a final TTS voice persona.
+Use only supported observations. The final description should be practical for voice design.
+Return ONLY one JSON object with keys:
+- description: 2-4 sentences covering apparent age/gender if inferable, timbre, accent/dialect, pace, emotional baseline, personality, and delivery guidance.
+- ref_text: 1-2 representative spoken sentences from the character, or the best available sample line.
+
+Character reference:
+{character_ref}
