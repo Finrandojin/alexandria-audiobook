@@ -731,8 +731,13 @@ async def upload_file(file: UploadFile = File(...)):
 
     return {"filename": file.filename, "path": file_path}
 
+class GenerateScriptRequest(BaseModel):
+    single_speaker: bool = False
+    speaker_name: str = "Narrator"
+    instruct: str = "Neutral narration."
+
 @app.post("/api/generate_script")
-async def generate_script(background_tasks: BackgroundTasks):
+async def generate_script(background_tasks: BackgroundTasks, request: GenerateScriptRequest = GenerateScriptRequest()):
     # Get input file from state.json
     state_path = os.path.join(ROOT_DIR, "state.json")
     if not os.path.exists(state_path):
@@ -748,7 +753,14 @@ async def generate_script(background_tasks: BackgroundTasks):
     if process_state["script"]["running"]:
          raise HTTPException(status_code=400, detail="Script generation already running")
 
-    background_tasks.add_task(run_process, [sys.executable, "-u", "generate_script.py", input_file], "script")
+    cmd = [sys.executable, "-u", "generate_script.py", input_file]
+    if request.single_speaker:
+        cmd += [
+            "--single-speaker",
+            "--speaker-name", request.speaker_name or "Narrator",
+            "--instruct", request.instruct or "Neutral narration.",
+        ]
+    background_tasks.add_task(run_process, cmd, "script")
     return {"status": "started"}
 
 @app.post("/api/review_script")
