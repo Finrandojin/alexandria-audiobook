@@ -96,7 +96,7 @@ class ProjectManager:
         self.chunks_path = os.path.join(root_dir, "chunks.json")
         self.voicelines_dir = os.path.join(root_dir, "voicelines")
         self.voice_config_path = os.path.join(root_dir, "voice_config.json")
-        self.config_path = os.path.join(root_dir, "app", "config.json")
+        self.config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(root_dir, "app", "config.json")
 
         # Ensure voicelines dir exists
         os.makedirs(self.voicelines_dir, exist_ok=True)

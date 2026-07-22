@@ -37,7 +37,7 @@ app = FastAPI(title="Alexandria Audiobook")
 # Paths
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
-CONFIG_PATH = os.path.join(BASE_DIR, "config.json")
+CONFIG_PATH = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(BASE_DIR, "config.json")
 VOICES_PATH = os.path.join(ROOT_DIR, "voices.json")
 VOICE_CONFIG_PATH = os.path.join(ROOT_DIR, "voice_config.json")
 SCRIPT_PATH = os.path.join(ROOT_DIR, "annotated_script.json")
@@ -504,6 +504,7 @@ async def get_default_prompts():
 
 @app.post("/api/config")
 async def save_config(config: AppConfig):
+    os.makedirs(os.path.dirname(CONFIG_PATH) or ".", exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config.model_dump(), f, indent=2, ensure_ascii=False)
     # Reset engine so it picks up new TTS settings on next use
@@ -933,10 +934,26 @@ async def merge_audio_endpoint(background_tasks: BackgroundTasks):
         except Exception as e:
             process_state["audio"]["logs"].append(f"Merge error: {e}")
         finally:
+            # Full conversion is done — free TTS models from VRAM
+            engine = project_manager.engine
+            if engine is not None:
+                try:
+                    engine.unload_models()
+                except Exception as e:
+                    process_state["audio"]["logs"].append(f"Model unload warning: {e}")
             process_state["audio"]["running"] = False
 
     background_tasks.add_task(task)
     return {"status": "started"}
+
+@app.post("/api/unload")
+async def unload_models_endpoint():
+    """Manually free cached TTS models from VRAM."""
+    engine = project_manager.engine
+    if engine is None:
+        return {"status": "noop", "unloaded": []}
+    unloaded = engine.unload_models()
+    return {"status": "ok", "unloaded": unloaded}
 
 @app.post("/api/export_audacity")
 async def export_audacity_endpoint(background_tasks: BackgroundTasks):
