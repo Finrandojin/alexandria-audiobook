@@ -2,8 +2,13 @@ import os
 import sys
 import json
 import re
+import argparse
 from openai import OpenAI
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
+
+# Cap for single-speaker mode: entries at this size pass through
+# group_into_chunks (MAX_CHUNK_CHARS=500) as-is without further splitting.
+SINGLE_SPEAKER_MAX_CHARS = 500
 
 def clean_json_string(text):
     """Clean and extract valid JSON array from LLM response."""
@@ -345,13 +350,54 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
     return []
 
-def main():
-    if len(sys.argv) < 2:
-        print("Error: No input file path provided.")
-        print("Usage: python generate_script.py <input_file_path>")
+def _write_script_output(all_entries):
+    """Write annotated_script.json and clear stale chunks.json."""
+    output_path = os.path.join("..", "annotated_script.json")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(all_entries, f, indent=2, ensure_ascii=False)
+
+    chunks_path = os.path.join("..", "chunks.json")
+    if os.path.exists(chunks_path):
+        os.remove(chunks_path)
+        print("Cleared old chunks.json")
+
+    speakers = set(entry.get("speaker") or entry.get("type") or "UNKNOWN" for entry in all_entries)
+    print(f"\nGenerated {len(all_entries)} script entries")
+    print(f"Speakers found: {', '.join(sorted(speakers))}")
+    print(f"Output saved to: {output_path}")
+
+
+def run_single_speaker(book_content, speaker_name, instruct):
+    """Bypass the LLM and emit one entry per text segment, all attributed
+    to a single speaker. Used for first-person memoirs, non-fiction, etc.,
+    where character detection is unnecessary."""
+    segments = split_into_chunks(book_content, max_size=SINGLE_SPEAKER_MAX_CHARS)
+    print(f"Split into {len(segments)} narration segments at paragraph/sentence boundaries")
+
+    entries = [
+        {"speaker": speaker_name, "text": segment, "instruct": instruct}
+        for segment in segments
+    ]
+
+    if not entries:
+        print("Error: No script entries generated (input text is empty?)")
         sys.exit(1)
 
-    input_file_path = sys.argv[1]
+    _write_script_output(entries)
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Generate annotated audiobook script.")
+    parser.add_argument("input_file_path", help="Path to the input text/markdown/EPUB text file.")
+    parser.add_argument("--single-speaker", action="store_true",
+                        help="Skip LLM and attribute the whole text to one speaker.")
+    parser.add_argument("--speaker-name", default="Narrator",
+                        help="Speaker name used in single-speaker mode (default: Narrator).")
+    parser.add_argument("--instruct", default="Neutral narration.",
+                        help="Voice direction used in single-speaker mode.")
+    args = parser.parse_args()
+
+    input_file_path = args.input_file_path
     print(f"Processing book from: {input_file_path}")
 
     if not os.path.exists(input_file_path):
@@ -365,6 +411,11 @@ def main():
     book_content = fix_mojibake(book_content)
 
     print(f"Read {len(book_content)} characters")
+
+    if args.single_speaker:
+        print(f"Single-speaker mode: attributing all narration to '{args.speaker_name}'")
+        run_single_speaker(book_content, args.speaker_name, args.instruct)
+        return
 
     # Load LLM config
     config_path = os.path.join(os.path.dirname(__file__), "config.json")
@@ -442,22 +493,7 @@ def main():
         print("Error: No script entries generated")
         sys.exit(1)
 
-    # Save as JSON
-    output_path = os.path.join("..", "annotated_script.json")
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(all_entries, f, indent=2, ensure_ascii=False)
-
-    # Delete old chunks.json so editor regenerates from new script
-    chunks_path = os.path.join("..", "chunks.json")
-    if os.path.exists(chunks_path):
-        os.remove(chunks_path)
-        print("Cleared old chunks.json")
-
-    # Summary (check both "speaker" and "type" fields)
-    speakers = set(entry.get("speaker") or entry.get("type") or "UNKNOWN" for entry in all_entries)
-    print(f"\nGenerated {len(all_entries)} script entries")
-    print(f"Speakers found: {', '.join(sorted(speakers))}")
-    print(f"Output saved to: {output_path}")
+    _write_script_output(all_entries)
 
 
 if __name__ == '__main__':

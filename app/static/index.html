@@ -338,11 +338,31 @@
                         <div id="upload-status" class="mt-2"></div>
                     </div>
 
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="single-speaker-toggle">
+                            <label class="form-check-label" for="single-speaker-toggle">
+                                Single speaker mode <span class="text-muted">— skip the LLM, narrate the whole text with one voice</span>
+                            </label>
+                        </div>
+                        <div id="single-speaker-options" class="mt-2 ps-4" style="display:none;">
+                            <div class="input-group input-group-sm mb-1">
+                                <span class="input-group-text" style="min-width:130px;">Speaker name</span>
+                                <input type="text" class="form-control" id="single-speaker-name" value="Narrator">
+                            </div>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text" style="min-width:130px;">Voice direction</span>
+                                <input type="text" class="form-control" id="single-speaker-instruct" value="Neutral narration.">
+                            </div>
+                            <small class="text-muted">Useful for first-person memoirs, non-fiction, or anything without distinct characters.</small>
+                        </div>
+                    </div>
+
                     <div class="d-grid gap-2">
                         <button class="btn btn-success btn-lg" id="btn-gen-script">
                             <i class="fas fa-magic me-2"></i>Generate Annotated Script
                         </button>
-                        <small class="text-muted">Sends the book to your LLM to split it into annotated chunks with speaker labels and voice directions.</small>
+                        <small class="text-muted" id="btn-gen-script-hint">Sends the book to your LLM to split it into annotated chunks with speaker labels and voice directions.</small>
                         <button class="btn btn-outline-secondary btn-lg" id="btn-review-script">
                             <i class="fas fa-check-double me-2"></i>Review Script (Optional)
                         </button>
@@ -1395,6 +1415,14 @@
             }
         });
 
+        document.getElementById('single-speaker-toggle').addEventListener('change', (e) => {
+            const on = e.target.checked;
+            document.getElementById('single-speaker-options').style.display = on ? '' : 'none';
+            document.getElementById('btn-gen-script-hint').textContent = on
+                ? 'Skips the LLM. Splits the book at paragraph boundaries and attributes every chunk to one speaker.'
+                : 'Sends the book to your LLM to split it into annotated chunks with speaker labels and voice directions.';
+        });
+
         document.getElementById('btn-gen-script').addEventListener('click', async () => {
             const fileInput = document.getElementById('file-upload');
             const statusEl = document.getElementById('upload-status');
@@ -1407,8 +1435,15 @@
                 return;
             }
 
+            const singleSpeaker = document.getElementById('single-speaker-toggle').checked;
+            const body = { single_speaker: singleSpeaker };
+            if (singleSpeaker) {
+                body.speaker_name = document.getElementById('single-speaker-name').value.trim() || 'Narrator';
+                body.instruct = document.getElementById('single-speaker-instruct').value.trim() || 'Neutral narration.';
+            }
+
             try {
-                await API.post('/api/generate_script', {});
+                await API.post('/api/generate_script', body);
                 pollLogs('script', 'script-logs');
             } catch (e) {
                 const detail = e.message || 'Unknown error';
