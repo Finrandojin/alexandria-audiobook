@@ -626,6 +626,29 @@ class TTSEngine:
             print(f"LoRA adapter loaded from {adapter_path}")
             return model
 
+    def unload_models(self):
+        """Free all cached local TTS models and clear GPU cache.
+
+        Called after a full conversion finishes (or via /api/unload) so
+        Qwen3-TTS base/clone/design/LoRA weights don't sit in VRAM
+        indefinitely. Next TTS call re-loads on demand.
+        """
+        with self._model_lock:
+            unloaded = []
+            for attr in ("_local_custom_model", "_local_clone_model",
+                         "_local_design_model", "_local_lora_model"):
+                if getattr(self, attr) is not None:
+                    setattr(self, attr, None)
+                    unloaded.append(attr)
+            self._lora_adapter_path = None
+            self._lora_prompt_cache.clear()
+            self._clone_prompt_cache.clear()
+            self._warmup_needed = True
+            if unloaded:
+                print(f"Unloaded TTS models: {', '.join(unloaded)}")
+                self._clear_gpu_cache()
+            return unloaded
+
     def _init_external(self):
         """Create Gradio client on demand."""
         if self._gradio_client is not None:
