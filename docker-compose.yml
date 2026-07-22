@@ -3,6 +3,9 @@ services:
     build: .
     ports:
       - "4200:4200"
+    environment:
+      # Store WebUI settings on a mounted volume so they survive container restarts
+      - ALEXANDRIA_CONFIG_PATH=/alexandria/config/config.json
     volumes:
       # Persist HuggingFace model cache (~3.5 GB per model, downloaded on first use)
       - hf_cache:/root/.cache/huggingface
@@ -14,6 +17,8 @@ services:
       - ./data/lora_datasets:/alexandria/lora_datasets
       - ./data/dataset_builder:/alexandria/dataset_builder
       - ./data/scripts:/alexandria/scripts
+      # Persist WebUI settings (OpenAI endpoint, prompts, TTS mode, etc.)
+      - ./data/config:/alexandria/config
       # Persist audiobook output
       - ./data/output:/alexandria/voicelines
     deploy:
