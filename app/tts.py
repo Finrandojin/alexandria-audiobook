@@ -1692,7 +1692,7 @@ class TTSEngine:
                 handle_file(ref_audio),
                 ref_text,
                 text,
-                "Auto",
+                self._language,
                 False,       # use_xvector_only
                 "1.7B",
                 200,         # max_chunk_chars
