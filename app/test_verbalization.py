@@ -1,7 +1,8 @@
 import unittest
 
-from verbalization import (ELONGATION_HINT, SUNG_HINT, classify,
-                           extract_delivery_cues, is_pictographic_kana)
+from verbalization import (ELONGATION_HINT, SET_APART_HINT, SUNG_HINT,
+                           classify, extract_delivery_cues,
+                           is_pictographic_kana, split_bracketed_spans)
 
 
 class ClassifyTest(unittest.TestCase):
@@ -70,6 +71,41 @@ class DeliveryCueTest(unittest.TestCase):
         text, hints = extract_delivery_cues("Nothing to do here.")
         self.assertEqual(text, "Nothing to do here.")
         self.assertEqual(hints, [])
+
+
+class BracketedSpanTest(unittest.TestCase):
+    """Angle brackets mark a different delivery mode, not text to read out.
+    In mushoku16 they wrap precognition visions - "<I saw the figure of a
+    person.>" - and elsewhere in the library they wrap system announcements.
+    Either way the brackets are never spoken, and the span inside wants its own
+    delivery, so it becomes its own part."""
+
+    def test_bracketed_span_is_split_out(self):
+        parts = split_bracketed_spans(
+            "He readied himself. <I saw the figure of a person.> I shuddered.")
+        self.assertEqual(len(parts), 3)
+        self.assertEqual(parts[0], ("He readied himself.", False))
+        self.assertEqual(parts[1], ("I saw the figure of a person.", True))
+        self.assertEqual(parts[2], ("I shuddered.", False))
+
+    def test_brackets_are_never_kept(self):
+        parts = split_bracketed_spans("<My vision was covered in light.>")
+        self.assertEqual(parts, [("My vision was covered in light.", True)])
+
+    def test_text_without_brackets_is_one_plain_part(self):
+        parts = split_bracketed_spans("Nothing bracketed here.")
+        self.assertEqual(parts, [("Nothing bracketed here.", False)])
+
+    def test_lone_angle_bracket_is_left_alone(self):
+        # A stray < with no closing partner is not a span; do not guess.
+        parts = split_bracketed_spans("The value is < 5 in that case.")
+        self.assertEqual(parts, [("The value is < 5 in that case.", False)])
+
+    def test_an_emoticon_is_not_treated_as_a_span(self):
+        # "><" is a face, not a bracket pair.
+        parts = split_bracketed_spans("Sorry >< I forgot.")
+        self.assertEqual(len(parts), 1)
+        self.assertFalse(parts[0][1])
 
 
 if __name__ == "__main__":
