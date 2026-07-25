@@ -74,9 +74,20 @@ depend on its current meaning for deterministic NARRATOR assignment.
 
 Scanned 2026-07-24 across all three library roots: 7,100 files, **5,850 unique
 books** after content-hash dedupe, **4,195 real novels** after dropping code,
-build logs and fragments (`lib_burst_generated.txt` and
-`101CProgrammingChallenges.epub` were the top "symbol" hits before filtering —
-do not trust unfiltered counts).
+build logs, textbooks and RPG rulebooks. Exclusion is by **symbol density**
+(`(review_symbol + verbalize) / chars < 0.002`), not by title:
+`101CProgrammingChallenges.epub`, `lib_burst_generated.txt` and both
+`KonoSuba TRPG` rulebooks are excluded on content, while `Katanagatari` is
+kept.
+
+Do not filter on title keywords. Light novels routinely mimic textbook
+phrasing — "The Genius Prince's Guide to Raising a Nation Out of Debt",
+"Before the Tutorial Starts", "Min-Maxing My TRPG Build in Another World" —
+and a keyword filter drops 27 genuine novels while catching nothing the
+density filter misses.
+
+The top unfiltered "symbol" hits were a Unity build log and a C++ textbook,
+so never quote unfiltered counts.
 
 | class | novels affected | occurrences |
 |---|---:|---:|
