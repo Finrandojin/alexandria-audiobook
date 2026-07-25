@@ -486,18 +486,6 @@
     "test_multi_process_state.MultiProcessStateTests.test_batch_cancel_signals_every_process",
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
   ],
-  "test_narrator_detection": [
-    "test_narrator_detection.FirstPersonTest.test_first_person_narration_detected",
-    "test_narrator_detection.FirstPersonTest.test_third_person_narration_not_flagged",
-    "test_narrator_detection.NarratorDetectionTest.test_ambiguous_book_returns_none",
-    "test_narrator_detection.NarratorDetectionTest.test_empty_roster_is_safe",
-    "test_narrator_detection.NarratorDetectionTest.test_narrator_is_the_name_skewed_to_dialogue",
-    "test_narrator_detection.NarratorDetectionTest.test_third_person_book_yields_no_narrator",
-    "test_narrator_detection.RosterPromptTest.test_aliases_are_optional",
-    "test_narrator_detection.RosterPromptTest.test_empty_roster_still_renders",
-    "test_narrator_detection.RosterPromptTest.test_narrator_is_named_with_the_reason",
-    "test_narrator_detection.RosterPromptTest.test_roster_without_narrator_is_unchanged"
-  ],
   "test_pass_quality": [
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_a_real_name_still_passes",
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_literal_type_name_is_rejected",
