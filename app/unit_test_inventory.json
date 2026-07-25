@@ -229,6 +229,11 @@
     "test_dedup_benchmark.DedupBenchmarkTests.test_changed_audio_is_rejected_before_dedup_runs",
     "test_dedup_benchmark.DedupBenchmarkTests.test_content_hash_ignores_archive_packaging"
   ],
+  "test_deterministic_classification": [
+    "test_deterministic_classification.ClassificationTemperatureTest.test_config_can_still_override",
+    "test_deterministic_classification.ClassificationTemperatureTest.test_instruct_still_samples",
+    "test_deterministic_classification.ClassificationTemperatureTest.test_segment_and_attribute_default_to_zero"
+  ],
   "test_env_doctor": [
     "test_env_doctor.EvaluateEnvTests.test_all_required_present_is_ok",
     "test_env_doctor.EvaluateEnvTests.test_interpreter_not_found_fails_all_required",
