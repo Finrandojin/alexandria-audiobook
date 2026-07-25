@@ -464,6 +464,10 @@ class LLMGenParams:
     presegment_quotes: bool = False
     reasoning_allowance: int = 0
     reasoning_effort: str = None
+    # LM Studio honours seed: same seed twice is identical, a different seed
+    # differs, no seed varies. That is what lets sampled voting stay
+    # reproducible instead of trading determinism for accuracy.
+    seed: int = None
 
 
 def _rotate_log_if_large(log_path, max_bytes=10 * 1024 * 1024):
@@ -500,6 +504,7 @@ def build_extra_body(params):
         "min_p": params.min_p,
         "banned_tokens": params.banned_tokens if params.banned_tokens else None,
         "reasoning_effort": params.reasoning_effort,
+        "seed": params.seed,
     }.items() if v is not None}
 
 

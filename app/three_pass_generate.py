@@ -821,7 +821,8 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                    on_exhaustion="fail", output_path=None,
                    context_windows=None, context_rescue_retries=None, endpoint=None,
                    collect_all_failures=False, thinking_mode=None,
-                   unicode_report=None):
+                   unicode_report=None, attribution_votes=1,
+                   vote_temperature=0.3):
     """Full flow. Returns the assembled [{speaker,text,instruct}] list, or raises
     RuntimeError if pass 1 exhausts a chunk. When output_path is given, saves a
     checkpoint after each pass-1 chunk and each pass-2/3 batch and resumes from
@@ -1008,8 +1009,10 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                              if index + 1 < len(segmented) else None}
                             for index, _ in current]
                 try:
-                    new_named = attribute_batch(
+                    new_named, vote_confidences = attribute_batch_voted(
                         client, model_name, batch, params, roster=roster,
+                        votes=attribution_votes,
+                        vote_temperature=vote_temperature,
                         on_exhaustion=on_exhaustion, neighbor_contexts=contexts,
                         attempt_observer=record_attempt)
                 except PassExhausted:
@@ -1027,7 +1030,14 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                           f"{len(current)} -> {midpoint} + {len(current) - midpoint}")
                     work[0:0] = [current[:midpoint], current[midpoint:]]
                     continue
-                for (index, _), entry in zip(current, new_named):
+                for position, ((index, _), entry) in enumerate(
+                        zip(current, new_named)):
+                    if attribution_votes > 1 and position < len(vote_confidences):
+                        # Only present when voting, so a default run's output
+                        # shape is unchanged.
+                        entry = {**entry,
+                                 "attribution_confidence": round(
+                                     vote_confidences[position], 3)}
                     named[index] = entry
                 if on_exhaustion == "fallback":
                     roster = build_roster(
@@ -1129,6 +1139,82 @@ def build_segment_failure_record(chunk_number, chunk_text, failure_codes):
             "source_preview": chunk_text[:500],
             "failure_codes": codes,
             "reason": codes[0] if codes else "segment_exhausted"}
+
+
+# Fixed, distinct seeds so a vote is reproducible: the same input yields the
+# same samples and therefore the same majority on every run.
+_VOTE_SEED_BASE = 1000
+
+
+def vote_seeds(count):
+    """Return `count` distinct, stable seeds for one voted attribution."""
+    return [_VOTE_SEED_BASE + index for index in range(count)]
+
+
+def majority_vote(votes):
+    """Return (winner, confidence) for one entry's ballots.
+
+    Confidence is the winning share, which is the signal greedy decoding cannot
+    produce: measured on mushoku16, greedy agreed with a unanimous vote 81% of
+    the time but with a split vote only 42%, so a split reliably marks a
+    contested line. With no majority the first sample wins, keeping the result
+    deterministic rather than dependent on tie ordering.
+    """
+    real = [v for v in votes if v is not None]
+    if not real:
+        return None, 0.0
+    tally = Counter(real)
+    best = max(tally.values())
+    for vote in real:                      # first sample with the top count
+        if tally[vote] == best:
+            return vote, best / len(real)
+    return real[0], best / len(real)
+
+
+def attribute_batch_voted(client, model_name, frozen_batch, params, roster,
+                          votes=1, vote_temperature=0.3, **kwargs):
+    """Attribute one batch, optionally by majority vote across seeded samples.
+
+    votes=1 is the greedy path and is byte-identical to calling attribute_batch
+    directly, so this is inert unless voting is switched on.
+
+    Above 1, the batch is attributed once per fixed seed at vote_temperature
+    and the majority wins per entry. Greedy commits to a single path with no
+    way to correct itself: measured on mushoku16, in 30 of 49 disagreements it
+    chose a speaker that not one of three samples picked, and in one scene it
+    scattered four lines addressed to Rudi across two characters while every
+    sample said ROXY.
+
+    Returns (entries, confidences). Each confidence is the winning share, so a
+    caller can flag contested lines - a signal greedy cannot produce.
+    """
+    if votes <= 1:
+        result = attribute_batch(client, model_name, frozen_batch, params,
+                                 roster, **kwargs)
+        return result, [1.0] * len(result or [])
+
+    ballots = []
+    for seed in vote_seeds(votes):
+        sampled = replace(params, seed=seed, temperature=vote_temperature,
+                          attribute_temperature=vote_temperature)
+        result = attribute_batch(client, model_name, frozen_batch, sampled,
+                                 roster, **kwargs)
+        if result and len(result) == len(frozen_batch):
+            ballots.append(result)
+    if not ballots:
+        return [], []
+    if len(ballots) == 1:
+        return ballots[0], [1.0] * len(ballots[0])
+
+    entries, confidences = [], []
+    for position in range(len(ballots[0])):
+        speakers = [ballot[position].get("speaker") for ballot in ballots]
+        winner, confidence = majority_vote(speakers)
+        entry = dict(ballots[0][position])
+        entry["speaker"] = winner
+        entries.append(entry)
+        confidences.append(confidence)
+    return entries, confidences
 
 
 def build_failure_record(pass_name, index, text, last_attempt=None):
@@ -1269,6 +1355,16 @@ def main():
                              "'fallback' degrades gracefully (production).")
     parser.add_argument("--preflight", action="store_true",
                         help="Run first/middle/dialogue-heavy samples only.")
+    parser.add_argument("--attribution-votes", type=int, default=1,
+                        help="Attribute each batch this many times with fixed "
+                             "seeds and take the majority (default 1 = greedy). "
+                             "Greedy commits to one path and cannot recover; "
+                             "measured on mushoku16 it chose a speaker no "
+                             "sample agreed with in 61%% of disagreements.")
+    parser.add_argument("--vote-temperature", type=float, default=0.3,
+                        help="Sampling temperature for voted attribution "
+                             "(default 0.3). At 0.7 the samples abstain to "
+                             "UNKNOWN instead of committing.")
     parser.add_argument("--reasoning-effort", default=None,
                         help="Pass through to the model (e.g. 'none' to "
                              "disable thinking on a reasoning model).")
@@ -1393,7 +1489,9 @@ def main():
                                  endpoint=base_url,
                                  collect_all_failures=args.collect_all_failures,
                                  unicode_report=unicode_report,
-                                 thinking_mode=args.reasoning_effort)
+                                 thinking_mode=args.reasoning_effort,
+                                 attribution_votes=args.attribution_votes,
+                                 vote_temperature=args.vote_temperature)
     except (RuntimeError, PassExhausted) as exc:
         print(f"Error: {exc}")
         sys.exit(1)
