@@ -912,6 +912,13 @@
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_results_create_nested_output_directory",
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_sweep_uses_peak_across_all_sub_batches"
   ],
+  "test_unattested_speakers": [
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_common_word_is_rejected",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_invented_speaker_is_rejected",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_real_character_passes",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_unknown_placeholder_still_allowed",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_without_source_nothing_is_rejected"
+  ],
   "test_verbalization": [
     "test_verbalization.BracketedSpanTest.test_an_emoticon_is_not_treated_as_a_span",
     "test_verbalization.BracketedSpanTest.test_bracketed_span_is_split_out",
