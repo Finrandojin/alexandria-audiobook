@@ -447,6 +447,10 @@
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
   ],
   "test_pass_quality": [
+    "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_a_real_name_still_passes",
+    "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_literal_type_name_is_rejected",
+    "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_rejection_is_case_insensitive",
+    "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_unknown_placeholder_is_still_allowed",
     "test_pass_quality.AttributionTests.test_attribution_fails_on_duplicate_or_missing_index",
     "test_pass_quality.AttributionTests.test_attribution_fails_when_spoken_left_as_narrator",
     "test_pass_quality.AttributionTests.test_attribution_ignores_legacy_head_when_index_is_valid",
