@@ -11,8 +11,9 @@ import logging
 import gc
 import uuid
 from script_repair import EXPLICIT_SILENCE_MS
-from verbalization import (VERBALIZE, classify, extract_delivery_cues,
-                           is_pictographic_kana)
+from verbalization import (SET_APART_HINT, VERBALIZE, classify,
+                           extract_delivery_cues, is_pictographic_kana,
+                           split_bracketed_spans)
 from utils import (atomic_json_write, safe_load_json, is_oom_failure,
                    get_app_config_path, is_nonverbal_text)
 from config_settings import load_app_config
@@ -95,27 +96,40 @@ def split_on_unspeakable(entry, scene_break_pause_ms):
     segments.append("".join(current))
 
     parts = []
-    for segment in segments:
-        cleaned, hints = extract_delivery_cues(segment)
-        cleaned = " ".join(cleaned.split()) if cleaned.strip() else ""
-        if not cleaned:
-            # A break with nothing before it has no audio anchor to attach a
-            # pause to, mirroring the leading-nonverbal rule below.
+    for index, segment in enumerate(segments):
+        segment_parts = []
+        # A bracketed span is delivered differently from the prose around it,
+        # so it becomes its own part rather than inheriting the entry's
+        # instruct. These boundaries are NOT scene breaks and carry no pause.
+        for fragment, set_apart in split_bracketed_spans(segment):
+            cleaned, hints = extract_delivery_cues(fragment)
+            if set_apart:
+                hints = hints + [SET_APART_HINT]
+            cleaned = " ".join(cleaned.split()) if cleaned.strip() else ""
+            if not cleaned:
+                continue
+            part = dict(entry)
+            part["text"] = cleaned
+            if hints:
+                existing = str(part.get("instruct") or "").strip()
+                part["instruct"] = " ".join(filter(None, [existing] + hints))
+            segment_parts.append(part)
+
+        if not segment_parts:
+            # A scene break with nothing before it has no audio anchor to
+            # attach a pause to, mirroring the leading-nonverbal rule below.
             if parts:
                 parts[-1]["pause_after"] = max(
                     int(parts[-1].get("pause_after") or 0), scene_break_pause_ms)
             continue
-        part = dict(entry)
-        part["text"] = cleaned
-        if hints:
-            existing = str(part.get("instruct") or "").strip()
-            part["instruct"] = " ".join(filter(None, [existing] + hints))
-        parts.append(part)
+        # The gap between segments is the scene break, so the pause goes on the
+        # last part of every segment except the final one.
+        if index < len(segments) - 1:
+            segment_parts[-1]["pause_after"] = max(
+                int(segment_parts[-1].get("pause_after") or 0),
+                scene_break_pause_ms)
+        parts.extend(segment_parts)
 
-    # Every boundary between surviving parts is a scene break.
-    for part in parts[:-1]:
-        part["pause_after"] = max(int(part.get("pause_after") or 0),
-                                  scene_break_pause_ms)
     return parts, review
 
 

@@ -542,6 +542,9 @@
     "test_preparer_speaker_detection.PlanDetectionWindowsTests.test_windows_are_clamped_inside_the_file"
   ],
   "test_project_chunks": [
+    "test_project_chunks.BracketBoundaryTest.test_bracket_split_carries_no_pause",
+    "test_project_chunks.BracketBoundaryTest.test_bracketed_part_gains_the_set_apart_hint",
+    "test_project_chunks.BracketBoundaryTest.test_scene_break_still_pauses_when_brackets_present",
     "test_project_chunks.ReviewFlagTest.test_kana_in_real_japanese_is_not_flagged",
     "test_project_chunks.ReviewFlagTest.test_pictographic_kana_is_flagged_and_left_alone",
     "test_project_chunks.ReviewFlagTest.test_repeated_unmapped_glyph_is_counted_each_time",
@@ -879,6 +882,11 @@
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_sweep_uses_peak_across_all_sub_batches"
   ],
   "test_verbalization": [
+    "test_verbalization.BracketedSpanTest.test_an_emoticon_is_not_treated_as_a_span",
+    "test_verbalization.BracketedSpanTest.test_bracketed_span_is_split_out",
+    "test_verbalization.BracketedSpanTest.test_brackets_are_never_kept",
+    "test_verbalization.BracketedSpanTest.test_lone_angle_bracket_is_left_alone",
+    "test_verbalization.BracketedSpanTest.test_text_without_brackets_is_one_plain_part",
     "test_verbalization.ClassifyTest.test_elongation",
     "test_verbalization.ClassifyTest.test_music_is_not_verbalized",
     "test_verbalization.ClassifyTest.test_ordinary_text_is_speakable",

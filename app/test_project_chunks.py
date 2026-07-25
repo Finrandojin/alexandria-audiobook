@@ -110,3 +110,35 @@ class ReviewFlagTest(unittest.TestCase):
         entry = {"speaker": "NARRATOR", "instruct": "", "text": "こんにちは"}
         _parts, review = split_on_unspeakable(entry, 1000)
         self.assertEqual(review, [])
+
+
+class BracketBoundaryTest(unittest.TestCase):
+    """A bracketed span is a delivery change, not a scene break: it must not
+    pick up the scene-break pause that separates sections."""
+
+    def test_bracket_split_carries_no_pause(self):
+        from project import split_on_unspeakable
+        entry = {"speaker": "NARRATOR", "instruct": "",
+                 "text": "He readied himself. <I saw a person.> I shuddered."}
+        parts, _ = split_on_unspeakable(entry, 1000)
+        self.assertEqual(len(parts), 3)
+        self.assertTrue(all(not p.get("pause_after") for p in parts))
+
+    def test_bracketed_part_gains_the_set_apart_hint(self):
+        from project import split_on_unspeakable
+        from verbalization import SET_APART_HINT
+        entry = {"speaker": "NARRATOR", "instruct": "Tense.",
+                 "text": "He readied himself. <I saw a person.> I shuddered."}
+        parts, _ = split_on_unspeakable(entry, 1000)
+        self.assertIn(SET_APART_HINT, parts[1]["instruct"])
+        self.assertIn("Tense.", parts[1]["instruct"])
+        self.assertNotIn(SET_APART_HINT, parts[0]["instruct"])
+
+    def test_scene_break_still_pauses_when_brackets_present(self):
+        from project import split_on_unspeakable
+        entry = {"speaker": "NARRATOR", "instruct": "",
+                 "text": "First part. <A vision.>\n\n■\n\nSecond part."}
+        parts, _ = split_on_unspeakable(entry, 1000)
+        paused = [p for p in parts if p.get("pause_after")]
+        self.assertEqual(len(paused), 1)
+        self.assertEqual(paused[0]["text"], "A vision.")
