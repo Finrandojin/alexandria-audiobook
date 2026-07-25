@@ -77,9 +77,24 @@ Do not build one mapping table. These need different handling:
 | class | characters | fix |
 |---|---|---|
 | **Scene break** | `■ ─ ━ ○` | Split the entry and convert to `pause_after`. Not speech. |
-| **Verbalize** | `∞ ♪ ♫ ← → ↑ ° © ×` | Replace with spoken words ("infinity", "music note"). |
-| **Delivery** | `~` (Japanese vowel elongation) | Belongs in the `instruct` field, not the text. Strip from text. |
+| **Verbalize** | `∞ ← → ↑ ° © ×` | Replace with spoken words ("infinity", "degrees"). |
+| **Delivery** | `~ ～` (vowel elongation), `♪ ♫` when they bracket a line | **Move** into `instruct`; do not merely strip. |
 | **Human judgement** | pictographic kana (`へ` as a mouth shape) | No rule can fix. Flag for review. |
+
+Two refinements that matter, both easy to get wrong:
+
+**Delivery marks must move, not vanish.** Stripping `~` from `"Yaaay~"` throws
+away the only signal that the line is drawn out. The classifier returns an
+instruct hint and the caller appends it to the entry's existing `instruct`, so
+the cue survives in the field that controls delivery. Deleting it silently
+downgrades the audio while looking like a clean fix.
+
+**`♪` is usually not a word.** In light novels a music note most often
+*brackets* sung dialogue — `♪ La la la ♪`. Verbalizing that yields "music note
+la la la music note", which is worse than leaving it in. Rule: when `♪`/`♫`
+appears at both the start and end of an entry, strip both and add a sung hint
+to `instruct`; only a lone, mid-sentence occurrence is a candidate for a
+spoken word, and even then prefer flagging it for review.
 
 The fourth class is why this cannot be fully automated. `'her mouth へ'` means
 "her mouth made a へ shape" — there is no pronunciation, only a translation
@@ -108,16 +123,22 @@ SCENE_BREAK_CHARS = frozenset("■─━□◆◇○●▪▫")
 # Spoken renderings. Deliberately small and explicit rather than a
 # category-wide rule, so every substitution is auditable.
 VERBALIZE = {
-    "∞": "infinity", "♪": "music note", "♫": "music note",
+    "∞": "infinity",
     "←": "left arrow", "→": "right arrow", "↑": "up arrow", "↓": "down arrow",
     "°": "degrees", "©": "copyright", "×": "times", "÷": "divided by",
     "±": "plus or minus", "≠": "not equal to", "≈": "approximately",
-    "→": "right arrow", "★": "star", "☆": "star", "♥": "heart",
+    "★": "star", "☆": "star", "♥": "heart",
 }
 
-# Vowel elongation in translated Japanese prose ("Yaaay~"). A delivery cue,
-# not a word.
+# Delivery cues, NOT words. These move into `instruct`; see MUSIC_CHARS below
+# for why a music note is deliberately absent from VERBALIZE.
 ELONGATION_CHARS = frozenset("~～")
+MUSIC_CHARS = frozenset("♪♫")
+
+# Hints appended to the entry's existing `instruct` when a cue is removed from
+# the text, so the signal survives instead of being silently deleted.
+ELONGATION_HINT = "Drawn-out, elongated delivery."
+SUNG_HINT = "Sung rather than spoken."
 
 _SYMBOL_CATEGORIES = frozenset({"So", "Sm", "Sk"})
 
@@ -134,16 +155,39 @@ def is_pictographic_kana(char, following):
 
 
 def classify(char):
-    """Return one of: scene_break, verbalize, elongation, review, speakable."""
+    """Return one of: scene_break, verbalize, elongation, music, review,
+    speakable."""
     if char in SCENE_BREAK_CHARS:
         return "scene_break"
     if char in VERBALIZE:
         return "verbalize"
     if char in ELONGATION_CHARS:
         return "elongation"
+    if char in MUSIC_CHARS:
+        return "music"
     if unicodedata.category(char) in _SYMBOL_CATEGORIES:
         return "review"
     return "speakable"
+
+
+def extract_delivery_cues(text):
+    """Strip delivery cues from text, returning (text, instruct_hints).
+
+    A music note bracketing an entry marks sung dialogue: "♪ La la la ♪"
+    verbalized becomes "music note la la la music note", which is worse than
+    leaving it alone. Bracketing pairs become a sung hint; a lone mid-sentence
+    note is left in place and reported for review instead of guessed at.
+    """
+    hints = []
+    stripped = text.strip()
+    if (len(stripped) > 1 and stripped[0] in MUSIC_CHARS
+            and stripped[-1] in MUSIC_CHARS):
+        text = stripped[1:-1].strip()
+        hints.append(SUNG_HINT)
+    if any(c in ELONGATION_CHARS for c in text):
+        text = "".join(c for c in text if c not in ELONGATION_CHARS)
+        hints.append(ELONGATION_HINT)
+    return text, hints
 ```
 
 Tests to write:
@@ -153,6 +197,10 @@ Tests to write:
 - an unmapped symbol (e.g. `⌘`) classifies as `review`, not silently dropped
 - ordinary letters, digits and punctuation classify as `speakable`
 - `is_pictographic_kana("へ", " .")` is True; `is_pictographic_kana("へ", "んな")` is False
+- `extract_delivery_cues("♪ La la la ♪")` returns `("La la la", [SUNG_HINT])`
+- `extract_delivery_cues("Yaaay~")` returns `("Yaaay", [ELONGATION_HINT])`
+- a lone mid-sentence `♪` is **not** stripped and yields no hint (review case)
+- text with no cues returns unchanged with an empty hint list
 
 ### Task 2: apply it on the way to TTS
 
@@ -167,9 +215,10 @@ def split_on_unspeakable(entry, default_pause_ms):
 
     Returns (parts, review_flags). A scene break inside prose becomes a
     boundary carrying pause_after rather than a character the narrator reads
-    aloud. Verbalized symbols become words. Elongation marks are dropped from
-    the text (they belong in `instruct`). Anything unmapped is left in place
-    and reported, so an unknown glyph is visible rather than silently voiced.
+    aloud. Verbalized symbols become words. Delivery cues move into
+    `instruct` via extract_delivery_cues rather than being deleted. Anything
+    unmapped is left in place and reported, so an unknown glyph is visible
+    rather than silently voiced.
     """
 ```
 
@@ -186,7 +235,9 @@ Tests to write:
 - `'mice\n\n■\n\nIt seems'` becomes two entries, the first carrying `pause_after >= EXPLICIT_SILENCE_MS`
 - a leading scene break produces no orphan pause (mirrors the existing "no audio anchor" rule)
 - `'the value is ∞.'` becomes `'the value is infinity.'`
-- `'Yaaay~'` becomes `'Yaaay'`
+- `'Yaaay~'` becomes `'Yaaay'` **and its entry's `instruct` gains the elongation hint** (assert both; stripping alone is the bug this guards)
+- `'♪ La la la ♪'` becomes `'La la la'` with a sung hint, not "music note la la la music note"
+- an entry that already has an `instruct` keeps it, with the hint appended rather than replacing it
 - an entry with no unspeakable characters is returned unchanged and `is` equal in content
 - a pictographic kana entry is returned **unchanged** but appears in `review_flags`
 
