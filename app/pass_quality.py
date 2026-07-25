@@ -353,8 +353,30 @@ def index_head_check(frozen_entries, response_entries):
 # absent on purpose: it is both a type and a legitimate speaker.
 ENTRY_TYPE_NAMES = frozenset({"SPOKEN", "NARRATION", "DIALOGUE"})
 
+MIN_NAME_ATTESTATIONS = 2
+# Below this the source is a test fixture or a fragment, not a book, and a
+# real name may legitimately appear once. Books in this corpus are 250k+.
+MIN_SOURCE_FOR_ATTESTATION = 5000
 
-def validate_attribution(frozen_entries, response_entries):
+
+def is_attested_name(name, source_text):
+    """Whether a speaker name is written as a name in the source.
+
+    A real character is capitalised nearly every time; an invented one is not
+    in the text at all, or is a common word the model mistook for a name.
+    """
+    if not source_text or not name:
+        return True
+    if len(source_text) < MIN_SOURCE_FOR_ATTESTATION:
+        return True
+    capitalized = len(re.findall(r"\b" + re.escape(name.title()) + r"\b",
+                                 source_text))
+    lowercase = len(re.findall(r"\b" + re.escape(name.lower()) + r"\b",
+                               source_text))
+    return capitalized >= MIN_NAME_ATTESTATIONS and capitalized > lowercase * 2
+
+
+def validate_attribution(frozen_entries, response_entries, source_text=None):
     """Pass 2 gate. Verifies the index+head alignment, then requires every SPOKEN
     span to have a non-empty speaker other than NARRATOR, and every NARRATOR span
     to stay NARRATOR."""
@@ -374,6 +396,21 @@ def validate_attribution(frozen_entries, response_entries):
             # present in 8 of 9 books measured. UNKNOWN is deliberately not
             # rejected here: it is the placeholder stabilize_speaker_identities
             # assigns for genuinely unresolved speakers.
+            if (source_text and speaker
+                    and speaker.upper() not in ("UNKNOWN", "NARRATOR")
+                    and not is_attested_name(speaker, source_text)):
+                # The roster gate filters what goes IN; nothing filtered what
+                # came OUT. The model invented FUTURE_ME - the protagonist's
+                # future self, a phrase the book never capitalises - and
+                # shipped it on 250 entries, 13% of one book. With MAILMAN,
+                # ARUMANFI and SWORD_GOD_GARU_FARION that was 279 entries,
+                # 14.6% of the book, attributed to names not in the text.
+                findings.append({"code": "speaker_not_in_source",
+                                 "entry_number": i,
+                                 "value": speaker,
+                                 "message": "The speaker does not appear as a "
+                                            "name in the source text."})
+                continue
             if speaker.upper() in ENTRY_TYPE_NAMES:
                 findings.append({"code": "speaker_is_entry_type",
                                  "entry_number": i,

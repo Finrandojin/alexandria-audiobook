@@ -486,6 +486,18 @@
     "test_multi_process_state.MultiProcessStateTests.test_batch_cancel_signals_every_process",
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
   ],
+  "test_narrator_detection": [
+    "test_narrator_detection.FirstPersonTest.test_first_person_narration_detected",
+    "test_narrator_detection.FirstPersonTest.test_third_person_narration_not_flagged",
+    "test_narrator_detection.NarratorDetectionTest.test_ambiguous_book_returns_none",
+    "test_narrator_detection.NarratorDetectionTest.test_empty_roster_is_safe",
+    "test_narrator_detection.NarratorDetectionTest.test_narrator_is_the_name_skewed_to_dialogue",
+    "test_narrator_detection.NarratorDetectionTest.test_third_person_book_yields_no_narrator",
+    "test_narrator_detection.RosterPromptTest.test_aliases_are_optional",
+    "test_narrator_detection.RosterPromptTest.test_empty_roster_still_renders",
+    "test_narrator_detection.RosterPromptTest.test_narrator_is_named_with_the_reason",
+    "test_narrator_detection.RosterPromptTest.test_roster_without_narrator_is_unchanged"
+  ],
   "test_pass_quality": [
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_a_real_name_still_passes",
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_literal_type_name_is_rejected",
@@ -900,6 +912,13 @@
     "test_tts_benchmark.TTSBenchmarkTests.test_utilization_sampling_returns_none_when_backend_unavailable",
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_results_create_nested_output_directory",
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_sweep_uses_peak_across_all_sub_batches"
+  ],
+  "test_unattested_speakers": [
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_common_word_is_rejected",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_invented_speaker_is_rejected",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_real_character_passes",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_unknown_placeholder_still_allowed",
+    "test_unattested_speakers.RejectUnattestedSpeakerTest.test_without_source_nothing_is_rejected"
   ],
   "test_verbalization": [
     "test_verbalization.BracketedSpanTest.test_an_emoticon_is_not_treated_as_a_span",

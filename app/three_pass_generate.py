@@ -202,7 +202,7 @@ class PassExhausted(Exception):
 
 def attribute_batch(client, model_name, frozen_batch, params, roster,
                     max_retries=3, on_exhaustion="fail", neighbor_contexts=None,
-                    attempt_observer=None):
+                    attempt_observer=None, source_text=None):
     """Assign speakers to one batch of frozen {type,text} entries. Enforces the
     text freeze; retries on invalid output. On exhaustion: 'fail' raises
     PassExhausted (testing default); 'fallback' keeps frozen text and labels
@@ -221,7 +221,7 @@ def attribute_batch(client, model_name, frozen_batch, params, roster,
     validated = {}
 
     def validate(entries):
-        report = validate_attribution(frozen_batch, entries)
+        report = validate_attribution(frozen_batch, entries, source_text)
         if report["passed"]:
             validated["ordered"] = index_head_check(frozen_batch, entries)[2]
         return report
@@ -1014,7 +1014,8 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                         votes=attribution_votes,
                         vote_temperature=vote_temperature,
                         on_exhaustion=on_exhaustion, neighbor_contexts=contexts,
-                        attempt_observer=record_attempt)
+                        attempt_observer=record_attempt,
+                        source_text=source_text)
                 except PassExhausted:
                     if len(current) == 1:
                         if collect_all_failures:
