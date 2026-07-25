@@ -33,6 +33,17 @@
     "test_api_summary.ApiSummaryTests.test_json_summary_records_ordered_test_identities_statuses_and_reasons",
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
+  "test_attribution_accuracy": [
+    "test_attribution_accuracy.GoldSetTest.test_disputed_entries_are_withheld_by_default",
+    "test_attribution_accuracy.GoldSetTest.test_gold_set_loads_and_is_well_formed",
+    "test_attribution_accuracy.ScoringTest.test_case_and_whitespace_do_not_matter",
+    "test_attribution_accuracy.ScoringTest.test_confusion_is_recorded",
+    "test_attribution_accuracy.ScoringTest.test_correct_and_incorrect_are_counted",
+    "test_attribution_accuracy.ScoringTest.test_empty_speaker_is_wrong_not_correct",
+    "test_attribution_accuracy.ScoringTest.test_misaligned_run_is_reported_not_scored_wrong",
+    "test_attribution_accuracy.ScoringTest.test_missing_entry_is_not_a_crash",
+    "test_attribution_accuracy.ScoringTest.test_normalize"
+  ],
   "test_attribution_voting": [
     "test_attribution_voting.MajorityVoteTest.test_empty_votes_are_handled",
     "test_attribution_voting.MajorityVoteTest.test_majority_wins_over_minority",
