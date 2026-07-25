@@ -809,7 +809,10 @@
     "test_three_pass_unicode_gate.PrepareSourceTextTest.test_damaged_source_is_repaired_and_reported",
     "test_three_pass_unicode_gate.PrepareSourceTextTest.test_density_above_threshold_is_rejected",
     "test_three_pass_unicode_gate.PrepareSourceTextTest.test_index18_density_is_admitted",
-    "test_three_pass_unicode_gate.PrepareSourceTextTest.test_unsafe_control_characters_are_rejected"
+    "test_three_pass_unicode_gate.PrepareSourceTextTest.test_unsafe_control_characters_are_rejected",
+    "test_three_pass_unicode_gate.ReadSourceTextTest.test_cp1252_source_is_recovered_not_mangled",
+    "test_three_pass_unicode_gate.ReadSourceTextTest.test_literal_replacement_bytes_still_reach_the_gate",
+    "test_three_pass_unicode_gate.ReadSourceTextTest.test_utf8_source_reads_as_utf8"
   ],
   "test_thunder_benchmark_documentation": [
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_dataset_builder_is_not_silently_equated_to_voice_design",

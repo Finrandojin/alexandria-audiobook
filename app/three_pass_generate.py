@@ -1171,6 +1171,25 @@ def resolve_completion_ceiling(source_words, params, reasoning_allowance=0):
 MAX_REPLACEMENT_DENSITY = 0.02
 
 
+def read_source_text(path):
+    """Read a book, detecting UTF-8 vs cp1252 rather than assuming.
+
+    Measured on this corpus: a large share of .txt sources are cp1252, where
+    smart quotes are single bytes (0x92, 0x93) that are not valid UTF-8.
+    Decoding those as UTF-8 with replacement manufactures thousands of U+FFFD
+    and would trip the damage gate on a file that is perfectly intact. Strict
+    UTF-8 first, then cp1252, and only then replacement - so genuinely damaged
+    sources (literal U+FFFD bytes, as in index18) still reach the gate.
+    """
+    raw = open(path, "rb").read()
+    for encoding in ("utf-8", "cp1252"):
+        try:
+            return raw.decode(encoding), encoding
+        except UnicodeDecodeError:
+            continue
+    return raw.decode("utf-8", errors="replace"), "utf-8/replace"
+
+
 def prepare_source_text(book):
     """Repair, neutralize and audit source text before any LLM call.
 
@@ -1221,12 +1240,9 @@ def main():
     if args.preflight and args.collect_all_failures:
         parser.error("--collect-all-failures cannot be combined with --preflight")
 
-    try:
-        with open(args.input_file, encoding="utf-8") as fh:
-            book = fh.read()
-    except UnicodeDecodeError as exc:
-        print(f"Error: {args.input_file} is not valid UTF-8: {exc}")
-        sys.exit(1)
+    book, source_encoding = read_source_text(args.input_file)
+    if source_encoding != "utf-8":
+        print(f"Read {args.input_file} as {source_encoding} (not valid UTF-8)")
     book = fix_mojibake(book)
     book, _ = normalize_known_source_corruptions(book)
     if args.strip_front_matter:

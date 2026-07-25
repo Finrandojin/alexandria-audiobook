@@ -177,5 +177,6 @@ ab_test_runtime/rocm/
 ab_test_runtime/run.log
 ab_test_runtime/results/
 ab_test_runtime/probe_thinking/
+ab_test_runtime/extended/
 /qualification_*/
 /model_ab_test/
