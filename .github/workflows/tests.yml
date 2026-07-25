@@ -26,8 +26,43 @@ jobs:
           cache: pip
           cache-dependency-path: app/requirements.txt
 
-      - name: Install system libraries (soundfile / pydub)
-        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libsndfile1 ffmpeg
+      # This step has failed twice in two days without any code change: once
+      # hanging 13 minutes on apt-get, once killed with SIGTERM (exit 143) at
+      # 31 seconds. Both were runner/network flakiness, not the diff.
+      #
+      # libsndfile1 is deliberately not installed: the soundfile wheel bundles
+      # its own libsndfile_x86_64.so, so the apt package was redundant. ffmpeg
+      # is a real dependency for pydub's non-wav handling.
+      - name: Cache ffmpeg package
+        id: apt-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/apt-archives
+          key: apt-ffmpeg-${{ runner.os }}-v1
+
+      - name: Install system libraries (pydub)
+        run: |
+          set -euo pipefail
+          # apt requires partial/ inside a custom archives dir.
+          mkdir -p ~/apt-archives/partial
+          if ls ~/apt-archives/*.deb >/dev/null 2>&1; then
+            echo "Installing ffmpeg from cache ($(ls ~/apt-archives/*.deb | wc -l) packages)"
+            sudo dpkg -i ~/apt-archives/*.deb || sudo apt-get install -f -y
+          else
+            # Retry: a single transient failure here should not fail the run.
+            for attempt in 1 2 3; do
+              if sudo apt-get update && \
+                 sudo apt-get install -y --no-install-recommends \
+                   -o Dir::Cache::archives="$HOME/apt-archives" ffmpeg; then
+                break
+              fi
+              echo "apt attempt $attempt failed; retrying in $((attempt * 10))s"
+              sleep $((attempt * 10))
+            done
+            sudo chown -R "$USER" ~/apt-archives || true
+            rm -rf ~/apt-archives/partial ~/apt-archives/lock
+          fi
+          ffmpeg -version | head -1
 
       - name: Install Python dependencies
         # The web app and both test entrypoints import nothing from
