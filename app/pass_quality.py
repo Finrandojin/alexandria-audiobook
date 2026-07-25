@@ -349,6 +349,11 @@ def index_head_check(frozen_entries, response_entries):
     return True, "", ordered
 
 
+# Entry-type tokens the model must never return as a speaker name. NARRATOR is
+# absent on purpose: it is both a type and a legitimate speaker.
+ENTRY_TYPE_NAMES = frozenset({"SPOKEN", "NARRATION", "DIALOGUE"})
+
+
 def validate_attribution(frozen_entries, response_entries):
     """Pass 2 gate. Verifies the index+head alignment, then requires every SPOKEN
     span to have a non-empty speaker other than NARRATOR, and every NARRATOR span
@@ -362,6 +367,20 @@ def validate_attribution(frozen_entries, response_entries):
         raw_speaker = item.get("speaker")
         speaker = raw_speaker.strip() if isinstance(raw_speaker, str) else ""
         if frozen.get("type") == "SPOKEN":
+            # The prompt shows each entry as {"n", "type", "text"}, so the model
+            # sometimes echoes the type back as the speaker. "SPOKEN" is
+            # non-empty and is not NARRATOR, so it satisfied the checks below
+            # and shipped as a character name - 326 entries in one book, and
+            # present in 8 of 9 books measured. UNKNOWN is deliberately not
+            # rejected here: it is the placeholder stabilize_speaker_identities
+            # assigns for genuinely unresolved speakers.
+            if speaker.upper() in ENTRY_TYPE_NAMES:
+                findings.append({"code": "speaker_is_entry_type",
+                                 "entry_number": i,
+                                 "value": speaker,
+                                 "message": "The speaker repeats the entry type "
+                                            "instead of naming a character."})
+                continue
             if not speaker or speaker.upper() == "NARRATOR":
                 findings.append({"code": "spoken_not_named", "entry_number": i,
                                  "message": "A spoken line was not assigned a character name."})

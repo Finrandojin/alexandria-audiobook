@@ -1,6 +1,7 @@
 from pass_quality import MIN_ORDERED_TRIGRAM_RECALL
 import unittest
-from pass_quality import split_outer_quote_regions, validate_segment_quality
+from pass_quality import (split_outer_quote_regions, validate_attribution,
+                          validate_segment_quality)
 from pass_quality import validate_attribution
 from pass_quality import validate_instruct, index_head_check
 import default_prompts
@@ -187,6 +188,43 @@ class PromptLoaderTests(unittest.TestCase):
         self.assertIn("{roster}", att_usr)
         ins_sys, ins_usr = default_prompts.load_instruct_prompts()
         self.assertIn("{batch}", ins_usr)
+
+
+class AttributionRejectsTypeAsSpeakerTest(unittest.TestCase):
+    """The attribution prompt shows each entry as {"n", "type", "text"}, and the
+    model sometimes echoes the type back as the speaker. The gate required a
+    SPOKEN span's speaker to be non-empty and not NARRATOR, which "SPOKEN"
+    satisfies - so it passed. Measured live: 326 entries in one book, and the
+    leak appeared in 8 of 9 books overnight."""
+
+    def test_literal_type_name_is_rejected(self):
+        frozen = [{"type": "SPOKEN", "text": "Oh-ho."}]
+        report = validate_attribution(frozen, [{"n": 0, "head": "Oh-ho.",
+                                                "speaker": "SPOKEN"}])
+        self.assertFalse(report["passed"])
+        self.assertTrue(any("type" in f.get("code", "")
+                            or "type" in f.get("message", "").lower()
+                            for f in report["findings"]))
+
+    def test_rejection_is_case_insensitive(self):
+        frozen = [{"type": "SPOKEN", "text": "Oh-ho."}]
+        report = validate_attribution(frozen, [{"n": 0, "head": "Oh-ho.",
+                                                "speaker": "spoken"}])
+        self.assertFalse(report["passed"])
+
+    def test_a_real_name_still_passes(self):
+        frozen = [{"type": "SPOKEN", "text": "Oh-ho."}]
+        report = validate_attribution(frozen, [{"n": 0, "head": "Oh-ho.",
+                                                "speaker": "SHIRON"}])
+        self.assertTrue(report["passed"], report["findings"])
+
+    def test_unknown_placeholder_is_still_allowed(self):
+        # UNKNOWN is the legitimate placeholder stabilize_speaker_identities
+        # assigns; it must not be swept up with the type-name rejection.
+        frozen = [{"type": "SPOKEN", "text": "Oh-ho."}]
+        report = validate_attribution(frozen, [{"n": 0, "head": "Oh-ho.",
+                                                "speaker": "UNKNOWN"}])
+        self.assertTrue(report["passed"], report["findings"])
 
 
 if __name__ == "__main__":
