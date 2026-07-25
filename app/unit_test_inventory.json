@@ -522,9 +522,18 @@
     "test_preparer_speaker_detection.PlanDetectionWindowsTests.test_windows_are_clamped_inside_the_file"
   ],
   "test_project_chunks": [
+    "test_project_chunks.ReviewFlagTest.test_kana_in_real_japanese_is_not_flagged",
+    "test_project_chunks.ReviewFlagTest.test_pictographic_kana_is_flagged_and_left_alone",
+    "test_project_chunks.ReviewFlagTest.test_repeated_unmapped_glyph_is_counted_each_time",
     "test_project_chunks.SpeakableEntryTests.test_block_glyphs_and_leading_marks_are_not_sent_to_tts",
     "test_project_chunks.SpeakableEntryTests.test_nonverbal_dialogue_becomes_pause_without_mutating_input",
-    "test_project_chunks.SpeakableEntryTests.test_spoken_words_with_punctuation_remain_speakable"
+    "test_project_chunks.SpeakableEntryTests.test_spoken_words_with_punctuation_remain_speakable",
+    "test_project_chunks.UnspeakablePassthroughTest.test_caller_data_is_not_mutated",
+    "test_project_chunks.UnspeakablePassthroughTest.test_clean_entry_is_unchanged",
+    "test_project_chunks.UnspeakablePassthroughTest.test_elongation_moves_into_instruct",
+    "test_project_chunks.UnspeakablePassthroughTest.test_embedded_scene_break_becomes_a_pause",
+    "test_project_chunks.UnspeakablePassthroughTest.test_leading_scene_break_makes_no_orphan_pause",
+    "test_project_chunks.UnspeakablePassthroughTest.test_symbol_is_verbalized"
   ],
   "test_reasoning_budget": [
     "test_reasoning_budget.ReasoningAllowanceTest.test_allowance_tracks_p95_of_observations",
@@ -840,6 +849,21 @@
     "test_tts_benchmark.TTSBenchmarkTests.test_utilization_sampling_returns_none_when_backend_unavailable",
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_results_create_nested_output_directory",
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_sweep_uses_peak_across_all_sub_batches"
+  ],
+  "test_verbalization": [
+    "test_verbalization.ClassifyTest.test_elongation",
+    "test_verbalization.ClassifyTest.test_music_is_not_verbalized",
+    "test_verbalization.ClassifyTest.test_ordinary_text_is_speakable",
+    "test_verbalization.ClassifyTest.test_scene_breaks",
+    "test_verbalization.ClassifyTest.test_unmapped_symbol_is_flagged_not_dropped",
+    "test_verbalization.ClassifyTest.test_verbalized_symbols",
+    "test_verbalization.DeliveryCueTest.test_bracketing_music_notes_become_a_sung_hint",
+    "test_verbalization.DeliveryCueTest.test_clean_text_is_untouched",
+    "test_verbalization.DeliveryCueTest.test_elongation_moves_into_a_hint",
+    "test_verbalization.DeliveryCueTest.test_lone_music_note_is_left_alone",
+    "test_verbalization.PictographicKanaTest.test_kana_among_kana_is_language",
+    "test_verbalization.PictographicKanaTest.test_latin_is_never_pictographic",
+    "test_verbalization.PictographicKanaTest.test_lone_kana_is_pictographic"
   ],
   "test_voice_clustering": [
     "test_voice_clustering.VoiceClusteringTests.test_clustering_is_invariant_to_input_order",

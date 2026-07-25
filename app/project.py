@@ -10,6 +10,9 @@ import time
 import logging
 import gc
 import uuid
+from script_repair import EXPLICIT_SILENCE_MS
+from verbalization import (VERBALIZE, classify, extract_delivery_cues,
+                           is_pictographic_kana)
 from utils import (atomic_json_write, safe_load_json, is_oom_failure,
                    get_app_config_path, is_nonverbal_text)
 from config_settings import load_app_config
@@ -63,6 +66,59 @@ def _make_chunk(speaker, text, instruct, pause_after=None):
     return chunk
 
 
+def split_on_unspeakable(entry, scene_break_pause_ms):
+    """Split one entry into speakable parts, handling each glyph by class.
+
+    A scene break inside prose becomes a boundary carrying pause_after rather
+    than a character the narrator reads aloud. Verbalized symbols become words.
+    Delivery cues move into instruct. Anything unmapped is left in place and
+    reported, so an unknown glyph stays visible instead of being silently voiced.
+
+    Returns (parts, review_chars). Never mutates the entry it is given.
+    """
+    text = str(entry.get("text") or "")
+    review = []
+    for position, char in enumerate(text):
+        neighbours = text[max(0, position - 2):position] + text[position + 1:position + 3]
+        if classify(char) == "review" or is_pictographic_kana(char, neighbours):
+            review.append(char)
+    segments, current = [], []
+    for char in text:
+        kind = classify(char)
+        if kind == "scene_break":
+            segments.append("".join(current))
+            current = []
+        elif kind == "verbalize":
+            current.append(VERBALIZE[char])
+        else:
+            current.append(char)
+    segments.append("".join(current))
+
+    parts = []
+    for segment in segments:
+        cleaned, hints = extract_delivery_cues(segment)
+        cleaned = " ".join(cleaned.split()) if cleaned.strip() else ""
+        if not cleaned:
+            # A break with nothing before it has no audio anchor to attach a
+            # pause to, mirroring the leading-nonverbal rule below.
+            if parts:
+                parts[-1]["pause_after"] = max(
+                    int(parts[-1].get("pause_after") or 0), scene_break_pause_ms)
+            continue
+        part = dict(entry)
+        part["text"] = cleaned
+        if hints:
+            existing = str(part.get("instruct") or "").strip()
+            part["instruct"] = " ".join(filter(None, [existing] + hints))
+        parts.append(part)
+
+    # Every boundary between surviving parts is a scene break.
+    for part in parts[:-1]:
+        part["pause_after"] = max(int(part.get("pause_after") or 0),
+                                  scene_break_pause_ms)
+    return parts, review
+
+
 def get_speakable_entries(script_entries):
     """Return copied TTS entries, converting nonverbal marks into a pause.
 
@@ -81,7 +137,8 @@ def get_speakable_entries(script_entries):
             previous["pause_after"] = max(
                 int(previous.get("pause_after") or 0), DEFAULT_PAUSE_MS)
         else:
-            speakable.append(entry)
+            parts, _review = split_on_unspeakable(entry, EXPLICIT_SILENCE_MS)
+            speakable.extend(parts)
     return speakable
 
 
