@@ -70,13 +70,80 @@ That entry is speakable overall, so the whole thing passes through with the
 Leave `is_nonverbal_text` alone — `three_pass_generate.py:151` and `:1026` also
 depend on its current meaning for deterministic NARRATOR assignment.
 
+## Library prevalence — measured, not estimated
+
+Scanned 2026-07-24 across all three library roots: 7,100 files, **5,850 unique
+books** after content-hash dedupe, **4,195 real novels** after dropping code,
+build logs and fragments (`lib_burst_generated.txt` and
+`101CProgrammingChallenges.epub` were the top "symbol" hits before filtering —
+do not trust unfiltered counts).
+
+| class | novels affected | occurrences |
+|---|---:|---:|
+| verbalize (`∞ ← → °`) | 82.2% | 17,115 |
+| review symbol | 62.5% | 82,818 |
+| **scene break** (`─ ◇ ◆ ■`) | 17.2% | **105,897** |
+| elongation (`~`) | 15.9% | 11,070 |
+| music (`♪`) | 8.0% | 2,854 |
+| pictographic kana (`へ`) | 1.8% | 945 |
+
+**Paragraph impact: median 0.26%, p75 0.74%, p90 1.80%, p99 18.85%.** Only
+**62 novels (1.5%)** have 10% or more of their paragraphs affected.
+
+Two consequences for sizing:
+
+- **This is broad but shallow.** Nearly every book has a few; almost none have
+  many. `mushoku16`'s 1.40% sits at the **86th percentile** — it was already a
+  worse-than-typical case, not a representative one.
+- **Scene breaks are the whole game.** 105,897 occurrences against 17,115 for
+  verbalization. Build the pause conversion first; the `VERBALIZE` table is a
+  long tail that can be deferred without losing much.
+
+The severe tail is almost entirely **Nisio Issin**: Katanagatari vols 1-4
+(29-38% of paragraphs) and the whole Monogatari series (24-38%), which use `◇`
+and `─` as scene separators at enormous density. Note that
+**`owarimonogatari3` is already in the A/B matrix** — model benchmarking has
+been running against one of the most symbol-dense books in the library.
+
+### Character frequency (250 sampled affected novels)
+
+```
+─  7716   ◇ 1463   | 1394   >  1083   ~   863   <   802
+◆   774   ■  767   + 487    ＋  470   ©   442   °   431
+✧   300   🍖 210   ♪  204   🎂 198   🍵  192   ❄   183
+🐺  150   □  142   ＜ 128    ＞ 128    🐅  120   ○   119
+```
+
+`─` alone outweighs every other character combined. Size the work off `─` and
+`◇`, not `■` — the earlier draft led with `■`, which is 10x rarer.
+
+## Classes the first draft missed
+
+Sampling real usage turned up four more, all the same insight as `♪`: **these
+mark _how_ to speak, not _what_ to speak.**
+
+| pattern | real example | what it is | fix |
+|---|---|---|---|
+| `><` `^^` `orz` | `"can't see you during lunch >< Sorry!"` | Japanese emoticon | emotion cue -> `instruct`, strip from text |
+| `<...>` wrapping a whole line | `<Today's temperature stands at −7°C...>` | system/PA announcement | delivery cue -> `instruct`, strip brackets |
+| `\|` in CIP blocks | `Names: Ōmori, Fujino, author. \| Haimura, Kiyotaka, illustrator.` | library cataloging front matter | not content - belongs in `strip_known_front_matter` |
+| 🍖 🎂 🍵 🐺 ❄ ✧ | decorative / chat-scene emoji | emoji | verbalize or drop; **decide deliberately** |
+
+The emoji case needs a policy call before coding. `🍖` in a chat message might
+warrant "meat emoji"; the same glyph as a chapter-heading decoration should be
+dropped. Prevalence is low enough (a few hundred across 250 books) that
+flagging for review is defensible instead of guessing.
+
+Fullwidth variants (`＋ ＜ ＞`) appear alongside their ASCII forms and should be
+normalized together, not handled as separate entries.
+
 ## Four classes, four different fixes
 
 Do not build one mapping table. These need different handling:
 
 | class | characters | fix |
 |---|---|---|
-| **Scene break** | `■ ─ ━ ○` | Split the entry and convert to `pause_after`. Not speech. |
+| **Scene break** | `─ ◇ ◆ ■ □ ○ ━ █ △` (ordered by real frequency) | Split the entry and convert to `pause_after`. Not speech. **Highest value: 105,897 occurrences.** |
 | **Verbalize** | `∞ ← → ↑ ° © ×` | Replace with spoken words ("infinity", "degrees"). |
 | **Delivery** | `~ ～` (vowel elongation), `♪ ♫` when they bracket a line | **Move** into `instruct`; do not merely strip. |
 | **Human judgement** | pictographic kana (`へ` as a mouth shape) | No rule can fix. Flag for review. |
@@ -118,7 +185,9 @@ kana needs a human.
 import unicodedata
 
 # Scene / section breaks: silence, never speech.
-SCENE_BREAK_CHARS = frozenset("■─━□◆◇○●▪▫")
+# Ordered by measured frequency across 4,195 novels: U+2500 alone outweighs
+# every other symbol combined, and the diamonds beat the square 3:1.
+SCENE_BREAK_CHARS = frozenset("─◇◆■□○━█△●▪▫✧❄")
 
 # Spoken renderings. Deliberately small and explicit rather than a
 # category-wide rule, so every substitution is auditable.
@@ -279,6 +348,11 @@ zero for the scene-break and verbalize classes across all 11 books.
 - `annotated_script.json` is deliberately **unchanged** by this work. Only the
   TTS path is affected. If the user later wants the editor to show verbalized
   text, that is a separate decision.
-- Check the extended-corpus numbers before sizing this. If `mushoku16`'s 28
-  affected entries turns out to be an outlier across the 11 books, the work is
-  smaller than it looks; if it is typical, this touches every book produced.
+- Sizing is now measured rather than guessed (see Library prevalence above):
+  median book 0.26% of paragraphs, only 1.5% of novels above 10%. The extended
+  corpus will likely read milder than `mushoku16`, which is at the 86th
+  percentile.
+- Scene-break conversion alone captures ~86% of all occurrences. If time is
+  limited, build that and defer verbalization, emoji policy and emoticons.
+- `|` in CIP front matter is a `strip_known_front_matter` job, not a
+  verbalization one. Do not add it to any mapping table.
