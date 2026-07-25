@@ -830,7 +830,9 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
         # Size the next call from what this model has actually shown. Stays at
         # zero for a model that never reports reasoning_tokens, so a
         # non-reasoning model keeps exactly today's ceiling.
-        reasoning_allowance.observe(attempt.get("reasoning_tokens"))
+        reasoning_allowance.observe(
+            attempt.get("reasoning_tokens"),
+            truncated=attempt.get("finish_reason") == "length")
         params.reasoning_allowance = reasoning_allowance.current()
 
     def last_attempt_for(_index):
@@ -902,7 +904,9 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                                        attempt_sink=attempts,
                                        quote_analysis=quote_analyses[i])
         for attempt in attempts[observed_attempts:]:
-            reasoning_allowance.observe(attempt.get("reasoning_tokens"))
+            reasoning_allowance.observe(
+                attempt.get("reasoning_tokens"),
+                truncated=attempt.get("finish_reason") == "length")
         observed_attempts = len(attempts)
         params.reasoning_allowance = reasoning_allowance.current()
         if not seg and should_rescue_with_context(failures[0] if failures else set()):
@@ -1128,9 +1132,21 @@ class ReasoningAllowance:
     def __init__(self):
         self._observations = []
 
-    def observe(self, reasoning_tokens):
-        if reasoning_tokens:
-            self._observations.append(int(reasoning_tokens))
+    def observe(self, reasoning_tokens, truncated=False):
+        """Record one call's thinking cost.
+
+        A truncated response reports only the reasoning it managed to emit
+        before hitting the ceiling, not what it wanted. Taking that at face
+        value makes the allowance converge upward one small step per chunk,
+        truncating every chunk on the way, so a censored observation is
+        treated as a lower bound and inflated instead.
+        """
+        if not reasoning_tokens:
+            return
+        tokens = int(reasoning_tokens)
+        if truncated:
+            tokens *= 2
+        self._observations.append(tokens)
 
     def current(self):
         if not self._observations:
