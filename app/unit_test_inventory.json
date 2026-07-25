@@ -33,6 +33,21 @@
     "test_api_summary.ApiSummaryTests.test_json_summary_records_ordered_test_identities_statuses_and_reasons",
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
+  "test_attribution_voting": [
+    "test_attribution_voting.MajorityVoteTest.test_empty_votes_are_handled",
+    "test_attribution_voting.MajorityVoteTest.test_majority_wins_over_minority",
+    "test_attribution_voting.MajorityVoteTest.test_none_votes_are_ignored_when_a_real_answer_exists",
+    "test_attribution_voting.MajorityVoteTest.test_single_sample_is_full_confidence",
+    "test_attribution_voting.MajorityVoteTest.test_three_way_split_keeps_the_first",
+    "test_attribution_voting.MajorityVoteTest.test_unanimous_vote_wins",
+    "test_attribution_voting.VoteSeedTest.test_no_seed_is_omitted",
+    "test_attribution_voting.VoteSeedTest.test_seed_reaches_the_request",
+    "test_attribution_voting.VoteSeedTest.test_seeds_are_distinct_and_stable",
+    "test_attribution_voting.VotedAttributionTest.test_each_sample_gets_its_own_seed",
+    "test_attribution_voting.VotedAttributionTest.test_failed_samples_are_skipped",
+    "test_attribution_voting.VotedAttributionTest.test_majority_across_samples",
+    "test_attribution_voting.VotedAttributionTest.test_single_vote_delegates_to_greedy"
+  ],
   "test_batch_script_concurrency": [
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_preflight_uses_planned_runtime_profile",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_serializes_when_per_slot_context_is_too_small",
