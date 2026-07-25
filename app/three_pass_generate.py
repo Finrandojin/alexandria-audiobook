@@ -22,7 +22,8 @@ from generate_script import (call_llm_for_entries, split_into_chunks,
 from source_normalization import (neutralize_lossy_residue,
                                   normalize_known_source_corruptions,
                                   repair_lossy_replacements,
-                                  strip_known_front_matter)
+                                  strip_known_front_matter,
+                                  strip_publisher_matter)
 from script_preflight import audit_unicode_text
 from speaker_identity import stabilize_speaker_identities
 from script_repair import build_deterministic_repair
@@ -1285,6 +1286,11 @@ def main():
     book, _ = normalize_known_source_corruptions(book)
     if args.strip_front_matter:
         book, _ = strip_known_front_matter(book)
+    book, publisher = strip_publisher_matter(book)
+    if publisher["front_paragraphs"] or publisher["back_paragraphs"]:
+        print(f"Stripped publisher matter: {publisher['front_paragraphs']} "
+              f"paragraph(s) from the front, {publisher['back_paragraphs']} "
+              "from the back (copyright page / colophon, not narration)")
     try:
         book, unicode_report = prepare_source_text(book)
     except ValueError as exc:
