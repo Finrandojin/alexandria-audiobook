@@ -537,7 +537,12 @@
     "test_reasoning_budget.ResolveCompletionCeilingTest.test_allowance_does_not_shrink_the_visible_budget",
     "test_reasoning_budget.ResolveCompletionCeilingTest.test_floor_still_applies",
     "test_reasoning_budget.ResolveCompletionCeilingTest.test_non_reasoning_model_keeps_todays_ceiling",
-    "test_reasoning_budget.ResolveCompletionCeilingTest.test_reasoning_allowance_is_added_on_top"
+    "test_reasoning_budget.ResolveCompletionCeilingTest.test_reasoning_allowance_is_added_on_top",
+    "test_reasoning_budget.SegmentAllowanceWiringTest.test_ceiling_grows_once_reasoning_is_observed",
+    "test_reasoning_budget.SegmentAllowanceWiringTest.test_segment_attempts_feed_the_allowance",
+    "test_reasoning_budget.TruncatedObservationTest.test_complete_observation_is_taken_at_face_value",
+    "test_reasoning_budget.TruncatedObservationTest.test_truncated_observation_is_inflated",
+    "test_reasoning_budget.TruncatedObservationTest.test_truncation_does_not_affect_a_non_reasoning_model"
   ],
   "test_release_verifier": [
     "test_release_verifier.CiEnvParityTests.test_block_ml_imports_hides_an_installed_module",

@@ -95,6 +95,57 @@ class ReasoningOverflowTest(unittest.TestCase):
             "truncated_output")
 
 
+class TruncatedObservationTest(unittest.TestCase):
+    """A truncated response reports only the reasoning it emitted before the
+    ceiling cut it off. Taking that as the true cost makes the allowance creep
+    up one step per chunk, truncating every chunk on the way - observed live,
+    2700 -> 4005 over ten chunks while the model wanted ~7100."""
+
+    def test_truncated_observation_is_inflated(self):
+        allowance = ReasoningAllowance()
+        allowance.observe(2600, truncated=True)
+        self.assertGreaterEqual(allowance.current(), 5200)
+
+    def test_complete_observation_is_taken_at_face_value(self):
+        allowance = ReasoningAllowance()
+        allowance.observe(2600, truncated=False)
+        self.assertEqual(allowance.current(), 2600)
+
+    def test_truncation_does_not_affect_a_non_reasoning_model(self):
+        allowance = ReasoningAllowance()
+        allowance.observe(0, truncated=True)
+        allowance.observe(None, truncated=True)
+        self.assertEqual(allowance.current(), 0)
+
+
+class SegmentAllowanceWiringTest(unittest.TestCase):
+    """resolve_completion_ceiling is used ONLY by pass 1, but the allowance was
+    fed only by the pass-2/3 observers, so it stayed zero for the pass that
+    consumes it. Observed live: thinking-on segmentation kept reporting
+    "cannot grow beyond 2700" (5.0 x ~540 words = visible output only)."""
+
+    def test_segment_attempts_feed_the_allowance(self):
+        import inspect
+
+        import three_pass_generate as tp
+        source = inspect.getsource(tp.run_three_pass)
+        segment_loop = source[source.index("seg_base = elapsed_s.get"):]
+        segment_loop = segment_loop[:segment_loop.index("elapsed_s[\"attribute\"]")]
+        self.assertIn("reasoning_allowance.observe", segment_loop,
+                      "pass 1 must feed the allowance it consumes")
+
+    def test_ceiling_grows_once_reasoning_is_observed(self):
+        from generate_script import LLMGenParams
+        from three_pass_generate import ReasoningAllowance, resolve_completion_ceiling
+        params = LLMGenParams(segment_output_ratio=5.0)
+        allowance = ReasoningAllowance()
+        cold = resolve_completion_ceiling(540, params, allowance.current())
+        allowance.observe(7101)
+        warm = resolve_completion_ceiling(540, params, allowance.current())
+        self.assertEqual(cold, 2700)
+        self.assertGreater(warm, 9000)
+
+
 class ReasoningEffortPlumbingTest(unittest.TestCase):
 
     def test_reasoning_effort_reaches_extra_body(self):
