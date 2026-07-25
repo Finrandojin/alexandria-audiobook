@@ -1333,9 +1333,18 @@ def main():
         top_k=gen.get("top_k"), min_p=gen.get("min_p"),
         context_length=lm_status.get("context_length"),
         segment_temperature=model_profile.get(
-            "segment_temperature", gen.get("three_pass_segment_temperature", 0.1)),
+            # Segmentation and attribution are classification, not writing:
+            # each has one right answer, so sampling only adds noise. Measured
+            # on mushoku16, sending an identical attribution batch twice at
+            # temperature 0.1 changed 23.6% of speakers; at 0.0 it changed 0%.
+            # That noise was most of the 37.4% run-to-run disagreement that
+            # made model comparison impossible, and it also meant regenerating
+            # a book produced materially different speakers each time.
+            # instruct stays at 0.1: it is the one genuinely generative pass,
+            # writing delivery direction rather than choosing a label.
+            "segment_temperature", gen.get("three_pass_segment_temperature", 0.0)),
         attribute_temperature=model_profile.get(
-            "attribute_temperature", gen.get("three_pass_attribute_temperature", 0.1)),
+            "attribute_temperature", gen.get("three_pass_attribute_temperature", 0.0)),
         instruct_temperature=model_profile.get(
             "instruct_temperature", gen.get("three_pass_instruct_temperature", 0.1)),
         segment_output_ratio=model_profile.get(
