@@ -555,6 +555,14 @@
     "test_project_chunks.UnspeakablePassthroughTest.test_leading_scene_break_makes_no_orphan_pause",
     "test_project_chunks.UnspeakablePassthroughTest.test_symbol_is_verbalized"
   ],
+  "test_publisher_matter": [
+    "test_publisher_matter.StripPublisherMatterTest.test_a_book_that_is_all_colophon_is_left_alone",
+    "test_publisher_matter.StripPublisherMatterTest.test_back_matter_is_removed",
+    "test_publisher_matter.StripPublisherMatterTest.test_both_ends_at_once",
+    "test_publisher_matter.StripPublisherMatterTest.test_front_matter_is_removed",
+    "test_publisher_matter.StripPublisherMatterTest.test_story_is_untouched_when_there_is_no_colophon",
+    "test_publisher_matter.StripPublisherMatterTest.test_story_mentioning_copyright_mid_book_is_kept"
+  ],
   "test_reasoning_budget": [
     "test_reasoning_budget.ReasoningAllowanceTest.test_allowance_tracks_p95_of_observations",
     "test_reasoning_budget.ReasoningAllowanceTest.test_cold_start_is_zero",

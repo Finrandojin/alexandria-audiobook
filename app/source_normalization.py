@@ -211,3 +211,119 @@ def neutralize_lossy_residue(text, substitute="'"):
     if _REPLACEMENT not in text:
         return text, 0
     return text.replace(_REPLACEMENT, substitute), text.count(_REPLACEMENT)
+
+
+# Signatures of a publisher colophon. Each is strong on its own: none of these
+# appear in narrative prose, so one hit marks a paragraph as non-story.
+_PUBLISHER_SIGNATURES = re.compile(
+    r"©|\(c\)\s*\d{4}|all rights reserved|first published in|"
+    r"english translation (?:rights|©|copyright)|"
+    r"this book is a work of fiction|"
+    r"scanning,? uploading,? and distribution|"
+    r"\bISBN\b|ebook edition|printed in the united states|"
+    r"yenpress\.com|j-novel\.club|yen (?:on|press)|j-novel club|"
+    r"kadokawa|hayakawa|seven seas|vertical, inc|"
+    r"library of congress|cataloging-in-publication|"
+    r"^\s*copyright\b|translation by |cover art by |illustration by |"
+    # Library-of-Congress cataloging block, printed verbatim by several
+    # publishers: these field labels never occur in narrative prose.
+    r"^\s*(?:subjects|identifiers|classification|description|names|title)\s*:|"
+    r"\bLCCN\b|\bLCGFT\b|\bCYAC\b|\bLCC\s+P|"
+    # Navigation scaffolding an epub extractor leaves at the head.
+    r"^\s*(?:table of )?contents\b|^\s*cover page\b|^\s*landmarks\b|"
+    r"^\s*color illustrations\b|^\s*(?:front|back)\s*matter\b",
+    re.IGNORECASE | re.MULTILINE)
+
+# A colophon paragraph is short. Long prose that happens to mention a publisher
+# is story, not front matter.
+_MAX_COLOPHON_PARAGRAPH_CHARS = 400
+# Colophon blocks sit at the very ends. Never strip from the middle of a book.
+# A colophon runs 10-30 paragraphs regardless of book length, so the share
+# alone is too tight on a short book and the floor alone too loose on a long
+# one; the scan window is the larger of the two, capped at half the book so a
+# head and tail scan can never meet.
+_MAX_COLOPHON_SHARE = 0.10
+_MIN_COLOPHON_WINDOW = 40
+
+
+# An epub extractor flattens a table of contents into one long paragraph, so
+# the length cap above would exclude it. Repeated chapter markers or bullets
+# identify it regardless of length - narrative prose does not enumerate
+# "Chapter 1 Chapter 2 Chapter 3".
+_TOC_MARKERS = re.compile(r"chapter\s+[0-9IVXLC]+|•|\u25a0\s*\d", re.IGNORECASE)
+_MIN_TOC_MARKERS = 3
+
+
+def _is_navigation_paragraph(text):
+    return len(_TOC_MARKERS.findall(text)) >= _MIN_TOC_MARKERS
+
+
+def _is_colophon_paragraph(paragraph):
+    text = paragraph.strip()
+    if not text:
+        return False
+    if _is_navigation_paragraph(text):
+        return True
+    if len(text) > _MAX_COLOPHON_PARAGRAPH_CHARS:
+        return False
+    return bool(_PUBLISHER_SIGNATURES.search(text))
+
+
+def _colophon_run(paragraphs, limit, reverse=False):
+    """Length of the colophon run anchored at one end.
+
+    Tolerates ordinary lines between signature lines - a colophon interleaves
+    the publisher's address and the book's title with its legal text - but only
+    while a signature line keeps appearing, so the run cannot creep into prose.
+    """
+    order = range(len(paragraphs) - 1, -1, -1) if reverse else range(len(paragraphs))
+    run, last_signature = 0, -1
+    for step, index in enumerate(order):
+        if step >= limit:
+            break
+        if not paragraphs[index].strip():
+            # Blank paragraphs are neutral: an epub extractor leaves runs of
+            # them inside a colophon, and counting them as evidence against
+            # broke the run five blanks in.
+            continue
+        if _is_colophon_paragraph(paragraphs[index]):
+            last_signature = step
+            run = step + 1
+        elif (len(paragraphs[index].strip()) > _MAX_COLOPHON_PARAGRAPH_CHARS
+              and not _is_navigation_paragraph(paragraphs[index])):
+            break                      # real prose: stop here
+        elif step - last_signature > 4:
+            break                      # drifted too far from the last signature
+    return run if last_signature >= 0 else 0
+
+
+def strip_publisher_matter(text):
+    """Remove a publisher colophon from the head and tail of a book.
+
+    Official epubs carry a copyright page, and often a closing colophon, that
+    is not narration but was being read aloud: one book opened with 16 entries
+    of copyright notice, translator credit and a New York street address,
+    another closed with 12 including a URL and an ebook edition number.
+
+    Distinct from strip_known_front_matter, which handles one fan-compiler's
+    "Manifesto." template. This is the publisher pattern, and it appears at
+    both ends rather than only the front.
+
+    Only runs anchored at an end are removed, never a match in the middle, and
+    the whole book is never stripped. Returns the text and what was removed.
+    """
+    paragraphs = text.split("\n\n")
+    if len(paragraphs) < 8:
+        return text, {"front_paragraphs": 0, "back_paragraphs": 0}
+    limit = min(len(paragraphs) // 2,
+                max(_MIN_COLOPHON_WINDOW,
+                    int(len(paragraphs) * _MAX_COLOPHON_SHARE)))
+    front = _colophon_run(paragraphs, limit)
+    back = _colophon_run(paragraphs, limit, reverse=True)
+    if front + back > len(paragraphs) * 0.8:
+        # Nearly all of it looks like a colophon: a broken or truncated source,
+        # not a book with front matter. Leave it for the caller's gate to
+        # reject rather than silently emptying it.
+        return text, {"front_paragraphs": 0, "back_paragraphs": 0}
+    kept = paragraphs[front:len(paragraphs) - back] if back else paragraphs[front:]
+    return "\n\n".join(kept), {"front_paragraphs": front, "back_paragraphs": back}
