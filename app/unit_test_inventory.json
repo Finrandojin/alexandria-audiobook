@@ -132,6 +132,16 @@
     "test_benchmark_runner.BenchmarkRunnerTests.test_thunder_target_uses_remote_profile_and_status",
     "test_benchmark_runner.BenchmarkRunnerTests.test_tts_fixture_drift_is_rejected_before_worker"
   ],
+  "test_build_scoring_sheet": [
+    "test_build_scoring_sheet.BuildSheetTest.test_agreement_is_marked",
+    "test_build_scoring_sheet.BuildSheetTest.test_correct_speaker_starts_blank",
+    "test_build_scoring_sheet.BuildSheetTest.test_disagreement_is_marked",
+    "test_build_scoring_sheet.BuildSheetTest.test_narrator_only_lines_are_excluded",
+    "test_build_scoring_sheet.BuildSheetTest.test_no_runs_yields_no_rows",
+    "test_build_scoring_sheet.BuildSheetTest.test_only_shared_lines_are_sampled",
+    "test_build_scoring_sheet.BuildSheetTest.test_sampling_is_reproducible",
+    "test_build_scoring_sheet.BuildSheetTest.test_whitespace_variation_still_counts_as_shared"
+  ],
   "test_chunk_quality": [
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_fails_cleanly_when_both_halves_fail",
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_labels_full_and_split_attempt_telemetry",
