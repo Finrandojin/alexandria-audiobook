@@ -138,5 +138,52 @@ class CheckedInProfileDefaultsTest(unittest.TestCase):
         self.assertEqual(resolve_model_profile("nope", {}, {}), {})
 
 
+class RosterAttestationTest(unittest.TestCase):
+    """A single hallucinated speaker enters the roster and is then fed back to
+    every later batch as a known character. Measured on mushoku16: WEARING was
+    invented at entry 11 and propagated to 1,106 - 89 entries in one arm, and
+    it reproduced in all three arms.
+
+    Real character names appear as capitalized proper nouns in the prose
+    (28-291 times each, never lowercase). WEARING appears twice capitalized at
+    sentence start and 15 times lowercase."""
+
+    # Realistic proportions: a named character is written capitalized many
+    # times over, a common word mostly lowercase. A fixture with only two or
+    # three mentions cannot exercise the ratio.
+    SOURCE = (("Roxy smiled. Eris laughed at Roxy. " * 6)
+              + ("He was wearing a coat, wearing it badly. " * 8)
+              + "Wearing thin, the day ended.")
+
+    def test_attested_names_are_admitted(self):
+        from three_pass_generate import build_roster
+        entries = [{"speaker": "ROXY"}, {"speaker": "ERIS"}]
+        self.assertEqual(build_roster(entries, self.SOURCE), ["ROXY", "ERIS"])
+
+    def test_a_name_that_is_also_a_word_still_passes(self):
+        # Rose is named far more often than "a rose" is used, so the ratio
+        # keeps her even though the lowercase form occurs.
+        from three_pass_generate import build_roster
+        source = ("Rose spoke. " * 20) + "He picked up a rose. "
+        self.assertEqual(build_roster([{"speaker": "ROSE"}], source), ["ROSE"])
+
+    def test_common_word_is_rejected(self):
+        from three_pass_generate import build_roster
+        entries = [{"speaker": "ROXY"}, {"speaker": "WEARING"}]
+        self.assertEqual(build_roster(entries, self.SOURCE), ["ROXY"])
+
+    def test_without_source_every_name_is_kept(self):
+        # Callers that have no source text must keep today's behaviour.
+        from three_pass_generate import build_roster
+        entries = [{"speaker": "ROXY"}, {"speaker": "WEARING"}]
+        self.assertEqual(build_roster(entries), ["ROXY", "WEARING"])
+
+    def test_narrator_and_unknown_still_excluded(self):
+        from three_pass_generate import build_roster
+        entries = [{"speaker": "NARRATOR"}, {"speaker": "UNKNOWN"},
+                   {"speaker": "ROXY"}]
+        self.assertEqual(build_roster(entries, self.SOURCE), ["ROXY"])
+
+
 if __name__ == "__main__":
     unittest.main()

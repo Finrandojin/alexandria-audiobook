@@ -804,6 +804,11 @@
     "test_three_pass_telemetry.ModelProfileMappingTest.test_pydantic_profile_is_readable",
     "test_three_pass_telemetry.ModelProfileMappingTest.test_unset_fields_fall_back_to_the_default",
     "test_three_pass_telemetry.ObserverPlumbingTest.test_attribute_batch_accepts_an_observer",
+    "test_three_pass_telemetry.RosterAttestationTest.test_a_name_that_is_also_a_word_still_passes",
+    "test_three_pass_telemetry.RosterAttestationTest.test_attested_names_are_admitted",
+    "test_three_pass_telemetry.RosterAttestationTest.test_common_word_is_rejected",
+    "test_three_pass_telemetry.RosterAttestationTest.test_narrator_and_unknown_still_excluded",
+    "test_three_pass_telemetry.RosterAttestationTest.test_without_source_every_name_is_kept",
     "test_three_pass_telemetry.SegmentFailureReasonTest.test_reason_comes_from_the_failure_codes",
     "test_three_pass_telemetry.SegmentFailureReasonTest.test_reason_falls_back_when_no_codes",
     "test_three_pass_telemetry.SegmentFailureReasonTest.test_rollup_counts_segment_failures"

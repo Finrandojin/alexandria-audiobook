@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 import os
+import re
 import sys
 import time
 from collections import Counter
@@ -128,14 +129,49 @@ def iter_unique_entry_batches(entries, batch_size=BATCH_SIZE):
             yield batch
 
 
-def build_roster(entries):
+MIN_ROSTER_ATTESTATIONS = 3
+
+
+def is_attested_name(name, source_text):
+    """Whether a speaker name reads as a character name in the source.
+
+    Compares how often the word appears capitalized against how often it
+    appears lowercase. A character's name is written capitalized nearly every
+    time; a common word the model mistook for a name is not. Measured on
+    mushoku16: every genuine speaker appeared 28-291 times capitalized and zero
+    times lowercase, while WEARING appeared 2 times capitalized and 15 lowercase.
+
+    The ratio rather than a flat "never lowercase" rule so a character whose
+    name is also a word (Rose, Hope) still passes on the strength of being
+    named far more often than the word is used.
+    """
+    if not source_text:
+        return True
+    word = re.escape(name)
+    capitalized = len(re.findall(r"\b" + re.escape(name.title()) + r"\b", source_text))
+    lowercase = len(re.findall(r"\b" + word.lower() + r"\b", source_text))
+    return (capitalized >= MIN_ROSTER_ATTESTATIONS
+            and capitalized > lowercase * 2)
+
+
+def build_roster(entries, source_text=None):
     """Ordered unique UPPERCASE speaker names seen so far, excluding NARRATOR and
-    the UNKNOWN placeholder — fed to pass 2 for naming consistency."""
+    the UNKNOWN placeholder — fed to pass 2 for naming consistency.
+
+    When source_text is given, a name must also be attested in the prose. The
+    roster is the propagation vector for a hallucinated speaker: once a bad name
+    is in it, every later batch is told that name is an established character.
+    On mushoku16 a single invention at entry 11 spread to entry 1,106. Gating
+    admission contains the damage to the one entry that produced it.
+    """
     roster = []
     for entry in entries:
         speaker = (entry.get("speaker") or "").strip().upper()
-        if speaker and speaker not in ("NARRATOR", "UNKNOWN") and speaker not in roster:
-            roster.append(speaker)
+        if not speaker or speaker in ("NARRATOR", "UNKNOWN") or speaker in roster:
+            continue
+        if not is_attested_name(speaker, source_text):
+            continue
+        roster.append(speaker)
     return roster
 
 
@@ -949,7 +985,8 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
         if named[index] is not None:
             continue
         named[index] = get_deterministic_named_entry(entry)
-    roster = build_roster(entry for entry in named if isinstance(entry, dict))
+    roster = build_roster(
+        (entry for entry in named if isinstance(entry, dict)), source_text)
     roster_seen = set(roster)
     attr_start = time.time()
     attr_base = elapsed_s.get("attribute", 0)
@@ -993,7 +1030,8 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                     named[index] = entry
                 if on_exhaustion == "fallback":
                     roster = build_roster(
-                        entry for entry in named if isinstance(entry, dict))
+                        (entry for entry in named if isinstance(entry, dict)),
+                        source_text)
                     roster_seen = set(roster)
                 else:
                     for entry in new_named:
