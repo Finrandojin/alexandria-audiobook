@@ -5,19 +5,51 @@ should look only at entries where the arms actually disagree.
 """
 
 import argparse
+import difflib
 import json
 import random
+import re
+
+
+def normalize(text):
+    """Collapse whitespace and case so alignment is not defeated by formatting."""
+    return " ".join(str(text or "").split()).casefold()
+
+
+def align_arms(arm_a, arm_b):
+    """Pair entries between two arms by text, returning (pairs, coverage).
+
+    Index-based pairing cannot work: segmentation is not deterministic, and two
+    identical runs of the same book produced 1,995 and 2,036 entries. Matching
+    on text lets the comparison skip over the entries one arm split differently
+    instead of silently comparing misaligned lines - or refusing to run at all.
+
+    coverage is the share of arm_a's entries that found a partner, so a caller
+    can tell "the arms agree" apart from "the arms barely aligned".
+    """
+    # Keep the original positions: the index is what a human uses to find the
+    # entry in the checkpoint when scoring the sample.
+    left_indexed = [(i, e) for i, e in enumerate(arm_a) if e]
+    right = [e for e in arm_b if e]
+    left = [e for _, e in left_indexed]
+    left_keys = [normalize(e.get("text")) for e in left]
+    right_keys = [normalize(e.get("text")) for e in right]
+    matcher = difflib.SequenceMatcher(a=left_keys, b=right_keys, autojunk=False)
+    pairs = []
+    for a_start, b_start, size in matcher.get_matching_blocks():
+        for offset in range(size):
+            position = a_start + offset
+            pairs.append((left_indexed[position][0], left[position],
+                          right[b_start + offset]))
+    coverage = len(pairs) / max(len(left), 1)
+    return pairs, coverage
 
 
 def find_disagreements(arm_a, arm_b):
     """Return entries where two arms assigned different speakers."""
-    if len(arm_a) != len(arm_b):
-        raise ValueError(
-            f"arms have different entry counts: {len(arm_a)} vs {len(arm_b)}")
+    pairs, _coverage = align_arms(arm_a, arm_b)
     rows = []
-    for index, (left, right) in enumerate(zip(arm_a, arm_b)):
-        if not left or not right:
-            continue
+    for index, left, right in pairs:
         if left.get("speaker") != right.get("speaker"):
             rows.append({"index": index, "arm_a": left.get("speaker"),
                          "arm_b": right.get("speaker"),
@@ -48,14 +80,22 @@ def main():
         return data
 
     entries_a, entries_b = load(args.arm_a), load(args.arm_b)
+    pairs, coverage = align_arms(entries_a, entries_b)
     rows = find_disagreements(entries_a, entries_b)
     sample = sample_disagreements(rows, args.size, args.seed)
     with open(args.output, "w", encoding="utf-8") as fh:
-        json.dump({"total_entries_compared": len(entries_a),
+        json.dump({"entries_arm_a": len(entries_a), "entries_arm_b": len(entries_b),
+                   "aligned": len(pairs), "alignment_coverage": round(coverage, 4),
                    "disagreement_count": len(rows), "sample": sample},
                   fh, indent=2, ensure_ascii=False)
-    print(f"{len(rows)} disagreements out of {len(entries_a)} entries; "
-          f"wrote {len(sample)} sampled to {args.output}")
+    print(f"aligned {len(pairs)} of {len(entries_a)}/{len(entries_b)} entries "
+          f"({coverage:.1%} coverage)")
+    print(f"{len(rows)} disagreements among aligned entries "
+          f"({len(rows)/max(len(pairs),1):.1%}); wrote {len(sample)} sampled "
+          f"to {args.output}")
+    if coverage < 0.8:
+        print("WARNING: low alignment coverage - the arms segmented very "
+              "differently, so this comparison covers only part of the book.")
 
 
 if __name__ == "__main__":

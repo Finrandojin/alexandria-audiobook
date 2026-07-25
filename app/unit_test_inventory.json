@@ -181,11 +181,15 @@
   ],
   "test_compare_attribution_arms": [
     "test_compare_attribution_arms.FindDisagreementsTest.test_differing_speaker_is_reported",
-    "test_compare_attribution_arms.FindDisagreementsTest.test_length_mismatch_raises",
+    "test_compare_attribution_arms.FindDisagreementsTest.test_empty_arm_yields_no_disagreements",
     "test_compare_attribution_arms.FindDisagreementsTest.test_matching_arms_have_no_disagreements",
     "test_compare_attribution_arms.FindDisagreementsTest.test_null_entries_are_skipped",
     "test_compare_attribution_arms.SampleDisagreementsTest.test_sample_is_deterministic_for_a_seed",
-    "test_compare_attribution_arms.SampleDisagreementsTest.test_sample_smaller_than_size_returns_all"
+    "test_compare_attribution_arms.SampleDisagreementsTest.test_sample_smaller_than_size_returns_all",
+    "test_compare_attribution_arms.TextAlignmentTest.test_alignment_reports_coverage",
+    "test_compare_attribution_arms.TextAlignmentTest.test_arms_of_different_length_align",
+    "test_compare_attribution_arms.TextAlignmentTest.test_identical_arms_of_equal_length_have_no_disagreements",
+    "test_compare_attribution_arms.TextAlignmentTest.test_whitespace_differences_do_not_count_as_disagreement"
   ],
   "test_config_regressions": [
     "test_config_regressions.ConfigTests.test_app_config_loader_ignores_invalid_legacy_values_without_writing",
