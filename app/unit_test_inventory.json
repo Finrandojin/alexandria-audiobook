@@ -140,7 +140,13 @@
     "test_build_scoring_sheet.BuildSheetTest.test_no_runs_yields_no_rows",
     "test_build_scoring_sheet.BuildSheetTest.test_only_shared_lines_are_sampled",
     "test_build_scoring_sheet.BuildSheetTest.test_sampling_is_reproducible",
-    "test_build_scoring_sheet.BuildSheetTest.test_whitespace_variation_still_counts_as_shared"
+    "test_build_scoring_sheet.BuildSheetTest.test_whitespace_variation_still_counts_as_shared",
+    "test_build_scoring_sheet.NeighbourContextTest.test_context_surrounds_the_line",
+    "test_build_scoring_sheet.NeighbourContextTest.test_end_of_book_has_no_trailing_context",
+    "test_build_scoring_sheet.NeighbourContextTest.test_neighbour_speakers_are_not_exposed",
+    "test_build_scoring_sheet.NeighbourContextTest.test_rows_carry_context",
+    "test_build_scoring_sheet.NeighbourContextTest.test_start_of_book_has_no_leading_context",
+    "test_build_scoring_sheet.NeighbourContextTest.test_window_is_respected"
   ],
   "test_chunk_quality": [
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_fails_cleanly_when_both_halves_fail",

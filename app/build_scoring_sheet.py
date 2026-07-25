@@ -38,7 +38,32 @@ def find_model_runs(results_dir, book_tag):
     return runs
 
 
-def build_sheet(runs, size=50, seed=7):
+def neighbour_context(entries, position, window=3):
+    """Return (before, after) neighbouring lines as context for one entry.
+
+    Searching the source text for the line was tried and abandoned: 35 of 50
+    lines could not be located, and a short common line like "Huh, what is it?"
+    matched the wrong occurrence. The entry sequence already is the source in
+    order, so the neighbours are the context - no searching, no mismatches.
+
+    Neighbour speakers are deliberately omitted. They are model output and may
+    be wrong; showing them would bias the very judgement being asked for. The
+    narration around a line is what names the speaker.
+    """
+    before = []
+    for entry in entries[max(0, position - window):position]:
+        text = " ".join(str(entry.get("text") or "").split())
+        if text:
+            before.append(text)
+    after = []
+    for entry in entries[position + 1:position + 1 + window]:
+        text = " ".join(str(entry.get("text") or "").split())
+        if text:
+            after.append(text)
+    return before, after
+
+
+def build_sheet(runs, size=50, seed=7, window=3):
     """Sample spoken lines and collect every model's answer for each.
 
     Lines are keyed on normalized text, so a line only enters the sheet if it
@@ -48,14 +73,17 @@ def build_sheet(runs, size=50, seed=7):
     if not runs:
         return []
     models = sorted(runs)
-    indexed = {}
+    indexed, positions = {}, {}
     for model in models:
-        by_text = {}
-        for entry in runs[model]:
+        by_text, by_position = {}, {}
+        for position, entry in enumerate(runs[model]):
             key = normalize(entry.get("text"))
             # First occurrence wins; duplicate lines are ambiguous to align.
-            by_text.setdefault(key, entry)
+            if key not in by_text:
+                by_text[key] = entry
+                by_position[key] = position
         indexed[model] = by_text
+        positions[model] = by_position
 
     shared = set(indexed[models[0]])
     for model in models[1:]:
@@ -72,11 +100,15 @@ def build_sheet(runs, size=50, seed=7):
     chosen = (candidates if len(candidates) <= size
               else random.Random(seed).sample(candidates, size))
 
+    spine = models[0]
     rows = []
     for key in chosen:
         answers = {model: indexed[model][key].get("speaker") for model in models}
+        before, after = neighbour_context(runs[spine], positions[spine][key], window)
         rows.append({
-            "text": indexed[models[0]][key].get("text", "")[:400],
+            "text": indexed[spine][key].get("text", "")[:400],
+            "context_before": before,
+            "context_after": after,
             "answers": answers,
             "models_agree": len(set(answers.values())) == 1,
             "correct_speaker": "",          # <- you fill this in
@@ -91,13 +123,17 @@ def main():
     parser.add_argument("--size", type=int, default=50)
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--output", default="scoring_sheet.json")
+    parser.add_argument("--window", type=int, default=3,
+                        help="Neighbouring lines of context each side (default 3). "
+                             "A line alone is often unanswerable; the narration "
+                             "around it names the speaker.")
     args = parser.parse_args()
 
     runs = find_model_runs(args.results_dir, args.book_tag)
     if not runs:
         print(f"no completed runs for {args.book_tag} under {args.results_dir}")
         return
-    rows = build_sheet(runs, args.size, args.seed)
+    rows = build_sheet(runs, args.size, args.seed, args.window)
     disputed = [r for r in rows if not r["models_agree"]]
     with open(args.output, "w", encoding="utf-8") as handle:
         json.dump({"book": args.book_tag, "models": sorted(runs),
