@@ -13,7 +13,7 @@ import uuid
 from script_repair import EXPLICIT_SILENCE_MS
 from verbalization import (SET_APART_HINT, VERBALIZE, classify,
                            extract_delivery_cues, is_pictographic_kana,
-                           split_bracketed_spans)
+                           split_bracketed_spans, strip_emoji_dividers)
 from utils import (atomic_json_write, safe_load_json, is_oom_failure,
                    get_app_config_path, is_nonverbal_text)
 from config_settings import load_app_config
@@ -77,7 +77,11 @@ def split_on_unspeakable(entry, scene_break_pause_ms):
 
     Returns (parts, review_chars). Never mutates the entry it is given.
     """
-    text = str(entry.get("text") or "")
+    # A run of repeated emoji is a section divider, the same role as a row of
+    # box-drawing characters, so it is folded to a scene-break glyph before
+    # classification. Done first because each emoji is category So on its own
+    # and would otherwise be reported for review one character at a time.
+    text, _dividers = strip_emoji_dividers(str(entry.get("text") or ""))
     review = []
     for position, char in enumerate(text):
         neighbours = text[max(0, position - 2):position] + text[position + 1:position + 3]
