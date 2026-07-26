@@ -1,8 +1,10 @@
 import unittest
 
-from verbalization import (ELONGATION_HINT, SET_APART_HINT, SUNG_HINT,
+from verbalization import (ELONGATION_HINT, SCENE_BREAK_MARKER, SET_APART_HINT,
+                           SUNG_HINT,
                            classify, extract_delivery_cues,
-                           is_pictographic_kana, split_bracketed_spans)
+                           is_pictographic_kana, split_bracketed_spans,
+                           strip_emoji_dividers)
 
 
 class ClassifyTest(unittest.TestCase):
@@ -110,3 +112,57 @@ class BracketedSpanTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EmojiDividerTest(unittest.TestCase):
+    """A run of repeated emoji is a section divider, not something to voice.
+
+    Each emoji is Unicode category So, so without this every one would be
+    reported for review individually - and if the reviewer waved them through,
+    the narrator would read a decorative separator aloud.
+    """
+
+    def test_a_run_becomes_a_scene_break_marker(self):
+        text, runs = strip_emoji_dividers("swamp. \U0001F409 \U0001F409 \U0001F409 Her memories")
+        self.assertEqual(1, runs)
+        self.assertIn(SCENE_BREAK_MARKER, text)
+        self.assertNotIn("\U0001F409", text)
+
+    def test_a_lone_emoji_is_left_alone(self):
+        text, runs = strip_emoji_dividers("She held the \U0001F409 charm.")
+        self.assertEqual(0, runs)
+        self.assertIn("\U0001F409", text)
+
+    def test_two_adjacent_emoji_count_as_a_run(self):
+        _text, runs = strip_emoji_dividers("end ✨✨ start")
+        self.assertEqual(1, runs)
+
+    def test_the_marker_classifies_as_a_scene_break(self):
+        # The whole point of folding to this glyph is to reuse the pause path.
+        self.assertEqual("scene_break", classify(SCENE_BREAK_MARKER))
+
+    def test_prose_without_emoji_is_returned_unchanged(self):
+        original = "She held the charm tightly."
+        text, runs = strip_emoji_dividers(original)
+        self.assertEqual((original, 0), (text, runs))
+
+
+class EmojiDividerSplitTest(unittest.TestCase):
+    def test_a_divider_run_splits_the_entry_and_carries_a_pause(self):
+        from project import split_on_unspeakable
+        entry = {"speaker": "NARRATOR", "instruct": "Calm.",
+                 "text": "swamp. \U0001F409 \U0001F409 \U0001F409 Her memories were a blur."}
+        parts, review = split_on_unspeakable(entry, 700)
+        self.assertEqual([], review)
+        self.assertEqual(2, len(parts))
+        self.assertEqual(700, parts[0]["pause_after"])
+        self.assertNotIn("pause_after", parts[1])
+        self.assertNotIn("\U0001F409", "".join(p["text"] for p in parts))
+
+    def test_a_lone_emoji_still_reaches_review(self):
+        from project import split_on_unspeakable
+        entry = {"speaker": "NARRATOR", "instruct": "Calm.",
+                 "text": "She held the \U0001F409 charm."}
+        parts, review = split_on_unspeakable(entry, 700)
+        self.assertEqual(["\U0001F409"], review)
+        self.assertEqual(1, len(parts))

@@ -938,6 +938,13 @@
     "test_verbalization.DeliveryCueTest.test_clean_text_is_untouched",
     "test_verbalization.DeliveryCueTest.test_elongation_moves_into_a_hint",
     "test_verbalization.DeliveryCueTest.test_lone_music_note_is_left_alone",
+    "test_verbalization.EmojiDividerSplitTest.test_a_divider_run_splits_the_entry_and_carries_a_pause",
+    "test_verbalization.EmojiDividerSplitTest.test_a_lone_emoji_still_reaches_review",
+    "test_verbalization.EmojiDividerTest.test_a_lone_emoji_is_left_alone",
+    "test_verbalization.EmojiDividerTest.test_a_run_becomes_a_scene_break_marker",
+    "test_verbalization.EmojiDividerTest.test_prose_without_emoji_is_returned_unchanged",
+    "test_verbalization.EmojiDividerTest.test_the_marker_classifies_as_a_scene_break",
+    "test_verbalization.EmojiDividerTest.test_two_adjacent_emoji_count_as_a_run",
     "test_verbalization.PictographicKanaTest.test_kana_among_kana_is_language",
     "test_verbalization.PictographicKanaTest.test_latin_is_never_pictographic",
     "test_verbalization.PictographicKanaTest.test_lone_kana_is_pictographic"

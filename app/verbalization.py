@@ -45,6 +45,19 @@ SET_APART_HINT = "Set apart from the surrounding narration - a distinct voice."
 # between them so a stray comparison or an emoticon is not mistaken for a span.
 _BRACKETED_SPAN = re.compile(r"<([^<>]{4,300})>")
 
+# Publishers use a run of repeated emoji as a section divider, exactly like a
+# row of box-drawing characters: "...sinking into a murky swamp. 🐉 🐉 🐉 Her
+# memories of the next few days were a blur." Across the library these are
+# decorative separators rather than content, so they become scene breaks. A run
+# is required: a lone emoji mid-sentence may carry meaning and is reported for
+# review instead of guessed at.
+_EMOJI_RUN = re.compile(
+    r"(?:[\U0001F300-\U0001FAFF\u2728\u2727\u2605\u2606]\s*){2,}")
+
+# Folding a run to one scene-break glyph reuses the existing pause handling
+# rather than adding a second path for the same idea.
+SCENE_BREAK_MARKER = "\u25a0"
+
 _SYMBOL_CATEGORIES = frozenset({"So", "Sm", "Sk"})
 _KANA_START, _KANA_END = "぀", "ヿ"
 
@@ -120,3 +133,14 @@ def split_bracketed_spans(text):
     if trailing or not parts:
         parts.append((trailing or text.strip(), False))
     return parts
+
+
+def strip_emoji_dividers(text):
+    """Replace runs of decorative emoji with a scene-break marker.
+
+    Returns (text, runs_replaced). A lone emoji is left untouched: it may carry
+    meaning, and reporting it for review beats guessing at it.
+    """
+    if not _EMOJI_RUN.search(text):
+        return text, 0
+    return _EMOJI_RUN.sub(SCENE_BREAK_MARKER, text), len(_EMOJI_RUN.findall(text))
