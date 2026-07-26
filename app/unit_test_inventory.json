@@ -337,7 +337,10 @@
   "test_inventory": [
     "test_inventory.TestInventoryTests.test_inventory_differences_are_compact_and_actionable",
     "test_inventory.TestInventoryTests.test_inventory_writer_is_deterministic_and_check_is_read_only",
-    "test_inventory.TestInventoryTests.test_unit_test_inventory_is_stable"
+    "test_inventory.TestInventoryTests.test_unit_test_inventory_is_stable",
+    "test_inventory.TrackedOnlyDiscoveryTest.test_an_untracked_test_file_is_not_inventoried",
+    "test_inventory.TrackedOnlyDiscoveryTest.test_discovery_falls_back_when_git_is_unavailable",
+    "test_inventory.TrackedOnlyDiscoveryTest.test_tracked_files_are_still_discovered"
   ],
   "test_launcher_supervisor": [
     "test_launcher_supervisor.LauncherSupervisorTests.test_address_already_in_use_breaks_case_insensitively",

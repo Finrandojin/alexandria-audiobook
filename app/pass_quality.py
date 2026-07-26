@@ -359,11 +359,21 @@ MIN_NAME_ATTESTATIONS = 2
 MIN_SOURCE_FOR_ATTESTATION = 5000
 
 
-def is_attested_name(name, source_text):
+def is_attested_name(name, source_text, min_attestations=MIN_NAME_ATTESTATIONS):
     """Whether a speaker name is written as a name in the source.
 
     A real character is capitalised nearly every time; an invented one is not
-    in the text at all, or is a common word the model mistook for a name.
+    in the text at all, or is a common word the model mistook for a name. The
+    ratio rather than a flat "never lowercase" rule, so a character whose name
+    is also a word (Rose, Hope) still passes on being named far more often than
+    the word is used.
+
+    The single implementation for both gates. Roster admission passes a higher
+    min_attestations because a bad name there propagates to every later batch,
+    while the output gate only has to judge one entry. They previously had
+    separate implementations and drifted: the output gate was fixed for
+    hyphenated names and the roster gate was not, so build_roster went on
+    rejecting Bri-chan after validate_attribution had started accepting him.
     """
     if not source_text or not name:
         return True
@@ -378,7 +388,7 @@ def is_attested_name(name, source_text):
                              re.IGNORECASE)
     capitalized = sum(1 for found in occurrences if found[:1].isupper())
     lowercase = len(occurrences) - capitalized
-    return capitalized >= MIN_NAME_ATTESTATIONS and capitalized > lowercase * 2
+    return capitalized >= min_attestations and capitalized > lowercase * 2
 
 
 def validate_attribution(frozen_entries, response_entries, source_text=None):

@@ -151,8 +151,12 @@ class RosterAttestationTest(unittest.TestCase):
     # Realistic proportions: a named character is written capitalized many
     # times over, a common word mostly lowercase. A fixture with only two or
     # three mentions cannot exercise the ratio.
-    SOURCE = (("Roxy smiled. Eris laughed at Roxy. " * 6)
-              + ("He was wearing a coat, wearing it badly. " * 8)
+    # Book-sized on purpose: the gate stands down below
+    # MIN_SOURCE_FOR_ATTESTATION, where one mention of a real name proves
+    # nothing, so a fragment-sized fixture would test the stand-down rather
+    # than the ratio.
+    SOURCE = (("Roxy smiled. Eris laughed at Roxy. " * 60)
+              + ("He was wearing a coat, wearing it badly. " * 80)
               + "Wearing thin, the day ended.")
 
     def test_attested_names_are_admitted(self):
@@ -164,7 +168,7 @@ class RosterAttestationTest(unittest.TestCase):
         # Rose is named far more often than "a rose" is used, so the ratio
         # keeps her even though the lowercase form occurs.
         from three_pass_generate import build_roster
-        source = ("Rose spoke. " * 20) + "He picked up a rose. "
+        source = ("Rose spoke. " * 500) + "He picked up a rose. "
         self.assertEqual(build_roster([{"speaker": "ROSE"}], source), ["ROSE"])
 
     def test_common_word_is_rejected(self):
