@@ -1524,3 +1524,104 @@ one of three clearly justified purposes:
 2. validate the preferred model/configuration on the second book;
 3. measure a cheap confidence feature only if it could materially reduce human
    review at a declared accuracy target.
+
+---
+
+## 22. Audit repairs, and the decisions that remain
+
+### Both audit findings were real; the first was larger than reported
+
+**Six-model confidence irreproducible.** The audit found two of six input
+artifacts present. The true cause was worse: PR #236 merged an earlier state
+than assumed, and recovering the rest commit-by-commit dropped four artifacts
+*and every manifest fix* - fatal environment capture, the contract validator,
+the harness fingerprint, the segmentation pin and the momentary-VRAM correction
+were all off main. Taking the final file state wholesale, rather than
+cherry-picking, is what should have been done. With the six artifacts restored
+the committed script reproduces §19 exactly: 14/147 at 85.7%, remainder 44.4%.
+
+**Candidate-ID code identity.** The audit's evidence was slightly off - it
+compared one file's SHA against a whole-directory fingerprint, which cannot
+match by construction - but the conclusion was right for a reason not stated:
+the dirty check used `--untracked-files=no`, and *a new experiment script is
+untracked precisely while it runs*. So the artifact recorded `dirty: false`
+against a commit that did not contain its own harness. Untracked `.py` inside
+the harness directory now counts as dirt, with a test.
+
+Re-run from clean commit `53299de`, result identical: **49.0% name vs 35.4% ID**,
+invalid outputs 6 → 0. The artifact records `dirty: false`, no untracked harness
+files, and a fingerprint that recomputes from the committed sources - verified
+independently rather than trusted. **The candidate-ID result is no longer
+provisional.**
+
+### Roster warm-up on the 14B, reproduced
+
+The run whose oracle arm hung was repeated from a clean commit. Both completed
+arms reproduce the earlier log exactly:
+
+| arm | 9B | ministral-14b |
+|---|---:|---:|
+| incremental | 27.3% | **41.0%** |
+| warm | 32.4% | **44.6%** |
+| gain | +5.1 | **+3.6** |
+
+Warm roster helps both selectors, and helps the stronger one less - consistent
+with a weaker model leaning harder on a supplied name list. It remains the only
+positive architectural change found, and under this brief's own rules it needs
+second-book validation before shipping.
+
+Note the cost: the 14B run takes **over two hours** for three arms, against ~45
+minutes on the 9B, largely from validation retries. That is a real production
+consideration, not just an experiment inconvenience.
+
+### What is now decided by evidence
+
+| question | answer |
+|---|---|
+| Should pass 2 leave qwen3.5-9b? | **yes** - every other tested model beats it |
+| Which model specifically? | **undetermined** - gemma-e4b and the 14B tier do not separate |
+| Scene-local candidates? | **no** - loses for all six models |
+| Candidate-ID output contract? | **no** - -13.6 pts, p=0.009, artifact-backed |
+| Ensemble confidence routing? | **no** - 9.5% coverage at 85.7% |
+| Roster warm-up? | **promising** - +5.1 / +3.6, needs a second book |
+
+### What remains for the owner to decide
+
+Only the first is genuinely blocking.
+
+1. **The product.** ~48% attribution with the best local model, ~66% under an
+   oracle. Ship human-assisted with a review UI; change the product to
+   single-narrator or a hand-cast principal set; or wait for hardware that runs
+   a 32B at full context. Every other decision is downstream of this one.
+
+2. **The narrator-voice convention.** Open since this morning and untested: does
+   a first-person narrator's quoted inner monologue read as `NARRATOR`, in the
+   character's voice, or - the owner's suggestion, which is the best of the
+   three and needs no new mechanism - in the narrator's voice performing *as*
+   the character via an instruct hint. Affects every first-person book. The
+   three-clip A/B is written and queued.
+
+3. **The model matrix.** ~18 hours remaining, running pass 2 on the model now
+   measured as weakest. Resume as-is, reconfigure with a 14B first, or abandon
+   as superseded.
+
+4. **Which model for pass 2**, if not left to me. My recommendation is
+   **gemma-4-e4b**: statistically indistinguishable from the 14B tier on the
+   open arm, half the size, 32768 context, and the only model profiled at
+   `parallel: 2`. Choose a 14B instead if the higher oracle ceiling matters for
+   future work.
+
+### A closing thought on process
+
+This document has now been through four rounds of external review. Each round
+found something real: a user-visible defect the tests missed, four
+overstatements where the numbers were right and the sentences were not, a
+counting bug that had produced a plausible finding, and an artifact that could
+not identify the code which made it.
+
+None of those were caught by the person doing the work, including when that
+person had just been corrected for the same class of error. The practice worth
+keeping is not "be careful" - it is the artifact contract: per-line records,
+declared environment, verifiable code identity, and a contract the run must
+satisfy before its output is written at all. That contract is the only reason
+the reversals in this document were reversible.
