@@ -56,10 +56,10 @@ def normalize(text):
 
 
 def load_run(root, run, book):
-    """Segmented entries from a completed three-pass run."""
+    """The whole checkpoint from a completed three-pass run."""
     path = os.path.join(root, run, book, "result.json.threepass_checkpoint.json")
     with open(path, encoding="utf-8") as handle:
-        return json.load(handle)["segmented"]
+        return json.load(handle)
 
 
 def eligible_indexes(segmented, min_chars=4):
@@ -75,20 +75,66 @@ def eligible_indexes(segmented, min_chars=4):
             and counts[normalize(entry.get("text"))] == 1]
 
 
-def context(segmented, index, before=9, after=6):
+def book_names(checkpoint, source_text=None):
+    """Character names this book actually uses, from the run's own roster.
+
+    A loose capitalised-word heuristic was tried first and was useless as an
+    expansion trigger: it matched "Ahh" and "Army", so almost every window
+    already contained two "names" and only 3 of 400 rows ever expanded. The
+    pipeline's attested-name gate is the right source - it is the same check
+    that keeps invented speakers out of the roster.
+    """
+    from three_pass_generate import build_roster
+    named = [entry for entry in (checkpoint.get("named") or []) if entry]
+    # Not .title(): it capitalises after every non-letter, turning "BRI-CHAN"
+    # into "Bri-Chan" which never matches the book's "Bri-chan". That mistake
+    # has now cost this project a shipped bug in the attestation gate and a
+    # silent failure here. Names are matched case-insensitively instead.
+    return set(build_roster(named, source_text))
+
+
+def context(segmented, index, before=9, after=6, names=None,
+            min_names=2, max_before=40, max_after=20):
+    """Surrounding entries, widened until the speaker is identifiable.
+
+    A fixed window forced a judge to mark 13 answerable lines AMBIGUOUS: the
+    speaker was recoverable from "he", "she" or first-person continuity, but no
+    name appeared nearby, and naming them would have failed the anti-invention
+    check. Policy decision by the repository owner: expand the window until
+    identity is supported rather than exclude those lines or accept abstention.
+
+    Expansion is backwards-first, since a speaker is usually established before
+    they speak, and stops at a cap so a batch cannot grow without bound.
+    """
     def span(start, stop):
         return "\n\n".join(" ".join((segmented[j].get("text") or "").split())
                            for j in range(max(0, start), min(len(segmented), stop)))
+
+    if not names:
+        return span(index - before, index), span(index + 1, index + 1 + after)
+
+    while True:
+        window = span(index - before, index + 1 + after)
+        found = {name for name in names
+                 if re.search(r"\b" + re.escape(name) + r"\b", window, re.IGNORECASE)}
+        if len(found) >= min_names:
+            break
+        if before >= max_before and after >= max_after:
+            break
+        if index - before <= 0 and index + after >= len(segmented) - 1:
+            break
+        before = min(before + 6, max_before)
+        after = min(after + 3, max_after)
     return span(index - before, index), span(index + 1, index + 1 + after)
 
 
-def build(segmented, book, count, batch_size, seed=11):
+def build(segmented, book, count, batch_size, seed=11, names=None):
     """Judgement batches over randomly sampled, unambiguous SPOKEN lines."""
     pool = eligible_indexes(segmented)
     chosen = sorted(random.Random(seed).sample(pool, min(count, len(pool))))
     rows = []
     for index in chosen:
-        before, after = context(segmented, index)
+        before, after = context(segmented, index, names=names)
         rows.append({"id": f"{book}-{index:05d}", "entry_index": index,
                      "line": " ".join(segmented[index]["text"].split()),
                      "passage_before": before, "passage_after": after,
@@ -254,9 +300,15 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     if args.command == "build":
-        segmented = load_run(args.root, args.run, args.book)
+        checkpoint = load_run(args.root, args.run, args.book)
+        segmented = checkpoint["segmented"]
+        source = os.path.join(args.root, "inputs", f"{args.book}.txt")
+        source_text = (open(source, encoding="utf-8").read()
+                       if os.path.exists(source) else None)
+        names = book_names(checkpoint, source_text)
+        print(f"cast: {len(names)} attested names")
         batches, pool = build(segmented, args.book, args.count,
-                              args.batch_size, args.seed)
+                              args.batch_size, args.seed, names)
         os.makedirs(args.out, exist_ok=True)
         for number, batch in enumerate(batches, 1):
             path = os.path.join(args.out, f"{args.book}_batch{number:02d}.json")

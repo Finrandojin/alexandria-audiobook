@@ -375,6 +375,10 @@
     "test_frontend_regressions.FrontendTests.test_voicelab_requires_visible_preflight_before_start"
   ],
   "test_gold_set_builder": [
+    "test_gold_set_builder.AdaptiveWindowTest.test_expansion_is_capped",
+    "test_gold_set_builder.AdaptiveWindowTest.test_names_match_case_insensitively",
+    "test_gold_set_builder.AdaptiveWindowTest.test_no_names_given_means_a_fixed_window",
+    "test_gold_set_builder.AdaptiveWindowTest.test_the_window_grows_until_a_cast_name_appears",
     "test_gold_set_builder.AgreementTest.test_alias_forms_count_as_agreement",
     "test_gold_set_builder.AgreementTest.test_lines_only_one_judge_saw_are_ignored",
     "test_gold_set_builder.AgreementTest.test_only_disagreements_are_returned",

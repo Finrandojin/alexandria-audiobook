@@ -41,6 +41,59 @@ class EligibilityTest(unittest.TestCase):
         self.assertNotIn(7, eligible_indexes(_segmented()))
 
 
+class AdaptiveWindowTest(unittest.TestCase):
+    """Owner policy: expand the window until identity is supported.
+
+    A fixed window forced 13 answerable lines to be marked AMBIGUOUS because no
+    name appeared nearby. Excluding them or accepting the abstention would both
+    change the task being measured, so the window grows instead.
+    """
+
+    def _book(self):
+        # Roxy is named once, far above the line being judged.
+        rows = [{"type": "NARRATOR", "text": "Roxy stepped into the room."}]
+        rows += [{"type": "NARRATOR", "text": f"Filler line {n}."}
+                 for n in range(12)]
+        rows += [{"type": "SPOKEN", "text": "I will not say it again."}]
+        return rows
+
+    def test_the_window_grows_until_a_cast_name_appears(self):
+        from gold_set_builder import context
+        book = self._book()
+        target = len(book) - 1
+        narrow, _ = context(book, target, before=2, after=1)
+        self.assertNotIn("Roxy", narrow)
+        wide, _ = context(book, target, before=2, after=1,
+                          names={"ROXY"}, min_names=1)
+        self.assertIn("Roxy", wide)
+
+    def test_expansion_is_capped(self):
+        from gold_set_builder import context
+        book = self._book()
+        before, after = context(book, len(book) - 1, before=2, after=1,
+                                names={"NOBODY"}, min_names=1,
+                                max_before=4, max_after=2)
+        self.assertLessEqual(len(before.split("\n\n")), 5)
+
+    def test_names_match_case_insensitively(self):
+        # BRI-CHAN vs the book's "Bri-chan": str.title() has broken this
+        # project three times, so the window search must not depend on case.
+        from gold_set_builder import context
+        book = [{"type": "NARRATOR", "text": "Bri-chan waved."},
+                {"type": "NARRATOR", "text": "Filler."},
+                {"type": "SPOKEN", "text": "Move out."}]
+        wide, _ = context(book, 2, before=1, after=0,
+                          names={"BRI-CHAN"}, min_names=1)
+        self.assertIn("Bri-chan", wide)
+
+    def test_no_names_given_means_a_fixed_window(self):
+        from gold_set_builder import context
+        book = self._book()
+        self.assertEqual(context(book, len(book) - 1, before=2, after=1),
+                         context(book, len(book) - 1, before=2, after=1,
+                                 names=None))
+
+
 class ContextTest(unittest.TestCase):
     def test_context_comes_from_the_segmented_entries_in_order(self):
         before, after = context(_segmented(), 3, before=2, after=2)
