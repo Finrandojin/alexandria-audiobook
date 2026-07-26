@@ -23,6 +23,12 @@ import json, os, re, sys
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
+
+
+def _safe_name(model):
+    """Model keys carry a publisher prefix ('qwen/qwen3-14b'), and a slash in a
+    filename silently creates a directory instead of naming the artifact."""
+    return model.replace("/", "__")
 from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,
                                  attested_new_speakers,
@@ -31,13 +37,17 @@ from three_pass_generate import (attribute_batch, build_roster,
 REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
-MODEL = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
+# The model under test. Frozen inputs below always come from INPUT_RUN, so a
+# comparison across models is a comparison of selection, not of segmentation.
+MODEL = os.environ.get("EXPERIMENT_MODEL",
+                       "qwen3.5-9b-uncensored-hauhaucs-aggressive")
+INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
 
 gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
 src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + MODEL + "/mushoku16/result.json.threepass_checkpoint.json"))
+cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 final_named = [e for e in (cp.get("named") or []) if e]
 discovered = build_roster(final_named, src)
@@ -135,5 +145,13 @@ for arm in ("incremental", "warm", "oracle"):
                       for q, b in enumerate(buckets))
     print(f"  {arm:12} {parts}")
 print("\nbaseline (shipped pipeline): 44/147 = 29.9%")
+# Declare what this run must produce, so an artifact that silently drops an arm
+# or half its lines is refused rather than validated on the arithmetic of
+# whatever it managed to record.
+contract = {"expected_arms": ("incremental", "warm", "oracle"),
+            "expected_ids": {g["id"] for g in gold["entries"]
+                             if norm(g["line"]) in want},
+            "require_clean_tree": True}
 print("wrote", record.write(os.path.join(
-    REPO, "ab_test_runtime", "experiments", "roster_warmup.json")))
+    REPO, "ab_test_runtime", "experiments",
+    f"roster_warmup__{_safe_name(MODEL)}.json"), contract=contract))
