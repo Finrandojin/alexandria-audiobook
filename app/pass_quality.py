@@ -369,10 +369,15 @@ def is_attested_name(name, source_text):
         return True
     if len(source_text) < MIN_SOURCE_FOR_ATTESTATION:
         return True
-    capitalized = len(re.findall(r"\b" + re.escape(name.title()) + r"\b",
-                                 source_text))
-    lowercase = len(re.findall(r"\b" + re.escape(name.lower()) + r"\b",
-                               source_text))
+    # Match case-insensitively and judge by the first letter, because str.title()
+    # capitalises after every non-letter: "BRI-CHAN".title() is "Bri-Chan" but
+    # the book writes "Bri-chan". That spelling mismatch rejected three real
+    # grimgar03 characters - Bri-chan (55 mentions), Zodiac-kun, Barbara-sensei -
+    # as inventions, which is every honorific-suffixed name in a translated work.
+    occurrences = re.findall(r"\b" + re.escape(name) + r"\b", source_text,
+                             re.IGNORECASE)
+    capitalized = sum(1 for found in occurrences if found[:1].isupper())
+    lowercase = len(occurrences) - capitalized
     return capitalized >= MIN_NAME_ATTESTATIONS and capitalized > lowercase * 2
 
 
