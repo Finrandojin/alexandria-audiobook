@@ -1,6 +1,7 @@
 import unittest
 
-from project import get_speakable_entries, group_into_chunks
+from project import (EXPLICIT_SILENCE_MS, get_speakable_entries,
+                     group_into_chunks)
 from tts import DEFAULT_PAUSE_MS
 
 
@@ -142,3 +143,54 @@ class BracketBoundaryTest(unittest.TestCase):
         paused = [p for p in parts if p.get("pause_after")]
         self.assertEqual(len(paused), 1)
         self.assertEqual(paused[0]["text"], "A vision.")
+
+
+class ScenBreakPauseSurvivesGroupingTest(unittest.TestCase):
+    """A scene break's silence must survive chunk grouping.
+
+    split_on_unspeakable turns an inline scene break into two parts and puts
+    pause_after on the first, but group_into_chunks merged them whenever
+    speaker and instruct matched. The pause then applied to the end of the
+    combined text, so the silence the break exists to produce was played after
+    both sentences instead of between them - inaudible as a scene break.
+
+    Unit tests covered the split and the grouping separately; nothing covered
+    them composed, which is how this survived.
+    """
+
+    def test_an_inline_scene_break_still_separates_two_chunks(self):
+        entries = [{"speaker": "NARRATOR", "instruct": "Calm.",
+                    "text": "First sentence. ■ Second sentence."}]
+        chunks = group_into_chunks(entries)
+        self.assertEqual(2, len(chunks))
+        self.assertEqual("First sentence.", chunks[0]["text"])
+        self.assertEqual("Second sentence.", chunks[1]["text"])
+        self.assertEqual(EXPLICIT_SILENCE_MS, chunks[0]["pause_after"])
+        self.assertNotIn("pause_after", chunks[1])
+
+    def test_entries_without_a_pause_still_merge(self):
+        # The fix must not stop ordinary same-speaker merging.
+        entries = [{"speaker": "NARRATOR", "instruct": "Calm.", "text": "One."},
+                   {"speaker": "NARRATOR", "instruct": "Calm.", "text": "Two."}]
+        chunks = group_into_chunks(entries)
+        self.assertEqual(1, len(chunks))
+        self.assertEqual("One. Two.", chunks[0]["text"])
+
+    def test_a_pause_bearing_chunk_does_not_absorb_the_next_entry(self):
+        entries = [{"speaker": "NARRATOR", "instruct": "Calm.",
+                    "text": "Before. ■ After."},
+                   {"speaker": "NARRATOR", "instruct": "Calm.",
+                    "text": "Third."}]
+        chunks = group_into_chunks(entries)
+        self.assertEqual("Before.", chunks[0]["text"])
+        self.assertEqual(EXPLICIT_SILENCE_MS, chunks[0]["pause_after"])
+        # "After." carries no pause, so it may still merge with "Third."
+        self.assertEqual("After. Third.", chunks[1]["text"])
+
+    def test_several_scene_breaks_each_keep_their_silence(self):
+        entries = [{"speaker": "NARRATOR", "instruct": "Calm.",
+                    "text": "A. ■ B. ■ C."}]
+        chunks = group_into_chunks(entries)
+        self.assertEqual(["A.", "B.", "C."], [c["text"] for c in chunks])
+        self.assertEqual([EXPLICIT_SILENCE_MS, EXPLICIT_SILENCE_MS],
+                         [c["pause_after"] for c in chunks[:2]])

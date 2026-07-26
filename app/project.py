@@ -177,8 +177,14 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
         text = entry.get("text", "")
         instruct = entry.get("instruct", "")
 
-        # Don't merge structural text (titles, chapter headings, dedications)
+        # Don't merge structural text (titles, chapter headings, dedications),
+        # and never merge past a pending pause: pause_after belongs to the
+        # boundary after current_text, so absorbing the next entry moves that
+        # silence to the end of the combined text. A scene break inside a
+        # paragraph then played its pause after both sentences instead of
+        # between them, which is not audible as a break at all.
         if (speaker == current_speaker and instruct == current_instruct
+                and not current_pause_after
                 and not _is_structural_text(current_text)
                 and not _is_structural_text(text)):
             combined = current_text + " " + text
