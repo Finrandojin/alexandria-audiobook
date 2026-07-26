@@ -1251,3 +1251,83 @@ against the 9B. A more defensible statement:
 > measurably better than it. Choosing between gemma and the 14B tier requires
 > either more judged lines or a decision on throughput, since the current data
 > does not separate them where it matters.
+
+---
+
+## 19. Confidence routing and the candidate-ID contract — both tested, both negative
+
+The two remaining untested directions from §17 were measured. Neither works.
+
+### Cross-model agreement does not yield a shippable subset
+
+Six models had already answered the same 147 lines under identical frozen
+inputs, so agreement between them is a confidence signal costing no GPU time
+and requiring no perturbation - which matters, because temperature-0 repeats
+are byte-identical and self-consistency is therefore vacuous here.
+
+| threshold | coverage | accuracy of accepted subset |
+|---|---:|---:|
+| all 6 models agree | **9.5%** | **85.7%** |
+| 5 of 6 | 21.1% | 67.7% |
+| 4 of 6 | 54.4% | 58.8% |
+| majority | 100% | 53.1% |
+
+Unanimity across six models - the strongest ensemble signal obtainable - covers
+under a tenth of the book and is still only 85.7% accurate. The remaining 133
+lines are 44.4% accurate. **There is no threshold that yields a large
+high-accuracy subset**, so ensemble agreement cannot underpin auto-accept
+routing.
+
+Incidental: majority vote across six models scores **53.1%**, against the best
+single model's 48.3%. Real, but +4.8 points for 6x inference.
+
+This does not exhaust confidence routing. The deterministic features - speech-tag
+presence, candidate provenance - are untested, and both are cheap. But they have
+low coverage by construction (speech tags reach 7.5% of lines), so the
+achievable auto-accept subset looks small from every direction measured so far.
+
+### The candidate-ID contract makes attribution worse
+
+Same model (qwen3-14b), same 147 lines, same context and decoding; only the
+output contract differs. `NOT_LISTED` offered in both arms.
+
+| contract | accuracy | invalid outputs | abstained |
+|---|---:|---:|---:|
+| free-form name | **49.0%** | 6 | 3 |
+| opaque candidate ID | **35.4%** | **0** | 3 |
+
+Paired exact McNemar: the name arm is correct on 37 lines the ID arm misses,
+the ID arm on 17 the name arm misses, **p = 0.009**.
+
+The proposal did exactly what it promised at the format layer - **invalid and
+off-cast outputs fell from 6 to 0** - and cost 13.6 points of accuracy doing it.
+The review's own caution was the correct one: eliminating a category of *output*
+does not eliminate the underlying attribution error. The model simply chose a
+wrong valid ID instead, and did so far more often.
+
+The lines it lost are ordinary character confusions, not exotic:
+
+```
+4x  RUDEUS -> ORSTED      3x  RUDEUS -> ROXY
+3x  ORSTED -> RUDEUS      3x  RUDEUS -> SYLPHY
+3x  RUDEUS -> NANAHOSHI   2x  RUDEUS -> ERIS
+```
+
+The most plausible reading is that naming the character is part of how the model
+reasons about the scene, and forcing the answer through an opaque code degrades
+the reasoning rather than merely tidying the serialisation. Whatever the
+mechanism, an output contract cannot be assumed neutral with respect to the
+decision it is serialising.
+
+### Consequence
+
+Both directions §17 named as still-open are now closed by measurement:
+
+| direction | status |
+|---|---|
+| confidence routing via ensemble agreement | **rejected** - 9.5% coverage at 85.7% |
+| candidate-ID output contract | **rejected** - -13.6 points, p=0.009 |
+
+What remains untested is narrow: deterministic confidence features with
+known-low coverage, and more judged gold lines to separate gemma from the 14B
+tier. **No untested direction currently promises a large accuracy gain.**
