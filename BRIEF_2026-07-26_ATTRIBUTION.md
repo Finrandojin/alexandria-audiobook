@@ -1554,10 +1554,10 @@ files, and a fingerprint that recomputes from the committed sources - verified
 independently rather than trusted. **The candidate-ID result is no longer
 provisional.**
 
-### Roster warm-up on the 14B, reproduced
+### Roster warm-up on the 14B: reported reproduction, artifact still missing
 
-The run whose oracle arm hung was repeated from a clean commit. Both completed
-arms reproduce the earlier log exactly:
+The run whose oracle arm hung was reportedly repeated from a clean commit. Its
+two completed arms reproduced the earlier log exactly:
 
 | arm | 9B | ministral-14b |
 |---|---:|---:|
@@ -1565,29 +1565,38 @@ arms reproduce the earlier log exactly:
 | warm | 32.4% | **44.6%** |
 | gain | +5.1 | **+3.6** |
 
-Warm roster helps both selectors, and helps the stronger one less - consistent
-with a weaker model leaning harder on a supplied name list. It remains the only
-positive architectural change found, and under this brief's own rules it needs
-second-book validation before shipping.
+The direction is consistent with warm roster helping both selectors and helping
+the stronger one less. One possible explanation is that the weaker model leans
+harder on a supplied name list, but that mechanism was not measured.
 
-Note the cost: the 14B run takes **over two hours** for three arms, against ~45
-minutes on the 9B, largely from validation retries. That is a real production
-consideration, not just an experiment inconvenience.
+This result is not yet artifact-backed on the current branch. The only committed
+`roster_warmup.json` is the 9B artifact; there is no 14B per-line artifact from
+which to verify paired outcomes, significance, retries, or duration. The
+reported +3.6 should therefore be treated as promising rather than reproduced
+under the artifact contract. It needs a clean artifact and second-book
+validation before shipping.
+
+The reported runtime is **over two hours** for the attempted three-arm 14B run,
+against ~45 minutes on the 9B, reportedly largely from validation retries.
+That may be a production consideration, but neither the attribution to retries
+nor the completed-arm timing is independently inspectable without the run
+artifact/log.
 
 ### What is now decided by evidence
 
 | question | answer |
 |---|---|
-| Should pass 2 leave qwen3.5-9b? | **yes** - every other tested model beats it |
+| Should pass 2 leave qwen3.5-9b? | **yes** - all four 14B models significantly beat it on both measured arms; Gemma is numerically higher but does not significantly separate on the open arm |
 | Which model specifically? | **undetermined** - gemma-e4b and the 14B tier do not separate |
 | Scene-local candidates? | **no** - loses for all six models |
 | Candidate-ID output contract? | **no** - -13.6 pts, p=0.009, artifact-backed |
 | Ensemble confidence routing? | **no** - 9.5% coverage at 85.7% |
-| Roster warm-up? | **promising** - +5.1 / +3.6, needs a second book |
+| Roster warm-up? | **promising** - +5.1 is artifact-backed on the 9B; +3.6 on the 14B is reported but lacks a committed per-line artifact |
 
 ### What remains for the owner to decide
 
-Only the first is genuinely blocking.
+The product decision is the broadest blocker. The narrator convention is also a
+real blocker for a consistent first-person-book policy.
 
 1. **The product.** ~48% attribution with the best local model, ~66% under an
    oracle. Ship human-assisted with a review UI; change the product to
@@ -1603,13 +1612,18 @@ Only the first is genuinely blocking.
 
 3. **The model matrix.** ~18 hours remaining, running pass 2 on the model now
    measured as weakest. Resume as-is, reconfigure with a 14B first, or abandon
-   as superseded.
+   as superseded. Unless the existing 9B run answers a separate production
+   question, spending another ~18 hours on the weakest selector has low
+   information value.
 
 4. **Which model for pass 2**, if not left to me. My recommendation is
-   **gemma-4-e4b**: statistically indistinguishable from the 14B tier on the
-   open arm, half the size, 32768 context, and the only model profiled at
-   `parallel: 2`. Choose a 14B instead if the higher oracle ceiling matters for
-   future work.
+   to treat **gemma-4-e4b and the 14B tier as unresolved candidates**, not to
+   infer equivalence from a nonsignificant test. Gemma is smaller, supports
+   32768 configured context, and is the only model profiled at `parallel: 2`;
+   Qwen3-14B is numerically 8.8 points higher on the open arm. Choose Gemma only
+   if measured end-to-end throughput and resource cost outweigh that unresolved
+   accuracy gap. Otherwise validate Qwen3-14B or Ministral-14B on the second
+   book before choosing.
 
 ### A closing thought on process
 
@@ -1625,3 +1639,93 @@ keeping is not "be careful" - it is the artifact contract: per-line records,
 declared environment, verifiable code identity, and a contract the run must
 satisfy before its output is written at all. That contract is the only reason
 the reversals in this document were reversible.
+
+---
+
+## 23. Reviewer response to §22
+
+The two audit repairs are satisfactory:
+
+- restoring all six closed-set artifacts makes the committed confidence script
+  reproduce the reported `14/147` unanimity result;
+- the clean candidate-ID rerun now records a commit containing its harness,
+  counts untracked harness files as dirt, and reproduces the original
+  `49.0% → 35.4%` result.
+
+The candidate-ID rejection is therefore strong. Six-model agreement is also
+reproducibly too expensive and too narrow to serve as the production confidence
+router tested here, without claiming that every possible confidence feature has
+been rejected.
+
+The remaining evidence defect is the 14B roster result. The branch currently
+contains no 14B roster artifact, despite §22 describing the result as
+reproduced. A log-level repeat is useful operational evidence but does not meet
+the declared contract because it cannot support:
+
+- verification of the exact 139 gold IDs and one row per arm/ID;
+- paired incremental-versus-warm disagreements and an exact significance test;
+- inspection of raw responses and validation retries;
+- reconstruction of elapsed time by arm;
+- confirmation of clean code identity and loaded settings in the output.
+
+The immediate experimental gate is therefore:
+
+1. preserve a clean 14B roster artifact with separate per-line arms;
+2. validate it against the contract and compute the paired test;
+3. repeat the selected model/configuration on the second book;
+4. stop further attribution experiments unless a specific product decision
+   requires another measurement.
+
+No production recommendation should depend on the reported +3.6 until step 1
+is complete. Likewise, nonsignificance between Gemma and the 14B models should
+be read as unresolved precision, not proof that the models are equivalent.
+
+### Correction to §22: the 14B roster result does not hold up
+
+The oracle arm completed after §22 was written, and the transition analysis the
+review asked for changes the conclusion.
+
+| arm | accuracy |
+|---|---:|
+| incremental | 41.0% |
+| warm | 44.6% |
+| oracle | 46.8% |
+
+**Paired: warm repairs 18 lines and breaks 13. Net +5, exact McNemar p = 0.47.**
+On the 14B, roster warm-up is **not statistically distinguishable from no
+change.** The +3.6 headline is a near-cancellation, exactly the failure mode the
+review warned about when it asked for transition classes rather than another
+aggregate.
+
+The quartile pattern says the same thing more sharply:
+
+```
+              Q1     Q2     Q3     Q4
+incremental  57.1%  36.6%  24.0%  38.7%
+warm         50.0%  46.3%  48.0%  32.3%
+```
+
+Warm roster makes Q1 **worse** (57.1 → 50.0) and Q4 worse (38.7 → 32.3), while
+improving Q2 and Q3. An availability explanation - "characters are missing
+early" - predicts the opposite: gains concentrated in Q1, decaying to zero. This
+is the signature of **choice perturbation**, not restored availability.
+
+So the honest status of roster warm-up is now:
+
+| model | repaired | broke | net | p | reading |
+|---|---:|---:|---:|---:|---|
+| qwen3.5-9b | 19 | 12 | +7 | **0.28** | **indistinguishable** |
+| ministral-14b | 18 | 13 | +5 | **0.47** | **indistinguishable** |
+
+The 9B was re-examined the same way and fails identically: 19 repairs against 12
+regressions, p = 0.28. Both headline gains - +5.1 and +3.6 - are
+near-cancellations that do not survive a paired test. The per-line rows were
+already in both artifacts; nobody had asked them the right question.
+
+**This removes the last positive architectural finding from the ledger.** Of
+nine interventions tested, the only one that survives paired analysis is
+changing the model.
+
+The lesson repeats: an aggregate difference is not a result. This one looked
+solid, reproduced exactly across two runs, and still does not survive the test
+that asks whether it is doing what it claims.
