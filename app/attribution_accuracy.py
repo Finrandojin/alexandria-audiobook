@@ -44,10 +44,14 @@ def find_entry(named_entries, item, by_text):
     the nearest text match is used otherwise.
     """
     index = item["entry_index"]
-    target = normalize_line(item["line"])[:60]
+    # Full normalized text, not a prefix. A 60-character prefix is not an
+    # identity: measured on the corpus, grimgar03 and grimgar06 each contain
+    # distinct lines sharing one, and matching on the prefix would score a gold
+    # answer against a different line entirely.
+    target = normalize_line(item["line"])
     if index < len(named_entries):
         entry = named_entries[index]
-        if normalize_line(entry.get("text"))[:60] == target:
+        if normalize_line(entry.get("text")) == target:
             return entry
     # Prefer the occurrence nearest the recorded index: short lines repeat.
     candidates = by_text.get(target)
@@ -60,7 +64,7 @@ def score_run(named_entries, gold, include_disputed=False):
     """Compare a run's named entries against the gold answers."""
     by_text = {}
     for position, entry in enumerate(named_entries):
-        by_text.setdefault(normalize_line(entry.get("text"))[:60],
+        by_text.setdefault(normalize_line(entry.get("text")),
                            []).append((position, entry))
     results = []
     for item in gold["entries"]:
