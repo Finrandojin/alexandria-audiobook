@@ -133,5 +133,30 @@ class TrackedOnlyDiscoveryTest(unittest.TestCase):
             test_inventory._tracked_test_modules = original
 
 
+class UntrackedTestWarningTest(unittest.TestCase):
+    """Excluding untracked files from the inventory created an ordering trap.
+
+    Write a new test file, regenerate the inventory, then git add and commit:
+    the inventory was generated while the file was still untracked, so CI
+    discovers tests it does not list and the build goes red. This happened on
+    PR #233, one PR after the exclusion was introduced.
+    """
+
+    def test_a_new_untracked_test_file_is_reported(self):
+        from update_test_inventory import find_untracked_test_modules
+        probe = Path(__file__).with_name("test_zz_untracked_warning_probe.py")
+        probe.write_text("import unittest\n", encoding="utf-8")
+        try:
+            self.assertIn(probe.name, find_untracked_test_modules())
+        finally:
+            probe.unlink()
+
+    def test_a_clean_tree_reports_nothing(self):
+        from update_test_inventory import find_untracked_test_modules
+        # Every test file in a committed tree is tracked; if this fails
+        # locally, something untracked is sitting in app/.
+        self.assertEqual([], find_untracked_test_modules())
+
+
 if __name__ == "__main__":
     unittest.main()
