@@ -4,7 +4,8 @@ import argparse
 import json
 from pathlib import Path
 
-from test_inventory import INVENTORY_PATH, get_unit_test_inventory
+from test_inventory import (EXCLUDED_TEST_MODULES, INVENTORY_PATH,
+                            _tracked_test_modules, get_unit_test_inventory)
 
 
 def format_inventory(inventory):
@@ -38,6 +39,22 @@ def write_inventory(path=INVENTORY_PATH):
     return path
 
 
+def find_untracked_test_modules():
+    """Test files on disk that git does not track, so are not inventoried.
+
+    The inventory deliberately covers only tracked files, because this tree is
+    shared with other branches. The cost is an ordering trap: write a new test,
+    regenerate, commit, and CI discovers tests the inventory never saw. Warning
+    here turns a red build into a line of output.
+    """
+    tracked = _tracked_test_modules()
+    if tracked is None:
+        return []
+    return sorted(
+        path.name for path in Path(__file__).parent.glob("test*.py")
+        if path.stem not in EXCLUDED_TEST_MODULES and path.stem not in tracked)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true",
@@ -54,6 +71,14 @@ def main(argv=None):
         return 0
     path = write_inventory()
     print(f"Updated {path}")
+    untracked = find_untracked_test_modules()
+    if untracked:
+        print("\nWARNING: these test files are untracked and are NOT in the "
+              "inventory.\nIf they belong to this change, 'git add' them and "
+              "run this again, or CI\nwill discover tests the inventory does "
+              "not list:")
+        for name in untracked:
+            print(f"  {name}")
     return 0
 
 

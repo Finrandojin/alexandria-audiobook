@@ -34,6 +34,9 @@
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
   "test_attribution_accuracy": [
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_book_and_entry_index_are_unique_in_every_fixture",
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_every_entry_has_an_expected_speaker",
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_ids_are_unique_in_every_fixture",
     "test_attribution_accuracy.GoldSetTest.test_disputed_entries_are_withheld_by_default",
     "test_attribution_accuracy.GoldSetTest.test_gold_set_loads_and_is_well_formed",
     "test_attribution_accuracy.ScoringTest.test_case_and_whitespace_do_not_matter",
@@ -340,7 +343,9 @@
     "test_inventory.TestInventoryTests.test_unit_test_inventory_is_stable",
     "test_inventory.TrackedOnlyDiscoveryTest.test_an_untracked_test_file_is_not_inventoried",
     "test_inventory.TrackedOnlyDiscoveryTest.test_discovery_falls_back_when_git_is_unavailable",
-    "test_inventory.TrackedOnlyDiscoveryTest.test_tracked_files_are_still_discovered"
+    "test_inventory.TrackedOnlyDiscoveryTest.test_tracked_files_are_still_discovered",
+    "test_inventory.UntrackedTestWarningTest.test_a_clean_tree_reports_nothing",
+    "test_inventory.UntrackedTestWarningTest.test_a_new_untracked_test_file_is_reported"
   ],
   "test_launcher_supervisor": [
     "test_launcher_supervisor.LauncherSupervisorTests.test_address_already_in_use_breaks_case_insensitively",
@@ -644,6 +649,17 @@
     "test_release_verifier.ReleaseVerifierTests.test_keyboard_interrupt_stops_child_group_before_propagating",
     "test_release_verifier.ReleaseVerifierTests.test_python_compilation_includes_nonignored_untracked_files",
     "test_release_verifier.ReleaseVerifierTests.test_unittest_summary_rejects_skips_and_missing_success"
+  ],
+  "test_roster_admission": [
+    "test_roster_admission.AttestedNewSpeakersTest.test_a_name_repeated_within_one_batch_is_returned_once",
+    "test_roster_admission.AttestedNewSpeakersTest.test_a_speaker_below_the_roster_threshold_is_refused",
+    "test_roster_admission.AttestedNewSpeakersTest.test_a_well_attested_speaker_is_admitted",
+    "test_roster_admission.AttestedNewSpeakersTest.test_it_agrees_with_build_roster_on_the_same_input",
+    "test_roster_admission.AttestedNewSpeakersTest.test_names_already_seen_are_not_repeated",
+    "test_roster_admission.AttestedNewSpeakersTest.test_narrator_and_unknown_are_never_admitted",
+    "test_roster_admission.AttestedNewSpeakersTest.test_the_caller_is_not_mutated",
+    "test_roster_admission.AttestedNewSpeakersTest.test_the_roster_threshold_is_stricter_than_the_entry_gate",
+    "test_roster_admission.AttestedNewSpeakersTest.test_without_source_text_every_new_speaker_is_admitted"
   ],
   "test_run_history": [
     "test_run_history.RunHistoryTests.test_artifact_records_output_source_and_config_hashes",
