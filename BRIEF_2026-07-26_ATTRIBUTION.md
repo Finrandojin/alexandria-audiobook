@@ -512,31 +512,30 @@ It should ship only if:
 
 ## Operational status
 
-Current as of the six-model benchmark and both negative results.
+**Every direction in this brief has been measured.** Nine interventions tested;
+one survives paired analysis.
 
-**Complete and artifact-backed** (`ab_test_runtime/experiments/`, all
-contract-validated with environment and harness fingerprint):
+**Artifact-backed and contract-validated** (`ab_test_runtime/experiments/`):
 
-- closed-set decomposition on six models;
-- roster warm-up on qwen3.5-9b (clean commit, `dirty: false`);
-- two-by-two context/batch grid on qwen3.5-9b;
-- candidate-ID vs free-form name contract on qwen3-14b;
-- cross-model confidence curve, derived from the above with no GPU time;
-- VRAM profiles for phi-4 and qwen3-14b, measured on a verified-idle card.
+- closed-set decomposition, six models;
+- roster warm-up, qwen3.5-9b and ministral-3-14b;
+- two-by-two context/batch grid;
+- candidate-ID vs free-form name contract, rerun from a clean commit;
+- cross-model confidence curve, derived with no GPU time;
+- VRAM profiles for phi-4 and qwen3-14b.
 
-**Incomplete, not to be quoted:**
+**Paused:** the model matrix, mid-ministral/grimgar03, checkpointed. Its pass 2
+runs qwen3.5-9b, the one model measurably worse than every alternative tested,
+so its absolute numbers describe a pipeline nobody would now ship.
 
-- **Roster warm-up on ministral-3-14b.** Oracle arm hung; the harness writes its
-  artifact only at the end, so nothing was produced. The log shows incremental
-  41.0% and warm 44.6% with no per-line record behind either.
+**Not fitted:** `mistralai/magistral-small` - 13.51 GiB weights on a 15.92 GiB
+card. No profile by design.
 
-**Paused:** the model matrix, mid-ministral/grimgar03, checkpointed.
+**Open, and not blocked on any experiment:** the product decision, the
+narrator-voice convention (A/B written and queued), and what to do with the
+matrix.
 
-**Not fitted:** `mistralai/magistral-small` - 13.51 GiB of weights on a 15.92
-GiB card. No profile by design.
-
-Branch `agent/model-comparison`, PR #237. Release suite 974 tests, verifier
-green.
+Branch `agent/model-comparison`. Release suite 995 tests, verifier green.
 
 Treat this section as transient. Verify live state and output files rather than
 relying on this snapshot.
@@ -1789,3 +1788,28 @@ warm-up - is flat or negative under paired analysis.
 
 No further attribution experiment is justified without a specific product
 question behind it. The next decision is the owner's, not the harness's.
+
+### §24's two gaps are closed
+
+Both were fixed rather than left documented.
+
+`roster_warmup.py` now passes an `attempt_observer` to `attribute_batch` - the
+same mechanism the production pipeline uses to surface attempt telemetry - and
+records per line the retry count and the full attempt history: `finish_reason`,
+token counts, elapsed seconds, response fingerprint. Elapsed time is recorded
+per arm rather than only in total.
+
+Three parity tests now assert that every harness records raw evidence, that any
+harness calling `attribute_batch` passes an observer, and that a multi-arm
+harness times each arm. Naming the inconsistency in this document would not have
+stopped the next harness from repeating it - the same reason the attestation
+check ended up with three copies.
+
+`QUEUED_GPU_EXPERIMENTS.md` is deleted. Every experiment it queued has been run,
+and a stale queue is worse than no queue.
+
+**Note:** the existing roster artifacts predate this change and still carry no
+raw evidence. They are not regenerated, because the paired test that overturned
+their headline result does not depend on it, and a 2h20m rerun to add telemetry
+to a null result is not a good use of the card. Any future roster run will carry
+it.
