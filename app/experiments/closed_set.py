@@ -11,6 +11,12 @@ sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
 from candidates import build_candidates
 from experiments.manifest import ExperimentRecord
+
+
+def _safe_name(model):
+    """Model keys carry a publisher prefix ('microsoft/phi-4'), and a slash in
+    a filename silently creates a directory instead of naming the artifact."""
+    return model.replace("/", "__")
 from three_pass_generate import build_roster
 
 M = ("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
@@ -101,6 +107,12 @@ for arm in ("open", "closed-6", "closed-oracle"):
           f"conditional {cond_ok}/{available} = {cond_ok/max(available,1)*100:.1f}%",
           flush=True)
 print("\nbaseline (shipped batched pipeline): 44/147 = 29.9%")
+# Declare what the run must contain so an artifact that silently drops an arm
+# or half its lines is refused rather than validated on its own arithmetic.
+contract = {"expected_arms": ("open", "closed-6", "closed-oracle"),
+            "expected_ids": {g["id"] for g in gold["entries"]},
+            "require_clean_tree": True}
 out = record.write(os.path.join(
-    REPO, "ab_test_runtime", "experiments", "closed_set.json"))
+    REPO, "ab_test_runtime", "experiments",
+    f"closed_set__{_safe_name(MODEL)}.json"), contract=contract)
 print("wrote", out)
