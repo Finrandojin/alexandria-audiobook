@@ -1,11 +1,34 @@
 import importlib
 import json
 from pathlib import Path
+import subprocess
 import unittest
 
 
 INVENTORY_PATH = Path(__file__).with_name("unit_test_inventory.json")
 EXCLUDED_TEST_MODULES = {"test_api"}  # Script-style live API suite, not unittest.
+
+
+def _tracked_test_modules():
+    """Module stems for test files git tracks, or None if git cannot answer.
+
+    This working tree is shared between concurrent sessions on different
+    branches, so an untracked test file belonging to someone else's branch sits
+    beside ours. Discovering from the filesystem swept those into the checked-in
+    inventory, and CI - which only has the committed files - then reported every
+    one of them as "no longer discovered". That broke the build three times in
+    one day. Only files under version control can be in a checked-in inventory.
+    """
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", "-z", "--", "test*.py"],
+            cwd=Path(__file__).parent, capture_output=True, timeout=10)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    if result.returncode != 0:
+        return None
+    return {Path(name).stem
+            for name in result.stdout.decode("utf-8").split("\0") if name}
 
 
 def _iter_tests(suite):
@@ -18,9 +41,13 @@ def _iter_tests(suite):
 
 def get_unit_test_inventory():
     """Return every discoverable unittest module and its stable test IDs."""
+    tracked = _tracked_test_modules()
     modules = sorted(
         path.stem for path in Path(__file__).parent.glob("test*.py")
         if path.stem not in EXCLUDED_TEST_MODULES
+        # Fall back to the filesystem when git cannot answer (a source export,
+        # a container without git) rather than reporting an empty inventory.
+        and (tracked is None or path.stem in tracked)
     )
     inventory = {}
     for module_name in modules:
@@ -69,6 +96,41 @@ class TestInventoryTests(unittest.TestCase):
                 self.assertEqual(first, path.read_bytes())
                 self.assertEqual([], updater.check_inventory(path))
                 self.assertEqual(first, path.read_bytes())
+
+
+class TrackedOnlyDiscoveryTest(unittest.TestCase):
+    """The inventory is checked in, so it can only contain tracked files.
+
+    This tree is shared between concurrent sessions on different branches. An
+    untracked test file from another branch used to be swept into the inventory
+    here and then reported missing by CI, which only sees committed files.
+    """
+
+    def test_an_untracked_test_file_is_not_inventoried(self):
+        untracked = Path(__file__).with_name("test_zz_untracked_probe.py")
+        untracked.write_text(
+            "import unittest\n\n\n"
+            "class Probe(unittest.TestCase):\n"
+            "    def test_probe(self):\n        pass\n",
+            encoding="utf-8")
+        try:
+            self.assertNotIn("test_zz_untracked_probe", get_unit_test_inventory())
+        finally:
+            untracked.unlink()
+
+    def test_tracked_files_are_still_discovered(self):
+        self.assertIn("test_inventory", get_unit_test_inventory())
+
+    def test_discovery_falls_back_when_git_is_unavailable(self):
+        # A source export without git must still produce an inventory rather
+        # than an empty one.
+        import test_inventory
+        original = test_inventory._tracked_test_modules
+        test_inventory._tracked_test_modules = lambda: None
+        try:
+            self.assertIn("test_inventory", get_unit_test_inventory())
+        finally:
+            test_inventory._tracked_test_modules = original
 
 
 if __name__ == "__main__":
