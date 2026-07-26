@@ -314,13 +314,31 @@
     "test_evaluation_tools.RepeatedDialogueTest.test_unambiguous_lines_still_appear"
   ],
   "test_experiment_manifest": [
-    "test_experiment_manifest.ManifestTest.test_bookkeeping_never_breaks_a_run",
+    "test_experiment_manifest.ArtifactValidationTest.test_a_clean_record_validates",
+    "test_experiment_manifest.ArtifactValidationTest.test_a_missing_environment_is_a_problem",
+    "test_experiment_manifest.ArtifactValidationTest.test_duplicate_identities_are_reported",
+    "test_experiment_manifest.ArtifactValidationTest.test_writing_an_invalid_artifact_is_refused",
+    "test_experiment_manifest.CodeIdentityTest.test_non_python_files_are_ignored",
+    "test_experiment_manifest.CodeIdentityTest.test_the_fingerprint_changes_when_a_harness_changes",
+    "test_experiment_manifest.CodeIdentityTest.test_untracked_notes_do_not_mark_the_tree_dirty",
+    "test_experiment_manifest.ContractValidationTest.test_a_complete_run_satisfies_its_contract",
+    "test_experiment_manifest.ContractValidationTest.test_a_different_loaded_model_is_caught",
+    "test_experiment_manifest.ContractValidationTest.test_a_dirty_tree_is_caught_when_the_contract_demands_clean",
+    "test_experiment_manifest.ContractValidationTest.test_a_missing_arm_is_caught",
+    "test_experiment_manifest.ContractValidationTest.test_a_missing_context_length_is_caught",
+    "test_experiment_manifest.ContractValidationTest.test_a_missing_harness_fingerprint_is_caught",
+    "test_experiment_manifest.ContractValidationTest.test_arms_scoring_different_lines_are_caught_without_a_contract",
+    "test_experiment_manifest.ContractValidationTest.test_dropped_lines_are_caught",
+    "test_experiment_manifest.ContractValidationTest.test_non_ideal_load_settings_are_caught_only_when_demanded",
+    "test_experiment_manifest.ManifestTest.test_an_unreachable_server_aborts_the_run",
     "test_experiment_manifest.ManifestTest.test_it_pins_the_gold_fixture_by_hash",
     "test_experiment_manifest.ManifestTest.test_it_records_the_code_state_including_dirtiness",
     "test_experiment_manifest.ManifestTest.test_prompts_are_hashed_not_stored",
     "test_experiment_manifest.ManifestTest.test_raw_responses_are_kept_verbatim",
     "test_experiment_manifest.ManifestTest.test_summary_is_recomputable_from_the_rows",
-    "test_experiment_manifest.ManifestTest.test_the_written_artifact_round_trips"
+    "test_experiment_manifest.ManifestTest.test_the_written_artifact_round_trips",
+    "test_experiment_manifest.UntrackedHarnessTest.test_a_fully_tracked_harness_reports_none",
+    "test_experiment_manifest.UntrackedHarnessTest.test_an_untracked_harness_marks_the_tree_dirty"
   ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",

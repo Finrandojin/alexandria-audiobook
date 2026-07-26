@@ -21,11 +21,18 @@ from three_pass_generate import build_roster
 
 M = ("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
      "ab_test_runtime/results/matrix_20260725-115148/")
-MODEL = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
+# The model under test. Only this varies between runs.
+MODEL = os.environ.get("EXPERIMENT_MODEL",
+                       "qwen3.5-9b-uncensored-hauhaucs-aggressive")
+# The frozen inputs - segmentation and the roster derived from it - always come
+# from the same source run whatever model is being tested. Deriving them from
+# MODEL would compare two models on two different segmentations of the book,
+# which measures pass 1 and pass 2 at once and settles neither.
+INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 gold = json.load(open("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
                       "app/fixtures/attribution_gold_random.json"))
 src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + MODEL + "/mushoku16/result.json.threepass_checkpoint.json"))
+cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
 seg, named = cp["segmented"], [e for e in (cp.get("named") or []) if e]
 roster = [r.upper() for r in build_roster(named, src)]
 AL = [{"RUDEUS", "RUDI"}, {"SYLPHY", "SYLPHIETTE"}]
@@ -107,8 +114,6 @@ for arm in ("open", "closed-6", "closed-oracle"):
           f"conditional {cond_ok}/{available} = {cond_ok/max(available,1)*100:.1f}%",
           flush=True)
 print("\nbaseline (shipped batched pipeline): 44/147 = 29.9%")
-# Declare what the run must contain so an artifact that silently drops an arm
-# or half its lines is refused rather than validated on its own arithmetic.
 contract = {"expected_arms": ("open", "closed-6", "closed-oracle"),
             "expected_ids": {g["id"] for g in gold["entries"]},
             "require_clean_tree": True}

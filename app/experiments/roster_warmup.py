@@ -26,8 +26,8 @@ from experiments.manifest import ExperimentRecord
 
 
 def _safe_name(model):
-    """Model keys carry a publisher prefix ('qwen/qwen3-14b'), and a slash in a
-    filename silently creates a directory instead of naming the artifact."""
+    """Model keys carry a publisher prefix ('microsoft/phi-4'), and a slash in
+    a filename silently creates a directory instead of naming the artifact."""
     return model.replace("/", "__")
 from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,
@@ -145,13 +145,13 @@ for arm in ("incremental", "warm", "oracle"):
                       for q, b in enumerate(buckets))
     print(f"  {arm:12} {parts}")
 print("\nbaseline (shipped pipeline): 44/147 = 29.9%")
-# Declare what this run must produce, so an artifact that silently drops an arm
-# or half its lines is refused rather than validated on the arithmetic of
-# whatever it managed to record.
+# Declare what this run was supposed to produce, so an artifact that silently
+# drops an arm or half its lines is refused rather than validated on the
+# arithmetic of whatever it managed to record.
 contract = {"expected_arms": ("incremental", "warm", "oracle"),
             "expected_ids": {g["id"] for g in gold["entries"]
                              if norm(g["line"]) in want},
             "require_clean_tree": True}
 print("wrote", record.write(os.path.join(
-    REPO, "ab_test_runtime", "experiments",
-    f"roster_warmup__{_safe_name(MODEL)}.json"), contract=contract))
+    REPO, "ab_test_runtime", "experiments", f"roster_warmup__{_safe_name(MODEL)}.json"),
+    contract=contract))
