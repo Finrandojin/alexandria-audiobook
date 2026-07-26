@@ -313,6 +313,15 @@
     "test_evaluation_tools.RepeatedDialogueTest.test_case_only_differences_are_not_a_disagreement",
     "test_evaluation_tools.RepeatedDialogueTest.test_unambiguous_lines_still_appear"
   ],
+  "test_experiment_manifest": [
+    "test_experiment_manifest.ManifestTest.test_bookkeeping_never_breaks_a_run",
+    "test_experiment_manifest.ManifestTest.test_it_pins_the_gold_fixture_by_hash",
+    "test_experiment_manifest.ManifestTest.test_it_records_the_code_state_including_dirtiness",
+    "test_experiment_manifest.ManifestTest.test_prompts_are_hashed_not_stored",
+    "test_experiment_manifest.ManifestTest.test_raw_responses_are_kept_verbatim",
+    "test_experiment_manifest.ManifestTest.test_summary_is_recomputable_from_the_rows",
+    "test_experiment_manifest.ManifestTest.test_the_written_artifact_round_trips"
+  ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
     "test_find_nicknames.ParseAliasResponseTests.test_exact_variant_resolves_case_insensitively",
