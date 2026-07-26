@@ -512,33 +512,31 @@ It should ship only if:
 
 ## Operational status
 
-Current as of the six-model benchmark.
+Current as of the six-model benchmark and both negative results.
 
-**Complete and artifact-backed** (`ab_test_runtime/experiments/`):
+**Complete and artifact-backed** (`ab_test_runtime/experiments/`, all
+contract-validated with environment and harness fingerprint):
 
-- closed-set decomposition on six models, all contract-validated;
-- roster warm-up on qwen3.5-9b, clean commit, `dirty: false`;
+- closed-set decomposition on six models;
+- roster warm-up on qwen3.5-9b (clean commit, `dirty: false`);
 - two-by-two context/batch grid on qwen3.5-9b;
-- VRAM profiles for phi-4 and qwen3-14b, measured on an idle card.
+- candidate-ID vs free-form name contract on qwen3-14b;
+- cross-model confidence curve, derived from the above with no GPU time;
+- VRAM profiles for phi-4 and qwen3-14b, measured on a verified-idle card.
 
-**Incomplete, and not to be quoted as results:**
+**Incomplete, not to be quoted:**
 
-- **Roster warm-up on ministral-3-14b.** The oracle arm hung and the harness
-  writes its artifact only at the end, so nothing was produced. The log shows
-  incremental 41.0% and warm 44.6% (+3.6) but there is no per-line record
-  behind either figure. Treat as unverified until re-run.
+- **Roster warm-up on ministral-3-14b.** Oracle arm hung; the harness writes its
+  artifact only at the end, so nothing was produced. The log shows incremental
+  41.0% and warm 44.6% with no per-line record behind either.
 
-**Paused:**
-
-- The model matrix, mid-ministral/grimgar03, checkpointed. Note it is currently
-  measuring end-to-end quality using pass 2 on a model the decomposition ranks
-  in the weakest tier, so its absolute numbers will not reflect a
-  14B-attribution pipeline.
+**Paused:** the model matrix, mid-ministral/grimgar03, checkpointed.
 
 **Not fitted:** `mistralai/magistral-small` - 13.51 GiB of weights on a 15.92
-GiB card. No profile; falls back to the conservative default by design.
+GiB card. No profile by design.
 
-Experiment branch `agent/experiment-artifacts`, PR #236. Release suite 990 tests.
+Branch `agent/model-comparison`, PR #237. Release suite 974 tests, verifier
+green.
 
 Treat this section as transient. Verify live state and output files rather than
 relying on this snapshot.
@@ -1331,3 +1329,93 @@ Both directions §17 named as still-open are now closed by measurement:
 What remains untested is narrow: deterministic confidence features with
 known-low coverage, and more judged gold lines to separate gemma from the 14B
 tier. **No untested direction currently promises a large accuracy gain.**
+
+---
+
+## 20. Closing assessment
+
+Every direction this brief identified has now been measured. This section is
+opinion, separated from the record as §12 does.
+
+### The complete ledger
+
+| direction | result | evidence |
+|---|---|---|
+| better model | **+12.9 pts** (35.4 → 48.3 open) | six models, paired |
+| roster warm-up | **+5.1 pts** on the 9B | artifact-backed |
+| majority vote over 6 models | +4.8 pts, at 6x inference | derived |
+| scene candidate generation | −5 to −13 pts, all six models | six models |
+| candidate-ID output contract | **−13.6 pts**, p=0.009 | paired |
+| context reformatting (prose, narration-inline) | −2 to −5 pts | two-by-two |
+| deterministic tag extraction | 7.5% recall | text |
+| first-person narrator hint | no effect | paired |
+| confidence via ensemble agreement | 9.5% coverage @ 85.7% | derived |
+
+Two interventions helped, seven did not, and the two that helped are not
+architectural: use a bigger model, and give it the full cast list up front.
+
+### What I think this means
+
+**The task is harder than the pipeline is wrong.** Nine architectural
+interventions were tested and the two that worked were both "give the model more
+of what it already had". Nothing in the error structure suggests a missing
+mechanism. That is the honest reading of nine negatives.
+
+**The oracle result is the load-bearing number.** Hand the strongest local model
+the correct answer among five candidates and it picks it 66% of the time. That
+is not a serialisation problem, a context problem, or a candidate problem - all
+three were tested and eliminated. It is the model's ability to resolve who is
+speaking in a scene, and no amount of scaffolding around it moved that.
+
+**Confidence routing was the last hope for a product, and it is thin.** Six
+models agreeing unanimously - the strongest signal obtainable - buys 9.5% of
+lines at 85.7% accuracy. There is no version of "auto-accept the easy ones" that
+covers enough of the book to reduce human work meaningfully. This was the
+direction I argued was required regardless of what the experiments showed; the
+experiments showed it does not exist at usable scale.
+
+**The candidate-ID result is the most interesting negative.** It is the only
+intervention that did exactly what it promised at its own layer - invalid outputs
+went 6 to 0 - and still made the system materially worse. That is worth
+remembering as a general caution: a change can be correct about its stated
+mechanism and wrong about its effect, and only the end-to-end measurement
+distinguishes them.
+
+### What I would tell the owner
+
+Three honest options, in the order I would consider them:
+
+1. **Ship it as human-assisted.** ~48% correct with a 14B, a review UI, and no
+   pretence of automation. The per-line artifacts show the errors are mostly
+   confusions between real characters, which are fast for a human to fix
+   because the candidate set is small and the context is right there.
+2. **Change the product.** Single-narrator audiobooks need no attribution at
+   all. Multi-voice for a fixed, hand-cast set of principal characters with
+   everything else narrated is a much easier problem than open attribution.
+3. **Wait for hardware or a better local model.** The 9B→14B step bought 12.9
+   points. A 32B-class model at full context might buy a similar step, and this
+   card cannot run one. That is a purchase decision, not an engineering one.
+
+What I would not do is spend more time on the current architecture. It has been
+measured from six directions in a day and the ceiling has not moved.
+
+### On how this investigation went
+
+Worth recording for whoever picks this up.
+
+Nine architectural ideas were tested; every one that was argued for in advance
+failed. Every result that survived came from looking at data nobody had examined
+- shipped output, a second book, an external audit, per-line artifacts, a paired
+significance test. Two conclusions reversed *during* the same day, both caught by
+review demanding artifacts rather than aggregates.
+
+Four claims in earlier drafts of this document overstated what had been
+measured - two "ceiling" claims that were configuration results, one
+generalisation from a single comparison, one relative-improvement inflation.
+Every underlying number was correct. The sentences around them were not, and
+that error survives review far more easily than a wrong number does.
+
+If there is one practice to carry forward it is the artifact requirement:
+per-line records with environment, code identity and a declared contract. It
+caught a counting bug that had produced a plausible-looking finding, and it is
+the only reason two reversed conclusions were reversible.
