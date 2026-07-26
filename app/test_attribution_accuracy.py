@@ -85,3 +85,42 @@ class ScoringTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GoldFixtureIntegrityTest(unittest.TestCase):
+    """A gold fixture is an answer key; a duplicated line votes twice.
+
+    attribution_gold.json shipped three lines twice or three times over, so 3
+    real lines cast 7 votes in every accuracy and confusion number computed
+    from it. Found by audit.
+    """
+
+    FIXTURES = ("fixtures/attribution_gold.json",
+                "fixtures/attribution_gold_random.json")
+
+    def _load(self, name):
+        import json
+        import os
+        path = os.path.join(os.path.dirname(__file__), name)
+        with open(path, encoding="utf-8") as handle:
+            return json.load(handle)["entries"]
+
+    def test_ids_are_unique_in_every_fixture(self):
+        for name in self.FIXTURES:
+            entries = self._load(name)
+            ids = [entry["id"] for entry in entries]
+            self.assertEqual(len(ids), len(set(ids)), f"duplicate id in {name}")
+
+    def test_book_and_entry_index_are_unique_in_every_fixture(self):
+        # A distinct id pointing at the same source line would double-count too.
+        for name in self.FIXTURES:
+            entries = self._load(name)
+            keys = [(e.get("book"), e.get("entry_index")) for e in entries]
+            self.assertEqual(len(keys), len(set(keys)),
+                             f"duplicate (book, entry_index) in {name}")
+
+    def test_every_entry_has_an_expected_speaker(self):
+        for name in self.FIXTURES:
+            for entry in self._load(name):
+                self.assertTrue(str(entry.get("expected_speaker") or "").strip(),
+                                f"blank expected_speaker in {name}: {entry['id']}")

@@ -156,6 +156,29 @@ def build_roster(entries, source_text=None):
     return roster
 
 
+def attested_new_speakers(entries, roster_seen, source_text):
+    """Speakers in ``entries`` that belong in the roster and are not in it yet.
+
+    The incremental counterpart to build_roster, which rescans everything. Both
+    ask the same question with the same threshold, so the running roster and a
+    rebuilt one cannot disagree - they previously did, because the incremental
+    path applied no gate at all and admitted any accepted speaker.
+
+    Returns the names to add; the caller owns the roster and updates it, so
+    nothing here mutates what it is given.
+    """
+    new = []
+    for entry in entries:
+        speaker = (entry.get("speaker") or "").strip().upper()
+        if (not speaker or speaker in ("NARRATOR", "UNKNOWN")
+                or speaker in roster_seen or speaker in new):
+            continue
+        if not is_attested_name(speaker, source_text, MIN_ROSTER_ATTESTATIONS):
+            continue
+        new.append(speaker)
+    return new
+
+
 def default_instruct(entry):
     speaker = (entry.get("speaker") or "").strip().upper()
     return NARRATOR_DEFAULT_INSTRUCT if speaker == "NARRATOR" else CHARACTER_DEFAULT_INSTRUCT
@@ -1026,12 +1049,12 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                         source_text)
                     roster_seen = set(roster)
                 else:
-                    for entry in new_named:
-                        speaker = (entry.get("speaker") or "").strip().upper()
-                        if (speaker and speaker not in ("NARRATOR", "UNKNOWN")
-                                and speaker not in roster_seen):
-                            roster_seen.add(speaker)
-                            roster.append(speaker)
+                    # Same admission gate as build_roster above, applied
+                    # incrementally so a batch does not rescan every prior entry.
+                    for speaker in attested_new_speakers(
+                            new_named, roster_seen, source_text):
+                        roster_seen.add(speaker)
+                        roster.append(speaker)
                 elapsed_s["attribute"] = attr_base + time.time() - attr_start
                 # Each accepted subdivision is durable; a later single-entry
                 # failure resumes after this work instead of replaying the batch.

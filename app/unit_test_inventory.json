@@ -34,6 +34,9 @@
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
   "test_attribution_accuracy": [
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_book_and_entry_index_are_unique_in_every_fixture",
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_every_entry_has_an_expected_speaker",
+    "test_attribution_accuracy.GoldFixtureIntegrityTest.test_ids_are_unique_in_every_fixture",
     "test_attribution_accuracy.GoldSetTest.test_disputed_entries_are_withheld_by_default",
     "test_attribution_accuracy.GoldSetTest.test_gold_set_loads_and_is_well_formed",
     "test_attribution_accuracy.ScoringTest.test_case_and_whitespace_do_not_matter",
