@@ -1813,3 +1813,97 @@ raw evidence. They are not regenerated, because the paired test that overturned
 their headline result does not depend on it, and a 2h20m rerun to add telemetry
 to a null result is not a good use of the card. Any future roster run will carry
 it.
+
+---
+
+## 25. Request to the reviewer: judge 400 lines
+
+This is the one task where a larger model is directly useful, and it is the only
+thing currently blocking a resolvable question.
+
+### Why it is needed
+
+§24 established that qwen3.5-9b is measurably worse than everything else tested,
+but that **gemma-4-e4b and the four 14B-class models do not separate** at
+n=147 - every pairwise comparison sits between p=0.07 and p=0.36. That is
+unresolved precision, not equivalence. Resolving a 6-9 point difference at this
+base rate needs roughly 400-500 judged lines.
+
+More runs cannot help. Temperature-0 runs here reproduce byte-identically; the
+limit is the size of the answer key, not the number of measurements.
+
+### The task
+
+`~/Downloads/judge_grimgar03/` contains **10 batches of 40 lines** sampled from
+grimgar03, a book with a third-person narrator and a six-person party - chosen
+deliberately as a contrast to mushoku16, whose first-person narrator is the
+hardest case in the corpus.
+
+Each row looks like this:
+
+```json
+{
+  "id": "grimgar03-00042",
+  "entry_index": 42,
+  "line": "Ranta! Don't wander off too far!",
+  "passage_before": "...preceding entries in reading order...",
+  "passage_after": "Haruhiro cautioned. Even as he said that, he got in position...",
+  "ANSWER": "",
+  "reasoning": ""
+}
+```
+
+Fill `ANSWER` with the speaker's name in uppercase, and `reasoning` with a short
+justification. The rules that matter:
+
+- **Use the name the book uses.** Short or full form is fine; the scorer is
+  alias-aware.
+- **`NARRATOR`** if the line is not speech at all - a sign, a caption, a
+  heading, or narration the segmenter split out by mistake. This happens: one
+  earlier gold line turned out to be a poster on a wall.
+- **`AMBIGUOUS`** if the passage genuinely supports more than one reading. A
+  marked-ambiguous line is more useful than a coin flip, and the previous judge
+  used it zero times in 147 rows, which we suspect was over-confidence rather
+  than an unambiguous corpus.
+- **Never invent a name absent from the passage.** The merge step refuses to
+  write a fixture when an answer appears nowhere in its line's passage - this is
+  how `FUTURE_ME`, a name the model coined and shipped on 250 entries, would
+  otherwise enter the answer key.
+
+Return the same JSON with the two fields filled. Return **every row**: a
+previous 147-row request was silently truncated at row 85, and the loss was
+invisible until the ids were counted.
+
+### What happens to the answers
+
+```
+gold_set_builder.py agree  <judge1> --second <judge2>   # only the disagreements
+gold_set_builder.py merge  grimgar03 <filled> --batches <originals> ...
+```
+
+`merge` validates before writing: unknown ids, unanswered rows, and answers
+absent from their passage all block the fixture.
+
+### A second judge is still wanted, and why
+
+What made the existing gold set trustworthy was not the judge's capability. It
+was that **two independent readers agreed on 94% of 63 mushoku16 lines and 97%
+of 35 grimgar03 lines, and the pipeline scored identically against either one.**
+Every disagreement fell on a line whose true answer is not a character.
+
+A single judge, however capable, gives a larger set of unknown reliability. The
+`agree` command exists so the second pass is cheap: on the last round it
+surfaced 4 rows out of 63 for a human to arbitrate.
+
+If a second independent pass is available, it is worth more than another 400
+single-judged lines.
+
+### What this will and will not settle
+
+**Will:** whether gemma-4-e4b is genuinely as good as the 14B tier at
+attribution, which determines whether the production model should be a 7.5B at
+32768 context and `parallel: 2` or a 14B at 16384 - a real throughput
+difference.
+
+**Will not:** move the ~48% realistic accuracy or the ~66% oracle ceiling. This
+sharpens the instrument; it does not improve the system.
