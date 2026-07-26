@@ -344,8 +344,8 @@
     "test_inventory.TrackedOnlyDiscoveryTest.test_an_untracked_test_file_is_not_inventoried",
     "test_inventory.TrackedOnlyDiscoveryTest.test_discovery_falls_back_when_git_is_unavailable",
     "test_inventory.TrackedOnlyDiscoveryTest.test_tracked_files_are_still_discovered",
-    "test_inventory.UntrackedTestWarningTest.test_a_clean_tree_reports_nothing",
-    "test_inventory.UntrackedTestWarningTest.test_a_new_untracked_test_file_is_reported"
+    "test_inventory.UntrackedTestWarningTest.test_a_new_untracked_test_file_is_reported",
+    "test_inventory.UntrackedTestWarningTest.test_a_tracked_file_is_not_reported"
   ],
   "test_launcher_supervisor": [
     "test_launcher_supervisor.LauncherSupervisorTests.test_address_already_in_use_breaks_case_insensitively",
@@ -610,6 +610,9 @@
     "test_publisher_matter.StripPublisherMatterTest.test_story_mentioning_copyright_mid_book_is_kept"
   ],
   "test_reasoning_budget": [
+    "test_reasoning_budget.NullContentTest.test_a_null_content_response_does_not_raise",
+    "test_reasoning_budget.NullContentTest.test_null_content_classifies_as_escalate_then_overflow",
+    "test_reasoning_budget.NullContentTest.test_null_content_without_reasoning_is_ordinary_truncation",
     "test_reasoning_budget.ReasoningAllowanceTest.test_allowance_tracks_p95_of_observations",
     "test_reasoning_budget.ReasoningAllowanceTest.test_cold_start_is_zero",
     "test_reasoning_budget.ReasoningAllowanceTest.test_first_observation_lifts_to_the_floor",
@@ -649,6 +652,17 @@
     "test_release_verifier.ReleaseVerifierTests.test_keyboard_interrupt_stops_child_group_before_propagating",
     "test_release_verifier.ReleaseVerifierTests.test_python_compilation_includes_nonignored_untracked_files",
     "test_release_verifier.ReleaseVerifierTests.test_unittest_summary_rejects_skips_and_missing_success"
+  ],
+  "test_review_surfacing": [
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_a_mapped_glyph_is_not_flagged",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_an_unmapped_symbol_is_collected",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_callers_that_pass_no_sink_still_work",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_grouping_passes_the_report_through",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_ordinary_text_reports_nothing",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_the_report_says_which_entry_it_came_from",
+    "test_review_surfacing.ReviewCharactersReachTheCallerTest.test_the_symbol_still_reaches_the_text",
+    "test_review_surfacing.ReviewIsLoggedTest.test_building_chunks_warns_about_unmapped_glyphs",
+    "test_review_surfacing.ReviewIsLoggedTest.test_nothing_is_logged_when_there_is_nothing_to_review"
   ],
   "test_roster_admission": [
     "test_roster_admission.AttestedNewSpeakersTest.test_a_name_repeated_within_one_batch_is_returned_once",

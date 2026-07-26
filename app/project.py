@@ -137,7 +137,26 @@ def split_on_unspeakable(entry, scene_break_pause_ms):
     return parts, review
 
 
-def get_speakable_entries(script_entries):
+def log_review_characters(review):
+    """Warn about glyphs no rule could classify, grouped by character.
+
+    split_on_unspeakable leaves these in the text on purpose - guessing at an
+    unknown symbol is worse than flagging it - but the report previously went
+    nowhere, so "flagged" meant the narrator read it aloud with nobody told.
+    """
+    if not review:
+        return
+    counts = {}
+    for item in review:
+        counts.setdefault(item["character"], []).append(item["entry_index"])
+    summary = ", ".join(
+        f"{character!r} x{len(indexes)} (first at entry {min(indexes)})"
+        for character, indexes in sorted(counts.items()))
+    logger.warning(
+        "Unmapped symbols left in TTS text and needing review: %s", summary)
+
+
+def get_speakable_entries(script_entries, review_sink=None):
     """Return copied TTS entries, converting nonverbal marks into a pause.
 
     Punctuation-only and block-glyph dialogue remains in annotated_script.json
@@ -146,7 +165,7 @@ def get_speakable_entries(script_entries):
     data. Leading nonverbal marks have no audio anchor and are omitted.
     """
     speakable = []
-    for source_entry in script_entries:
+    for entry_index, source_entry in enumerate(script_entries):
         entry = dict(source_entry)
         if is_nonverbal_text(entry.get("text")):
             if not speakable:
@@ -155,14 +174,20 @@ def get_speakable_entries(script_entries):
             previous["pause_after"] = max(
                 int(previous.get("pause_after") or 0), DEFAULT_PAUSE_MS)
         else:
-            parts, _review = split_on_unspeakable(entry, EXPLICIT_SILENCE_MS)
+            parts, review = split_on_unspeakable(entry, EXPLICIT_SILENCE_MS)
+            if review_sink is not None:
+                review_sink.extend({"entry_index": entry_index,
+                                    "character": character}
+                                   for character in review)
             speakable.extend(parts)
     return speakable
 
 
-def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
+def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS,
+                      review_sink=None):
     """Group consecutive entries by same speaker into chunks up to max_chars"""
-    script_entries = get_speakable_entries(script_entries)
+    script_entries = get_speakable_entries(script_entries,
+                                           review_sink=review_sink)
     if not script_entries:
         return []
 
@@ -334,7 +359,9 @@ class ProjectManager:
                 logger.warning(f"annotated_script.json is also corrupted ({e}). Starting with empty chunks.")
                 return []
 
-            chunks = group_into_chunks(script)
+            review = []
+            chunks = group_into_chunks(script, review_sink=review)
+            log_review_characters(review)
 
             # Initialize chunk status
             for i, chunk in enumerate(chunks):

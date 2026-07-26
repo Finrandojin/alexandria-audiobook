@@ -671,7 +671,12 @@ def call_llm_for_entries(client, model_name, sys_prompt, user_prompt, params,
             )
 
             choice = response.choices[0]
-            text = choice.message.content.strip()
+            # An OpenAI-compatible server may return JSON null for content when
+            # a reasoning model spent its whole budget thinking. Calling
+            # .strip() on that raised AttributeError, which the caller booked as
+            # a generic api_error - so the one-escalation-then-overflow policy
+            # never ran on the exact responses it exists for.
+            text = (choice.message.content or "").strip()
             response_fingerprint = hashlib.sha256(
                 " ".join(text.split()).encode("utf-8")).hexdigest()
             response_fingerprints[response_fingerprint] = (

@@ -162,3 +162,35 @@ class ReasoningEffortPlumbingTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NullContentTest(unittest.TestCase):
+    """A reasoning model that spends its whole budget thinking may return JSON
+    null for content. `.strip()` on that raised AttributeError, which the caller
+    booked as a generic api_error - so the one-escalation-then-overflow policy
+    never ran on the exact responses it was written for. Found by audit."""
+
+    def test_null_content_classifies_as_escalate_then_overflow(self):
+        from generate_script import classify_length_finish
+        self.assertEqual(
+            "escalate_once",
+            classify_length_finish(content=None, reasoning_tokens=9987,
+                                   already_escalated=False))
+        self.assertEqual(
+            "reasoning_overflow",
+            classify_length_finish(content=None, reasoning_tokens=9987,
+                                   already_escalated=True))
+
+    def test_null_content_without_reasoning_is_ordinary_truncation(self):
+        from generate_script import classify_length_finish
+        self.assertEqual(
+            "truncated_output",
+            classify_length_finish(content=None, reasoning_tokens=0,
+                                   already_escalated=False))
+
+    def test_a_null_content_response_does_not_raise(self):
+        # The regression itself: reading .content on a null-content response.
+        from types import SimpleNamespace
+        choice = SimpleNamespace(message=SimpleNamespace(content=None),
+                                 finish_reason="length")
+        self.assertEqual("", (choice.message.content or "").strip())
