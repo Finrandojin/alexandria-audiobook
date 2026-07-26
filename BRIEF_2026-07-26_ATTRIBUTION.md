@@ -2229,3 +2229,69 @@ an accuracy figure.
 **`closed-oracle` is a diagnostic, not an accuracy.** It has been quoted in this
 brief as a ceiling and that is its only legitimate use. The primary arm is
 `open`, because it is what production runs.
+
+---
+
+## 30. A cost check on the judging queue
+
+The queue now stands at **1,215 judgements** across four tasks, and if each is
+double-judged as the protocol requires, roughly 2,400 model-passes plus human
+adjudication of the disagreements. Before that is spent it is worth asking what
+decision it buys.
+
+### What it decides
+
+The open-arm spread among the five non-9B models is **8.8 points**, and among
+the four 14B-class models **2.7 points**. So the queue resolves:
+
+1. whether gemma-4-e4b (7.5B, 32768 context, `parallel: 2`) is genuinely as good
+   as the 14B tier - worth up to ~8.8 points and a real throughput difference;
+2. whether the ranking is stable across narrative structure, which no amount of
+   extra lines on one book can answer.
+
+Question 2 is the one that justifies the second book. Question 1 alone would not.
+
+### What it does not decide
+
+Nothing about the ceiling. **~48% realistic, ~66% oracle** are unchanged by any
+amount of judging. This queue sharpens the instrument; the instrument has
+already told us the system is not close to unattended operation.
+
+### A cheaper alternative worth considering first
+
+If the only live question is "which model ships", there is a shorter path than
+1,215 judged lines: **run two candidate models end to end on one book and listen
+to the output.** A 24-point per-book accuracy difference is audible; a 3-point
+difference between two 14Bs probably is not, which is itself the answer.
+
+That costs a few hours of GPU and no judging at all. It answers "is this
+difference worth caring about" before spending effort resolving it precisely.
+
+The full queue is justified if the goal is a durable benchmark that outlives this
+model generation - which is a legitimate goal, and the tooling now exists to make
+it repeatable. It is not justified if the goal is only to pick today's model.
+
+**Recommendation: judge grimgar03's second pass and the 15 rejudge rows** - that
+completes one book properly and validates the two-judge protocol under the new
+window policy at modest cost. **Hold the 800 mushoku16 lines** until the owner
+decides whether a durable cross-book benchmark is wanted, or whether an
+end-to-end listening comparison settles the model choice more cheaply.
+
+### On what today actually produced
+
+Worth stating plainly, since the ratio is unusual.
+
+The day produced substantial measurement infrastructure - a contract-validated
+artifact format, a gold-set builder with adaptive windows, a reusable VRAM
+profiler, six harnesses, a frozen scoring policy - and **one accuracy
+improvement**, which was changing the model.
+
+That is not obviously a bad trade. The infrastructure eliminated eight candidate
+directions at a cost of roughly an hour each, and several of them - scene-cast
+architecture, candidate-ID output, confidence routing - would have taken days to
+build and would have looked reasonable in review. Cheap elimination of plausible
+wrong answers is worth more than it feels like at the time.
+
+But it is worth naming the risk: measurement can become the work. The queue above
+is the point where that becomes a live question, which is why it is flagged here
+rather than simply executed.
