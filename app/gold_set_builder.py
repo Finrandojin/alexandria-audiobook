@@ -292,6 +292,16 @@ def main(argv=None):
     join.add_argument("--force", action="store_true",
                       help="write despite validation problems")
 
+    again = sub.add_parser("rejudge", help="re-emit rows whose window changed")
+    again.add_argument("book")
+    again.add_argument("--old", nargs="+", required=True, help="original batches")
+    again.add_argument("--new", nargs="+", required=True, help="rebuilt batches")
+    again.add_argument("--filled", nargs="+", required=True,
+                       help="the judge's answers, to pick which rows to revisit")
+    again.add_argument("--answer", default="AMBIGUOUS",
+                       help="only re-emit rows the judge gave this answer")
+    again.add_argument("--out", required=True)
+
     check = sub.add_parser("agree", help="compare two judges, list disagreements")
     check.add_argument("first", nargs="+")
     check.add_argument("--second", nargs="+", required=True)
@@ -335,6 +345,35 @@ def main(argv=None):
         with open(args.out, "w", encoding="utf-8") as handle:
             json.dump(fixture, handle, indent=1, ensure_ascii=False)
         print(f"wrote {args.out}: {len(fixture['entries'])} entries")
+        return 0
+
+    if args.command == "rejudge":
+        old = {r["id"]: r for p in args.old
+               for r in json.load(open(p, encoding="utf-8"))["rows"]}
+        new = {r["id"]: r for p in args.new
+               for r in json.load(open(p, encoding="utf-8"))["rows"]}
+        answers = read_filled(args.filled)
+        # Only rows where the judge abstained AND the window actually changed.
+        # An unchanged window means the abstention was about the passage, not
+        # about how much of it was shown, so re-asking would waste the judge.
+        rows = [new[i] for i, value in sorted(answers.items())
+                if value["answer"].upper() == args.answer.upper()
+                and i in new and i in old
+                and (old[i]["passage_before"], old[i]["passage_after"])
+                != (new[i]["passage_before"], new[i]["passage_after"])]
+        payload = {"book": args.book, "batch": "rejudge 1 of 1",
+                   "instructions": INSTRUCTIONS + (
+                       "\n\nThese rows were previously answered "
+                       f"{args.answer} when the passage shown was narrower. "
+                       "The window has been widened. Answer again from the "
+                       "passage as it now stands; if the speaker is still "
+                       f"undetermined, {args.answer} remains correct."),
+                   "rows": rows}
+        with open(args.out, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, indent=1, ensure_ascii=False)
+        print(f"wrote {args.out}: {len(rows)} rows to revisit "
+              f"({len([i for i,v in answers.items() if v['answer'].upper()==args.answer.upper()])} "
+              f"were {args.answer}, the rest had unchanged windows)")
         return 0
 
     first, second = read_filled(args.first), read_filled(args.second)

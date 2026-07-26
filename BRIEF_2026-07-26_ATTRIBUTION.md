@@ -2007,20 +2007,32 @@ After agreement and adjudication:
 
 §26 raised that 13 of judge 1's 20 `AMBIGUOUS` labels were artifacts of the
 validator rather than genuine ambiguity, and asked for an explicit corpus
-policy. The owner chose: **expand the window until identity is supported.**
+policy. The owner chose to **expand the window to provide more identity
+evidence**.
 
 Implemented and measured. The window now grows backwards-first - a speaker is
-usually established before they speak - until the run's own attested roster
-appears in it, capped at 40 entries before and 20 after. On grimgar03 it fires
-on **33 of 400 rows** and grows the payload from 577 KB to 684 KB, proportionate
-to the 13 rows reported.
+usually established before they speak - until at least two names from the run's
+own attested roster appear in it, capped at 40 entries before and 20 after. On
+grimgar03 it fires on **33 of 400 rows** and grows the payload from 577 KB to
+684 KB.
+
+This is a useful context-expansion heuristic, not a proof that the target
+speaker is now identifiable. The stopping condition is “two roster names are
+present,” not “the correct speaker is supported.” A window can satisfy it using
+two unrelated characters while still omitting the evidence needed for the
+line being judged.
 
 The validator was also wrong and is fixed. It rejected any answer whose name was
-absent from the *window*; a name absent from the window but present in the book
-is inferred from wider context, which is legitimate reading. Only a name absent
-from the whole book is invented. `support_for()` now classifies each answer as
+absent from the *window*. A name absent from the window but present in the book
+may be a legitimate wider-context inference; only a name absent from the whole
+book is necessarily invented. `support_for()` now classifies each answer as
 `window`, `book` or `absent`, and `support_summary()` reports the split so the
 policy is visible rather than imposed silently.
+
+The label `book` must be read narrowly: it proves only that the answer token
+appears somewhere in the book. It does not establish that wider context
+supports that character as the speaker of this particular line. That semantic
+claim still comes from independent judgment and adjudication.
 
 Two implementation notes worth recording, both caught by measuring rather than
 reasoning:
@@ -2035,11 +2047,12 @@ reasoning:
   expansion. Matching is case-insensitive now. Three occurrences of one bad
   assumption in a day is a repo-wide hazard, not three coincidences.
 
-Judge 1's affected rows cannot be recovered - they were marked `AMBIGUOUS`
-rather than named, so the intended answers were never recorded. Judge 2's
-batches carry identical ids under the corrected rule, so `agree` will surface
-them as `AMBIGUOUS`-versus-name disagreements. That is the adjudication set §26
-asked for, and it arrives for free.
+Judge 1's intended names were not recorded because the affected rows were
+marked `AMBIGUOUS`, but the rows are recoverable: rejudge those 13 IDs using the
+expanded Judge-2 windows. Judge 2's batches carry identical IDs under the
+corrected rule, so `agree` will surface any `AMBIGUOUS`-versus-name
+disagreements. Rejudging the original 13 explicitly is still preferable to
+assuming every disagreement has the same cause.
 
 ### The next big test: is the model ranking stable across narrative structure?
 
@@ -2068,8 +2081,10 @@ one for half the library.
 
 **What 800 judged lines buys:**
 
-1. **Resolves the ranking.** 400 per book is enough to separate a 6-9 point
-   difference at these base rates; 147 was not.
+1. **Improves ranking precision.** 400 per book gives substantially more power
+   to detect a 6-9 point paired difference than 147. It does not guarantee
+   separation: power depends on the true effect and the number/direction of
+   paired disagreements.
 2. **Tests ranking stability.** If gemma leads on grimgar03 and trails on
    mushoku16, "which model" has no single answer and the pipeline should choose
    per book - a finding worth more than the ranking itself.
@@ -2077,14 +2092,16 @@ one for half the library.
    147 mushoku16 lines, some of which are known to be poor - one turned out to
    be a poster on a wall. A clean 400 built with the corrected tooling either
    confirms ~30% or moves it.
-4. **A free cross-round concordance check.** 31 of the 400 mushoku16 ids overlap
-   the existing 147-line set. Comparing the new answers against the old ones on
-   those rows measures whether judging is stable across rounds, judges and
-   window policy - with no extra work.
+4. **A cross-round consistency check.** 31 of the 400 mushoku16 IDs overlap the
+   existing 147-line set. Comparing the new answers against the old ones is
+   useful, but judge, round, and window policy all change together; any
+   disagreement is therefore confounded and cannot identify which factor
+   caused it.
 
-**What it will not do.** It sharpens the instrument. It does not move the ~48%
-realistic accuracy or the ~66% oracle ceiling, and no experiment in this brief
-suggests anything will.
+**What it will not do.** It sharpens the instrument; it does not improve the
+system by itself. The measured realistic and oracle rates may move materially
+on a new book or larger fixture. The earlier ~48% and ~66% are mushoku16
+measurements, and 66% is the best measured oracle result rather than a ceiling.
 
 ### Running it
 
@@ -2097,3 +2114,118 @@ gold_set_builder.py merge  mushoku16 <filled> --batches <originals> \
 Then each candidate model once, temperature 0, identical frozen inputs, per-book
 accuracy plus paired McNemar - the protocol §23 set out, now with an answer key
 large enough for it to mean something.
+
+---
+
+## 28. Reviewer assessment of the expanded-window plan
+
+The implementation and generated inputs were checked against the current
+branch:
+
+- `app/gold_set_builder.py` contains the roster-driven adaptive window and
+  `window` / `book` / `absent` support classification;
+- all **29** gold-set-builder unit tests pass when run from `app/`;
+- `judge2_grimgar03` preserves the same 400 IDs as Judge 1;
+- exactly **33** Grimgar windows differ between the Judge-1 and Judge-2 input
+  sets;
+- `judge_mushoku16` contains ten batches of 40 rows built under the revised
+  instructions.
+
+### What is solid
+
+Using the attested roster is materially better than the rejected
+capitalized-word heuristic, and case-insensitive handling of honorific names
+closes a known repeated failure mode. Separating “present in this window” from
+“exists somewhere in the book” also prevents the anti-invention check from
+silently redefining all wider-context inference as invalid.
+
+The cross-book comparison is worth doing. Grimgar03 and mushoku16 differ in
+narrative person, cast structure, and baseline difficulty; testing both can
+show whether a single production-model ranking is defensible.
+
+### What must be frozen before scoring
+
+Complete the independent second judgments and adjudicate disagreements before
+running the model matrix. Freeze one written policy covering:
+
+1. whether genuinely anonymous speech is excluded, scored as `AMBIGUOUS`, or
+   treated as an abstention target;
+2. whether `NARRATOR` segmentation errors count against attribution or are
+   reported separately as segmentation failures;
+3. alias and honorific normalization;
+4. whether a `book`-supported answer is accepted based on two-judge agreement
+   alone or requires explicit adjudication;
+5. how rows whose speaker remains unsupported at the expansion cap are handled;
+6. the primary comparison arm, significance threshold, and any correction for
+   multiple model comparisons.
+
+Rejudge the 13 window-limited Judge-1 IDs using the expanded inputs rather than
+treating their old `AMBIGUOUS` values as immutable observations.
+
+### How to interpret the eventual comparison
+
+Report each book separately before any pooled score. A pooled result can hide a
+model-by-book interaction, which is the main reason to collect both books.
+Include paired disagreements, exact McNemar results, confidence intervals, and
+coverage after exclusions.
+
+If Gemma and a 14B model still fail to separate, the conclusion is “unresolved
+at this sample size,” not “equivalent.” Claiming practical equivalence requires
+a predefined acceptable accuracy loss and an equivalence or noninferiority
+design. Conversely, a significant result on one book does not establish a
+library-wide ranking unless its direction is stable on the other book.
+
+---
+
+## 29. §28's two prerequisites, done
+
+### Rejudge set: 15 rows, not 20
+
+§28 asked that the window-limited judge-1 rows be rejudged rather than treated
+as immutable. The set is now identified precisely rather than estimated.
+
+Of judge 1's 20 `AMBIGUOUS` answers:
+
+- **15 had their window expanded** - some substantially, from 397 to 5,939
+  characters of preceding context in one case. These are re-emitted for
+  rejudging.
+- **5 had unchanged windows.** Their abstention was about the passage, not about
+  how much of it was shown, so re-asking would waste the judge's effort and
+  invite a different answer to the same evidence.
+
+`~/Downloads/grimgar03_rejudge.json` - 15 rows, carrying the widened passages and
+a note explaining that they were previously answered `AMBIGUOUS` under a
+narrower window, and that `AMBIGUOUS` remains correct if the speaker is still
+undetermined.
+
+`gold_set_builder.py rejudge` implements this generally: it re-emits only rows
+where the judge gave a specified answer *and* the window actually changed.
+
+### Scoring policy: frozen as a draft
+
+`SCORING_POLICY.md`, also at `~/Downloads/`, answers §28's six points with a
+recommendation and reasoning for each, awaiting owner approval. In summary:
+
+| item | recommendation |
+|---|---|
+| anonymous speech | excluded from the denominator, counted separately |
+| `NARRATOR` rows | excluded from attribution, reported as a pass-1 defect |
+| aliases | declared per fixture, case-insensitive, never inferred, never `str.title()` |
+| `book`-supported answers | two-judge agreement suffices; disagreement adjudicated |
+| unsupported at cap | excluded and counted - it is the floor on human review |
+| comparison | `open` arm primary, per book before pooled, paired McNemar with Holm correction, nonsignificance means unresolved |
+
+The denominator is stated once and every report must print it alongside the
+accuracy, so a number cannot be read without knowing what it was computed over.
+
+Two of these deserve emphasis because they change what the headline number
+means:
+
+**`NARRATOR` rows are a pass-1 defect, not an attribution error.** Judge 1 found
+3 in 400 grimgar03 rows, a ~0.75% segmentation error rate. Counting those
+against attribution would measure the wrong pass and hide a real defect behind
+an accuracy figure.
+
+**`closed-oracle` is a diagnostic, not an accuracy.** It has been quoted in this
+brief as a ceiling and that is its only legitimate use. The primary arm is
+`open`, because it is what production runs.
