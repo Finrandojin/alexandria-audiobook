@@ -266,3 +266,67 @@ class InstructionsTest(unittest.TestCase):
         from gold_set_builder import INSTRUCTIONS
         self.assertIn("legitimate inference", INSTRUCTIONS)
         self.assertIn("appears nowhere in the book", INSTRUCTIONS)
+
+
+class RejudgeSelectionTest(unittest.TestCase):
+    """Only rows whose window actually changed are worth re-asking.
+
+    Re-emitting every abstention would put genuinely anonymous lines back in
+    front of the judge with identical evidence, inviting a different answer to
+    the same passage. On grimgar03 this separated 15 rejudgeable rows from 5
+    anonymous ones out of 20 abstentions.
+    """
+
+    def _rows(self, before_old, before_new):
+        old = {"x": {"id": "x", "passage_before": before_old,
+                     "passage_after": "after", "line": "L"}}
+        new = {"x": {"id": "x", "passage_before": before_new,
+                     "passage_after": "after", "line": "L"}}
+        return old, new
+
+    def test_a_changed_window_is_re_emitted(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "much wider context")
+        rows = rows_to_rejudge(old, new, {"x": {"answer": "AMBIGUOUS"}})
+        self.assertEqual(["x"], [r["id"] for r in rows])
+
+    def test_an_unchanged_window_is_excluded(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("same", "same")
+        self.assertEqual([], rows_to_rejudge(old, new,
+                                             {"x": {"answer": "AMBIGUOUS"}}))
+
+    def test_a_different_answer_is_not_re_emitted(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "wider")
+        self.assertEqual([], rows_to_rejudge(old, new, {"x": {"answer": "ROXY"}}))
+
+    def test_the_rebuilt_passage_is_returned_not_the_stale_one(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "wider")
+        self.assertEqual("wider",
+                         rows_to_rejudge(old, new,
+                                         {"x": {"answer": "AMBIGUOUS"}})[0]
+                         ["passage_before"])
+
+    def test_ids_absent_from_either_side_are_skipped(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "wider")
+        answers = {"x": {"answer": "AMBIGUOUS"}, "gone": {"answer": "AMBIGUOUS"}}
+        self.assertEqual(["x"], [r["id"] for r in
+                                 rows_to_rejudge(old, new, answers)])
+
+    def test_empty_input_returns_nothing(self):
+        from gold_set_builder import rows_to_rejudge
+        self.assertEqual([], rows_to_rejudge({}, {}, {}))
+
+    def test_a_missing_answer_field_does_not_raise(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "wider")
+        self.assertEqual([], rows_to_rejudge(old, new, {"x": {}}))
+
+    def test_the_answer_filter_is_case_insensitive(self):
+        from gold_set_builder import rows_to_rejudge
+        old, new = self._rows("narrow", "wider")
+        rows = rows_to_rejudge(old, new, {"x": {"answer": "ambiguous"}})
+        self.assertEqual(1, len(rows))

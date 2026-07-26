@@ -31,8 +31,11 @@ a heading into a `SPOKEN` entry. One gold line turned out to be a poster on a
 wall. That is a segmentation failure, and counting it against attribution
 measures the wrong pass and hides a real defect behind an accuracy number.
 
-Judge 1 found 3 in 400 grimgar03 rows - a ~0.75% pass-1 error rate worth
-tracking in its own right.
+Judge 1 found 3 in 400 sampled grimgar03 rows. That is a **sampled** pass-1
+defect rate of ~0.75% on lines eligible for judging, not the book's overall
+segmentation error rate - the sample excludes narration and repeated lines by
+construction, so it cannot speak for entries it never drew from. Worth tracking
+in its own right, and worth measuring properly if it ever drives a decision.
 
 ## 3. Alias and honorific normalisation
 
@@ -66,23 +69,31 @@ visible per fixture.
 
 ## 5. Rows still unsupported at the expansion cap
 
-**Recommendation: excluded, and counted.**
+**Recommendation: excluded from the primary denominator, and counted.**
 
-The window expands to 40 entries before and 20 after. A speaker still not
-identifiable within roughly 60 entries of their line is not attributable from
-local context by any method under test, so including such rows measures the
-corpus rather than the model.
+The window expands to 40 entries before and 20 after. A speaker whose *name*
+does not appear within roughly 60 entries cannot be scored against a name-based
+key without the judge importing knowledge the window does not contain.
 
-Counting them matters: this fraction is the floor on what any confidence-routing
-scheme must send to a human, independent of model quality.
+Stated carefully, because an earlier draft overclaimed: this does **not** mean
+such lines are unattributable by a human or a model. Pronoun chains, discourse
+structure and turn-taking can identify a speaker with no printed name anywhere
+nearby. What it means is that this fixture cannot adjudicate them fairly, so
+they are excluded from *this* measurement rather than declared impossible.
+
+For the same reason the count is not automatically the floor on human review. It
+is the floor on what *this benchmark* can score, which is a smaller claim.
 
 ## 6. Comparison arm, significance, multiplicity
 
 **Recommendation:**
 
 - **Primary arm: `open`** - full roster, free-form name. It is the configuration
-  closest to production. `closed-oracle` is a diagnostic ceiling and must not be
-  quoted as an accuracy figure.
+  closest to production. `closed-oracle` is a **conditional diagnostic** - the
+  accuracy given that the true speaker is among five supplied candidates - and
+  must never be quoted as an accuracy figure or as a ceiling. It bounds nothing
+  outside its own condition; a different prompt, representation or candidate
+  construction could move it.
 - **Per book first, pooled second, always both.** A pooled score can hide a
   model-by-book interaction, which is the main reason both books are being
   judged.

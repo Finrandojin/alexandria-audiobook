@@ -2177,7 +2177,7 @@ library-wide ranking unless its direction is stable on the other book.
 
 ---
 
-## 29. §28's two prerequisites, done
+## 29. §28's prerequisite tooling prepared, judgments still pending
 
 ### Rejudge set: 15 rows, not 20
 
@@ -2200,8 +2200,11 @@ undetermined.
 
 `gold_set_builder.py rejudge` implements this generally: it re-emits only rows
 where the judge gave a specified answer *and* the window actually changed.
+The new command should receive dedicated tests for ID preservation, changed-
+window selection, unchanged-window exclusion, and empty/malformed inputs before
+it is treated as part of the safety net.
 
-### Scoring policy: frozen as a draft
+### Scoring policy: drafted, not frozen
 
 `SCORING_POLICY.md`, also at `~/Downloads/`, answers §28's six points with a
 recommendation and reasoning for each, awaiting owner approval. In summary:
@@ -2212,7 +2215,7 @@ recommendation and reasoning for each, awaiting owner approval. In summary:
 | `NARRATOR` rows | excluded from attribution, reported as a pass-1 defect |
 | aliases | declared per fixture, case-insensitive, never inferred, never `str.title()` |
 | `book`-supported answers | two-judge agreement suffices; disagreement adjudicated |
-| unsupported at cap | excluded and counted - it is the floor on human review |
+| unsupported at cap | proposed exclusion and separate count; not automatically a floor on human review |
 | comparison | `open` arm primary, per book before pooled, paired McNemar with Holm correction, nonsignificance means unresolved |
 
 The denominator is stated once and every report must print it alongside the
@@ -2222,50 +2225,70 @@ Two of these deserve emphasis because they change what the headline number
 means:
 
 **`NARRATOR` rows are a pass-1 defect, not an attribution error.** Judge 1 found
-3 in 400 grimgar03 rows, a ~0.75% segmentation error rate. Counting those
-against attribution would measure the wrong pass and hide a real defect behind
-an accuracy figure.
+3 among 400 sampled, uniquely aligned entries that pass 1 classified as
+`SPOKEN`, or 0.75% of that sampled population. This is not yet the overall
+pass-1 segmentation-error rate. Counting those rows against attribution would
+measure the wrong pass and hide a real defect behind an accuracy figure.
 
-**`closed-oracle` is a diagnostic, not an accuracy.** It has been quoted in this
-brief as a ceiling and that is its only legitimate use. The primary arm is
-`open`, because it is what production runs.
+**`closed-oracle` is a diagnostic, not production accuracy or a ceiling.** It
+is the best measured conditional-selection result under a supplied candidate
+set. The primary arm is `open`, because it is what production runs.
+
+The heading is intentionally narrower than the earlier “prerequisites done.”
+Judge 2 is not complete, the 15 rows are not rejudged, disagreements are not
+adjudicated, and the policy says `draft, awaiting owner approval`. Those
+prerequisites remain open even though their supporting files now exist.
 
 ---
 
 ## 30. A cost check on the judging queue
 
-The queue now stands at **1,215 judgements** across four tasks, and if each is
-double-judged as the protocol requires, roughly 2,400 model-passes plus human
-adjudication of the disagreements. Before that is spent it is worth asking what
-decision it buys.
+The visible pending files currently represent:
+
+- 400 Grimgar Judge-2 rows;
+- 15 Grimgar rejudgments;
+- 400 Mushoku Judge-1 rows.
+
+That is **815 immediately prepared judgments**. A future independent Mushoku
+second pass would add another 400, bringing the full planned total to **1,215**.
+It should not then be doubled again to 2,400: the Judge-2 tasks are already part
+of that total. Human adjudication of disagreements is additional work whose
+size is not known in advance.
 
 ### What it decides
 
 The open-arm spread among the five non-9B models is **8.8 points**, and among
-the four 14B-class models **2.7 points**. So the queue resolves:
+the four 14B-class models **2.7 points**. So the queue can improve evidence for:
 
-1. whether gemma-4-e4b (7.5B, 32768 context, `parallel: 2`) is genuinely as good
-   as the 14B tier - worth up to ~8.8 points and a real throughput difference;
+1. whether gemma-4-e4b (7.5B, 32768 context, `parallel: 2`) is detectably worse
+   or better than the 14B tier on these books - a possible ~8.8-point spread
+   and a real throughput difference; practical equivalence would require a
+   predefined margin and an equivalence/noninferiority design;
 2. whether the ranking is stable across narrative structure, which no amount of
    extra lines on one book can answer.
 
 Question 2 is the one that justifies the second book. Question 1 alone would not.
 
-### What it does not decide
+### What it does and does not change
 
-Nothing about the ceiling. **~48% realistic, ~66% oracle** are unchanged by any
-amount of judging. This queue sharpens the instrument; the instrument has
-already told us the system is not close to unattended operation.
+Judging does not improve the pipeline, but it can change the measured estimates.
+The existing **~48% open and ~66% oracle** figures are results on the current
+mushoku16 fixture, not immutable values, and 66% is not a ceiling. A larger or
+different-book fixture may move either number while leaving the underlying
+system unchanged.
 
 ### A cheaper alternative worth considering first
 
 If the only live question is "which model ships", there is a shorter path than
-1,215 judged lines: **run two candidate models end to end on one book and listen
-to the output.** A 24-point per-book accuracy difference is audible; a 3-point
-difference between two 14Bs probably is not, which is itself the answer.
+1,215 judged lines: **run two candidate models end to end on one book and
+perform a blinded listening comparison** with identical segmentation, voices,
+TTS settings, and review order.
 
-That costs a few hours of GPU and no judging at all. It answers "is this
-difference worth caring about" before spending effort resolving it precisely.
+That costs a few hours of GPU and no line-by-line gold judgment. It answers
+whether users perceive a product-quality difference, not which attribution
+model is objectively more accurate. The previously observed 24-point
+between-book gap does not establish that a 2.7-8.8-point between-model
+difference will be audible.
 
 The full queue is justified if the goal is a durable benchmark that outlives this
 model generation - which is a legitimate goal, and the tooling now exists to make
@@ -2283,15 +2306,128 @@ Worth stating plainly, since the ratio is unusual.
 
 The day produced substantial measurement infrastructure - a contract-validated
 artifact format, a gold-set builder with adaptive windows, a reusable VRAM
-profiler, six harnesses, a frozen scoring policy - and **one accuracy
-improvement**, which was changing the model.
+profiler, six harnesses, and a draft scoring policy - and **one statistically
+supported accuracy improvement**, which was changing the model.
 
-That is not obviously a bad trade. The infrastructure eliminated eight candidate
-directions at a cost of roughly an hour each, and several of them - scene-cast
-architecture, candidate-ID output, confidence routing - would have taken days to
-build and would have looked reasonable in review. Cheap elimination of plausible
-wrong answers is worth more than it feels like at the time.
+That is not obviously a bad trade. The infrastructure rejected several tested
+directions, and some - scene-cast candidates and candidate-ID output - would
+have looked reasonable in review. Cross-model agreement was also rejected as
+the tested confidence-routing signal; confidence routing as a whole was not.
+The claimed “roughly an hour each” and counterfactual days of implementation
+were not measured and should not be treated as evidence.
 
 But it is worth naming the risk: measurement can become the work. The queue above
 is the point where that becomes a live question, which is why it is flagged here
 rather than simply executed.
+
+---
+
+## 31. Reviewer decision gate on the judging queue
+
+The cost check is useful, but the next step is smaller than the entire proposed
+cross-book program.
+
+### Finish one book before committing to two
+
+Complete:
+
+1. the 400-row independent Grimgar Judge-2 pass;
+2. the 15-row expanded-window rejudgment;
+3. `agree` plus human adjudication of disagreements;
+4. owner approval of the scoring policy;
+5. a frozen Grimgar fixture with declared aliases, exclusions, denominator, and
+   hash.
+
+This validates the revised two-judge workflow and reveals the actual
+disagreement/adjudication rate before estimating the cost of doing it again on
+mushoku16.
+
+### Amend the scoring-policy draft before approval
+
+The committed draft should be revised in three places:
+
+- call `3/400` the sampled pass-1 defect rate, not the overall segmentation
+  rate;
+- do not describe rows reaching the expansion cap as necessarily
+  human-unattributable or as the automatic floor for review, because pronoun and
+  discourse inference can work without a nearby printed name;
+- describe `closed-oracle` as a conditional diagnostic result, never a ceiling.
+
+The `rejudge` command also needs focused tests before its output is relied on:
+changed-window selection, unchanged-window exclusion, ID preservation, and
+malformed/empty input behavior.
+
+### Decide what question is worth buying
+
+After Grimgar is complete:
+
+- choose the full Mushoku two-judge benchmark if the goal is a durable,
+  cross-book instrument;
+- choose a blinded end-to-end listening comparison if the immediate question is
+  perceived product quality;
+- do both only if both decisions matter.
+
+Listening and gold scoring answer different questions. A listening preference
+cannot substitute for paired attribution accuracy, and a statistically
+significant attribution difference does not by itself establish an audible
+product improvement.
+
+---
+
+## 32. §31's amendments, applied
+
+All three policy corrections are in `SCORING_POLICY.md`, and the `rejudge`
+command now has the tests §31 required. The sequencing recommendation is
+accepted without qualification: finish grimgar03 before committing to mushoku16.
+
+### The three amendments
+
+**`3/400` is a sampled rate, not the book's.** The policy now says so
+explicitly, and says why: the sample excludes narration and repeated lines by
+construction, so it cannot speak for entries it never drew from.
+
+**Cap-reached rows are not declared unattributable.** The earlier draft
+overclaimed. Pronoun chains, discourse structure and turn-taking can identify a
+speaker with no printed name nearby - what the cap means is that *this
+name-based fixture* cannot adjudicate such rows fairly, so they are excluded
+from this measurement rather than declared impossible. For the same reason their
+count is not the floor on human review; it is the floor on what this benchmark
+can score, which is a smaller claim.
+
+**`closed-oracle` is a conditional diagnostic, never a ceiling.** This is the
+third time that correction has been needed in this document, which is enough to
+treat it as a habit rather than a slip. The policy now states the condition in
+the definition - *accuracy given that the true speaker is among five supplied
+candidates* - so the number cannot be quoted without it.
+
+### `rejudge` tests
+
+Eight, covering exactly the cases §31 named plus two it implied: changed-window
+selection, unchanged-window exclusion, answer-filter matching, ids missing from
+either side, empty input, a missing `answer` field, case-insensitive filtering,
+and that the **rebuilt** passage is returned rather than the stale one. The
+selection rule is now a testable function rather than a comprehension inside the
+CLI. 1,032 tests.
+
+### On the listening-versus-scoring distinction
+
+§31's closing point is the sharpest thing in it and corrects something §30 got
+wrong:
+
+> *A listening preference cannot substitute for paired attribution accuracy, and
+> a statistically significant attribution difference does not by itself
+> establish an audible product improvement.*
+
+§30 offered listening as a **cheaper substitute** for judging. It is not a
+substitute; it answers a different question. Attribution accuracy asks whether
+the pipeline identifies speakers correctly. Listening asks whether the output is
+good enough to enjoy. A model could win on one and lose on the other, and the
+project needs both answers eventually.
+
+The revised position: **listening is the faster route to the product decision,
+and gold scoring is the only route to the engineering one.** They are not
+alternatives, and §30's framing of them as such was wrong.
+
+That matters because the product decision - human-assisted, fixed principal
+cast, or wait for hardware - is the one actually blocking, and it is a listening
+question. The model ranking is an engineering question that can wait.

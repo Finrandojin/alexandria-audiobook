@@ -247,6 +247,25 @@ def merge(answers, batches, book, source_run, judged_by, aliases=None):
             "entries": entries, "aliases": aliases or []}
 
 
+def rows_to_rejudge(old, new, answers, answer="AMBIGUOUS"):
+    """Rows the judge gave ``answer`` to *and* whose window actually changed.
+
+    An unchanged window means the abstention was about the passage rather than
+    about how much of it was shown, so re-asking only invites a different answer
+    to identical evidence. On grimgar03 this separated 15 rejudgeable rows from
+    5 genuinely anonymous ones out of 20 abstentions.
+
+    Rows are returned in the new batches' form, so ids and passages come from
+    the rebuilt input rather than the stale one.
+    """
+    target = (answer or "").upper()
+    return [new[gold_id] for gold_id, value in sorted(answers.items())
+            if (value.get("answer") or "").upper() == target
+            and gold_id in new and gold_id in old
+            and (old[gold_id]["passage_before"], old[gold_id]["passage_after"])
+            != (new[gold_id]["passage_before"], new[gold_id]["passage_after"])]
+
+
 def agreement(first, second, aliases=()):
     """(agreed, disagreements) between two judges over the ids they share."""
     groups = [{name.upper() for name in group} for group in aliases]
@@ -353,14 +372,7 @@ def main(argv=None):
         new = {r["id"]: r for p in args.new
                for r in json.load(open(p, encoding="utf-8"))["rows"]}
         answers = read_filled(args.filled)
-        # Only rows where the judge abstained AND the window actually changed.
-        # An unchanged window means the abstention was about the passage, not
-        # about how much of it was shown, so re-asking would waste the judge.
-        rows = [new[i] for i, value in sorted(answers.items())
-                if value["answer"].upper() == args.answer.upper()
-                and i in new and i in old
-                and (old[i]["passage_before"], old[i]["passage_after"])
-                != (new[i]["passage_before"], new[i]["passage_after"])]
+        rows = rows_to_rejudge(old, new, answers, args.answer)
         payload = {"book": args.book, "batch": "rejudge 1 of 1",
                    "instructions": INSTRUCTIONS + (
                        "\n\nThese rows were previously answered "
