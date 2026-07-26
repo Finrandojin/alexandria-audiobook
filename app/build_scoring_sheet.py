@@ -16,6 +16,8 @@ import json
 import os
 import random
 
+from attribution_accuracy import normalize_speaker
+
 from compare_attribution_arms import normalize
 
 
@@ -75,13 +77,22 @@ def build_sheet(runs, size=50, seed=7, window=3):
     models = sorted(runs)
     indexed, positions = {}, {}
     for model in models:
-        by_text, by_position = {}, {}
+        by_text, by_position, seen_twice = {}, {}, set()
         for position, entry in enumerate(runs[model]):
             key = normalize(entry.get("text"))
-            # First occurrence wins; duplicate lines are ambiguous to align.
-            if key not in by_text:
-                by_text[key] = entry
-                by_position[key] = position
+            if key in by_text:
+                # Keeping the first occurrence silently compares unrelated
+                # instances of a repeated line - "Sorry." and "Cough..." recur
+                # constantly - and shows the wrong surrounding context for the
+                # one being judged. An ambiguous key is dropped instead: a
+                # smaller sheet of sound rows beats a larger one of shaky rows.
+                seen_twice.add(key)
+                continue
+            by_text[key] = entry
+            by_position[key] = position
+        for key in seen_twice:
+            by_text.pop(key, None)
+            by_position.pop(key, None)
         indexed[model] = by_text
         positions[model] = by_position
 
@@ -110,7 +121,10 @@ def build_sheet(runs, size=50, seed=7, window=3):
             "context_before": before,
             "context_after": after,
             "answers": answers,
-            "models_agree": len(set(answers.values())) == 1,
+            # Normalized, so "RUDI" and "rudi " are not a disagreement. The
+            # raw values stay in "answers" for display.
+            "models_agree": len({normalize_speaker(v)
+                                 for v in answers.values()}) == 1,
             "correct_speaker": "",          # <- you fill this in
         })
     return rows

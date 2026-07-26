@@ -8,7 +8,8 @@ import argparse
 import difflib
 import json
 import random
-import re
+
+from attribution_accuracy import normalize_speaker
 
 
 def normalize(text):
@@ -24,8 +25,10 @@ def align_arms(arm_a, arm_b):
     on text lets the comparison skip over the entries one arm split differently
     instead of silently comparing misaligned lines - or refusing to run at all.
 
-    coverage is the share of arm_a's entries that found a partner, so a caller
-    can tell "the arms agree" apart from "the arms barely aligned".
+    coverage is the share of the LARGER arm's entries that found a partner. It
+    used to divide by arm_a alone, so ten entries all matching against a
+    thousand reported 100% coverage while 99% of arm_b went uncompared - and
+    the number flipped depending on argument order.
     """
     # Keep the original positions: the index is what a human uses to find the
     # entry in the checkpoint when scoring the sample.
@@ -41,16 +44,24 @@ def align_arms(arm_a, arm_b):
             position = a_start + offset
             pairs.append((left_indexed[position][0], left[position],
                           right[b_start + offset]))
-    coverage = len(pairs) / max(len(left), 1)
+    coverage = len(pairs) / max(len(left), len(right), 1)
     return pairs, coverage
 
 
-def find_disagreements(arm_a, arm_b):
-    """Return entries where two arms assigned different speakers."""
-    pairs, _coverage = align_arms(arm_a, arm_b)
+def find_disagreements(arm_a, arm_b, pairs=None):
+    """Return entries where two arms assigned different speakers.
+
+    Accepts already-computed pairs so a caller that has aligned the arms does
+    not pay for the SequenceMatcher pass twice.
+    """
+    if pairs is None:
+        pairs, _coverage = align_arms(arm_a, arm_b)
     rows = []
     for index, left, right in pairs:
-        if left.get("speaker") != right.get("speaker"):
+        # Normalized, so case and stray whitespace are not a disagreement;
+        # the raw values are still reported for display.
+        if normalize_speaker(left.get("speaker")) != normalize_speaker(
+                right.get("speaker")):
             rows.append({"index": index, "arm_a": left.get("speaker"),
                          "arm_b": right.get("speaker"),
                          "text": left.get("text", "")[:300]})
