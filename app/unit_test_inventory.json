@@ -913,6 +913,9 @@
     "test_tts_benchmark.TTSBenchmarkTests.test_vram_sweep_uses_peak_across_all_sub_batches"
   ],
   "test_unattested_speakers": [
+    "test_unattested_speakers.HonorificSuffixTest.test_a_hyphenated_honorific_name_is_attested",
+    "test_unattested_speakers.HonorificSuffixTest.test_a_lowercase_phrase_is_not_a_name_however_it_is_hyphenated",
+    "test_unattested_speakers.HonorificSuffixTest.test_a_misspelling_of_a_real_name_is_still_rejected",
     "test_unattested_speakers.RejectUnattestedSpeakerTest.test_common_word_is_rejected",
     "test_unattested_speakers.RejectUnattestedSpeakerTest.test_invented_speaker_is_rejected",
     "test_unattested_speakers.RejectUnattestedSpeakerTest.test_real_character_passes",

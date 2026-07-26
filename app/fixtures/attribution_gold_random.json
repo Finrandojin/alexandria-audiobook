@@ -1,0 +1,1331 @@
+{
+ "description": "Hand-judged attribution answers on RANDOMLY SAMPLED lines - unlike attribution_gold.json, which holds hard lines chosen because two decoders disagreed. Random sampling makes this an unbiased estimate of real accuracy, so the absolute number is meaningful here.\n\nConcordance: 63 of these lines were judged independently by two readers (Gemini and Claude) who agreed on 59 - 94%. All four disagreements were lines whose true answer is not a character at all (an unnamed one-eyed man, a poster the segmenter mistook for speech, a wordless scream, and one genuinely ambiguous line between two sisters). No disagreement was about WHICH character spoke. The pipeline scored identically against either reader, so the set measures the pipeline rather than the judge.",
+ "book": "mushoku16",
+ "source_run": "ab_test_runtime/results/matrix_20260725-115148",
+ "sampling": "random over SPOKEN entries",
+ "entries": [
+  {
+   "id": "mushoku16-00034",
+   "book": "mushoku16",
+   "entry_index": 34,
+   "line": "It's fine.",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00035",
+   "book": "mushoku16",
+   "entry_index": 35,
+   "line": "In the future when things get tough, I might not depend on you, or do or say bad things.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00038",
+   "book": "mushoku16",
+   "entry_index": 38,
+   "line": "Umm... If that happens, I might get a little irritated at you, treat you coldly, and fight with you... But we can make up, right?",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00039",
+   "book": "mushoku16",
+   "entry_index": 39,
+   "line": "Yeah. Of course we can. Mn, we can make up...",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00043",
+   "book": "mushoku16",
+   "entry_index": 43,
+   "line": "Well I don't lose anything, so it's fine but... Wah-",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00047",
+   "book": "mushoku16",
+   "entry_index": 47,
+   "line": "Don't we always talk...? Or is there something in particular that you'd like to talk about?",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00049",
+   "book": "mushoku16",
+   "entry_index": 49,
+   "line": "Hahh... Well, it's fine with me, but doing 'that' today is no good, you know?",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00061",
+   "book": "mushoku16",
+   "entry_index": 61,
+   "line": "No, no. Nothing at all. I was just thinking 'I'm really so happy that Roxy is alive' again.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00064",
+   "book": "mushoku16",
+   "entry_index": 64,
+   "line": "Roxy. Lately, have there been any weird changes to your body?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00066",
+   "book": "mushoku16",
+   "entry_index": 66,
+   "line": "Ehh? I'm fine, you know. Why did you ask something like that?",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00068",
+   "book": "mushoku16",
+   "entry_index": 68,
+   "line": "If you think about the lifespans of races, I'll live longer than you after all. I should be the one asking you to live longer, Rudi.",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00236",
+   "book": "mushoku16",
+   "entry_index": 236,
+   "line": "Sylphy has noticed too... Rudi when troubled rarely likes to talk about it... Let's just try to help him when the time comes.",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00238",
+   "book": "mushoku16",
+   "entry_index": 238,
+   "line": "Ah, Roxy-san, Sylphy-san, can you come to my room after dinner?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00271",
+   "book": "mushoku16",
+   "entry_index": 271,
+   "line": "Recently, em... Luci, how is she?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00282",
+   "book": "mushoku16",
+   "entry_index": 282,
+   "line": "That's actually what I asked you to come for today. That was it.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00284",
+   "book": "mushoku16",
+   "entry_index": 284,
+   "line": "Em.. Next, I don't know how I say this but... a few days ago, I met someone.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00286",
+   "book": "mushoku16",
+   "entry_index": 286,
+   "line": "Yes, a miko that can predict the future... someone like that.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00295",
+   "book": "mushoku16",
+   "entry_index": 295,
+   "line": "I understand.",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00299",
+   "book": "mushoku16",
+   "entry_index": 299,
+   "line": "Roxy won't mind?",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00308",
+   "book": "mushoku16",
+   "entry_index": 308,
+   "line": "... You're right. Em, I understand.",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00312",
+   "book": "mushoku16",
+   "entry_index": 312,
+   "line": "Then, when I have it bad, please come to my aid.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00326",
+   "book": "mushoku16",
+   "entry_index": 326,
+   "line": "Who? Nanahoshi?",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00329",
+   "book": "mushoku16",
+   "entry_index": 329,
+   "line": "She's not Nanahoshi.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00334",
+   "book": "mushoku16",
+   "entry_index": 334,
+   "line": "I remember her. Rudi was her home tutor at Fortress City Roa back then, right?",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00343",
+   "book": "mushoku16",
+   "entry_index": 343,
+   "line": "No, leaving is my misunderstanding. Lingering feelings and such, I don't think her heart has changed.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00352",
+   "book": "mushoku16",
+   "entry_index": 352,
+   "line": "If Sylphy objects to marrying her, then let's just stop here. But ultimately I still want to clear the air with her.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00370",
+   "book": "mushoku16",
+   "entry_index": 370,
+   "line": "Forgetting Roxy is impossible.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00394",
+   "book": "mushoku16",
+   "entry_index": 394,
+   "line": "Yes, it's all your fault. Not thinking about what you're doing is your fault.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00412",
+   "book": "mushoku16",
+   "entry_index": 412,
+   "line": "I thought so too... until you showed up!",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00438",
+   "book": "mushoku16",
+   "entry_index": 438,
+   "line": "Useless. That alone won't change fate.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00442",
+   "book": "mushoku16",
+   "entry_index": 442,
+   "line": "No, I'm not even sure if it's possible. But it might... You say you would do anything right?",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00450",
+   "book": "mushoku16",
+   "entry_index": 450,
+   "line": "Cough... Cough...",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00479",
+   "book": "mushoku16",
+   "entry_index": 479,
+   "line": "Nanahoshi, I've brought some get well presents.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00486",
+   "book": "mushoku16",
+   "entry_index": 486,
+   "line": "First I need you to listen, it might sound unbelievable at first though.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00487",
+   "book": "mushoku16",
+   "entry_index": 487,
+   "line": "I understand.",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00494",
+   "book": "mushoku16",
+   "entry_index": 494,
+   "line": "The diary was written in Japanese, and my true name from my previous life.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00505",
+   "book": "mushoku16",
+   "entry_index": 505,
+   "line": "Then you are saying he fabricated the diary, and our entire conversation in my dream was nothing more than an act?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00506",
+   "book": "mushoku16",
+   "entry_index": 506,
+   "line": "I won’t say that but… is the Human God trustworthy?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00509",
+   "book": "mushoku16",
+   "entry_index": 509,
+   "line": "But… there’s nothing I can do about it…",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00511",
+   "book": "mushoku16",
+   "entry_index": 511,
+   "line": "To be honest, about the Human God, I also heard about him from Orsted by chance.",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00524",
+   "book": "mushoku16",
+   "entry_index": 524,
+   "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00539",
+   "book": "mushoku16",
+   "entry_index": 539,
+   "line": "I’m relying on you.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00546",
+   "book": "mushoku16",
+   "entry_index": 546,
+   "line": "Where are you going this late at night?",
+   "expected_speaker": "ALMANFI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00551",
+   "book": "mushoku16",
+   "entry_index": 551,
+   "line": "To Nanahoshi’s room. Has she already gone to sleep?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00552",
+   "book": "mushoku16",
+   "entry_index": 552,
+   "line": "She just asked me for some pen and paper. She’s still awake.",
+   "expected_speaker": "ALMANFI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00558",
+   "book": "mushoku16",
+   "entry_index": 558,
+   "line": "It’s Rudeus.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00575",
+   "book": "mushoku16",
+   "entry_index": 575,
+   "line": "What’s the possibility of them dying as soon as they were transferred here?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00605",
+   "book": "mushoku16",
+   "entry_index": 605,
+   "line": "If the time he traveled was a hundred years, would it just end with his internal organs?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00614",
+   "book": "mushoku16",
+   "entry_index": 614,
+   "line": "You, after that incident, did you feel nothing wrong with your body? Like your magical power suddenly being drained very low for example?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00620",
+   "book": "mushoku16",
+   "entry_index": 620,
+   "line": "…. Is that your guess?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00633",
+   "book": "mushoku16",
+   "entry_index": 633,
+   "line": "That’s a clue, right? Do you still remember when it first appeared?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00641",
+   "book": "mushoku16",
+   "entry_index": 641,
+   "line": "Originally, you’re not someone who should have existed in this world, right?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00643",
+   "book": "mushoku16",
+   "entry_index": 643,
+   "line": "What do you think is the reason you transferred to this world?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00651",
+   "book": "mushoku16",
+   "entry_index": 651,
+   "line": "I don’t understand. In the end, what are you trying to tell me?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00652",
+   "book": "mushoku16",
+   "entry_index": 652,
+   "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00662",
+   "book": "mushoku16",
+   "entry_index": 662,
+   "line": "I understand your hypothesis.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00674",
+   "book": "mushoku16",
+   "entry_index": 674,
+   "line": "Please stop. The Human God is probably watching our movements at this very moment.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00678",
+   "book": "mushoku16",
+   "entry_index": 678,
+   "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00685",
+   "book": "mushoku16",
+   "entry_index": 685,
+   "line": "Orsted is the Dragon God. If the diary can be believed, then he probably knows a technique to go to the void world. If I kill him, if the method to travel to the void world disappears, then in reality, the Human God should lose his reason to target my children.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00701",
+   "book": "mushoku16",
+   "entry_index": 701,
+   "line": "….. Yes. That’s right.",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00721",
+   "book": "mushoku16",
+   "entry_index": 721,
+   "line": "It went well",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00734",
+   "book": "mushoku16",
+   "entry_index": 734,
+   "line": "Why are you looking at me with such pitiful eyes. Even I have already with Jino... No, never mind that.",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00760",
+   "book": "mushoku16",
+   "entry_index": 760,
+   "line": "Come to think of it, I have heard a few rumors about your boyfriend.",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00778",
+   "book": "mushoku16",
+   "entry_index": 778,
+   "line": "Somehow, it kind of feels like he's so strong that he's allowed to do whatever he likes?",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00780",
+   "book": "mushoku16",
+   "entry_index": 780,
+   "line": "Hey, Eris, just saying this as example, but could it be that...",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00792",
+   "book": "mushoku16",
+   "entry_index": 792,
+   "line": "I've made you wait.",
+   "expected_speaker": "GHYSLAINE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00804",
+   "book": "mushoku16",
+   "entry_index": 804,
+   "line": "No, a swordsman should fight fair and square from the front.",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00805",
+   "book": "mushoku16",
+   "entry_index": 805,
+   "line": "Such an honest and good child. Well, in the not so distant future, you should be able to win. Give it your best.",
+   "expected_speaker": "REIDA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00818",
+   "book": "mushoku16",
+   "entry_index": 818,
+   "line": "Eris, it's about time we head off.",
+   "expected_speaker": "GHYSLAINE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00823",
+   "book": "mushoku16",
+   "entry_index": 823,
+   "line": "Hello. Mailman here, could someone please sign here?",
+   "expected_speaker": "MAILMAN",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00831",
+   "book": "mushoku16",
+   "entry_index": 831,
+   "line": "Just a minute, please sign. If I don't have that, I can't get the compensation.",
+   "expected_speaker": "MAILMAN",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00849",
+   "book": "mushoku16",
+   "entry_index": 849,
+   "line": "What! If you can't read words when you need to, then you'll be in trouble!",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00877",
+   "book": "mushoku16",
+   "entry_index": 877,
+   "line": "Currently, I have two wives.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00882",
+   "book": "mushoku16",
+   "entry_index": 882,
+   "line": "I have made arrangements to accept you.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00884",
+   "book": "mushoku16",
+   "entry_index": 884,
+   "line": "In the case that you feel unhappy about this, I have already resolved to receive your fist.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00887",
+   "book": "mushoku16",
+   "entry_index": 887,
+   "line": "I feel even if you do not wish to become a member of my family, we could form a fine friendship.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00895",
+   "book": "mushoku16",
+   "entry_index": 895,
+   "line": "Is that right? I think he put a considerable amount of thought into writing it.",
+   "expected_speaker": "NINA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00915",
+   "book": "mushoku16",
+   "entry_index": 915,
+   "line": "Zanoba's Arm",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00923",
+   "book": "mushoku16",
+   "entry_index": 923,
+   "line": "Wow, it has progressed better than I expected.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00927",
+   "book": "mushoku16",
+   "entry_index": 927,
+   "line": "Even I can't tell the outcome, how exciting!",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00937",
+   "book": "mushoku16",
+   "entry_index": 937,
+   "line": "OF course, I'm Hitogami! Since I know about Fighting God's armor, I can give you some pointers.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00947",
+   "book": "mushoku16",
+   "entry_index": 947,
+   "line": "Since you have been a harder worker than I expect, I ought to offer a hand as well. My desire to see Orsted dead is true.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00963",
+   "book": "mushoku16",
+   "entry_index": 963,
+   "line": "Yep, just as you said. But if Roxy and you don't leave a child, I won't have to lie in the first place.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00979",
+   "book": "mushoku16",
+   "entry_index": 979,
+   "line": "Well, then, do your best.",
+   "expected_speaker": "HITOGAMI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": ""
+  },
+  {
+   "id": "mushoku16-00997",
+   "book": "mushoku16",
+   "entry_index": 997,
+   "line": "Don't worry.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus ('I') reassures Roxy after she asks him not to carry everything alone."
+  },
+  {
+   "id": "mushoku16-01009",
+   "book": "mushoku16",
+   "entry_index": 1009,
+   "line": "Sorry... but would you please reconsider? About killing Orsted...",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Nanahoshi asks Rudeus to reconsider fighting Orsted due to his overwhelming strength."
+  },
+  {
+   "id": "mushoku16-01011",
+   "book": "mushoku16",
+   "entry_index": 1011,
+   "line": "Ah, sorry, I understand.",
+   "expected_speaker": "NANAHOSHI",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Nanahoshi apologizes and drops her objection after Rudeus cuts her off with 'I already...'"
+  },
+  {
+   "id": "mushoku16-01018",
+   "book": "mushoku16",
+   "entry_index": 1018,
+   "line": "Thought of anything?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus prompts Nanahoshi after she exclaims 'Let me think... Ah!'"
+  },
+  {
+   "id": "mushoku16-01039",
+   "book": "mushoku16",
+   "entry_index": 1039,
+   "line": "Welcome, Rudeus-san, nice to meet you.",
+   "expected_speaker": "ONE-EYED MAN",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "The passage introduces 'an one-eyed man in charge' who greets Rudeus in the underground shop."
+  },
+  {
+   "id": "mushoku16-01051",
+   "book": "mushoku16",
+   "entry_index": 1051,
+   "line": "My wife is playful in bed.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus covers his true motives for buying aphrodisiacs by joking about Sylphy."
+  },
+  {
+   "id": "mushoku16-01116",
+   "book": "mushoku16",
+   "entry_index": 1116,
+   "line": "Alright, I'll suit up. Sylphy, Zanoba, and Elinalise, you three come at once. Cliff, please activate your Identification Eye. If you notice something, I'm counting on you.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus gives directions to his companions prior to testing the Magic Armor."
+  },
+  {
+   "id": "mushoku16-01129",
+   "book": "mushoku16",
+   "entry_index": 1129,
+   "line": "Whose... Unless, don't tell me, Rudeus?",
+   "expected_speaker": "CLIFF",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Cliff panics and suspiciously questions Elinalise about who fathered her baby."
+  },
+  {
+   "id": "mushoku16-01137",
+   "book": "mushoku16",
+   "entry_index": 1137,
+   "line": "Alright alright.",
+   "expected_speaker": "ELINALISE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Elinalise indulges Cliff's request as he inspects her with his Identification Eye."
+  },
+  {
+   "id": "mushoku16-01143",
+   "book": "mushoku16",
+   "entry_index": 1143,
+   "line": "W-What? What do we do?",
+   "expected_speaker": "CLIFF",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Cliff panics after confirming Elinalise's pregnancy with his Identification Eye."
+  },
+  {
+   "id": "mushoku16-01144",
+   "book": "mushoku16",
+   "entry_index": 1144,
+   "line": "Don't do anything.",
+   "expected_speaker": "ELINALISE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Elinalise tells Cliff not to panic about her pregnancy."
+  },
+  {
+   "id": "mushoku16-01175",
+   "book": "mushoku16",
+   "entry_index": 1175,
+   "line": "Rudi is my husband now, and I also want Rudi's child, so I think saying",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Roxy tells Rudeus what kind of praise she expects from him regarding her pregnancy."
+  },
+  {
+   "id": "mushoku16-01180",
+   "book": "mushoku16",
+   "entry_index": 1180,
+   "line": "Isn't that a bit bossy?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus jokingly reacts to Roxy instructing him to say 'good job'."
+  },
+  {
+   "id": "mushoku16-01185",
+   "book": "mushoku16",
+   "entry_index": 1185,
+   "line": "Nii-san, please don't flirt so much during dinner.",
+   "expected_speaker": "NORN",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "The passage after explicitly states: 'Norn knocks on the table, her face flushing red.'"
+  },
+  {
+   "id": "mushoku16-01187",
+   "book": "mushoku16",
+   "entry_index": 1187,
+   "line": "Once in a while is fine. For Roxy-ane it's service, today only.",
+   "expected_speaker": "AISHA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "The passage after explicitly states: 'The follow up came from Aisha.'"
+  },
+  {
+   "id": "mushoku16-01204",
+   "book": "mushoku16",
+   "entry_index": 1204,
+   "line": "Also... Aisha, didn't you say you have a good harvest of your rice crop recently? And how nii-san is going to be?",
+   "expected_speaker": "NORN",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Norn retaliates against Aisha by bringing up Aisha's secret rice harvest."
+  },
+  {
+   "id": "mushoku16-01212",
+   "book": "mushoku16",
+   "entry_index": 1212,
+   "line": "No, that's fine. So next year, and next year too?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus eagerly asks Aisha if this means they can keep growing rice into the future."
+  },
+  {
+   "id": "mushoku16-01213",
+   "book": "mushoku16",
+   "entry_index": 1213,
+   "line": "O-Onii-chan made soil with magic for me... Onii-chan's soil is the best!",
+   "expected_speaker": "AISHA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Aisha praises Rudeus's earth magic soil for helping her grow rice."
+  },
+  {
+   "id": "mushoku16-01216",
+   "book": "mushoku16",
+   "entry_index": 1216,
+   "line": "O-oh... Hey, can I, jump?",
+   "expected_speaker": "AISHA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Aisha asks Rudeus if she can jump into his open arms."
+  },
+  {
+   "id": "mushoku16-01270",
+   "book": "mushoku16",
+   "entry_index": 1270,
+   "line": "Hey, Sylphy.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus ('I') pulls Sylphy close and whispers her name into her ear."
+  },
+  {
+   "id": "mushoku16-01272",
+   "book": "mushoku16",
+   "entry_index": 1272,
+   "line": "I hope you won't get angry for what I'm about to say.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus prefaces his naughty proposition to Sylphy."
+  },
+  {
+   "id": "mushoku16-01288",
+   "book": "mushoku16",
+   "entry_index": 1288,
+   "line": "But, the baby in here... that's fine, okay.",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Roxy accepts Rudeus's invitation to sleep together while noting her pregnancy."
+  },
+  {
+   "id": "mushoku16-01293",
+   "book": "mushoku16",
+   "entry_index": 1293,
+   "line": "Anyways, please sit down.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus stops Roxy from undressing and asks her to sit down to talk."
+  },
+  {
+   "id": "mushoku16-01317",
+   "book": "mushoku16",
+   "entry_index": 1317,
+   "line": "No. I'm not leaving. I just thought it might be better if I open the door again.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus clarifies to Sylphy that he isn't walking away after accidentally catching her posing."
+  },
+  {
+   "id": "mushoku16-01341",
+   "book": "mushoku16",
+   "entry_index": 1341,
+   "line": "... Stop. Really, we're talking about serious stuff right now.",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Sylphy stops Rudeus from groping her while discussing his upcoming fight."
+  },
+  {
+   "id": "mushoku16-01346",
+   "book": "mushoku16",
+   "entry_index": 1346,
+   "line": "... Soon, she will start talking, and in a year, she'll start to walk.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus reflects fondly on how his daughter Lucy will grow up."
+  },
+  {
+   "id": "mushoku16-01369",
+   "book": "mushoku16",
+   "entry_index": 1369,
+   "line": "...What is this place?",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted ('he') mutters to himself as he explores Rudeus's trap tower."
+  },
+  {
+   "id": "mushoku16-01373",
+   "book": "mushoku16",
+   "entry_index": 1373,
+   "line": "Please take off your footwear here",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus wrote the text appearing on the uncanny posters in his trap tower."
+  },
+  {
+   "id": "mushoku16-01409",
+   "book": "mushoku16",
+   "entry_index": 1409,
+   "line": "Disturb Magic!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted casts Disturb Magic to disrupt Rudeus's Quagmire spell."
+  },
+  {
+   "id": "mushoku16-01470",
+   "book": "mushoku16",
+   "entry_index": 1470,
+   "line": "Fuguuuuaaa!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted cries out when Rudeus desperately bites into his leg."
+  },
+  {
+   "id": "mushoku16-01480",
+   "book": "mushoku16",
+   "entry_index": 1480,
+   "line": "Looks like I kept you waiting, Rudeus.",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris dramatically arrives to protect Rudeus from Orsted."
+  },
+  {
+   "id": "mushoku16-01535",
+   "book": "mushoku16",
+   "entry_index": 1535,
+   "line": "We wanted to but he told us not to follow since we would just be a burden.",
+   "expected_speaker": "SYLPHY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "The passage before explicitly states: 'Towards the adamant Eris, Sylphy replied while crying...'"
+  },
+  {
+   "id": "mushoku16-01550",
+   "book": "mushoku16",
+   "entry_index": 1550,
+   "line": "Which do you want?",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Sword God Garu Farion lines up three swords and asks Eris which one she wants."
+  },
+  {
+   "id": "mushoku16-01563",
+   "book": "mushoku16",
+   "entry_index": 1563,
+   "line": "It didn’t fit me, but you can probably master it.",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Garu Farion explains to Eris that the Phoenix Elegant Dragon Sword did not suit him but should suit her."
+  },
+  {
+   "id": "mushoku16-01565",
+   "book": "mushoku16",
+   "entry_index": 1565,
+   "line": "Now then, to the main problem. First, your tactic against Orsted...",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Garu Farion shifts the conversation to instructing Eris on tactics against Orsted."
+  },
+  {
+   "id": "mushoku16-01578",
+   "book": "mushoku16",
+   "entry_index": 1578,
+   "line": "... That's surprising. Eris Boreas Greyrat will fight together with her companions. Is this also a part of your madness? Certainly, if Eris Boreas Greyrat held a little more judgement, if she were to study under a suitable master, I see... So this is what happens?",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted expresses surprise at Eris's willingness to fight alongside companions rather than rushing in blindly."
+  },
+  {
+   "id": "mushoku16-01585",
+   "book": "mushoku16",
+   "entry_index": 1585,
+   "line": "He won't be faster than you using his wrists, aim at it and chop it off",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris is recalling Garu Farion's coaching on how to counter Orsted's barehanded Sword of Light."
+  },
+  {
+   "id": "mushoku16-01591",
+   "book": "mushoku16",
+   "entry_index": 1591,
+   "line": "Sword God style hidden technique; 'Light Reversal'",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris invokes Light Reversal to counter Orsted's Sword of Light technique."
+  },
+  {
+   "id": "mushoku16-01609",
+   "book": "mushoku16",
+   "entry_index": 1609,
+   "line": "That person, for some reason won't fight seriously.",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris remembers Garu Farion explaining Orsted's habit of not fighting at full strength initially."
+  },
+  {
+   "id": "mushoku16-01614",
+   "book": "mushoku16",
+   "entry_index": 1614,
+   "line": "Seeing a technique for the first time, he will try to study it. That is probably his weak point.",
+   "expected_speaker": "GARU FARION",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Garu Farion points out Orsted's tendency to analyze new techniques as a potential weakness."
+  },
+  {
+   "id": "mushoku16-01658",
+   "book": "mushoku16",
+   "entry_index": 1658,
+   "line": "Rudeus Greyrat!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted calls out loudly to Rudeus before threatening him and his family."
+  },
+  {
+   "id": "mushoku16-01670",
+   "book": "mushoku16",
+   "entry_index": 1670,
+   "line": "That's just dumb!",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris rejects Orsted's offer to Rudeus, followed by Sylphy saying 'Rudi, don't!'"
+  },
+  {
+   "id": "mushoku16-01673",
+   "book": "mushoku16",
+   "entry_index": 1673,
+   "line": "If you do, I'll forget about this ambush of yours, and I'll heal your injured arm!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted offers terms to Rudeus to switch sides and join him against Hitogami."
+  },
+  {
+   "id": "mushoku16-01678",
+   "book": "mushoku16",
+   "entry_index": 1678,
+   "line": "Right now, even this conversation, will not reach him!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted assures Rudeus that Hitogami cannot hear their current conversation."
+  },
+  {
+   "id": "mushoku16-01682",
+   "book": "mushoku16",
+   "entry_index": 1682,
+   "line": "Choose! Rudeus Greyrat! Side with the Human God, and lose everything to me! or follow me, and fight the Human God together! If it's you, since it's you who is immune to my curse, then you should be able to choose with your own will!",
+   "expected_speaker": "ORSTED",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Orsted gives Rudeus his final ultimatum to choose between Hitogami and him."
+  },
+  {
+   "id": "mushoku16-01722",
+   "book": "mushoku16",
+   "entry_index": 1722,
+   "line": "I have fallen for you again, please be my wife,",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus considers hypothetical phrasing he could use to propose marriage to Eris."
+  },
+  {
+   "id": "mushoku16-01729",
+   "book": "mushoku16",
+   "entry_index": 1729,
+   "line": "Yeah, I had one too, so shouldn't she get one too? I need to ask for a day off that day, so if you can tell me when...",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Roxy points out to Rudeus that Eris deserves a wedding reception just like she had."
+  },
+  {
+   "id": "mushoku16-01740",
+   "book": "mushoku16",
+   "entry_index": 1740,
+   "line": "Hey! I'm being serious here. Quit joking around!",
+   "expected_speaker": "ROXY",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Roxy reacts with annoyance when Rudeus teases her instead of taking her advice seriously."
+  },
+  {
+   "id": "mushoku16-01778",
+   "book": "mushoku16",
+   "entry_index": 1778,
+   "line": "Excuse me, Eris.... sama?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus timidly addresses Eris after waking up on her lap."
+  },
+  {
+   "id": "mushoku16-01780",
+   "book": "mushoku16",
+   "entry_index": 1780,
+   "line": "Eris... Em, I'm sorry.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus corrects his form of address to 'Eris' and apologizes to her."
+  },
+  {
+   "id": "mushoku16-01787",
+   "book": "mushoku16",
+   "entry_index": 1787,
+   "line": "What is it?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus responds when Eris calls out 'Hey, Rudeus.'"
+  },
+  {
+   "id": "mushoku16-01876",
+   "book": "mushoku16",
+   "entry_index": 1876,
+   "line": "Rudeus-sama.",
+   "expected_speaker": "LILIA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "The passage explicitly states 'Lilia spoke up quietly' after this line."
+  },
+  {
+   "id": "mushoku16-01878",
+   "book": "mushoku16",
+   "entry_index": 1878,
+   "line": "Oh, what is it, Lilia?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus responds when Lilia quietly addresses him."
+  },
+  {
+   "id": "mushoku16-01890",
+   "book": "mushoku16",
+   "entry_index": 1890,
+   "line": "Eris-sama, can I leave her in your care?",
+   "expected_speaker": "GHYSLAINE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Ghyslaine asks Rudeus if she can entrust Eris to his care."
+  },
+  {
+   "id": "mushoku16-01908",
+   "book": "mushoku16",
+   "entry_index": 1908,
+   "line": "Yes, Eris-sama actually knows them better. What of it?",
+   "expected_speaker": "GHYSLAINE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Ghyslaine answers Rudeus when asked if she knows the Water God and North Emperor."
+  },
+  {
+   "id": "mushoku16-01913",
+   "book": "mushoku16",
+   "entry_index": 1913,
+   "line": "Who is she?",
+   "expected_speaker": "GHYSLAINE",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Ghyslaine asks Rudeus who the person is that he recommends she align with."
+  },
+  {
+   "id": "mushoku16-01925",
+   "book": "mushoku16",
+   "entry_index": 1925,
+   "line": "Well, I was thinking, brother really was the teacher of Sword King-sama before.",
+   "expected_speaker": "AISHA",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Aisha makes an amused observation after seeing Ghyslaine obey Rudeus without question."
+  },
+  {
+   "id": "mushoku16-01941",
+   "book": "mushoku16",
+   "entry_index": 1941,
+   "line": "... Oh, it's Eris.",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus recognizes Eris as the one grabbing him in the dark room."
+  },
+  {
+   "id": "mushoku16-01947",
+   "book": "mushoku16",
+   "entry_index": 1947,
+   "line": "I don't care about that. I don't even remember how to dance anymore... More importantly, as husband and wife, so it's okay right?",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris aggressively dismisses wedding reception talk to move straight to intimacy."
+  },
+  {
+   "id": "mushoku16-01952",
+   "book": "mushoku16",
+   "entry_index": 1952,
+   "line": "It's done. They will let me have today.",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris informs Rudeus that Sylphy and Roxy gave her permission for tonight."
+  },
+  {
+   "id": "mushoku16-01953",
+   "book": "mushoku16",
+   "entry_index": 1953,
+   "line": "Roxy didn't say anything? Like hold back while she's pregnant or something?",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus asks Eris if Roxy gave any cautions regarding her pregnancy."
+  },
+  {
+   "id": "mushoku16-01958",
+   "book": "mushoku16",
+   "entry_index": 1958,
+   "line": "Rudeus, I like you, so, it's okay right?",
+   "expected_speaker": "ERIS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Eris confesses her affection and asks Rudeus for consent as she holds him down."
+  },
+  {
+   "id": "mushoku16-01976",
+   "book": "mushoku16",
+   "entry_index": 1976,
+   "line": "Wow, amazing...",
+   "expected_speaker": "RUDEUS",
+   "judged_by": "gemini-2026-07-25",
+   "reasoning": "Rudeus admires Eris's impressive muscle tone as he touches her abdomen while she sleeps."
+  }
+ ]
+}

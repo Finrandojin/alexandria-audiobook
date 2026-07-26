@@ -1,6 +1,6 @@
 import unittest
 
-from pass_quality import validate_attribution
+from pass_quality import is_attested_name, validate_attribution
 
 
 class RejectUnattestedSpeakerTest(unittest.TestCase):
@@ -48,3 +48,35 @@ class RejectUnattestedSpeakerTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HonorificSuffixTest(unittest.TestCase):
+    """Translated works name characters "Bri-chan", "Zodiac-kun", "Ako-san".
+
+    str.title() capitalises after every non-letter, so "BRI-CHAN".title() is
+    "Bri-Chan" and never matched the book's "Bri-chan". That rejected three real
+    grimgar03 characters as inventions - Bri-chan alone is named 55 times - and
+    would reject every honorific-suffixed name in any translated book.
+    """
+
+    def _book(self, *sentences):
+        # Long enough to clear MIN_SOURCE_FOR_ATTESTATION.
+        return (" ".join(sentences) + " ") + ("filler word here. " * 400)
+
+    def test_a_hyphenated_honorific_name_is_attested(self):
+        source = self._book("Bri-chan drew his sword.", "Bri-chan laughed again.")
+        self.assertTrue(is_attested_name("BRI-CHAN", source))
+
+    def test_a_misspelling_of_a_real_name_is_still_rejected(self):
+        # BARABARA-SENSEI (doubled 'ba') is not BARBARA-SENSEI, and shipped 18
+        # times on grimgar03.
+        source = self._book("Barbara-sensei drew her sword.",
+                            "Barbara-sensei laughed again.")
+        self.assertTrue(is_attested_name("BARBARA-SENSEI", source))
+        self.assertFalse(is_attested_name("BARABARA-SENSEI", source))
+
+    def test_a_lowercase_phrase_is_not_a_name_however_it_is_hyphenated(self):
+        source = self._book("He thought of his future-self often.",
+                            "The future-self said nothing.",
+                            "Again the future-self was silent.")
+        self.assertFalse(is_attested_name("FUTURE-SELF", source))
