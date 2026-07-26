@@ -2,7 +2,6 @@ from pass_quality import MIN_ORDERED_TRIGRAM_RECALL
 import unittest
 from pass_quality import (split_outer_quote_regions, validate_attribution,
                           validate_segment_quality)
-from pass_quality import validate_attribution
 from pass_quality import validate_instruct, index_head_check
 import default_prompts
 

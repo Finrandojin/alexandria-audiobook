@@ -1310,7 +1310,8 @@ def read_source_text(path):
     UTF-8 first, then cp1252, and only then replacement - so genuinely damaged
     sources (literal U+FFFD bytes, as in index18) still reach the gate.
     """
-    raw = open(path, "rb").read()
+    with open(path, "rb") as handle:
+        raw = handle.read()
     for encoding in ("utf-8", "cp1252"):
         try:
             return raw.decode(encoding), encoding
