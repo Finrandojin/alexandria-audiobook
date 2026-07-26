@@ -1319,23 +1319,30 @@ decision it is serialising.
 
 ### Consequence
 
-Both directions §17 named as still-open are now closed by measurement:
+Both directions §17 named as still-open produced negative measurements, subject
+to the reproducibility qualification in §21:
 
 | direction | status |
 |---|---|
-| confidence routing via ensemble agreement | **rejected** - 9.5% coverage at 85.7% |
-| candidate-ID output contract | **rejected** - -13.6 points, p=0.009 |
+| confidence routing via ensemble agreement | **negative result** - reported 9.5% coverage at 85.7%; six-model input set is not reconstructable on the current branch |
+| candidate-ID output contract | **provisionally rejected** - -13.6 points, p=0.009; clean harness reproduction required |
 
 What remains untested is narrow: deterministic confidence features with
 known-low coverage, and more judged gold lines to separate gemma from the 14B
-tier. **No untested direction currently promises a large accuracy gain.**
+tier. Model-native confidence or logprob signals, if the serving stack exposes
+usable values, have also not been evaluated. None of these has evidence
+currently promising a large accuracy gain, but absence of evidence is not a
+measured rejection.
 
 ---
 
 ## 20. Closing assessment
 
-Every direction this brief identified has now been measured. This section is
-opinion, separated from the record as §12 does.
+Every major prompt, candidate, state, and model direction prioritized by this
+brief has now received at least one measurement. Confidence routing as a whole
+has not: cross-model agreement was measured, while deterministic and
+model-native confidence features remain open. This section is opinion,
+separated from the record as §12 does.
 
 ### The complete ledger
 
@@ -1343,36 +1350,43 @@ opinion, separated from the record as §12 does.
 |---|---|---|
 | better model | **+12.9 pts** (35.4 → 48.3 open) | six models, paired |
 | roster warm-up | **+5.1 pts** on the 9B | artifact-backed |
-| majority vote over 6 models | +4.8 pts, at 6x inference | derived |
+| majority vote over 6 models | +4.8 pts, at 6x inference | derived; six inputs must be restored on this branch |
 | scene candidate generation | −5 to −13 pts, all six models | six models |
-| candidate-ID output contract | **−13.6 pts**, p=0.009 | paired |
+| candidate-ID output contract | **−13.6 pts**, p=0.009 | paired; provisional pending clean harness reproduction |
 | context reformatting (prose, narration-inline) | −2 to −5 pts | two-by-two |
 | deterministic tag extraction | 7.5% recall | text |
 | first-person narrator hint | no effect | paired |
-| confidence via ensemble agreement | 9.5% coverage @ 85.7% | derived |
+| confidence via ensemble agreement | 9.5% coverage @ 85.7% | derived; six inputs must be restored on this branch |
 
-Two interventions helped, seven did not, and the two that helped are not
-architectural: use a bigger model, and give it the full cast list up front.
+Two measured interventions helped: using a stronger model and warming the full
+cast roster. The remaining listed interventions were negative or low-recall in
+their tested configurations; §21 marks the two whose artifact lineage still
+needs repair.
 
 ### What I think this means
 
-**The task is harder than the pipeline is wrong.** Nine architectural
-interventions were tested and the two that worked were both "give the model more
-of what it already had". Nothing in the error structure suggests a missing
-mechanism. That is the honest reading of nine negatives.
+**The task is harder than a single missing pipeline mechanism.** Numerous
+prompt, candidate, context, state, output-contract, and model interventions were
+tested. The positive results came from model choice and roster state, while the
+tested scaffolding changes were negative or low-recall. That makes a simple
+missing mechanism less likely without claiming that every possible
+architecture or confidence signal has been exhausted.
 
 **The oracle result is the load-bearing number.** Hand the strongest local model
-the correct answer among five candidates and it picks it 66% of the time. That
-is not a serialisation problem, a context problem, or a candidate problem - all
-three were tested and eliminated. It is the model's ability to resolve who is
-speaking in a scene, and no amount of scaffolding around it moved that.
+the correct answer among five candidates and it picks it 66% of the time. This
+shows that selection ability remains a large limitation under the tested
+harness. The tested candidate-ID serialization and 9B context interventions
+did not improve it; context interventions were not repeated across the 14B
+tier, so serialization, context, and candidate design should not be described
+as universally eliminated.
 
-**Confidence routing was the last hope for a product, and it is thin.** Six
-models agreeing unanimously - the strongest signal obtainable - buys 9.5% of
-lines at 85.7% accuracy. There is no version of "auto-accept the easy ones" that
-covers enough of the book to reduce human work meaningfully. This was the
-direction I argued was required regardless of what the experiments showed; the
-experiments showed it does not exist at usable scale.
+**Cross-model agreement is thin as a confidence signal.** The reported
+six-model unanimity result buys 9.5% of lines at 85.7% accuracy. Even after its
+inputs are restored and the calculation is reproduced, that rejects only
+ensemble agreement as the routing signal. It does not prove that no useful
+confidence router exists: deterministic features and model-native confidence
+signals remain untested, although current evidence gives no reason to expect
+large coverage at high accuracy.
 
 **The candidate-ID result is the most interesting negative.** It is the only
 intervention that did exactly what it promised at its own layer - invalid outputs
@@ -1387,27 +1401,31 @@ Three honest options, in the order I would consider them:
 
 1. **Ship it as human-assisted.** ~48% correct with a 14B, a review UI, and no
    pretence of automation. The per-line artifacts show the errors are mostly
-   confusions between real characters, which are fast for a human to fix
-   because the candidate set is small and the context is right there.
+   confusions between real characters. Whether those are fast enough for a
+   human to fix is a product metric that still needs a timed review study.
 2. **Change the product.** Single-narrator audiobooks need no attribution at
    all. Multi-voice for a fixed, hand-cast set of principal characters with
    everything else narrated is a much easier problem than open attribution.
 3. **Wait for hardware or a better local model.** The 9B→14B step bought 12.9
-   points. A 32B-class model at full context might buy a similar step, and this
-   card cannot run one. That is a purchase decision, not an engineering one.
+   points. A 32B-class model may improve further, but neither the direction nor
+   magnitude can be projected from one size transition. This card cannot run a
+   clean local test, so learning the answer requires different hardware or a
+   remote experiment rather than assuming another similar gain.
 
 What I would not do is spend more time on the current architecture. It has been
-measured from six directions in a day and the ceiling has not moved.
+measured from six directions in a day, and none of the tested scaffolding
+changes moved the best measured result beyond the model/state gains already
+recorded.
 
 ### On how this investigation went
 
 Worth recording for whoever picks this up.
 
-Nine architectural ideas were tested; every one that was argued for in advance
-failed. Every result that survived came from looking at data nobody had examined
-- shipped output, a second book, an external audit, per-line artifacts, a paired
-significance test. Two conclusions reversed *during* the same day, both caught by
-review demanding artifacts rather than aggregates.
+Many proposed interventions failed in their tested configurations. The results
+that survived came from looking at data nobody had examined - shipped output, a
+second book, an external audit, per-line artifacts, and paired significance
+tests. Two conclusions reversed *during* the same day, both caught by review
+demanding artifacts rather than aggregates.
 
 Four claims in earlier drafts of this document overstated what had been
 measured - two "ceiling" claims that were configuration results, one
@@ -1419,3 +1437,90 @@ If there is one practice to carry forward it is the artifact requirement:
 per-line records with environment, code identity and a declared contract. It
 caught a counting bug that had produced a plausible-looking finding, and it is
 the only reason two reversed conclusions were reversible.
+
+---
+
+## 21. Reproducibility audit of the final two experiments
+
+The numerical summaries in §19 were checked against the current
+`agent/model-comparison` branch. Two artifact-contract problems must be resolved
+before those results receive the same evidentiary status as the clean
+closed-set runs.
+
+### Six-model confidence result is not reproducible from this branch
+
+`app/experiments/confidence.py` names six closed-set artifacts, but only the
+Phi-4 and Qwen3-14B inputs it expects are present on the current branch. Running
+the committed script here therefore reports:
+
+```text
+147 gold lines, 2 models: phi-4, qwen3-14b
+all 2 models agree: 58/147 lines (39.5% coverage), 65.5% accurate
+```
+
+It does **not** reproduce the §19 six-model result of 9.5% coverage at 85.7%
+accuracy. The missing four inputs existed in the experiment history, so the
+reported calculation may be arithmetically valid, but the current commit does
+not contain the declared input set. The repair is to restore the exact six
+artifacts to this branch (or make their immutable source commits explicit),
+rerun the committed script, and preserve its output or a derived artifact.
+
+Until then:
+
+- the six-model agreement table is a reported result, not a result
+  reproducible from the handoff commit;
+- the two-model output above is not a substitute for it;
+- no six-model production conclusion should rely on an input set the branch
+  does not carry.
+
+### Candidate-ID artifact does not identify reconstructable harness code
+
+`candidate_id__qwen__qwen3-14b.json` records:
+
+```text
+git commit:     401dc6be92517b250c03d64d846a8c9f4d6d894e
+harness sha256: 6206f547d0536d5461d2af87431d7453f91f35a187247310a6ac351379aa4ef6
+```
+
+At commit `401dc6b`, `app/experiments/candidate_id.py` did not exist. The script
+later committed with the experiment has SHA-256:
+
+```text
+7dddd748a950da962781e8ef8deb1b1c2a5d04496ca893e9e0c457334713955f
+```
+
+That does not match the harness hash recorded in the JSON. Consequently the
+artifact's 147 per-line rows, environment, summary arithmetic, and paired
+outcome are inspectable, but the exact code that produced them is not
+reconstructable from the repository.
+
+The measured `49.0% → 35.4%` candidate-ID loss is large and the paired result
+(`37/17`, p=0.009) is unlikely to be explained by rounding. It should still be
+labeled **provisional** under this brief's own artifact contract until the
+experiment is rerun from a clean commit whose harness hash matches the
+committed file. A clean reproduction should retain:
+
+- identical model and verified LM Studio settings;
+- the same 147 gold IDs and candidate ordering;
+- `NOT_LISTED` in both arms;
+- the exact free-name and opaque-ID prompts;
+- per-line raw responses and paired outcomes;
+- a commit containing the harness before the run starts.
+
+### Revised closing position
+
+The evidence already supports moving off qwen3.5-9b and treating Gemma e4b plus
+the 14B models as the stronger local tier. It also supports deprioritizing
+scene-local candidate pruning. The newest evidence strongly suggests that
+opaque candidate IDs are harmful and that cross-model agreement is too
+expensive and too narrow for routing, but those two conclusions need their
+artifact lineage repaired.
+
+The remaining product decision is therefore still human-assisted multi-voice
+versus a simpler narration design. Further experimentation should be limited to
+one of three clearly justified purposes:
+
+1. reproduce the two final negative results under the artifact contract;
+2. validate the preferred model/configuration on the second book;
+3. measure a cheap confidence feature only if it could materially reduce human
+   review at a declared accuracy target.
