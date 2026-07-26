@@ -1729,3 +1729,63 @@ changing the model.
 The lesson repeats: an aggregate difference is not a result. This one looked
 solid, reproduced exactly across two runs, and still does not survive the test
 that asks whether it is doing what it claims.
+
+---
+
+## 24. §23's gate, checked item by item
+
+§23 was written before the corrected 14B roster run landed. The artifact now
+exists at `ab_test_runtime/experiments/roster_warmup__ministral-3-14b-instruct-2512.json`,
+committed in `a8323ce`. Against §23's five requirements:
+
+| requirement | status |
+|---|---|
+| exact 139 gold IDs, one row per arm/ID | **met** - 139 per arm, identical ID sets verified |
+| paired disagreements and exact significance test | **met** - 18 repaired / 13 broken, p = 0.47 |
+| clean code identity and loaded settings | **met** - commit `beb2400`, `dirty: false`, fingerprint recomputes from committed sources, LM Studio 16384 / parallel 1 / model cross-checked |
+| raw responses and validation retries | **not met** - 0 of 417 rows carry a raw response |
+| elapsed time by arm | **not met** - only the total, 8,409 s |
+
+The two gaps are real and worth naming rather than glossing. The roster harness
+calls `attribute_batch`, which returns parsed entries; the raw text and the
+retry history never reach the recorder. The closed-set and candidate-ID
+harnesses call the model directly and do keep them. That inconsistency should be
+closed in the shared manifest layer, not left as a per-harness accident - it is
+the same class of drift that produced three copies of the attestation check.
+
+**The gate's purpose was served regardless:** the paired test is what overturned
+the +3.6, and it overturned the 9B's +5.1 with it.
+
+### Accepting §23's point on precision
+
+> *nonsignificance between Gemma and the 14B models should be read as unresolved
+> precision, not proof that the models are equivalent*
+
+Correct, and this document has drifted toward the wrong reading. "Statistically
+indistinguishable" has been used here in a way that invites "equivalent", and
+they are not the same claim. At n=147 a 6-9 point difference is simply below
+the resolution of the instrument. Gemma may well be worse.
+
+That weakens the earlier suggestion of gemma-4-e4b as the pass-2 default more
+than was stated. The defensible position is narrower:
+
+- **qwen3.5-9b is measurably worse than everything else tested.** That is
+  resolved.
+- **Among gemma-e4b and the four 14B-class models, the ranking is unresolved.**
+  Choosing gemma on size and throughput is a *cost* decision taken in the
+  absence of accuracy evidence, not a decision supported by it.
+- Resolving it needs more judged lines, not more runs. The gold set would need
+  roughly 400-500 lines to resolve a 6-point difference at this base rate, or a
+  second book to test whether the ordering is even stable.
+
+### Where that leaves the ledger
+
+Of nine interventions, one survives: **changing the model off qwen3.5-9b.** And
+even that is one clean result rather than a settled ranking.
+
+Everything else - narrator hints, prose passages, narration in-batch, scene
+candidates, tag extraction, candidate-ID output, ensemble confidence, roster
+warm-up - is flat or negative under paired analysis.
+
+No further attribution experiment is justified without a specific product
+question behind it. The next decision is the owner's, not the harness's.
