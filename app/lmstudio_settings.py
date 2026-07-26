@@ -62,6 +62,29 @@ _VERIFIED_LOCAL_PROFILES = {
         # Measured 158.90 KiB/token; rounded up to cover transient workspaces.
         "bytes_per_extra_context_token": 176 * 1024,
     },
+    # Dense 14B/15B pairs measured 2026-07-26 on this card (15.92 GiB total,
+    # 2.25 GiB resident at idle). Both cost ~160 KiB per context token, ten
+    # times the compressed-KV models above, so 32768 leaves under 1 GiB of
+    # headroom and is refused; 16384 matches ministral and keeps ~2.5-3 GiB.
+    "microsoft/phi-4": {
+        "context_length": 16384,
+        "parallel": 1,
+        "model_vram_bytes": int(9.91 * 1024 ** 3),
+        # Measured 159.95 KiB/token; rounded up to cover transient workspaces.
+        "bytes_per_extra_context_token": 176 * 1024,
+    },
+    "qwen/qwen3-14b": {
+        "context_length": 16384,
+        "parallel": 1,
+        "model_vram_bytes": int(9.33 * 1024 ** 3),
+        # Measured 159.78 KiB/token; rounded up as above.
+        "bytes_per_extra_context_token": 176 * 1024,
+    },
+    # mistralai/magistral-small is deliberately absent. Its weights alone take
+    # 13.51 GiB, leaving 0.16 GiB at the 8192 minimum - below any usable
+    # reserve. It cannot run here without weakening the VRAM guard, so it gets
+    # no profile and falls back to the conservative default rather than being
+    # made to fit.
     "ministral-3-14b-instruct-2512-absolute-heresy-i1": {
         "context_length": 16384,
         "parallel": 1,
