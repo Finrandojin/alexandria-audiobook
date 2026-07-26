@@ -15,6 +15,7 @@ Reading:
 
 Run on an idle GPU. Temperature 0.
 """
+import collections
 import json, os, re, sys
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
@@ -41,6 +42,16 @@ def same(a, b):
 def norm(t): return re.sub(r"\W+", "", t or "").lower()
 want = {norm(g["line"]): g["expected_speaker"] for g in gold["entries"]}
 pos = {norm(e["text"]): i for i, e in enumerate(seg)}
+
+# A gold line whose text occurs at several positions cannot be aligned to one of
+# them, so scoring it counts one judgement two or three times. The roster
+# experiment recorded 155 rows for 146 lines that way and produced three
+# identical arm totals that looked like a finding. Same defect the audit found
+# in build_scoring_sheet; excluded here for the same reason.
+_occurrences = collections.Counter(norm(e.get("text")) for e in seg)
+AMBIGUOUS = {key for key in want if _occurrences[key] > 1}
+print(f"excluding {len(AMBIGUOUS)} gold lines whose text repeats in the book; "
+      f"{len(want) - len(AMBIGUOUS)} scoreable", flush=True)
 BASE_URL = "http://localhost:1234/v1"
 REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 client = OpenAI(base_url=BASE_URL, api_key="local")
@@ -80,7 +91,7 @@ def run(batched, with_context, label):
             continue
         for i, r in zip(send, out):
             key = norm(seg[i].get("text"))
-            if key in want:
+            if key in want and key not in AMBIGUOUS:
                 got[key] = r.get("speaker")
                 record.add(label.split()[0], key, seg[i].get("text"),
                            want[key].upper(), r.get("speaker"),
