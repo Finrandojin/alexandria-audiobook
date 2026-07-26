@@ -39,7 +39,12 @@ INSTRUCTIONS = (
     "heading, or narration the segmenter split out by mistake.\n"
     "- Use AMBIGUOUS if the passage genuinely supports more than one reading. "
     "Do not guess; a marked-ambiguous line is more useful than a coin flip.\n"
-    "- Never invent a name that does not appear in the passage.\n"
+    "- Name the speaker if you can identify them, even when the name is not "
+    "printed in the window - following 'he', 'she' or first-person continuity "
+    "is legitimate inference, not guessing. Reserve AMBIGUOUS for lines whose "
+    "speaker is genuinely undetermined, and NARRATOR for lines that are not "
+    "speech.\n"
+    "- Never invent a name that appears nowhere in the book.\n"
     "- Put a short justification in reasoning.\n\n"
     "These are randomly sampled lines, so many will be easy; that is intended. "
     "Return every row."
@@ -111,8 +116,39 @@ def read_filled(paths):
     return answers
 
 
-def validate(answers, batches):
-    """Problems that would make a fixture untrustworthy."""
+def support_for(answer, row, source_text=None):
+    """Where the evidence for this answer lives: window, book, or nowhere.
+
+    The distinction matters and the first version of this tool missed it. A name
+    printed in the supplied window is directly supported. A name absent from the
+    window but present in the book is *inferred from wider context* - a reader
+    following "he", "she" or first-person continuity can be right without the
+    name appearing nearby. A name absent from the book entirely is invented,
+    which is the only case worth refusing.
+
+    Collapsing the middle case into the last one forced a judge to mark 13
+    answerable lines AMBIGUOUS, which would have rewarded abstention on lines
+    whose speaker is recoverable - silently changing the task being measured.
+    """
+    if answer in ("NARRATOR", "AMBIGUOUS", "UNKNOWN"):
+        return "not_a_name"
+    first = answer.split()[0]
+    window = " ".join((row["passage_before"], row["line"], row["passage_after"]))
+    if re.search(r"\b" + re.escape(first) + r"\b", window, re.IGNORECASE):
+        return "window"
+    if source_text and re.search(r"\b" + re.escape(first) + r"\b",
+                                 source_text, re.IGNORECASE):
+        return "book"
+    return "absent"
+
+
+def validate(answers, batches, source_text=None):
+    """Problems that would make a fixture untrustworthy.
+
+    Pass source_text to distinguish an invented name from one inferred from
+    wider context. Without it the check falls back to the window, which is
+    stricter than intended and was the original defect.
+    """
     expected = {row["id"]: row for batch in batches for row in batch["rows"]}
     problems = []
     unknown = sorted(set(answers) - set(expected))
@@ -123,14 +159,29 @@ def validate(answers, batches):
         problems.append(f"{len(missing)} rows unanswered, e.g. {missing[:3]}")
     for gold_id, value in sorted(answers.items()):
         row = expected.get(gold_id)
-        if not row or value["answer"] in ("NARRATOR", "AMBIGUOUS", "UNKNOWN"):
+        if not row:
             continue
-        passage = " ".join((row["passage_before"], row["line"], row["passage_after"]))
-        first = value["answer"].split()[0]
-        if not re.search(r"\b" + re.escape(first) + r"\b", passage, re.IGNORECASE):
+        if support_for(value["answer"], row, source_text) == "absent":
+            where = "the book" if source_text else "its passage"
             problems.append(f"{gold_id}: {value['answer']!r} appears nowhere in "
-                            "its passage - possibly invented")
+                            f"{where} - invented")
     return problems
+
+
+def support_summary(answers, batches, source_text=None):
+    """How many answers are window-supported, book-only, or neither."""
+    expected = {row["id"]: row for batch in batches for row in batch["rows"]}
+    counts = collections.Counter()
+    book_only = []
+    for gold_id, value in sorted(answers.items()):
+        row = expected.get(gold_id)
+        if not row:
+            continue
+        kind = support_for(value["answer"], row, source_text)
+        counts[kind] += 1
+        if kind == "book":
+            book_only.append(gold_id)
+    return counts, book_only
 
 
 def merge(answers, batches, book, source_run, judged_by, aliases=None):

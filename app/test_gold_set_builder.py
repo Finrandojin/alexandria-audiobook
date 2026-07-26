@@ -152,3 +152,64 @@ class AgreementTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SupportClassificationTest(unittest.TestCase):
+    """A name absent from the window is not the same as an invented one.
+
+    The first validator conflated them, so a judge following the rule marked 13
+    answerable lines AMBIGUOUS - lines whose speaker is recoverable from 'he',
+    'she' or first-person continuity but whose name is not printed nearby.
+    Retaining those as ambiguous gold would reward abstention on recoverable
+    lines and silently change the task being measured.
+    """
+
+    ROW = {"passage_before": "She turned away.", "line": "I said no.",
+           "passage_after": "The door closed."}
+    BOOK = "Roxy walked in. She turned away. I said no. The door closed."
+
+    def test_a_name_printed_in_the_window_is_window_supported(self):
+        from gold_set_builder import support_for
+        row = dict(self.ROW, passage_after="Roxy shook her head.")
+        self.assertEqual("window", support_for("ROXY", row, self.BOOK))
+
+    def test_a_name_only_in_the_wider_book_is_inferred_not_invented(self):
+        from gold_set_builder import support_for
+        self.assertEqual("book", support_for("ROXY", self.ROW, self.BOOK))
+
+    def test_a_name_absent_from_the_book_is_invented(self):
+        from gold_set_builder import support_for
+        self.assertEqual("absent", support_for("FUTURE_ME", self.ROW, self.BOOK))
+
+    def test_narrator_and_ambiguous_are_not_names(self):
+        from gold_set_builder import support_for
+        for value in ("NARRATOR", "AMBIGUOUS", "UNKNOWN"):
+            self.assertEqual("not_a_name", support_for(value, self.ROW, self.BOOK))
+
+    def test_validation_accepts_a_wider_context_name_when_given_the_book(self):
+        batches = [{"rows": [dict(self.ROW, id="b-1", entry_index=1)]}]
+        answers = {"b-1": {"answer": "ROXY", "reasoning": ""}}
+        self.assertEqual([], validate(answers, batches, self.BOOK))
+
+    def test_validation_still_refuses_an_invented_name(self):
+        batches = [{"rows": [dict(self.ROW, id="b-1", entry_index=1)]}]
+        answers = {"b-1": {"answer": "FUTURE_ME", "reasoning": ""}}
+        self.assertTrue(any("invented" in p for p in
+                            validate(answers, batches, self.BOOK)))
+
+    def test_summary_counts_where_the_evidence_lives(self):
+        from gold_set_builder import support_summary
+        batches = [{"rows": [dict(self.ROW, id="b-1", entry_index=1),
+                             dict(self.ROW, id="b-2", entry_index=2)]}]
+        answers = {"b-1": {"answer": "ROXY", "reasoning": ""},
+                   "b-2": {"answer": "AMBIGUOUS", "reasoning": ""}}
+        counts, book_only = support_summary(answers, batches, self.BOOK)
+        self.assertEqual(1, counts["book"])
+        self.assertEqual(["b-1"], book_only)
+
+
+class InstructionsTest(unittest.TestCase):
+    def test_judges_are_told_inference_is_allowed(self):
+        from gold_set_builder import INSTRUCTIONS
+        self.assertIn("legitimate inference", INSTRUCTIONS)
+        self.assertIn("appears nowhere in the book", INSTRUCTIONS)
