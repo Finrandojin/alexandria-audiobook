@@ -30,6 +30,29 @@ def normalize_speaker(value):
     return " ".join(str(value or "").split()).upper()
 
 
+def alias_groups(gold):
+    """Normalized alias sets declared by a gold fixture.
+
+    A character named two ways is one character. mushoku16 calls the
+    protagonist both RUDEUS and RUDI, and 14 of 147 gold lines were scored
+    wrong purely for picking the other true name - a 9.5-point penalty for
+    being right. Aliases live in the fixture, not in code, because they are
+    facts about one book that a reader can check against the text, and because
+    a scorer that invents equivalences can hide real errors.
+    """
+    return [{normalize_speaker(name) for name in group}
+            for group in gold.get("aliases", [])]
+
+
+def same_person(expected, actual, groups):
+    """Whether two speaker names refer to the same character."""
+    if not actual:
+        return False
+    if actual == expected:
+        return True
+    return any(actual in group and expected in group for group in groups)
+
+
 def normalize_line(value):
     return " ".join(str(value or "").split())
 
@@ -61,7 +84,11 @@ def find_entry(named_entries, item, by_text):
 
 
 def score_run(named_entries, gold, include_disputed=False):
-    """Compare a run's named entries against the gold answers."""
+    """Compare a run's named entries against the gold answers.
+
+    Alias-equivalent answers count as correct; see alias_groups.
+    """
+    groups = alias_groups(gold)
     by_text = {}
     for position, entry in enumerate(named_entries):
         by_text.setdefault(normalize_line(entry.get("text")),
@@ -77,7 +104,7 @@ def score_run(named_entries, gold, include_disputed=False):
             "id": item["id"],
             "expected": expected,
             "actual": actual,
-            "correct": bool(actual) and actual == expected,
+            "correct": same_person(expected, actual, groups),
             "aligned": entry is not None,
         })
     return results

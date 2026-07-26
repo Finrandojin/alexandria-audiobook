@@ -116,3 +116,59 @@ class ArmSpeakerNormalizationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AliasScoringTest(unittest.TestCase):
+    """A character named two ways is one character.
+
+    mushoku16 calls the protagonist both RUDEUS (113 mentions) and RUDI (126).
+    Scoring them as different answers marked 14 of 147 gold lines wrong for
+    picking the other true name - a 9.5-point penalty for being right. An
+    earlier ad-hoc harness hardcoded the equivalence, which is why two scorers
+    reported 34.2% and 20.4% for the same book.
+    """
+
+    GOLD = {"aliases": [["RUDEUS", "RUDI"]],
+            "entries": [{"id": "a", "book": "b", "entry_index": 0,
+                         "line": "A distinct sentence here.",
+                         "expected_speaker": "RUDEUS"}]}
+
+    def _score(self, speaker, gold=None):
+        named = [_entry("A distinct sentence here.", speaker)]
+        return score_run(named, gold or self.GOLD)[0]["correct"]
+
+    def test_the_other_true_name_counts_as_correct(self):
+        self.assertTrue(self._score("RUDI"))
+
+    def test_the_declared_name_still_counts(self):
+        self.assertTrue(self._score("RUDEUS"))
+
+    def test_a_different_character_is_still_wrong(self):
+        self.assertFalse(self._score("ROXY"))
+
+    def test_an_invented_name_is_not_an_alias(self):
+        # FUTURE_ME is the protagonist's future self, a phrase the book never
+        # uses as a name. It shipped on 250 entries and must score as wrong.
+        self.assertFalse(self._score("FUTURE_ME"))
+
+    def test_a_fixture_without_aliases_demands_exact_names(self):
+        gold = {"entries": self.GOLD["entries"]}
+        self.assertFalse(self._score("RUDI", gold))
+
+    def test_alias_matching_ignores_case_and_spacing(self):
+        self.assertTrue(self._score(" rudi "))
+
+    def test_shipped_fixtures_declare_only_names_present_in_the_book(self):
+        # An alias list is ground truth about one book; a wrong entry here
+        # would silently forgive real errors in every future measurement.
+        import json
+        import os
+        for name in ("fixtures/attribution_gold.json",
+                     "fixtures/attribution_gold_random.json"):
+            path = os.path.join(os.path.dirname(__file__), name)
+            with open(path, encoding="utf-8") as handle:
+                declared = json.load(handle).get("aliases", [])
+            flat = [n for group in declared for n in group]
+            self.assertNotIn("FUTURE_ME", flat)
+            for group in declared:
+                self.assertGreaterEqual(len(group), 2)

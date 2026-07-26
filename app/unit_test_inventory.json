@@ -294,6 +294,13 @@
     "test_evaluation_reviews.SubmitTests.test_wrong_adapter_for_session_is_rejected"
   ],
   "test_evaluation_tools": [
+    "test_evaluation_tools.AliasScoringTest.test_a_different_character_is_still_wrong",
+    "test_evaluation_tools.AliasScoringTest.test_a_fixture_without_aliases_demands_exact_names",
+    "test_evaluation_tools.AliasScoringTest.test_alias_matching_ignores_case_and_spacing",
+    "test_evaluation_tools.AliasScoringTest.test_an_invented_name_is_not_an_alias",
+    "test_evaluation_tools.AliasScoringTest.test_shipped_fixtures_declare_only_names_present_in_the_book",
+    "test_evaluation_tools.AliasScoringTest.test_the_declared_name_still_counts",
+    "test_evaluation_tools.AliasScoringTest.test_the_other_true_name_counts_as_correct",
     "test_evaluation_tools.ArmSpeakerNormalizationTest.test_a_real_disagreement_is_still_reported",
     "test_evaluation_tools.ArmSpeakerNormalizationTest.test_case_and_whitespace_are_not_a_disagreement",
     "test_evaluation_tools.ArmSpeakerNormalizationTest.test_precomputed_pairs_are_reused",
