@@ -1900,10 +1900,200 @@ single-judged lines.
 
 ### What this will and will not settle
 
-**Will:** whether gemma-4-e4b is genuinely as good as the 14B tier at
-attribution, which determines whether the production model should be a 7.5B at
-32768 context and `parallel: 2` or a 14B at 16384 - a real throughput
-difference.
+**Will:** improve precision when comparing gemma-4-e4b with the 14B tier on
+grimgar03, and test whether the mushoku16 ordering holds on a contrasting book.
+It cannot prove that the models are equivalent unless an equivalence margin and
+appropriate test are declared in advance. The result will inform whether the
+production model should be a 7.5B at 32768 context and `parallel: 2` or a 14B
+at 16384 - a real throughput difference.
 
-**Will not:** move the ~48% realistic accuracy or the ~66% oracle ceiling. This
-sharpens the instrument; it does not improve the system.
+**Will not:** improve the system by itself. The measured realistic and oracle
+rates may move substantially on a different book; the earlier ~48% and ~66%
+figures are mushoku16 results, and 66% is the best measured oracle result rather
+than an intrinsic ceiling.
+
+---
+
+## 26. First 400-line grimgar03 judgment completed
+
+The requested first judgment pass is complete. All ten source batches in
+`~/Downloads/judge_grimgar03/` were read in batch order and returned as separate
+filled copies:
+
+```text
+grimgar03_batch01_judged.json
+...
+grimgar03_batch10_judged.json
+```
+
+The original unfilled batches were left unchanged.
+
+### Mechanical validation
+
+The completed set has:
+
+- 10 output files;
+- 40 rows per file;
+- 400 answers and 400 unique IDs;
+- the same ID order as each corresponding source batch;
+- nonempty `ANSWER` and `reasoning` fields on every row;
+- zero problems from `gold_set_builder.validate`.
+
+The answer distribution includes **20 `AMBIGUOUS`** and **3 `NARRATOR`**
+labels. The three narrator labels are apparent narration/title segmentation
+fragments rather than spoken dialogue.
+
+### Important qualification on `AMBIGUOUS`
+
+The 20 ambiguous labels are not one homogeneous class:
+
+1. Some passages contain genuinely anonymous speakers, collective battle
+   shouts, or a speaker identified only by a generic descriptor. There is no
+   unique character name to place in the answer key.
+2. In 13 cases the local prose makes the conversational speaker reasonably
+   inferable through `he`, `she`, or first-person continuity, but that speaker's
+   name does not occur anywhere in the supplied passage window.
+
+The second class was marked `AMBIGUOUS` to obey the explicit judging rule and
+the merge validator, which rejects a named answer when its first token is absent
+from the passage. It should **not** be interpreted as evidence that a human
+reader necessarily found all 13 lines semantically ambiguous. It is partly an
+artifact of the context window and validation contract.
+
+This matters for model comparison. If those rows are retained as ordinary
+`AMBIGUOUS` gold, the fixture may reward abstention on lines whose speaker is
+recoverable from wider book context. Conversely, inserting the inferred name
+despite its absence would bypass the anti-invention safeguard and make the
+fixture impossible to validate under its declared rules.
+
+### Recommended adjudication before merge
+
+Do not merge this first pass directly into the canonical fixture. Run the
+independent second judgment requested in §25, then separate disagreements into:
+
+- genuinely ambiguous or anonymous speech;
+- segmentation errors (`NARRATOR`);
+- named speakers supported inside the supplied window;
+- named speakers supported only by wider context.
+
+For the final category, the owner should make an explicit corpus-policy choice:
+either expand the judgment window until the identity is supported, or exclude
+the row from the local-context attribution benchmark. Relabeling it
+`AMBIGUOUS` solely to satisfy a name-presence validator would silently change
+the task being measured.
+
+### Reviewer assessment
+
+This pass is complete enough to serve as **judge 1**, not as unquestioned gold.
+Its main value is that it supplies the independent row-by-row answers needed by
+`gold_set_builder.py agree`. A second independent pass plus adjudication is more
+valuable than immediately scoring the model matrix against 400 single-judged
+labels.
+
+After agreement and adjudication:
+
+1. declare the treatment of `AMBIGUOUS`, `NARRATOR`, and wider-context rows;
+2. freeze the resulting fixture and its hash;
+3. run each candidate model once at temperature 0 on identical inputs;
+4. report per-book accuracy, paired disagreements, and confidence intervals;
+5. treat failure to find a difference as unresolved precision unless a formal
+   equivalence/noninferiority design was declared beforehand.
+
+---
+
+## 27. Window policy applied, and the next big test
+
+### The wider-context rows: window expanded, per owner decision
+
+§26 raised that 13 of judge 1's 20 `AMBIGUOUS` labels were artifacts of the
+validator rather than genuine ambiguity, and asked for an explicit corpus
+policy. The owner chose: **expand the window until identity is supported.**
+
+Implemented and measured. The window now grows backwards-first - a speaker is
+usually established before they speak - until the run's own attested roster
+appears in it, capped at 40 entries before and 20 after. On grimgar03 it fires
+on **33 of 400 rows** and grows the payload from 577 KB to 684 KB, proportionate
+to the 13 rows reported.
+
+The validator was also wrong and is fixed. It rejected any answer whose name was
+absent from the *window*; a name absent from the window but present in the book
+is inferred from wider context, which is legitimate reading. Only a name absent
+from the whole book is invented. `support_for()` now classifies each answer as
+`window`, `book` or `absent`, and `support_summary()` reports the split so the
+policy is visible rather than imposed silently.
+
+Two implementation notes worth recording, both caught by measuring rather than
+reasoning:
+
+- The first expansion trigger used a capitalised-word heuristic. It matched
+  "Ahh", "Army" and "Anger", so nearly every window already contained two
+  "names" and **only 3 of 400 rows expanded**. It would have looked like a
+  working feature. Replaced with the run's attested roster: 22 real names.
+- `str.title()` broke honorific names for the **third time today** - `BRI-CHAN`
+  became `Bri-Chan`, which never matches the book's `Bri-chan`, so every
+  honorific-suffixed character would have been silently unable to trigger
+  expansion. Matching is case-insensitive now. Three occurrences of one bad
+  assumption in a day is a repo-wide hazard, not three coincidences.
+
+Judge 1's affected rows cannot be recovered - they were marked `AMBIGUOUS`
+rather than named, so the intended answers were never recorded. Judge 2's
+batches carry identical ids under the corrected rule, so `agree` will surface
+them as `AMBIGUOUS`-versus-name disagreements. That is the adjudication set §26
+asked for, and it arrives for free.
+
+### The next big test: is the model ranking stable across narrative structure?
+
+`~/Downloads/judge_mushoku16/` - **400 lines, 10 batches of 40**, built with the
+corrected windows.
+
+**The question.** §24 established that gemma-4-e4b and the four 14B-class models
+do not separate at n=147, and that this is unresolved precision. But there is a
+second question underneath it that no amount of extra lines on one book can
+answer: **is the ranking even the same from book to book?**
+
+The two books are deliberately opposite:
+
+| | grimgar03 | mushoku16 |
+|---|---|---|
+| narration | third person | **first person** |
+| protagonist named by narration | yes | **never - he says "I"** |
+| cast in scope | six-person party | large, shifting |
+| pipeline accuracy | ~54% | ~30% |
+| dominant failure | ordinary confusions | protagonist unattributable |
+
+A 24-point accuracy gap between them is the largest single effect measured in
+this investigation, larger than any intervention. If model ranking is driven by
+whatever makes mushoku16 hard, a model chosen on grimgar03 could be the wrong
+one for half the library.
+
+**What 800 judged lines buys:**
+
+1. **Resolves the ranking.** 400 per book is enough to separate a 6-9 point
+   difference at these base rates; 147 was not.
+2. **Tests ranking stability.** If gemma leads on grimgar03 and trails on
+   mushoku16, "which model" has no single answer and the pipeline should choose
+   per book - a finding worth more than the ranking itself.
+3. **Re-verifies the headline numbers.** Every figure in this brief rests on
+   147 mushoku16 lines, some of which are known to be poor - one turned out to
+   be a poster on a wall. A clean 400 built with the corrected tooling either
+   confirms ~30% or moves it.
+4. **A free cross-round concordance check.** 31 of the 400 mushoku16 ids overlap
+   the existing 147-line set. Comparing the new answers against the old ones on
+   those rows measures whether judging is stable across rounds, judges and
+   window policy - with no extra work.
+
+**What it will not do.** It sharpens the instrument. It does not move the ~48%
+realistic accuracy or the ~66% oracle ceiling, and no experiment in this brief
+suggests anything will.
+
+### Running it
+
+```
+gold_set_builder.py agree  <judge1> --second <judge2>          # only disagreements
+gold_set_builder.py merge  mushoku16 <filled> --batches <originals> \
+                           --judged-by <name> --out fixtures/attribution_gold_mushoku16_400.json
+```
+
+Then each candidate model once, temperature 0, identical frozen inputs, per-book
+accuracy plus paired McNemar - the protocol §23 set out, now with an answer key
+large enough for it to mean something.
