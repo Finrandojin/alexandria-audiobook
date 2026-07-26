@@ -1057,9 +1057,14 @@ qwen3-14b vs ministral-14b         25/18   p=0.3604
 
 ### What separates, and what does not
 
-**The 9B/e4b tier is clearly beaten.** Every 14B-class model is significantly
-better than both, and the gap is large: qwen3-14b repairs 31 lines the 9B gets
-wrong while breaking 6.
+**The 14B tier clearly improves on the 9B in the strongest paired
+comparisons, but it does not uniformly separate from the e4b model.**
+Qwen3-14b repairs 31 oracle-arm lines the 9B gets wrong while breaking 6
+(p<0.0001), and the other 14B models also improve materially on the 9B in at
+least one primary arm. The stronger claim that every 14B model significantly
+beats both lower-tier models is not supported: on the open arm none of the 14B
+models significantly beats gemma-e4b, and heresy versus gemma on the oracle arm
+is p≈0.060.
 
 **The four 14B-class models do not separate from each other.** qwen3-14b leads
 on every arm but none of the pairwise comparisons reach significance (p=0.099 to
@@ -1103,8 +1108,11 @@ stability, not on these scores. qwen3-14b and ministral-3-14b are the two
 sensible defaults, and ministral is already validated in the model matrix.
 
 The gain is real but bounded: **66.0% under a perfect oracle candidate set, and
-48.3% realistically.** Better model selection has roughly doubled the 9B's
-accuracy on the open arm and still leaves one line in two wrong.
+48.3% realistically.** Relative to the 9B open arm, this is +12.9 percentage
+points (35.4% to 48.3%), or about a 36% relative improvement. Relative to the
+29.9% shipped baseline it is +18.4 points, or about a 62% relative improvement.
+That is substantial, but it is not a doubling, and it still leaves one line in
+two wrong.
 
 ---
 
@@ -1119,19 +1127,22 @@ accuracy on the open arm and still leaves one line in two wrong.
 | Is that a recall or selection problem? | **selection**, 55-point gap | decomposition |
 | Can candidate pruning close it? | **no** - loses for all six models | closed-6, six models |
 | Can deterministic tag rules? | **no** - 7.5% recall | text measurement |
-| Can more context? | **no** - the model already has it | 2x2 + decomposition |
+| Did the tested context changes help? | **no on the 9B**; unmeasured on the 14B tier | 2x2 + decomposition |
 | Does roster warm-up help? | yes, +5.1 on the 9B | artifact-backed |
-| Does a better model help? | **yes, roughly doubles open accuracy** | six-model benchmark |
+| Does a better model help? | **yes**, +12.9 points over the tested 9B open arm | six-model benchmark |
 | Is it enough? | **no** - 48.3% realistic, 66.0% oracle | six-model benchmark |
 
 ### The honest summary
 
 A day of work moved the best measured configuration from **29.9% to ~48%**, and
-established a ceiling of **66%** even when the correct answer is handed to the
-model among five candidates. Every architectural idea tried - candidate
-generation, tag extraction, context reformatting, prose passages - failed. The
-two things that worked were a better model and a warmer roster, and neither is
-architectural.
+produced a best measured oracle result of **66%** when the correct answer is
+handed to the model among five candidates. That is not an intrinsic ceiling:
+it is the highest result under this harness, prompt, candidate construction,
+and model set. The tested candidate-generation, tag-extraction, context-
+reformatting, and prose-passage approaches did not improve the result. The two
+measured positive interventions were a better model and warmer roster state.
+Confidence routing and the candidate-ID contract remain untested, so the
+broader claim that every architectural idea failed would be premature.
 
 That leaves the project with a clear but uncomfortable position: **unattended
 multi-voice attribution is not reachable on this hardware with these methods.**
@@ -1141,12 +1152,15 @@ One line in two is wrong at realistic settings. The remaining paths are:
    the rest to a human. Nothing measured so far tells us how large that subset
    is; the risk/coverage curve is the missing number and it has never been
    computed.
-2. **The candidate-ID output contract (§15).** Structurally eliminates the 33%
-   of errors that are invented names and misspellings, and retires the
-   attestation gate and its retry cost. Cheap, well-motivated, untested. It must
-   include an explicit not-listed option, because 15% of gold lines have a true
-   speaker absent from the roster and forcing a choice there would convert
-   honest abstention into confident error.
+2. **The candidate-ID output contract (§15).** Structurally eliminates invented
+   names and misspellings as *output-format categories*, but does not thereby
+   eliminate the corresponding attribution errors: the model may instead
+   choose a wrong valid ID or abstain. It simplifies the attestation gate to a
+   deterministic membership check rather than necessarily retiring validation
+   and retries. Cheap, well-motivated, and untested for accuracy. It must include
+   an explicit not-listed option, because 15% of gold lines have a true speaker
+   absent from the roster and forcing a choice there would convert honest
+   abstention into confident error.
 3. **Accepting a human-in-the-loop product**, and optimising for review speed
    rather than raw accuracy.
 
@@ -1171,3 +1185,69 @@ paired significance test revealed that a 4-point model difference was noise.
 Two conclusions were reversed by better measurement *during* the same day. Both
 reversals were caught by external review demanding artifacts rather than
 aggregates. That is the single practice most worth carrying forward.
+
+---
+
+## 18. Verified pairwise matrix, and a correction accepted
+
+The §16 claim that "every 14B-class model is significantly better than both"
+lower-tier models was wrong, and the review was right to narrow it. Only the
+leader had been tested against the rest; the claim was generalised from that.
+The complete matrix, exact McNemar on the same 147 lines:
+
+**open arm** (realistic setting)
+
+| model | vs qwen3.5-9b | vs gemma-4-e4b |
+|---|---:|---:|
+| qwen3-14b | **0.0043** | 0.0725 |
+| ministral-14b | **0.0133** | 0.0961 |
+| heresy-14b | **0.0270** | 0.1352 |
+| phi-4 | **0.0237** | 0.2221 |
+
+**closed-oracle arm**
+
+| model | vs qwen3.5-9b | vs gemma-4-e4b |
+|---|---:|---:|
+| qwen3-14b | **0.0000** | **0.0012** |
+| ministral-14b | **0.0153** | **0.0300** |
+| heresy-14b | **0.0444** | 0.0595 |
+| phi-4 | **0.0275** | **0.0385** |
+
+### What this actually supports
+
+- **All four 14B-class models significantly beat qwen3.5-9b**, on both arms.
+- **None of them significantly beats gemma-4-e4b on the open arm.** The 6-9
+  point raw gap does not separate at n=147.
+- On the oracle arm three of four beat gemma; heresy does not (p=0.060).
+
+**gemma-4-e4b is a 7.5B model** running at 32768 context, and it is not
+measurably worse than any 14B in the setting closest to production. It is also
+the only model in the set profiled at `parallel: 2`. If throughput matters, it
+deserves consideration that the raw table would not suggest - and the raw table
+is exactly what a reader skimming §16 would have taken away.
+
+### Three overstatements, same shape
+
+Recorded because the pattern matters more than any one instance:
+
+1. "49% is the practical ceiling for this 9B" - was a configuration ceiling.
+2. "66% ceiling" - repeated the same error one section later; it is the best
+   measured result under this harness, prompt and model set.
+3. "Every 14B beats both lower-tier models" - tested one model, claimed four.
+4. "Roughly doubles accuracy" - 35.4% to 48.3% is +36% relative.
+
+Each was caught by review rather than by me, and each took the form of stating a
+measured result more broadly than the measurement supported. The underlying
+numbers were never wrong; the sentences around them were. For a document whose
+purpose is to inform an architecture decision, that distinction is the whole
+point.
+
+### One consequence for the recommendation
+
+§16 said "move to a 14B-class model". That is supported against the 9B and only
+against the 9B. A more defensible statement:
+
+> Move off qwen3.5-9b. Both gemma-4-e4b and any of the 14B-class models are
+> measurably better than it. Choosing between gemma and the 14B tier requires
+> either more judged lines or a decision on throughput, since the current data
+> does not separate them where it matters.
