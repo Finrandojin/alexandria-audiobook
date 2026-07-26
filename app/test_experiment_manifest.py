@@ -273,3 +273,40 @@ class UntrackedHarnessTest(unittest.TestCase):
     def test_a_fully_tracked_harness_reports_none(self):
         from experiments.manifest import _git_state
         self.assertIsNone(_git_state(REPO)["untracked_harness_files"])
+
+
+class HarnessEvidenceParityTest(unittest.TestCase):
+    """Every harness must record the same evidence.
+
+    The roster artifact carried 0 raw responses and no per-arm timing because
+    it calls attribute_batch and gets parsed entries back, while the closed-set
+    harness calls the model directly and keeps both. A reviewer could verify one
+    experiment and not the other. Same drift class that produced three copies of
+    the attestation check.
+    """
+
+    HARNESSES = ("closed_set.py", "roster_warmup.py", "candidate_id.py")
+
+    def _source(self, name):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                            "experiments", name)
+        with open(path, encoding="utf-8") as handle:
+            return handle.read()
+
+    def test_every_harness_records_raw_evidence(self):
+        for name in self.HARNESSES:
+            self.assertIn("raw=", self._source(name),
+                          f"{name} records no raw response")
+
+    def test_harnesses_using_attribute_batch_capture_attempts(self):
+        # attribute_batch hides the raw text, so the only route to retry
+        # evidence is the observer the pipeline already exposes.
+        for name in self.HARNESSES:
+            source = self._source(name)
+            if "attribute_batch(" in source:
+                self.assertIn("attempt_observer", source,
+                              f"{name} calls attribute_batch without an observer")
+
+    def test_multi_arm_harnesses_record_elapsed_time_per_arm(self):
+        source = self._source("roster_warmup.py")
+        self.assertIn("elapsed_by_arm", source)

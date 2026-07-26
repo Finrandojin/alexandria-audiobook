@@ -19,7 +19,7 @@ incomplete. A flat gain means something else differs between harness and
 production, and that must be found before shipping a two-pass design.
 """
 import collections
-import json, os, re, sys
+import json, os, re, sys, time
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
@@ -81,6 +81,7 @@ windows = [list(range(s, min(s + BATCH, len(seg)))) for s in range(0, len(seg), 
 scored_windows = [w for w in windows if any(norm(seg[i].get("text")) in want for i in w)]
 
 def run(arm):
+    started = time.time()
     if arm == "incremental":
         roster, seen = [], set()
     elif arm == "warm":
@@ -108,9 +109,16 @@ def run(arm):
         contexts = [{"previous_context": seg[i - 1] if i else None,
                      "next_context": seg[i + 1] if i + 1 < len(seg) else None}
                     for i in send]
+        # The closed-set harness calls the model directly and keeps its raw
+        # text; this one goes through attribute_batch, which returns parsed
+        # entries. attempt_observer is how the pipeline itself surfaces attempt
+        # telemetry, so use it rather than leaving the artifact without any
+        # retry evidence.
+        attempts = []
         out = attribute_batch(client, MODEL, frozen, params, roster=roster,
                               on_exhaustion="fallback", max_retries=3,
-                              neighbor_contexts=contexts, source_text=src)
+                              neighbor_contexts=contexts, source_text=src,
+                              attempt_observer=attempts.append)
         if not out or len(out) != len(frozen):
             continue
         for i, r in zip(send, out):
@@ -121,15 +129,18 @@ def run(arm):
                            r.get("speaker"), same(r.get("speaker"),
                                                   g["expected_speaker"]),
                            candidates=[x.upper() for x in roster],
-                           provenance=arm)
+                           provenance=arm, retries=len(attempts),
+                           raw=json.dumps(attempts, ensure_ascii=False))
         if arm == "incremental":
             for name in attested_new_speakers(out, seen, src):
                 seen.add(name); roster.append(name)
         if n % 20 == 0:
             print(f"  {arm} {n}/{len(walk)} ...", flush=True)
+    return time.time() - started
 
+elapsed_by_arm = {}
 for arm in ("incremental", "warm", "oracle"):
-    run(arm)
+    elapsed_by_arm[arm] = round(run(arm), 1)
     rows = [r for r in record.rows if r["arm"] == arm]
     hit = sum(1 for r in rows if r["correct"])
     print(f"{arm:12} {hit}/{len(rows)} = {hit/max(len(rows),1)*100:.1f}%", flush=True)
@@ -152,6 +163,7 @@ contract = {"expected_arms": ("incremental", "warm", "oracle"),
             "expected_ids": {g["id"] for g in gold["entries"]
                              if norm(g["line"]) in want},
             "require_clean_tree": True}
+record.meta["elapsed_by_arm_s"] = elapsed_by_arm
 print("wrote", record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments", f"roster_warmup__{_safe_name(MODEL)}.json"),
     contract=contract))
