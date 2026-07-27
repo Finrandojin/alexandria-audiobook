@@ -50,10 +50,18 @@ MODEL = os.environ.get("EXPERIMENT_MODEL", "qwen/qwen3-14b")
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
+# All five arms were measured on mushoku16 only. Every one of the four negatives
+# is therefore a single-book result, and closed-6 has already reversed between
+# books - so the arms have to be re-run on grimgar03 before any of them is
+# treated as settled. BOOK reaches the output filename deliberately: without it
+# a second book would overwrite the first book's artifact in place.
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD = os.environ.get("EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+GOLD_PATH = APP + GOLD
 
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + f"/{BOOK}/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 roster = build_roster([e for e in (cp.get("named") or []) if e], src)
 AL = [{n.upper() for n in g} for g in gold.get("aliases", [])]
@@ -143,8 +151,7 @@ def ask(window, arm):
         return [], text, thought
 
 record = ExperimentRecord(
-    "reasoning_arms", REPO, MODEL, BASE_URL,
-    APP + "fixtures/attribution_gold_random.json",
+    "reasoning_arms", REPO, MODEL, BASE_URL, GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 8000, "batch": BATCH},
     notes="baseline vs a 'because' field vs thinking-on, batched at 25.")
 
@@ -204,6 +211,6 @@ for label, plain, scaf in (("thinking off", "baseline", "scaffold"),
     print(f"  {label:18} {cells[0]:>14} {cells[1]:>12}")
 print("\nwrote", record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
-    f"reasoning_arms__{MODEL.replace('/','__')}.json"),
+    f"reasoning_arms__{BOOK}__{MODEL.replace('/','__')}.json"),
     contract={"expected_arms": ("baseline", "because", "scaffold",
                                "thinking", "scaffold_thinking")}))
