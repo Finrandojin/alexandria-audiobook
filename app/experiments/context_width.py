@@ -87,6 +87,44 @@ SYSTEM = ("You identify who speaks a line of dialogue in a novel. Answer with "
           "does not determine it, answer UNKNOWN.")
 
 
+# Deliberately the same verb set the candidates module uses, so "explicit tag"
+# means the same thing here as everywhere else in the ledger.
+SPEECH_VERB = (r"\b(SAID|ASKED|REPLIED|ANSWERED|SHOUTED|WHISPERED|MUTTERED|"
+               r"CALLED|CRIED|YELLED|GROANED|SIGHED|LAUGHED|NODDED|EXCLAIMED|"
+               r"BELLOWED|AGREED|TOLD|ADDED|CONTINUED|BEGAN|OFFERED)\b")
+
+
+def evidence_distance(index, truth):
+    """How far from the target line is the nearest mention of the true speaker,
+    and of any explicit speech tag?
+
+    The reviewer's objection to this experiment is correct and worth recording
+    per row: "62.1% of errors have no character name nearby" does NOT imply a
+    wider window contains the answer. The name may be absent at any width, and
+    extra prose may dilute the signal. A global average can hide "wide context
+    helps distant-evidence rows and harms local dialogue", which would call for
+    adaptive width or retrieval rather than shipping w40 everywhere.
+
+    Distances are in segments, signed away from the target; None means the
+    evidence does not appear within the widest window tested.
+    """
+    first = (truth or "").split()[0].upper()
+    name_at = tag_at = None
+    for d in range(1, max(WIDTHS) + 1):
+        for j in (index - d, index + d):
+            if not (0 <= j < len(seg)):
+                continue
+            text = (seg[j].get("text") or "")
+            up = text.upper()
+            if name_at is None and first and re.search(r"\b" + re.escape(first) + r"\b", up):
+                name_at = d
+            if tag_at is None and re.search(SPEECH_VERB, up):
+                tag_at = d
+        if name_at is not None and tag_at is not None:
+            break
+    return name_at, tag_at
+
+
 def ask(line, index, width):
     before = " ".join((seg[j].get("text") or "")
                       for j in range(max(0, index - width), index))
@@ -139,10 +177,15 @@ for width in WIDTHS:
             continue
         got, prompt, raw, retries = ask(g["line"], i, width)
         chars.append(len(prompt))
+        name_at, tag_at = evidence_distance(i, g["expected_speaker"])
         record.add(arm, g["id"], g["line"], g["expected_speaker"].upper(), got,
                    same(got, g["expected_speaker"]),
-                   candidates=roster, provenance=arm, prompt=prompt, raw=raw,
-                   retries=retries)
+                   candidates=roster,
+                   # Stratifying on evidence distance is the point: a width that
+                   # helps distant-evidence rows while harming local dialogue
+                   # would average out to nothing and be shipped as a null.
+                   provenance=f"{arm}|name_at={name_at}|tag_at={tag_at}",
+                   prompt=prompt, raw=raw, retries=retries)
     rows = [r for r in record.rows if r["arm"] == arm]
     hit = sum(1 for r in rows if r["correct"])
     med = sorted(chars)[len(chars) // 2] if chars else 0
