@@ -34,6 +34,33 @@ MODELS = {
 ARM = "open"          # the realistic configuration, not the oracle diagnostic
 
 
+def _alias_groups():
+    """Alias sets from the fixture, so RUDI and RUDEUS are not a disagreement.
+
+    The first version compared raw prediction strings. Two models naming the
+    same character differently counted as disagreement, which deflates agreement
+    and therefore the coverage of any confidence threshold built on it - the
+    exact defect that cost the scorer 14 of 147 lines.
+    """
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "fixtures", "attribution_gold_random.json")
+    with open(path, encoding="utf-8") as handle:
+        return [{n.upper() for n in group}
+                for group in json.load(handle).get("aliases", [])]
+
+
+ALIASES = _alias_groups()
+
+
+def canonical(name):
+    """One label per character, so votes are counted per person not per spelling."""
+    upper = (name or "").strip().upper()
+    for group in ALIASES:
+        if upper in group:
+            return sorted(group)[0]
+    return upper
+
+
 def load(arm=ARM):
     """{gold_id: {model: (prediction, correct)}} plus the gold answer."""
     rows = collections.defaultdict(dict)
@@ -80,11 +107,11 @@ def main():
     for gold_id, per_model in rows.items():
         if len(per_model) < len(names):
             continue
-        votes = collections.Counter(p for p, _ in per_model.values())
+        votes = collections.Counter(canonical(p) for p, _ in per_model.values())
         winner, count = votes.most_common(1)[0]
         # Correct means the majority answer matches what that model was scored
         # against - reuse the recorded correctness of any model that said it.
-        correct = any(ok for p, ok in per_model.values() if p == winner)
+        correct = any(ok for p, ok in per_model.values() if canonical(p) == winner)
         agreement[gold_id] = (count / len(names), correct)
     risk_coverage(agreement, "A. majority-vote answer, confidence = share of models agreeing")
 
@@ -95,7 +122,8 @@ def main():
         if best not in per_model or len(per_model) < len(names):
             continue
         pick, ok = per_model[best]
-        concur = sum(1 for p, _ in per_model.values() if p == pick) / len(names)
+        concur = sum(1 for p, _ in per_model.values()
+                     if canonical(p) == canonical(pick)) / len(names)
         gated[gold_id] = (concur, ok)
     risk_coverage(gated, f"B. {best}'s answer, confidence = how many models concur")
 

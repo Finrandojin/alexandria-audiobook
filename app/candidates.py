@@ -7,10 +7,19 @@ available before asking whether the model can pick it.
 """
 import re
 
+# Widened after re-examination: the first list had "nods" but not "nodded", and
+# missed exclaimed, bellowed, agreed and told, each used several times in one
+# book. Tag-only recall on mushoku16 rises from 7.5% to 10.2% - which does not
+# change the conclusion that a deterministic tag stage cannot be the primary
+# architecture, but the original figure understated it.
 SPEECH = (r"(?:said|says|asked|replied|answered|murmured|whispered|shouted|"
           r"cried|muttered|added|spoke|snapped|barked|laughed|sighed|"
           r"continued|declared|protested|demanded|called|put in|finished|"
-          r"pouts|nods|shrugged|grinned|yelled|screamed|breathed)")
+          r"pouts|nods|nodded|shrugged|shrugs|grinned|grins|yelled|screamed|"
+          r"breathed|exclaimed|bellowed|agreed|told|began|repeated|insisted|"
+          r"admitted|offered|observed|remarked|responded|returned|urged|"
+          r"warned|hissed|growled|groaned|mumbled|stammered|sputtered|wailed|"
+          r"moaned|chuckled)")
 
 
 def _names_in(text, roster):
