@@ -48,7 +48,12 @@ APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 MODEL = os.environ.get("EXPERIMENT_MODEL", "qwen/qwen3-14b")
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
-BASE_URL = "http://localhost:1234/v1"
+BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://localhost:1234/v1")
+# See closed_set.py: the environment belongs in the filename, or a remote run
+# overwrites the local artifact for the same model and book.
+TAG = os.environ.get("EXPERIMENT_TAG",
+                     "local" if "localhost" in BASE_URL or "127.0.0.1"
+                     in BASE_URL else "remote")
 BATCH = 25
 # All five arms were measured on mushoku16 only. Every one of the four negatives
 # is therefore a single-book result, and closed-6 has already reversed between
@@ -153,6 +158,8 @@ def ask(window, arm):
 record = ExperimentRecord(
     "reasoning_arms", REPO, MODEL, BASE_URL, GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 8000, "batch": BATCH},
+    environment=(json.loads(os.environ["EXPERIMENT_ENV"])
+                 if os.environ.get("EXPERIMENT_ENV") else None),
     notes="baseline vs a 'because' field vs thinking-on, batched at 25.")
 
 windows = [list(range(s, min(s + BATCH, len(seg)))) for s in range(0, len(seg), BATCH)]
@@ -211,6 +218,6 @@ for label, plain, scaf in (("thinking off", "baseline", "scaffold"),
     print(f"  {label:18} {cells[0]:>14} {cells[1]:>12}")
 print("\nwrote", record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
-    f"reasoning_arms__{BOOK}__{MODEL.replace('/','__')}.json"),
+    f"reasoning_arms__{BOOK}__{MODEL.replace('/','__')}__{TAG}.json"),
     contract={"expected_arms": ("baseline", "because", "scaffold",
                                "thinking", "scaffold_thinking")}))

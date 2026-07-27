@@ -74,6 +74,14 @@ print(f"scoring {len(SCOREABLE)} of {len(gold['entries'])} gold lines "
 # is recorded in the artifact, so a local and a rented-GPU run can never be
 # confused for one another after the fact.
 BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://localhost:1234/v1")
+# The environment goes in the FILENAME, not just the manifest. Without it a
+# cloud run and a local run of the same model and book write the same path, and
+# the second silently destroys the first - which nearly cost the local grimgar03
+# qwen3-14b artifact on 2026-07-27. Defaults to "local" so existing behaviour is
+# only extended, never guessed at.
+TAG = os.environ.get("EXPERIMENT_TAG",
+                     "local" if "localhost" in BASE_URL or "127.0.0.1"
+                     in BASE_URL else "remote")
 DECODING = {"temperature": 0.0, "max_tokens": 24, "reasoning_effort": "none"}
 client = OpenAI(base_url=BASE_URL, api_key="local")
 # On a remote host the local `lms` CLI cannot see the server, so the caller
@@ -174,5 +182,5 @@ contract = {"expected_arms": ("open", "closed-6", "closed-oracle"),
             "require_clean_tree": True}
 out = record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
-    f"closed_set__{BOOK}__{_safe_name(MODEL)}.json"), contract=contract)
+    f"closed_set__{BOOK}__{_safe_name(MODEL)}__{TAG}.json"), contract=contract)
 print("wrote", out)
