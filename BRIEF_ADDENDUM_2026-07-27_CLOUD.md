@@ -1325,6 +1325,64 @@ should resolve them before any relabel.
 `gold_sha256` moves `7f45e0ce` -> `133222be`. Every existing artifact records
 the old hash, so which fixture produced which number remains traceable.
 
+## 13.10 Queued: the committed-history experiment (predictions recorded first)
+
+The adjudication in §13.9 makes this the best-supported experiment available,
+so it is queued behind the context sweep. `app/experiments/committed_history.py`,
+commit `bb030fc`.
+
+**Why this and not another model or prompt.** Twenty of the 26 unanimous oracle
+failures are unmarked alternating dialogue where the models converge on the
+WRONG TURN rather than guessing. **64% of grimgar03's gold lines abut another
+spoken segment with no narration between them**, so turn-taking is the only
+available evidence on most of the fixture. Production pass 2 attributes batches
+of 25 entries *independently* and never sees its own decisions.
+
+### 13.10.1 Three arms, because two would conflate two questions
+
+| arm | what it isolates |
+|---|---|
+| `none` | current production behaviour |
+| `oracle` | TRUE previous speakers - is the representation useful at all? |
+| `predicted` | this run's own prior answers - can the state be supplied? |
+
+Readings fixed before the run:
+
+- **oracle helps, predicted does not** - the representation is useful and the
+  state source is not; work on the state source, not the prompt.
+- **both help** - production candidate.
+- **neither helps** - retire simple sequential history. The next candidate is
+  joint scene decoding, which exploits turn-taking without freezing an early
+  error as immutable state.
+- **predicted beats oracle** - almost certainly a bug; investigate before
+  believing it.
+
+**This is not the `scaffold` arm again.** That asked the model to *infer*
+`previous_speaker` and lost 4.0 points (§6a). Asking a model to introspect and
+handing it resolved state are different mechanisms, and conflating them would
+retire a good idea on the strength of a failed one.
+
+### 13.10.2 Error propagation is measured, not assumed
+
+The `predicted` arm decodes in **book order**, so a wrong answer becomes the
+next line's history - the honest version of the design rather than one that
+hides compounding. Accuracy is reported by **distance from the last narration
+anchor** (narration is where names and speech tags live). If committed history
+compounds mistakes, the predicted arm decays with distance while the oracle arm
+does not, and that is visible directly rather than inferred.
+
+### 13.10.3 Prediction on the record
+
+**Expected: oracle helps meaningfully, predicted helps less or not at all.**
+The adjudication showed models converging on the *wrong* turn, which means a
+model's own predicted history would frequently be the wrong anchor; feeding it
+back could propagate error rather than correct it.
+
+Recorded before the run so the result cannot be reinterpreted afterwards. If
+that is what happens, the honest conclusion is that the representation is worth
+having and sequential self-supplied state is not the way to get it - which
+points at joint scene decoding rather than at another prompt variant.
+
 ## 14. Infrastructure added today
 
 - **Row-level checkpointing** (TEMPORARY, `manifest.py`) — resume for any
