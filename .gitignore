@@ -180,3 +180,12 @@ ab_test_runtime/probe_thinking/
 ab_test_runtime/extended/
 /qualification_*/
 /model_ab_test/
+
+# Live experiment checkpoints and transient run scratch. Checkpoints exist only
+# while a run is in flight and are deleted on a successful write; committing one
+# would preserve a half-finished run as if it were a result.
+ab_test_runtime/experiments/*.ckpt
+ab_test_runtime/experiments/*.ckpt.stale
+ab_test_runtime/cloud_e2e/
+ab_test_runtime/pipeline_repeats/run*.json*
+ab_test_runtime/pipeline_repeats/*.log
