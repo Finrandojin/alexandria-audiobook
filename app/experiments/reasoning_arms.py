@@ -39,7 +39,16 @@ points; this adds some back.
 import collections
 import json, os, re, sys, time
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+import openai
 from openai import OpenAI
+
+# Availability failures only - APIStatusError subclasses covering 404/429/5xx
+# plus transport errors. BadRequestError is deliberately absent: a malformed
+# request fails identically on every attempt.
+RETRYABLE = (openai.APIConnectionError, openai.APITimeoutError,
+             openai.InternalServerError, openai.RateLimitError,
+             openai.NotFoundError)
+MAX_ATTEMPTS = 6
 from experiments.manifest import ExperimentRecord
 from three_pass_generate import build_roster, get_deterministic_named_entry
 
@@ -140,11 +149,31 @@ def ask(window, arm):
     extra = {} if thinks else {"reasoning_effort": "none"}
     system = (SCAFFOLD_SYS if scaffolded
               else BECAUSE_SYS if arm == "because" else BASE_SYS)
-    response = client.chat.completions.create(
-        model=MODEL, temperature=0.0, max_tokens=8000,
-        messages=[{"role": "system", "content": system},
-                  {"role": "user", "content": user}],
-        extra_body=extra)
+    # Same policy as closed_set.py: retry availability failures only, never a
+    # rejection of the request itself. This harness needed it more, not less -
+    # its arms run for hours where a closed-set run takes minutes, so it is far
+    # more exposed to a dropped tunnel, and it lost magistral-small's entire
+    # five-arm run on grimgar03 to one such drop before this existed.
+    last = None
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            response = client.chat.completions.create(
+                model=MODEL, temperature=0.0, max_tokens=8000,
+                messages=[{"role": "system", "content": system},
+                          {"role": "user", "content": user}],
+                extra_body=extra)
+            break
+        except RETRYABLE as exc:
+            last = exc
+            if attempt == MAX_ATTEMPTS - 1:
+                raise RuntimeError(
+                    f"endpoint failed {MAX_ATTEMPTS} consecutive attempts "
+                    f"against {BASE_URL}; last error "
+                    f"{type(last).__name__}: {last}") from last
+            delay = min(2 ** attempt, 30)
+            print(f"    endpoint unavailable ({type(exc).__name__}), retry "
+                  f"{attempt + 1}/{MAX_ATTEMPTS - 1} in {delay}s", flush=True)
+            time.sleep(delay)
     text = (response.choices[0].message.content or "")
     usage = getattr(response, "usage", None)
     details = getattr(usage, "completion_tokens_details", None)
