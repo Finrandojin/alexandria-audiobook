@@ -36,15 +36,18 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
 
-gold = json.load(open(APP + GOLD))
 # The exploratory arms reversed between books - `because` won on mushoku16 and
 # is null on grimgar03, thinking the reverse - so a production-path check has
-# to name its book rather than assume one.
+# to name its book rather than assume one. These must precede every use: an
+# identical ordering slip once let three runs exit in nine seconds while the
+# loop around them logged "done".
 BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
 GOLD = os.environ.get("EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
 TAG = os.environ.get("EXPERIMENT_TAG",
                      "local" if "localhost" in BASE_URL or "127.0.0.1"
                      in BASE_URL else "remote")
+
+gold = json.load(open(APP + GOLD))
 src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
 cp = json.load(open(M + INPUT_RUN + f"/{BOOK}/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
