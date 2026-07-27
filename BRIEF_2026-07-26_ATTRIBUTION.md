@@ -4,7 +4,7 @@ Date: 2026-07-27
 
 Repository: `alexandria-audiobook2.git`
 
-Branch: `agent/three-pass-generation`
+Branch: `agent/model-comparison`
 
 Audience: an external reviewer with repository access and no session history
 
@@ -30,15 +30,16 @@ The defensible conclusions are:
 3. **No prompt, roster, candidate, voting, or confidence intervention tested
    so far has demonstrated a shippable production gain.**
 4. **The apparent `because` improvement does not transfer to the production
-   path.** This is now closed: the clean production-only rerun requested in the
-   previous revision completed and validated (§5).
+   path.** This is closed for the production decision: the dedicated rerun
+   completed and validated, with its dirty-tree provenance disclosed (§5).
 5. **The evidence does not establish a 90% path, an intrinsic model ceiling, or
    that Gemma is significantly worse than Qwen end to end.**
-6. **Two independent generalization failures are now measured, and they are the
-   most important new result.** The same comparison changes answer when the
-   book changes, and again when the harness changes (§6). Both are documented
-   below with paired statistics. Every single-book, single-harness conclusion in
-   this brief — which is nearly all of them — should be read against that.
+6. **Two important transport failures are now measured.** A significant
+   `closed-6` harm on Mushoku does not replicate on Grimgar, and the descriptive
+   Gemma/Qwen ordering differs between a frozen-pass-1 decomposition and
+   end-to-end output (§6). Neither result proves a true sign reversal, but both
+   show that single-book, single-harness conclusions do not automatically
+   transfer.
 
 Consequently the highest-value action is no longer another intervention. It is
 to establish how far any of the existing results generalize, because the
@@ -203,10 +204,10 @@ The best interpretation is:
 Do not say the intervention “was never helping.” It helped relative to the
 simplified baseline; it did not transfer to the configuration that matters.
 
-### Evidence gap: now closed
+### Evidence gap: materially closed
 
 The previous revision recorded that the production-path numbers existed only as
-an incomplete log. That gap is closed. The rerun completed and wrote a
+an incomplete log. The result gap is materially closed. The rerun wrote a
 validated artifact,
 `ab_test_runtime/experiments/because_production__qwen__qwen3-14b.json`
 (qwen/qwen3-14b, 139 frozen IDs, all three arms present):
@@ -221,6 +222,12 @@ The reversal is therefore artifact-grade on this book. `because` costs 7.2
 points against the configuration that could actually ship, having appeared to
 gain 10.8 points against a weaker harness baseline of 39.6%.
 
+This was not literally the clean-tree run requested in the previous revision.
+Its metadata records `dirty: true` because the brief and `closed_set.py` were
+modified. The `because_production.py` harness has a recorded SHA-256 and was
+not listed as modified, so the result is reconstructable enough for this
+decision; its provenance should still be described accurately.
+
 The mechanism is worth stating because it recurred later the same day: the
 exploratory harness used a simplified prompt, which depressed *its* baseline
 rather than lifting `because`. A positive result measured against a weakened
@@ -231,7 +238,7 @@ not simplified — it was merely a different harness.
 Caveat retained: this is one book. The five reasoning arms have never been run
 on a second book, which is why the run described in §7.1 is in flight.
 
-## 6. Model comparison, and two generalization failures
+## 6. Model comparison, and two transport failures
 
 The controlled closed-set decomposition supports moving off qwen3.5-9b and
 testing 14B-class candidates. It does not prove that the task has a fixed model
@@ -260,13 +267,15 @@ Grimgar open-arm pairwise, exact McNemar:
 | gemma vs ministral | 70 / 47 | **0.04150** |
 | qwen3-14b vs gemma | 56 / 42 | 0.18885 (unresolved) |
 
-Both books agree that qwen3-14b is at or near the top and that the shipped 9B is
-not. They do **not** agree on second place: ministral is competitive on Mushoku
+Both books place qwen3-14b at or near the top. Mushoku also shows the shipped 9B
+behind all tested alternatives; the 9B was not run in the Grimgar decomposition.
+The books do **not** agree on second place: ministral is competitive on Mushoku
 (47.6%, within noise of qwen3-14b) and clearly last on Grimgar (p=0.042 behind
-gemma). Do not carry a full ranking across books; carry only "qwen3-14b ≥ the
-others, and the 9B is worse than all of them."
+gemma). Do not carry a full ranking across books. The narrow cross-book
+statement is “qwen3-14b is competitive with the best tested model on both
+fixtures.”
 
-### 6.2 Generalization failure 1 — `closed-6` across books
+### 6.2 Transport failure 1 — `closed-6` across books
 
 `closed-6` restricts the model to six scene-derived candidates. Paired against
 the open arm, same model, same lines:
@@ -292,11 +301,22 @@ helps on the other.
 This still matters, because `closed-6` was the most-replicated negative in the
 ledger — five models agreeing. Five models on one book is one book.
 
-### 6.3 Generalization failure 2 — decomposition vs. whole pipeline
+### 6.3 Transport failure 2 — decomposition vs. whole pipeline
 
-The overnight full-book 2×2 produced complete three-pass output for both models
-on both books. Scored against the same fixtures, excluding repeated-text lines
-and applying fixture aliases:
+The overnight full-book 2×2 left three cells as `.partial.json`; only
+Qwen/Mushoku completed without a reported generation failure. The recovered
+outputs nevertheless cover nearly all scoreable fixture rows. Quantified from
+the checkpoints, attributed entries against total segments:
+
+| cell | attributed / segments | missing |
+|---|---:|---:|
+| Qwen / Mushoku | 2056 / 2056 | 0 |
+| Qwen / Grimgar | 2539 / 2540 | 1 (0.04%) |
+| Gemma / Mushoku | 2039 / 2048 | 9 (0.44%) |
+| Gemma / Grimgar | 2640 / 2655 | 15 (0.56%) |
+
+Scored against the same fixtures, excluding repeated-text lines and applying
+fixture aliases:
 
 | model | Mushoku end-to-end | Grimgar end-to-end |
 |---|---:|---:|
@@ -307,25 +327,34 @@ Paired exact McNemar: Mushoku 27/14 discordant, p=0.0596; Grimgar 51/73
 discordant, p=0.0589. **Neither difference is significant**, and neither model
 should be described as the end-to-end winner.
 
-The finding is not in either column, it is in the comparison between §6.1 and
-§6.3 on the same book:
+The useful signal is the comparison between §6.1 and §6.3 on the same book:
 
 - decomposition, Grimgar: qwen3-14b 60.8% > gemma 57.2%
 - end-to-end, Grimgar: gemma 59.4% > qwen3-14b 53.9%
 
-The two instruments rank the two models in opposite orders on identical source
-text and an identical fixture. The decomposition freezes segmentation from the
-9B run and varies only pass 2; end-to-end runs each model's own pass 1 *and*
-pass 2. So the decomposition measures a component under a fixed input that no
-shipping configuration would ever present it with, and the pipeline measures the
-product.
+The two instruments have opposite descriptive orderings on identical source
+text and fixture, but the relevant Gemma/Qwen differences are not statistically
+resolved. The decomposition freezes segmentation from the 9B run and varies
+only pass 2; end-to-end outputs combine each model's own pass 1 and pass 2. The
+decomposition therefore measures a component under a controlled input, while
+the end-to-end output measures the combined product and includes partial-run
+effects.
+
+One qualification to that last clause, from the coverage table above:
+partial-run effects cannot account for the Grimgar ordering. Both models scored
+the same 399 fixture rows with 398 shared, so incompleteness removed no gold
+rows differentially — and Gemma, the higher scorer, is the cell with *more*
+missing entries (15 against 1). Incompleteness therefore works against the
+observed ordering rather than producing it. It remains a reason not to call
+either cell a completed run; it is not a candidate explanation for §6.3.
 
 Every model conclusion in §6.1 comes from the decomposition. This does not
 invalidate it as a pass-2 probe — that is what it was built to be — but it does
 mean **the decomposition has not been shown to predict pipeline behavior**, and
 it is the pipeline that ships. Related: gemma's 59.4% is the highest end-to-end
-figure this project has produced, from a 7.5B model that the decomposition
-ranks second.
+figure this project has produced on this fixture, from a 7.5B model that the
+decomposition ranks second. Because that output is partial and the paired model
+difference is p=0.0589, it is a candidate worth investigating, not a winner.
 
 Also note this defeats a rule the project adopted after the `because` reversal.
 "Test against the exact configuration that could ship" catches a *simplified*
@@ -424,8 +453,8 @@ aggregate.
   questions, thinking tokens, voting, or candidate IDs;
 - a significant end-to-end Gemma/Qwen difference — the 2×2 now completes on both
   books and is non-significant on both (p≈0.06), in *opposite* directions;
-- generalization from Mushoku to Grimgar — now actively contradicted, not merely
-  untested, for `closed-6` (§6.2) and for the model ranking (§6.3);
+- generalization from Mushoku to Grimgar — `closed-6` harm failed to replicate
+  on Grimgar, while the model order also varies descriptively (§6);
 - that the closed-set decomposition predicts pipeline behavior.
 
 ### Do not do yet
@@ -442,16 +471,20 @@ aggregate.
 ## 10. Recommended next steps
 
 Reordered from the previous revision. `because` is closed, and the two
-generalization failures displace the remaining intervention work.
+transport failures displace the remaining intervention work.
 
 1. **Finish the two runs in §7** and record both outcomes, including null ones.
-2. **Resolve which instrument to trust (§6.3).** This gates everything else: the
-   ledger is almost entirely decomposition results, and the decomposition just
-   disagreed with the pipeline about model ranking. The cheap discriminating
-   test is to re-run the decomposition on gemma's *own* segmentation instead of
-   the frozen 9B segmentation. If the ranking flips to match end-to-end, the
-   frozen input is the cause and every §6.1 number is conditional on a
-   segmentation no shipping configuration produces.
+2. **Resolve what causes the instrument disagreement (§6.3).** Do not choose
+   one instrument by preference: they answer different questions. The most
+   informative design is a crossover on the same book:
+   - freeze one segmentation from Gemma and one from Qwen;
+   - run both Gemma and Qwen attribution on both segmentations;
+   - score only source spans that map consistently, while separately reporting
+     pass-1 omissions, splits, merges, and generation failures.
+
+   This 2×2 separates a pass-1 effect, a pass-2 model effect, and their
+   interaction. Running only on Gemma's segmentation is a useful cheap probe,
+   but it cannot distinguish all three.
 3. **Freeze the Grimgar scoring fixture and policy.** Report ambiguous and
    unaligned rows separately. The 400-line fixture is currently single-judge and
    provisional; it is adequate for the paired rankings above and not for any
@@ -494,8 +527,8 @@ Every intervention should therefore be tested against the exact configuration
 that could ship. Simplified harnesses are excellent for generating hypotheses,
 not for declaring production wins.
 
-The `because` reversal is now closed by a validated artifact and needs no
-further defense.
+The production decision on `because` is closed by a validated artifact, with
+the dirty-tree provenance caveat recorded in §5.
 
 ### Added this revision
 
@@ -507,20 +540,20 @@ existing line predicts:
 - **either can be caused by a sound instrument measuring something adjacent to
   what ships.**
 
-The `because` reversal was caught by comparing prompts — the exploratory
-baseline was visibly weaker. Nothing analogous was available for §6.3. The
-closed-set decomposition has no defect: correct prompt, production call path,
-validated artifact, paired statistics. It simply holds segmentation fixed, and
-that single design choice was enough to invert a model ranking on the same book
-and fixture. There was no way to see that by reading the harness; it took
-scoring the whole pipeline and finding the opposite answer.
+The `because` reversal was caught by comparing prompts: the exploratory
+baseline was visibly weaker. Section 6.3 is different. The closed-set
+decomposition has no known scoring defect; it uses a production call path,
+validated artifacts, and paired statistics. It holds segmentation fixed,
+whereas the end-to-end outputs vary segmentation and attribution together and
+include partial runs. Their descriptive ordering differs, but the evidence
+does not yet identify frozen segmentation as the cause.
 
-The practical consequence is uncomfortable. Most of §4's ledger rests on the
-decomposition or on similarly frozen-input harnesses, so the confidence in each
-of those rows should drop until §10 step 2 resolves whether the frozen input is
-responsible. I do not think the ledger is *wrong* — several entries have large
-paired effects that a segmentation difference is unlikely to reverse — but
-"measured under frozen 9B segmentation" now belongs on every one of them.
+The practical consequence is that component claims and product claims must be
+kept separate. Most of §4's ledger rests on the decomposition or similarly
+frozen-input harnesses. Those results remain evidence about pass 2 under their
+declared inputs, but they should not become end-to-end recommendations without
+a crossover or production confirmation. “Measured under frozen 9B
+segmentation” belongs on each affected claim.
 
 The model result should also be stated narrowly, and more narrowly than the
 previous revision put it. The evidence supports moving off the original 9B. It
