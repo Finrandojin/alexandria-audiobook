@@ -19,6 +19,17 @@ Arms, batched at 25 to mirror production, everything else identical:
   scaffold   {n, tag, addressed, previous_speaker, speaker} - the questions a
              human judge works through, asked explicitly and in order
   thinking   {n, speaker}, reasoning_effort unset so the model may think
+  scaffold_thinking   both - the questions AND permission to reason
+
+The last two arms cross the only two factors that matter, so the result can
+distinguish four outcomes rather than two:
+
+  thinking alone wins        - what it needed was room, not direction
+  scaffold alone wins        - it needed direction, and thinking is wasted cost
+  both together win          - they are complementary; pay for both
+  scaffold_thinking is worse - the questions constrain a model that reasons
+                               better unprompted, which is worth knowing before
+                               anyone writes a prompt like this into production
 
 `because` is the cheap version of the idea: a clause, not a monologue, and a
 field that can be inspected, validated and used as a confidence signal. The
@@ -98,8 +109,14 @@ def ask(window, arm):
     user = (f"ESTABLISHED ROSTER: {', '.join(roster) or '(none yet)'}\n\n"
             f"Assign a speaker to each entry:\n\n"
             f"{json.dumps(payload, ensure_ascii=False)}")
-    extra = {} if arm == "thinking" else {"reasoning_effort": "none"}
-    system = {"because": BECAUSE_SYS, "scaffold": SCAFFOLD_SYS}.get(arm, BASE_SYS)
+    # Two independent factors: whether the model may think, and whether it is
+    # asked the judge's questions. Crossing them is the point - scaffold may
+    # help a model that cannot think, and may equally constrain one that can.
+    thinks = arm in ("thinking", "scaffold_thinking")
+    scaffolded = arm in ("scaffold", "scaffold_thinking")
+    extra = {} if thinks else {"reasoning_effort": "none"}
+    system = (SCAFFOLD_SYS if scaffolded
+              else BECAUSE_SYS if arm == "because" else BASE_SYS)
     response = client.chat.completions.create(
         model=MODEL, temperature=0.0, max_tokens=8000,
         messages=[{"role": "system", "content": system},
@@ -124,7 +141,8 @@ record = ExperimentRecord(
 windows = [list(range(s, min(s + BATCH, len(seg)))) for s in range(0, len(seg), BATCH)]
 windows = [w for w in windows if any(norm(seg[i].get("text")) in want for i in w)]
 elapsed = {}
-for arm in ("baseline", "because", "scaffold", "thinking"):
+# Cheap arms first, so a stall in a thinking arm still leaves usable results.
+for arm in ("baseline", "because", "scaffold", "thinking", "scaffold_thinking"):
     started = time.time()
     thought_total = 0
     for n, window in enumerate(windows, 1):
@@ -159,8 +177,18 @@ for arm in ("baseline", "because", "scaffold", "thinking"):
           f"{elapsed[arm]:.0f}s   reasoning_tokens={thought_total}", flush=True)
 
 record.meta["elapsed_by_arm_s"] = elapsed
+print("\nfactorial view (accuracy, seconds):")
+print(f"  {'':18} {'no scaffold':>14} {'scaffold':>12}")
+for label, plain, scaf in (("thinking off", "baseline", "scaffold"),
+                           ("thinking on ", "thinking", "scaffold_thinking")):
+    cells = []
+    for name in (plain, scaf):
+        rows = [r for r in record.rows if r["arm"] == name]
+        hit = sum(1 for r in rows if r["correct"])
+        cells.append(f"{hit/max(len(rows),1)*100:5.1f}% {elapsed.get(name,0):5.0f}s")
+    print(f"  {label:18} {cells[0]:>14} {cells[1]:>12}")
 print("\nwrote", record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"reasoning_arms__{MODEL.replace('/','__')}.json"),
     contract={"expected_arms": ("baseline", "because", "scaffold",
-                               "thinking")}))
+                               "thinking", "scaffold_thinking")}))
