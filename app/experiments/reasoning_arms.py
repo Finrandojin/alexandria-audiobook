@@ -36,6 +36,7 @@ field that can be inspected, validated and used as a confidence signal. The
 candidate-ID experiment removed expressiveness from the output and lost 13.6
 points; this adds some back.
 """
+import collections
 import json, os, re, sys, time
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
@@ -62,7 +63,15 @@ def same(a, b):
     return a == b or any(a in g and b in g for g in AL)
 
 def norm(t): return re.sub(r"\W+", "", t or "").lower()
-want = {norm(g["line"]): g for g in gold["entries"]}
+# A gold line whose text repeats cannot be aligned to one position, so scoring
+# it at each occurrence counts one judgement twice. This is the same defect
+# already fixed in build_scoring_sheet, roster_warmup and two_by_two - the
+# fourth harness to need it, which is why the manifest validator now refuses to
+# write an artifact containing duplicate (arm, id) pairs.
+_occurrences = collections.Counter(norm(e.get("text")) for e in seg)
+want = {norm(g["line"]): g for g in gold["entries"]
+        if _occurrences[norm(g["line"])] == 1}
+print(f"scoring {len(want)} gold lines with unambiguous text", flush=True)
 pos = {norm(e["text"]): i for i, e in enumerate(seg)}
 client = OpenAI(base_url=BASE_URL, api_key="local")
 
@@ -82,6 +91,7 @@ SCAFFOLD_SYS = (
     "You assign speaker names to already-segmented script entries. "
     "Output ONLY a valid JSON array.\n"
     "For each entry, answer these in order, then decide:\n"
+    '  "n"                - echo the entry index unchanged\n'
     '  "tag"              - the dialogue tag attributing this line, verbatim, '
     "or null if there is none nearby\n"
     '  "addressed"        - who is being spoken TO, if a name inside the line '
@@ -152,6 +162,11 @@ for arm in ("baseline", "because", "scaffold", "thinking", "scaffold_thinking"):
         answers, raw, thought = ask(send, arm)
         thought_total += thought or 0
         by_index = {a.get("n"): a for a in answers if isinstance(a, dict)}
+        if answers and None in by_index:
+            # A response that drops "n" silently misaligns every row: this
+            # scored the scaffold arm at 7.7% when its answers were correct.
+            print(f"  WARNING {arm}: {sum(1 for a in answers if a.get('n') is None)}"
+                  f"/{len(answers)} responses omitted the index", flush=True)
         for position, entry_index in enumerate(send):
             key = norm(seg[entry_index].get("text"))
             if key not in want:
