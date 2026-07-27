@@ -2544,3 +2544,98 @@ Independent reasoning about the pipeline produced eight negatives and one model
 swap. The questions that worked all had the same shape: **they asked what the
 successful judge does that the pipeline does not**, rather than what the
 pipeline might be doing wrong.
+
+---
+
+## 34. Re-examining the eight negatives — and losing the one positive
+
+The owner asked that the eight negative results be re-examined with the
+suspicion the scaffold near-miss had earned. Six were re-checked. **Two had real
+instrument defects. No conclusion reversed. The result that did reverse was the
+positive one.**
+
+### The two instrument defects, found on CPU
+
+**Ensemble confidence compared raw prediction strings.** Two models naming the
+same character differently counted as a disagreement - the alias defect that
+cost the scorer 14 of 147 lines, back in a second place. Corrected, unanimity
+covers **17.0% of lines at 76.0%** rather than 9.5% at 85.7%. The conclusion
+survives and is if anything worse.
+
+**The dialogue-tag pattern was too narrow** - it contained `nods` but not
+`nodded`, and missed `exclaimed`, `bellowed`, `agreed`, `told`. Tag-only recall
+rises from **7.5% to 10.2%**, still far too little to carry an architecture.
+
+### The four re-run on the production path
+
+All through `attribute_batch` with the shipping prompt, the full 17-name roster,
+139 unambiguous lines, temperature 0.
+
+| arm | accuracy | vs baseline | p | verdict |
+|---|---:|---|---:|---|
+| baseline | 49.6% | — | — | — |
+| voting | 49.6% | +1/−1 | 1.000 | **null confirmed** - and this time on a correct roster, where the original prototype ran with five names |
+| narration in batch | 34.5% | +10/−31 | **0.001** | **negative confirmed, seven times stronger** than the −2.1 first reported |
+| narrator hint | 51.8% | +17/−14 | 0.720 | **null confirmed** - even delivered through the system prompt rather than as a pseudo-roster entry |
+| prose passage | 47.5% | +22/−25 | 0.771 | **downgraded** - reported as −5.4, actually not significant |
+
+Two numbers were wrong in opposite directions. No direction changed.
+
+### The positive reversed
+
+`because` was measured at **+10.8 points, p=0.004** in the reasoning-arms
+harness - the first significant positive architectural result in this
+investigation, and the one this brief was most enthusiastic about.
+
+That harness called the model directly with a simplified prompt and scored its
+own baseline at **39.6%**. The production path scores **49.6%** on the same
+lines. Re-run through `attribute_batch` with the shipping prompt:
+
+| arm | reasoning-arms harness | production path |
+|---|---:|---:|
+| baseline | 39.6% | 49.6% |
+| **because** | **50.4%** | **42.4%** |
+
+**A justification field gains 10.8 points against a weak baseline and loses 7.2
+against the real one.** The intervention was never helping; it was recovering
+ground the simplified harness had given away.
+
+This is precisely the error the re-examination was hunting - an instrument
+measuring something other than the thing being shipped - applied to the result
+I wanted to be true rather than to the ones I did not. Every negative in this
+brief got a paired test and an artifact. The positive got a headline within an
+hour of appearing.
+
+### What the ledger now says
+
+Ten interventions have been measured. **One survives: changing the model off
+qwen3.5-9b.** Everything else is null or negative:
+
+narrator hints, prose passages, narration in-batch, scene-local candidates,
+deterministic tag extraction, self-consistency voting, ensemble confidence
+routing, roster warm-up, the candidate-ID contract, and now the justification
+field.
+
+### The lesson, stated exactly
+
+The rule I drew last night - *apply more scrutiny to negatives, because a
+negative can be produced by any single break* - was half right and dangerously
+incomplete.
+
+A negative can come from any break in the chain. **A positive can come from a
+weak comparison.** Those are different failure modes and both are common, and
+the second is more seductive because it arrives as good news after a long run of
+bad news.
+
+The discipline that would have caught this is not "suspect negatives". It is:
+**measure every intervention against the configuration you would actually
+ship**, and treat any result from a simplified harness as a hypothesis about
+the real path rather than a finding about it. Six harnesses were built in two
+days. Only one of them was the production path.
+
+### The matrix, stopped
+
+Stopped at 10 of 24 runs, which are preserved. Its ranking question is answered
+more precisely by the closed-set decomposition - paired, same frozen inputs,
+six models - and it would have spent ~15 hours on a pass-2 configuration under
+active change. It should be run once, later, against a settled configuration.
