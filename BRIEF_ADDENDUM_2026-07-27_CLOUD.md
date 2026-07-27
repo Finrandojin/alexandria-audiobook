@@ -1171,6 +1171,81 @@ supports. What is missing? In particular:
   an artefact and the real question is what accuracy on *representative* lines
   looks like.
 
+## 13.8 Offline analyses: three results from existing artifacts, no GPU
+
+Run at the review's suggested priority, against committed artifacts only
+(`app/experiments/offline_analysis.py`). Two of the three change how earlier
+numbers should be read.
+
+### 13.8.1 The oracle "ceiling" is mostly model variance
+
+The 24-34% oracle failure rate has been treated as the least explained number
+in the ledger. Decomposed across every model run on each book:
+
+| book | wrong under ALL model runs | wrong under at least one |
+|---|---:|---:|
+| grimgar03 (6 runs) | **27 / 400 = 6.8%** | 262 / 400 = 65.5% |
+| mushoku16 (5 runs) | 16 / 139 = 11.5% | 120 / 139 = 86.3% |
+
+Only **7-12% of rows defeat every model.** The remaining failures are rows some
+model gets right - individually recoverable, not a shared capability limit. So
+the oracle arm's ceiling is not one wall at 66-76%; it is a small hard core plus
+a large band of model-specific variance.
+
+On the unanimous failures the models mostly **pick another candidate** (18 of 27
+on grimgar03) rather than answering UNKNOWN (7). Confident wrongness, not
+abstention.
+
+Those 27 grimgar03 rows are now the highest-value adjudication target in the
+project: a small, precisely identified set where six independent models fail
+with the answer among five candidates. Whether they are bad gold, missing
+context, or genuine ambiguity is exactly the review's priority 6, and it is now
+27 rows of blind adjudication rather than an open-ended audit.
+
+### 13.8.2 The fixture is not representative - and skews the flattering way
+
+| book | all spoken lines (median) | scored gold rows (median) |
+|---|---:|---:|
+| grimgar03 | 26 chars | **32 chars** |
+| mushoku16 | 38 chars | **54 chars** |
+
+Scored rows are substantially LONGER than the spoken-line population on both
+books. And mushoku16's unique-text filter drops 8 rows whose median length is
+**13 characters** - repeated text is short text, so the filter removes short
+lines specifically.
+
+Short lines ("Yeah.", "Why?") are where attribution is hardest: less internal
+evidence, more reliance on turn-taking. **The measured 50-70% range therefore
+probably OVERSTATES performance on representative dialogue**, which is the
+opposite of the "fixture enriched for hard lines" hypothesis the review raised
+as a possibility.
+
+Consequence for the plateau: it cannot be dismissed as a fixture artefact in the
+direction suggested, and the real production number is likely lower than
+anything in this document. A representative-sample fixture would be needed to
+say by how much.
+
+### 13.8.3 Cheap routing features do not separate RESCUE from HARM
+
+Labelling every paired production row from the thinking gate:
+
+| feature | RESCUE | HARM | NEUTRAL |
+|---|---:|---:|---:|
+| line length (chars) | 56 | 58 | 59 |
+| nearby speech tag | **0.43** | **0.64** | 0.58 |
+
+grimgar03: 72 RESCUE, 39 HARM, 289 NEUTRAL.
+
+Line length separates nothing, and a nearby speech tag is **more** common on
+HARM rows than RESCUE rows - the opposite sign to a useful routing signal. The
+same inversion appears on mushoku16 (0.10 RESCUE vs 0.29 HARM).
+
+So selective thinking cannot be routed on these features. If it is viable it
+needs the disagreement- or perturbation-based signals from the review's idea
+bank (L and M), where the signal is derived from model behaviour rather than
+from surface properties of the line. That is a stronger test than the one that
+just failed, and it has not been run.
+
 ## 14. Infrastructure added today
 
 - **Row-level checkpointing** (TEMPORARY, `manifest.py`) — resume for any
