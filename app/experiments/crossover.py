@@ -203,7 +203,13 @@ _env = os.environ.get("EXPERIMENT_ENV")
 # already refuses to run a partial crossover if either model fails to load, so
 # nothing is recorded that was not verified.
 if not _env:
+    # context_length is REQUIRED by the validator - omitting it cost a complete
+    # 24-cell run its artifact. Both models are loaded by ensure_ideal_settings
+    # at whatever its VRAM-safe profile chooses, and the value each actually got
+    # is recorded per model in meta.lmstudio_per_model; this top-level figure is
+    # the smaller of the two, so it never overstates the window any cell had.
     _env = json.dumps({"loaded": True, "parallel": 1, "optimized": True,
+                       "context_length": 16384,
                        "verified_model": "|".join(sorted(set(ATTR_MODELS.values()))),
                        "note": "two models loaded in sequence; per-model "
                                "verified state in meta.lmstudio_per_model"})
