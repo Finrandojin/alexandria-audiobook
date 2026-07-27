@@ -1065,6 +1065,92 @@ of the whole model programme remains the single one it started with — **move o
 qwen3.5-9b** — and the ~50% plateau appears insensitive to model choice above
 about 7B, which points at the task representation rather than the model.
 
+## 13.6 Grammar-constrained decoding: repairs, but not where production lives
+
+`grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json`,
+`validation: ok`, `dirty: false`, llama.cpp-hip b10121. Prompts identical in
+both arms - the candidate list is stated either way - so only the sampler
+differs.
+
+| arm | free | grammar | delta | repaired / broke | p |
+|---|---:|---:|---:|---|---:|
+| oracle | 58.3% | **66.2%** | **+7.9** | 12 / 1 | **0.0034** |
+| open | 53.2% | 51.8% | -1.4 | 0 / 2 | 0.500 |
+
+Off-list answers went to zero in both grammar arms, which was the built-in
+check that the constraint actually applied.
+
+**It repairs rather than relabels.** Tracking what happened to the free arm's
+off-list answers: on the oracle arm **15 off-list answers became 11 correct**
+under the grammar. When the model wrote `RUDIUS` meaning `RUDEUS`, forcing it
+onto the roster recovers the right character about three times in four. That
+confirms the mechanism the phonetic scorer (§5a.3) could only infer.
+
+**But it does nothing on the arm that resembles production.** The open arm is
+-1.4 points on two discordant lines - noise, not harm. That is exactly what the
+sizing predicted: off-list answers are 13.7% of oracle rows and about 1% of open
+rows, so with the full roster in front of it the model rarely leaves the list.
+
+Consequence: **not a shipping win as tested**, because production uses the full
+roster. The place it might matter is the `is_attested_name` gate, which
+currently *rejects* invented names after decoding - once 279 per book. This
+result says constraining at decode time recovers the right answer in most such
+cases instead of discarding it. Testing that requires the production pass-2
+prompt, not this diagnostic arm.
+
+## 13.7 Where the remaining points might be, and a request
+
+Ten interventions have now been measured. One survives (`thinking`, §9), and it
+is one significant book plus one underpowered book at 4.8-7.3x wall time. Six
+models across four architectures and 4x parameter count sit in a single
+indistinguishable band on both books. Scale within a family moved four net lines
+out of 139.
+
+That pattern - flat across model, flat across prompt engineering - is more
+consistent with an **input** limit than a capability limit. The strongest
+untested lever follows directly:
+
+**Context width (running now).** Production pass 2 supplies **one segment
+either side** of the line being attributed. Every diagnostic in this ledger used
+four. Measured prompts are 176 tokens median against a 16384-token window -
+**1.1% utilisation** - while **62.1% of errors have no character name anywhere
+nearby**. `context_width.py` sweeps w1/w4/w15/w40 on grimgar03. If accuracy
+rises, production is leaving points on the table for nothing; if it is flat,
+context is excluded and the plateau needs another explanation.
+
+Three further candidates, each tied to a measured number rather than a hunch:
+
+1. **Candidate-set RECALL, not size.** `closed-6` (recall 73-87%) was null;
+   `closed-oracle` (recall 100%) is +17. The entire oracle advantage is that the
+   answer is in the set. So the lever is a higher-recall scene-cast pass
+   optimised on recall, not a smaller set. Getting recall to ~97% with sets of
+   ~8 should capture much of that +17.
+2. **Sequential attribution with committed history.** Pass 2 attributes batches
+   of 25 entries *independently*; the model never sees its own prior decisions,
+   yet dialogue alternates and **12.6% of errors name the addressee rather than
+   the speaker**. Note the `scaffold` arm asked the model to *infer*
+   `previous_speaker` and lost 4.0 points - supplying the actually-resolved
+   speaker is a different mechanism (state, not introspection).
+3. **Selective thinking.** `thinking` is the only surviving intervention and its
+   blocker is cost, not effect. Routing it to lines a cheap pass flags uncertain
+   needs only correlation with difficulty, a much lower bar than the
+   17%-coverage-at-76% confidence signal that failed as an *acceptance*
+   criterion.
+
+**Request to the reviewer.** The four above are what the error analysis
+supports. What is missing? In particular:
+
+- Is there a reading of the 62.1%/12.6%/6.8% error breakdown that points
+  somewhere none of these do?
+- The oracle arm caps at 66-76% even with the true speaker among five
+  candidates. That ceiling is not explained by recall, roster, or model size.
+  What would explain a model failing a five-way choice a quarter of the time
+  when the answer is present?
+- Is the ~50% plateau better read as a property of the **fixture** - gold sets
+  built from hard or disputed lines - than of the task? If so, the ceiling is
+  an artefact and the real question is what accuracy on *representative* lines
+  looks like.
+
 ## 14. Infrastructure added today
 
 - **Row-level checkpointing** (TEMPORARY, `manifest.py`) — resume for any
