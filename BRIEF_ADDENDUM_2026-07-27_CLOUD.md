@@ -779,18 +779,29 @@ the second book is simply underpowered.
 
 Two things do sharpen:
 
-**Headroom behaves as predicted.** mushoku16's production baseline is 49.6%
-against grimgar03's 55.5%, and the exploratory-to-production gap was ten points
-on mushoku16 versus one on grimgar03. The smaller measured gain appears exactly
-where the headroom argument said it would.
+**Headroom is refuted, not confirmed** (corrected 2026-07-27 after review; the
+original text here claimed the opposite). Section 6a predicted the effect would
+SHRINK as the baseline rises. The data run the other way:
+
+| book | production baseline | thinking effect |
+|---|---:|---:|
+| mushoku16 | 49.6% (lower) | +2.9 (smaller) |
+| grimgar03 | 55.5% (higher) | **+8.2 (larger)** |
+
+Higher baseline, larger gain. Headroom does not explain the cross-book
+difference and should not be carried forward as a mechanism. What separates the
+books is unexplained; sample size (139 vs 400) accounts for the difference in
+*resolution* but not for the direction of the point estimates.
 
 **The cost is worse on the second book.** 2345 s against a 323 s baseline -
 **7.3x**, versus 4.8x on grimgar03. An unconfirmed +2.9 points for seven times
 the wall time is not a shipping case.
 
-What would settle it is not a third book but more POWER: grimgar03 has 400 gold
-lines to mushoku16's 139. Either extend the mushoku16 fixture or test a third
-book at grimgar03's scale. Until then `thinking` stands as one significant
+What would settle it is more power on mushoku16 - 139 gold lines against
+grimgar03's 400 - AND a third large book. Those answer different questions:
+more mushoku16 labels improve precision on a book already measured, while a
+third book at grimgar03's scale adds generalization evidence. An earlier draft
+here dismissed the third book as inferior; that was wrong. Until then `thinking` stands as one significant
 production-path result plus one underpowered positive - more than any other
 intervention here has achieved, and less than a shipping decision requires.
 
@@ -1060,10 +1071,19 @@ model scale were the lever, this is the comparison where it should have
 appeared.
 
 This is the fourth ordering today to fail its paired test, after `closed-6`, the
-cross-book model ranking, and the crossover effects in §13.1. The stable finding
-of the whole model programme remains the single one it started with — **move off
-qwen3.5-9b** — and the ~50% plateau appears insensitive to model choice above
-about 7B, which points at the task representation rather than the model.
+cross-book model ranking, and the crossover effects in §13.1.
+
+**Scope, narrowed after review.** An earlier draft said accuracy "plateaus above
+about 7B" and therefore points at task representation. That is wider than the
+evidence. This measurement uses one fixture and a component harness, has limited
+power among the clustered models, and mixes architectures, training recipes,
+quantizations and serving stacks. It does not show that all larger models, or
+the production path, share a plateau.
+
+The defensible statement: **within this Mushoku closed-set measurement,
+increasing Qwen from 14B to 32B produced no detectable gain, and model size
+alone has not explained the remaining error.** The stable finding of the model
+programme remains the one it started with - move off qwen3.5-9b.
 
 ## 13.6 Grammar-constrained decoding: repairs, but not where production lives
 
