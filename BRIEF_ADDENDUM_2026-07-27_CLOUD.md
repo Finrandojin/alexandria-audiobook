@@ -1246,6 +1246,85 @@ bank (L and M), where the signal is derived from model behaviour rather than
 from surface properties of the line. That is a stronger test than the one that
 just failed, and it has not been run.
 
+## 13.9 Blind adjudication of the unanimous oracle failures
+
+The review's priority 6 asked for blind adjudication of the oracle errors.
+§13.8.1 reduced that to a tractable set: rows every model run fails with the
+true speaker among five candidates. On grimgar03 that is **26 rows across nine
+model runs** (the count moved from 27 as further artifacts landed and the
+intersection tightened).
+
+Method: each row was dumped with +/-6 segments of surrounding text, **gold and
+model predictions withheld**, adjudicated, and only then compared.
+
+**The adjudicator agreed with gold on 20 of 26.** The hard core is mostly real.
+The six disagreements and the failure patterns are where the information is.
+
+### 13.9.1 Three distinct causes, only one of them a model limitation
+
+**Contested gold - 4 rows** (00668, 00672, 00692, 02082). All from one
+Haruhiro/Choco conversation, all labelled AMBIGUOUS, all with a speaker the
+surrounding narration appears to determine - "My mind's blanked out", "he
+managed", "She turned to leave". On **02082 five of nine model runs answered
+HARUHIRO and the blind adjudicator independently agreed**, against gold's
+AMBIGUOUS. When most models and a human reader converge on a name the gold
+rejects, the label is the suspect.
+
+**An undeclared alias - 2 rows** (00067, 01934). Gold records `ZODIAC`; six of
+nine runs answered `ZODIAC-KUN`. The text addresses the character as
+"Zodiac-kun, paw!". Same entity, scored as failure. Identical in kind to the
+`RUDEUS`/`RUDI` group that cost 9.5 points project-wide before it was declared.
+
+**Genuine, and all one failure mode - the other 20.** Unmarked alternating
+dialogue with no name and no speech tag near the line, where the answer depends
+on counting turns back to the last anchor. The models are not guessing: they
+converge on the WRONG TURN. Row 00369, all nine runs said MOGUZO where the
+answer is RANTA. Row 01061, eight said RON for RANTA. Row 01228, eight said
+SHIHORU for MOGUZO.
+
+### 13.9.2 What this does to the oracle ceiling
+
+Of 26 unanimous failures roughly 6 are label or alias defects, so the genuine
+hard core is about **20 of 400 = 5%**, not 6.8% - and it is a *single* failure
+mode rather than a diffuse capability limit.
+
+That is the strongest evidence so far for the review's priority 2. Every
+genuine failure in this set is a line whose only available evidence is who
+spoke previously, and production attributes batches of 25 entries
+independently, never seeing its own prior decisions.
+
+### 13.9.3 Fixture corrections, applied asymmetrically on purpose
+
+**Applied: the `ZODIAC`/`ZODIAC-KUN` alias.** An alias can only convert a false
+negative into a true positive for two spellings of one entity, so it cannot
+hide a real error - the bar the fixture's own documentation sets.
+
+Retroactive impact, measured rather than assumed: **260 rows across 13
+artifacts** were being scored wrong.
+
+| result | as scored | corrected |
+|---|---|---|
+| production thinking gate (grimgar03) | 55.5 -> 63.7, **+8.2**, p=0.0022 | 57.0 -> 65.2, **+8.2**, p=0.0022 |
+| exploratory thinking arm | 56.5 -> 66.2, **+9.8**, p=0.00001 | 58.0 -> 67.8, **+9.8**, p=0.00001 |
+| six-model grimgar03 field | 51.5-61.8% | 52.8-62.7%, every model +1.0 to +1.5 |
+
+**No conclusion changes.** Every model gains almost the same amount and both
+thinking effects are identical to the decimal, because the missed rows were
+missed by both arms equally. Unlike the romanization penalty - which cost
+magistral-small 7.9 points and three other models nothing - this bias was
+**uniform**, so no comparison in the ledger was distorted by it. No re-run is
+warranted on its account.
+
+**Not applied: relabelling the five contested AMBIGUOUS rows.** They carry an
+inert `review_note` recording the challenge. They are deliberately NOT marked
+`disputed: true`, because `score_run` drops disputed rows by default and that
+would silently change every score in the ledger on one judge's opinion. The
+project's standard is two-judge concordance; this was one judge. A second judge
+should resolve them before any relabel.
+
+`gold_sha256` moves `7f45e0ce` -> `133222be`. Every existing artifact records
+the old hash, so which fixture produced which number remains traceable.
+
 ## 14. Infrastructure added today
 
 - **Row-level checkpointing** (TEMPORARY, `manifest.py`) — resume for any
