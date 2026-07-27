@@ -191,6 +191,10 @@ record = ExperimentRecord(
                  if os.environ.get("EXPERIMENT_ENV") else None),
     notes="baseline vs a 'because' field vs thinking-on, batched at 25.")
 
+record.enable_checkpoint(os.path.join(
+    REPO, "ab_test_runtime", "experiments",
+    f"reasoning_arms__{BOOK}__{MODEL.replace(chr(47), chr(95)*2)}__{TAG}.json.ckpt"))
+
 windows = [list(range(s, min(s + BATCH, len(seg)))) for s in range(0, len(seg), BATCH)]
 windows = [w for w in windows if any(norm(seg[i].get("text")) in want for i in w)]
 elapsed = {}
@@ -200,6 +204,13 @@ for arm in ("baseline", "because", "scaffold", "thinking", "scaffold_thinking"):
     thought_total = 0
     for n, window in enumerate(windows, 1):
         send = [i for i in window if get_deterministic_named_entry(seg[i]) is None]
+        pending = [i for i in send
+                   if norm(seg[i].get('text')) in want
+                   and not record.done(
+                       arm, want[norm(seg[i].get('text'))]['id'])]
+        if any(norm(seg[i].get('text')) in want for i in send) \
+                and not pending:
+            continue
         if not send:
             continue
         answers, raw, thought = ask(send, arm)

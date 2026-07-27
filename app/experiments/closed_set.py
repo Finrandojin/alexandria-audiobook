@@ -94,6 +94,10 @@ record = ExperimentRecord(
           "true speaker + 4 distractors. Answers whether candidate pruning "
           "can fix the 55-point available-but-not-chosen gap.")
 
+record.enable_checkpoint(os.path.join(
+    REPO, "ab_test_runtime", "experiments",
+    f"closed_set__{BOOK}__{_safe_name(MODEL)}__{TAG}.json.ckpt"))
+
 SYSTEM = ("You identify who speaks a line of dialogue in a novel. Answer with "
           "the speaker's name in CAPITALS and nothing else. If the passage "
           "does not determine it, answer UNKNOWN.")
@@ -148,6 +152,8 @@ for arm in ("open", "closed-6", "closed-oracle"):
             continue
         n += 1
         truth = g["expected_speaker"]
+        if record.done(arm, g["id"]):
+            continue
         if arm == "open":
             choices = roster
         elif arm == "closed-6":

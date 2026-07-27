@@ -36,9 +36,17 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
 
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+gold = json.load(open(APP + GOLD))
+# The exploratory arms reversed between books - `because` won on mushoku16 and
+# is null on grimgar03, thinking the reverse - so a production-path check has
+# to name its book rather than assume one.
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD = os.environ.get("EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+TAG = os.environ.get("EXPERIMENT_TAG",
+                     "local" if "localhost" in BASE_URL or "127.0.0.1"
+                     in BASE_URL else "remote")
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + f"/{BOOK}/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 roster = build_roster([e for e in (cp.get("named") or []) if e], src)
 AL = [{n.upper() for n in g} for g in gold.get("aliases", [])]
@@ -74,7 +82,7 @@ params = LLMGenParams(max_tokens=12000, context_length=32768, temperature=0.0,
                       attribute_temperature=0.0, top_p=0.8, reasoning_effort="none")
 record = ExperimentRecord(
     "because_production", REPO, MODEL, BASE_URL,
-    APP + "fixtures/attribution_gold_random.json",
+    APP + GOLD,
     {"temperature": 0.0, "max_tokens": 12000, "batch": BATCH},
     notes="Justification field on the production path, against the production "
           "baseline rather than a simplified harness.")
@@ -82,9 +90,24 @@ record = ExperimentRecord(
 windows = [list(range(s, min(s + BATCH, len(seg)))) for s in range(0, len(seg), BATCH)]
 windows = [w for w in windows if any(norm(seg[i].get("text")) in want for i in w)]
 
-ARMS = {"baseline": (BASE_SYSTEM, False),
-        "because": (BECAUSE_SYSTEM, False),
-        "scaffold_thinking": (SCAFFOLD_SYSTEM, True)}
+# "thinking" is BASE_SYSTEM with reasoning left on: the SAME prompt as
+# baseline, differing only in reasoning_effort. That isolation matters. The
+# `because` reversal came from an arm that changed the prompt AND the schema,
+# so it was compared against a baseline weakened by a different prompt;
+# thinking changes neither, so if it fails here it fails on its own terms.
+#
+# ARMS is overridable because the gate question is baseline vs thinking, and
+# running the other two costs GPU time that answers nothing about it.
+ALL_ARMS = {"baseline": (BASE_SYSTEM, False),
+            "because": (BECAUSE_SYSTEM, False),
+            "thinking": (BASE_SYSTEM, True),
+            "scaffold_thinking": (SCAFFOLD_SYSTEM, True)}
+_want = [a.strip() for a in
+         os.environ.get("EXPERIMENT_ARMS", "").split(",") if a.strip()]
+for _a in _want:
+    if _a not in ALL_ARMS:
+        raise SystemExit(f"unknown arm {_a!r}; have {sorted(ALL_ARMS)}")
+ARMS = {a: ALL_ARMS[a] for a in _want} if _want else ALL_ARMS
 elapsed = {}
 for arm, (system, thinks) in ARMS.items():
     started = time.time()
@@ -123,5 +146,5 @@ for arm, (system, thinks) in ARMS.items():
 record.meta["elapsed_by_arm_s"] = elapsed
 print("\nwrote", record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
-    f"because_production__{MODEL.replace('/','__')}.json"),
+    f"because_production__{BOOK}__{MODEL.replace(chr(47), chr(95)*2)}__{TAG}.json"),
     contract={"expected_arms": tuple(ARMS)}))

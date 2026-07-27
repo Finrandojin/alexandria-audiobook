@@ -143,6 +143,97 @@ class ExperimentRecord:
             "raw_response": raw,
             "retries": retries,
         })
+        if getattr(self, "_ckpt_path", None):
+            self._ckpt_done.add((arm, gold_id))
+            self._ckpt_save()
+
+
+    # ---- TEMPORARY: row-level checkpoint/resume -------------------------
+    # Added 2026-07-27 because the Thunder tunnel dropped twice in ninety
+    # minutes, and the second drop killed magistral-small's five-arm run three
+    # minutes in. Retry handles a blip; it cannot save a run when the endpoint
+    # is gone for minutes, and the arms run for hours.
+    #
+    # REMOVE THIS when experiments no longer run against a remote endpoint that
+    # can vanish mid-run, or when a durable queue replaces ad-hoc scripts. It
+    # exists to protect GPU hours, not because resumable experiments are a
+    # design goal - a resumed artifact is inherently weaker evidence than a
+    # single-process one, for the reason below.
+    #
+    # THE HAZARD: resume can silently merge rows produced under DIFFERENT
+    # configurations, which is worse than losing the run because the artifact
+    # still looks valid. So a checkpoint is only adopted when the experiment
+    # name, model, endpoint, gold fixture hash, harness source hash AND decoding
+    # settings all match. Anything else and the stale file is moved aside and
+    # the run starts clean, loudly.
+
+    def enable_checkpoint(self, path, save_every=25):
+        """Resume from `path` if it matches this run exactly; else start fresh."""
+        self._ckpt_path = path
+        self._ckpt_every = save_every
+        self._ckpt_pending = 0
+        self._ckpt_done = set()
+        self.meta["checkpoint"] = {"path": os.path.basename(path),
+                                   "resumed": False, "rows_restored": 0,
+                                   "temporary": True}
+        if not os.path.exists(path):
+            return
+        try:
+            with open(path, encoding="utf-8") as handle:
+                saved = json.load(handle)
+        except (OSError, ValueError) as exc:
+            print(f"  checkpoint unreadable ({exc}); starting fresh", flush=True)
+            return
+        mine, theirs = self._ckpt_fingerprint(self.meta), saved.get("fingerprint")
+        if mine != theirs:
+            stale = path + ".stale"
+            os.replace(path, stale)
+            differing = [k for k in mine
+                         if mine.get(k) != (theirs or {}).get(k)]
+            print(f"  REFUSING to resume: checkpoint does not match this run "
+                  f"(differs on {', '.join(differing) or 'structure'}). "
+                  f"Moved to {os.path.basename(stale)}; starting fresh.",
+                  flush=True)
+            return
+        self.rows = saved.get("rows") or []
+        self._ckpt_done = {(r["arm"], r["id"]) for r in self.rows}
+        self.meta["checkpoint"].update({"resumed": True,
+                                        "rows_restored": len(self.rows)})
+        print(f"  resumed {len(self.rows)} rows from checkpoint "
+              f"({len(self._ckpt_done)} arm/id pairs already done)", flush=True)
+
+    @staticmethod
+    def _ckpt_fingerprint(meta):
+        """Everything that must be identical for two runs to share an artifact."""
+        return {"experiment": meta.get("experiment"),
+                "model": meta.get("model"),
+                "endpoint": meta.get("endpoint"),
+                "gold_sha256": meta.get("gold_sha256"),
+                "harness_sha256": (meta.get("git") or {}).get("harness_sha256"),
+                "decoding": meta.get("decoding")}
+
+    def done(self, arm, gold_id):
+        """True if this arm/id was already scored (in this run or a resumed one)."""
+        return (arm, gold_id) in getattr(self, "_ckpt_done", ())
+
+    def _ckpt_save(self, force=False):
+        path = getattr(self, "_ckpt_path", None)
+        if not path:
+            return
+        self._ckpt_pending += 1
+        if not force and self._ckpt_pending < self._ckpt_every:
+            return
+        self._ckpt_pending = 0
+        payload = {"fingerprint": self._ckpt_fingerprint(self.meta),
+                   "rows": self.rows}
+        tmp = path + ".tmp"
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        # Write-then-rename: a crash mid-write must not leave a half file that
+        # the next run would either refuse or, worse, partially trust.
+        with open(tmp, "w", encoding="utf-8") as handle:
+            json.dump(payload, handle, ensure_ascii=False)
+        os.replace(tmp, path)
+    # ---- end TEMPORARY -------------------------------------------------
 
     def summary(self):
         arms = {}
@@ -252,4 +343,7 @@ class ExperimentRecord:
         os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
         with open(path, "w", encoding="utf-8") as handle:
             json.dump(payload, handle, indent=1, ensure_ascii=False)
+        ckpt = getattr(self, "_ckpt_path", None)
+        if ckpt and os.path.exists(ckpt):
+            os.remove(ckpt)
         return path

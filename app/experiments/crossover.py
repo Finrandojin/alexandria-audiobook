@@ -212,6 +212,10 @@ record.meta["roster_sizes"] = {k: len(v) for k, v in rosters.items()}
 record.meta["excluded_rows"] = dict(dropped)
 record.meta["preregistered"] = True
 
+record.enable_checkpoint(os.path.join(
+    REPO, "ab_test_runtime", "experiments",
+    f"crossover__{BOOK}__{TAG}.json.ckpt"))
+
 cells = collections.defaultdict(list)
 arms = []
 # Attribution model is the OUTER loop: each is loaded once and answers every
@@ -230,6 +234,8 @@ for attr_key, attr_model in ATTR_MODELS.items():
                 arms.append(arm)
                 started = time.time()
                 for g in shared:
+                    if record.done(arm, g["id"]):
+                        continue
                     i = pos[seg_key][norm(g["line"])]
                     got, prompt, raw, retries = ask(attr_model, seg, i,
                                                     g["line"], roster,
