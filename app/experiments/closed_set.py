@@ -6,6 +6,7 @@ set fixes that, and measures the ceiling with an oracle set.
 
 Run on an idle GPU. Temperature 0, so single runs are exact.
 """
+import collections
 import json, os, re, sys, random, collections
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from openai import OpenAI
@@ -29,13 +30,20 @@ MODEL = os.environ.get("EXPERIMENT_MODEL",
 # MODEL would compare two models on two different segmentations of the book,
 # which measures pass 1 and pass 2 at once and settles neither.
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
-gold = json.load(open("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
-                      "app/fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+# Everything in this investigation was measured on mushoku16. The brief's own
+# handoff rule is that conclusions stay scoped to the tested book, so the same
+# decomposition has to run on a second one before any ranking generalises.
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD = os.environ.get("EXPERIMENT_GOLD",
+                      "fixtures/attribution_gold_random.json")
+REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+GOLD_PATH = REPO + "/app/" + GOLD
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + f"/{BOOK}/result.json.threepass_checkpoint.json"))
 seg, named = cp["segmented"], [e for e in (cp.get("named") or []) if e]
 roster = [r.upper() for r in build_roster(named, src)]
-AL = [{"RUDEUS", "RUDI"}, {"SYLPHY", "SYLPHIETTE"}]
+AL = [{n.upper() for n in g} for g in gold.get("aliases", [])]
 
 def same(a, b):
     a, b = (a or "").upper(), (b or "").upper()
@@ -43,9 +51,15 @@ def same(a, b):
 
 def norm(t): return re.sub(r"\W+", "", t or "").lower()
 pos = {norm(e["text"]): i for i, e in enumerate(seg)}
+# A gold line whose text repeats in the book cannot be aligned to one position.
+# Fifth harness to need this; the manifest validator refuses duplicates, which
+# is how the omission surfaced rather than silently double-counting.
+_occ = collections.Counter(norm(e.get("text")) for e in seg)
+SCOREABLE = [g for g in gold["entries"] if _occ[norm(g["line"])] == 1]
+gold_ids = {g["id"] for g in SCOREABLE}
+print(f"scoring {len(SCOREABLE)} of {len(gold['entries'])} gold lines "
+      f"(unique text)", flush=True)
 BASE_URL = "http://localhost:1234/v1"
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
-GOLD_PATH = REPO + "/app/fixtures/attribution_gold_random.json"
 DECODING = {"temperature": 0.0, "max_tokens": 24, "reasoning_effort": "none"}
 client = OpenAI(base_url=BASE_URL, api_key="local")
 record = ExperimentRecord(
@@ -79,7 +93,7 @@ def ask(line, index, choices):
 arms = {}
 for arm in ("open", "closed-6", "closed-oracle"):
     correct = available = cond_ok = n = 0
-    for g in gold["entries"]:
+    for g in SCOREABLE:
         i = pos.get(norm(g["line"]))
         if i is None:
             continue
@@ -115,9 +129,9 @@ for arm in ("open", "closed-6", "closed-oracle"):
           flush=True)
 print("\nbaseline (shipped batched pipeline): 44/147 = 29.9%")
 contract = {"expected_arms": ("open", "closed-6", "closed-oracle"),
-            "expected_ids": {g["id"] for g in gold["entries"]},
+            "expected_ids": gold_ids,
             "require_clean_tree": True}
 out = record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
-    f"closed_set__{_safe_name(MODEL)}.json"), contract=contract)
+    f"closed_set__{BOOK}__{_safe_name(MODEL)}.json"), contract=contract)
 print("wrote", out)
