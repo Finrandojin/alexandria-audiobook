@@ -2431,3 +2431,116 @@ alternatives, and §30's framing of them as such was wrong.
 That matters because the product decision - human-assisted, fixed principal
 cast, or wait for hardware - is the one actually blocking, and it is a listening
 question. The model ranking is an engineering question that can wait.
+
+---
+
+## 33. The reasoning question, answered — and it inverts the investigation
+
+The owner asked, unprompted, why an external judge can identify a speaker when
+the pipeline cannot. Pursuing it produced the first significant positive
+architectural result in this investigation, and it points somewhere none of the
+earlier work looked.
+
+### The pipeline forbids reasoning at three levels
+
+- the prompt: *"Output ONLY a valid JSON array — no markdown, no explanations"*;
+- the schema: `{n, speaker}`, with no field for **why**;
+- the decoding: `reasoning_effort: "none"` on every call.
+
+Meanwhile **every gold-set row demands a `reasoning` field from its judge.** We
+require justification to trust a judgement, then instruct the pipeline making
+the same judgement not to explain itself. That asymmetry had gone unexamined for
+the whole investigation.
+
+### Five arms, qwen3-14b, 139 unambiguous gold lines
+
+| arm | accuracy | time | thinking tokens | vs baseline |
+|---|---:|---:|---:|---|
+| baseline (what ships) | 39.6% | 288s | 0 | — |
+| **because** | **50.4%** | 609s | 0 | **+20/−5, p=0.004** |
+| scaffold | 41.0% | 575s | 0 | +25/−23, p=0.885 |
+| thinking | 41.7% | 1650s | 80,128 | +14/−11, p=0.690 |
+| scaffold + thinking | 48.2% | 1900s | 81,155 | +27/−15, p=0.088 |
+
+**Only `because` is significant** - a free-form one-clause justification per
+line, no thinking tokens, 2.1x baseline cost. Structured scaffold questions and
+free thinking are each indistinguishable from baseline on their own, at 2x and
+5.7x cost.
+
+`because` versus `thinking` is p=0.050, so the cheaper intervention is at least
+as good as the expensive one and plausibly better.
+
+`scaffold + thinking` at 48.2% may well be real and underpowered (p=0.088). It
+is the one arm worth repeating on a second book before it is dismissed.
+
+### Why this inverts the framing
+
+Every intervention this investigation tried was on pass 2's **inputs**: more
+context, narration in the batch, prose passages, scene-local candidates, warm
+rosters, wider windows. All failed.
+
+Both interventions on its **output** moved the number:
+
+| change to the output | effect |
+|---|---|
+| candidate-ID contract - *removed* expressiveness | **−13.6 points** |
+| `because` field - *added* expressiveness | **+10.8 points** |
+
+That is the same finding from opposite directions, and the two experiments were
+run a day apart without either being connected to the other. **On this evidence
+output expressiveness matters more than input enrichment**, which nothing in the
+earlier work would have predicted and which the earlier work had no way to see,
+because it only ever varied inputs.
+
+### Overnight end-to-end runs
+
+The 2x2 completed in 2h24m. Scored against the gold set on mushoku16, whole
+pipeline, no experimental scaffolding:
+
+| model | mushoku16 end-to-end |
+|---|---:|
+| gemma-4-e4b | 28.3% |
+| qwen/qwen3-14b | **38.1%** |
+
+Consistent with the closed-set decomposition and with §18's warning: gemma is
+not measurably as good as the 14B tier once a whole book runs through it. Both
+books for both models are on disk and can be scored again when the larger gold
+sets land.
+
+### What the failures of this run teach
+
+**A negative result from a broken instrument is indistinguishable from a real
+one.** The scaffold arm first scored **7.7%** - a decisive-looking refutation of
+the owner's idea. The cause was the prompt never asking the model to echo `n`,
+so every row misaligned. Fixed, it scores 41.0%. Its answers had been correct
+all along, including identifying a name inside a line as the *addressee* rather
+than the speaker, the exact failure mode it was designed to catch.
+
+That is the fourth time in two days a "finding" was an artifact: binary garbage
+read as emoji prevalence, a counting bug read as "roster state has no effect",
+sampling noise read as gemma being better, and now a misalignment read as a
+failed idea.
+
+**Which means negatives deserve more scrutiny than positives, and got less.** A
+positive result requires everything in the chain to work. A negative can be
+produced by any single break anywhere in it. This investigation recorded
+**eight** negative results and applied roughly equal scrutiny to each. That
+ratio is backwards, and it is the most useful methodological lesson here.
+
+The manifest validator is what prevented the flawed numbers from becoming a
+committed result - it refused to write an artifact containing duplicate
+`(arm, id)` pairs, which was the fourth harness to need the repeated-line
+exclusion.
+
+### Where the credit lies
+
+Three questions from the repository owner produced the three findings that
+survived: *test all four models* led to the ceiling being the model rather than
+the task; *why can you do it and my script cannot* led to this result; *ask it
+the questions you would ask* led to the arm whose failure exposed the harness
+bug.
+
+Independent reasoning about the pipeline produced eight negatives and one model
+swap. The questions that worked all had the same shape: **they asked what the
+successful judge does that the pipeline does not**, rather than what the
+pipeline might be doing wrong.
