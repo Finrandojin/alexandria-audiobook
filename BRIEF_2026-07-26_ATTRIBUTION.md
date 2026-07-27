@@ -1,59 +1,64 @@
-# Speaker attribution: evidence, current conclusions, and next decisions
+# Speaker attribution: current evidence and decisions
 
-Date: 2026-07-26  
-Repository: `alexandria-audiobook2.git`  
+Date: 2026-07-27
+
+Repository: `alexandria-audiobook2.git`
+
+Branch: `agent/model-comparison`
+
 Audience: an external reviewer with repository access and no session history
+
+This replaces the earlier chronological brief. Superseded interpretations and
+reviewer dialogue were removed; material corrections and provenance caveats
+remain.
 
 ## Executive summary
 
-Alexandria converts novels into multi-voice audiobooks. Its speaker-attribution
-step is currently the largest quality bottleneck:
+Speaker attribution remains Alexandria's largest measured quality bottleneck.
+The work has improved the measurement system, ruled out many proposed fixes,
+and shown that model choice matters. It has not produced a configuration near
+unattended production quality.
 
-- **mushoku16:** 29.9% correct (44/147) on a random, alias-aware gold set;
-- **grimgar03:** approximately 54% on a smaller 35-line judged set.
+The defensible conclusions are:
 
-The strongest current diagnosis is:
+1. **Selection, not candidate recall, is the main measured failure.** On the
+   Mushoku fixture, the full roster contains the correct speaker for 85.0% of
+   lines, while the original shipped result was only 44/147 = 29.9%.
+2. **The original qwen3.5-9b is weaker than the tested 14B-class alternatives
+   on the controlled decomposition.** Changing models is the only intervention
+   that currently survives the investigation as a useful direction.
+3. **No prompt, roster, candidate, voting, or confidence intervention tested
+   so far has demonstrated a shippable production gain.**
+4. **The apparent `because` improvement does not transfer to the production
+   path.** This is closed for the production decision: the dedicated rerun
+   completed and validated, with its dirty-tree provenance disclosed (§5).
+5. **The evidence does not establish a 90% path, an intrinsic model ceiling, or
+   that Gemma is significantly worse than Qwen end to end.**
+6. **Two important transport failures are now measured.** A significant
+   `closed-6` harm on Mushoku does not replicate on Grimgar, and the descriptive
+   Gemma/Qwen ordering differs between a frozen-pass-1 decomposition and
+   end-to-end output (§6). Neither result proves a true sign reversal, but both
+   show that single-book, single-harness conclusions do not automatically
+   transfer.
 
-1. **Speaker selection is harder than candidate recall.** The full roster
-   contains the correct speaker on 85.0% of mushoku16 gold lines, but the
-   shipped pipeline selects correctly on only 29.9%.
-2. **Context is essential.** Explicit ±1 context improves both single-target
-   and batched attribution for the tested 9B model.
-3. **The flat, incrementally built roster has a measurable cost in the current
-   harness.** A complete attested roster improved 27.3% to 32.4% (+5.1 points)
-   over 139 unambiguous lines.
-4. **Candidate pruning alone is insufficient.** Even when the true speaker is
-   guaranteed among a small oracle set, the tested 9B selects correctly only
-   49.0% of the time under that experiment's prompt and decoding setup.
-5. **Confidence routing and a stronger pass-2 model remain open.** There is no
-   demonstrated path to unattended 90%+ attribution.
+Consequently the highest-value action is no longer another intervention. It is
+to establish how far any of the existing results generalize, because the
+project has now been surprised twice in one day by results that were treated as
+settled.
 
-The +5.1 warm-roster result is a real positive result inside its harness, but
-it is **not yet a validated production change**:
+## 1. Pipeline and constraints
 
-- it has only been measured on mushoku16;
-- a final clean, contract-validated reproduction was still running when this
-  brief was rewritten;
-- the production pipeline A/B and second-book validation have not happened.
+The three LLM-assisted passes are:
 
-## 1. System and constraints
+1. segment prose into frozen `NARRATOR` and `SPOKEN` entries;
+2. attribute each `SPOKEN` entry to a speaker;
+3. add delivery direction.
 
-The pipeline has three LLM-assisted passes:
+Pass 2 receives batches of about 25 entries, each target's text and ±1
+neighbours, a running character roster, and a `{n, speaker}` output contract.
+Narration is deterministic; attribution may add only `speaker`.
 
-1. **Segment:** convert prose into frozen `NARRATOR` and `SPOKEN` entries.
-2. **Attribute:** assign a speaker to each `SPOKEN` entry.
-3. **Instruct:** add a delivery direction.
-
-Pass 2 currently receives:
-
-- batches of roughly 25 entries;
-- each target's text and ±1 neighbour objects;
-- a running roster of established character names;
-- a requirement to return `{n, speaker}` without changing text.
-
-Narration is resolved deterministically. Attribution may add only `speaker`.
-
-Relevant files:
+Relevant locations:
 
 - `app/three_pass_generate.py`
 - `app/pass_quality.py`
@@ -62,1360 +67,523 @@ Relevant files:
 - `app/experiments/`
 - `ab_test_runtime/experiments/`
 
-Constraints:
+Inference is local, runs on one consumer GPU, and is serialized. LM Studio
+`parallel: 1`, VRAM headroom checks, retries, checkpointing, and the global GPU
+lock are deliberate safety constraints and must not be weakened for testing.
 
-- local inference only;
-- primary model is
-  `qwen3.5-9b-uncensored-hauhaucs-aggressive`;
-- one consumer GPU;
-- LM Studio `parallel: 1` is a deliberate VRAM safety constraint;
-- books contain roughly 2,000–3,300 segmented entries;
-- long GPU work is serialized by the application's global lock;
-- safety checks, headroom guards, retries, and checkpointing are load-bearing.
+## 2. Measurement foundation
 
-## 2. Measurement
+The principal fixture contains 147 randomly sampled Mushoku 16 lines with
+hand-judged speakers. Independent-reader agreement was 94% on 63 overlapping
+Mushoku lines and 97% with alias credit on 35 Grimgar lines.
 
-### Gold data
+The scorer now:
 
-`app/fixtures/attribution_gold_random.json` contains 147 randomly sampled
-mushoku16 lines with hand-judged speakers.
+- aligns by full normalized text rather than a 60-character prefix;
+- honors fixture-declared aliases;
+- rejects duplicate gold identities;
+- excludes repeated-text cases that cannot be aligned uniquely;
+- recomputes summaries from per-line rows.
 
-Independent-reader agreement:
-
-| set | overlap | agreement |
-|---|---:|---:|
-| mushoku16 | 63 lines | 94% |
-| grimgar03 | 35 lines | 97% with alias credit |
-
-Reader disagreements concerned non-character or genuinely ambiguous lines, not
-which named character spoke.
-
-Alias equivalence is declared in the fixture, not inferred globally in code.
-For example, `RUDEUS` and `RUDI` receive credit as the same character, while
-`FUTURE_ME` remains an invented and incorrect label.
-
-### Scorer repairs
-
-The evaluation tools now:
-
-- align using full normalized text rather than a 60-character prefix;
-- score fixture-declared aliases as equivalent;
-- reject duplicate gold identities;
-- exclude ambiguous repeated-text alignments where a unique source occurrence
-  cannot be established.
-
-The old 60-character identity did not change the current mushoku16 score, but
-distinct shared prefixes exist elsewhere in the corpus, so the fix was real.
-
-Alias-aware scoring raised the canonical mushoku16 baseline from 20.4% to
-29.9%; 14 of 147 lines were previously lost solely to `RUDEUS`/`RUDI`
+Alias-aware scoring raised the original Mushoku baseline from 20.4% to 29.9%;
+14 lines had previously lost credit solely because of `RUDEUS`/`RUDI`
 spelling.
 
-### Determinism
+Temperature-zero attribution was deterministic on an idle GPU. Earlier
+variation was caused by concurrent requests sharing LM Studio, not useful
+sampling noise.
 
-Temperature-0 attribution on an idle GPU was exactly reproducible in repeated
-arms. Previously observed variation came from a concurrent model run sharing
-LM Studio, not useful sampling noise.
+### Valid-artifact requirements
 
-Rules for comparable results:
+A result used for a decision should record:
 
-- idle GPU;
-- no competing LM Studio request stream;
-- exact model/load settings captured;
-- frozen inputs and prompt bytes;
-- per-line artifacts, not aggregate tables alone;
-- identical scorer and fixture hashes.
+- exact arms and identical expected gold-ID sets;
+- expected denominator and no duplicate `(arm, gold_id)` pairs;
+- summaries recomputed from rows;
+- fixture, prompt, and harness hashes;
+- decoding settings and actual loaded model;
+- context length, parallel setting, and optimized state;
+- clean commit provenance, or exact fingerprints of relevant dirty files.
+
+“Validation: ok” proves internal consistency only. It does not by itself prove
+that the harness represented the production path or that the source is
+reconstructable from the recorded commit.
 
 ## 3. Baseline and error structure
 
-| book | measured accuracy |
+| book/sample | measured result |
 |---|---:|
-| mushoku16 | 44/147 = **29.9%** |
-| grimgar03 | approximately **54%** on 35 judged lines |
+| Mushoku 16 original random fixture | 44/147 = **29.9%** |
+| Grimgar 03 early judged sample | approximately **54%** on 35 lines |
 
-mushoku16 is a difficult first-person book whose narrator is rarely named in
-narration. The 24-point book spread is a warning against validating an
-architecture on mushoku16 alone.
+Of the 103 Mushoku baseline errors:
 
-Among mushoku16's 103 baseline errors:
-
-| class | share |
+| error class | share |
 |---|---:|
 | wrong real character | 64% |
 | invented name | 33% |
 | `UNKNOWN` | 3% |
 
-An earlier statement that 31% of errors had the true name within ±2 lines was
-technically true but operationally misleading. Relabelling the nearby name's
-grammatical role produced:
+Nearby names were originally treated as stronger evidence than they are.
+Reclassification found:
 
-| relation | share of errors | usable speaker evidence? |
-|---|---:|---|
-| name absent nearby | 62.1% | — |
-| bare mention | 18.4% | no |
-| vocative/addressee | 12.6% | usually identifies listener |
-| speech-verb tag | 6.8% | yes |
-
-Thirteen measured errors are addressee/speaker inversions: the model assigns a
-line to the person being addressed.
-
-This correction explains why context experiments justified by the original
-31% statistic were poorly targeted.
-
-## 4. What has been measured
-
-### Production/prompt experiments
-
-| change | result |
+| nearby relation | share of errors |
 |---|---:|
-| first-person narrator hint | no effect |
-| interleaved prose with `[n]` markers | −5.4 points; 50% more format retries |
-| narration retained as answerable batch rows | −2.1 points; roughly 2× slower |
-| three-sample seeded voting | inconclusive; greedy approximately equal |
-| temperature 0 | removed contention/sampling confusion |
-| unattested-speaker rejection | removed 279 invented assignments in one book |
-| honorific-name attestation fix | recovered roughly 70 real names per affected book |
+| name absent | 62.1% |
+| bare mention | 18.4% |
+| vocative/addressee | 12.6% |
+| speech-verb tag | 6.8% |
 
-These results should not be generalized beyond their tested model, prompt,
-book, and decoding configuration unless the measurement itself is
-model-independent.
+Thirteen errors are explicit addressee/speaker inversions. A nearby name often
+identifies the listener rather than the speaker.
 
-### Candidate recall
+## 4. Consolidated experiment ledger
 
-Measured on mushoku16:
+Results below are scoped to their fixture, model, prompt, and harness.
 
-| candidate source | recall | median set size |
-|---|---:|---:|
-| speech tags | 7.5% | 0 |
-| recent speakers | 53.7% | 3 |
-| scene names | 71.4% | 4 |
-| tag + recent + scene | 74.8% | 6 |
-| full production roster | 85.0% | 17 |
+| intervention or diagnostic | current conclusion |
+|---|---|
+| full-roster recall | correct speaker available on 85.0% of Mushoku lines |
+| oracle small candidate set on tested 9B | 49.0% conditional selection; pruning alone is insufficient |
+| explicit context | helpful in the tested 9B decomposition |
+| scene-local candidates | no demonstrated gain over full roster |
+| roster warm-up | early +5.1 result did not survive later paired/model checks as a production recommendation |
+| candidate-ID output contract | worse than free-form speaker names in its experiment |
+| deterministic speech tags | corrected recall 10.2%; too sparse to carry attribution |
+| model ensemble unanimity | alias-normalized coverage 17.0% at 76.0% accuracy; not shippable |
+| self-consistency voting | 69/139 versus baseline 69/139; null |
+| narration included in batch | 48/139 versus 69/139; harmful, paired p≈0.001 |
+| narrator hint | 72/139 versus 69/139; no significant gain, p≈0.720 |
+| prose-passage representation | 66/139 versus 69/139; no significant effect, p≈0.771 |
+| model swap from qwen3.5-9b | only direction that remains supported |
 
-These are text/candidate-generator measurements, not model-selection scores.
+The four production-path rechecks are stored in
+`ab_test_runtime/experiments/reexamine__qwen__qwen3-14b.json`. The row sets and
+summaries validate, and the artifact contains a harness SHA-256. However, it
+records `dirty: true` and says the harness was untracked at run time. It is
+arithmetically inspectable but not a clean-commit experiment.
 
-Consequences:
+## 5. The reasoning experiment and its reversal
 
-- deterministic tag extraction can be a precise fast path but cannot solve
-  most lines on this book;
-- the tested scene candidate generator sacrifices too much recall;
-- 15% of gold speakers are absent even from the full roster.
+The simplified reasoning harness tested 139 unambiguous lines with
+`qwen/qwen3-14b`:
 
-### Closed-set selection
-
-All arms below are single-target calls:
-
-| arm | candidate recall | total accuracy | conditional accuracy |
+| arm | correct | accuracy | paired result vs baseline |
 |---|---:|---:|---:|
-| open full roster | 85.0% | 35.4% | 41.6% |
-| tested scene candidate set | 73.5% | 34.7% | 48.9% |
-| oracle true speaker + distractors | 100% | 49.0% | 49.0% |
+| baseline | 55/139 | 39.6% | — |
+| `because` | 70/139 | 50.4% | +20/−5, p≈0.004 |
+| scaffold | 57/139 | 41.0% | p≈0.885 |
+| thinking | 58/139 | 41.7% | p≈0.690 |
+| scaffold + thinking | 67/139 | 48.2% | p≈0.088 |
 
-The correct interpretation is:
+That artifact is
+`ab_test_runtime/experiments/reasoning_arms__qwen__qwen3-14b.json`. It is
+internally validated but records:
 
-> With the true speaker guaranteed among a small supplied set, this 9B model
-> using this prompt and decoding configuration selects correctly on 49.0% of
-> the gold lines.
+- `dirty: true`;
+- a modified harness;
+- `optimized: false`;
+- a commit that does not itself contain the exact recorded source state.
 
-This is a configuration ceiling, not an intrinsic model ceiling.
+The significant result therefore supported a hypothesis, not a production
+decision. The intervention changed both the prompt and the required response
+schema, so “output expressiveness” is also too narrow a causal label.
 
-The tested scene generator is rejected for this 9B because its conditional
-gain does not recover the lost recall. That does not prove all possible scene
-models are ineffective.
+The production-path recheck used the shipping `attribute_batch` prompt:
 
-### Explicit context × batch-size experiment
-
-| | batch of consecutive targets | single target |
+| arm | simplified harness | production path |
 |---|---:|---:|
-| no explicit neighbour objects | 19.4% | 2.2% |
-| ±1 neighbour objects | 34.5% | 18.7% |
+| baseline | 55/139 = 39.6% | 69/139 = 49.6% |
+| `because` | 70/139 = 50.4% | 59/139 = 42.4% |
 
-Explicit context helps in both rows.
+The best interpretation is:
 
-This is not a clean independent estimate of batching: a batch of consecutive
-lines is itself conversational context. The supported conclusion is that
-context is useful, while the previously tested prose/narration formats were
-harmful.
+> A justification clause improved a weakened experimental baseline but showed
+> no production benefit and likely harmed the shipping prompt configuration.
 
-### Roster warm-up
+Do not say the intervention “was never helping.” It helped relative to the
+simplified baseline; it did not transfer to the configuration that matters.
 
-The corrected per-line artifact contains 139 unambiguous gold lines per arm:
+### Evidence gap: materially closed
 
-| arm | roster | correct | accuracy |
-|---|---|---:|---:|
-| incremental | grows during attribution | 38/139 | 27.3% |
-| warm | complete 17-name attested roster from start | 45/139 | 32.4% |
-| oracle diagnostic | discovered roster + every gold answer | 49/139 | 35.3% |
+The previous revision recorded that the production-path numbers existed only as
+an incomplete log. The result gap is materially closed. The rerun wrote a
+validated artifact,
+`ab_test_runtime/experiments/because_production__qwen__qwen3-14b.json`
+(qwen/qwen3-14b, 139 frozen IDs, all three arms present):
 
-Warm roster improves the harness by seven lines, or **+5.1 points**.
+| arm | production path |
+|---|---:|
+| baseline | 69/139 = **49.6%** |
+| `because` | 59/139 = **42.4%** |
+| `scaffold_thinking` | 60/139 = **43.2%** |
 
-By book quartile:
+The reversal is therefore artifact-grade on this book. `because` costs 7.2
+points against the configuration that could actually ship, having appeared to
+gain 10.8 points against a weaker harness baseline of 39.6%.
 
-| quartile | incremental | warm | gain |
-|---|---:|---:|---:|
-| Q1 | 19.0% | 26.2% | +7.2 |
-| Q2 | 29.3% | 34.1% | +4.8 |
-| Q3 | 28.0% | 28.0% | 0.0 |
-| Q4 | 35.5% | 41.9% | +6.4 |
+This was not literally the clean-tree run requested in the previous revision.
+Its metadata records `dirty: true` because the brief and `closed_set.py` were
+modified. The `because_production.py` harness has a recorded SHA-256 and was
+not listed as modified, so the result is reconstructable enough for this
+decision; its provenance should still be described accurately.
 
-Q1 has the largest gain, but Q4 is only 0.8 points behind. The result does not
-support a simple “missing names only hurt early” explanation. Warm roster state
-changes selection throughout the book.
+The mechanism is worth stating because it recurred later the same day: the
+exploratory harness used a simplified prompt, which depressed *its* baseline
+rather than lifting `because`. A positive result measured against a weakened
+control is not a positive result. See §6 for the second instance of the same
+class of error, which was not caught by this rule because the harness there was
+not simplified — it was merely a different harness.
 
-## 5. Measurement failures and reversals
+Caveat retained: this is one book. The five reasoning arms have never been run
+on a second book, which is why the run described in §7.1 is in flight.
 
-The experiment history contains important invalid results:
+## 6. Model comparison, and two transport failures
 
-1. The first roster run scored repeated text at every occurrence, turning 146
-   judged lines into 155 rows. All arms appeared to score 55/155.
-2. A post-hoc filtered interpretation then reported the roster change as flat.
-3. The committed JSON still contained the stale 55/155 artifact.
-4. A real rerun after unique-identity filtering reversed the conclusion:
-   warm roster gained +5.1.
-5. Early artifacts failed to capture LM Studio state because the metadata
-   helper was called with the wrong signature and the exception was swallowed.
+The controlled closed-set decomposition supports moving off qwen3.5-9b and
+testing 14B-class candidates. It does not prove that the task has a fixed model
+ceiling. What has changed since the previous revision is that the decomposition
+has now been run on a second book, and the full pipeline has been scored on
+both — and the three views disagree with each other.
 
-The lesson is not that architectural reasoning is useless. It is that
-unverified measurement will confidently support a false conclusion.
+### 6.1 The decomposition on both books
 
-Every experiment must preserve per-line rows and validate identity,
-denominators, environment, and summaries before its aggregate is used.
+Frozen segmentation from the qwen3.5-9b run; only pass 2 varies. Mushoku 16 is
+147 gold lines, Grimgar 03 is 400 (provisional fixture, see §7).
 
-## 6. Artifact status
+| model | Mushoku open | Grimgar open | Mushoku oracle | Grimgar oracle |
+|---|---:|---:|---:|---:|
+| qwen/qwen3-14b | 48.3% | **60.8%** | 66.0% | 72.5% |
+| gemma-4-e4b | 39.5% | 57.2% | 49.7% | 65.5% |
+| ministral-3-14b | 47.6% | 51.5% | 61.2% | 58.2% |
+| microsoft/phi-4 | 45.6% | not run | 59.2% | not run |
+| qwen3.5-9b (shipped) | 35.4% | not run | 49.0% | not run |
 
-Committed harnesses:
+Grimgar open-arm pairwise, exact McNemar:
 
-- `app/experiments/closed_set.py`
-- `app/experiments/two_by_two.py`
-- `app/experiments/roster_warmup.py`
-- `app/experiments/manifest.py`
-- `app/experiments/candidates.py`
+| comparison | discordant | p |
+|---|---|---:|
+| qwen3-14b vs ministral | 72 / 35 | **0.00045** |
+| gemma vs ministral | 70 / 47 | **0.04150** |
+| qwen3-14b vs gemma | 56 / 42 | 0.18885 (unresolved) |
 
-Committed artifacts:
+Both books place qwen3-14b at or near the top. Mushoku also shows the shipped 9B
+behind all tested alternatives; the 9B was not run in the Grimgar decomposition.
+The books do **not** agree on second place: ministral is competitive on Mushoku
+(47.6%, within noise of qwen3-14b) and clearly last on Grimgar (p=0.042 behind
+gemma). Do not carry a full ranking across books. The narrow cross-book
+statement is “qwen3-14b is competitive with the best tested model on both
+fixtures.”
 
-- `ab_test_runtime/experiments/closed_set.json`
-- `ab_test_runtime/experiments/two_by_two.json`
-- `ab_test_runtime/experiments/roster_warmup.json`
+### 6.2 Transport failure 1 — `closed-6` across books
 
-Verified properties of the corrected roster artifact:
+`closed-6` restricts the model to six scene-derived candidates. Paired against
+the open arm, same model, same lines:
 
-- 417 total rows;
-- 139 rows per arm;
-- no duplicate `(arm, gold_id)` identities;
-- summaries recompute from the rows;
-- LM Studio recorded as loaded;
-- context length 32768;
-- parallel 1;
-- optimized true.
+| book / model | effect | discordant | p |
+|---|---:|---|---:|
+| Mushoku / qwen3-14b | **−11.6pt** | 8 / 25 | **0.0046** |
+| Mushoku / phi-4 | **−12.9pt** | 9 / 28 | **0.0026** |
+| Mushoku / ministral | −6.1pt | 9 / 18 | 0.1221 |
+| Mushoku / gemma | −0.7pt | 12 / 13 | 1.0000 |
+| Mushoku / qwen3.5-9b | −0.7pt | 11 / 12 | 1.0000 |
+| Grimgar / gemma | +2.5pt | 29 / 19 | 0.1934 |
+| Grimgar / ministral | +1.0pt | 29 / 25 | 0.6835 |
+| Grimgar / qwen3-14b | −0.2pt | 25 / 26 | 1.0000 |
 
-Limitation of that artifact:
+Stated precisely, and narrower than an earlier session note claiming a
+"reversal": candidate pruning is **significantly harmful on Mushoku for two of
+five models, and indistinguishable from no effect on Grimgar for all three**.
+The sign flips numerically on Grimgar but never significantly. The honest
+summary is that `closed-6`'s measured harm is specific to one book, not that it
+helps on the other.
 
-- it records `dirty: true`;
-- its `meta.git` block does not contain the later-added harness fingerprint or
-  modified-tracked-file list.
+This still matters, because `closed-6` was the most-replicated negative in the
+ledger — five models agreeing. Five models on one book is one book.
 
-Therefore its arithmetic and model-load settings are inspectable, but the exact
-dirty harness source is not reconstructable from that JSON alone.
+### 6.3 Transport failure 2 — decomposition vs. whole pipeline
 
-The harness now supports stronger code identity and contract validation. A
-final clean rerun from commit `af6ded1` was in progress when this brief was
-rewritten. Its result must be checked before replacing the status above.
+The overnight full-book 2×2 left three cells as `.partial.json`; only
+Qwen/Mushoku completed without a reported generation failure. The recovered
+outputs nevertheless cover nearly all scoreable fixture rows. Quantified from
+the checkpoints, attributed entries against total segments:
 
-## 7. Required artifact contract
+| cell | attributed / segments | missing |
+|---|---:|---:|
+| Qwen / Mushoku | 2056 / 2056 | 0 |
+| Qwen / Grimgar | 2539 / 2540 | 1 (0.04%) |
+| Gemma / Mushoku | 2039 / 2048 | 9 (0.44%) |
+| Gemma / Grimgar | 2640 / 2655 | 15 (0.56%) |
 
-A valid experiment artifact should require:
+Scored against the same fixtures, excluding repeated-text lines and applying
+fixture aliases:
 
-1. exact expected arm names;
-2. identical expected gold-ID sets across arms;
-3. expected denominator after ambiguity filtering;
-4. every ID belonging to the declared fixture;
-5. no duplicate `(arm, gold_id)` identity;
-6. summaries recomputed from rows;
-7. non-null context length and parallel setting;
-8. optimized LM Studio state;
-9. intended model matching the actually loaded model;
-10. fixture hash;
-11. prompt hashes and decoding settings;
-12. harness-source fingerprint;
-13. clean tracked tree, or explicit fingerprints for relevant modifications.
+| model | Mushoku end-to-end | Grimgar end-to-end |
+|---|---:|---:|
+| gemma-4-e4b | 39/138 = 28.3% | 237/399 = **59.4%** |
+| qwen/qwen3-14b | 53/139 = **38.1%** | 215/399 = 53.9% |
 
-An artifact can be internally consistent and still incomplete. A validator that
-only checks that its summary describes its rows cannot detect a missing arm or
-half a fixture.
+Paired exact McNemar: Mushoku 27/14 discordant, p=0.0596; Grimgar 51/73
+discordant, p=0.0589. **Neither difference is significant**, and neither model
+should be described as the end-to-end winner.
 
-## 8. Current conclusions
+The useful signal is the comparison between §6.1 and §6.3 on the same book:
+
+- decomposition, Grimgar: qwen3-14b 60.8% > gemma 57.2%
+- end-to-end, Grimgar: gemma 59.4% > qwen3-14b 53.9%
+
+The two instruments have opposite descriptive orderings on identical source
+text and fixture, but the relevant Gemma/Qwen differences are not statistically
+resolved. The decomposition freezes segmentation from the 9B run and varies
+only pass 2; end-to-end outputs combine each model's own pass 1 and pass 2. The
+decomposition therefore measures a component under a controlled input, while
+the end-to-end output measures the combined product and includes partial-run
+effects.
+
+One qualification to that last clause, from the coverage table above:
+partial-run effects cannot account for the Grimgar ordering. Both models scored
+the same 399 fixture rows with 398 shared, so incompleteness removed no gold
+rows differentially — and Gemma, the higher scorer, is the cell with *more*
+missing entries (15 against 1). Incompleteness therefore works against the
+observed ordering rather than producing it. It remains a reason not to call
+either cell a completed run; it is not a candidate explanation for §6.3.
+
+Every model conclusion in §6.1 comes from the decomposition. This does not
+invalidate it as a pass-2 probe — that is what it was built to be — but it does
+mean **the decomposition has not been shown to predict pipeline behavior**, and
+it is the pipeline that ships. Related: gemma's 59.4% is the highest end-to-end
+figure this project has produced on this fixture, from a 7.5B model that the
+decomposition ranks second. Because that output is partial and the paired model
+difference is p=0.0589, it is a candidate worth investigating, not a winner.
+
+Also note this defeats a rule the project adopted after the `because` reversal.
+"Test against the exact configuration that could ship" catches a *simplified*
+control; it does not catch a faithful-but-different harness. Both failures are
+the same underlying error — the measured thing was not the shipped thing — and
+only the first was detectable by inspecting the prompt.
+
+`mistralai/magistral-small` was not tested because its 13.51 GiB weights did
+not safely fit the 15.92 GiB card. This was a deliberate VRAM-safety decision.
+
+## 7. Runs in flight at the time of writing
+
+Two runs are executing and are not yet reflected in any table above. Both are
+recorded here so a reviewer can tell missing results from suppressed ones.
+
+### 7.1 Reasoning arms on Grimgar 03 (local, running)
+
+`app/experiments/reasoning_arms.py`, qwen/qwen3-14b, five arms (baseline,
+`because`, `scaffold`, `thinking`, `scaffold_thinking`), 400 Grimgar gold lines
+across 98 batch windows. Log:
+`ab_test_runtime/results/overnight_20260726-185022/day/reasoning_g03.log`.
+Expected artifact:
+`ab_test_runtime/experiments/reasoning_arms__grimgar03__qwen__qwen3-14b.json`.
+
+Sizing: 98 gold-bearing windows against Mushoku's 60 (1.63×); Mushoku took 84
+minutes, of which `thinking` and `scaffold_thinking` were 59. Estimated 2h15m.
+
+Purpose: four of the five arms were negatives, and **all four are single-book
+results**. Given §6.2 and §6.3, a single-book negative is not a retired idea.
+
+The harness required a change to run at all: book, source text, checkpoint,
+gold fixture and *output filename* were hardcoded to Mushoku. Run as-was it
+would have loaded Mushoku data under a Grimgar label and overwritten the
+existing Mushoku artifact in place. It is now parameterized by
+`EXPERIMENT_BOOK`/`EXPERIMENT_GOLD` with the book in the filename, matching
+`closed_set.py`. Consequence for provenance: the existing Mushoku artifact keeps
+its old name `reasoning_arms__qwen__qwen3-14b.json`, while a future Mushoku
+rerun would write `reasoning_arms__mushoku16__…`.
+
+### 7.2 Thunder A6000 context control (remote, downloading)
+
+Instance 0 (`lho3lk5l`, A6000 48 GB) is fetching `qwen/qwen3-14b@q4_k_m` then
+`qwen/qwen3-32b@q4_k_m`; 4.2 GB of the first model retrieved so far, no
+inference started, `thunder_run.sh` not yet launched.
+
+The control is the point. Locally qwen/qwen3-14b is capped at 16384 context by
+VRAM, so every "bigger model wins" result in §6.1 is confounded with "bigger
+model was also given more context". Running the *same weights* at 98304 on
+rented hardware separates the two factors. qwen3-32b then tests scale with the
+family held constant.
+
+Two risks a reviewer should know: the instance bills continuously until
+**deleted** (stopping is not enough), and `tnr connect` timed out from this
+machine during a status check, so the orchestration script's remote-command
+path is not yet proven end to end. If the context control turns out not to
+matter, this instance should be deleted rather than repurposed on the spot.
+
+## 8. Human judging and second-book validation
+
+Four hundred Grimgar 03 rows were independently judged in ten batch files.
+Mechanical validation found:
+
+- all 400 expected IDs present;
+- no duplicated or missing IDs;
+- 20 marked `AMBIGUOUS`;
+- 3 marked `NARRATOR`;
+- source batch files unchanged.
+
+The expanded-window/rejudge tooling exists because some rows cannot be judged
+fairly from a narrow excerpt. Human-listening review and attribution scoring
+remain separate tasks: a scoring fixture can evaluate model ranking without
+being sufficient to approve audiobook quality.
+
+Finish and freeze one second-book fixture before committing to a larger judging
+queue. Additional labels should buy a specific decision, not merely a tighter
+aggregate.
+
+## 9. Current decisions
 
 ### Supported
 
-- Selection is the primary measured bottleneck for the tested 9B.
-- Context is materially helpful.
-- Candidate pruning alone cannot make the tested 9B reliable.
-- The tested scene candidate generator does not beat the full roster.
-- Speech tags have too little recall to be the main architecture on mushoku16.
-- Warm roster is the leading candidate production change at +5.1 in its
-  corrected harness.
-- Some review/routing path is required for lines with no available true
-  speaker.
-
-### Model-independent or mostly model-independent
-
-- candidate recall for a fixed candidate generator;
-- roster recall;
-- speech-tag coverage;
-- fixture identity and scorer correctness.
-
-### Specific to the tested 9B/configuration
-
-- 49.0% oracle conditional selection;
-- scene-set versus full-roster selection;
-- response to explicit context representation;
-- warm-roster selection gain until reproduced on another model/book.
+- Preserve the repaired scorer, fixture identity rules, validators, and
+  per-line artifacts.
+- Treat speaker selection as the main measured bottleneck.
+- Prefer a stronger tested model over qwen3.5-9b for subsequent work.
+- Keep narration deterministic.
+- Retain unattested-speaker rejection and name-attestation repairs.
+- Evaluate on at least two books with different narrative structure.
 
 ### Not established
 
-- that 49% is the model's intrinsic ceiling;
-- that every scene-cast architecture fails;
-- that warm roster improves the production pipeline;
-- that warm roster generalizes to grimgar03;
-- that confidence features produce a useful risk/coverage curve;
-- that the 14B materially improves conditional selection;
-- why the harness's context arm previously exceeded the shipped 29.9%
-  baseline.
-
-## 9. Next experiments
-
-### A. Finish and verify the clean roster reproduction
-
-Before further interpretation:
-
-- inspect the final clean artifact;
-- require `dirty: false`;
-- require `harness_sha256`;
-- require the declared roster contract;
-- recompute every aggregate from rows;
-- verify the exact 139 IDs in all three arms;
-- confirm actual loaded model, context 32768, parallel 1, optimized true.
-
-If the clean run does not reproduce the direction and approximate magnitude,
-the +5.1 claim returns to unresolved.
-
-### B. Production warm-roster A/B
-
-Implement warm roster behind an experimental switch. Do not replace the
-incremental path.
-
-Use frozen segmentation and report per line:
-
-- gold speaker;
-- incremental and warm predictions;
-- whether gold was available in each roster;
-- roster sizes and added names;
-- transition:
-  - wrong → correct;
-  - correct → wrong;
-  - wrong → different wrong;
-  - unchanged;
-- book position;
-- retries, latency, and token cost.
-
-Validate on both mushoku16 and grimgar03 before shipping.
-
-The experiment must distinguish:
-
-1. **availability repair:** warm roster adds a previously unavailable true
-   speaker;
-2. **choice perturbation:** both rosters contain the true speaker, but the
-   larger roster changes the model's selection.
-
-### C. Run the same decomposition on the 14B
-
-For a meaningful comparison, report:
-
-- roster/candidate recall;
-- conditional selection;
-- oracle closed-set score;
-- addressee-inversion count;
-- accuracy by candidate-set size;
-- risk/coverage curve;
-- latency and completion-token cost.
-
-This distinguishes “the task is intrinsically difficult” from “this 9B is
-weak at the task.”
-
-### D. Confidence routing
-
-Temperature-0 repeats are deterministic, so identical-repeat agreement is not
-a confidence feature.
-
-Evaluate candidate signals such as:
-
-- explicit speech-tag support;
-- vocative/addressee conflict;
-- incremental/warm prediction agreement;
-- batch/single-target agreement;
-- prediction stability after irrelevant roster removal;
-- top-two probability margin if available;
-- candidate provenance;
-- parse/retry history.
-
-Report a risk/coverage curve:
-
-| threshold | auto-accepted lines | coverage | accepted accuracy | routed lines |
-|---|---:|---:|---:|---:|
-
-The product question is whether a sufficiently large subset can be accepted at
-a useful accuracy target—not merely whether confidence correlates with
-correctness.
-
-### E. Relation annotation, only if still justified
-
-Thirteen baseline errors are addressee/speaker inversions. A narrow experiment
-may annotate neighbouring names as:
-
-- `SPEECH_TAG`;
-- `VOCATIVE/ADDRESSEE`;
-- `MENTION`.
-
-Measure whether explicit relation labels repair those inversions without
-damaging other lines. This remains an untested diagnostic, not a production
-proposal.
-
-## 10. Production decision gate
-
-Warm roster should be described as:
-
-> **Promising and ready for a production A/B, but not validated as a production
-> change.**
-
-It should ship only if:
-
-1. the clean reproduction confirms the harness result;
-2. mushoku16 production A/B shows a meaningful gain;
-3. grimgar03 confirms direction without a new failure class;
-4. transition analysis shows the gain is not a near-cancellation of unrelated
-   regressions;
-5. added latency and cost are acceptable;
-6. validators and safety gates remain intact.
-
-## 11. Questions for the next reviewer
-
-1. What confidence signals are available from LM Studio or the model that do
-   not require stochastic repeats?
-2. Is there a better way to distinguish speaker from addressee without asking
-   the same 9B to solve another open-ended generation task?
-3. Which second book and sample size are sufficient to validate warm roster
-   without overfitting mushoku16?
-4. What minimum accepted-accuracy/coverage trade-off would make human-assisted
-   attribution useful as a product?
-5. Should the 14B decomposition precede production warm-roster work, or run in
-   parallel after the current matrix finishes?
-
-## Operational status
-
-Current as of the six-model benchmark and both negative results.
-
-**Complete and artifact-backed** (`ab_test_runtime/experiments/`, all
-contract-validated with environment and harness fingerprint):
-
-- closed-set decomposition on six models;
-- roster warm-up on qwen3.5-9b (clean commit, `dirty: false`);
-- two-by-two context/batch grid on qwen3.5-9b;
-- candidate-ID vs free-form name contract on qwen3-14b;
-- cross-model confidence curve, derived from the above with no GPU time;
-- VRAM profiles for phi-4 and qwen3-14b, measured on a verified-idle card.
-
-**Incomplete, not to be quoted:**
-
-- **Roster warm-up on ministral-3-14b.** Oracle arm hung; the harness writes its
-  artifact only at the end, so nothing was produced. The log shows incremental
-  41.0% and warm 44.6% with no per-line record behind either.
-
-**Paused:** the model matrix, mid-ministral/grimgar03, checkpointed.
-
-**Not fitted:** `mistralai/magistral-small` - 13.51 GiB of weights on a 15.92
-GiB card. No profile by design.
-
-Branch `agent/model-comparison`, PR #237. Release suite 974 tests, verifier
-green.
-
-Treat this section as transient. Verify live state and output files rather than
-relying on this snapshot.
-
-## 12. Reviewer assessment
-
-This section is opinion informed by the evidence above. It is deliberately
-separate from the measured record.
-
-### The project has found a real lead, not a solution
-
-Warm roster is the first architectural change in this investigation with a
-credible positive result:
-
-- the corrected artifact has unique per-line identities;
-- its aggregate recomputes from those rows;
-- the model load settings are captured;
-- the gain is seven additional correct lines over the incremental arm.
-
-That makes it worth a production A/B. It does not make it ready to ship.
-
-A five-point gain from a 27–30% baseline still leaves attribution wrong on
-roughly two of every three lines in the hard book. Warm roster may improve the
-system, but it cannot by itself change the product from human-dependent to
-unattended.
-
-### The most important next result is not another aggregate accuracy
-
-The warm roster changes many predictions, not only predictions whose correct
-speaker was previously unavailable. That means the gain may be a balance of:
-
-- newly solvable lines;
-- wrong answers repaired through better global cast awareness;
-- previously correct answers broken by added distractors;
-- wrong answers changed to different wrong answers.
-
-The production A/B should be considered successful only if its transition
-table is healthy. A net gain of seven produced by twenty repairs and thirteen
-regressions is less stable and less likely to generalize than seven repairs
-with no regressions.
-
-The transition analysis is therefore more informative than whether the total
-score happens to rise by five points again.
-
-### Warm roster should be evaluated as state, not merely a longer prompt
-
-The result does not prove that “more names are better.” The oracle roster is
-larger than the warm roster and gains only another 2.9 points. The scene set is
-smaller and loses recall. Candidate count alone does not explain the curve.
-
-The roster carries several kinds of information:
-
-- which characters exist;
-- canonical spelling;
-- which characters have appeared by this point;
-- accidental signals from ordering;
-- distractors.
-
-Future experiments should record roster order and provenance, not only roster
-membership. If the warm pass orders names by first appearance, frequency, or
-discovery confidence, that ordering may influence selection independently of
-completeness.
-
-One cheap ablation is to run the same warm roster in:
-
-- first-appearance order;
-- alphabetical order;
-- frequency order;
-- a fixed shuffled order.
-
-If accuracy moves, the model is using roster position as a latent prior. That
-would be important production behavior and a possible confidence feature.
-Do this only after the clean reproduction and production A/B; it is a
-diagnostic, not the next priority.
-
-### The 14B experiment has higher information value than more 9B prompt work
-
-The oracle result shows that this 9B/configuration reaches 49% even when
-candidate recall is perfect. That leaves too much selection error for candidate
-engineering alone.
-
-Running the same closed-set and warm-roster decomposition on the 14B answers a
-more fundamental question:
-
-- if conditional selection rises substantially, model capacity is the current
-  bottleneck;
-- if it remains near 49%, the prompt/task representation is the stronger
-  suspect;
-- if total accuracy rises but conditional selection does not, the gain comes
-  from recall, abstention, aliases, or output behavior rather than better
-  reasoning.
-
-I would prioritize this over another general attribution prompt rewrite.
-
-### Confidence routing is not optional, but useful routing is unproven
-
-At least 15% of mushoku16 gold speakers are absent from the production roster.
-No selector constrained to that roster can answer those lines correctly.
-Other lines are genuinely unnamed, non-speech, or ambiguous.
-
-The system therefore needs a way to abstain or route work even if the model
-improves substantially.
-
-What remains unknown is whether available signals can isolate a large,
-high-accuracy automatic subset. The desired deliverable is a table such as:
-
-| accepted accuracy | maximum coverage | routed share |
-|---:|---:|---:|
-| 80% | ? | ? |
-| 90% | ? | ? |
-| 95% | ? | ? |
-
-If 90% accepted accuracy requires routing 85% of lines, confidence exists but
-does not create a useful product. If it retains most lines, human-assisted
-attribution becomes plausible even before raw accuracy reaches 90%.
-
-### The product may need a different success criterion
-
-Unattended multi-voice generation probably requires attribution accuracy far
-above the current range. A wrong voice is salient and can make dialogue harder
-to follow, so errors are not evenly tolerable.
-
-A human-assisted product could still be valuable if it:
-
-- automatically resolves a high-confidence subset;
-- groups uncertain lines by scene;
-- offers likely candidates rather than a blank field;
-- highlights speaker/addressee conflicts;
-- lets one correction propagate safely through a local exchange;
-- never hides low confidence behind a polished final export.
-
-This suggests measuring editing effort, not only line accuracy:
-
-- lines requiring review;
-- corrections per thousand words;
-- time to resolve one scene;
-- percentage of corrections suggested in the top two;
-- regressions caused by propagation;
-- final audiobook error rate after a bounded review session.
-
-Raw accuracy remains necessary for model comparison, but review-time reduction
-may be the better product metric.
-
-### Measurement infrastructure is now part of the architecture
-
-This investigation produced several confident but wrong conclusions from:
-
-- contention;
-- alias-blind scoring;
-- prefix alignment;
-- duplicate repeated-text scoring;
-- stale committed artifacts;
-- missing environment capture.
-
-Those were not cosmetic reporting issues. They changed which architecture
-appeared to win.
-
-The shared artifact contract, per-line records, environment capture, and
-fixture identity checks should be treated like production safety nets. New
-experiments should use the shared framework by default; bespoke scripts should
-not be trusted until their outputs pass the same validator.
-
-### Recommended priority
-
-My preferred order is:
-
-1. finish and inspect the clean roster reproduction;
-2. merge the experiment framework only after its contract tests pass;
-3. run the production incremental-versus-warm A/B on frozen mushoku16
-   segmentation;
-4. run the identical production A/B on grimgar03;
-5. run the closed-set decomposition on the 14B;
-6. build risk/coverage curves from the predictions already collected;
-7. decide whether the product target is unattended generation or
-   human-assisted correction;
-8. only then consider relation annotations, roster-order ablations, or another
-   scene representation.
-
-### What would change this assessment
-
-I would recommend shipping warm roster if:
-
-- the clean run reproduces;
-- both production books improve;
-- correct→wrong regressions are limited;
-- the gain survives alias-aware, unique-identity scoring;
-- latency and GPU cost remain acceptable.
-
-I would deprioritize warm roster if:
-
-- the clean run loses the gain;
-- grimgar03 is flat or negative;
-- the net gain comes from large cancelling prediction churn;
-- the production implementation requires weakening attestation or other safety
-  gates.
-
-I would shift most attribution effort toward the stronger model if the 14B
-substantially raises oracle conditional selection. I would shift toward
-human-review tooling if neither model produces a useful risk/coverage curve.
-
-### Bottom line
-
-The evidence no longer supports “nothing helps.” It supports a narrower and
-more useful statement:
-
-> Warm roster is a credible five-point lead that deserves production and
-> second-book validation. It is not large enough to solve attribution, and the
-> larger decision is whether a stronger model plus confidence routing can
-> produce a useful automatic subset—or whether Alexandria should explicitly
-> become a human-assisted attribution system.
-
----
-
-## 13. Answers to §11, from the repository side
-
-Answering the five questions where evidence exists, and saying plainly where it
-does not.
-
-**1. Confidence signals that need no stochastic repeats.**
-Temperature-0 repeats are useless here, confirmed twice: two independent clean
-reruns of the roster experiment produced byte-identical arm totals. Signals
-available without perturbation:
-
-- whether the selected speaker appeared in a speech-verb tag within ±2 entries
-  (a deterministic text feature, and only 6.8% of errors have one, so it is a
-  high-precision/low-coverage gate);
-- whether the answer is in the scene-local candidate set, the recent-speaker
-  set, or only in the global roster - already computed by `app/candidates.py`
-  and recorded as `candidate_provenance` in every artifact;
-- agreement between the batched and single-target predictions, which differ in
-  context supply rather than in sampling, so they disagree informatively;
-- agreement between incremental and warm roster passes - free once warm roster
-  ships, and directly measurable from the existing artifact.
-
-Token probabilities would be the strongest signal and are not currently
-retrieved from LM Studio. Whether `logprobs` is available through this endpoint
-is unverified and worth ten minutes to check.
-
-**2. Distinguishing speaker from addressee without another open-ended task.**
-The 13 measured inversions all involve a name inside the line being judged
-("Luci, how is she?" → answered SYLPHY, gold RUDEUS). A vocative is
-deterministically detectable - a capitalised roster name adjacent to a comma or
-sentence boundary *inside the quoted span*. That does not require the model at
-all; it requires excluding those names as candidates, or annotating them. The
-review's `SPEECH_TAG` / `VOCATIVE` / `MENTION` annotation experiment is the
-right test and is still untested.
-
-**3. Second book and sample size.**
-`grimgar03` is the natural second book: it already has 35 hand-judged lines at
-97% two-reader concordance, a checkpoint from the same matrix, and it is
-materially easier (~54% vs ~30%), so it tests generalisation rather than
-repeating the hard case. 35 lines is too few to resolve a 5-point effect;
-expanding it to ~100 randomly sampled lines is the prerequisite, and costs one
-Gemini pass plus one Claude pass at the concordance protocol already used.
-
-**4. Minimum accepted-accuracy/coverage for a useful product.**
-Not answerable from this repository. It depends on what the owner will tolerate
-in a finished audiobook, and a wrong speaker is not a subtle defect - it is a
-character speaking in another character's voice. My own estimate, offered as
-opinion: below ~95% accuracy on the auto-accepted subset the listener will
-notice, so the useful question is what coverage survives at 95%, not what
-accuracy survives at high coverage.
-
-**5. 14B decomposition before or after production warm-roster work.**
-Before, and it is cheap: ~25 minutes per model against ~a day for a production
-A/B. It also changes what the warm-roster A/B means. If the 14B's conditional
-selection is much higher, warm roster on the 9B is optimising a component that
-is about to be replaced. Note the 14Bs are profiled at **16384 context, half
-the 9B's**, so the comparison must report context alongside accuracy.
-
-### One caution on the roster ablation proposal
-
-The order ablation (first-appearance / alphabetical / frequency / shuffled) is
-well-judged and should be run *after* the production A/B, as stated. Worth
-adding: the current roster is built in **first-appearance order** by
-construction, since `build_roster` appends as it encounters names. So the
-production incremental arm and the warm arm differ in *both* completeness and
-ordering stability - the warm roster's order is fixed from the start, while the
-incremental one's is the same sequence revealed progressively. That is a
-smaller confound than it first appears, but it is not zero.
-
----
-
-## 14. Four-model decomposition — the ceiling was the model
-
-The closed-set decomposition was run against every model with a verified VRAM
-profile. Frozen inputs held constant: the same segmentation, the same roster,
-the same 147 gold lines, temperature 0, idle GPU. Only the attributing model
-changes. All four artifacts are contract-validated and committed as
-`ab_test_runtime/experiments/closed_set__<model>.json`.
-
-| model | context | open | closed-6 | oracle |
-|---|---:|---:|---:|---:|
-| qwen3.5-9b | 32768 | 35.4% | 34.7% | 49.0% |
-| gemma-4-e4b | 32768 | 39.5% | 38.8% | 49.7% |
-| **ministral-3-14b** | **16384** | **47.6%** | 41.5% | **61.2%** |
-| ministral-3-14b-heresy | 16384 | 46.9% | 40.8% | 59.2% |
-
-Paired significance on the same 147 lines (exact McNemar, so this tests whether
-the models differ on this sampled set of lines rather than merely comparing two
-aggregate percentages; temperature-0 runs here are deterministic and reproduce
-byte-identically):
-
-```
-open arm
-  qwen-9b vs gemma-e4b               15/21   p=0.405
-  qwen-9b vs ministral-14b           15/33   p=0.013  significant
-  qwen-9b vs ministral-14b-heresy    18/35   p=0.027  significant
-  gemma-e4b vs ministral-14b         16/28   p=0.096
-  ministral-14b vs heresy             8/7    p=1.000
-
-oracle arm
-  qwen-9b vs ministral-14b           16/34   p=0.015  significant
-  gemma-e4b vs ministral-14b         19/36   p=0.030  significant
-  ministral-14b vs heresy             9/6    p=0.607
-```
-
-### What this settles
-
-**Model capacity was a major part of the observed 49% conditional ceiling.**
-The 14B reaches **61.2%** with the same oracle candidate set, +12.2 points,
-p=0.015. Every statement in earlier sections about a 49% "ceiling" should be
-read as a property of qwen3.5-9b. The remaining 38.8% oracle error also shows
-that model choice is not the whole problem.
-
-**And it does so at half the configured context** - 16384 against 32768. This
-rules out extra configured context as the explanation for its advantage. It
-does not prove that the advantage is understated: if the evaluated prompts fit
-inside 16384 tokens, a 32768 setting may not help. Whether a longer context
-improves the 14B is unmeasured, and its verified VRAM profile currently caps it
-at 16384 on this card.
-
-**The two 14B variants are indistinguishable** (8/7 discordant, p=1.000). The
-"absolute-heresy" fine-tune neither helps nor harms attribution, so the choice
-between them can be made on other grounds.
-
-**gemma-4-e4b is not significantly better than the 9B** (p=0.405 open, p=1.000
-oracle) despite scoring 4 points higher on the open arm. On these 147 lines that
-difference does not separate from chance.
-
-**closed-6 remains a numerical loss for every model.** Scene-local candidates
-cost points against simply supplying the full roster in all four runs. The
-direction is consistent across model families and sizes, but the within-model
-open-versus-closed differences are not individually significant here (exact
-McNemar: qwen p=1.000, gemma p=1.000, ministral p≈0.122, heresy p≈0.093).
-This is strong reason not to adopt closed-6, not proof that every possible
-scene-local candidate method must fail.
-
-### What it does not settle
-
-The rejections of context supply and the earlier prompt-format experiments were
-all measured on the 9B only. They have not been repeated on the 14B, and a model
-with materially better selection could plausibly use context the 9B could not.
-Those remain provisional.
-
-Nor does this change the product arithmetic much. **61.2% under a perfect
-oracle candidate set is still four wrong speakers in every ten lines**, and the
-realistic open-arm figure is 47.6%. A better model moved the ceiling
-substantially; it did not move it into unattended-audiobook territory.
-
-### Practical consequence
-
-Ministral-3-14b is the leading pass-2 candidate and should replace qwen3.5-9b
-for the next validation run. It produced the single largest measured
-improvement in this investigation - **+12.2 points on the open arm, larger than
-warm roster's +5.1** - and requires no architectural change for an experiment,
-only a model swap. It costs roughly 1.6x the wall-clock per book, from the
-matrix timings. The repository's stated two-book validation rule means it
-should not yet be called the production winner from one book alone.
-
-The warm-roster A/B should be re-run on the 14B before it is implemented, since
-its +5.1 was measured against a selector we now know to be the weaker one.
-
-## 15. Model and responsibility split: recommended next design
-
-### What the current model is being asked to do
-
-Yes: the current attribution call combines two different responsibilities.
-The model must first reason about who spoke a line, then serialize that answer
-into the required JSON shape. Those are not equally valuable uses of model
-capacity. Speaker/coreference inference is the hard semantic task; exact JSON
-construction is a deterministic formatting task.
-
-This distinction does **not** justify adding a second LLM whose only job is to
-rewrite the first model's answer as JSON. A formatting model would add latency,
-another failure surface, and an opportunity to alter a correct answer. The
-simpler split is:
-
-1. give each allowed speaker an opaque stable ID such as `C01`, `C02`, ...;
-2. ask the attribution model to return only the selected ID (and any separately
-   tested confidence/evidence fields);
-3. validate that the returned ID belongs to the supplied set;
-4. have Python map the ID to the canonical character name and construct the
-   final JSON deterministically.
-
-This removes spelling drift, aliases, invented names, quoting/escaping errors,
-and most JSON-repair work without asking another model to reinterpret the
-decision. It may improve reliability and speed; it should not be assumed to
-produce a large raw attribution-accuracy gain until measured.
-
-### Where separate models do make sense
-
-A multi-model pipeline is reasonable when the stages require genuinely
-different capabilities:
-
-| stage | preferred responsibility |
-|---|---|
-| segmentation / quote extraction | deterministic code where possible; otherwise a small structured-output model |
-| speaker attribution | strongest locally viable coreference/reasoning model |
-| prose or instruction rewriting | an instruction-following model selected for that task |
-| canonical names and final JSON | deterministic Python, not an LLM |
-
-The important boundary is between semantic decisions and serialization, not
-between "one model that writes prose" and "another model that adds braces."
-
-### Hugging Face candidates worth testing
-
-Test these on the frozen gold harness rather than selecting from general
-benchmarks. Recommended order:
-
-1. **Current Ministral-3-14B with candidate-ID output.** This isolates the
-   output-contract change while retaining the strongest measured local model.
-2. **[Microsoft Phi-4](https://huggingface.co/microsoft/phi-4).** A dense 14B,
-   16K-context, MIT-licensed instruction/reasoning model. It is the most useful
-   same-size challenger to the current leader, subject to a clean VRAM profile.
-3. **[Qwen3-14B](https://huggingface.co/Qwen/Qwen3-14B)** using the official
-   checkpoint/quantization rather than an uncensored derivative. Test
-   non-thinking first, then thinking mode as a separate arm because the latter
-   changes latency and output behavior. Official GGUF quantizations are
-   [available here](https://huggingface.co/Qwen/Qwen3-14B-GGUF).
-4. **[Mistral Small 3.1 24B Instruct](https://huggingface.co/mistralai/Mistral-Small-3.1-24B-Instruct-2503)**
-   only if a quantization passes the existing VRAM-headroom checks. Its official
-   card describes 24B parameters and 128K context; it is likely tight on this
-   machine and must not be made to fit by weakening safety limits.
-5. **[Qwen3-30B-A3B](https://huggingface.co/Qwen/Qwen3-30B-A3B)** only as an
-   explicit offload experiment. Although it activates about 3.3B parameters per
-   token, all MoE weights still have to be stored, so low active-parameter count
-   does not imply a comfortable 16GB load.
-
-[Gemma 3 27B](https://huggingface.co/google/gemma-3-27b-it) is another plausible
-large-model comparison, but its size, gated access, and likely offload cost make
-it a lower-priority local candidate than the tests above.
-
-These are candidates, not claims that any will beat Ministral-3-14B on this
-task. Model-card capabilities and broad benchmarks do not substitute for
-speaker-attribution results on the project's own fiction data.
-
-### Exact experiment matrix
-
-Keep inputs, segmentation, roster, temperature, load settings, and scorer
-fixed. Run:
-
-1. Ministral-3-14B, current JSON contract;
-2. Ministral-3-14B, candidate-ID contract;
-3. Phi-4 14B, candidate-ID contract;
-4. official Qwen3-14B non-thinking, candidate-ID contract;
-5. official Qwen3-14B thinking, candidate-ID contract;
-6. Mistral Small 3.1 24B only after a safe load profile.
-
-For every arm record:
-
-- raw and oracle speaker accuracy;
-- invalid-ID / parse-failure rate;
-- correction or retry rate;
-- latency and tokens per line/book;
-- peak VRAM and actual loaded settings;
-- exact paired disagreements and McNemar result;
-- confidence risk/coverage if a usable confidence signal is emitted.
-
-The candidate-ID comparison must use the same model on the same lines first.
-Otherwise a simultaneous model swap would make it impossible to attribute any
-gain to the cleaner contract.
-
-### Decision rule
-
-The expected ranking of effects is:
-
-- deterministic ID-to-JSON conversion should primarily improve validity,
-  consistency, and speed;
-- changing the attribution model is more likely to move semantic accuracy;
-- combining the strongest validated model with deterministic serialization is
-  the most promising design;
-- no model becomes the production default until it clears the second-book
-  validation and produces a useful confidence/routing curve.
-
-The immediate next test should therefore be **Ministral-3-14B current JSON
-versus Ministral-3-14B candidate-ID output on the frozen harness**, followed by
-Phi-4 and official Qwen3-14B under the winning output contract.
-
----
-
-## 16. Six-model decomposition, and what separates them
-
-Three further models were profiled and benchmarked on the frozen harness: same
-segmentation, roster, 147 gold lines, temperature 0, idle GPU, thinking off.
-All artifacts committed under `ab_test_runtime/experiments/`.
-
-| model | context | open | closed-6 | oracle |
-|---|---:|---:|---:|---:|
-| **qwen/qwen3-14b** | 16384 | **48.3%** | 36.7% | **66.0%** |
-| ministral-3-14b | 16384 | 47.6% | 41.5% | 61.2% |
-| ministral-14b-heresy | 16384 | 46.9% | 40.8% | 59.2% |
-| microsoft/phi-4 | 16384 | 45.6% | 32.7% | 59.2% |
-| gemma-4-e4b | 32768 | 39.5% | 38.8% | 49.7% |
-| qwen3.5-9b | 32768 | 35.4% | 34.7% | 49.0% |
-
-Paired exact McNemar against the leader, oracle arm:
-
-```
-qwen3-14b vs qwen3.5-9b            31/ 6   p=0.0000  significant
-qwen3-14b vs gemma-4-e4b           38/14   p=0.0012  significant
-qwen3-14b vs phi-4                 20/10   p=0.0987
-qwen3-14b vs ministral-14b-heresy  25/15   p=0.1539
-qwen3-14b vs ministral-14b         25/18   p=0.3604
-```
-
-### What separates, and what does not
-
-**The 14B tier clearly improves on the 9B in the strongest paired
-comparisons, but it does not uniformly separate from the e4b model.**
-Qwen3-14b repairs 31 oracle-arm lines the 9B gets wrong while breaking 6
-(p<0.0001), and the other 14B models also improve materially on the 9B in at
-least one primary arm. The stronger claim that every 14B model significantly
-beats both lower-tier models is not supported: on the open arm none of the 14B
-models significantly beats gemma-e4b, and heresy versus gemma on the oracle arm
-is p≈0.060.
-
-**The four 14B-class models do not separate from each other.** qwen3-14b leads
-on every arm but none of the pairwise comparisons reach significance (p=0.099 to
-p=0.360). On 147 lines, a 5-7 point spread among them is not resolvable. Ranking
-them beyond "all clearly better than the 9B tier" would be reading noise.
-
-**Thinking was verified off, not assumed.** qwen3-14b is a reasoning model; zero
-reasoning tokens were recorded across the run, so `reasoning_effort: none` is
-honoured and the result is not inflated or penalised by hidden thinking.
-
-**closed-6 is a loss for all six.** Scene-local candidates cost 5-13 points
-against the full roster in every model tested, across four architectures and two
-size tiers. This is now the most robustly replicated negative result in the
-investigation.
-
-### magistral-small does not fit and was refused
-
-Weights alone occupy 13.51 GiB of a 15.92 GiB card, leaving 0.16 GiB at the
-8192 minimum. It gets no verified profile and falls back to the conservative
-default rather than being made to fit by weakening the VRAM guard, per this
-brief's own ground rules.
-
-### A measurement note worth keeping
-
-The first profiling run of these three models was contaminated and discarded: a
-hung experiment still held 9.75 GiB, so both new models measured a *negative*
-context cost. Two lessons already recorded elsewhere applied again - a frozen
-log does not mean a dead process, and an idle card must be verified rather than
-assumed. `app/experiments/profile_vram.py` now exists so profiling a new model
-is a command rather than a scratchpad script plus a hand-edited dict.
-
-Also of note for capacity planning: the two new dense models cost **~160 KiB per
-context token, ten times** the compressed-KV models already in use. That, not
-parameter count, is what caps them at 16384 here.
-
-### Revised recommendation
-
-Pass 2 should move off qwen3.5-9b to a 14B-class model. **The evidence does not
-support picking a specific one of the four** - choose on cost, licence and
-stability, not on these scores. qwen3-14b and ministral-3-14b are the two
-sensible defaults, and ministral is already validated in the model matrix.
-
-The gain is real but bounded: **66.0% under a perfect oracle candidate set, and
-48.3% realistically.** Relative to the 9B open arm, this is +12.9 percentage
-points (35.4% to 48.3%), or about a 36% relative improvement. Relative to the
-29.9% shipped baseline it is +18.4 points, or about a 62% relative improvement.
-That is substantial, but it is not a doubling, and it still leaves one line in
-two wrong.
-
----
-
-## 17. Where this stands, and what should happen next
-
-### The measured picture, in one place
-
-| question | answer | evidence |
-|---|---|---|
-| Is the true speaker available? | 85% in the roster | text measurement |
-| Does the pipeline pick it? | 29.9% (9B, shipped) | gold set |
-| Is that a recall or selection problem? | **selection**, 55-point gap | decomposition |
-| Can candidate pruning close it? | **no** - loses for all six models | closed-6, six models |
-| Can deterministic tag rules? | **no** - 7.5% recall | text measurement |
-| Did the tested context changes help? | **no on the 9B**; unmeasured on the 14B tier | 2x2 + decomposition |
-| Does roster warm-up help? | yes, +5.1 on the 9B | artifact-backed |
-| Does a better model help? | **yes**, +12.9 points over the tested 9B open arm | six-model benchmark |
-| Is it enough? | **no** - 48.3% realistic, 66.0% oracle | six-model benchmark |
-
-### The honest summary
-
-A day of work moved the best measured configuration from **29.9% to ~48%**, and
-produced a best measured oracle result of **66%** when the correct answer is
-handed to the model among five candidates. That is not an intrinsic ceiling:
-it is the highest result under this harness, prompt, candidate construction,
-and model set. The tested candidate-generation, tag-extraction, context-
-reformatting, and prose-passage approaches did not improve the result. The two
-measured positive interventions were a better model and warmer roster state.
-Confidence routing and the candidate-ID contract remain untested, so the
-broader claim that every architectural idea failed would be premature.
-
-That leaves the project with a clear but uncomfortable position: **unattended
-multi-voice attribution is not reachable on this hardware with these methods.**
-One line in two is wrong at realistic settings. The remaining paths are:
-
-1. **Confidence routing.** Find the subset that can ship unreviewed and route
-   the rest to a human. Nothing measured so far tells us how large that subset
-   is; the risk/coverage curve is the missing number and it has never been
-   computed.
-2. **The candidate-ID output contract (§15).** Structurally eliminates invented
-   names and misspellings as *output-format categories*, but does not thereby
-   eliminate the corresponding attribution errors: the model may instead
-   choose a wrong valid ID or abstain. It simplifies the attestation gate to a
-   deterministic membership check rather than necessarily retiring validation
-   and retries. Cheap, well-motivated, and untested for accuracy. It must include
-   an explicit not-listed option, because 15% of gold lines have a true speaker
-   absent from the roster and forcing a choice there would convert honest
-   abstention into confident error.
-3. **Accepting a human-in-the-loop product**, and optimising for review speed
-   rather than raw accuracy.
-
-### What should not happen next
-
-- Another prompt or context format experiment on the 9B. That model is no longer
-  the intended production selector and every context idea has been tested twice.
-- Ranking the four 14B-class models on the current gold set. They do not
-  separate at n=147; more precision requires more judged lines, not more runs.
-- Building scene-cast candidate generation. Rejected across six models.
-
-### The methodological record
-
-Worth stating because it shaped everything above. Across this investigation,
-**every architecture reasoned about in advance failed, and every result that
-survived came from inspecting data nobody had looked at**: shipped output
-revealed 279 invented speakers, a second book revealed every honorific name
-being rejected, an external audit revealed every scene break losing its silence,
-per-line artifacts revealed a counting bug masquerading as a finding, and a
-paired significance test revealed that a 4-point model difference was noise.
-
-Two conclusions were reversed by better measurement *during* the same day. Both
-reversals were caught by external review demanding artifacts rather than
-aggregates. That is the single practice most worth carrying forward.
-
----
-
-## 18. Verified pairwise matrix, and a correction accepted
-
-The §16 claim that "every 14B-class model is significantly better than both"
-lower-tier models was wrong, and the review was right to narrow it. Only the
-leader had been tested against the rest; the claim was generalised from that.
-The complete matrix, exact McNemar on the same 147 lines:
-
-**open arm** (realistic setting)
-
-| model | vs qwen3.5-9b | vs gemma-4-e4b |
-|---|---:|---:|
-| qwen3-14b | **0.0043** | 0.0725 |
-| ministral-14b | **0.0133** | 0.0961 |
-| heresy-14b | **0.0270** | 0.1352 |
-| phi-4 | **0.0237** | 0.2221 |
-
-**closed-oracle arm**
-
-| model | vs qwen3.5-9b | vs gemma-4-e4b |
-|---|---:|---:|
-| qwen3-14b | **0.0000** | **0.0012** |
-| ministral-14b | **0.0153** | **0.0300** |
-| heresy-14b | **0.0444** | 0.0595 |
-| phi-4 | **0.0275** | **0.0385** |
-
-### What this actually supports
-
-- **All four 14B-class models significantly beat qwen3.5-9b**, on both arms.
-- **None of them significantly beats gemma-4-e4b on the open arm.** The 6-9
-  point raw gap does not separate at n=147.
-- On the oracle arm three of four beat gemma; heresy does not (p=0.060).
-
-**gemma-4-e4b is a 7.5B model** running at 32768 context, and it is not
-measurably worse than any 14B in the setting closest to production. It is also
-the only model in the set profiled at `parallel: 2`. If throughput matters, it
-deserves consideration that the raw table would not suggest - and the raw table
-is exactly what a reader skimming §16 would have taken away.
-
-### Three overstatements, same shape
-
-Recorded because the pattern matters more than any one instance:
-
-1. "49% is the practical ceiling for this 9B" - was a configuration ceiling.
-2. "66% ceiling" - repeated the same error one section later; it is the best
-   measured result under this harness, prompt and model set.
-3. "Every 14B beats both lower-tier models" - tested one model, claimed four.
-4. "Roughly doubles accuracy" - 35.4% to 48.3% is +36% relative.
-
-Each was caught by review rather than by me, and each took the form of stating a
-measured result more broadly than the measurement supported. The underlying
-numbers were never wrong; the sentences around them were. For a document whose
-purpose is to inform an architecture decision, that distinction is the whole
-point.
-
-### One consequence for the recommendation
-
-§16 said "move to a 14B-class model". That is supported against the 9B and only
-against the 9B. A more defensible statement:
-
-> Move off qwen3.5-9b. Both gemma-4-e4b and any of the 14B-class models are
-> measurably better than it. Choosing between gemma and the 14B tier requires
-> either more judged lines or a decision on throughput, since the current data
-> does not separate them where it matters.
-
----
-
-## 19. Confidence routing and the candidate-ID contract — both tested, both negative
-
-The two remaining untested directions from §17 were measured. Neither works.
-
-### Cross-model agreement does not yield a shippable subset
-
-Six models had already answered the same 147 lines under identical frozen
-inputs, so agreement between them is a confidence signal costing no GPU time
-and requiring no perturbation - which matters, because temperature-0 repeats
-are byte-identical and self-consistency is therefore vacuous here.
-
-| threshold | coverage | accuracy of accepted subset |
-|---|---:|---:|
-| all 6 models agree | **9.5%** | **85.7%** |
-| 5 of 6 | 21.1% | 67.7% |
-| 4 of 6 | 54.4% | 58.8% |
-| majority | 100% | 53.1% |
-
-Unanimity across six models - the strongest ensemble signal obtainable - covers
-under a tenth of the book and is still only 85.7% accurate. The remaining 133
-lines are 44.4% accurate. **There is no threshold that yields a large
-high-accuracy subset**, so ensemble agreement cannot underpin auto-accept
-routing.
-
-Incidental: majority vote across six models scores **53.1%**, against the best
-single model's 48.3%. Real, but +4.8 points for 6x inference.
-
-This does not exhaust confidence routing. The deterministic features - speech-tag
-presence, candidate provenance - are untested, and both are cheap. But they have
-low coverage by construction (speech tags reach 7.5% of lines), so the
-achievable auto-accept subset looks small from every direction measured so far.
-
-### The candidate-ID contract makes attribution worse
-
-Same model (qwen3-14b), same 147 lines, same context and decoding; only the
-output contract differs. `NOT_LISTED` offered in both arms.
-
-| contract | accuracy | invalid outputs | abstained |
-|---|---:|---:|---:|
-| free-form name | **49.0%** | 6 | 3 |
-| opaque candidate ID | **35.4%** | **0** | 3 |
-
-Paired exact McNemar: the name arm is correct on 37 lines the ID arm misses,
-the ID arm on 17 the name arm misses, **p = 0.009**.
-
-The proposal did exactly what it promised at the format layer - **invalid and
-off-cast outputs fell from 6 to 0** - and cost 13.6 points of accuracy doing it.
-The review's own caution was the correct one: eliminating a category of *output*
-does not eliminate the underlying attribution error. The model simply chose a
-wrong valid ID instead, and did so far more often.
-
-The lines it lost are ordinary character confusions, not exotic:
-
-```
-4x  RUDEUS -> ORSTED      3x  RUDEUS -> ROXY
-3x  ORSTED -> RUDEUS      3x  RUDEUS -> SYLPHY
-3x  RUDEUS -> NANAHOSHI   2x  RUDEUS -> ERIS
-```
-
-The most plausible reading is that naming the character is part of how the model
-reasons about the scene, and forcing the answer through an opaque code degrades
-the reasoning rather than merely tidying the serialisation. Whatever the
-mechanism, an output contract cannot be assumed neutral with respect to the
-decision it is serialising.
-
-### Consequence
-
-Both directions §17 named as still-open are now closed by measurement:
-
-| direction | status |
-|---|---|
-| confidence routing via ensemble agreement | **rejected** - 9.5% coverage at 85.7% |
-| candidate-ID output contract | **rejected** - -13.6 points, p=0.009 |
-
-What remains untested is narrow: deterministic confidence features with
-known-low coverage, and more judged gold lines to separate gemma from the 14B
-tier. **No untested direction currently promises a large accuracy gain.**
-
----
-
-## 20. Closing assessment
-
-Every direction this brief identified has now been measured. This section is
-opinion, separated from the record as §12 does.
-
-### The complete ledger
-
-| direction | result | evidence |
-|---|---|---|
-| better model | **+12.9 pts** (35.4 → 48.3 open) | six models, paired |
-| roster warm-up | **+5.1 pts** on the 9B | artifact-backed |
-| majority vote over 6 models | +4.8 pts, at 6x inference | derived |
-| scene candidate generation | −5 to −13 pts, all six models | six models |
-| candidate-ID output contract | **−13.6 pts**, p=0.009 | paired |
-| context reformatting (prose, narration-inline) | −2 to −5 pts | two-by-two |
-| deterministic tag extraction | 7.5% recall | text |
-| first-person narrator hint | no effect | paired |
-| confidence via ensemble agreement | 9.5% coverage @ 85.7% | derived |
-
-Two interventions helped, seven did not, and the two that helped are not
-architectural: use a bigger model, and give it the full cast list up front.
-
-### What I think this means
-
-**The task is harder than the pipeline is wrong.** Nine architectural
-interventions were tested and the two that worked were both "give the model more
-of what it already had". Nothing in the error structure suggests a missing
-mechanism. That is the honest reading of nine negatives.
-
-**The oracle result is the load-bearing number.** Hand the strongest local model
-the correct answer among five candidates and it picks it 66% of the time. That
-is not a serialisation problem, a context problem, or a candidate problem - all
-three were tested and eliminated. It is the model's ability to resolve who is
-speaking in a scene, and no amount of scaffolding around it moved that.
-
-**Confidence routing was the last hope for a product, and it is thin.** Six
-models agreeing unanimously - the strongest signal obtainable - buys 9.5% of
-lines at 85.7% accuracy. There is no version of "auto-accept the easy ones" that
-covers enough of the book to reduce human work meaningfully. This was the
-direction I argued was required regardless of what the experiments showed; the
-experiments showed it does not exist at usable scale.
-
-**The candidate-ID result is the most interesting negative.** It is the only
-intervention that did exactly what it promised at its own layer - invalid outputs
-went 6 to 0 - and still made the system materially worse. That is worth
-remembering as a general caution: a change can be correct about its stated
-mechanism and wrong about its effect, and only the end-to-end measurement
-distinguishes them.
-
-### What I would tell the owner
-
-Three honest options, in the order I would consider them:
-
-1. **Ship it as human-assisted.** ~48% correct with a 14B, a review UI, and no
-   pretence of automation. The per-line artifacts show the errors are mostly
-   confusions between real characters, which are fast for a human to fix
-   because the candidate set is small and the context is right there.
-2. **Change the product.** Single-narrator audiobooks need no attribution at
-   all. Multi-voice for a fixed, hand-cast set of principal characters with
-   everything else narrated is a much easier problem than open attribution.
-3. **Wait for hardware or a better local model.** The 9B→14B step bought 12.9
-   points. A 32B-class model at full context might buy a similar step, and this
-   card cannot run one. That is a purchase decision, not an engineering one.
-
-What I would not do is spend more time on the current architecture. It has been
-measured from six directions in a day and the ceiling has not moved.
-
-### On how this investigation went
-
-Worth recording for whoever picks this up.
-
-Nine architectural ideas were tested; every one that was argued for in advance
-failed. Every result that survived came from looking at data nobody had examined
-- shipped output, a second book, an external audit, per-line artifacts, a paired
-significance test. Two conclusions reversed *during* the same day, both caught by
-review demanding artifacts rather than aggregates.
-
-Four claims in earlier drafts of this document overstated what had been
-measured - two "ceiling" claims that were configuration results, one
-generalisation from a single comparison, one relative-improvement inflation.
-Every underlying number was correct. The sentences around them were not, and
-that error survives review far more easily than a wrong number does.
-
-If there is one practice to carry forward it is the artifact requirement:
-per-line records with environment, code identity and a declared contract. It
-caught a counting bug that had produced a plausible-looking finding, and it is
-the only reason two reversed conclusions were reversible.
+- unattended 90%+ attribution;
+- an intrinsic ceiling for any model or for the task;
+- a useful confidence/coverage operating point;
+- a production benefit from warm roster, reasoning fields, scaffolded
+  questions, thinking tokens, voting, or candidate IDs;
+- a significant end-to-end Gemma/Qwen difference — the 2×2 now completes on both
+  books and is non-significant on both (p≈0.06), in *opposite* directions;
+- generalization from Mushoku to Grimgar — `closed-6` harm failed to replicate
+  on Grimgar, while the model order also varies descriptively (§6);
+- that the closed-set decomposition predicts pipeline behavior.
+
+### Do not do yet
+
+- do not ship the `because` field — now settled by artifact, not provisional;
+- do not treat any decomposition result as a shipping decision until §6.3 is
+  understood; it is a pass-2 probe whose ranking disagreed with the pipeline's;
+- do not resume the full matrix against a changing pass-2 configuration;
+- do not build a two-model “writer then JSON converter” pipeline merely to
+  repair formatting—the attribution model already returns parseable JSON, and
+  a formatter cannot repair a wrong speaker choice;
+- do not weaken retries, VRAM guards, checkpointing, or the global GPU lock.
+
+## 10. Recommended next steps
+
+Reordered from the previous revision. `because` is closed, and the two
+transport failures displace the remaining intervention work.
+
+1. **Finish the two runs in §7** and record both outcomes, including null ones.
+2. **Resolve what causes the instrument disagreement (§6.3).** Do not choose
+   one instrument by preference: they answer different questions. The most
+   informative design is a crossover on the same book:
+   - freeze one segmentation from Gemma and one from Qwen;
+   - run both Gemma and Qwen attribution on both segmentations;
+   - score only source spans that map consistently, while separately reporting
+     pass-1 omissions, splits, merges, and generation failures.
+
+   This 2×2 separates a pass-1 effect, a pass-2 model effect, and their
+   interaction. Running only on Gemma's segmentation is a useful cheap probe,
+   but it cannot distinguish all three.
+3. **Freeze the Grimgar scoring fixture and policy.** Report ambiguous and
+   unaligned rows separately. The 400-line fixture is currently single-judge and
+   provisional; it is adequate for the paired rankings above and not for any
+   absolute accuracy claim.
+4. **Only then choose a settled attribution model/configuration**, on
+   end-to-end evidence from both books plus latency, memory fit, and completion
+   reliability.
+5. **Only after that, consider routing.** Report accepted accuracy against
+   coverage; raw model agreement is not enough.
+
+Deliberately *not* recommended: more single-book interventions. Ten have been
+measured and one survives, and today's results show the measurement was not
+sensitive enough to justify that conclusion book-wide.
+
+If a two-model design is revisited, split by semantic responsibility, not by
+serialization:
+
+- model A proposes the speaker plus compact evidence;
+- model B independently verifies or challenges uncertain cases;
+- deterministic code validates and converts the final result to JSON.
+
+This costs more than one pass and is justified only if the verifier produces a
+useful high-precision subset or repairs enough errors to beat a stronger single
+model.
+
+## 11. Reviewer assessment
+
+My reading is that the investigation produced durable measurement
+infrastructure and a useful model-selection result, but no architectural
+breakthrough. That is still valuable: several attractive ideas now have paired
+evidence against them, and multiple instrument defects were found before those
+results became product changes.
+
+The most important methodological correction is symmetrical:
+
+- a negative can be caused by a broken instrument;
+- a positive can be caused by a weak comparison.
+
+Every intervention should therefore be tested against the exact configuration
+that could ship. Simplified harnesses are excellent for generating hypotheses,
+not for declaring production wins.
+
+The production decision on `because` is closed by a validated artifact, with
+the dirty-tree provenance caveat recorded in §5.
+
+### Added this revision
+
+That symmetry needs a third line, because today produced a failure neither
+existing line predicts:
+
+- a negative can be caused by a broken instrument;
+- a positive can be caused by a weak comparison;
+- **either can be caused by a sound instrument measuring something adjacent to
+  what ships.**
+
+The `because` reversal was caught by comparing prompts: the exploratory
+baseline was visibly weaker. Section 6.3 is different. The closed-set
+decomposition has no known scoring defect; it uses a production call path,
+validated artifacts, and paired statistics. It holds segmentation fixed,
+whereas the end-to-end outputs vary segmentation and attribution together and
+include partial runs. Their descriptive ordering differs, but the evidence
+does not yet identify frozen segmentation as the cause.
+
+The practical consequence is that component claims and product claims must be
+kept separate. Most of §4's ledger rests on the decomposition or similarly
+frozen-input harnesses. Those results remain evidence about pass 2 under their
+declared inputs, but they should not become end-to-end recommendations without
+a crossover or production confirmation. “Measured under frozen 9B
+segmentation” belongs on each affected claim.
+
+The model result should also be stated narrowly, and more narrowly than the
+previous revision put it. The evidence supports moving off the original 9B. It
+does not select a winner among the 14B-class candidates: the two harnesses
+disagree on Grimgar, both end-to-end comparisons are non-significant, and the
+second-place model differs by book. The context confound (§7.2) is still
+unresolved, so even "bigger model wins" is not yet separated from "bigger model
+got more context".
+
+Finally, the product may need a human-assisted success criterion. If no model
+approaches unattended accuracy, the relevant question becomes whether the
+system can automatically accept a large, high-precision subset and route the
+rest for efficient correction. No tested confidence signal has yet
+demonstrated that operating point.
+
+## 12. Handoff checklist
+
+Before accepting any new headline result, verify:
+
+- the run used the production call path or is labeled exploratory;
+- all expected arms and IDs are present;
+- aggregates recompute from rows;
+- the actual loaded model and LM Studio state match the declaration;
+- source provenance is reconstructable;
+- the comparison is paired where possible;
+- partial runs are not presented as completed;
+- statistical non-significance is not described as equivalence;
+- conclusions remain scoped to the tested books and fixtures;
+- the result holds on both books, or says which one it was measured on;
+- if the harness freezes any pipeline stage, that stage is named in the claim.
+
+The earlier 34-section discussion is intentionally not retained here. Git
+history preserves it at commit `2ce90a9` if the full chronology is needed.

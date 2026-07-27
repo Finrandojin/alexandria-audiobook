@@ -465,6 +465,13 @@ class TTSEngine:
 
         # Known RDNA GPU corrections: {name_substring: (true_CUs, true_warp)}
         _rdna_corrections = {
+            # RDNA4. Verified on this machine 2026-07-27: rocminfo reports
+            # "Compute Unit: 64" while torch reports multi_processor_count=32,
+            # i.e. torch is given the WGP count, the same halving this patch
+            # exists to undo on RDNA2/3. Warp stays 32 because rocminfo reports
+            # "Wavefront Size: 32" for gfx1201 - unlike the entries below, there
+            # is no measured basis here for forcing 64.
+            "9070 XT":  (64, 32),
             "7900 XTX": (96, 64),
             "7900 XT":  (84, 64),
             "7900 GRE": (80, 64),

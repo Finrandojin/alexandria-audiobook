@@ -3,11 +3,12 @@
   "experiment": "candidate_id",
   "notes": "Free-form name output vs opaque candidate-ID output, same model and lines. Tests whether removing the naming job removes the errors it causes, or merely relabels them.",
   "git": {
-   "commit": "401dc6be92517b250c03d64d846a8c9f4d6d894e",
-   "branch": "agent/experiment-artifacts",
+   "commit": "53299de752738399a25721f907a6845c95377f8c",
+   "branch": "agent/model-comparison",
    "dirty": false,
    "modified_tracked_files": null,
-   "harness_sha256": "6206f547d0536d5461d2af87431d7453f91f35a187247310a6ac351379aa4ef6"
+   "untracked_harness_files": null,
+   "harness_sha256": "8677ef8bacde6ae84fc3a37aaacbbaa6cb9dc3ee905ee0262158d760e8d31939"
   },
   "host": "mitch-linux",
   "model": "qwen/qwen3-14b",
@@ -28,8 +29,8 @@
   "gold_sha256": "e10b3d056ee486aa43d4c48a548cca102f0ffed33c0c7ce8005d4d3ae4c9629d",
   "gold_lines": 147,
   "validation": "ok",
-  "finished": 1785097357.638083,
-  "elapsed_s": 68.5
+  "finished": 1785098360.5164473,
+  "elapsed_s": 68.3
  },
  "summary": {
   "name": {
