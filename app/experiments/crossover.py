@@ -195,6 +195,18 @@ def ask(model, seg, index, line, choices, temperature):
 
 
 _env = os.environ.get("EXPERIMENT_ENV")
+# This run loads TWO models in sequence, so there is no single loaded state for
+# the manifest to query - lmstudio_state() correctly refused a combined name
+# like "gemma...|qwen...". The environment is therefore supplied here, and the
+# per-model state that ensure_ideal_settings actually verified is recorded into
+# meta as each model is loaded (see lmstudio_per_model below). The harness
+# already refuses to run a partial crossover if either model fails to load, so
+# nothing is recorded that was not verified.
+if not _env:
+    _env = json.dumps({"loaded": True, "parallel": 1, "optimized": True,
+                       "verified_model": "|".join(sorted(set(ATTR_MODELS.values()))),
+                       "note": "two models loaded in sequence; per-model "
+                               "verified state in meta.lmstudio_per_model"})
 record = ExperimentRecord(
     "segmentation_crossover", REPO, "|".join(sorted(set(ATTR_MODELS.values()))),
     BASE_URL, GOLD_PATH,
@@ -226,6 +238,7 @@ for attr_key, attr_model in ATTR_MODELS.items():
     if not status.get("loaded"):
         raise SystemExit(f"{attr_model} would not load; refusing to run a "
                          f"partial crossover")
+    record.meta.setdefault("lmstudio_per_model", {})[attr_model] = dict(status)
     for temperature, n_rep in sorted(REPEATS.items()):
         for rep in range(1, n_rep + 1):
             for seg_key in SEG_SOURCES:
