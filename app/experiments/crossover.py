@@ -162,9 +162,13 @@ record.meta["roster_sizes"] = {k: len(v) for k, v in rosters.items()}
 record.meta["excluded_rows"] = dict(dropped)
 
 cells = {}
-for seg_key in SEG_SOURCES:
-    seg, roster = segs[seg_key], rosters[seg_key]
-    for attr_key, attr_model in ATTR_MODELS.items():
+# Attribution model is the OUTER loop on purpose: each model is then loaded once
+# and answers over both segmentations, rather than alternating and forcing a
+# model swap per cell. A 9 GB reload between every cell would dominate the run
+# and, on a machine where VRAM is tight, is a chance to fail.
+for attr_key, attr_model in ATTR_MODELS.items():
+    for seg_key in SEG_SOURCES:
+        seg, roster = segs[seg_key], rosters[seg_key]
         arm = f"seg={seg_key},attr={attr_key}"
         started = time.time()
         for g in shared:
