@@ -7,9 +7,20 @@ set fixes that, and measures the ceiling with an oracle set.
 Run on an idle GPU. Temperature 0, so single runs are exact.
 """
 import collections
-import json, os, re, sys, random, collections
+import json, os, re, sys, random, time, collections
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+import openai
 from openai import OpenAI
+
+# A run against a Thunder instance goes through a forwarded port that can drop
+# for seconds at a time; one such drop killed a mushoku16 run two arms in, after
+# four minutes of work and with no artifact written. Availability errors only -
+# APIStatusError covers 404/429/5xx, and BadRequestError is deliberately not
+# caught, since a malformed request will fail identically on every attempt.
+RETRYABLE = (openai.APIConnectionError, openai.APITimeoutError,
+             openai.InternalServerError, openai.RateLimitError,
+             openai.NotFoundError)
+MAX_ATTEMPTS = 6
 from candidates import build_candidates
 from experiments.manifest import ExperimentRecord
 
@@ -59,11 +70,18 @@ SCOREABLE = [g for g in gold["entries"] if _occ[norm(g["line"])] == 1]
 gold_ids = {g["id"] for g in SCOREABLE}
 print(f"scoring {len(SCOREABLE)} of {len(gold['entries'])} gold lines "
       f"(unique text)", flush=True)
-BASE_URL = "http://localhost:1234/v1"
+# Remote runs point this at a Thunder instance's forwarded port. The endpoint
+# is recorded in the artifact, so a local and a rented-GPU run can never be
+# confused for one another after the fact.
+BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://localhost:1234/v1")
 DECODING = {"temperature": 0.0, "max_tokens": 24, "reasoning_effort": "none"}
 client = OpenAI(base_url=BASE_URL, api_key="local")
+# On a remote host the local `lms` CLI cannot see the server, so the caller
+# supplies the environment it already verified over the control channel.
+_env = os.environ.get("EXPERIMENT_ENV")
 record = ExperimentRecord(
     "closed_set", REPO, MODEL, BASE_URL, GOLD_PATH, DECODING,
+    environment=json.loads(_env) if _env else None,
     notes="Conditional selection accuracy: open roster vs scene candidates vs "
           "true speaker + 4 distractors. Answers whether candidate pruning "
           "can fix the 55-point available-but-not-chosen gap.")
@@ -82,13 +100,36 @@ def ask(line, index, choices):
                if choices else "")
     user = (f"PASSAGE BEFORE:\n{before}\n\nLINE:\n{line}\n\n"
             f"PASSAGE AFTER:\n{after}\n{options}\n\nWho speaks the LINE?")
-    r = client.chat.completions.create(
-        model=MODEL, messages=[{"role": "system", "content": SYSTEM},
-                               {"role": "user", "content": user}],
-        temperature=0.0, max_tokens=24,
-        extra_body={"reasoning_effort": "none"})
-    raw = (r.choices[0].message.content or "")
-    return raw.strip().upper().strip(".'\" "), user, raw
+    # One fixed policy for every attempt, decided before the first failure:
+    # retry only availability failures - the endpoint being briefly absent,
+    # rate-limited or erroring - and never a rejection of the request itself.
+    # A remote endpoint drop is indistinguishable from a wrong model name at
+    # the call site, so 404 is treated as availability: the model is verified
+    # loaded before a run starts, and a 404 mid-run means the tunnel went away.
+    # This is not a quality mechanism. Decoding is temperature 0 and identical
+    # on every attempt, so a retry can only recover a lost request, never
+    # resample a bad answer.
+    last = None
+    for attempt in range(MAX_ATTEMPTS):
+        try:
+            r = client.chat.completions.create(
+                model=MODEL, messages=[{"role": "system", "content": SYSTEM},
+                                       {"role": "user", "content": user}],
+                temperature=0.0, max_tokens=24,
+                extra_body={"reasoning_effort": "none"})
+            raw = (r.choices[0].message.content or "")
+            return raw.strip().upper().strip(".'\" "), user, raw, attempt
+        except RETRYABLE as exc:
+            last = exc
+            if attempt == MAX_ATTEMPTS - 1:
+                break
+            delay = min(2 ** attempt, 30)
+            print(f"    endpoint unavailable ({type(exc).__name__}), retry "
+                  f"{attempt + 1}/{MAX_ATTEMPTS - 1} in {delay}s", flush=True)
+            time.sleep(delay)
+    raise RuntimeError(
+        f"endpoint failed {MAX_ATTEMPTS} consecutive attempts against "
+        f"{BASE_URL}; last error {type(last).__name__}: {last}") from last
 
 arms = {}
 for arm in ("open", "closed-6", "closed-oracle"):
@@ -110,14 +151,14 @@ for arm in ("open", "closed-6", "closed-oracle"):
             random.Random(i + 1).shuffle(choices)
         here = any(same(c, truth) for c in choices)
         available += here
-        got, prompt, raw = ask(g["line"], i, choices)
+        got, prompt, raw, retries = ask(g["line"], i, choices)
         ok = same(got, truth)
         record.add(arm, g["id"], g["line"], truth.upper(), got, ok,
                    candidates=[c.upper() for c in choices],
                    provenance=("full_roster" if arm == "open" else
                                "tag+recent+scene" if arm == "closed-6"
                                else "oracle+4_distractors"),
-                   prompt=prompt, raw=raw)
+                   prompt=prompt, raw=raw, retries=retries)
         correct += ok
         cond_ok += ok and here
         if n % 25 == 0:
