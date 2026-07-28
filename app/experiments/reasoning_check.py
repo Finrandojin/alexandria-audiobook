@@ -100,6 +100,49 @@ REASONED_SYSTEM = BASE_SYSTEM.replace(
     "the \"because\" field of each entry, nowhere else.")
 
 client = OpenAI(base_url=BASE_URL, api_key="local")
+
+# attribute_batch returns {**frozen, "speaker": ...} and DISCARDS every other
+# field the model produced - which is why because_production stored
+# raw_response: None and why this experiment would otherwise measure nothing.
+# Rather than change the production path to suit the experiment, wrap the
+# client and keep what the path throws away. The call itself is untouched, so
+# this is still the shipped code being measured.
+TRANSCRIPT = []
+_real_create = client.chat.completions.create
+
+
+def _recording_create(*args, **kwargs):
+    response = _real_create(*args, **kwargs)
+    try:
+        TRANSCRIPT.append(response.choices[0].message.content or "")
+    except (AttributeError, IndexError):
+        TRANSCRIPT.append("")
+    return response
+
+
+client.chat.completions.create = _recording_create
+
+
+def because_by_index(raw_texts):
+    """Pull {n: because} out of whatever the model actually emitted.
+
+    Keyed on the model's own `n`, not on position, because a retry inside
+    attribute_batch appends another completion to the transcript and the last
+    one is the one whose speakers were used.
+    """
+    out = {}
+    for text in raw_texts:
+        start, end = text.find("["), text.rfind("]")
+        if start < 0 or end < 0:
+            continue
+        try:
+            items = json.loads(text[start:end + 1])
+        except ValueError:
+            continue
+        for item in items if isinstance(items, list) else []:
+            if isinstance(item, dict) and "n" in item and item.get("because"):
+                out[item["n"]] = str(item["because"])
+    return out
 params = LLMGenParams(max_tokens=12000, context_length=32768, temperature=0.0,
                       attribute_temperature=0.0, top_p=0.8,
                       reasoning_effort="none")
@@ -144,6 +187,7 @@ for arm, system in (("plain", BASE_SYSTEM), ("reasoned", REASONED_SYSTEM)):
         contexts = [{"previous_context": seg[i - 1] if i else None,
                      "next_context": seg[i + 1] if i + 1 < len(seg) else None}
                     for i in send]
+        del TRANSCRIPT[:]
         try:
             out = attribute_batch(client, MODEL, frozen, this, roster,
                                   neighbor_contexts=contexts, source_text=src)
@@ -156,6 +200,7 @@ for arm, system in (("plain", BASE_SYSTEM), ("reasoned", REASONED_SYSTEM)):
                     record.add(arm, g["id"], g["line"], g["expected_speaker"].upper(),
                                None, False, provenance=f"{arm}|batch_failed")
             continue
+        reasons = because_by_index(TRANSCRIPT) if arm == "reasoned" else {}
         for offset, i in enumerate(send):
             key = norm(seg[i].get("text"))
             if key not in want:
@@ -163,7 +208,12 @@ for arm, system in (("plain", BASE_SYSTEM), ("reasoned", REASONED_SYSTEM)):
             g = want[key]
             item = out[offset] if offset < len(out) else {}
             speaker = (item or {}).get("speaker")
-            why = str((item or {}).get("because") or "")
+            # attribute_batch numbers entries with enumerate(frozen_batch),
+            # so `n` is ZERO-based and matches the position in `send`. Checked
+            # against three_pass_generate rather than assumed - an off-by-one
+            # here would silently attach every reason to the wrong line and the
+            # mismatch rate would be noise.
+            why = reasons.get(offset, "")
             hits = mentioned(why)
             flag = "none"
             if arm == "reasoned" and why:
