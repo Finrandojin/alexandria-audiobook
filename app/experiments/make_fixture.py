@@ -64,7 +64,19 @@ COUNT = int(os.environ.get("EXPERIMENT_COUNT", "120"))
 # showing them would turn a second opinion into a confirmation exercise.
 FROM_GOLD = os.environ.get("EXPERIMENT_FROM_GOLD", "")
 SEED = int(os.environ.get("EXPERIMENT_SEED", "20260728"))
-CONTEXT = int(os.environ.get("EXPERIMENT_CONTEXT", "4"))
+# THE JUDGE'S CONTEXT IS NOT THE MODEL'S CONTEXT, and conflating them was the
+# mistake in the first pass. Production shows the model one segment either
+# side; the first bundles showed the judge four. But the judge's job is to
+# establish what the answer IS, not to reproduce the model's handicap - a label
+# decided on four segments is a guess with the same information the model had,
+# and it cannot be ground truth for that model.
+#
+# Demonstrated on mushoku16-00818: at four segments the narration reads "After
+# replying in an energetic voice, Isolte made a bitter smile", which points at
+# Isolte having replied. At fourteen it is clear Isolte is reacting to Eris's
+# reply and is herself the one who spoke the target line. Two of the three
+# corrected gold rows turned on context outside the original window.
+CONTEXT = int(os.environ.get("EXPERIMENT_CONTEXT", "12"))
 OUT = os.environ.get(
     "EXPERIMENT_OUT",
     os.path.join(REPO, "ab_test_runtime", "fixtures_draft",
