@@ -27,17 +27,44 @@ by_id = {e["id"]: e for e in bundle["entries"]}
 
 
 def parse(path):
+    """Return a list of judgement dicts, whatever shape the judge replied in.
+
+    Observed shapes so far: a bare array of {id, speaker, ...}; the same
+    fenced in markdown; and an object {book, batch, rows: [...]} whose rows
+    carry `ANSWER` rather than `speaker`. Re-prompting for one canonical shape
+    costs more of the user's attention than accepting several costs us, so
+    long as nothing is guessed - ids and labels are read, never inferred.
+    """
     raw = open(path, encoding="utf-8").read().strip()
     fence = re.search(r"```(?:json)?\s*(.+?)```", raw, re.S)
     if fence:
         raw = fence.group(1).strip()
-    start, end = raw.find("["), raw.rfind("]")
-    if start < 0 or end < 0:
-        raise SystemExit(f"{path}: no JSON array found")
-    return json.loads(raw[start:end + 1])
+    try:
+        data = json.loads(raw)
+    except ValueError:
+        start, end = raw.find("["), raw.rfind("]")
+        if start < 0 or end < 0:
+            raise SystemExit(f"{path}: no JSON array found")
+        data = json.loads(raw[start:end + 1])
+    if isinstance(data, dict):
+        rows = next((v for v in data.values() if isinstance(v, list)), None)
+        if rows is None:
+            raise SystemExit(f"{path}: object reply with no list of rows")
+        data = rows
+    out = []
+    for item in data:
+        if not isinstance(item, dict) or "id" not in item:
+            raise SystemExit(f"{path}: row without an id: {str(item)[:120]}")
+        speaker = item.get("speaker")
+        if speaker is None:
+            speaker = item.get("ANSWER") or item.get("answer")
+        if speaker is None:
+            raise SystemExit(f"{path}: row {item['id']} has no speaker/ANSWER")
+        out.append({**item, "speaker": speaker})
+    return out
 
 
-seen = {}
+seen, duplicates = {}, []
 files = sorted(glob.glob(os.path.join(REPLIES, "reply_*.json")))
 if not files:
     raise SystemExit(f"no reply_*.json under {REPLIES}")
@@ -47,7 +74,17 @@ for path in files:
         if ident not in by_id:
             raise SystemExit(f"{path}: id {ident!r} is not in the bundle")
         if ident in seen:
-            raise SystemExit(f"{path}: id {ident!r} judged twice")
+            # A prompt re-run duplicates ids. That is fine when the two
+            # judgements agree - and it is a free reproducibility check, which
+            # is worth reporting rather than rejecting. A CONFLICTING duplicate
+            # is a different matter and still stops the ingest.
+            before = (seen[ident].get("speaker") or "").strip().upper()
+            now = (item.get("speaker") or "").strip().upper()
+            if before != now:
+                raise SystemExit(f"{path}: id {ident!r} judged twice and the "
+                                 f"answers disagree: {before!r} vs {now!r}")
+            duplicates.append(ident)
+            continue
         seen[ident] = item
 
 missing = [i for i in by_id if i not in seen]
@@ -56,6 +93,9 @@ if missing:
                      f"A short fixture cannot be reproduced from its sampling "
                      f"record; re-run the prompt covering them.")
 
+if duplicates:
+    print(f"  {len(duplicates)} ids were judged twice and agreed every time - "
+          f"a re-run of a prompt, and an unplanned reproducibility check")
 counts = collections.Counter()
 for ident, item in seen.items():
     speaker = str(item.get("speaker") or "").strip().upper() or "UNKNOWN"

@@ -1,0 +1,233 @@
+{
+ "reviewed_at": "2026-07-28T21:08:01.139Z",
+ "decisions": {
+  "grimgar03-01794": {
+   "choice": "gold"
+  },
+  "grimgar03-01809": {
+   "choice": "gold"
+  },
+  "grimgar03-01818": {
+   "choice": "gold"
+  },
+  "grimgar03-01825": {
+   "choice": "gold"
+  },
+  "grimgar03-01827": {
+   "choice": "gold"
+  },
+  "grimgar03-01846": {
+   "choice": "gold"
+  },
+  "grimgar03-01859": {
+   "choice": "gold"
+  },
+  "grimgar03-01863": {
+   "choice": "gold"
+  },
+  "grimgar03-01866": {
+   "choice": "gold"
+  },
+  "grimgar03-01869": {
+   "choice": "gold"
+  },
+  "grimgar03-01884": {
+   "choice": "gold"
+  },
+  "grimgar03-01888": {
+   "choice": "other"
+  },
+  "grimgar03-01892": {
+   "choice": "other"
+  },
+  "grimgar03-01901": {
+   "choice": "gold"
+  },
+  "grimgar03-01904": {
+   "choice": "gold"
+  },
+  "grimgar03-01906": {
+   "choice": "gold"
+  },
+  "grimgar03-01920": {
+   "choice": "gold"
+  },
+  "grimgar03-01907": {
+   "choice": "gold"
+  },
+  "grimgar03-01926": {
+   "choice": "gold"
+  },
+  "grimgar03-02082": {
+   "choice": "wide"
+  },
+  "grimgar03-02095": {
+   "choice": "wide"
+  },
+  "grimgar03-02105": {
+   "choice": "wide"
+  },
+  "grimgar03-02109": {
+   "choice": "wide"
+  },
+  "grimgar03-02125": {
+   "choice": "wide"
+  },
+  "grimgar03-02126": {
+   "choice": "wide"
+  },
+  "grimgar03-02128": {
+   "choice": "wide"
+  },
+  "grimgar03-02152": {
+   "choice": "wide"
+  },
+  "grimgar03-02154": {
+   "choice": "wide"
+  },
+  "grimgar03-02162": {
+   "choice": "wide"
+  },
+  "grimgar03-00668": {
+   "choice": "wide"
+  },
+  "grimgar03-00672": {
+   "choice": "wide"
+  },
+  "grimgar03-00681": {
+   "choice": "wide"
+  },
+  "grimgar03-00692": {
+   "choice": "wide"
+  },
+  "grimgar03-00717": {
+   "choice": "wide"
+  },
+  "grimgar03-00740": {
+   "choice": "wide"
+  },
+  "grimgar03-00171": {
+   "choice": "wide"
+  },
+  "grimgar03-00495": {
+   "choice": "wide"
+  },
+  "grimgar03-00596": {
+   "choice": "wide"
+  },
+  "grimgar03-00793": {
+   "choice": "wide"
+  },
+  "grimgar03-01289": {
+   "choice": "wide"
+  },
+  "grimgar03-01471": {
+   "choice": "wide"
+  },
+  "grimgar03-01988": {
+   "choice": "wide"
+  },
+  "owarimonogatari3-03930": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-03647": {
+   "choice": "confirm"
+  },
+  "roster::grimgar03::BARBARA": {
+   "choice": "add"
+  },
+  "roster::index18::SAIJI TATEMIYA": {
+   "choice": "add"
+  },
+  "roster::owarimonogatari3::OUGI": {
+   "choice": "add"
+  },
+  "roster::owarimonogatari3::ONONOKI": {
+   "choice": "add"
+  },
+  "roster::mushoku16::HITOGAMI": {
+   "choice": "add"
+  },
+  "roster::mushoku16::GARU FARION": {
+   "choice": "add"
+  },
+  "roster::mushoku16::ARUMANFI": {
+   "choice": "add"
+  },
+  "roster::mushoku16::REIDA": {
+   "choice": "add"
+  },
+  "roster::grimgar03::ABAEL": {
+   "choice": "add"
+  },
+  "roster::index18::LESSER": {
+   "choice": "defer"
+  },
+  "grimgar03-01244": {
+   "choice": "defer"
+  },
+  "grimgar03-01674": {
+   "choice": "defer"
+  },
+  "grimgar03-01681": {
+   "choice": "confirm"
+  },
+  "grimgar03-02187": {
+   "choice": "confirm"
+  },
+  "index18-00151": {
+   "choice": "confirm"
+  },
+  "index18-00152": {
+   "choice": "confirm"
+  },
+  "index18-00161": {
+   "choice": "confirm"
+  },
+  "index18-00172": {
+   "choice": "confirm"
+  },
+  "index18-00303": {
+   "choice": "confirm"
+  },
+  "index18-00310": {
+   "choice": "confirm"
+  },
+  "mushoku16-00721": {
+   "choice": "confirm"
+  },
+  "mushoku16-01373": {
+   "choice": "confirm"
+  },
+  "mushoku16-01722": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-00035": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-00046": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-00195": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-00312": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-00408": {
+   "choice": "confirm"
+  },
+  "owarimonogatari3-01207": {
+   "choice": "confirm"
+  },
+  "conv::letter": {
+   "choice": "defer"
+  },
+  "conv::unnamed": {
+   "choice": "defer"
+  },
+  "conv::blind": {
+   "choice": "defer"
+  }
+ }
+}
