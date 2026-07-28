@@ -1,0 +1,142 @@
+[
+ {
+  "id": "owarimonogatari3-03577",
+  "speaker": "GAEN",
+  "confident": true,
+  "alias": "IZUKO GAEN",
+  "reasoning": "Izuko Gaen is speaking to Koyomi Araragi, giving instructions on Ougi and the plan involving Tsukihi."
+ },
+ {
+  "id": "owarimonogatari3-03583",
+  "speaker": "GAEN",
+  "confident": true,
+  "alias": "IZUKO GAEN",
+  "reasoning": "Izuko Gaen continues her explanation about Tsukihi Araragi and using her as bait."
+ },
+ {
+  "id": "owarimonogatari3-03604",
+  "speaker": "GAEN",
+  "confident": true,
+  "alias": "IZUKO GAEN",
+  "reasoning": "Izuko Gaen is addressing Koyomi Araragi about his tendency toward self-sacrifice."
+ },
+ {
+  "id": "owarimonogatari3-03605",
+  "speaker": "GAEN",
+  "confident": true,
+  "alias": "IZUKO GAEN",
+  "reasoning": "Izuko Gaen continues her speech to Araragi urging him to fight Ougi."
+ },
+ {
+  "id": "owarimonogatari3-03647",
+  "speaker": "UNKNOWN",
+  "confident": true,
+  "alias": null,
+  "reasoning": "The dialogue turn follows Koyomi's question, but the speaker (Ougi Oshino) is missing from the provided roster."
+ },
+ {
+  "id": "owarimonogatari3-03685",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi mutters deliriously while losing blood, listing those who saved him, as indicated by the narration."
+ },
+ {
+  "id": "owarimonogatari3-03714",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi is reflecting internally in dialogue format on what Tsubasa Hanekawa said."
+ },
+ {
+  "id": "owarimonogatari3-03767",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi is responding evasively to his sister Tsukihi Araragi's question about his hair."
+ },
+ {
+  "id": "owarimonogatari3-03803",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi is speaking to Mayoi Hachikuji during their interaction on the street."
+ },
+ {
+  "id": "owarimonogatari3-03822",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi is talking to Izuko Gaen about Hanekawa's contribution to the resolution."
+ },
+ {
+  "id": "owarimonogatari3-03824",
+  "speaker": "GAEN",
+  "confident": true,
+  "alias": "IZUKO GAEN",
+  "reasoning": "Izuko Gaen responds to Koyomi, expressing gratitude and admiration for Tsubasa Hanekawa."
+ },
+ {
+  "id": "owarimonogatari3-03844",
+  "speaker": "SHINOBU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "Shinobu Oshino is stating her oath of loyalty and shared destiny with her master Koyomi Araragi."
+ },
+ {
+  "id": "owarimonogatari3-03848",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi greets Tsubasa Hanekawa at the bicycle parking lot on graduation day."
+ },
+ {
+  "id": "owarimonogatari3-03862",
+  "speaker": "HANEKAWA",
+  "confident": true,
+  "alias": "TSUBASA HANEKAWA",
+  "reasoning": "Tsubasa Hanekawa explains to Koyomi how she chartered a jet to retrieve Meme Oshino."
+ },
+ {
+  "id": "owarimonogatari3-03864",
+  "speaker": "HANEKAWA",
+  "confident": true,
+  "alias": "TSUBASA HANEKAWA",
+  "reasoning": "Tsubasa Hanekawa lightheartedly warns Koyomi not to stare too intently at her."
+ },
+ {
+  "id": "owarimonogatari3-03870",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi explains to Hanekawa what happened with Yotsugi Ononoki and Yozuru Kagenui."
+ },
+ {
+  "id": "owarimonogatari3-03873",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi answers Hanekawa's question regarding Ononoki's current location."
+ },
+ {
+  "id": "owarimonogatari3-03891",
+  "speaker": "KOYOMI ARARAGI",
+  "confident": true,
+  "alias": "KOYOMI",
+  "reasoning": "Koyomi Araragi speaks aloud as a sudden realization strikes him while walking with Hanekawa."
+ },
+ {
+  "id": "owarimonogatari3-03910",
+  "speaker": "SENJOUGAHARA",
+  "confident": true,
+  "alias": "HITAGI",
+  "reasoning": "Hitagi Senjougahara assures Koyomi about Suruga Kanbaru's graduation gift."
+ },
+ {
+  "id": "owarimonogatari3-03930",
+  "speaker": "UNKNOWN",
+  "confident": true,
+  "alias": null,
+  "reasoning": "The speaker is Ougi Oshino (described as the girl with pitch black eyes passing in the hallway), who is missing from the provided roster."
+ }
+]

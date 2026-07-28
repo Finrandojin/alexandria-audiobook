@@ -1,0 +1,19 @@
+{
+ "book": "mushoku16",
+ "judged_by": "claude-2026-07-28 (top-up for gemini's truncated prompt 03)",
+ "blind": [
+  "mushoku16-00818",
+  "mushoku16-00823",
+  "mushoku16-00831",
+  "mushoku16-00849",
+  "mushoku16-00895",
+  "mushoku16-00923"
+ ],
+ "not_blind": [
+  "mushoku16-00877",
+  "mushoku16-00882",
+  "mushoku16-00884",
+  "mushoku16-00887"
+ ],
+ "note": "Six judged blind from the passages alone. The four letter rows were decided AFTER reading the existing convention for that passage (author, not reader) - consistency with the rest of the fixture matters more there than independence, but they are not independent judgements and should not be counted as agreement."
+}
