@@ -84,7 +84,7 @@ The passage shows surrounding segments for context. NARRATOR is narration,
 SPOKEN is dialogue as our segmenter classified it - that classification is
 what may be wrong, so judge the text itself.
 """ % ", ".join(roster)
-HEADER = HEADER.replace("%%TARGET%%", TARGET_JSON if AS_JSON else TARGET_TXT)
+HEADER = HEADER.replace("%TARGET%", TARGET_JSON if AS_JSON else TARGET_TXT)
 
 
 def render(entry):
