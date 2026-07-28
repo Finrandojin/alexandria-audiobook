@@ -1,0 +1,57 @@
+{
+ "book": "grimgar03",
+ "judged_by": "claude-2026-07-28 (blind, 25-segment passages, no gold consulted)",
+ "why": "Gemini truncated prompts 03 and 07 at 20 of 25 items, leaving these ten unjudged. Judged blind from the bundle passages alone; the existing gold labels were not read until after these were written down.",
+ "judgements": [
+  {
+   "id": "grimgar03-00363",
+   "speaker": "RANTA",
+   "reasoning": "following narration is 'Ranta said.'"
+  },
+  {
+   "id": "grimgar03-00369",
+   "speaker": "RANTA",
+   "reasoning": "Ranta praises Moguzo as 'my business partner', then tries to snap his fingers in the next narration"
+  },
+  {
+   "id": "grimgar03-00377",
+   "speaker": "HARUHIRO",
+   "reasoning": "following narration is 'Haruhiro asked.'"
+  },
+  {
+   "id": "grimgar03-00380",
+   "speaker": "HARUHIRO",
+   "reasoning": "following narration is 'Haruhiro asked.'"
+  },
+  {
+   "id": "grimgar03-00391",
+   "speaker": "RANTA",
+   "reasoning": "preceding narration is 'Ranta talks about it with a condescending tone, like' - the target is the quoted example"
+  },
+  {
+   "id": "grimgar03-00974",
+   "speaker": "HARUHIRO",
+   "reasoning": "answers Ranta's 'You're small, too!' which the narration attributes to Ranta"
+  },
+  {
+   "id": "grimgar03-00977",
+   "speaker": "SHIHORU",
+   "reasoning": "following narration is 'Shihoru began.'"
+  },
+  {
+   "id": "grimgar03-00987",
+   "speaker": "RANTA",
+   "reasoning": "following narration is 'Ranta suddenly put on a villainous smile.'"
+  },
+  {
+   "id": "grimgar03-00991",
+   "speaker": "RANTA",
+   "reasoning": "answers Haruhiro's 'awful personality' jab; the next narration is Haruhiro's interior threat to Backstab Ranta"
+  },
+  {
+   "id": "grimgar03-00995",
+   "speaker": "HARUHIRO",
+   "reasoning": "continues 'Besides,' which the narration tags 'Haruhiro said aloud,'"
+  }
+ ]
+}
