@@ -88,7 +88,7 @@ Rules:
   and note the other in `alias`.
 
 Return ONLY a JSON array, one object per item, no markdown:
-[{"id": "...", "speaker": "NAME", "confident": true, "alias": null, "reasoning": "<short clause naming the evidence>"}]
+[{"id": "...", "speaker": "NAME|UNNAMED|UNKNOWN|NOT_DIALOGUE", "confident": true, "alias": null, "reasoning": "<short clause naming the evidence>"}]
 
 ROSTER: %s
 
@@ -127,7 +127,7 @@ for number in range(chunks):
             "output_schema": {
                 "return": "a JSON array with one object per item, nothing else",
                 "object": {"id": "string, copied exactly from the item",
-                           "speaker": "NAME in capitals, or UNKNOWN, or NOT_DIALOGUE",
+                           "speaker": "NAME in capitals, or UNNAMED, or UNKNOWN, or NOT_DIALOGUE",
                            "confident": "boolean",
                            "alias": "other name for this character, or null",
                            "reasoning": "short clause naming the evidence: the dialogue tag, who was addressed, or whose turn it is. Required for every item, including UNKNOWN and NOT_DIALOGUE - for those, say what makes it unresolvable or not speech."},
