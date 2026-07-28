@@ -72,17 +72,6 @@ for ident, item in seen.items():
         counts["not_confident"] += 1
 
 total = len(seen)
-with open(BUNDLE, "w", encoding="utf-8") as fh:
-    json.dump(bundle, fh, indent=1, ensure_ascii=False)
-print(f"{BOOK}: {total} judgements merged into {BUNDLE}")
-print(f"  named speaker  {counts['named']:4} ({counts['named']/total*100:.1f}%)")
-print(f"  UNKNOWN        {counts['UNKNOWN']:4} ({counts['UNKNOWN']/total*100:.1f}%)"
-      "   <- underdetermined for a strong reader")
-print(f"  NOT_DIALOGUE   {counts['NOT_DIALOGUE']:4} "
-      f"({counts['NOT_DIALOGUE']/total*100:.1f}%)   <- segmenter error rate")
-print(f"  not confident  {counts['not_confident']:4} "
-      f"({counts['not_confident']/total*100:.1f}%)")
-
 # Collect the flagged pairs into the bundle's alias list. finalise_fixture
 # copies that list into the fixture, and an alias that stays only on the
 # individual entry is an alias the scorer never sees - which silently marks a
@@ -99,6 +88,18 @@ for canonical, other in pairs:
     else:
         existing.append({canonical, other})
 bundle["aliases"] = [sorted(group) for group in existing]
+
+with open(BUNDLE, "w", encoding="utf-8") as fh:
+    json.dump(bundle, fh, indent=1, ensure_ascii=False)
+print(f"{BOOK}: {total} judgements merged into {BUNDLE}")
+print(f"  named speaker  {counts['named']:4} ({counts['named']/total*100:.1f}%)")
+print(f"  UNKNOWN        {counts['UNKNOWN']:4} ({counts['UNKNOWN']/total*100:.1f}%)"
+      "   <- underdetermined for a strong reader")
+print(f"  NOT_DIALOGUE   {counts['NOT_DIALOGUE']:4} "
+      f"({counts['NOT_DIALOGUE']/total*100:.1f}%)   <- segmenter error rate")
+print(f"  not confident  {counts['not_confident']:4} "
+      f"({counts['not_confident']/total*100:.1f}%)")
+
 aliases = pairs
 if aliases:
     print("\n  aliases the judge flagged - add to the fixture before trusting it,")
