@@ -67,9 +67,21 @@ if segmenter_errors:
           f"segmenter error rate on spoken segments")
 print(f"wrote {OUT}: {len(entries)} entries, {len(counts)} distinct speakers")
 print(f"  most common: {counts.most_common(5)}")
+# UNKNOWN and UNNAMED are both dropped from scoring but mean different things,
+# and reporting them together hid that on index18: 9 rows read as 7.5%
+# "underdetermined" when 8 of them were determinate lines spoken by characters
+# with no name, and one was a named character the roster had simply omitted.
+# Ambiguity bounds what any model could achieve; missing names are a roster
+# problem with a different fix.
 unknown = counts.get("UNKNOWN", 0) + counts.get("AMBIGUOUS", 0)
+unnamed = counts.get("UNNAMED", 0)
 if unknown:
-    print(f"  {unknown} marked UNKNOWN/AMBIGUOUS - harnesses drop these, so the "
-          f"scored set will be {len(entries)-unknown}")
+    print(f"  {unknown} UNKNOWN - genuinely ambiguous, an upper bound on any "
+          f"model's accuracy")
+if unnamed:
+    print(f"  {unnamed} UNNAMED - determinate but the speaker has no name; a "
+          f"roster-coverage limit, not ambiguity")
+if unknown or unnamed:
+    print(f"  scored set will be {len(entries)-unknown-unnamed}")
 print("\n  Before trusting any number from this fixture, check the aliases "
       "list.\n  Undeclared aliases show up as unanimous model failures.")

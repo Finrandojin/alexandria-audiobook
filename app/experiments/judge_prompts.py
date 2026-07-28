@@ -61,10 +61,18 @@ Rules:
 - Answer with a name in CAPITALS. Prefer a name from the roster, but if the
   true speaker is someone the roster omits, give that name anyway and we will
   add it.
-- Answer UNKNOWN if the passage genuinely does not determine the speaker. Do
-  not guess to be helpful: an item nobody could resolve from this passage is
-  useful to us precisely because it is unresolvable, and a confident wrong
-  label is worse than an honest UNKNOWN.
+- Answer UNKNOWN only if the passage genuinely does not determine WHO is
+  speaking - you cannot tell which person it was. Do not guess to be helpful:
+  an item nobody could resolve is useful to us precisely because it is
+  unresolvable, and a confident wrong label is worse than an honest UNKNOWN.
+- Answer UNNAMED when you CAN tell who is speaking but that person has no
+  name - a subordinate knight, the French president, a voice from the back of
+  the plane. This is not the same as UNKNOWN and the difference matters to us:
+  UNKNOWN means the text is ambiguous, UNNAMED means the text is clear and the
+  character simply has no name. Put the description in `reasoning`.
+- If the speaker HAS a name and it is merely missing from the roster, give the
+  name. Do not answer UNKNOWN or UNNAMED for a named character; the roster is
+  incomplete and we will add them.
 - Answer NOT_DIALOGUE if the target text is not speech at all. Our segmenter
   sometimes files narration, or a fragment of a sentence, as dialogue. If the
   target is narration, an incomplete clause, or otherwise not something a
