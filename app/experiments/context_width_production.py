@@ -195,6 +195,24 @@ print(f"\n  {w_hi} vs {w_lo}: rescues {_y}, breaks {_x}, exact McNemar "
 print("\n  A diagnostic gain that does not reproduce here is a harness artefact, "
       "which is\n  exactly what happened to `because` (+10.8 diagnostic, -7.2 production).")
 
+# Scoring an exhausted batch as a failure is right for SPORADIC failures, where
+# not attributing a line is a real production outcome. It is wrong when every
+# batch fails for an environmental reason: on the A6000 a missing prompt file
+# made all 800 rows fail, and the harness happily wrote an artifact reading
+# 0.0% for both arms that passed validation - same ids, clean tree, arms
+# present. A measurement that cannot distinguish "w4 does not help" from "the
+# model was never called" is worse than no measurement.
+MAX_UNATTRIBUTED = float(os.environ.get("EXPERIMENT_MAX_UNATTRIBUTED", "0.25"))
+for width in WIDTHS:
+    h, n, c, t, f = summary[f"w{width}"]
+    if n and f / n > MAX_UNATTRIBUTED:
+        raise SystemExit(
+            f"refusing to write: w{width} left {f}/{n} rows unattributed "
+            f"({f/n*100:.0f}% > {MAX_UNATTRIBUTED*100:.0f}%). That is an "
+            f"environment failure, not a width result - check the endpoint, the "
+            f"prompt files and the context length before believing any number "
+            f"above.")
+
 out = record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"context_width_production__{BOOK}__{MODEL.replace('/', '__')}__{TAG}.json"),
