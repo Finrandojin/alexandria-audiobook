@@ -1,0 +1,123 @@
+{
+ "book": "grimgar03",
+ "scene": "segments 1794-1926, the keep assault",
+ "adjudicated_by": "claude-2026-07-28 (third judge, full scene read)",
+ "verdict": "The ORIGINAL gold is correct on 17 of 19. The wide-context pass is wrong on all of them, and wrong in a specific way: it took names from surrounding prose rather than from the attribution tag. 'Mr. Pleasant, the guy who seemed to be the leader of Choco's party, said' became CHOCO; 'Bri-chan was shouting things like that' became CHOCO. Nine of the nineteen were assigned to CHOCO, a minor character who speaks none of them.",
+ "implication": "More context is not uniformly better for JUDGING. It helps where the answer sits outside a narrow window - mushoku16-00818, index18-00920 - and hurts in tag-rich scenes where the narrow window already contained the answer and the wider one only adds candidate names. The width of context a judge needs is not monotonic, and this scene is the counter-example.",
+ "rows": [
+  {
+   "id": "grimgar03-01794",
+   "resolved": "RANTA",
+   "favours": "gold",
+   "reasoning": "next segment: 'Ranta shouted.'"
+  },
+  {
+   "id": "grimgar03-01809",
+   "resolved": "HARUHIRO",
+   "favours": "gold",
+   "reasoning": "'Even Merry did it' then 'In fact, Haruhiro was in the minority'"
+  },
+  {
+   "id": "grimgar03-01818",
+   "resolved": "BRI-CHAN",
+   "favours": "gold",
+   "reasoning": "next segment: 'Bri-chan was shouting things like that'"
+  },
+  {
+   "id": "grimgar03-01825",
+   "resolved": "BRI-CHAN",
+   "favours": "gold",
+   "reasoning": "next segment: 'Bri-chan ordered immediately.'"
+  },
+  {
+   "id": "grimgar03-01827",
+   "resolved": "MR PLEASANT",
+   "favours": "gold",
+   "reasoning": "next segment names him: 'Mr. Pleasant, the guy who seemed to be the leader of Choco's party, said'"
+  },
+  {
+   "id": "grimgar03-01846",
+   "resolved": "ORC",
+   "favours": "gold",
+   "reasoning": "next segment: 'the orc roared.'"
+  },
+  {
+   "id": "grimgar03-01859",
+   "resolved": "RANTA",
+   "favours": "gold",
+   "reasoning": "next segment: 'Ranta bellowed.'"
+  },
+  {
+   "id": "grimgar03-01863",
+   "resolved": "RANTA",
+   "favours": "gold",
+   "reasoning": "continues Ranta's turn from 'Ranta shouted, leaping back with Exhaust.'"
+  },
+  {
+   "id": "grimgar03-01866",
+   "resolved": "RANTA",
+   "favours": "gold",
+   "reasoning": "answers Haruhiro's 'Why're you acting like you can afford to ask questions'"
+  },
+  {
+   "id": "grimgar03-01869",
+   "resolved": "RANTA",
+   "favours": "gold",
+   "reasoning": "'Reject' is Ranta's dread-knight skill; next segment has him locking blades"
+  },
+  {
+   "id": "grimgar03-01884",
+   "resolved": "BRITNEY",
+   "favours": "gold",
+   "reasoning": "preceding segment: 'Bri-chan, who was still up on the east wall, simply shook his head'"
+  },
+  {
+   "id": "grimgar03-01888",
+   "resolved": "UNNAMED",
+   "favours": "neither",
+   "reasoning": "an anonymous crowd reacting to the bounty; gold said AMBIGUOUS, the wide pass said HARUHIRO - the new schema's UNNAMED fits both better"
+  },
+  {
+   "id": "grimgar03-01892",
+   "resolved": "UNNAMED",
+   "favours": "neither",
+   "reasoning": "same crowd reaction"
+  },
+  {
+   "id": "grimgar03-01901",
+   "resolved": "BRITNEY",
+   "favours": "gold",
+   "reasoning": "next segment: 'Bri-chan shouted.'"
+  },
+  {
+   "id": "grimgar03-01904",
+   "resolved": "KAJIKO",
+   "favours": "gold",
+   "reasoning": "addressed TO Britney, answering 'Kajiko, I'm counting on you!'"
+  },
+  {
+   "id": "grimgar03-01906",
+   "resolved": "KAJIKO",
+   "favours": "gold",
+   "reasoning": "Kajiko continuing about the bounty she means to take"
+  },
+  {
+   "id": "grimgar03-01907",
+   "resolved": "BRITNEY",
+   "favours": "gold",
+   "reasoning": "Britney answering Kajiko's boast"
+  },
+  {
+   "id": "grimgar03-01920",
+   "resolved": "YUME",
+   "favours": "gold",
+   "reasoning": "third-person self-reference 'Yume and everyone' is Yume's verbal tic"
+  },
+  {
+   "id": "grimgar03-01926",
+   "resolved": "MOGUZO",
+   "favours": "gold",
+   "reasoning": "next segment: 'Moguzo laughed.'"
+  }
+ ]
+}
