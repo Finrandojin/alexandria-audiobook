@@ -46,6 +46,51 @@
    "b": "SMARTVERI",
    "b_why": "The boss of the sorcerers' society answers the young girl's suggestion.",
    "kind": "category"
+  },
+  {
+   "id": "owarimonogatari3-00046",
+   "book": "owarimonogatari3",
+   "a": "NOT_DIALOGUE",
+   "a_why": "internal monologue in narration",
+   "b": "HACHIKUJI",
+   "b_why": "It follows the narration identifying Hachikuji as the source of the meta joke.",
+   "kind": "category"
+  },
+  {
+   "id": "owarimonogatari3-00099",
+   "book": "owarimonogatari3",
+   "a": "HACHIKUJI",
+   "a_why": "spoken/shouted by Hachikuji while struggling",
+   "b": "ARARAGI",
+   "b_why": "He is narrating his leap toward Hachikuji and exuberant cries.",
+   "kind": "name"
+  },
+  {
+   "id": "owarimonogatari3-00788",
+   "book": "owarimonogatari3",
+   "a": "ARARAGI",
+   "a_why": "spoken by Koyomi Araragi replying to Hachikuji",
+   "b": "HACHIKUJI",
+   "b_why": "She concludes her advice about making mistakes with a question to Araragi.",
+   "kind": "name"
+  },
+  {
+   "id": "owarimonogatari3-00789",
+   "book": "owarimonogatari3",
+   "a": "HACHIKUJI",
+   "a_why": "spoken by Hachikuji replying to Araragi",
+   "b": "ARARAGI",
+   "b_why": "He replies to Hachikuji's characterization of the success he seeks.",
+   "kind": "name"
+  },
+  {
+   "id": "owarimonogatari3-02558",
+   "book": "owarimonogatari3",
+   "a": "ARARAGI",
+   "a_why": "speaker's turn",
+   "b": "HACHIKUJI",
+   "b_why": "She refers to variations on Araragi's stutters twisting her name.",
+   "kind": "name"
   }
  ]
 }
