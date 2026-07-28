@@ -14,7 +14,7 @@
    "entry_index": 1,
    "line": "In the future when things get tough, I might not depend on you, or do or say bad things.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus (Rudi) is speaking to Sylphy, continuing his emotional confession and pleas."
   },
   {
@@ -23,7 +23,7 @@
    "entry_index": 2,
    "line": "Umm... If that happens, I might get a little irritated at you, treat you coldly, and fight with you... But we can make up, right?",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy is responding to Rudi's concerns about the future, offering reassurances."
   },
   {
@@ -32,7 +32,7 @@
    "entry_index": 3,
    "line": "Yeah. Of course we can. Mn, we can make up...",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus agrees with Sylphy's statement that they can make up."
   },
   {
@@ -41,7 +41,7 @@
    "entry_index": 4,
    "line": "Well I don't lose anything, so it's fine but... Wah-",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy responds to Rudi asking if she doesn't want him touching her, before he picks her up ('Wah-')."
   },
   {
@@ -50,7 +50,7 @@
    "entry_index": 5,
    "line": "Don't we always talk...? Or is there something in particular that you'd like to talk about?",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy responds to Rudi asking if they can talk a little."
   },
   {
@@ -59,7 +59,7 @@
    "entry_index": 6,
    "line": "Hahh... Well, it's fine with me, but doing 'that' today is no good, you know?",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy responds to Rudi's suggestion of talking in a more flirty way."
   },
   {
@@ -68,7 +68,7 @@
    "entry_index": 7,
    "line": "No, no. Nothing at all. I was just thinking 'I'm really so happy that Roxy is alive' again.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus (Rudi) responds to Roxy asking if something tough happened."
   },
   {
@@ -77,7 +77,7 @@
    "entry_index": 8,
    "line": "Roxy. Lately, have there been any weird changes to your body?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "The narrator states 'Whilst massaging her slim shoulders, I asked'."
   },
   {
@@ -86,7 +86,7 @@
    "entry_index": 9,
    "line": "Ehh? I'm fine, you know. Why did you ask something like that?",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy responds to Rudi asking about changes to her body."
   },
   {
@@ -95,7 +95,7 @@
    "entry_index": 10,
    "line": "If you think about the lifespans of races, I'll live longer than you after all. I should be the one asking you to live longer, Rudi.",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy is speaking to Rudi in the bath, comparing their races' lifespans."
   },
   {
@@ -104,7 +104,7 @@
    "entry_index": 11,
    "line": "Sylphy has noticed too... Rudi when troubled rarely likes to talk about it... Let's just try to help him when the time comes.",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy narrates 'When I ask Roxy about this, she said'."
   },
   {
@@ -113,7 +113,7 @@
    "entry_index": 12,
    "line": "Ah, Roxy-san, Sylphy-san, can you come to my room after dinner?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy narrates 'Rudi pleads with some difficulty' before this line."
   },
   {
@@ -122,7 +122,7 @@
    "entry_index": 13,
    "line": "Recently, em... Luci, how is she?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus (Rudi) asks Sylphy about their daughter Lucy (Luci)."
   },
   {
@@ -131,7 +131,7 @@
    "entry_index": 14,
    "line": "That's actually what I asked you to come for today. That was it.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus (Rudi) responds after recovering his focus when Sylphy notes he seems to be hiding something."
   },
   {
@@ -140,7 +140,7 @@
    "entry_index": 15,
    "line": "Em.. Next, I don't know how I say this but... a few days ago, I met someone.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus continues explaining to Sylphy and Roxy what he wanted to bring them together to discuss."
   },
   {
@@ -149,7 +149,7 @@
    "entry_index": 16,
    "line": "Yes, a miko that can predict the future... someone like that.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus replies to someone asking 'Someone?' after he mentioned meeting someone."
   },
   {
@@ -158,7 +158,7 @@
    "entry_index": 17,
    "line": "Roxy won't mind?",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy asks if Roxy won't mind staying behind to protect the family."
   },
   {
@@ -167,7 +167,7 @@
    "entry_index": 18,
    "line": "... You're right. Em, I understand.",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy agrees with Roxy's perspective on making their own judgment to help Rudi when needed."
   },
   {
@@ -176,7 +176,7 @@
    "entry_index": 19,
    "line": "Then, when I have it bad, please come to my aid.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "The narrator states 'With a sigh of relief Rudi finally smiled' right after this line."
   },
   {
@@ -185,7 +185,7 @@
    "entry_index": 20,
    "line": "Who? Nanahoshi?",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy asks if the additional person Rudi mentioned adding is Nanahoshi."
   },
   {
@@ -194,7 +194,7 @@
    "entry_index": 21,
    "line": "She's not Nanahoshi.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus (Rudi) denies that the person is Nanahoshi, as noted in the following narration."
   },
   {
@@ -203,7 +203,7 @@
    "entry_index": 22,
    "line": "I remember her. Rudi was her home tutor at Fortress City Roa back then, right?",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "The narrator states 'Quickly, like coming to my rescue Roxy answers' right after this line."
   },
   {
@@ -212,7 +212,7 @@
    "entry_index": 23,
    "line": "No, leaving is my misunderstanding. Lingering feelings and such, I don't think her heart has changed.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus responds to Sylphy asking about Eris leaving him and having lingering feelings."
   },
   {
@@ -221,7 +221,7 @@
    "entry_index": 24,
    "line": "If Sylphy objects to marrying her, then let's just stop here. But ultimately I still want to clear the air with her.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus states his stance on Eris to Sylphy, followed by narrator saying 'Rudi said...'."
   },
   {
@@ -230,7 +230,7 @@
    "entry_index": 25,
    "line": "Forgetting Roxy is impossible.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus responds to Roxy's request that he never forget about her."
   },
   {
@@ -239,7 +239,7 @@
    "entry_index": 26,
    "line": "Yes, it's all your fault. Not thinking about what you're doing is your fault.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami blames Rudeus for making a mess of things in their dream conversation"
   },
   {
@@ -248,7 +248,7 @@
    "entry_index": 27,
    "line": "I thought so too... until you showed up!",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami responds to Rudeus asking why he cannot just ignore Orsted"
   },
   {
@@ -257,7 +257,7 @@
    "entry_index": 28,
    "line": "Useless. That alone won't change fate.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami dismisses Rudeus's idea of making a family motto not to cooperate with Orsted"
   },
   {
@@ -266,7 +266,7 @@
    "entry_index": 29,
    "line": "No, I'm not even sure if it's possible. But it might... You say you would do anything right?",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami ponders an alternative solution before telling Rudeus to kill Orsted"
   },
   {
@@ -275,7 +275,7 @@
    "entry_index": 30,
    "line": "Cough... Cough...",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy coughs after Rudeus wakes up and realizes he was holding her tightly"
   },
   {
@@ -284,7 +284,7 @@
    "entry_index": 31,
    "line": "Nanahoshi, I've brought some get well presents.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus addresses Nanahoshi as he places fruit on her table"
   },
   {
@@ -293,7 +293,7 @@
    "entry_index": 32,
    "line": "First I need you to listen, it might sound unbelievable at first though.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Nanahoshi to listen to his story before telling her about his future self"
   },
   {
@@ -302,7 +302,7 @@
    "entry_index": 33,
    "line": "The diary was written in Japanese, and my true name from my previous life.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus offers proof to Nanahoshi regarding his future self's diary"
   },
   {
@@ -311,7 +311,7 @@
    "entry_index": 34,
    "line": "Then you are saying he fabricated the diary, and our entire conversation in my dream was nothing more than an act?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus questions Nanahoshi's skepticism about the diary and dream"
   },
   {
@@ -320,7 +320,7 @@
    "entry_index": 35,
    "line": "I won’t say that but… is the Human God trustworthy?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi asks Rudeus whether the Human God can be trusted"
   },
   {
@@ -329,7 +329,7 @@
    "entry_index": 36,
    "line": "But… there’s nothing I can do about it…",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus admits his helplessness in response to Nanahoshi asking why he listens to Hitogami"
   },
   {
@@ -338,7 +338,7 @@
    "entry_index": 37,
    "line": "To be honest, about the Human God, I also heard about him from Orsted by chance.",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "dialogue tag shows Nanahoshi sighed and said this as if resolving herself"
   },
   {
@@ -347,7 +347,7 @@
    "entry_index": 38,
    "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus explains to Nanahoshi why his future self told him to consult her"
   },
   {
@@ -356,7 +356,7 @@
    "entry_index": 39,
    "line": "I’m relying on you.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "narration states Rudeus left Nanahoshi's room right after saying this"
   },
   {
@@ -365,7 +365,7 @@
    "entry_index": 40,
    "line": "Where are you going this late at night?",
    "expected_speaker": "ARUMANFI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "the man with a yellow mask, Arumanfi, calls out to Rudeus in the hallway"
   },
   {
@@ -374,7 +374,7 @@
    "entry_index": 41,
    "line": "To Nanahoshi’s room. Has she already gone to sleep?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus answers Arumanfi's question about where he is going"
   },
   {
@@ -383,7 +383,7 @@
    "entry_index": 42,
    "line": "She just asked me for some pen and paper. She’s still awake.",
    "expected_speaker": "ARUMANFI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Arumanfi answers Rudeus's question about whether Nanahoshi is asleep"
   },
   {
@@ -392,7 +392,7 @@
    "entry_index": 43,
    "line": "It’s Rudeus.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus identifies himself in response to Nanahoshi asking who is at her door"
   },
   {
@@ -401,7 +401,7 @@
    "entry_index": 44,
    "line": "What’s the possibility of them dying as soon as they were transferred here?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Nanahoshi about the possibility regarding her transferred friends"
   },
   {
@@ -410,7 +410,7 @@
    "entry_index": 45,
    "line": "If the time he traveled was a hundred years, would it just end with his internal organs?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi continues presenting her hypothesis to Rudeus about time travel"
   },
   {
@@ -419,7 +419,7 @@
    "entry_index": 46,
    "line": "You, after that incident, did you feel nothing wrong with your body? Like your magical power suddenly being drained very low for example?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi asks Rudeus about his physical condition after the Teleport Disaster"
   },
   {
@@ -428,7 +428,7 @@
    "entry_index": 47,
    "line": "…. Is that your guess?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Nanahoshi if her explanation about fate is a guess"
   },
   {
@@ -437,7 +437,7 @@
    "entry_index": 48,
    "line": "That’s a clue, right? Do you still remember when it first appeared?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi asks Rudeus when the red sphere in the tower first appeared"
   },
   {
@@ -446,7 +446,7 @@
    "entry_index": 49,
    "line": "Originally, you’re not someone who should have existed in this world, right?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi questions Rudeus about his existence in this world"
   },
   {
@@ -455,7 +455,7 @@
    "entry_index": 50,
    "line": "What do you think is the reason you transferred to this world?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi asks Rudeus why he transferred to this world"
   },
   {
@@ -464,7 +464,7 @@
    "entry_index": 51,
    "line": "I don’t understand. In the end, what are you trying to tell me?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Nanahoshi to clarify what she is trying to tell him."
   },
   {
@@ -473,7 +473,7 @@
    "entry_index": 52,
    "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi responds to Rudeus's question about what she is trying to tell him."
   },
   {
@@ -482,7 +482,7 @@
    "entry_index": 53,
    "line": "I understand your hypothesis.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus tells Nanahoshi that he understands her hypothesis."
   },
   {
@@ -491,7 +491,7 @@
    "entry_index": 54,
    "line": "Please stop. The Human God is probably watching our movements at this very moment.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus interrupts Nanahoshi when she suggests consulting with Orsted."
   },
   {
@@ -500,7 +500,7 @@
    "entry_index": 55,
    "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi questions Rudeus's assumption about the Human God's capabilities."
   },
   {
@@ -509,7 +509,7 @@
    "entry_index": 56,
    "line": "Orsted is the Dragon God. If the diary can be believed, then he probably knows a technique to go to the void world. If I kill him, if the method to travel to the void world disappears, then in reality, the Human God should lose his reason to target my children.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus explains why killing Orsted would stop the Human God from targeting his children."
   },
   {
@@ -518,7 +518,7 @@
    "entry_index": 57,
    "line": "….. Yes. That’s right.",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi confirms to Rudeus that she knows a way to contact Orsted."
   },
   {
@@ -527,7 +527,7 @@
    "entry_index": 58,
    "line": "Why are you looking at me with such pitiful eyes. Even I have already with Jino... No, never mind that.",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nina reacts to Eris looking at her with pitiful eyes."
   },
   {
@@ -536,7 +536,7 @@
    "entry_index": 59,
    "line": "Come to think of it, I have heard a few rumors about your boyfriend.",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nina brings up rumors she heard about Eris's boyfriend."
   },
   {
@@ -545,7 +545,7 @@
    "entry_index": 60,
    "line": "Somehow, it kind of feels like he's so strong that he's allowed to do whatever he likes?",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nina continues sharing rumors about Rudeus with Eris."
   },
   {
@@ -554,7 +554,7 @@
    "entry_index": 61,
    "line": "Hey, Eris, just saying this as example, but could it be that...",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nina hesitantly asks Eris if Rudeus might have forgotten her."
   },
   {
@@ -563,7 +563,7 @@
    "entry_index": 62,
    "line": "I've made you wait.",
    "expected_speaker": "GHYSLAINE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Dialogue tag specifies Ghyslaine speaks as she brings the horses to Eris."
   },
   {
@@ -572,7 +572,7 @@
    "entry_index": 63,
    "line": "No, a swordsman should fight fair and square from the front.",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nina refuses Reida's suggestion to fight the Sword God unfairly."
   },
   {
@@ -581,7 +581,7 @@
    "entry_index": 64,
    "line": "Such an honest and good child. Well, in the not so distant future, you should be able to win. Give it your best.",
    "expected_speaker": "REIDA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Reida Ryia praises Nina for insisted on a fair fight."
   },
   {
@@ -590,7 +590,7 @@
    "entry_index": 65,
    "line": "Eris, it's about time we head off.",
    "expected_speaker": "ISOLTE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Ghyslaine is never named in the scene; Isolte is Eris's travelling companion and the bitter smile is her reaction to Eris's reply"
   },
   {
@@ -599,7 +599,7 @@
    "entry_index": 66,
    "line": "Hello. Mailman here, could someone please sign here?",
    "expected_speaker": "UNNAMED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "the mailman - 'they heard a voice from out of nowhere'; determinate but unnamed (the narrow pass said UNKNOWN, before UNNAMED existed)"
   },
   {
@@ -608,7 +608,7 @@
    "entry_index": 67,
    "line": "Just a minute, please sign. If I don't have that, I can't get the compensation.",
    "expected_speaker": "UNNAMED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "the same mailman asking Eris to sign for the letter"
   },
   {
@@ -617,7 +617,7 @@
    "entry_index": 68,
    "line": "What! If you can't read words when you need to, then you'll be in trouble!",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris told Nina to read it, Nina says she cannot, and the target scolds her for it; Nina's retort follows"
   },
   {
@@ -626,7 +626,7 @@
    "entry_index": 69,
    "line": "Currently, I have two wives.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "text of Rudeus's letter, read aloud by Isolte - following the convention already set on this passage"
   },
   {
@@ -635,7 +635,7 @@
    "entry_index": 70,
    "line": "I have made arrangements to accept you.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "text of Rudeus's letter, read aloud by Isolte"
   },
   {
@@ -644,7 +644,7 @@
    "entry_index": 71,
    "line": "In the case that you feel unhappy about this, I have already resolved to receive your fist.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "text of Rudeus's letter, read aloud by Isolte"
   },
   {
@@ -653,7 +653,7 @@
    "entry_index": 72,
    "line": "I feel even if you do not wish to become a member of my family, we could form a fine friendship.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "text of Rudeus's letter, read aloud by Isolte"
   },
   {
@@ -662,7 +662,7 @@
    "entry_index": 73,
    "line": "Is that right? I think he put a considerable amount of thought into writing it.",
    "expected_speaker": "NINA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "following narration: 'Nina objected to Isolte with her opinion'"
   },
   {
@@ -671,7 +671,7 @@
    "entry_index": 74,
    "line": "Wow, it has progressed better than I expected.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "the dream interlocutor directing Rudeus to fight Orsted; Rudeus answers 'Just as you instructed'"
   },
   {
@@ -680,7 +680,7 @@
    "entry_index": 75,
    "line": "Even I can't tell the outcome, how exciting!",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami expresses excitement to Rudeus about the fight's outcome."
   },
   {
@@ -689,7 +689,7 @@
    "entry_index": 76,
    "line": "OF course, I'm Hitogami! Since I know about Fighting God's armor, I can give you some pointers.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami identifies himself while offering advice on the Fighting God's armor."
   },
   {
@@ -698,7 +698,7 @@
    "entry_index": 77,
    "line": "Since you have been a harder worker than I expect, I ought to offer a hand as well. My desire to see Orsted dead is true.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami explains why he is helping Rudeus against Orsted."
   },
   {
@@ -707,7 +707,7 @@
    "entry_index": 78,
    "line": "Yep, just as you said. But if Roxy and you don't leave a child, I won't have to lie in the first place.",
    "expected_speaker": "HITOGAMI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Hitogami explains his reasoning regarding the lie about the basement."
   },
   {
@@ -716,7 +716,7 @@
    "entry_index": 79,
    "line": "Don't worry.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus reassures Roxy when she tells him not to carry burdens alone."
   },
   {
@@ -725,7 +725,7 @@
    "entry_index": 80,
    "line": "Sorry... but would you please reconsider? About killing Orsted...",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi asks Rudeus to reconsider fighting Orsted."
   },
   {
@@ -734,7 +734,7 @@
    "entry_index": 81,
    "line": "Ah, sorry, I understand.",
    "expected_speaker": "NANAHOSHI",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Nanahoshi apologizes and cuts in after realizing Rudeus's firm stance."
   },
   {
@@ -743,7 +743,7 @@
    "entry_index": 82,
    "line": "Thought of anything?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Nanahoshi if she thought of an idea."
   },
   {
@@ -752,7 +752,7 @@
    "entry_index": 83,
    "line": "Welcome, Rudeus-san, nice to meet you.",
    "expected_speaker": "UNNAMED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Spoken by the unnamed one-eyed shopkeeper in the basement."
   },
   {
@@ -761,7 +761,7 @@
    "entry_index": 84,
    "line": "My wife is playful in bed.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus responds to the shopkeeper's comment about his wife."
   },
   {
@@ -770,7 +770,7 @@
    "entry_index": 85,
    "line": "Alright, I'll suit up. Sylphy, Zanoba, and Elinalise, you three come at once. Cliff, please activate your Identification Eye. If you notice something, I'm counting on you.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus instructs his companions before testing the magic armor."
   },
   {
@@ -779,7 +779,7 @@
    "entry_index": 86,
    "line": "Whose... Unless, don't tell me, Rudeus?",
    "expected_speaker": "CLIFF",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Cliff suspiciously asks Elinalise whose baby she is pregnant with."
   },
   {
@@ -788,7 +788,7 @@
    "entry_index": 87,
    "line": "Alright alright.",
    "expected_speaker": "ELINALISE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Elinalise relents as Cliff inspects her abdomen."
   },
   {
@@ -797,7 +797,7 @@
    "entry_index": 88,
    "line": "W-What? What do we do?",
    "expected_speaker": "CLIFF",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Cliff panics after confirming Elinalise's pregnancy."
   },
   {
@@ -806,7 +806,7 @@
    "entry_index": 89,
    "line": "Don't do anything.",
    "expected_speaker": "ELINALISE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Elinalise responds to Cliff's panicking questions."
   },
   {
@@ -815,7 +815,7 @@
    "entry_index": 90,
    "line": "Rudi is my husband now, and I also want Rudi's child, so I think saying",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy tells Rudeus what kind of response she expected from him."
   },
   {
@@ -824,7 +824,7 @@
    "entry_index": 91,
    "line": "Isn't that a bit bossy?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus teases Roxy about her suggested phrase."
   },
   {
@@ -833,7 +833,7 @@
    "entry_index": 92,
    "line": "Nii-san, please don't flirt so much during dinner.",
    "expected_speaker": "NORN",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Dialogue tag identifies Norn knocking on the table and complaining."
   },
   {
@@ -842,7 +842,7 @@
    "entry_index": 93,
    "line": "Once in a while is fine. For Roxy-ane it's service, today only.",
    "expected_speaker": "AISHA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Narrator identifies Aisha chiming in to defend Rudeus and Roxy."
   },
   {
@@ -851,7 +851,7 @@
    "entry_index": 94,
    "line": "Also... Aisha, didn't you say you have a good harvest of your rice crop recently? And how nii-san is going to be?",
    "expected_speaker": "NORN",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Norn gets back at Aisha by revealing Aisha's secret rice crop."
   },
   {
@@ -860,7 +860,7 @@
    "entry_index": 95,
    "line": "No, that's fine. So next year, and next year too?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus excitedly asks Aisha about future harvests."
   },
   {
@@ -869,7 +869,7 @@
    "entry_index": 96,
    "line": "O-Onii-chan made soil with magic for me... Onii-chan's soil is the best!",
    "expected_speaker": "AISHA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Aisha explains how Rudeus's magic soil helped the crop."
   },
   {
@@ -878,7 +878,7 @@
    "entry_index": 97,
    "line": "O-oh... Hey, can I, jump?",
    "expected_speaker": "AISHA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Aisha asks Rudeus if she can jump into his arms."
   },
   {
@@ -887,7 +887,7 @@
    "entry_index": 98,
    "line": "Hey, Sylphy.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus whispers to Sylphy after pulling her close."
   },
   {
@@ -896,7 +896,7 @@
    "entry_index": 99,
    "line": "I hope you won't get angry for what I'm about to say.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus continues speaking to Sylphy."
   },
   {
@@ -905,7 +905,7 @@
    "entry_index": 100,
    "line": "But, the baby in here... that's fine, okay.",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy hesitates due to her pregnancy before accepting Rudeus."
   },
   {
@@ -914,7 +914,7 @@
    "entry_index": 101,
    "line": "Anyways, please sit down.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks Roxy to sit down on the bed."
   },
   {
@@ -923,7 +923,7 @@
    "entry_index": 102,
    "line": "No. I'm not leaving. I just thought it might be better if I open the door again.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus clarifies to Sylphy that he is not leaving."
   },
   {
@@ -932,7 +932,7 @@
    "entry_index": 103,
    "line": "... Stop. Really, we're talking about serious stuff right now.",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy tells Rudeus to stop touching her while they talk about serious matters."
   },
   {
@@ -941,7 +941,7 @@
    "entry_index": 104,
    "line": "... Soon, she will start talking, and in a year, she'll start to walk.",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sylphy continues talking about Luci's growth."
   },
   {
@@ -950,7 +950,7 @@
    "entry_index": 105,
    "line": "Fuguuuuaaa!",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus grunts in desperation as he bites Orsted's leg."
   },
   {
@@ -959,7 +959,7 @@
    "entry_index": 106,
    "line": "Looks like I kept you waiting, Rudeus.",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Narrator identifies Eris as the speaker who arrives to save Rudeus."
   },
   {
@@ -968,7 +968,7 @@
    "entry_index": 107,
    "line": "We wanted to but he told us not to follow since we would just be a burden.",
    "expected_speaker": "SYLPHY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Narrator specifies that Sylphy answered Eris while crying."
   },
   {
@@ -977,7 +977,7 @@
    "entry_index": 108,
    "line": "Which do you want?",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Sword God Garu Farion asks Eris which sword she wants."
   },
   {
@@ -986,7 +986,7 @@
    "entry_index": 109,
    "line": "It didn’t fit me, but you can probably master it.",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Garu Farion tells Eris that she can master the Phoenix Elegant Dragon Sword."
   },
   {
@@ -995,7 +995,7 @@
    "entry_index": 110,
    "line": "Now then, to the main problem. First, your tactic against Orsted...",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Garu Farion begins instructing Eris on tactics against Orsted."
   },
   {
@@ -1004,7 +1004,7 @@
    "entry_index": 111,
    "line": "... That's surprising. Eris Boreas Greyrat will fight together with her companions. Is this also a part of your madness? Certainly, if Eris Boreas Greyrat held a little more judgement, if she were to study under a suitable master, I see... So this is what happens?",
    "expected_speaker": "ORSTED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Orsted expresses surprise at Eris choosing to fight alongside companions."
   },
   {
@@ -1013,7 +1013,7 @@
    "entry_index": 112,
    "line": "He won't be faster than you using his wrists, aim at it and chop it off",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Garu Farion instructs Eris on countering Orsted's wrist attacks."
   },
   {
@@ -1022,7 +1022,7 @@
    "entry_index": 113,
    "line": "Sword God style hidden technique; 'Light Reversal'",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris calls out the hidden technique as she counters Orsted."
   },
   {
@@ -1031,7 +1031,7 @@
    "entry_index": 114,
    "line": "That person, for some reason won't fight seriously.",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Garu Farion describes Orsted's fighting tendencies to Eris."
   },
   {
@@ -1040,7 +1040,7 @@
    "entry_index": 115,
    "line": "Seeing a technique for the first time, he will try to study it. That is probably his weak point.",
    "expected_speaker": "GARU FARION",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Garu Farion identifies Orsted's habit of studying new techniques."
   },
   {
@@ -1049,7 +1049,7 @@
    "entry_index": 116,
    "line": "Rudeus Greyrat!",
    "expected_speaker": "ORSTED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Orsted shouts out Rudeus's name."
   },
   {
@@ -1058,7 +1058,7 @@
    "entry_index": 117,
    "line": "That's just dumb!",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris rejects Orsted's offer to Rudeus immediately."
   },
   {
@@ -1067,7 +1067,7 @@
    "entry_index": 118,
    "line": "If you do, I'll forget about this ambush of yours, and I'll heal your injured arm!",
    "expected_speaker": "ORSTED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Orsted offers terms to Rudeus if he allies with him."
   },
   {
@@ -1076,7 +1076,7 @@
    "entry_index": 119,
    "line": "Right now, even this conversation, will not reach him!",
    "expected_speaker": "ORSTED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Orsted explains that the Human God cannot hear their conversation."
   },
   {
@@ -1085,7 +1085,7 @@
    "entry_index": 120,
    "line": "Choose! Rudeus Greyrat! Side with the Human God, and lose everything to me! or follow me, and fight the Human God together! If it's you, since it's you who is immune to my curse, then you should be able to choose with your own will!",
    "expected_speaker": "ORSTED",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Orsted demands that Rudeus choose an allegiance."
   },
   {
@@ -1094,7 +1094,7 @@
    "entry_index": 121,
    "line": "Yeah, I had one too, so shouldn't she get one too?  I need to ask for a day off that day, so if you can tell me when...",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy asks Rudeus about holding a wedding reception for Eris."
   },
   {
@@ -1103,7 +1103,7 @@
    "entry_index": 122,
    "line": "Hey!  I'm being serious here.  Quit joking around!",
    "expected_speaker": "ROXY",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Roxy reacts to Rudeus teasing her."
   },
   {
@@ -1112,7 +1112,7 @@
    "entry_index": 123,
    "line": "Excuse me, Eris.... sama?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus addresses Eris timidly after waking up."
   },
   {
@@ -1121,7 +1121,7 @@
    "entry_index": 124,
    "line": "Eris... Em, I'm sorry.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus apologizes to Eris."
   },
   {
@@ -1130,7 +1130,7 @@
    "entry_index": 125,
    "line": "Rudeus-sama.",
    "expected_speaker": "LILIA",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Narrator states Lilia spoke up quietly to address Rudeus."
   },
   {
@@ -1139,7 +1139,7 @@
    "entry_index": 126,
    "line": "Oh, what is it, Lilia?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus responds to Lilia."
   },
   {
@@ -1148,7 +1148,7 @@
    "entry_index": 127,
    "line": "Eris-sama, can I leave her in your care?",
    "expected_speaker": "GHYSLAINE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Ghyslaine asks Rudeus if she can leave Eris in his care."
   },
   {
@@ -1157,7 +1157,7 @@
    "entry_index": 128,
    "line": "Yes, Eris-sama actually knows them better. What of it?",
    "expected_speaker": "GHYSLAINE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Ghyslaine informs Rudeus that Eris knows the Water God and North Emperor better."
   },
   {
@@ -1166,7 +1166,7 @@
    "entry_index": 129,
    "line": "Who is she?",
    "expected_speaker": "GHYSLAINE",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Ghyslaine asks Rudeus who he is referring to."
   },
   {
@@ -1175,7 +1175,7 @@
    "entry_index": 130,
    "line": "Well, I was thinking, brother really was the teacher of Sword King-sama before.",
    "expected_speaker": "NORN",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Norn comments on Rudeus having been Ghyslaine's teacher."
   },
   {
@@ -1184,7 +1184,7 @@
    "entry_index": 131,
    "line": "... Oh, it's Eris.",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus realizes the person holding him down is Eris."
   },
   {
@@ -1193,7 +1193,7 @@
    "entry_index": 132,
    "line": "I don't care about that. I don't even remember how to dance anymore... More importantly, as husband and wife, so it's okay right?",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris dismisses ceremony talk and asserts their relationship."
   },
   {
@@ -1202,7 +1202,7 @@
    "entry_index": 133,
    "line": "It's done. They will let me have today.",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris tells Rudeus she already got permission from Sylphy and Roxy."
   },
   {
@@ -1211,7 +1211,7 @@
    "entry_index": 134,
    "line": "Roxy didn't say anything? Like hold back while she's pregnant or something?",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus asks if Roxy had any concerns due to her pregnancy."
   },
   {
@@ -1220,7 +1220,7 @@
    "entry_index": 135,
    "line": "Rudeus, I like you, so, it's okay right?",
    "expected_speaker": "ERIS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Eris confesses her feelings to Rudeus."
   },
   {
@@ -1229,12 +1229,13 @@
    "entry_index": 136,
    "line": "Wow, amazing...",
    "expected_speaker": "RUDEUS",
-   "judged_by": "gemini + openai (two independent judges), disputes adjudicated in review 2026-07-28",
+   "judged_by": "frontier-model (single judge, provisional)",
    "reasoning": "Rudeus marvels out loud at Eris's abdominal muscle definition."
   }
  ],
  "aliases": [
   [
+   "ALMANFI",
    "ARUMANFI",
    "MAN WITH A YELLOW MASK"
   ],
@@ -1245,7 +1246,40 @@
   [
    "RUDEUS",
    "RUDI"
+  ],
+  [
+   "GARU FARION",
+   "SWORD GOD"
   ]
  ],
- "provisional": true
+ "provisional": true,
+ "conventions": {
+  "letter_and_diary_text": {
+   "ruling": "author",
+   "means": "Text of a letter or diary is attributed to whoever WROTE it, not to the character reading it aloud."
+  },
+  "determinate_but_nameless": {
+   "ruling": "UNNAMED",
+   "means": "A speaker the text identifies but never names is UNNAMED, kept separate from UNKNOWN."
+  },
+  "nameless_with_a_known_role": {
+   "ruling": "UNNAMED",
+   "means": "A nameless speaker with a recognisable role stays UNNAMED rather than being labelled with the role. Does NOT cover a speaker with a proper roster name - index18-02186 is SMARTVERI because he is a named character."
+  },
+  "tagged_interior_thought": {
+   "ruling": "speech",
+   "means": "A thought tagged like dialogue counts as speech and is attributed to the thinker."
+  },
+  "_decided": "review 2026-07-28"
+ },
+ "roster_additions": {
+  "names": [
+   "ARUMANFI",
+   "GARU FARION",
+   "HITOGAMI",
+   "REIDA"
+  ],
+  "why": "Characters the judges named that build_roster did not find. Lines spoken by these people are unwinnable for any model constrained to the generated roster, so they are a roster bug rather than a model failure and must be added to the candidate set before scoring closed-set arms.",
+  "approved_by": "review 2026-07-28"
+ }
 }

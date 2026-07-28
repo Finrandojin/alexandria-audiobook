@@ -58,6 +58,37 @@ fixture = {
     "aliases": bundle.get("aliases", []),
     "provisional": True,
 }
+# Preserve anything the previous fixture carried that this script does not
+# construct. Rebuilding from scratch has now silently destroyed metadata
+# twice: grimgar03's alias groups, then the convention rulings and roster
+# additions minutes after they were recorded. Anything a human decided lives
+# in these files, and a regenerate must not be able to erase it.
+if os.path.exists(OUT):
+    try:
+        previous = json.load(open(OUT, encoding="utf-8"))
+    except (ValueError, OSError):
+        previous = {}
+    for key, value in previous.items():
+        if key in ("entries", "sampling", "description", "book", "judged_by"):
+            continue
+        if key == "aliases":
+            # UNION, never replace. Taking whichever list is "fresher" dropped
+            # four of owarimonogatari3's nine groups the first time this ran.
+            # An alias group is a fact about the book; it can be added to and
+            # should never silently shrink.
+            groups = [set(g) for g in (fixture.get("aliases") or [])]
+            for group in value or []:
+                members = set(group)
+                for existing in groups:
+                    if existing & members:
+                        existing |= members
+                        break
+                else:
+                    groups.append(members)
+            fixture["aliases"] = [sorted(g) for g in groups]
+            continue
+        fixture.setdefault(key, value)
+
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(fixture, fh, indent=1, ensure_ascii=False)
