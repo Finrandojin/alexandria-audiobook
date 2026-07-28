@@ -33,6 +33,7 @@ sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 import openai
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
+from experiments.stats import paired
 from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,
                                  get_deterministic_named_entry)
@@ -139,7 +140,22 @@ for width in WIDTHS:
             out = attribute_batch(client, MODEL, frozen, params, roster,
                                   neighbor_contexts=contexts, source_text=src)
         except Exception as exc:
+            # A batch that exhausts its retries is a PRODUCTION OUTCOME, not a
+            # missing measurement: the pipeline emits no speaker for those
+            # entries. The first version of this harness skipped them, which
+            # silently removed from w4's denominator exactly the rows where the
+            # wider context made it fail - inflating w4 from 63.5% to 69.9% and
+            # leaving the two arms scoring different id sets. Record them as
+            # failures so the comparison stays paired and honest.
             print(f"  {arm} window {n}: {type(exc).__name__}: {exc}", flush=True)
+            for entry_index in send:
+                key = norm(seg[entry_index].get("text"))
+                if key not in want or record.done(arm, want[key]["id"]):
+                    continue
+                g = want[key]
+                record.add(arm, g["id"], g["line"], g["expected_speaker"].upper(),
+                           None, False,
+                           provenance=f"{arm}|batch_failed={type(exc).__name__}")
             continue
         for position, entry_index in enumerate(send):
             key = norm(seg[entry_index].get("text"))
@@ -154,18 +170,28 @@ for width in WIDTHS:
             print(f"  {arm} {n}/{len(windows)} ...", flush=True)
     rows = [r for r in record.rows if r["arm"] == arm]
     hit = sum(1 for r in rows if r["correct"])
+    failed = sum(1 for r in rows if r["predicted"] is None)
     summary[arm] = (hit, len(rows), sum(chars) / max(len(chars), 1),
-                    time.time() - started)
+                    time.time() - started, failed)
     print(f"{arm:5} {hit}/{len(rows)} = {hit/max(len(rows),1)*100:5.1f}%   "
           f"mean neighbour chars {summary[arm][2]:.0f}   "
-          f"{summary[arm][3]:.0f}s", flush=True)
+          f"{failed} unattributed   {summary[arm][3]:.0f}s", flush=True)
 
 base = summary[f"w{WIDTHS[0]}"]
-print(f"\n  arm   accuracy   vs w{WIDTHS[0]}   neighbour chars   seconds")
+print(f"\n  arm   accuracy   vs w{WIDTHS[0]}   neighbour chars   unattributed   seconds")
 for width in WIDTHS:
-    h, n, c, t = summary[f"w{width}"]
+    h, n, c, t, f = summary[f"w{width}"]
     print(f"  w{width:<4} {h/n*100:7.1f}%  {(h-base[0])/n*100:+7.1f}   "
-          f"{c:15.0f}   {t:7.0f}")
+          f"{c:15.0f}   {f:12}   {t:7.0f}")
+
+# Paired transitions, on the same rows, with unattributed rows counted as
+# wrong. A width that buys accuracy by failing more batches is not a win.
+w_lo, w_hi = f"w{WIDTHS[0]}", f"w{WIDTHS[-1]}"
+_a = {r["id"]: r["correct"] for r in record.rows if r["arm"] == w_lo}
+_b = {r["id"]: r["correct"] for r in record.rows if r["arm"] == w_hi}
+_p, _x, _y, _n = paired(_a, _b)
+print(f"\n  {w_hi} vs {w_lo}: rescues {_y}, breaks {_x}, exact McNemar "
+      f"p={_p:.4g} over {_n} paired rows")
 print("\n  A diagnostic gain that does not reproduce here is a harness artefact, "
       "which is\n  exactly what happened to `because` (+10.8 diagnostic, -7.2 production).")
 
