@@ -126,6 +126,24 @@
   "openai": "SMARTVERI"
  },
  {
+  "book": "mushoku16",
+  "id": "mushoku16-01011",
+  "fixture": "NANAHOSHI",
+  "openai": "RUDEUS"
+ },
+ {
+  "book": "mushoku16",
+  "id": "mushoku16-01346",
+  "fixture": "SYLPHY",
+  "openai": "RUDEUS"
+ },
+ {
+  "book": "mushoku16",
+  "id": "mushoku16-01470",
+  "fixture": "RUDEUS",
+  "openai": "ORSTED"
+ },
+ {
   "book": "owarimonogatari3",
   "id": "owarimonogatari3-00099",
   "fixture": "HACHIKUJI",

@@ -345,6 +345,33 @@
    "kind": "category"
   },
   {
+   "id": "mushoku16-01011",
+   "book": "mushoku16",
+   "a": "NANAHOSHI",
+   "a_why": "Nanahoshi apologizes and cuts in after realizing Rudeus's firm stance.",
+   "b": "RUDEUS",
+   "b_why": "It is Rudeus's response after Nanahoshi asks him to reconsider.",
+   "kind": "name"
+  },
+  {
+   "id": "mushoku16-01346",
+   "book": "mushoku16",
+   "a": "SYLPHY",
+   "a_why": "Sylphy continues talking about Luci's growth.",
+   "b": "RUDEUS",
+   "b_why": "He responds to Sylphy's account of Luci's development.",
+   "kind": "name"
+  },
+  {
+   "id": "mushoku16-01470",
+   "book": "mushoku16",
+   "a": "RUDEUS",
+   "a_why": "Rudeus grunts in desperation as he bites Orsted's leg.",
+   "b": "ORSTED",
+   "b_why": "Rudeus bites Orsted's leg immediately before the cry.",
+   "kind": "name"
+  },
+  {
    "id": "owarimonogatari3-00046",
    "book": "owarimonogatari3",
    "a": "NOT_DIALOGUE",
