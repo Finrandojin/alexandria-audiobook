@@ -639,64 +639,21 @@ shipping question is not “thinking on or off” but per-pass configuration.
 - **Cloud, model queue**: four models, each running the closed-set
   decomposition on both books *and* the five reasoning arms on Grimgar 03.
 
-### 7.0 RESULT: one repeat exposes substantial per-line churn
+### 7.0–7.1 Retraction: the apparent churn was a stack comparison
 
-The repeat completed 82% of pass 2 before pass 2 hard-failed on a one-entry
-batch under `--pass2-on-exhaustion fail` (the same flag, and the same class of
-failure, as the local run, which failed at 99.96%). Scored on the **291 gold
-lines both runs attributed**:
+The earlier text interpreted 17.9% changed answers between a local run and a
+partial cloud run as stochastic pipeline churn. That interpretation is
+retracted by §13.11.1.
 
-| | local run | cloud repeat |
-|---|---:|---:|
-| accuracy on the shared 291 | 57.4% | 54.6% |
-| net paired difference | — | **−2.7 pt**, p=0.3317 |
-| exact 95% CI on the difference | — | **[−7.6, +2.4]** |
-| **lines that changed answer** | — | **52 / 291 = 17.9%** |
+Attribution uses `attribute_temperature=0.0`, independently of the general
+generation temperature. Eight same-configuration repeats were identical on all
+400 scored rows. The local/cloud comparison changed hardware, serving stack,
+context configuration, and completion coverage; it was a bundled-stack
+comparison, not a repeat suitable for estimating sampling variance.
 
-Two things follow, and the second is the important one.
-
-**Aggregate stability is moderate.** The net difference is −2.7 points and not
-significant, so a pipeline score is roughly repeatable at the whole-book level.
-
-**Per-line stability is poor.** Nearly one line in five received a different
-speaker on a second run of the *same model on the same book*. The aggregate
-looks stable only because the changes largely cancel.
-
-Set the observed repeat difference against the two numbers the main brief leans
-on, both from single pipeline runs on this book:
-
-- §6.3's decomposition-versus-pipeline ranking gap: **5.5 points**
-- the gemma-versus-qwen3-14b end-to-end gap: **5.5 points**
-
-The observed churn makes the earlier single-run conclusions less secure, but
-one pair of runs cannot estimate a run-level standard deviation or define a
-95% “noise band.” The 291 lines are also not independent experimental
-replicates: they share one book, prompts, and run state. Therefore the claims
-that a single run cannot resolve differences below about five points, or that
-the §6.3 disagreement is explained by sampling noise, are not yet established.
-
-What is established is narrower: **one nominal repeat changed 17.9% of speaker
-answers while its net accuracy moved only 2.7 points.** Aggregate stability can
-hide substantial line-level instability. The §6.3 instrument disagreement and
-end-to-end ranking should remain unresolved until genuine run-level replication
-is available.
-
-Caveats, stated rather than buried: this is one repeat, the cloud run covers
-82% of pass 2 rather than 100%, and the two runs differ in environment as well
-as sampling trajectory. Section 2 bounds the *net accuracy difference* between
-environments under the temperature-zero decomposition; it does not bound
-per-line prediction churn at temperature 0.6 and cannot show that most of the
-17.9% churn came from sampling.
-
-### 7.1 Why the cloud end-to-end run is a repeat, not a new model
-
-The pipeline runs at **temperature 0.6**. Unlike the closed-set decomposition
-at temperature 0, it is not deterministic, and **its run-to-run variance has
-never been measured.** §6.3 of the main brief rests on a 5.5-point gap between
-the decomposition ranking and the pipeline ranking on this exact book and
-fixture. If repeating the same model on the same book moves the result by that
-much on its own, the disagreement is not interpretable and the crossover in §5
-is chasing noise. Local end-to-end for this pair scored 215/399 = 53.9%.
+The observed 17.9% difference remains evidence that those two bundles are not
+interchangeable at the row level. It is not evidence that the production
+attribution pass is stochastic.
 
 ### 7.2 Two configuration defects found by running it
 
@@ -779,18 +736,29 @@ the second book is simply underpowered.
 
 Two things do sharpen:
 
-**Headroom behaves as predicted.** mushoku16's production baseline is 49.6%
-against grimgar03's 55.5%, and the exploratory-to-production gap was ten points
-on mushoku16 versus one on grimgar03. The smaller measured gain appears exactly
-where the headroom argument said it would.
+**Headroom is refuted, not confirmed** (corrected 2026-07-27 after review; the
+original text here claimed the opposite). Section 6a predicted the effect would
+SHRINK as the baseline rises. The data run the other way:
+
+| book | production baseline | thinking effect |
+|---|---:|---:|
+| mushoku16 | 49.6% (lower) | +2.9 (smaller) |
+| grimgar03 | 55.5% (higher) | **+8.2 (larger)** |
+
+Higher baseline, larger gain. Headroom does not explain the cross-book
+difference and should not be carried forward as a mechanism. What separates the
+books is unexplained; sample size (139 vs 400) accounts for the difference in
+*resolution* but not for the direction of the point estimates.
 
 **The cost is worse on the second book.** 2345 s against a 323 s baseline -
 **7.3x**, versus 4.8x on grimgar03. An unconfirmed +2.9 points for seven times
 the wall time is not a shipping case.
 
-What would settle it is not a third book but more POWER: grimgar03 has 400 gold
-lines to mushoku16's 139. Either extend the mushoku16 fixture or test a third
-book at grimgar03's scale. Until then `thinking` stands as one significant
+What would settle it is more power on mushoku16 - 139 gold lines against
+grimgar03's 400 - AND a third large book. Those answer different questions:
+more mushoku16 labels improve precision on a book already measured, while a
+third book at grimgar03's scale adds generalization evidence. An earlier draft
+here dismissed the third book as inferior; that was wrong. Until then `thinking` stands as one significant
 production-path result plus one underpowered positive - more than any other
 intervention here has achieved, and less than a shipping decision requires.
 
@@ -1060,10 +1028,517 @@ model scale were the lever, this is the comparison where it should have
 appeared.
 
 This is the fourth ordering today to fail its paired test, after `closed-6`, the
-cross-book model ranking, and the crossover effects in §13.1. The stable finding
-of the whole model programme remains the single one it started with — **move off
-qwen3.5-9b** — and the ~50% plateau appears insensitive to model choice above
-about 7B, which points at the task representation rather than the model.
+cross-book model ranking, and the crossover effects in §13.1.
+
+**Scope, narrowed after review.** An earlier draft said accuracy "plateaus above
+about 7B" and therefore points at task representation. That is wider than the
+evidence. This measurement uses one fixture and a component harness, has limited
+power among the clustered models, and mixes architectures, training recipes,
+quantizations and serving stacks. It does not show that all larger models, or
+the production path, share a plateau.
+
+The defensible statement: **within this Mushoku closed-set measurement,
+increasing Qwen from 14B to 32B produced no detectable gain, and model size
+alone has not explained the remaining error.** The stable finding of the model
+programme remains the one it started with - move off qwen3.5-9b.
+
+## 13.6 Grammar-constrained decoding: repairs, but not where production lives
+
+`grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json`,
+`validation: ok`, `dirty: false`, llama.cpp-hip b10121. Prompts identical in
+both arms - the candidate list is stated either way - so only the sampler
+differs.
+
+| arm | free | grammar | delta | repaired / broke | p |
+|---|---:|---:|---:|---|---:|
+| oracle | 58.3% | **66.2%** | **+7.9** | 12 / 1 | **0.0034** |
+| open | 53.2% | 51.8% | -1.4 | 0 / 2 | 0.500 |
+
+Off-list answers went to zero in both grammar arms, which was the built-in
+check that the constraint actually applied.
+
+**It repairs rather than relabels.** Tracking what happened to the free arm's
+off-list answers: on the oracle arm **15 off-list answers became 11 correct**
+under the grammar. When the model wrote `RUDIUS` meaning `RUDEUS`, forcing it
+onto the roster recovers the right character about three times in four. That
+confirms the mechanism the phonetic scorer (§5a.3) could only infer.
+
+**But it does nothing on the arm that resembles production.** The open arm is
+-1.4 points on two discordant lines - noise, not harm. That is exactly what the
+sizing predicted: off-list answers are 13.7% of oracle rows and about 1% of open
+rows, so with the full roster in front of it the model rarely leaves the list.
+
+Consequence: **not a shipping win as tested**, because production uses the full
+roster. The place it might matter is the `is_attested_name` gate, which
+currently *rejects* invented names after decoding - once 279 per book. This
+result says constraining at decode time recovers the right answer in most such
+cases instead of discarding it. Testing that requires the production pass-2
+prompt, not this diagnostic arm.
+
+## 13.7 Where the remaining points might be, and a request
+
+Ten interventions have now been measured. One survives (`thinking`, §9), and it
+is one significant book plus one underpowered book at 4.8-7.3x wall time. Six
+models across four architectures and 4x parameter count sit in a single
+indistinguishable band on both books. Scale within a family moved four net lines
+out of 139.
+
+That pattern - flat across model, flat across prompt engineering - is more
+consistent with an **input** limit than a capability limit. The strongest
+untested lever follows directly:
+
+**Context width (running now).** Production pass 2 supplies **one segment
+either side** of the line being attributed. Every diagnostic in this ledger used
+four. Measured prompts are 176 tokens median against a 16384-token window -
+**1.1% utilisation** - while **62.1% of errors have no character name anywhere
+nearby**. `context_width.py` sweeps w1/w4/w15/w40 on grimgar03. If accuracy
+rises, production is leaving points on the table for nothing; if it is flat,
+context is excluded and the plateau needs another explanation.
+
+Three further candidates, each tied to a measured number rather than a hunch:
+
+1. **Candidate-set RECALL, not size.** `closed-6` (recall 73-87%) was null;
+   `closed-oracle` (recall 100%) is +17. The entire oracle advantage is that the
+   answer is in the set. So the lever is a higher-recall scene-cast pass
+   optimised on recall, not a smaller set. Getting recall to ~97% with sets of
+   ~8 should capture much of that +17.
+2. **Sequential attribution with committed history.** Pass 2 attributes batches
+   of 25 entries *independently*; the model never sees its own prior decisions,
+   yet dialogue alternates and **12.6% of errors name the addressee rather than
+   the speaker**. Note the `scaffold` arm asked the model to *infer*
+   `previous_speaker` and lost 4.0 points - supplying the actually-resolved
+   speaker is a different mechanism (state, not introspection).
+3. **Selective thinking.** `thinking` is the only surviving intervention and its
+   blocker is cost, not effect. Routing it to lines a cheap pass flags uncertain
+   needs only correlation with difficulty, a much lower bar than the
+   17%-coverage-at-76% confidence signal that failed as an *acceptance*
+   criterion.
+
+**Request to the reviewer.** The four above are what the error analysis
+supports. What is missing? In particular:
+
+- Is there a reading of the 62.1%/12.6%/6.8% error breakdown that points
+  somewhere none of these do?
+- The oracle arm caps at 66-76% even with the true speaker among five
+  candidates. That ceiling is not explained by recall, roster, or model size.
+  What would explain a model failing a five-way choice a quarter of the time
+  when the answer is present?
+- Is the ~50% plateau better read as a property of the **fixture** - gold sets
+  built from hard or disputed lines - than of the task? If so, the ceiling is
+  an artefact and the real question is what accuracy on *representative* lines
+  looks like.
+
+## 13.8 Offline analyses: three results from existing artifacts, no GPU
+
+Run at the review's suggested priority, against committed artifacts only
+(`app/experiments/offline_analysis.py`). Two of the three change how earlier
+numbers should be read.
+
+### 13.8.1 The oracle union identifies a small consensus-hard set
+
+The 24-34% oracle failure rate has been treated as the least explained number
+in the ledger. Decomposed across every model run on each book:
+
+| book | wrong under ALL model runs | wrong under at least one |
+|---|---:|---:|
+| grimgar03 (6 runs) | **27 / 400 = 6.8%** | 262 / 400 = 65.5% |
+| mushoku16 (5 runs) | 16 / 139 = 11.5% | 120 / 139 = 86.3% |
+
+Only **7-12% of rows defeat every included run.** The remaining failures are
+rows at least one run gets right. This is a multi-run oracle upper bound, not a
+deployable recovery rate: knowing after the fact which model was correct does
+not supply a routing rule, and the runs are not independent judges. The result
+identifies a small consensus-hard set plus a large disagreement set; it does
+not establish that the disagreement is mostly random model variance.
+
+On the unanimous failures the models mostly **pick another candidate** (18 of 27
+on grimgar03) rather than answering UNKNOWN (7). Confident wrongness, not
+abstention.
+
+Those 27 grimgar03 rows are now the highest-value adjudication target in the
+project: a small, precisely identified set where six independent models fail
+with the answer among five candidates. Whether they are bad gold, missing
+context, or genuine ambiguity is exactly the review's priority 6, and it is now
+27 rows of blind adjudication rather than an open-ended audit.
+
+### 13.8.2 The fixture is not representative on line length
+
+| book | all spoken lines (median) | scored gold rows (median) |
+|---|---:|---:|
+| grimgar03 | 26 chars | **32 chars** |
+| mushoku16 | 38 chars | **54 chars** |
+
+Scored rows are substantially LONGER than the spoken-line population on both
+books. And mushoku16's unique-text filter drops 8 rows whose median length is
+**13 characters** - repeated text is short text, so the filter removes short
+lines specifically.
+
+This proves a length-distribution mismatch. It does not by itself establish the
+direction of accuracy bias. Short lines plausibly contain less internal
+evidence, but that relationship must be measured in these artifacts and may be
+confounded with dialogue density, character frequency, and explicit tags.
+
+Required closure: report accuracy by predeclared length bins and reweight the
+fixture to the full spoken-line distribution. Until then, the defensible claim
+is that the fixture is nonrepresentative on length and the direction and size
+of resulting accuracy bias are unknown.
+
+### 13.8.3 Cheap routing features do not separate RESCUE from HARM
+
+Labelling every paired production row from the thinking gate:
+
+| feature | RESCUE | HARM | NEUTRAL |
+|---|---:|---:|---:|
+| line length (chars) | 56 | 58 | 59 |
+| nearby speech tag | **0.43** | **0.64** | 0.58 |
+
+grimgar03: 72 RESCUE, 39 HARM, 289 NEUTRAL.
+
+Line length separates nothing, and a nearby speech tag is **more** common on
+HARM rows than RESCUE rows - the opposite sign to a useful routing signal. The
+same inversion appears on mushoku16 (0.10 RESCUE vs 0.29 HARM).
+
+So selective thinking cannot be routed on these features. If it is viable it
+needs the disagreement- or perturbation-based signals from the review's idea
+bank (L and M), where the signal is derived from model behaviour rather than
+from surface properties of the line. That is a stronger test than the one that
+just failed, and it has not been run.
+
+## 13.9 Blind adjudication of the unanimous oracle failures
+
+The review's priority 6 asked for blind adjudication of the oracle errors.
+§13.8.1 reduced that to a tractable set: rows every model run fails with the
+true speaker among five candidates. On grimgar03 that is **26 rows across nine
+model runs** (the count moved from 27 as further artifacts landed and the
+intersection tightened).
+
+Method: each row was dumped with +/-6 segments of surrounding text, **gold and
+model predictions withheld**, adjudicated, and only then compared.
+
+**The adjudicator agreed with gold on 20 of 26.** The hard core is mostly real.
+The six disagreements and the failure patterns are where the information is.
+
+### 13.9.1 Three distinct causes, only one of them a model limitation
+
+**Contested gold - 4 rows** (00668, 00672, 00692, 02082). All from one
+Haruhiro/Choco conversation, all labelled AMBIGUOUS, all with a speaker the
+surrounding narration appears to determine - "My mind's blanked out", "he
+managed", "She turned to leave". On **02082 five of nine model runs answered
+HARUHIRO and the blind adjudicator independently agreed**, against gold's
+AMBIGUOUS. When most models and a human reader converge on a name the gold
+rejects, the label is the suspect.
+
+**An undeclared alias - 2 rows** (00067, 01934). Gold records `ZODIAC`; six of
+nine runs answered `ZODIAC-KUN`. The text addresses the character as
+"Zodiac-kun, paw!". Same entity, scored as failure. Identical in kind to the
+`RUDEUS`/`RUDI` group that cost 9.5 points project-wide before it was declared.
+
+**Genuine, and all one failure mode - the other 20.** Unmarked alternating
+dialogue with no name and no speech tag near the line, where the answer depends
+on counting turns back to the last anchor. The models are not guessing: they
+converge on the WRONG TURN. Row 00369, all nine runs said MOGUZO where the
+answer is RANTA. Row 01061, eight said RON for RANTA. Row 01228, eight said
+SHIHORU for MOGUZO.
+
+### 13.9.2 What this does to the oracle ceiling
+
+Of 26 unanimous failures roughly 6 are label or alias defects, so the genuine
+hard core is about **20 of 400 = 5%**, not 6.8% - and it is a *single* failure
+mode rather than a diffuse capability limit.
+
+That is the strongest evidence so far for the review's priority 2. Every
+genuine failure in this set is a line whose only available evidence is who
+spoke previously, and production attributes batches of 25 entries
+independently, never seeing its own prior decisions.
+
+### 13.9.3 Fixture corrections, applied asymmetrically on purpose
+
+**Applied: the `ZODIAC`/`ZODIAC-KUN` alias.** An alias can only convert a false
+negative into a true positive for two spellings of one entity, so it cannot
+hide a real error - the bar the fixture's own documentation sets.
+
+Retroactive impact, measured rather than assumed: **260 rows across 13
+artifacts** were being scored wrong.
+
+| result | as scored | corrected |
+|---|---|---|
+| production thinking gate (grimgar03) | 55.5 -> 63.7, **+8.2**, p=0.0022 | 57.0 -> 65.2, **+8.2**, p=0.0022 |
+| exploratory thinking arm | 56.5 -> 66.2, **+9.8**, p=0.00001 | 58.0 -> 67.8, **+9.8**, p=0.00001 |
+| six-model grimgar03 field | 51.5-61.8% | 52.8-62.7%, every model +1.0 to +1.5 |
+
+**No conclusion changes.** Every model gains almost the same amount and both
+thinking effects are identical to the decimal, because the missed rows were
+missed by both arms equally. Unlike the romanization penalty - which cost
+magistral-small 7.9 points and three other models nothing - this bias was
+**uniform**, so no comparison in the ledger was distorted by it. No re-run is
+warranted on its account.
+
+**Not applied: relabelling the five contested AMBIGUOUS rows.** They carry an
+inert `review_note` recording the challenge. They are deliberately NOT marked
+`disputed: true`, because `score_run` drops disputed rows by default and that
+would silently change every score in the ledger on one judge's opinion. The
+project's standard is two-judge concordance; this was one judge. A second judge
+should resolve them before any relabel.
+
+`gold_sha256` moves `7f45e0ce` -> `133222be`. Every existing artifact records
+the old hash, so which fixture produced which number remains traceable.
+
+## 13.10 Queued: the committed-history experiment (predictions recorded first)
+
+The adjudication in §13.9 makes this the best-supported experiment available,
+so it is queued behind the context sweep. `app/experiments/committed_history.py`,
+commit `bb030fc`.
+
+**Why this and not another model or prompt.** Twenty of the 26 unanimous oracle
+failures are unmarked alternating dialogue where the models converge on the
+WRONG TURN rather than guessing. **64% of grimgar03's gold lines abut another
+spoken segment with no narration between them**, so turn-taking is the only
+available evidence on most of the fixture. Production pass 2 attributes batches
+of 25 entries *independently* and never sees its own decisions.
+
+### 13.10.1 Three arms, because two would conflate two questions
+
+| arm | what it isolates |
+|---|---|
+| `none` | current production behaviour |
+| `oracle` | TRUE previous speakers - is the representation useful at all? |
+| `predicted` | this run's own prior answers - can the state be supplied? |
+
+Readings fixed before the run:
+
+- **oracle helps, predicted does not** - the representation is useful and the
+  state source is not; work on the state source, not the prompt.
+- **both help** - production candidate.
+- **neither helps** - retire simple sequential history. The next candidate is
+  joint scene decoding, which exploits turn-taking without freezing an early
+  error as immutable state.
+- **predicted beats oracle** - almost certainly a bug; investigate before
+  believing it.
+
+**This is not the `scaffold` arm again.** That asked the model to *infer*
+`previous_speaker` and lost 4.0 points (§6a). Asking a model to introspect and
+handing it resolved state are different mechanisms, and conflating them would
+retire a good idea on the strength of a failed one.
+
+### 13.10.2 Error propagation is measured, not assumed
+
+The `predicted` arm decodes in **book order**, so a wrong answer becomes the
+next line's history - the honest version of the design rather than one that
+hides compounding. Accuracy is reported by **distance from the last narration
+anchor** (narration is where names and speech tags live). If committed history
+compounds mistakes, the predicted arm decays with distance while the oracle arm
+does not, and that is visible directly rather than inferred.
+
+### 13.10.3 Prediction on the record
+
+**Expected: oracle helps meaningfully, predicted helps less or not at all.**
+The adjudication showed models converging on the *wrong* turn, which means a
+model's own predicted history would frequently be the wrong anchor; feeding it
+back could propagate error rather than correct it.
+
+Recorded before the run so the result cannot be reinterpreted afterwards. If
+that is what happens, the honest conclusion is that the representation is worth
+having and sequential self-supplied state is not the way to get it - which
+points at joint scene decoding rather than at another prompt variant.
+
+## 13.11 Overnight results: one actionable gain, two informative nulls, one retraction
+
+Four experiments completed. Ordered by what they change.
+
+### 13.11.1 RETRACTION: tested production attribution is deterministic
+
+Eight full pipeline repeats, same model, same book, same config:
+
+| runs | mean | SD | per-line churn across 28 pairs |
+|---:|---:|---:|---:|
+| 8 | 54.50% | **0.00 pt** | **0.0%** |
+
+All eight scored 218/400, identical to the line.
+
+Cause: `three_pass_generate.py:1447` sets **`attribute_temperature` to 0.0 by
+default**, independently of `generation.temperature`. Each pass has its own -
+`segment_temperature`, `attribute_temperature`, `instruct_temperature`. The 0.6
+quoted throughout this document is the general generation temperature.
+**Attribution has always been deterministic.**
+
+This retracts §7.0 entirely. I claimed the pipeline was stochastic, that 17.9%
+of per-line answers changed between two runs, and derived a noise band from it.
+The reviewer rejected the arithmetic; the premise was also wrong. That 17.9%
+churn was between a LOCAL run and a CLOUD run - different hardware, stack,
+context and one covering 82% of pass 2 - which is the §11 stack-bundle
+difference, not sampling.
+
+**Consequence for §6.3.** I raised the possibility that the 5.5-point
+decomposition-versus-pipeline gap was sampling noise. With SD = 0.00 that
+explanation is dead. The gap is a real difference between two instruments, and
+the crossover's failure to resolve it was a POWER problem, not a noise problem.
+
+Caveat: this establishes determinism for this model, book and configuration.
+All eight runs produced 2540 segments, consistent with pass 1 also being
+deterministic, but `segment_temperature` was not separately verified.
+
+### 13.11.2 PROMISING: diagnostic w4 is worth +6.2 points
+
+Context-width sweep, grimgar03, qwen3-14b, llama.cpp loopback:
+
+| width | accuracy | vs w1 | p | median prompt |
+|---|---:|---:|---:|---:|
+| **w1 (what production uses)** | 55.8% | — | — | 473 chars |
+| **w4** | **62.0%** | **+6.2** | **0.022** | 878 chars |
+| w15 | 61.5% | +5.8 | 0.049 | 2 972 chars |
+| w40 | 60.5% | +4.8 | 0.124 | 8 086 chars |
+
+Going beyond w4 buys nothing: w15 is -0.5 against w4 (p=0.92), w40 is -1.5
+(p=0.63). The gain saturates at w4 and then decays.
+
+**The stratification is the substance, and the reviewer was right to require
+it.** Distance to the nearest true-speaker mention:
+
+| distance | n | w1 | w4 | w15 | w40 |
+|---|---:|---:|---:|---:|---:|
+| ±1 | 282 | **71.6%** | 71.3% | 68.1% | **64.5%** |
+| ±2-4 | 69 | **26.1%** | **62.3%** | 53.6% | 63.8% |
+| ±5-15 | 26 | 11.5% | 15.4% | **65.4%** | 61.5% |
+| absent within ±40 | 23 | **0.0%** | 0.0% | 0.0% | 0.0% |
+
+Three findings the average would have hidden:
+
+1. **The entire gain is the ±2-4 band** - 69 lines going 26.1% to 62.3% as the
+   evidence enters the window.
+2. **Wide context actively harms the easy majority.** The 282 lines with
+   evidence at ±1 lose 7.1 points from w1 to w40. Dilution, measured.
+3. **The 23 lines with no mention within ±40 score 0.0% at every width.**
+   Widening cannot reach them.
+
+The immediate candidate is **w4 by default**, because it captures the aggregate
+gain without materially hurting the ±1 group. A more elaborate adaptive policy
+is only a hypothesis: choosing width from the *true speaker's* mention distance
+uses oracle information unavailable in production. Test an oracle-adaptive arm
+to bound the opportunity, then a realizable detector based on roster-name and
+evidence locations.
+
+**This needs a production-path gate before it is believed.** It is a
+diagnostic-harness result, and `because` looked like +10.8 in a diagnostic and
+reversed to -7.2 in production.
+
+### 13.11.3 NULL: committed history does not help, even with oracle state
+
+| arm | accuracy | vs none | gained / lost | p |
+|---|---:|---:|---|---:|
+| none | 63.5% | — | — | — |
+| **oracle** (TRUE previous speakers) | 63.5% | **+0.0** | 31 / 31 | 1.000 |
+| predicted (own prior answers) | 62.3% | -1.2 | 30 / 35 | 0.620 |
+
+Sanity checks pass: 400 distinct prompt hashes per arm, and 62 lines changed
+answer under oracle history. The information reached the model and moved its
+output sideways.
+
+**The pre-recorded prediction was wrong.** §13.10.3 predicted oracle would help
+meaningfully. It did not help at all. Per the pre-registered rules this
+**retires simple sequential history**; the stated next candidate is joint scene
+decoding, which exploits turn structure without freezing an early answer as
+state.
+
+**And it undercuts my reading of the adjudication.** §13.9 concluded the genuine
+hard core was unanchored turn-taking. The model was then handed exactly that
+state and nothing changed. Two readings remain, and this experiment cannot
+separate them:
+
+- the models cannot USE explicit turn state supplied as a list, even when it is
+  correct;
+- the failures are not really turn-taking - they only look like alternation
+  errors, and the cause is something else.
+
+The honest conclusion is that §13.9 identified a **symptom** and I read it as a
+mechanism.
+
+### 13.11.4 REPLICATION: thinking holds on a second model
+
+qwen3-32b, grimgar03, run ON the instance over loopback (`validation: ok`,
+`dirty: false`):
+
+| arm | accuracy | vs baseline | repairs / regressions | p |
+|---|---:|---:|---|---:|
+| baseline | 67.2% | — | — | — |
+| `because` | 67.5% | +0.2 | 40 / 39 | 1.000 |
+| scaffold | 57.8% | **-9.5** | 28 / 66 | **0.00011** |
+| **thinking** | **72.2%** | **+5.0** | 51 / 31 | **0.0352** |
+| scaffold_thinking | 68.5% | +1.2 | 54 / 49 | 0.694 |
+
+| model | baseline | thinking | effect | p |
+|---|---:|---:|---:|---:|
+| qwen3-14b | 58.0% | 67.8% | +9.8 | 0.00001 |
+| qwen3-32b | 67.2% | 72.2% | **+5.0** | 0.0352 |
+
+**`thinking` is the only intervention in this investigation with two
+independent significant results.**
+
+**On headroom, carefully.** The cross-MODEL comparison shows exactly the
+shrinkage §6a predicted - higher baseline (67.2 vs 58.0), smaller gain (+5.0 vs
++9.8). The cross-BOOK comparison ran the opposite way, which is why §9.1
+retracted headroom as a mechanism. Both remain true; headroom explains one
+comparison and not the other, and should not be reinstated as a general
+mechanism on the strength of the one it fits.
+
+**`scaffold` is now clearly harmful** - -9.5 here, -4.0 on qwen3-14b. Two
+models, one decisive. Prompting a model through explicit reasoning steps
+degrades a model that reasons better unprompted.
+
+**Cost:** thinking 6280 s against baseline 1165 s, **5.4x**.
+`scaffold_thinking` cost 8690 s to gain nothing.
+
+### 13.11.5 Why the arms had to move onto the instance
+
+Through the forwarded port these are **structurally impossible**. Cloudflare
+enforces a 120-second proxy read timeout; a batch of 25 entries with reasoning
+enabled takes minutes on a 32B, so qwen3-32b's thinking arm failed all six
+retries with `524 origin_response_timeout`. **Retrying cannot fix a request that
+is too slow by construction**, and the retry policy - correct for dropped
+connections - could not help.
+
+Note the interaction: gemma-3-27b's thinking arms completed *because they were
+no-ops*. The only models whose thinking arms are meaningful are exactly the ones
+that time out.
+
+Fixed by running the harness on the instance over loopback: same batch size,
+prompts and decoding, only the transport differs. A `reasoning_tokens` probe now
+gates every arm set, so a model that emits none is skipped rather than costing
+four hours - the mistake gemma already made.
+
+## 13.12 Open questions for the reviewer
+
+Four experiments, one actionable gain, two nulls and a retraction. The specific
+things I cannot resolve:
+
+1. **What is the turn-taking failure, if not missing state?** §13.9's
+   adjudication found twenty rows of unanchored alternating dialogue where nine
+   model runs converge on the WRONG TURN. §13.11.3 handed the model the TRUE
+   previous speakers and changed nothing (31 gained, 31 lost). Either models
+   cannot use explicit turn state, or those errors are not turn-taking at all
+   and the convergence pattern misled me. Is there a diagnostic that separates
+   those two?
+
+2. **Should the w4 gain be shipped before or after a production gate?** It is
+   +6.2 points for 405 extra characters per prompt, and production has been
+   running at w1 the whole time. The evidence is diagnostic-harness only, and
+   `because` reversed sign between harness and production. But this is a
+   context change, not a prompt-contract change, so the `because` failure mode
+   may not apply.
+
+3. **Is adaptive width worth building?** The stratification says w4 helps only
+   the ±2-4 band and w40 costs the ±1 majority 7 points. An oracle-adaptive
+   arm - choose width from the known evidence distance - would bound what any
+   detector could achieve. Worth running before building anything?
+
+4. **What are the 23 lines that score 0.0% at every width?** No true-speaker
+   mention within ±40 segments, 5.75% of the fixture, unanimously wrong. Bad
+   gold, genuinely undeterminable, or something the fixture should exclude?
+
+5. **Does the determinism finding change the fixture-representativeness
+   argument?** §13.8.2 showed scored rows are longer than the population and the
+   unique-text filter removes short lines. With sampling noise now excluded as
+   an explanation for anything, the measured numbers are exactly reproducible -
+   and exactly as unrepresentative as the fixture is.
 
 ## 14. Infrastructure added today
 
@@ -1094,12 +1569,11 @@ downloaded; nothing is lost by the pause.
 busy or idle — stopping is not sufficient, only deletion ends billing. If the
 pause is longer than about an hour, snapshot and delete rather than idle.
 
-## 16. Reviewer recommendations (from the 2026-07-27 review)
+## 16. Historical reviewer recommendations (superseded where noted)
 
 Recommendation 6 has now been acted on and passed - see §9.
-Recommendation 7 is partly answered by §13: the crossover's
-temperature-0.6 repeats give the run-level replication the review
-correctly said one pipeline repeat could not provide.
+Recommendation 7 is retracted by §13.11.1: production attribution uses
+temperature 0 and is deterministic in the tested configuration.
 
 The addendum is a useful correction and should remain separate until the active
 clean-tree runs finish. When it is merged, §7.2 of the main brief should be
@@ -1111,13 +1585,9 @@ Recommended decision rules:
 1. Treat the cloud queue as **pass-2 screening**, not model selection for the
    shipping pipeline. A strong closed-set result nominates a model for
    end-to-end testing; it does not select a winner.
-2. Keep the segmentation × attribution crossover ahead of any production
-   model decision. It is the experiment that can separate pass-1 quality,
-   pass-2 quality, and their interaction. Because the shipping pipeline is
-   stochastic, use run-level replication rather than treating gold lines as
-   independent repeats. A small pilot of at least three runs per cell can
-   estimate whether more replication is needed; predeclare the decision margin
-   and expand if its uncertainty overlaps that margin.
+2. The segmentation × attribution crossover is complete and unresolved
+   (§13). Attribution is deterministic in the tested configuration, so the
+   earlier recommendation for stochastic run-level replication does not apply.
 3. Do not rank close cloud results from percentages alone. Preserve paired
    discordance, exact tests, retries, latency, failures, and memory settings.
 4. Predeclare what would justify an end-to-end run. A sensible gate is a
@@ -1132,11 +1602,8 @@ Recommended decision rules:
    arms on four larger models. Cross-model replication of an effect that does
    not survive the production prompt would repeat the `because` mistake at
    greater cost.
-7. Treat the cloud end-to-end run as one repeat, not an estimate of variance.
-   Compare per-line transitions, segmentation identities, omissions, retries,
-   and failures with the local run. The observed churn justifies replication;
-   it does not quantify the run-level distribution or isolate a hardware,
-   sampling, truncation, or state effect.
+7. The cloud end-to-end run is a bundled-stack comparison, not a stochastic
+   repeat. Its 17.9% row disagreement cannot estimate sampling variance.
 8. Keep exact and phonetic attribution scores separate. Use `romaji_key` only
    as an evaluation diagnostic until it is collision-tested on a substantially
    larger roster set or replaced by explicitly adjudicated aliases. Production
@@ -1165,3 +1632,94 @@ The context investigation still paid for itself: it corrected an unsupported
 confound claim, established that the local results can be compared
 operationally with cloud screening results, and exposed missing retry behavior.
 Its value should be described that way, not as validation of a context effect.
+
+## 17. Current reviewer assessment after the overnight results
+
+Section 16 is retained as the historical review that motivated several tests.
+The results now support a shorter current priority list.
+
+### What is established
+
+- Attribution is deterministic for the tested production configuration: eight
+  repeats produced identical scored rows.
+- Production-path thinking improves Qwen3-14B on Grimgar (+8.2, p=0.0022) and
+  is directionally positive but unresolved on Mushoku (+2.9, p=0.627).
+- Exploratory thinking also improves Qwen3-32B on Grimgar (+5.0, p=0.0352).
+  This is cross-model replication on one book, not cross-book confirmation.
+- Explicit scaffold questions are harmful for both Qwen models tested.
+- Supplying previous-speaker history as an explicit list is a clean null even
+  when the state is oracle-correct.
+- Diagnostic context w4 beats w1 by 6.2 points and is the strongest cheap
+  production candidate, pending a production-path gate.
+- Grammar-constrained decoding repairs off-list/canonical-name failures in a
+  small oracle set but does not improve the full-roster arm.
+
+### Answers to §13.12
+
+1. **What is the apparent turn-taking failure?** The explicit-list null shows
+   only that this representation is ineffective. It does not prove that turn
+   structure is irrelevant. The discriminating test is joint scene attribution
+   with three controls:
+   - chronological scene;
+   - the same lines independently attributed;
+   - shuffled line order.
+
+   A chronological-only gain demonstrates usable sequence structure. If joint
+   decoding also fails, the alternating-error pattern is a symptom rather than
+   a usable mechanism.
+
+2. **Should w4 ship before a gate?** No. The gate is cheap relative to the
+   investigation and protects against the exact diagnostic-to-production
+   transport failure already seen with `because`. Run production w1 versus w4
+   on both books with frozen IDs, paired transitions, latency, retries, and
+   prompt-token counts. If Grimgar reproduces and Mushoku does not materially
+   regress, w4 is ready for a guarded production switch.
+
+3. **Is adaptive width worth building?** First run an oracle-adaptive bound:
+   choose among w1/w4/w15 using known evidence distance. Then test a realizable
+   detector that sees only roster names, speech tags, vocatives, and scene
+   state. Do not build adaptive plumbing if the oracle policy barely beats
+   fixed w4.
+
+4. **What are the 23 zero-at-every-width rows?** Blindly adjudicate them with
+   full-scene or chapter context and two judges. Classify:
+   - determinable by turn sequence;
+   - determinable by distant narrative evidence;
+   - character-style inference only;
+   - ambiguous or bad gold.
+
+   These rows bound what retrieval and scene decoding could repair. They should
+   not be automatically excluded merely because no name occurs within ±40.
+
+5. **Does determinism change fixture representativeness?** No. Reproducibility
+   and representativeness are orthogonal. The length mismatch still requires
+   accuracy-by-length measurement and population reweighting; deterministic
+   evaluation simply makes that calculation reproducible.
+
+### Next experiments, in order
+
+1. **Production w1 versus w4**, both books.
+2. **Blind two-judge review of the 23 no-mention failures** and unresolved
+   contested gold rows.
+3. **Joint scene attribution** with independent and shuffled controls.
+4. **Oracle-adaptive context bound**, followed only if promising by a realistic
+   evidence detector.
+5. **Production Gemma-3-27B baseline versus Qwen3-14B thinking** on matched
+   stack, segmentation policy, books, and IDs.
+6. **Selective-thinking routing from model behavior**, not line length or
+   speech-tag presence.
+7. **Accuracy by line-length/evidence strata**, reweighted to the full spoken
+   population.
+
+### Stop or defer
+
+- Retire simple committed-history lists.
+- Do not run additional scaffold arms.
+- Do not infer a general model-size plateau from the Mushoku component harness.
+- Do not interpret the multi-model oracle union as a deployable recovery rate.
+- Do not resume a broad cloud sweep before the production w4 and matched
+  shipping-model comparisons.
+- Rename `because_production.py` before it becomes the generic production A/B
+  harness.
+- If the cloud instance still exists while its queue is paused, snapshot what
+  is needed and delete it; stopped or idle instances continue billing.
