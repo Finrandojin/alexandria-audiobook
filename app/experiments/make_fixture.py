@@ -57,6 +57,12 @@ M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BOOK = os.environ.get("EXPERIMENT_BOOK", "owarimonogatari3")
 COUNT = int(os.environ.get("EXPERIMENT_COUNT", "120"))
+# Point this at an existing gold file to RE-JUDGE exactly those lines instead
+# of drawing a fresh sample. That is what makes a second judgement comparable:
+# same ids, same lines, so disagreement is between judges rather than between
+# samples. The existing labels are deliberately NOT carried into the bundle -
+# showing them would turn a second opinion into a confirmation exercise.
+FROM_GOLD = os.environ.get("EXPERIMENT_FROM_GOLD", "")
 SEED = int(os.environ.get("EXPERIMENT_SEED", "20260728"))
 CONTEXT = int(os.environ.get("EXPERIMENT_CONTEXT", "4"))
 OUT = os.environ.get(
@@ -85,10 +91,30 @@ eligible = [i for i, e in enumerate(seg)
             and occurrences[norm(e.get("text"))] == 1
             and (e.get("text") or "").strip()]
 
-rng = random.Random(SEED)
-picked = sorted(rng.sample(eligible, min(COUNT, len(eligible))))
-print(f"{BOOK}: {len(eligible)} eligible lines, sampling {len(picked)}, "
-      f"roster {len(roster)}")
+if FROM_GOLD:
+    prior = json.load(open(FROM_GOLD, encoding="utf-8"))
+    index_of = {norm(e.get("text")): i for i, e in enumerate(seg)}
+    picked, ids, unlocatable = [], {}, 0
+    for entry in prior["entries"]:
+        key = norm(entry.get("line"))
+        # Skip lines whose text appears more than once: they cannot be located
+        # unambiguously, which is the same rule the scoring harnesses apply.
+        if occurrences[key] != 1 or key not in index_of:
+            unlocatable += 1
+            continue
+        position = index_of[key]
+        picked.append(position)
+        ids[position] = entry["id"]
+    picked.sort()
+    print(f"{BOOK}: re-judging {len(picked)} lines from "
+          f"{os.path.basename(FROM_GOLD)} ({unlocatable} not uniquely "
+          f"locatable, skipped), roster {len(roster)}")
+else:
+    rng = random.Random(SEED)
+    picked = sorted(rng.sample(eligible, min(COUNT, len(eligible))))
+    ids = {i: f"{BOOK}-{i:05d}" for i in picked}
+    print(f"{BOOK}: {len(eligible)} eligible lines, sampling {len(picked)}, "
+          f"roster {len(roster)}")
 
 
 def passage(index, width):
@@ -114,7 +140,8 @@ bundle = {
         "text is not a spoken line at all: the segmenter misfiles narration as "
         "speech, and how often it does so is a measurement worth having rather "
         "than an annoyance to work around."),
-    "entries": [{"id": f"{BOOK}-{i:05d}", "segment_index": i,
+    "relabel_of": os.path.basename(FROM_GOLD) or None,
+    "entries": [{"id": ids[i], "segment_index": i,
                  "line": seg[i].get("text"),
                  "passage": passage(i, CONTEXT),
                  "expected_speaker": ""}
