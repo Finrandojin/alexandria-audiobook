@@ -1,0 +1,51 @@
+{
+ "pass_a": "wide",
+ "pass_b": "openai",
+ "rows": [
+  {
+   "id": "index18-00380",
+   "book": "index18",
+   "a": "WILLIAM ORWELL",
+   "a_why": "Dialogue tag in text: 'thought William as he ran'.",
+   "b": "NOT_DIALOGUE",
+   "b_why": "The line explicitly reports William's internal thought while he runs.",
+   "kind": "category"
+  },
+  {
+   "id": "index18-00807",
+   "book": "index18",
+   "a": "UNNAMED",
+   "a_why": "unnamed Amakusa members teasing Itsuwa",
+   "b": "UNKNOWN",
+   "b_why": "The line comes from the voices at the back of the plane, but the passage does not identify which person calls to Itsuwa.",
+   "kind": "both-special"
+  },
+  {
+   "id": "index18-00920",
+   "book": "index18",
+   "a": "UNNAMED",
+   "a_why": "a remembered warning from 'people from Born Again' before the mission; speakers are a group, individually unnamed",
+   "b": "KANZAKI",
+   "b_why": "The two warnings are introduced as coming from Kanzaki and Tatemiya in that order, making this first warning Kanzaki's, though no individual tag is supplied.",
+   "kind": "category"
+  },
+  {
+   "id": "index18-01805",
+   "book": "index18",
+   "a": "CARISSA",
+   "a_why": "Carissa shouting at Vilian as she advances to strike her",
+   "b": "VILIAN",
+   "b_why": "This is Vilian's reply to Carissa, addressing her as her sister.",
+   "kind": "name"
+  },
+  {
+   "id": "index18-02186",
+   "book": "index18",
+   "a": "UNNAMED",
+   "a_why": "spoken by the unnamed boss of the UK sorcerer society",
+   "b": "SMARTVERI",
+   "b_why": "The boss of the sorcerers' society answers the young girl's suggestion.",
+   "kind": "category"
+  }
+ ]
+}

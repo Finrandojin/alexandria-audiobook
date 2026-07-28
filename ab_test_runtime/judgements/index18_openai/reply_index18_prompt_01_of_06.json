@@ -1,0 +1,142 @@
+[
+  {
+    "id": "index18-00017",
+    "speaker": "VILIAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narration identifies the laughing princess as Vilian."
+  },
+  {
+    "id": "index18-00068",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The Knight Leader proposes the duel and subsequently explains its meaning."
+  },
+  {
+    "id": "index18-00078",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The following narration explicitly identifies the speaker as the Knight Leader."
+  },
+  {
+    "id": "index18-00141",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narration says the Knight Leader's lips moved as he delivered the line."
+  },
+  {
+    "id": "index18-00147",
+    "speaker": "KAMIJOU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Kamijou is alone on the train roof, shivering under the high-speed wind."
+  },
+  {
+    "id": "index18-00151",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is third-person narration explaining how Kamijou was driven onto the roof."
+  },
+  {
+    "id": "index18-00152",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The line is explicitly described as Kamijou's thought, not speech aloud."
+  },
+  {
+    "id": "index18-00161",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is third-person narration describing what Kamijou sees."
+  },
+  {
+    "id": "index18-00172",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is narration explaining Kamijou's limited comprehension of spoken English."
+  },
+  {
+    "id": "index18-00214",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The following narration says the Knight Leader revealed the attack's trick."
+  },
+  {
+    "id": "index18-00303",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is narration describing the wound inflicted on William."
+  },
+  {
+    "id": "index18-00310",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is narrative description of the transformed weapon."
+  },
+  {
+    "id": "index18-00317",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "This is narration describing the consequence of the Knight Leader's prospective attack."
+  },
+  {
+    "id": "index18-00342",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The preceding narration identifies William Orwell as rejecting the Knight Leader's choice."
+  },
+  {
+    "id": "index18-00343",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The following narration says the Knight Leader sighed before continuing his response."
+  },
+  {
+    "id": "index18-00359",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The Knight Leader challenges William for criticizing him without stating William's own intentions."
+  },
+  {
+    "id": "index18-00377",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narration says the Knight Leader addresses one last warning to his longtime enemy."
+  },
+  {
+    "id": "index18-00380",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The line explicitly reports William's internal thought while he runs."
+  },
+  {
+    "id": "index18-00389",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The cry accompanies William's charge as he closes into the Knight Leader's range."
+  },
+  {
+    "id": "index18-00435",
+    "speaker": "ANGELINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The following narration explicitly says Angeline looks toward Agnes and yelps."
+  }
+]
