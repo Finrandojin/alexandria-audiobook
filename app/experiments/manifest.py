@@ -296,7 +296,16 @@ class ExperimentRecord:
         if contract and contract.get("require_optimized") and \
                 environment.get("optimized") is False:
             problems.append("model was loaded with non-ideal settings")
-        if environment.get("verified_model") not in (None, self.meta.get("model")):
+        # A cascade runs two models in one experiment and declares both, as
+        # "cheap + expensive". The environment can only ever verify the one
+        # currently loaded, so accept a match against any declared component
+        # rather than the whole string - the check still catches the case it
+        # exists for, which is an artifact naming a model the box was not
+        # actually running.
+        declared = self.meta.get("model") or ""
+        components = {part.strip() for part in declared.split("+") if part.strip()}
+        components.add(declared)
+        if environment.get("verified_model") not in components | {None}:
             problems.append(
                 f"loaded model {environment.get('verified_model')!r} is not the "
                 f"declared model {self.meta.get('model')!r}")
