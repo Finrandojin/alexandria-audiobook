@@ -62,7 +62,9 @@ for ident, item in seen.items():
     entry = by_id[ident]
     entry["expected_speaker"] = speaker
     entry["confident"] = bool(item.get("confident"))
-    entry["note"] = (item.get("why") or "").strip() or None
+    # Accept either key: `reasoning` matches the gold schema, `why` is what
+    # the first batch of prompts asked for.
+    entry["note"] = (item.get("reasoning") or item.get("why") or "").strip() or None
     if item.get("alias"):
         entry["alias"] = str(item["alias"]).strip().upper()
     counts[speaker if speaker in ("UNKNOWN", "NOT_DIALOGUE") else "named"] += 1

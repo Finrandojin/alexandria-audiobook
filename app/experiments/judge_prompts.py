@@ -71,12 +71,16 @@ Rules:
   character says aloud, say so.
 - `confident` is true only if you would defend the answer against a careful
   reader who disagreed.
+- `reasoning` is required on every item, including UNKNOWN and NOT_DIALOGUE.
+  Name the actual evidence - the dialogue tag, who was addressed, whose turn
+  it is - not a restatement of the answer. For UNKNOWN say what is missing;
+  for NOT_DIALOGUE say what the text is instead.
 - Some characters go by more than one name. If the speaker appears in the
   roster under a different name than the passage uses, give the roster form
   and note the other in `alias`.
 
 Return ONLY a JSON array, one object per item, no markdown:
-[{"id": "...", "speaker": "NAME", "confident": true, "alias": null, "why": "<short clause naming the evidence>"}]
+[{"id": "...", "speaker": "NAME", "confident": true, "alias": null, "reasoning": "<short clause naming the evidence>"}]
 
 ROSTER: %s
 
@@ -118,7 +122,7 @@ for number in range(chunks):
                            "speaker": "NAME in capitals, or UNKNOWN, or NOT_DIALOGUE",
                            "confident": "boolean",
                            "alias": "other name for this character, or null",
-                           "why": "short clause naming the evidence"},
+                           "reasoning": "short clause naming the evidence: the dialogue tag, who was addressed, or whose turn it is. Required for every item, including UNKNOWN and NOT_DIALOGUE - for those, say what makes it unresolvable or not speech."},
                 "must_cover_ids": [e["id"] for e in part],
             },
             "items": [{"id": e["id"], "target_line": e["line"],
