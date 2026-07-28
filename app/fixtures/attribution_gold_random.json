@@ -1334,8 +1334,12 @@
    "RUDI"
   ],
   [
-   "SYLPHY",
-   "SYLPHIETTE"
+   "SYLPHIETTE",
+   "SYLPHY"
+  ],
+  [
+   "ALMANFI",
+   "ARUMANFI"
   ]
  ],
  "aliases_note": "Names the book uses for one character. Only forms actually written in the source belong here; an invented name such as FUTURE_ME is a wrong answer, not an alias."
