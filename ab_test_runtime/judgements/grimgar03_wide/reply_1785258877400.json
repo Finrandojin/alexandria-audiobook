@@ -1,0 +1,667 @@
+[
+  {
+    "id": "grimgar03-01305",
+    "speaker": "SHIHORU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Shihoru quickly stepped in to explain"
+  },
+  {
+    "id": "grimgar03-01311",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Yume thought for a moment right after repeating the word"
+  },
+  {
+    "id": "grimgar03-01321",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Yume said"
+  },
+  {
+    "id": "grimgar03-01325",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "character refers to herself in the third person as Yume"
+  },
+  {
+    "id": "grimgar03-01328",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro said"
+  },
+  {
+    "id": "grimgar03-01331",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Yume responds to Haruhiro addressing him as Haru-kun"
+  },
+  {
+    "id": "grimgar03-01332",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates he asked, referring to Haruhiro"
+  },
+  {
+    "id": "grimgar03-01338",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narration states Merry beat Haruhiro to calling out to Moguzo"
+  },
+  {
+    "id": "grimgar03-01348",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo responds to Merry's breathing instruction"
+  },
+  {
+    "id": "grimgar03-01349",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Merry said"
+  },
+  {
+    "id": "grimgar03-01357",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Haruhiro speaking to Moguzo"
+  },
+  {
+    "id": "grimgar03-01364",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Ranta jumped up like a monkey right before this speech"
+  },
+  {
+    "id": "grimgar03-01365",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro said"
+  },
+  {
+    "id": "grimgar03-01380",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Merry's face twitched a little upon repeating the word"
+  },
+  {
+    "id": "grimgar03-01388",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Ranta put an arm around Moguzo's shoulder"
+  },
+  {
+    "id": "grimgar03-01389",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo responds to Ranta calling him meat shield"
+  },
+  {
+    "id": "grimgar03-01390",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta asked"
+  },
+  {
+    "id": "grimgar03-01398",
+    "speaker": "BRI-CHAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Bri-chan is delivering the tactical briefing to the gathered forces"
+  },
+  {
+    "id": "grimgar03-01407",
+    "speaker": "BRI-CHAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Bri-chan began playing with his sword"
+  },
+  {
+    "id": "grimgar03-01412",
+    "speaker": "KAJIKO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Kajiko raised one eyebrow in response to Bri-chan"
+  },
+  {
+    "id": "grimgar03-01418",
+    "speaker": "BRI-CHAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Bri-chan speaks to Kajiko before Kajiko glares at him"
+  },
+  {
+    "id": "grimgar03-01419",
+    "speaker": "KAJIKO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Kajiko glared at Bri-chan while speaking"
+  },
+  {
+    "id": "grimgar03-01421",
+    "speaker": "KAJIKO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Kajiko addresses Bri-chan as Britney"
+  },
+  {
+    "id": "grimgar03-01437",
+    "speaker": "BRI-CHAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Bri-chan reacting to Kajiko showing her pocket watch"
+  },
+  {
+    "id": "grimgar03-01444",
+    "speaker": "BRI-CHAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Bri-chan's speech following the dialogue tag"
+  },
+  {
+    "id": "grimgar03-01159",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro asked"
+  },
+  {
+    "id": "grimgar03-01161",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta mused"
+  },
+  {
+    "id": "grimgar03-01163",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta's musing"
+  },
+  {
+    "id": "grimgar03-01165",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Moguzo laughed nervously"
+  },
+  {
+    "id": "grimgar03-01171",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Moguzo speaking after agreeing"
+  },
+  {
+    "id": "grimgar03-01176",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Ranta was strangely excited"
+  },
+  {
+    "id": "grimgar03-01180",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta ordered"
+  },
+  {
+    "id": "grimgar03-01192",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta shouting at Haruhiro in turn-taking dialogue"
+  },
+  {
+    "id": "grimgar03-01200",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta said"
+  },
+  {
+    "id": "grimgar03-01202",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta's speech after Ranta said"
+  },
+  {
+    "id": "grimgar03-01203",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro retorted"
+  },
+  {
+    "id": "grimgar03-01208",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro demanded"
+  },
+  {
+    "id": "grimgar03-01212",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta responding to Moguzo asking him to reveal who he likes"
+  },
+  {
+    "id": "grimgar03-01223",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta giving in to Moguzo's insistence"
+  },
+  {
+    "id": "grimgar03-01225",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narration indicates Ranta turns around to tease them"
+  },
+  {
+    "id": "grimgar03-01226",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-01228",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo addresses Ranta as Ranta-kun complaining about his trick"
+  },
+  {
+    "id": "grimgar03-01229",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta laughing maniacally after tricking them"
+  },
+  {
+    "id": "grimgar03-01235",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta shouting at Haruhiro"
+  },
+  {
+    "id": "grimgar03-01236",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro snarled"
+  },
+  {
+    "id": "grimgar03-01244",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "word is part of narrational text split by segmenter"
+  },
+  {
+    "id": "grimgar03-01285",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Moguzo's breathing was weirdly rough"
+  },
+  {
+    "id": "grimgar03-01289",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates he asked, referring to Haruhiro"
+  },
+  {
+    "id": "grimgar03-01291",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro continues asking Moguzo if he is feeling tense"
+  },
+  {
+    "id": "grimgar03-01292",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo responding nervously to Haruhiro's question"
+  },
+  {
+    "id": "grimgar03-01007",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates he asked, referring to Haruhiro asking Merry"
+  },
+  {
+    "id": "grimgar03-01009",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Merry nodded with something resembling a smile"
+  },
+  {
+    "id": "grimgar03-01017",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Haruhiro lifted his mug before speaking"
+  },
+  {
+    "id": "grimgar03-01019",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Ranta was the first to start squirming"
+  },
+  {
+    "id": "grimgar03-01021",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta griped"
+  },
+  {
+    "id": "grimgar03-01025",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Moguzo agreed"
+  },
+  {
+    "id": "grimgar03-01026",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+    "id": "grimgar03-01041",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta speaking after Ranta demanded"
+  },
+  {
+    "id": "grimgar03-01043",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta responding to Haruhiro"
+  },
+  {
+    "id": "grimgar03-01052",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta asked"
+  },
+  {
+    "id": "grimgar03-01056",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Haruhiro speaking"
+  },
+  {
+    "id": "grimgar03-01058",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Moguzo stammered"
+  },
+  {
+    "id": "grimgar03-01060",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo tries to guess words starting with boo"
+  },
+  {
+    "id": "grimgar03-01061",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta encouraging Moguzo"
+  },
+  {
+    "id": "grimgar03-01082",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta declaring"
+  },
+  {
+    "id": "grimgar03-01083",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro objecting to Ranta's claims"
+  },
+  {
+    "id": "grimgar03-01087",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro telling Ranta that squeezing boobs is not okay"
+  },
+  {
+    "id": "grimgar03-01088",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta agreed suddenly"
+  },
+  {
+    "id": "grimgar03-01094",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta's speech after Ranta added"
+  },
+  {
+    "id": "grimgar03-01120",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta analyzing Haruhiro's romantic prospects"
+  },
+  {
+    "id": "grimgar03-01126",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narration confirms Haruhiro is the speaker"
+  },
+  {
+    "id": "grimgar03-01134",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ranta speaking"
+  },
+  {
+    "id": "grimgar03-01145",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Moguzo said"
+  },
+  {
+    "id": "grimgar03-01148",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo continuing to describe his feelings"
+  },
+  {
+    "id": "grimgar03-01155",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Haruhiro shook his head"
+  },
+  {
+    "id": "grimgar03-00856",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates she asked, referring to Choco"
+  },
+  {
+    "id": "grimgar03-00867",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco addresses Haruhiro by his nickname Hiro"
+  },
+  {
+    "id": "grimgar03-00871",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Choco let out a heavy breath while talking"
+  },
+  {
+    "id": "grimgar03-00873",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Choco's speech"
+  },
+  {
+    "id": "grimgar03-00875",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro as leader calling for a party vote"
+  },
+  {
+    "id": "grimgar03-00877",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro stating the subject of the vote"
+  },
+  {
+    "id": "grimgar03-00892",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta responding after Haruhiro points out he counted both hands"
+  },
+  {
+    "id": "grimgar03-00912",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta scoffed"
+  },
+  {
+    "id": "grimgar03-00913",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding pedantically to Ranta"
+  },
+  {
+    "id": "grimgar03-00919",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Merry coldly corrected him"
+  },
+  {
+    "id": "grimgar03-00928",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Moguzo took a sip of his beer"
+  },
+  {
+    "id": "grimgar03-00931",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "action tag indicates Ranta knocked back his beer and guffawed"
+  },
+  {
+    "id": "grimgar03-00935",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo defending Haruhiro after Ranta's insult"
+  },
+  {
+    "id": "grimgar03-00938",
+    "speaker": "SHIHORU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Shihoru put in"
+  },
+  {
+    "id": "grimgar03-00940",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Merry finished"
+  },
+  {
+    "id": "grimgar03-00944",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+    "id": "grimgar03-00950",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro explaining the reward structure to the party"
+  },
+  {
+    "id": "grimgar03-00960",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro asked"
+  },
+  {
+    "id": "grimgar03-00966",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding calmly to Ranta's insults"
+  },
+  {
+    "id": "grimgar03-00967",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  }
+]
