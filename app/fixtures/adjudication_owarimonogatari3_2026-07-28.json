@@ -1,0 +1,53 @@
+{
+ "book": "owarimonogatari3",
+ "adjudicated_by": "claude-2026-07-28 (third judge)",
+ "resolved": [
+  {
+   "id": "owarimonogatari3-00788",
+   "speaker": "ARARAGI",
+   "favours": "gemini",
+   "reasoning": "Hachikuji is lecturing - 784 addresses Araragi as 'a student dealing with exams' - and the target is his cynical summary of her point. Segment 800 confirms the whole exchange is Araragi 'chatting with Hachikuji'."
+  },
+  {
+   "id": "owarimonogatari3-00789",
+   "speaker": "HACHIKUJI",
+   "favours": "gemini",
+   "reasoning": "Hachikuji clarifying her own lecture; 792 then has Araragi ask 'You just said you weren't talking about yourself. Then who were you talking about?', which only works if she spoke the target."
+  },
+  {
+   "id": "owarimonogatari3-03647",
+   "speaker": "OUGI OSHINO",
+   "favours": "openai",
+   "reasoning": "gemini answered UNKNOWN while its own reasoning names Ougi Oshino and says she is 'missing from the roster' - the same off-roster abstention as index18's LESSER. OUGI is now an approved roster addition."
+  },
+  {
+   "id": "owarimonogatari3-03930",
+   "speaker": "OUGI OSHINO",
+   "favours": "openai",
+   "reasoning": "same: gemini's reasoning identifies 'the girl with pitch black eyes' as Ougi Oshino and then abstains for want of a roster entry."
+  }
+ ],
+ "still_open": [
+  {
+   "id": "owarimonogatari3-00099",
+   "what": "ARARAGI vs HACHIKUJI in a struggle scene; needs a read I have not done"
+  },
+  {
+   "id": "owarimonogatari3-02558",
+   "what": "ARARAGI vs HACHIKUJI over who is mangling whose name"
+  },
+  {
+   "id": "owarimonogatari3-03440",
+   "what": "ARARAGI vs IZUKO GAEN in a long explanatory monologue"
+  },
+  {
+   "id": "owarimonogatari3-00046",
+   "what": "category: internal monologue or Hachikuji speaking"
+  },
+  {
+   "id": "owarimonogatari3-03714",
+   "what": "category: quoted word inside narrated thought, or speech"
+  }
+ ],
+ "note": "Two of the four resolved were never really disputes: gemini identified Ougi Oshino in its own reasoning and answered UNKNOWN because she was off-roster. That is the third instance of the same abstention pattern, after index18's LESSER and its 8 UNNAMED rows."
+}
