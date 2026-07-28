@@ -47,14 +47,23 @@ for path in files:
     else:
         book = os.path.basename(gold) or "?"
     endpoint = str(m.get("endpoint", ""))
-    if "thundercompute" in endpoint:
-        env_tag = "cloud-a6000"
-    elif env.get("backend"):
-        env_tag = "local-" + str(env["backend"]).split()[0].replace("llama.cpp-", "")
-    elif "localhost" in endpoint or "127.0.0.1" in endpoint:
-        env_tag = "local-lmstudio"
+    # WHICH MACHINE, then which stack. Endpoint alone is not enough: a run
+    # executed ON the rented instance uses 127.0.0.1 loopback, which an
+    # endpoint-only rule labels "local" - and that silently merged the A6000's
+    # qwen3-32b arms with genuinely local runs. Host is recorded in two places;
+    # prefer the environment the caller verified, fall back to the machine that
+    # ran the harness.
+    host = str(env.get("host") or m.get("host") or "")
+    if "thunder" in host.lower() or "thundercompute" in endpoint:
+        machine = "cloud-a6000"
     else:
-        env_tag = "?"
+        machine = "local"
+    backend = str(env.get("backend") or "")
+    if backend:
+        stack = backend.split()[0].replace("llama.cpp-", "llamacpp-")
+    else:
+        stack = "lmstudio"
+    env_tag = f"{machine}-{stack}"
     for arm, (n, ok) in by.items():
         rows.append({
             "artifact": name,
@@ -81,6 +90,51 @@ for path in files:
                                       time.localtime(m["finished"]))
                         if m.get("finished") else "",
         })
+
+# Pipeline repeats are three_pass_generate outputs, not ExperimentRecord
+# artifacts, so the scan above cannot see them - and the determinism finding
+# they produced (SD 0.00 across eight runs) lived only in a log file. Score them
+# here so the consolidated index actually holds all the data.
+_reps = os.path.join(REPO, "ab_test_runtime", "pipeline_repeats")
+if os.path.isdir(_reps):
+    import re as _re
+    _gold = json.load(open(os.path.join(
+        REPO, "app", "fixtures", "attribution_gold_grimgar03_provisional.json")))
+    _AL = [{n.upper() for n in g} for g in _gold.get("aliases", [])]
+    def _same(a, b):
+        a, b = (a or "").upper(), (b or "").upper()
+        return a == b or any(a in g and b in g for g in _AL)
+    def _norm(t):
+        return _re.sub(r"\W+", "", t or "").lower()
+    for f in sorted(glob.glob(os.path.join(_reps, "run*.threepass_checkpoint.json"))):
+        try:
+            d = json.load(open(f))
+        except (ValueError, OSError):
+            continue
+        seg = d.get("segmented") or []
+        occ = collections.Counter(_norm(e.get("text")) for e in seg)
+        idx = {}
+        for e in (x for x in (d.get("named") or []) if x):
+            idx.setdefault(_norm(e.get("text")), e.get("speaker"))
+        n = ok = 0
+        for g in _gold["entries"]:
+            k = _norm(g["line"])
+            if occ.get(k) == 1 and k in idx:
+                n += 1
+                ok += _same(idx[k], g["expected_speaker"])
+        if not n:
+            continue
+        rows.append({
+            "artifact": os.path.basename(f), "experiment": "pipeline_repeat",
+            "book": "grimgar03", "model": "qwen/qwen3-14b",
+            "env_tag": "local-lmstudio", "host": "mitch-linux", "endpoint": "",
+            "backend": "lmstudio", "ctx": 16384, "parallel": 1, "kv": "f16",
+            "arm": os.path.basename(f).split(".")[0], "n": n, "correct": ok,
+            "accuracy_pct": round(ok / n * 100, 1),
+            "validation": "n/a (pipeline output, not an ExperimentRecord)",
+            "dirty": "", "commit": "", "elapsed_s": "",
+            "finished": time.strftime("%m-%d %H:%M",
+                                      time.localtime(os.path.getmtime(f)))})
 
 out_csv = os.path.join(REPO, "results_index.csv")
 cols = ["artifact", "experiment", "book", "model", "env_tag", "host", "backend",
