@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-07-27 16:57 from `ab_test_runtime/experiments/` — 36 artifacts, 131 arms.
+Generated 2026-07-28 03:50 from `ab_test_runtime/experiments/` — 40 artifacts, 147 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -103,6 +103,32 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | None | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | open | 147 | 35.4% | ok | False | 150.0s |
 
+## committed_history
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | none | 400 | 63.5% | ok | False | 337.5s |
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | oracle | 400 | 63.5% | ok | False | 337.5s |
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | predicted | 400 | 62.3% | ok | False | 337.5s |
+
+## context_width
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | w1 | 400 | 55.8% | ok | False | 1003.4s |
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | w15 | 400 | 61.5% | ok | False | 1003.4s |
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | w4 | 400 | 62.0% | ok | False | 1003.4s |
+| grimgar03 | qwen3-14b | local-hip | llama.cpp-hip b101 | 16384 | w40 | 400 | 60.5% | ok | False | 1003.4s |
+
+## grammar_constraint
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| mushoku16 | magistral-small | local-hip | llama.cpp-hip b101 | 8192 | open-free | 139 | 53.2% | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-hip | llama.cpp-hip b101 | 8192 | open-grammar | 139 | 51.8% | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-hip | llama.cpp-hip b101 | 8192 | oracle-free | 139 | 58.3% | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-hip | llama.cpp-hip b101 | 8192 | oracle-grammar | 139 | 66.2% | ok | False | 114.0s |
+
 ## reasoning_arms
 
 | book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
@@ -117,6 +143,11 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | scaffold | 400 | 52.5% | ok | True | 8588.7s |
 | grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | scaffold_thinking | 400 | 56.5% | ok | True | 8588.7s |
 | grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | thinking | 400 | 66.2% | ok | True | 8588.7s |
+| grimgar03 | qwen3-32b | local-lmstudio | lmstudio | 16384 | baseline | 400 | 67.2% | ok | False | 21565.9s |
+| grimgar03 | qwen3-32b | local-lmstudio | lmstudio | 16384 | because | 400 | 67.5% | ok | False | 21565.9s |
+| grimgar03 | qwen3-32b | local-lmstudio | lmstudio | 16384 | scaffold | 400 | 57.8% | ok | False | 21565.9s |
+| grimgar03 | qwen3-32b | local-lmstudio | lmstudio | 16384 | scaffold_thinking | 400 | 68.5% | ok | False | 21565.9s |
+| grimgar03 | qwen3-32b | local-lmstudio | lmstudio | 16384 | thinking | 400 | 72.2% | ok | False | 21565.9s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | baseline | 139 | 39.6% | ok | True | 5021.5s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | because | 139 | 50.4% | ok | True | 5021.5s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | scaffold | 139 | 41.0% | ok | True | 5021.5s |

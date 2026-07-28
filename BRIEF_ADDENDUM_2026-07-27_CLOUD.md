@@ -1383,6 +1383,202 @@ that is what happens, the honest conclusion is that the representation is worth
 having and sequential self-supplied state is not the way to get it - which
 points at joint scene decoding rather than at another prompt variant.
 
+## 13.11 Overnight results: one actionable gain, two informative nulls, one retraction
+
+Four experiments completed. Ordered by what they change.
+
+### 13.11.1 RETRACTION: the pipeline is NOT stochastic
+
+Eight full pipeline repeats, same model, same book, same config:
+
+| runs | mean | SD | per-line churn across 28 pairs |
+|---:|---:|---:|---:|
+| 8 | 54.50% | **0.00 pt** | **0.0%** |
+
+All eight scored 218/400, identical to the line.
+
+Cause: `three_pass_generate.py:1447` sets **`attribute_temperature` to 0.0 by
+default**, independently of `generation.temperature`. Each pass has its own -
+`segment_temperature`, `attribute_temperature`, `instruct_temperature`. The 0.6
+quoted throughout this document is the general generation temperature.
+**Attribution has always been deterministic.**
+
+This retracts §7.0 entirely. I claimed the pipeline was stochastic, that 17.9%
+of per-line answers changed between two runs, and derived a noise band from it.
+The reviewer rejected the arithmetic; the premise was also wrong. That 17.9%
+churn was between a LOCAL run and a CLOUD run - different hardware, stack,
+context and one covering 82% of pass 2 - which is the §11 stack-bundle
+difference, not sampling.
+
+**Consequence for §6.3.** I raised the possibility that the 5.5-point
+decomposition-versus-pipeline gap was sampling noise. With SD = 0.00 that
+explanation is dead. The gap is a real difference between two instruments, and
+the crossover's failure to resolve it was a POWER problem, not a noise problem.
+
+Caveat: this establishes determinism for this model, book and configuration.
+All eight runs produced 2540 segments, consistent with pass 1 also being
+deterministic, but `segment_temperature` was not separately verified.
+
+### 13.11.2 ACTIONABLE: production runs at w1 and w4 is worth +6.2 points
+
+Context-width sweep, grimgar03, qwen3-14b, llama.cpp loopback:
+
+| width | accuracy | vs w1 | p | median prompt |
+|---|---:|---:|---:|---:|
+| **w1 (what production uses)** | 55.8% | — | — | 473 chars |
+| **w4** | **62.0%** | **+6.2** | **0.022** | 878 chars |
+| w15 | 61.5% | +5.8 | 0.049 | 2 972 chars |
+| w40 | 60.5% | +4.8 | 0.124 | 8 086 chars |
+
+Going beyond w4 buys nothing: w15 is -0.5 against w4 (p=0.92), w40 is -1.5
+(p=0.63). The gain saturates at w4 and then decays.
+
+**The stratification is the substance, and the reviewer was right to require
+it.** Distance to the nearest true-speaker mention:
+
+| distance | n | w1 | w4 | w15 | w40 |
+|---|---:|---:|---:|---:|---:|
+| ±1 | 282 | **71.6%** | 71.3% | 68.1% | **64.5%** |
+| ±2-4 | 69 | **26.1%** | **62.3%** | 53.6% | 63.8% |
+| ±5-15 | 26 | 11.5% | 15.4% | **65.4%** | 61.5% |
+| absent within ±40 | 23 | **0.0%** | 0.0% | 0.0% | 0.0% |
+
+Three findings the average would have hidden:
+
+1. **The entire gain is the ±2-4 band** - 69 lines going 26.1% to 62.3% as the
+   evidence enters the window.
+2. **Wide context actively harms the easy majority.** The 282 lines with
+   evidence at ±1 lose 7.1 points from w1 to w40. Dilution, measured.
+3. **The 23 lines with no mention within ±40 score 0.0% at every width.**
+   Widening cannot reach them.
+
+So the correct policy is **adaptive width, not wider width**: w4 by default,
+wider only where the speaker is not named nearby. That is retrieval, as the
+review anticipated, not a window setting.
+
+**This needs a production-path gate before it is believed.** It is a
+diagnostic-harness result, and `because` looked like +10.8 in a diagnostic and
+reversed to -7.2 in production.
+
+### 13.11.3 NULL: committed history does not help, even with oracle state
+
+| arm | accuracy | vs none | gained / lost | p |
+|---|---:|---:|---|---:|
+| none | 63.5% | — | — | — |
+| **oracle** (TRUE previous speakers) | 63.5% | **+0.0** | 31 / 31 | 1.000 |
+| predicted (own prior answers) | 62.3% | -1.2 | 30 / 35 | 0.620 |
+
+Sanity checks pass: 400 distinct prompt hashes per arm, and 62 lines changed
+answer under oracle history. The information reached the model and moved its
+output sideways.
+
+**The pre-recorded prediction was wrong.** §13.10.3 predicted oracle would help
+meaningfully. It did not help at all. Per the pre-registered rules this
+**retires simple sequential history**; the stated next candidate is joint scene
+decoding, which exploits turn structure without freezing an early answer as
+state.
+
+**And it undercuts my reading of the adjudication.** §13.9 concluded the genuine
+hard core was unanchored turn-taking. The model was then handed exactly that
+state and nothing changed. Two readings remain, and this experiment cannot
+separate them:
+
+- the models cannot USE explicit turn state supplied as a list, even when it is
+  correct;
+- the failures are not really turn-taking - they only look like alternation
+  errors, and the cause is something else.
+
+The honest conclusion is that §13.9 identified a **symptom** and I read it as a
+mechanism.
+
+### 13.11.4 REPLICATION: thinking holds on a second model
+
+qwen3-32b, grimgar03, run ON the instance over loopback (`validation: ok`,
+`dirty: false`):
+
+| arm | accuracy | vs baseline | repairs / regressions | p |
+|---|---:|---:|---|---:|
+| baseline | 67.2% | — | — | — |
+| `because` | 67.5% | +0.2 | 40 / 39 | 1.000 |
+| scaffold | 57.8% | **-9.5** | 28 / 66 | **0.00011** |
+| **thinking** | **72.2%** | **+5.0** | 51 / 31 | **0.0352** |
+| scaffold_thinking | 68.5% | +1.2 | 54 / 49 | 0.694 |
+
+| model | baseline | thinking | effect | p |
+|---|---:|---:|---:|---:|
+| qwen3-14b | 58.0% | 67.8% | +9.8 | 0.00001 |
+| qwen3-32b | 67.2% | 72.2% | **+5.0** | 0.0352 |
+
+**`thinking` is the only intervention in this investigation with two
+independent significant results.**
+
+**On headroom, carefully.** The cross-MODEL comparison shows exactly the
+shrinkage §6a predicted - higher baseline (67.2 vs 58.0), smaller gain (+5.0 vs
++9.8). The cross-BOOK comparison ran the opposite way, which is why §9.1
+retracted headroom as a mechanism. Both remain true; headroom explains one
+comparison and not the other, and should not be reinstated as a general
+mechanism on the strength of the one it fits.
+
+**`scaffold` is now clearly harmful** - -9.5 here, -4.0 on qwen3-14b. Two
+models, one decisive. Prompting a model through explicit reasoning steps
+degrades a model that reasons better unprompted.
+
+**Cost:** thinking 6280 s against baseline 1165 s, **5.4x**.
+`scaffold_thinking` cost 8690 s to gain nothing.
+
+### 13.11.5 Why the arms had to move onto the instance
+
+Through the forwarded port these are **structurally impossible**. Cloudflare
+enforces a 120-second proxy read timeout; a batch of 25 entries with reasoning
+enabled takes minutes on a 32B, so qwen3-32b's thinking arm failed all six
+retries with `524 origin_response_timeout`. **Retrying cannot fix a request that
+is too slow by construction**, and the retry policy - correct for dropped
+connections - could not help.
+
+Note the interaction: gemma-3-27b's thinking arms completed *because they were
+no-ops*. The only models whose thinking arms are meaningful are exactly the ones
+that time out.
+
+Fixed by running the harness on the instance over loopback: same batch size,
+prompts and decoding, only the transport differs. A `reasoning_tokens` probe now
+gates every arm set, so a model that emits none is skipped rather than costing
+four hours - the mistake gemma already made.
+
+## 13.12 Open questions for the reviewer
+
+Four experiments, one actionable gain, two nulls and a retraction. The specific
+things I cannot resolve:
+
+1. **What is the turn-taking failure, if not missing state?** §13.9's
+   adjudication found twenty rows of unanchored alternating dialogue where nine
+   model runs converge on the WRONG TURN. §13.11.3 handed the model the TRUE
+   previous speakers and changed nothing (31 gained, 31 lost). Either models
+   cannot use explicit turn state, or those errors are not turn-taking at all
+   and the convergence pattern misled me. Is there a diagnostic that separates
+   those two?
+
+2. **Should the w4 gain be shipped before or after a production gate?** It is
+   +6.2 points for 405 extra characters per prompt, and production has been
+   running at w1 the whole time. The evidence is diagnostic-harness only, and
+   `because` reversed sign between harness and production. But this is a
+   context change, not a prompt-contract change, so the `because` failure mode
+   may not apply.
+
+3. **Is adaptive width worth building?** The stratification says w4 helps only
+   the ±2-4 band and w40 costs the ±1 majority 7 points. An oracle-adaptive
+   arm - choose width from the known evidence distance - would bound what any
+   detector could achieve. Worth running before building anything?
+
+4. **What are the 23 lines that score 0.0% at every width?** No true-speaker
+   mention within ±40 segments, 5.75% of the fixture, unanimously wrong. Bad
+   gold, genuinely undeterminable, or something the fixture should exclude?
+
+5. **Does the determinism finding change the fixture-representativeness
+   argument?** §13.8.2 showed scored rows are longer than the population and the
+   unique-text filter removes short lines. With sampling noise now excluded as
+   an explanation for anything, the measured numbers are exactly reproducible -
+   and exactly as unrepresentative as the fixture is.
+
 ## 14. Infrastructure added today
 
 - **Row-level checkpointing** (TEMPORARY, `manifest.py`) — resume for any
