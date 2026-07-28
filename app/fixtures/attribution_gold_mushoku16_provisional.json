@@ -1247,5 +1247,15 @@
    "RUDI"
   ]
  ],
- "provisional": true
+ "provisional": true,
+ "roster_additions": {
+  "names": [
+   "ARUMANFI",
+   "GARU FARION",
+   "HITOGAMI",
+   "REIDA"
+  ],
+  "why": "Characters the judges named that build_roster did not find. Lines spoken by these people are unwinnable for any model constrained to the generated roster, so they are a roster bug rather than a model failure and must be added to the candidate set before scoring closed-set arms.",
+  "approved_by": "review 2026-07-28"
+ }
 }
