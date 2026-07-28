@@ -1,0 +1,15 @@
+{
+ "book": "index18",
+ "adjudicated_by": "claude-2026-07-28 (third judge, passage read)",
+ "context": "The one genuine name dispute between the gemini and openai passes on index18; the other four disagreements are convention questions.",
+ "rows": [
+  {
+   "id": "index18-01805",
+   "line": "This is the limit of relying on others!!",
+   "gemini": "CARISSA",
+   "openai": "VILIAN",
+   "resolved": "CARISSA",
+   "reasoning": "Carissa has been mocking Vilian's reliance on others two turns earlier - 'Justifying your reliance on others? It sickens me to think we're sisters'. The target continues that taunt, and the narration immediately after has Carissa act: 'Now that Vilian didn't have any other way, Carissa swung the Curtana Original.' The reply that follows - 'Yes, this is the pinnacle of reliance upon others, my sister' - opens with 'Yes' and turns 'limit' into 'pinnacle', which only works as Vilian answering Carissa, not as Vilian answering herself."
+  }
+ ]
+}
