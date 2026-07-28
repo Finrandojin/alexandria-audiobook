@@ -3,6 +3,285 @@
  "pass_b": "openai",
  "rows": [
   {
+   "id": "grimgar03-00171",
+   "book": "grimgar03",
+   "a": "SASSA",
+   "a_why": "the short-haired girl who stepped between Choco and Haruhiro addresses Choco[cite: 1]",
+   "b": "UNNAMED",
+   "b_why": "Choco's unnamed short-haired companion ends the exchange by telling her to leave.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-00341",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro repeating the reward amount in awe/thought before reflecting on Renji",
+   "b": "MOGUZO",
+   "b_why": "It follows narration that Moguzo reacted wide-eyed and said Oooh.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-00391",
+   "book": "grimgar03",
+   "a": "RANTA",
+   "a_why": "preceding narration is 'Ranta talks about it with a condescending tone, like' - the target is the quoted example",
+   "b": "NOT_DIALOGUE",
+   "b_why": "It is the narrator's illustrative rendering of Ranta's condescending tone, introduced by 'like,' not spoken dialogue.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-00495",
+   "book": "grimgar03",
+   "a": "YUME",
+   "a_why": "Yume taking Ranta's idiom literally and retorting that everyone has ear holes",
+   "b": "RANTA",
+   "b_why": "It is Ranta's defensive reply after Haruhiro addresses him.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-00540",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "dialogue tag 'Haruhiro muttered' follows target line",
+   "b": "MOGUZO",
+   "b_why": "It is Moguzo's hesitant response to Ranta assigning him both cooking and capital.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-00717",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco prompting Haruhiro to finish his thought",
+   "b": "HARUHIRO",
+   "b_why": "He asks Choco to explain her preceding 'Somehow...' comment.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01126",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "narration confirms Haruhiro is the speaker",
+   "b": "RANTA",
+   "b_why": "It continues Ranta's tagged statement about Haruhiro's lack of appeal.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01471",
+   "book": "grimgar03",
+   "a": "MERRY",
+   "a_why": "dialogue tag 'The look Merry gave him' follows target line",
+   "b": "SHIHORU",
+   "b_why": "Shihoru shakes her head immediately before correcting Ranta's 'might'.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01559",
+   "book": "grimgar03",
+   "a": "SHIHORU",
+   "a_why": "dialogue tag 'Shihoru picked up the shield' follows target line",
+   "b": "YUME",
+   "b_why": "The narration immediately after describes Shihoru picking up the shield Yume discarded.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01681",
+   "book": "grimgar03",
+   "a": "NOT_DIALOGUE",
+   "a_why": "third-person narration describing Anthony's thoughts, not spoken dialogue",
+   "b": "ANTHONY",
+   "b_why": "It is Anthony's internal viewpoint amid narration focused on his hostility to Wren Water.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-01736",
+   "book": "grimgar03",
+   "a": "UNNAMED",
+   "a_why": "roar from the orcs leaping down from the wall",
+   "b": "UNKNOWN",
+   "b_why": "The passage gives no speaker for this startled cry amid the sudden orc assault.",
+   "kind": "both-special"
+  },
+  {
+   "id": "grimgar03-01794",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "dialogue tag indicates Haruhiro yelled back in response to Ranta",
+   "b": "RANTA",
+   "b_why": "The following narration says Ranta shouted.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01809",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco's initial surprised utterance before recognizing Haruhiro",
+   "b": "HARUHIRO",
+   "b_why": "The narration immediately continues with Haruhiro assessing that he is in the minority.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01818",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "dialogue tag indicates Choco said",
+   "b": "BRI-CHAN",
+   "b_why": "The following narration identifies Bri-chan as shouting this encouragement.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01825",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco confirming recognition",
+   "b": "BRI-CHAN",
+   "b_why": "The following narration says Bri-chan ordered immediately.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01827",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco greeting Haruhiro",
+   "b": "MR. PLEASANT",
+   "b_why": "The following narration explicitly says Mr. Pleasant said it.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01846",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro addressing Choco",
+   "b": "UNNAMED",
+   "b_why": "The following narration identifies the speaker only as the attacking orc.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-01859",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco asking Haruhiro's party about their plans",
+   "b": "RANTA",
+   "b_why": "The following narration says Ranta bellowed.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01863",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco stating her party's undecided status",
+   "b": "RANTA",
+   "b_why": "Ranta calls to Haruhiro immediately before asking the question.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01866",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro advising Choco's group",
+   "b": "RANTA",
+   "b_why": "It is the direct reply to Haruhiro, after Ranta called to him.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01869",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco asking Haruhiro for clarification",
+   "b": "RANTA",
+   "b_why": "The following narration describes Ranta locking blades and using Reject.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01884",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro explaining their relative strength",
+   "b": "BRI-CHAN",
+   "b_why": "Kajiko addresses Bri-chan as Britney immediately before this reply.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01888",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro warning Choco about the danger",
+   "b": "UNKNOWN",
+   "b_why": "Several volunteer soldiers react in untagged succession, with no evidence distinguishing this speaker.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-01892",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco hesitating in response to Haruhiro's warning",
+   "b": "UNKNOWN",
+   "b_why": "The untagged crowd reactions provide no way to identify the individual speaker.",
+   "kind": "category"
+  },
+  {
+   "id": "grimgar03-01901",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro stating his party's decision to proceed",
+   "b": "BRI-CHAN",
+   "b_why": "The following narration says Bri-chan shouted.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01904",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco reacting with surprise",
+   "b": "KAJIKO",
+   "b_why": "It directly answers Bri-chan's announcement and addresses him as Britney.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01906",
+   "book": "grimgar03",
+   "a": "CHOCO",
+   "a_why": "Choco asking why they are going",
+   "b": "KAJIKO",
+   "b_why": "It continues Kajiko's response about taking the bounty.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01907",
+   "book": "grimgar03",
+   "a": "RANTA",
+   "a_why": "Ranta interjecting with his motivation",
+   "b": "BRI-CHAN",
+   "b_why": "It is Bri-chan's admonition responding to Kajiko's reckless declaration.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01914",
+   "book": "grimgar03",
+   "a": "RANTA",
+   "a_why": "Ranta boasting about plundering",
+   "b": "YUME",
+   "b_why": "The wording matches Yume, and Ranta immediately addresses her as Yume.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01920",
+   "book": "grimgar03",
+   "a": "MERRY",
+   "a_why": "Merry insulting Ranta's attitude",
+   "b": "YUME",
+   "b_why": "Ranta immediately replies by calling the speaker \"Stupid Yume.\"",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-01926",
+   "book": "grimgar03",
+   "a": "MERRY",
+   "a_why": "Merry responding dryly to Ranta",
+   "b": "MOGUZO",
+   "b_why": "The following narration says Moguzo laughed.",
+   "kind": "name"
+  },
+  {
    "id": "index18-00380",
    "book": "index18",
    "a": "WILLIAM ORWELL",
@@ -91,6 +370,42 @@
    "b": "HACHIKUJI",
    "b_why": "She refers to variations on Araragi's stutters twisting her name.",
    "kind": "name"
+  },
+  {
+   "id": "owarimonogatari3-03440",
+   "book": "owarimonogatari3",
+   "a": "ARARAGI",
+   "a_why": "speaker's turn",
+   "b": "IZUKO GAEN",
+   "b_why": "The continuous explanatory monologue is by the woman referring to Tooe Gaen as her older sister.",
+   "kind": "name"
+  },
+  {
+   "id": "owarimonogatari3-03647",
+   "book": "owarimonogatari3",
+   "a": "UNKNOWN",
+   "a_why": "The dialogue turn follows Koyomi's question, but the speaker (Ougi Oshino) is missing from the provided roster.",
+   "b": "OUGI OSHINO",
+   "b_why": "Ougi answers Araragi's question, and her next line evaluates their prior battles.",
+   "kind": "category"
+  },
+  {
+   "id": "owarimonogatari3-03714",
+   "book": "owarimonogatari3",
+   "a": "KOYOMI ARARAGI",
+   "a_why": "Koyomi Araragi is reflecting internally in dialogue format on what Tsubasa Hanekawa said.",
+   "b": "NOT_DIALOGUE",
+   "b_why": "This is the final quoted word inside Araragi's narrated internal thought, not a current spoken turn.",
+   "kind": "category"
+  },
+  {
+   "id": "owarimonogatari3-03930",
+   "book": "owarimonogatari3",
+   "a": "UNKNOWN",
+   "a_why": "The speaker is Ougi Oshino (described as the girl with pitch black eyes passing in the hallway), who is missing from the provided roster.",
+   "b": "OUGI OSHINO",
+   "b_why": "The black-eyed girl resembling darkness addresses Araragi as senpai.",
+   "kind": "category"
   }
  ]
 }

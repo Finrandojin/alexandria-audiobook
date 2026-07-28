@@ -118,10 +118,17 @@ if FROM_GOLD:
         picked.append(position)
         ids[position] = entry["id"]
     picked.sort()
+    # Aliases are a property of the BOOK, not of a judging pass. Dropping them
+    # when rebuilding the bundle silently emptied grimgar03's list - losing
+    # BRI-CHAN/BRITNEY and ZODIAC/ZODIAC-KUN, the second of which had taken
+    # blind adjudication to find in the first place.
+    inherited_aliases = prior.get("aliases", [])
     print(f"{BOOK}: re-judging {len(picked)} lines from "
           f"{os.path.basename(FROM_GOLD)} ({unlocatable} not uniquely "
           f"locatable, skipped), roster {len(roster)}")
+    pass
 else:
+    inherited_aliases = []
     rng = random.Random(SEED)
     picked = sorted(rng.sample(eligible, min(COUNT, len(eligible))))
     ids = {i: f"{BOOK}-{i:05d}" for i in picked}
@@ -153,6 +160,7 @@ bundle = {
         "speech, and how often it does so is a measurement worth having rather "
         "than an annoyance to work around."),
     "relabel_of": os.path.basename(FROM_GOLD) or None,
+    "aliases": inherited_aliases,
     "entries": [{"id": ids[i], "segment_index": i,
                  "line": seg[i].get("text"),
                  "passage": passage(i, CONTEXT),
