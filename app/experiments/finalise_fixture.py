@@ -13,7 +13,7 @@ import json, os, re, sys
 
 REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 BOOK = os.environ.get("EXPERIMENT_BOOK", "owarimonogatari3")
-JUDGE = os.environ.get("EXPERIMENT_JUDGE", "human (single judge, provisional)")
+JUDGE = os.environ.get("EXPERIMENT_JUDGE", "frontier-model (single judge, provisional)")
 BUNDLE = os.environ.get("EXPERIMENT_BUNDLE", os.path.join(
     REPO, "ab_test_runtime", "fixtures_draft", f"labelling_bundle__{BOOK}.json"))
 OUT = os.environ.get("EXPERIMENT_OUT", os.path.join(
@@ -27,8 +27,13 @@ if blank:
                      f"from the bundle; a fixture with blanks scores every run "
                      f"against nothing.")
 
+# NOT_DIALOGUE rows are a segmentation measurement, not attribution gold:
+# scoring a model against a line that has no speaker punishes it for the
+# segmenter's error. They are dropped here and their rate reported.
+segmenter_errors = [e for e in bundle["entries"]
+                    if (e.get("expected_speaker") or "").upper() == "NOT_DIALOGUE"]
 entries = []
-for n, e in enumerate(bundle["entries"], 1):
+for n, e in enumerate([x for x in bundle["entries"] if x not in segmenter_errors], 1):
     entries.append({"id": e["id"], "book": BOOK, "entry_index": n,
                     "line": e["line"],
                     "expected_speaker": e["expected_speaker"].strip().upper(),
@@ -56,6 +61,10 @@ fixture = {
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, "w", encoding="utf-8") as fh:
     json.dump(fixture, fh, indent=1, ensure_ascii=False)
+if segmenter_errors:
+    print(f"dropped {len(segmenter_errors)}/{len(bundle['entries'])} rows marked "
+          f"NOT_DIALOGUE = {len(segmenter_errors)/len(bundle['entries'])*100:.1f}% "
+          f"segmenter error rate on spoken segments")
 print(f"wrote {OUT}: {len(entries)} entries, {len(counts)} distinct speakers")
 print(f"  most common: {counts.most_common(5)}")
 unknown = counts.get("UNKNOWN", 0) + counts.get("AMBIGUOUS", 0)
