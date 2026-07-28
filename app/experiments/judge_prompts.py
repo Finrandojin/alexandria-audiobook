@@ -42,13 +42,20 @@ BUNDLE = os.environ.get("EXPERIMENT_BUNDLE", os.path.join(
     REPO, "ab_test_runtime", "fixtures_draft", f"labelling_bundle__{BOOK}.json"))
 OUTDIR = os.environ.get("EXPERIMENT_OUTDIR", os.path.join(
     REPO, "ab_test_runtime", "fixtures_draft", f"judge_prompts__{BOOK}"))
+# JSON rather than prose: the judge gets the same instructions either way, but
+# a structured payload is unambiguous about which text is the target and
+# survives copy-paste without the >>> markers being mangled.
+AS_JSON = os.environ.get("EXPERIMENT_JSON", "1") not in ("0", "", "false")
 
 bundle = json.load(open(BUNDLE, encoding="utf-8"))
 entries = bundle["entries"]
 roster = bundle["roster"]
 
+TARGET_TXT = "the line marked >>> TARGET <<<"
+TARGET_JSON = ('the segment in `passage` whose `is_target` is true (its text is '
+               'repeated as `target_line`)')
 HEADER = """You are labelling gold data for a speaker-attribution benchmark. For
-each numbered item below, decide who speaks the line marked >>> TARGET <<<.
+each item below, decide who speaks %%TARGET%%.
 
 Rules:
 - Answer with a name in CAPITALS. Prefer a name from the roster, but if the
@@ -73,10 +80,11 @@ Return ONLY a JSON array, one object per item, no markdown:
 
 ROSTER: %s
 
-The passage shows surrounding segments for context. [NARRATOR] is narration,
-[SPOKEN] is dialogue as our segmenter classified it - that classification is
+The passage shows surrounding segments for context. NARRATOR is narration,
+SPOKEN is dialogue as our segmenter classified it - that classification is
 what may be wrong, so judge the text itself.
 """ % ", ".join(roster)
+HEADER = HEADER.replace("%%TARGET%%", TARGET_JSON if AS_JSON else TARGET_TXT)
 
 
 def render(entry):
@@ -95,13 +103,41 @@ os.makedirs(OUTDIR, exist_ok=True)
 chunks = math.ceil(len(entries) / PER_PROMPT)
 for number in range(chunks):
     part = entries[number * PER_PROMPT:(number + 1) * PER_PROMPT]
-    path = os.path.join(OUTDIR, f"prompt_{number + 1:02d}_of_{chunks:02d}.txt")
-    with open(path, "w", encoding="utf-8") as fh:
-        fh.write(HEADER)
-        fh.write(f"\n{len(part)} items ({number + 1} of {chunks}).\n\n")
-        fh.write("\n\n".join(render(e) for e in part))
-        fh.write("\n\nReturn the JSON array now, one object per item, "
-                 f"all {len(part)} ids present.\n")
+    stem = f"{BOOK}_prompt_{number + 1:02d}_of_{chunks:02d}"
+    if AS_JSON:
+        path = os.path.join(OUTDIR, stem + ".json")
+        payload = {
+            "task": "speaker attribution gold labelling",
+            "book": BOOK,
+            "part": f"{number + 1} of {chunks}",
+            "instructions": HEADER.strip(),
+            "roster": roster,
+            "output_schema": {
+                "return": "a JSON array with one object per item, nothing else",
+                "object": {"id": "string, copied exactly from the item",
+                           "speaker": "NAME in capitals, or UNKNOWN, or NOT_DIALOGUE",
+                           "confident": "boolean",
+                           "alias": "other name for this character, or null",
+                           "why": "short clause naming the evidence"},
+                "must_cover_ids": [e["id"] for e in part],
+            },
+            "items": [{"id": e["id"], "target_line": e["line"],
+                       "passage": [{"type": p.get("type"),
+                                    "text": (p.get("text") or "").strip(),
+                                    "is_target": bool(p.get("target"))}
+                                   for p in e["passage"]]}
+                      for e in part],
+        }
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(payload, fh, indent=1, ensure_ascii=False)
+    else:
+        path = os.path.join(OUTDIR, stem + ".txt")
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write(HEADER)
+            fh.write(f"\n{len(part)} items ({number + 1} of {chunks}).\n\n")
+            fh.write("\n\n".join(render(e) for e in part))
+            fh.write("\n\nReturn the JSON array now, one object per item, "
+                     f"all {len(part)} ids present.\n")
     print(f"wrote {path}  ({len(part)} items)")
 
 print(f"\n{len(entries)} items in {chunks} prompts of up to {PER_PROMPT}.")
