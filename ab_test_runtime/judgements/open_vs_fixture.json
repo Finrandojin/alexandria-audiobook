@@ -1,0 +1,176 @@
+[
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00171",
+  "fixture": "SASSA",
+  "openai": "UNNAMED"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00341",
+  "fixture": "HARUHIRO",
+  "openai": "MOGUZO"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00391",
+  "fixture": "RANTA",
+  "openai": "NOT_DIALOGUE"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00495",
+  "fixture": "YUME",
+  "openai": "RANTA"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00540",
+  "fixture": "HARUHIRO",
+  "openai": "MOGUZO"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-00717",
+  "fixture": "CHOCO",
+  "openai": "HARUHIRO"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01126",
+  "fixture": "HARUHIRO",
+  "openai": "RANTA"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01471",
+  "fixture": "MERRY",
+  "openai": "SHIHORU"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01559",
+  "fixture": "SHIHORU",
+  "openai": "YUME"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01736",
+  "fixture": "UNNAMED",
+  "openai": "UNKNOWN"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01846",
+  "fixture": "ORC",
+  "openai": "UNNAMED"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01888",
+  "fixture": "UNNAMED",
+  "openai": "UNKNOWN"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01892",
+  "fixture": "UNNAMED",
+  "openai": "UNKNOWN"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-01914",
+  "fixture": "RANTA",
+  "openai": "YUME"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-02154",
+  "fixture": "HARUHIRO",
+  "openai": "CHOCO"
+ },
+ {
+  "book": "grimgar03",
+  "id": "grimgar03-02573",
+  "fixture": "UNNAMED",
+  "openai": "UNKNOWN"
+ },
+ {
+  "book": "index18",
+  "id": "index18-00380",
+  "fixture": "WILLIAM ORWELL",
+  "openai": "NOT_DIALOGUE"
+ },
+ {
+  "book": "index18",
+  "id": "index18-00807",
+  "fixture": "UNNAMED",
+  "openai": "UNKNOWN"
+ },
+ {
+  "book": "index18",
+  "id": "index18-00920",
+  "fixture": "UNNAMED",
+  "openai": "KANZAKI"
+ },
+ {
+  "book": "index18",
+  "id": "index18-01805",
+  "fixture": "CARISSA",
+  "openai": "VILIAN"
+ },
+ {
+  "book": "index18",
+  "id": "index18-02186",
+  "fixture": "UNNAMED",
+  "openai": "SMARTVERI"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-00099",
+  "fixture": "HACHIKUJI",
+  "openai": "ARARAGI"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-00788",
+  "fixture": "ARARAGI",
+  "openai": "HACHIKUJI"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-00789",
+  "fixture": "HACHIKUJI",
+  "openai": "ARARAGI"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-02558",
+  "fixture": "ARARAGI",
+  "openai": "HACHIKUJI"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-03440",
+  "fixture": "ARARAGI",
+  "openai": "IZUKO GAEN"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-03647",
+  "fixture": "UNKNOWN",
+  "openai": "OUGI OSHINO"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-03714",
+  "fixture": "KOYOMI ARARAGI",
+  "openai": "NOT_DIALOGUE"
+ },
+ {
+  "book": "owarimonogatari3",
+  "id": "owarimonogatari3-03930",
+  "fixture": "UNKNOWN",
+  "openai": "OUGI OSHINO"
+ }
+]

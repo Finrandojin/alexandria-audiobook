@@ -282,6 +282,24 @@
    "kind": "name"
   },
   {
+   "id": "grimgar03-02154",
+   "book": "grimgar03",
+   "a": "HARUHIRO",
+   "a_why": "Haruhiro responding to Choco",
+   "b": "CHOCO",
+   "b_why": "It continues Choco's reply to Haruhiro's question about being considerate.",
+   "kind": "name"
+  },
+  {
+   "id": "grimgar03-02573",
+   "book": "grimgar03",
+   "a": "UNNAMED",
+   "a_why": "cheered by an unnamed volunteer soldier after Zoran's death",
+   "b": "UNKNOWN",
+   "b_why": "The narration identifies only 'someone,' with no evidence establishing which person cheered.",
+   "kind": "both-special"
+  },
+  {
    "id": "index18-00380",
    "book": "index18",
    "a": "WILLIAM ORWELL",
