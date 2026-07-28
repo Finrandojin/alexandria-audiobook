@@ -170,11 +170,22 @@ def ask_scene(scene, order):
                 temperature=0.0, max_tokens=16 * len(order) + 64,
                 extra_body={"reasoning_effort": "none"})
             raw = (r.choices[0].message.content or "")
-            got = {}
+            # Models do not reliably echo the ids they are given: qwen3-14b
+            # returned the segment indices, llama-3.3-70b renumbered the items
+            # 1..N and every answer was discarded, producing an artifact that
+            # read 0.0% and still validated. So accept either - the supplied
+            # ids, or a 1-based sequence mapped back through `order`.
+            pairs = []
             for line in raw.splitlines():
                 m = re.match(r"\s*(\d+)\s*[:.\-]\s*(.+?)\s*$", line)
-                if m and int(m.group(1)) in set(order):
-                    got[int(m.group(1))] = m.group(2).upper().strip(".'\"* ")
+                if m:
+                    pairs.append((int(m.group(1)),
+                                  m.group(2).upper().strip(".'\"* ")))
+            supplied = set(order)
+            got = {k: v for k, v in pairs if k in supplied}
+            if not got and pairs and {k for k, _ in pairs} <= set(
+                    range(1, len(order) + 1)):
+                got = {order[k - 1]: v for k, v in pairs}
             return got, user, raw, attempt
         except RETRYABLE as exc:
             last = exc
@@ -287,6 +298,16 @@ for arm in ("independent", "joint-chrono", "joint-shuffled"):
 answers = {arm: {r["id"]: r["correct"] for r in record.rows if r["arm"] == arm}
            for arm in by_arm}
 
+
+# Same guard the width gate carries: an arm that answered almost nothing is an
+# environment or parsing failure, not a null result, and must not be written as
+# though it were one. The 70B joint run reached 0.0% and validated without it.
+for _arm, (_hit, _n) in by_arm.items():
+    if _n and sum(1 for r in record.rows
+                  if r["arm"] == _arm and r["predicted"] is None) / _n > 0.25:
+        raise SystemExit(
+            f"refusing to write: {_arm} left most rows unanswered - check the "
+            f"reply format before believing any number above")
 
 MULTI = {SCOREABLE[i]["id"] for scene in SCENES if len(scene) > 1
          for i in scene if i in SCOREABLE}
