@@ -83,8 +83,23 @@ print(f"  NOT_DIALOGUE   {counts['NOT_DIALOGUE']:4} "
 print(f"  not confident  {counts['not_confident']:4} "
       f"({counts['not_confident']/total*100:.1f}%)")
 
-aliases = sorted({(e["expected_speaker"], e["alias"]) for e in bundle["entries"]
-                  if e.get("alias")})
+# Collect the flagged pairs into the bundle's alias list. finalise_fixture
+# copies that list into the fixture, and an alias that stays only on the
+# individual entry is an alias the scorer never sees - which silently marks a
+# correct answer wrong, exactly the ZODIAC/ZODIAC-KUN failure that took blind
+# adjudication to find in grimgar03.
+pairs = sorted({(e["expected_speaker"], e["alias"]) for e in bundle["entries"]
+                if e.get("alias") and e["alias"] != e["expected_speaker"]})
+existing = [set(group) for group in bundle.get("aliases", [])]
+for canonical, other in pairs:
+    for group in existing:
+        if canonical in group or other in group:
+            group.update({canonical, other})
+            break
+    else:
+        existing.append({canonical, other})
+bundle["aliases"] = [sorted(group) for group in existing]
+aliases = pairs
 if aliases:
     print("\n  aliases the judge flagged - add to the fixture before trusting it,")
     print("  since an undeclared alias scores a correct answer as wrong:")

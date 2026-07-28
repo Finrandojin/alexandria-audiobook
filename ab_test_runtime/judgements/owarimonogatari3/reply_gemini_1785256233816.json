@@ -1,0 +1,1052 @@
+[
+  {
+    "id": "owarimonogatari3-00903",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "replying to Tadatsuru Teori's question about Yotsugi Ononoki"
+  },
+  {
+    "id": "owarimonogatari3-00980",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tadatsuru Teori answers Koyomi Araragi's question about whether he succeeded"
+  },
+  {
+    "id": "owarimonogatari3-00986",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tadatsuru Teori continues explaining how he keeps living through his dolls"
+  },
+  {
+    "id": "owarimonogatari3-01011",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru Teori as noted in surrounding narration"
+  },
+  {
+    "id": "owarimonogatari3-01071",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "narrator Koyomi Araragi notes this as his own instinctive reaction badmouth Oshino"
+  },
+  {
+    "id": "owarimonogatari3-01073",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag following the next line identifies the speaker as Tadatsuru Teori"
+  },
+  {
+    "id": "owarimonogatari3-01074",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'Tadatsuru says' directly follows the target line"
+  },
+  {
+    "id": "owarimonogatari3-01091",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrator states this line is Tadatsuru Teori's response to Araragi's question"
+  },
+  {
+    "id": "owarimonogatari3-01103",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi reacts in surprise to Tadatsuru's mention of Kaiki"
+  },
+  {
+    "id": "owarimonogatari3-01124",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tadatsuru Teori addresses Araragi about telling him to find Oshino"
+  },
+  {
+    "id": "owarimonogatari3-01161",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "narration directly identifies Hachikuji Mayoi as the speaker"
+  },
+  {
+    "id": "owarimonogatari3-01163",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'says Tadatsuru from beside me' directly follows the target text"
+  },
+  {
+    "id": "owarimonogatari3-01199",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tadatsuru Teori gives his farewell requests to Araragi before Araragi leaves"
+  },
+  {
+    "id": "owarimonogatari3-01202",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "narration introduces this line as what narrator Koyomi Araragi says"
+  },
+  {
+    "id": "owarimonogatari3-01207",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a grammatical prefix fragment inside a translator note explaining Japanese terminology"
+  },
+  {
+    "id": "owarimonogatari3-01219",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "narration describes Hachikuji Mayoi counting names off on her fingers while speaking"
+  },
+  {
+    "id": "owarimonogatari3-01226",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "Hachikuji Mayoi is speaking to Araragi while punching him for whining"
+  },
+  {
+    "id": "owarimonogatari3-01229",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "Hachikuji Mayoi continues her turn in dialogue hypothetically comparing how Hanekawa would react"
+  },
+  {
+    "id": "owarimonogatari3-01241",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "Hachikuji Mayoi summarizes and questions Araragi's hesitation to come back to life"
+  },
+  {
+    "id": "owarimonogatari3-01257",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "dialogue tag 'says Hachikuji, suddenly' directly follows the target line"
+  },
+  {
+    "id": "owarimonogatari3-01289",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "narration 'I say, shifting my gaze back to her' identifies narrator Koyomi Araragi as speaker"
+  },
+  {
+    "id": "owarimonogatari3-01362",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi responds to Shinobu's comment about turning himself in"
+  },
+  {
+    "id": "owarimonogatari3-01426",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "narration explicitly identifies Senjougahara Hitagi as the speaker"
+  },
+  {
+    "id": "owarimonogatari3-01447",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "dialogue tag 'says Senjougahara' directly follows the target line"
+  },
+  {
+    "id": "owarimonogatari3-01456",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara asks Araragi about their future daughter"
+  },
+  {
+    "id": "owarimonogatari3-01463",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Senjougahara what name she picked for their future daughter"
+  },
+  {
+    "id": "owarimonogatari3-01516",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "narration 'Senjougahara starts...' directly introduces the target line"
+  },
+  {
+    "id": "owarimonogatari3-01529",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single isolated word cited as an English vocabulary translation within a translator note"
+  },
+  {
+    "id": "owarimonogatari3-01581",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "Yotsugi Ononoki thanks Araragi for telling her about Tadatsuru Teori"
+  },
+  {
+    "id": "owarimonogatari3-01591",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "dialogue tag 'Ononoki-chan says' follows the target line"
+  },
+  {
+    "id": "owarimonogatari3-01602",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi explains Shinobu and Hachikuji's location to Ononoki"
+  },
+  {
+    "id": "owarimonogatari3-01608",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "Yotsugi Ononoki questions Araragi about getting involved with Gaen again"
+  },
+  {
+    "id": "owarimonogatari3-01614",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi refutes Ononoki's idea about Oshino taking it easy"
+  },
+  {
+    "id": "owarimonogatari3-01615",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "Yotsugi Ononoki misquotes Hanekawa's catchphrase to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01644",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Yotsugi Ononoki what she will do if Kagenui does not return"
+  },
+  {
+    "id": "owarimonogatari3-01660",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi responds to Yotsugi Ononoki asking about his college exam"
+  },
+  {
+    "id": "owarimonogatari3-01669",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "Yotsugi Ononoki advises Araragi to prepare for retaking exams next year"
+  },
+  {
+    "id": "owarimonogatari3-01689",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi points out to Ononoki that she gave him no chocolate on Valentine's Day"
+  },
+  {
+    "id": "owarimonogatari3-01734",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi declines Tsukihi's invite to celebrate graduation because he has plans with Senjougahara"
+  },
+  {
+    "id": "owarimonogatari3-01769",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi tells Koyomi that Nadeko Sengoku shared a secret with her"
+  },
+  {
+    "id": "owarimonogatari3-01775",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi tells Koyomi to change trains repeatedly on his date"
+  },
+  {
+    "id": "owarimonogatari3-01779",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi supplies the name of Karen's boyfriend to Koyomi"
+  },
+  {
+    "id": "owarimonogatari3-01780",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi ignores the name Mizudori-kun supplied by Tsukihi and continues calling him what's-his-face"
+  },
+  {
+    "id": "owarimonogatari3-01783",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Tsukihi why Karen is doing 100-man kumite on White Day"
+  },
+  {
+    "id": "owarimonogatari3-01810",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara explains her braided pigtails to Koyomi"
+  },
+  {
+    "id": "owarimonogatari3-01812",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara explains why she dressed like Hanekawa for their date"
+  },
+  {
+    "id": "owarimonogatari3-01821",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi worries about failing his university entrance exam"
+  },
+  {
+    "id": "owarimonogatari3-01844",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara responds to Koyomi's shock at her driving a car"
+  },
+  {
+    "id": "owarimonogatari3-01866",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi tells Senjougahara not to talk casually about breaking up with him"
+  },
+  {
+    "id": "owarimonogatari3-01906",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi questions Senjougahara's use of the word 'humbly'"
+  },
+  {
+    "id": "owarimonogatari3-01940",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi repeats Senjougahara's strange phrasing of Hanekawa's message"
+  },
+  {
+    "id": "owarimonogatari3-01956",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara explains that Hanekawa suggested going to the planetarium"
+  },
+  {
+    "id": "owarimonogatari3-02010",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi dryly responds to Senjougahara's plan to observe outcrops at the ends of the universe"
+  },
+  {
+    "id": "owarimonogatari3-02012",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Senjougahara to clarify what a space map is"
+  },
+  {
+    "id": "owarimonogatari3-02119",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino comments on Koyomi Araragi's uncertainty about his zodiac sign"
+  },
+  {
+    "id": "owarimonogatari3-02126",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi responds to Ougi Oshino's comment about his thoughts in Hell"
+  },
+  {
+    "id": "owarimonogatari3-02137",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino elaborates on the concept of righteousness to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-02139",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single quoted term within narrator Koyomi Araragi's internal monologue"
+  },
+  {
+    "id": "owarimonogatari3-02145",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single word fragment embedded within Koyomi Araragi's narration"
+  },
+  {
+    "id": "owarimonogatari3-02150",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "dialogue tag 'So says Ougi-chan' directly follows target text"
+  },
+  {
+    "id": "owarimonogatari3-02156",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a noun phrase fragment within Koyomi Araragi's narrative monologue"
+  },
+  {
+    "id": "owarimonogatari3-02160",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino addresses Araragi in his dream, telling him to wake up"
+  },
+  {
+    "id": "owarimonogatari3-02183",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a word phrase in a translator note explaining a Japanese pun"
+  },
+  {
+    "id": "owarimonogatari3-02191",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara snaps her eyes open and denies sleeping in the planetarium"
+  },
+  {
+    "id": "owarimonogatari3-02225",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi answers Senjougahara's question about his future dreams"
+  },
+  {
+    "id": "owarimonogatari3-02233",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara tells Koyomi she doesn't want him to become an oddity specialist"
+  },
+  {
+    "id": "owarimonogatari3-02259",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara asks Koyomi about his high score in bowling"
+  },
+  {
+    "id": "owarimonogatari3-02345",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is the automated karaoke scoring machine output displayed on screen"
+  },
+  {
+    "id": "owarimonogatari3-02425",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi apologizes to Senjougahara during her dramatic act"
+  },
+  {
+    "id": "owarimonogatari3-02443",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi reacts with shock to Senjougahara's 'for the rest of my life' condition"
+  },
+  {
+    "id": "owarimonogatari3-02465",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "dialogue tag 'Ougi-chan says with a shrug' follows the target line"
+  },
+  {
+    "id": "owarimonogatari3-02476",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino answers Araragi's question about what she meant"
+  },
+  {
+    "id": "owarimonogatari3-02478",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino adds 'and an extra inning, I suppose' to her previous statement"
+  },
+  {
+    "id": "owarimonogatari3-02537",
+    "speaker": "YOTSUGI ONONOKI",
+    "confident": true,
+    "alias": "ONONOKI",
+    "reasoning": "dialogue tag 'Ononoki-chan urges' follows target text"
+  },
+  {
+    "id": "owarimonogatari3-02539",
+    "speaker": "SHINOBU",
+    "confident": true,
+    "alias": "SHINOBU OSHINO",
+    "reasoning": "narration identifies Shinobu Oshino as calling out to her master Koyomi"
+  },
+  {
+    "id": "owarimonogatari3-02543",
+    "speaker": "SHINOBU",
+    "confident": true,
+    "alias": "SHINOBU OSHINO",
+    "reasoning": "narration identifies Shinobu Oshino laughing as she spins Koyomi around"
+  },
+  {
+    "id": "owarimonogatari3-02550",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi responds to Hachikuji calling him Baragaki-san"
+  },
+  {
+    "id": "owarimonogatari3-02558",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi remarks on Hachikuji Mayoi's endless stutter variations"
+  },
+  {
+    "id": "owarimonogatari3-02570",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen interrupts Koyomi and Hachikuji's conversation"
+  },
+  {
+    "id": "owarimonogatari3-02587",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi reacts to Hachikuji Mayoi's joke about pushing him out of the way in Hell"
+  },
+  {
+    "id": "owarimonogatari3-02597",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is the definition of the nickname Baragaki in narration"
+  },
+  {
+    "id": "owarimonogatari3-02607",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single verb fragment inside narrator Koyomi Araragi's sentence"
+  },
+  {
+    "id": "owarimonogatari3-02634",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single word quoted in narrator Koyomi Araragi's internal thoughts"
+  },
+  {
+    "id": "owarimonogatari3-02651",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen responds to Koyomi Araragi's question about Ougi making her move tonight"
+  },
+  {
+    "id": "owarimonogatari3-02659",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen begins her explanation of the history of Shirohebi Shrine"
+  },
+  {
+    "id": "owarimonogatari3-02680",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen continues her story about Kiss-Shot destroying the sacred lake 400 years ago"
+  },
+  {
+    "id": "owarimonogatari3-02689",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen describes Kiss-Shot's arrival and creation as a god"
+  },
+  {
+    "id": "owarimonogatari3-02694",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen highlights Kiss-Shot murdering a god 400 years ago"
+  },
+  {
+    "id": "owarimonogatari3-02698",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen addresses Shinobu directly about refusing to become a real god"
+  },
+  {
+    "id": "owarimonogatari3-02731",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen explains human mistakes in setting up religions and shrines"
+  },
+  {
+    "id": "owarimonogatari3-02737",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen summarizes the connection between Shirohebi Park and Kita-Shirahebi Shrine for Koyomin"
+  },
+  {
+    "id": "owarimonogatari3-02771",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi concedes to Izuko Gaen's point about Nadeko becoming a god"
+  },
+  {
+    "id": "owarimonogatari3-02836",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Izuko Gaen to clarify physical body requirements for godhood"
+  },
+  {
+    "id": "owarimonogatari3-02883",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi scolds Hachikuji Mayoi for making puns about becoming a god"
+  },
+  {
+    "id": "owarimonogatari3-02923",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi tells Izuko Gaen his realization that Ougi is not the Darkness"
+  },
+  {
+    "id": "owarimonogatari3-02933",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "dialogue tag 'says Gaen-san' follows target text"
+  },
+  {
+    "id": "owarimonogatari3-02941",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Gaen if Ougi intentionally misled him to think she was the Darkness"
+  },
+  {
+    "id": "owarimonogatari3-02961",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi objects to Izuko Gaen's repeated use of the word 'exterminate' for Ougi"
+  },
+  {
+    "id": "owarimonogatari3-02967",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen asserts that Ougi Oshino is just an average monster"
+  },
+  {
+    "id": "owarimonogatari3-02986",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "narrator Koyomi Araragi speaks aloud/monologues about blushing over memories of Hitagi"
+  },
+  {
+    "id": "owarimonogatari3-03000",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": "MAYOI HACHIKUJI",
+    "reasoning": "Hachikuji Mayoi deduces how Koyomi was introduced to Ougi Oshino"
+  },
+  {
+    "id": "owarimonogatari3-03044",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen recounts encountering a similar oddity during her elementary school years"
+  },
+  {
+    "id": "owarimonogatari3-03059",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a quoted phrase fragment within narrator Koyomi Araragi's sentence"
+  },
+  {
+    "id": "owarimonogatari3-03121",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi asks Izuko Gaen about how her sister Tooe dealt with her pseudo-Darkness"
+  },
+  {
+    "id": "owarimonogatari3-03156",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single isolated word contrasted with 'sorry' in narration"
+  },
+  {
+    "id": "owarimonogatari3-03166",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko Sengoku discusses her talent for drawing manga with Tsukihi Araragi"
+  },
+  {
+    "id": "owarimonogatari3-03203",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko Sengoku reacts to Tsukihi Araragi's realistic fear about her adult future"
+  },
+  {
+    "id": "owarimonogatari3-03206",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko Sengoku shares a positive thought with Tsukihi while drawing manga"
+  },
+  {
+    "id": "owarimonogatari3-03207",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi responds to Nadeko Sengoku's statement"
+  },
+  {
+    "id": "owarimonogatari3-03261",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "narration identifies Ougi Oshino speaking as she pedals her bicycle"
+  },
+  {
+    "id": "owarimonogatari3-03266",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi answers Ougi Oshino's question about what she wants to become"
+  },
+  {
+    "id": "owarimonogatari3-03282",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi says a cliché phrase about people not living alone"
+  },
+  {
+    "id": "owarimonogatari3-03330",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino tells Tsukihi Araragi that her own true form is ugly"
+  },
+  {
+    "id": "owarimonogatari3-03342",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": "TSUKIHI ARARAGI",
+    "reasoning": "Tsukihi Araragi nonchalantly tells Ougi Oshino that she is good at living"
+  },
+  {
+    "id": "owarimonogatari3-03388",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino questions Koyomi Araragi's choices regarding Shinobu and Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-03440",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen explains Ougi Oshino's true nature to Koyomi Araragi"
+  },
+  {
+    "id": "owarimonogatari3-03445",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen introduces the story of her sister Tooe Gaen and the Rainy Devil"
+  },
+  {
+    "id": "owarimonogatari3-03449",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen describes the origin of the Rainy Devil created by her sister Tooe"
+  },
+  {
+    "id": "owarimonogatari3-03454",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen characterizes the types of items her sister Tooe kept losing"
+  },
+  {
+    "id": "owarimonogatari3-03457",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen reveals that Tooe Gaen herself caused her own items to disappear"
+  },
+  {
+    "id": "owarimonogatari3-03461",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen summarizes the nature of the oddity her sister Tooe created"
+  },
+  {
+    "id": "owarimonogatari3-03471",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen explains why Ougi Oshino possessed knowledge of all Koyomi's secrets"
+  },
+  {
+    "id": "owarimonogatari3-03479",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen admits her own partial responsibility in the creation of Ougi Oshino"
+  },
+  {
+    "id": "owarimonogatari3-03482",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen notes that normal high schoolers cannot create oddities on their own"
+  },
+  {
+    "id": "owarimonogatari3-03496",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen analyzes Koyomi Araragi's binary all-or-nothing mindset"
+  },
+  {
+    "id": "owarimonogatari3-03525",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen compares Koyomi's oddity creation to Tooe, Kanbaru, and Sengoku"
+  },
+  {
+    "id": "owarimonogatari3-03531",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen lists each girl whose situation Ougi Oshino used to hold Koyomi accountable"
+  },
+  {
+    "id": "owarimonogatari3-03544",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen enumerates Koyomi's inner guilt and insecurities regarding Kanbaru Suruga"
+  },
+  {
+    "id": "owarimonogatari3-03562",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen explains how she broke through Ougi's barrier using Kokorowatari"
+  },
+  {
+    "id": "owarimonogatari3-03567",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen admits she underestimated the scale of the pseudo-Darkness Koyomi created"
+  },
+  {
+    "id": "owarimonogatari3-03577",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen identifies graduation day/exam results as Ougi Oshino's deadline"
+  },
+  {
+    "id": "owarimonogatari3-03583",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen points out Koyomi's lingering guilt over saving Tsukihi Araragi"
+  },
+  {
+    "id": "owarimonogatari3-03604",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen highlights Koyomi Araragi's history of self-sacrificing behavior"
+  },
+  {
+    "id": "owarimonogatari3-03605",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen continues describing Koyomi Araragi's repeated self-destructive sacrifices"
+  },
+  {
+    "id": "owarimonogatari3-03647",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino answers Koyomi Araragi's question about determining right from wrong"
+  },
+  {
+    "id": "owarimonogatari3-03685",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi mutters deliriously while dying from blood loss"
+  },
+  {
+    "id": "owarimonogatari3-03714",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "target text is a single French term cited within narrator Koyomi Araragi's internal deduction"
+  },
+  {
+    "id": "owarimonogatari3-03767",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi gives an evasive answer to Tsukihi about when he will cut his hair"
+  },
+  {
+    "id": "owarimonogatari3-03803",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi responds to Hachikuji Mayoi's claim about delivering the lost"
+  },
+  {
+    "id": "owarimonogatari3-03822",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi gives credit to Tsubasa Hanekawa for saving everyone"
+  },
+  {
+    "id": "owarimonogatari3-03824",
+    "speaker": "IZUKO GAEN",
+    "confident": true,
+    "alias": "GAEN",
+    "reasoning": "Izuko Gaen praises Tsubasa Hanekawa for bringing Meme Oshino back from Antarctica"
+  },
+  {
+    "id": "owarimonogatari3-03844",
+    "speaker": "SHINOBU",
+    "confident": true,
+    "alias": "SHINOBU OSHINO",
+    "reasoning": "Shinobu Oshino states her vow of devotion to her master Koyomi Araragi"
+  },
+  {
+    "id": "owarimonogatari3-03848",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi greets Tsubasa Hanekawa in the school parking lot on graduation day"
+  },
+  {
+    "id": "owarimonogatari3-03862",
+    "speaker": "TSUBASA HANEKAWA",
+    "confident": true,
+    "alias": "HANEKAWA",
+    "reasoning": "Tsubasa Hanekawa explains how she chartered a fighter jet to go to Antarctica"
+  },
+  {
+    "id": "owarimonogatari3-03864",
+    "speaker": "TSUBASA HANEKAWA",
+    "confident": true,
+    "alias": "HANEKAWA",
+    "reasoning": "Tsubasa Hanekawa threatens Koyomi Araragi when he stares too intently at her"
+  },
+  {
+    "id": "owarimonogatari3-03870",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi tells Tsubasa Hanekawa about Kagenui fighting polar bears in the North Pole"
+  },
+  {
+    "id": "owarimonogatari3-03873",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi informs Tsubasa Hanekawa that Yotsugi Ononoki is still living at his house"
+  },
+  {
+    "id": "owarimonogatari3-03891",
+    "speaker": "KOYOMI ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI",
+    "reasoning": "Koyomi Araragi suddenly realizes the significance of March 14 to Ougi"
+  },
+  {
+    "id": "owarimonogatari3-03910",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": "HITAGI SENJOUGAHARA",
+    "reasoning": "Hitagi Senjougahara assures Koyomi Araragi that Kanbaru's graduation gift is just a bouquet"
+  },
+  {
+    "id": "owarimonogatari3-03930",
+    "speaker": "OUGI OSHINO",
+    "confident": true,
+    "alias": "OUGI",
+    "reasoning": "Ougi Oshino speaks to Koyomi Araragi as he runs down the school hallway"
+  }
+]
