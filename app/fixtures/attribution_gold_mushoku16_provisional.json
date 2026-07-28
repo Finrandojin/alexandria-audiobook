@@ -1247,5 +1247,6 @@
    "ARUMANFI"
   ]
  ],
- "provisional": true
+ "provisional": true,
+ "provenance_warning": "Labels decided on 4 segments either side. Three rows carry wider-context adjudication (see adjudication_mushoku16_2026-07-28.json); the rest do not."
 }
