@@ -63,6 +63,19 @@ GOLD_PATH = APP + GOLD
 BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://127.0.0.1:8090/v1")
 TAG = os.environ.get("EXPERIMENT_TAG", "cascade")
 BATCH = 25
+# Which disagreement defines "hard". The original trigger compares w1 against
+# w4, but w4 was retracted today - it costs the 70B 2.5 points - so half the
+# detector is an arm we no longer believe in. Priced offline on collected
+# artifacts, batch-size disagreement separates BETTER and costs less:
+#
+#     trigger        grimgar03   mushoku16   coverage   cheap calls
+#     w1 vs w4         +26.6         --        40%      98 + 98
+#     b25 vs b50       +36.4       +23.2      37-42%    98 + 52
+#
+# Live confirmation is the point of running it: the offline pricing has been
+# right once (cascade, predicted 78.0 got 77.8) and wrong once (the scattered
+# batch bug), so it is evidence, not proof.
+TRIGGER = os.environ.get("EXPERIMENT_TRIGGER", "width")   # width | batch
 STATE = os.path.join(REPO, "ab_test_runtime", "experiments",
                      f"cascade_state__{BOOK}__{TAG}.json")
 
@@ -159,8 +172,18 @@ print(f"phase={PHASE} | {len(scoreable)} scoreable non-deterministic lines | "
 # ------------------------------------------------------------- phase: cheap
 if PHASE == "cheap":
     started = time.time()
-    w1, f1, nw1 = run_batches(MODEL, scoreable, 1, "w1")
-    w4, f4, _ = run_batches(MODEL, scoreable, 4, "w4")
+    if TRIGGER == "batch":
+        # Same width, two batch sizes. The kept answer is still the b25 one -
+        # b50 exists only to disagree with it, exactly as w4 did.
+        global BATCH
+        BATCH = 25
+        w1, f1, nw1 = run_batches(MODEL, scoreable, 1, "b25")
+        BATCH = 50
+        w4, f4, _ = run_batches(MODEL, scoreable, 1, "b50")
+        BATCH = 25
+    else:
+        w1, f1, nw1 = run_batches(MODEL, scoreable, 1, "w1")
+        w4, f4, _ = run_batches(MODEL, scoreable, 4, "w4")
     route = [i for i in scoreable
              if (w1.get(i) or "").upper() != (w4.get(i) or "").upper()]
     state = {"book": BOOK, "cheap_model": MODEL, "endpoint": BASE_URL,
@@ -168,7 +191,8 @@ if PHASE == "cheap":
              "w1": {str(i): w1.get(i) for i in scoreable},
              "w4": {str(i): w4.get(i) for i in scoreable},
              "route": [str(i) for i in route],
-             "failures": {"w1": f1, "w4": f4}, "cheap_windows": nw1}
+             "failures": {"w1": f1, "w4": f4}, "cheap_windows": nw1,
+             "trigger": TRIGGER}
     os.makedirs(os.path.dirname(STATE), exist_ok=True)
     with open(STATE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, indent=1)
