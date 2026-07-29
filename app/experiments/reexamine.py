@@ -41,9 +41,12 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
 
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD_PATH = APP + os.environ.get(
+    "EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + "/" + BOOK + "/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 # The full attested roster, not a truncated prefix. The voting prototype's
 # five-name roster is the defect being corrected here.
@@ -65,7 +68,7 @@ params = LLMGenParams(max_tokens=12000, context_length=32768, temperature=0.0,
                       attribute_temperature=0.0, top_p=0.8, reasoning_effort="none")
 record = ExperimentRecord(
     "reexamine", REPO, MODEL, BASE_URL,
-    APP + "fixtures/attribution_gold_random.json",
+    GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 12000, "batch": BATCH},
     notes="Four previously-negative results re-run under corrected conventions.")
 

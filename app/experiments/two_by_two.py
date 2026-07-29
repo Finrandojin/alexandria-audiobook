@@ -28,9 +28,12 @@ M = ("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
      "ab_test_runtime/results/matrix_20260725-115148/")
 MODEL = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 APP = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app/"
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + MODEL + "/mushoku16/result.json.threepass_checkpoint.json"))
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD_PATH = APP + os.environ.get(
+    "EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + MODEL + "/" + BOOK + "/result.json.threepass_checkpoint.json"))
 seg, named = cp["segmented"], [e for e in (cp.get("named") or []) if e]
 roster = build_roster(named, src)
 AL = [{"RUDEUS", "RUDI"}, {"SYLPHY", "SYLPHIETTE"}]
@@ -56,7 +59,7 @@ BASE_URL = "http://localhost:1234/v1"
 REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 client = OpenAI(base_url=BASE_URL, api_key="local")
 record = ExperimentRecord(
-    "two_by_two", REPO, MODEL, BASE_URL, APP + "fixtures/attribution_gold_random.json",
+    "two_by_two", REPO, MODEL, BASE_URL, GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 12000, "reasoning_effort": "none"},
     notes="Batch-25 vs single target x no-context vs +/-1 context. NOTE: the "
           "two factors are not independent - a batch of consecutive lines is "
