@@ -175,7 +175,6 @@ if PHASE == "cheap":
     if TRIGGER == "batch":
         # Same width, two batch sizes. The kept answer is still the b25 one -
         # b50 exists only to disagree with it, exactly as w4 did.
-        global BATCH
         BATCH = 25
         w1, f1, nw1 = run_batches(MODEL, scoreable, 1, "b25")
         BATCH = 50
