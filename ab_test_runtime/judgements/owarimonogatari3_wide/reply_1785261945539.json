@@ -1,0 +1,422 @@
+[
+  {
+    "id": "owarimonogatari3-01161",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "addressed to Araragi by Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-01163",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Tadatsuru"
+  },
+  {
+    "id": "owarimonogatari3-01199",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru urging Araragi along"
+  },
+  {
+    "id": "owarimonogatari3-01202",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01207",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "linguistic text discussing a prefix in narration"
+  },
+  {
+    "id": "owarimonogatari3-01219",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Hachikuji punching and listing names"
+  },
+  {
+    "id": "owarimonogatari3-01226",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji while punching Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01229",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji during her conversation with Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01241",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji replying to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01257",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-01289",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi addressing Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-01362",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi talking to Shinobu"
+  },
+  {
+    "id": "owarimonogatari3-01426",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Senjougahara addressing Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01447",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Senjougahara"
+  },
+  {
+    "id": "owarimonogatari3-01456",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Senjougahara"
+  },
+  {
+    "id": "owarimonogatari3-01463",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi in response to Senjougahara"
+  },
+  {
+    "id": "owarimonogatari3-01516",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Senjougahara replying to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01529",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word extracted from narrative explanation"
+  },
+  {
+    "id": "owarimonogatari3-01581",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi talking to Ononoki"
+  },
+  {
+    "id": "owarimonogatari3-01591",
+    "speaker": "ONONOKI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Ononoki-chan"
+  },
+  {
+    "id": "owarimonogatari3-00696",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji walking with Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00718",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji replying to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00739",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji responding to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00741",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji talking to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00786",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji continuing her conversation with Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00788",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi replying to Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00789",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji replying to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00853",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji answering Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00885",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00887",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji encouraging Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00903",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi answering Tadatsuru"
+  },
+  {
+    "id": "owarimonogatari3-00980",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru answering Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00986",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru explaining his existence"
+  },
+  {
+    "id": "owarimonogatari3-01011",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru"
+  },
+  {
+    "id": "owarimonogatari3-01071",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi badmouthing Oshino"
+  },
+  {
+    "id": "owarimonogatari3-01073",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru detailing Oshino's instructions"
+  },
+  {
+    "id": "owarimonogatari3-01074",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag naming Tadatsuru"
+  },
+  {
+    "id": "owarimonogatari3-01091",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru responding to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-01103",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi reacting to Tadatsuru"
+  },
+  {
+    "id": "owarimonogatari3-01124",
+    "speaker": "TADATSURU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Tadatsuru talking to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00035",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word within narrative description"
+  },
+  {
+    "id": "owarimonogatari3-00046",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "internal monologue in narration"
+  },
+  {
+    "id": "owarimonogatari3-00099",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken/shouted by Hachikuji while struggling"
+  },
+  {
+    "id": "owarimonogatari3-00104",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken/shouted by Hachikuji while being hugged"
+  },
+  {
+    "id": "owarimonogatari3-00172",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji correcting Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00195",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative text questioning park name"
+  },
+  {
+    "id": "owarimonogatari3-00312",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word within narrative text"
+  },
+  {
+    "id": "owarimonogatari3-00324",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi responding to Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00340",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji responding to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00342",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00370",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi responding to Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00408",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative footnote explaining a name"
+  },
+  {
+    "id": "owarimonogatari3-00485",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi replying to Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00493",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji pointing out the vampire"
+  },
+  {
+    "id": "owarimonogatari3-00530",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji talking to Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00576",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi responding to Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-00614",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji discussing Kanbaru"
+  },
+  {
+    "id": "owarimonogatari3-00661",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji talking about her family"
+  },
+  {
+    "id": "owarimonogatari3-00693",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Hachikuji answering Araragi"
+  },
+  {
+    "id": "owarimonogatari3-00694",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Koyomi Araragi replying to Hachikuji"
+  }
+]

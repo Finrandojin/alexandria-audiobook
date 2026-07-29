@@ -1,0 +1,177 @@
+[
+  {
+    "id": "mushoku16-00394",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": "HUMAN GOD",
+    "reasoning": "Hitogami blames Rudeus for making a mess of things in their dream conversation"
+  },
+  {
+    "id": "mushoku16-00412",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": "HUMAN GOD",
+    "reasoning": "Hitogami responds to Rudeus asking why he cannot just ignore Orsted"
+  },
+  {
+    "id": "mushoku16-00438",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": "HUMAN GOD",
+    "reasoning": "Hitogami dismisses Rudeus's idea of making a family motto not to cooperate with Orsted"
+  },
+  {
+    "id": "mushoku16-00442",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": "HUMAN GOD",
+    "reasoning": "Hitogami ponders an alternative solution before telling Rudeus to kill Orsted"
+  },
+  {
+    "id": "mushoku16-00450",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy coughs after Rudeus wakes up and realizes he was holding her tightly"
+  },
+  {
+    "id": "mushoku16-00479",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus addresses Nanahoshi as he places fruit on her table"
+  },
+  {
+    "id": "mushoku16-00486",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi to listen to his story before telling her about his future self"
+  },
+  {
+    "id": "mushoku16-00494",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus offers proof to Nanahoshi regarding his future self's diary"
+  },
+  {
+    "id": "mushoku16-00505",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus questions Nanahoshi's skepticism about the diary and dream"
+  },
+  {
+    "id": "mushoku16-00506",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus whether the Human God can be trusted"
+  },
+  {
+    "id": "mushoku16-00509",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus admits his helplessness in response to Nanahoshi asking why he listens to Hitogami"
+  },
+  {
+    "id": "mushoku16-00511",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag shows Nanahoshi sighed and said this as if resolving herself"
+  },
+  {
+    "id": "mushoku16-00524",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus explains to Nanahoshi why his future self told him to consult her"
+  },
+  {
+    "id": "mushoku16-00539",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "narration states Rudeus left Nanahoshi's room right after saying this"
+  },
+  {
+    "id": "mushoku16-00546",
+    "speaker": "ARUMANFI",
+    "confident": true,
+    "alias": "MAN WITH A YELLOW MASK",
+    "reasoning": "the man with a yellow mask, Arumanfi, calls out to Rudeus in the hallway"
+  },
+  {
+    "id": "mushoku16-00551",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus answers Arumanfi's question about where he is going"
+  },
+  {
+    "id": "mushoku16-00552",
+    "speaker": "ARUMANFI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Arumanfi answers Rudeus's question about whether Nanahoshi is asleep"
+  },
+  {
+    "id": "mushoku16-00558",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus identifies himself in response to Nanahoshi asking who is at her door"
+  },
+  {
+    "id": "mushoku16-00575",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi about the possibility regarding her transferred friends"
+  },
+  {
+    "id": "mushoku16-00605",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi continues presenting her hypothesis to Rudeus about time travel"
+  },
+  {
+    "id": "mushoku16-00614",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus about his physical condition after the Teleport Disaster"
+  },
+  {
+    "id": "mushoku16-00620",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi if her explanation about fate is a guess"
+  },
+  {
+    "id": "mushoku16-00633",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus when the red sphere in the tower first appeared"
+  },
+  {
+    "id": "mushoku16-00641",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi questions Rudeus about his existence in this world"
+  },
+  {
+    "id": "mushoku16-00643",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus why he transferred to this world"
+  }
+]

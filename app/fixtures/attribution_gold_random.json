@@ -1334,9 +1334,15 @@
    "RUDI"
   ],
   [
-   "SYLPHY",
-   "SYLPHIETTE"
+   "SYLPHIETTE",
+   "SYLPHY"
+  ],
+  [
+   "ALMANFI",
+   "ARUMANFI"
   ]
  ],
- "aliases_note": "Names the book uses for one character. Only forms actually written in the source belong here; an invented name such as FUTURE_ME is a wrong answer, not an alias."
+ "aliases_note": "Names the book uses for one character. Only forms actually written in the source belong here; an invented name such as FUTURE_ME is a wrong answer, not an alias.",
+ "superseded_by": "attribution_gold_mushoku16.json",
+ "note": "The mushoku16 gold every result in the ledger was scored against. Kept unchanged so those numbers stay reproducible; three of its labels are known wrong (see adjudication_mushoku16_2026-07-28.json). Use attribution_gold_mushoku16.json for new work."
 }

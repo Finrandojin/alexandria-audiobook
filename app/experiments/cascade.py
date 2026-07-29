@@ -106,23 +106,36 @@ def neighbours(index, width):
 
 
 def run_batches(model, indices, width, label):
-    """Attribute `indices` in batches of 25. Returns {seg_index: speaker|None}.
+    """Attribute the CONTIGUOUS WINDOWS containing `indices`.
 
-    Non-contiguous indices are fine and are what the expensive phase needs: the
-    routed rows are scattered through the book, each keeps its own true
-    neighbours, and a failed batch yields None for its members - which scores
-    as wrong, the same production outcome as `on_exhaustion='fallback'`.
+    The first version chunked `indices` directly, so a batch was 25 scattered
+    gold lines rather than 25 consecutive segments. That cost the cheap
+    baseline 17.9 points on mushoku16 - far outside the +-2.3 local/cloud
+    bound - and it is not what production does. Production walks the book in
+    windows and sends every non-deterministic entry in each.
+
+    So: build the same windows the gate builds, keep the ones containing a
+    wanted index, and send each window whole. The expensive phase therefore
+    re-attributes the WINDOW around each routed line, which is both faithful
+    and the reason its cost is reported in windows as well as rows.
     """
+    wanted = set(indices)
+    windows = [list(range(s, min(s + BATCH, len(seg))))
+               for s in range(0, len(seg), BATCH)]
+    windows = [w for w in windows if any(i in wanted for i in w)]
     got, failures = {}, 0
-    for start in range(0, len(indices), BATCH):
-        chunk = indices[start:start + BATCH]
+    for number, window in enumerate(windows, 1):
+        chunk = [i for i in window
+                 if get_deterministic_named_entry(seg[i]) is None]
+        if not chunk:
+            continue
         frozen = [{"type": seg[i]["type"], "text": seg[i]["text"]} for i in chunk]
         contexts = [neighbours(i, width) for i in chunk]
         try:
             out = attribute_batch(client, model, frozen, params, roster,
                                   neighbor_contexts=contexts, source_text=src)
         except Exception as exc:
-            print(f"  {label} batch {start//BATCH+1}: {type(exc).__name__}", flush=True)
+            print(f"  {label} window {number}: {type(exc).__name__}", flush=True)
             failures += len(chunk)
             for i in chunk:
                 got[i] = None
@@ -130,9 +143,9 @@ def run_batches(model, indices, width, label):
         for offset, i in enumerate(chunk):
             got[i] = ((out[offset] or {}).get("speaker")
                       if offset < len(out) else None)
-        if (start // BATCH + 1) % 5 == 0:
-            print(f"  {label} {start+len(chunk)}/{len(indices)} ...", flush=True)
-    return got, failures
+        if number % 20 == 0:
+            print(f"  {label} {number}/{len(windows)} windows ...", flush=True)
+    return got, failures, len(windows)
 
 
 # Only entries the pipeline actually sends to the LLM; the deterministic ones
@@ -146,8 +159,8 @@ print(f"phase={PHASE} | {len(scoreable)} scoreable non-deterministic lines | "
 # ------------------------------------------------------------- phase: cheap
 if PHASE == "cheap":
     started = time.time()
-    w1, f1 = run_batches(MODEL, scoreable, 1, "w1")
-    w4, f4 = run_batches(MODEL, scoreable, 4, "w4")
+    w1, f1, nw1 = run_batches(MODEL, scoreable, 1, "w1")
+    w4, f4, _ = run_batches(MODEL, scoreable, 4, "w4")
     route = [i for i in scoreable
              if (w1.get(i) or "").upper() != (w4.get(i) or "").upper()]
     state = {"book": BOOK, "cheap_model": MODEL, "endpoint": BASE_URL,
@@ -155,7 +168,7 @@ if PHASE == "cheap":
              "w1": {str(i): w1.get(i) for i in scoreable},
              "w4": {str(i): w4.get(i) for i in scoreable},
              "route": [str(i) for i in route],
-             "failures": {"w1": f1, "w4": f4}}
+             "failures": {"w1": f1, "w4": f4}, "cheap_windows": nw1}
     os.makedirs(os.path.dirname(STATE), exist_ok=True)
     with open(STATE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, indent=1)
@@ -177,7 +190,7 @@ print(f"  routing {len(route)} rows decided by the cheap phase "
       f"({state['cheap_model']}, {state['elapsed_s']:.0f}s)", flush=True)
 
 started = time.time()
-big, fbig = run_batches(BIG_MODEL, route, 1, "big")
+big, fbig, nbig = run_batches(BIG_MODEL, route, 1, "big")
 
 _env = os.environ.get("EXPERIMENT_ENV")
 record = ExperimentRecord(
@@ -212,8 +225,14 @@ print(f"\n  cheap-w1 {kb}/{n} = {kb/n*100:5.1f}%  "
 print(f"  cascade  {kc}/{n} = {kc/n*100:5.1f}%  "
       f"[{clopper_pearson(kc,n)[0]:.1f}-{clopper_pearson(kc,n)[1]:.1f}]")
 print(f"  delta {(kc-kb)/n*100:+.1f}   rescues {y} breaks {x}   p={p:.4g}")
-print(f"  big-model calls: {len(route)}/{n} = {len(route)/n*100:.0f}%   "
-      f"expensive phase {time.time()-started:.0f}s, {fbig} rows failed")
+cheap_windows = state.get("cheap_windows") or 0
+print(f"  big-model cost: {nbig}/{cheap_windows} windows = "
+      f"{nbig/max(cheap_windows,1)*100:.0f}% of the book's batches, covering "
+      f"{len(route)}/{n} = {len(route)/n*100:.0f}% routed rows")
+print(f"  expensive phase {time.time()-started:.0f}s, {fbig} rows failed")
+print("  Cost is in WINDOWS, not rows: re-attributing the window around a "
+      "routed\n  line is what production would do, and it is strictly more "
+      "than the row count.")
 
 # The routed subset is where the whole claim lives: if the cheap model were
 # already fine there, routing would be wasted spend.

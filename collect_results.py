@@ -40,12 +40,17 @@ for path in files:
     # qwen3-14b.json" split to book="qwen" - and an index that mislabels books is
     # worse than no index. gold_path names the fixture, which names the book.
     gold = str(m.get("gold_path", ""))
-    if "grimgar03" in gold:
-        book = "grimgar03"
-    elif "attribution_gold_random" in gold:
-        book = "mushoku16"
-    else:
-        book = os.path.basename(gold) or "?"
+    # attribution_gold_random.json is mushoku16's original fixture, named
+    # before there was more than one book. Everything since is
+    # attribution_gold_<book>.json, so match the book names directly and fall
+    # back to the filename only when nothing is recognised - a lookup that
+    # quietly returns a filename groups nothing and is how index18 and
+    # owarimonogatari3 rows ended up unjoinable to the rest.
+    KNOWN = ("grimgar03", "mushoku16", "index18", "owarimonogatari3")
+    book = next((b for b in KNOWN if b in gold), None)
+    if book is None:
+        book = "mushoku16" if "attribution_gold_random" in gold else (
+            os.path.basename(gold) or "?")
     endpoint = str(m.get("endpoint", ""))
     # WHICH MACHINE, then which stack. Endpoint alone is not enough: a run
     # executed ON the rented instance uses 127.0.0.1 loopback, which an

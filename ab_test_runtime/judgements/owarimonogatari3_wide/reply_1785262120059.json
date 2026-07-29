@@ -1,0 +1,282 @@
+[
+  {
+    "id": "owarimonogatari3-03266",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi's response to Ougi"
+  },
+  {
+    "id": "owarimonogatari3-03282",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03330",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi addresses Tsukihi"
+  },
+  {
+    "id": "owarimonogatari3-03342",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi answers Ougi"
+  },
+  {
+    "id": "owarimonogatari3-03388",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03440",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-03445",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue about her sister"
+  },
+  {
+    "id": "owarimonogatari3-03449",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanation"
+  },
+  {
+    "id": "owarimonogatari3-03454",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03457",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03461",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03471",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanation"
+  },
+  {
+    "id": "owarimonogatari3-03479",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03482",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03496",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanation"
+  },
+  {
+    "id": "owarimonogatari3-03525",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03531",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03544",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03562",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-03567",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-02737",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanation"
+  },
+  {
+    "id": "owarimonogatari3-02771",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi's response to Gaen"
+  },
+  {
+    "id": "owarimonogatari3-02836",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi's question"
+  },
+  {
+    "id": "owarimonogatari3-02883",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi addresses Hachikuji"
+  },
+  {
+    "id": "owarimonogatari3-02923",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi speaks to Gaen"
+  },
+  {
+    "id": "owarimonogatari3-02933",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02941",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi's response"
+  },
+  {
+    "id": "owarimonogatari3-02961",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi objects to Gaen"
+  },
+  {
+    "id": "owarimonogatari3-02967",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02986",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrator text"
+  },
+  {
+    "id": "owarimonogatari3-03000",
+    "speaker": "HACHIKUJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hachikuji's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03044",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03059",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrator text fragment"
+  },
+  {
+    "id": "owarimonogatari3-03121",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "Araragi's question to Gaen"
+  },
+  {
+    "id": "owarimonogatari3-03156",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrator text fragment"
+  },
+  {
+    "id": "owarimonogatari3-03166",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03203",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko responds to Tsukihi"
+  },
+  {
+    "id": "owarimonogatari3-03206",
+    "speaker": "SENGOKU",
+    "confident": true,
+    "alias": "NADEKO SENGOKU",
+    "reasoning": "Nadeko's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-03207",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi responds to Nadeko"
+  },
+  {
+    "id": "owarimonogatari3-03261",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  }
+]

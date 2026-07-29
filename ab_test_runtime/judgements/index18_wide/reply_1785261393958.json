@@ -1,0 +1,282 @@
+[
+  {
+    "id": "index18-00017",
+    "speaker": "VILIAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'A smile formed on the princess's lips... A defenseless laugh... She opened her mouth wide and laughed'."
+  },
+  {
+    "id": "index18-00068",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'he admitted, sticking his thumb to his chest' before this line."
+  },
+  {
+    "id": "index18-00078",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator immediately follows stating 'The Knight Leader, holding a Soul Arm... spoke quietly and simply'."
+  },
+  {
+    "id": "index18-00141",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'As the Knight Leader's lips moved... he continued'."
+  },
+  {
+    "id": "index18-00147",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "The target text is an onomatopoeia/vocalization by Kamijou as the 186-mph wind blast presses into his face."
+  },
+  {
+    "id": "index18-00151",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is internal narration describing Kamijou's situation on top of the train, not aloud speech."
+  },
+  {
+    "id": "index18-00152",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narration detailing Kamijou's thoughts about illegal immigrants and documentaries."
+  },
+  {
+    "id": "index18-00161",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative description of Kamijou spotting a helmet coming up the ladder."
+  },
+  {
+    "id": "index18-00172",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative prose describing Kamijou's inability to understand fast spoken English."
+  },
+  {
+    "id": "index18-00214",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'The Knight Leader casually revealed the trick he should have kept hidden' immediately after this target line."
+  },
+  {
+    "id": "index18-00303",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narration describing a cut opening in William Orwell's side."
+  },
+  {
+    "id": "index18-00310",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative description of the transformation of the Knight Leader's weapon."
+  },
+  {
+    "id": "index18-00317",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative prose assessing the stakes of the battle."
+  },
+  {
+    "id": "index18-00342",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "The narrator states 'William Orwell rejected the choice itself' right before this turn."
+  },
+  {
+    "id": "index18-00343",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'The Knight Leader sighed' directly following this line."
+  },
+  {
+    "id": "index18-00359",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "In turn-taking dialogue with William, Knight Leader responds to William cutting down his words."
+  },
+  {
+    "id": "index18-00377",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator states 'He said one last thing to his enemy he'd known for so long'."
+  },
+  {
+    "id": "index18-00380",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "Dialogue tag in text: 'thought William as he ran'."
+  },
+  {
+    "id": "index18-00389",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "Battle cry/shout made by William as he charges forward in combat."
+  },
+  {
+    "id": "index18-00435",
+    "speaker": "ANGELINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The preceding text states 'Angeline's shoulders gave a start', tagging her as the speaker."
+  },
+  {
+    "id": "index18-00446",
+    "speaker": "LUCIA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Lucia is advising Agnes and speaking to Angeline in this scene."
+  },
+  {
+    "id": "index18-00488",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "The dialogue tag directly following states 'William spat'."
+  },
+  {
+    "id": "index18-00490",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "Continuation of William's speech following 'William spat'."
+  },
+  {
+    "id": "index18-00501",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "William is speaking to Knight Leader in turn-taking dialogue, followed by Knight Leader saying 'It's impossible'."
+  },
+  {
+    "id": "index18-00505",
+    "speaker": "WILLIAM ORWELL",
+    "confident": true,
+    "alias": "WILLIAM",
+    "reasoning": "Continuation of William's speech starting with 'I don't care, said William with surprising lightness'."
+  },
+  {
+    "id": "index18-00513",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Knight Leader is speaking to William during their confrontation ('The Knight Leader had already grabbed Ascalon's blade')."
+  },
+  {
+    "id": "index18-00535",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The passage describes Knight Leader collapsing and speaking his final thoughts before passing out."
+  },
+  {
+    "id": "index18-00552",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative prose summarizing Kamijou's situation ('In any case, right now, he was alone')."
+  },
+  {
+    "id": "index18-00557",
+    "speaker": "ACQUA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The passage states 'Their root cause looked Kamijou in the face and said'."
+  },
+  {
+    "id": "index18-00578",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa is responding to Acqua in dialogue while holding Curtana Original."
+  },
+  {
+    "id": "index18-00586",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa is explaining the dimensional slicing properties of Curtana Original."
+  },
+  {
+    "id": "index18-00648",
+    "speaker": "QUEEN ELIZARD",
+    "confident": true,
+    "alias": "ELIZARD",
+    "reasoning": "Queen Elizard responds to the driver asking if that's a horse."
+  },
+  {
+    "id": "index18-00656",
+    "speaker": "LAURA STUART",
+    "confident": true,
+    "alias": "LAURA",
+    "reasoning": "Laura Stuart comments on the car after Elizard disables it, followed by 'Laura whined'."
+  },
+  {
+    "id": "index18-00663",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "The narrator identifies Carissa resting Curtana Original on her shoulder right after this line."
+  },
+  {
+    "id": "index18-00687",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Spoken by Carissa's subordinate knight in Buckingham Palace."
+  },
+  {
+    "id": "index18-00716",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Spoken by the French president over the telephone call."
+  },
+  {
+    "id": "index18-00728",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa speaks after boarding the Air Force helicopter."
+  },
+  {
+    "id": "index18-00741",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narrative internal reflection/description of Kamijou's physical condition after falling."
+  },
+  {
+    "id": "index18-00747",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Target line is narration describing Acqua standing outside the vehicle."
+  },
+  {
+    "id": "index18-00763",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou asks Acqua why he saved him."
+  }
+]

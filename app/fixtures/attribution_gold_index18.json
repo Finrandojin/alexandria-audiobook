@@ -1,0 +1,972 @@
+{
+ "description": "Hand-labelled attribution gold for index18. Sampled uniformly from spoken, non-deterministic, textually unique segments; labelled without seeing any model output, so it can be used to measure model accuracy.",
+ "book": "index18",
+ "source_run": "matrix_20260725-115148 / qwen3.5-9b-uncensored-hauhaucs-aggressive",
+ "sampling": {
+  "seed": 20260728,
+  "count": 99,
+  "context_segments": 12
+ },
+ "entries": [
+  {
+   "id": "index18-00017",
+   "book": "index18",
+   "entry_index": 1,
+   "line": "Ah-ha-ha!! Ah-ha-ha-ha-ha-ha-ha-ha-ha-ha-ha!!",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'A smile formed on the princess's lips... A defenseless laugh... She opened her mouth wide and laughed'."
+  },
+  {
+   "id": "index18-00068",
+   "book": "index18",
+   "entry_index": 2,
+   "line": "I will duel you.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'he admitted, sticking his thumb to his chest' before this line."
+  },
+  {
+   "id": "index18-00078",
+   "book": "index18",
+   "entry_index": 3,
+   "line": "'The decade since you left’it’s right here. I am no longer the one who fell to you at Dover.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator immediately follows stating 'The Knight Leader, holding a Soul Arm... spoke quietly and simply'."
+  },
+  {
+   "id": "index18-00141",
+   "book": "index18",
+   "entry_index": 4,
+   "line": "The story has one thing to teach us. To divide your fate’to always have more than one trump card ready.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'As the Knight Leader's lips moved... he continued'."
+  },
+  {
+   "id": "index18-00147",
+   "book": "index18",
+   "entry_index": 5,
+   "line": "Mgha-gha-gha-gha-gha-gha-gha-gha-gha-gha-gha-gha-gha-gha…",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The target text is an onomatopoeia/vocalization by Kamijou as the 186-mph wind blast presses into his face."
+  },
+  {
+   "id": "index18-00214",
+   "book": "index18",
+   "entry_index": 6,
+   "line": "Sword shards.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'The Knight Leader casually revealed the trick he should have kept hidden' immediately after this target line."
+  },
+  {
+   "id": "index18-00342",
+   "book": "index18",
+   "entry_index": 7,
+   "line": "These are my two options: kill you or not kill you.",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'William Orwell rejected the choice itself' right before this turn."
+  },
+  {
+   "id": "index18-00343",
+   "book": "index18",
+   "entry_index": 8,
+   "line": "'I see. You’ve made your choice, then.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'The Knight Leader sighed' directly following this line."
+  },
+  {
+   "id": "index18-00359",
+   "book": "index18",
+   "entry_index": 9,
+   "line": "And yet you still do not speak of your own intentions even now.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "In turn-taking dialogue with William, Knight Leader responds to William cutting down his words."
+  },
+  {
+   "id": "index18-00377",
+   "book": "index18",
+   "entry_index": 10,
+   "line": "If you will not withdraw, you will die here.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator states 'He said one last thing to his enemy he'd known for so long'."
+  },
+  {
+   "id": "index18-00380",
+   "book": "index18",
+   "entry_index": 11,
+   "line": "It’s not worth talking about, thought William as he ran. A certain-kill technique that is sharp, heavy, fast, hard, and long-range—If he could really attack in such a way, I would never have survived with a mere gash in my left shoulder!!",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Dialogue tag in text: 'thought William as he ran'."
+  },
+  {
+   "id": "index18-00389",
+   "book": "index18",
+   "entry_index": 12,
+   "line": "O?o?o?o?o?o?o?o?o?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h!!",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Battle cry/shout made by William as he charges forward in combat."
+  },
+  {
+   "id": "index18-00435",
+   "book": "index18",
+   "entry_index": 13,
+   "line": "W-well, don’t ask me…'?! S-Sister Agnes, please help me out here' Eeek!!",
+   "expected_speaker": "ANGELINE",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The preceding text states 'Angeline's shoulders gave a start', tagging her as the speaker."
+  },
+  {
+   "id": "index18-00446",
+   "book": "index18",
+   "entry_index": 14,
+   "line": "This is nothing more than a simple way to rip information out of him, no love or lust involved, but if we don’t cut it out now, this knight seems like he’ll be corrupted on his own.",
+   "expected_speaker": "LUCIA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Lucia is advising Agnes and speaking to Angeline in this scene."
+  },
+  {
+   "id": "index18-00488",
+   "book": "index18",
+   "entry_index": 15,
+   "line": "'You still don’t get it,",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The dialogue tag directly following states 'William spat'."
+  },
+  {
+   "id": "index18-00490",
+   "book": "index18",
+   "entry_index": 16,
+   "line": "This really isn’t enough to go through the trouble of talking about.",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Continuation of William's speech following 'William spat'."
+  },
+  {
+   "id": "index18-00501",
+   "book": "index18",
+   "entry_index": 17,
+   "line": "I already told you. There is no point in speaking of it.",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "William is speaking to Knight Leader in turn-taking dialogue, followed by Knight Leader saying 'It's impossible'."
+  },
+  {
+   "id": "index18-00505",
+   "book": "index18",
+   "entry_index": 18,
+   "line": "My reason is not one I need to explain or defend, nor one I need everyone else to understand. As you said many times over, these are merely the trivial personal emotions of a mercenary. I won’t use words to tell you to understand. All you need to do is silently carry out the acts you believe in.",
+   "expected_speaker": "WILLIAM ORWELL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Continuation of William's speech starting with 'I don't care, said William with surprising lightness'."
+  },
+  {
+   "id": "index18-00513",
+   "book": "index18",
+   "entry_index": 19,
+   "line": "But now that you’ve lost all your weapons, you’ve lost your chance at winning.",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Knight Leader is speaking to William during their confrontation ('The Knight Leader had already grabbed Ascalon's blade')."
+  },
+  {
+   "id": "index18-00535",
+   "book": "index18",
+   "entry_index": 20,
+   "line": "'Come to think of it—You’ve always been’that kind of man…",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The passage describes Knight Leader collapsing and speaking his final thoughts before passing out."
+  },
+  {
+   "id": "index18-00557",
+   "book": "index18",
+   "entry_index": 21,
+   "line": "Hmph. I would have preferred not to see that hateful face again.",
+   "expected_speaker": "ACQUA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The passage states 'Their root cause looked Kamijou in the face and said'."
+  },
+  {
+   "id": "index18-00578",
+   "book": "index18",
+   "entry_index": 22,
+   "line": "You’d better not underestimate me too much. Did you forget the Curtana Original is in my hands?",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa is responding to Acqua in dialogue while holding Curtana Original."
+  },
+  {
+   "id": "index18-00586",
+   "book": "index18",
+   "entry_index": 23,
+   "line": "In the same way, when an object with more than three dimensions, or space, is sliced, the cross section is output into the world as a three-dimensional object. The result is that thing’the exposure of the cross section’remains of the object.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa is explaining the dimensional slicing properties of Curtana Original."
+  },
+  {
+   "id": "index18-00648",
+   "book": "index18",
+   "entry_index": 24,
+   "line": "'It should be obvious.",
+   "expected_speaker": "QUEEN ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Queen Elizard responds to the driver asking if that's a horse."
+  },
+  {
+   "id": "index18-00656",
+   "book": "index18",
+   "entry_index": 25,
+   "line": "Hmm. That seemed to me a waste of an excellent car.",
+   "expected_speaker": "LAURA STUART",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Laura Stuart comments on the car after Elizard disables it, followed by 'Laura whined'."
+  },
+  {
+   "id": "index18-00663",
+   "book": "index18",
+   "entry_index": 26,
+   "line": "Hmph. Did I go too far? Well, this does mean I have a guarantee that my revolution will succeed as long as I have this sword, so.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The narrator identifies Carissa resting Curtana Original on her shoulder right after this line."
+  },
+  {
+   "id": "index18-00687",
+   "book": "index18",
+   "entry_index": 27,
+   "line": "In other news, while you’ve been away’we’ve received a telegram from France.",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Spoken by Carissa's subordinate knight in Buckingham Palace."
+  },
+  {
+   "id": "index18-00716",
+   "book": "index18",
+   "entry_index": 28,
+   "line": "N-no. No!! That submarine doesn’t belong to us. Coded calls? They must be faking them to make them seem like France is involved!!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Spoken by the French president over the telephone call."
+  },
+  {
+   "id": "index18-00728",
+   "book": "index18",
+   "entry_index": 29,
+   "line": "'Helicopters are useful, but the problem is they mess up my hair, so.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa speaks after boarding the Air Force helicopter."
+  },
+  {
+   "id": "index18-00763",
+   "book": "index18",
+   "entry_index": 30,
+   "line": "Why’did you save me?",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou asks Acqua why he saved him."
+  },
+  {
+   "id": "index18-00799",
+   "book": "index18",
+   "entry_index": 31,
+   "line": "But I’m glad you’re the same as usual.",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou relieved at Index returning to her usual behavior"
+  },
+  {
+   "id": "index18-00807",
+   "book": "index18",
+   "entry_index": 32,
+   "line": "Itsuwa, this is your chance; go for it!!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "unnamed Amakusa members teasing Itsuwa"
+  },
+  {
+   "id": "index18-00808",
+   "book": "index18",
+   "entry_index": 33,
+   "line": "I—I can’t; I still reek of alcohol!!",
+   "expected_speaker": "ITSUWA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Itsuwa flusteredly responding to her comrades"
+  },
+  {
+   "id": "index18-00817",
+   "book": "index18",
+   "entry_index": 34,
+   "line": "But if your info that Acqua defeated the one big obstacle’the Knight Leader’is true, then it looks like whatever happened, things have taken a turn for the better.",
+   "expected_speaker": "SAIJI TATEMIYA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Tatemiya addressing Kamijou and Kanzaki"
+  },
+  {
+   "id": "index18-00842",
+   "book": "index18",
+   "entry_index": 35,
+   "line": "Besides, why do you think the second princess went back to the Palace?",
+   "expected_speaker": "SAIJI TATEMIYA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narrator specifies Tatemiya changed the subject with this question"
+  },
+  {
+   "id": "index18-00863",
+   "book": "index18",
+   "entry_index": 36,
+   "line": "What? But they were doing the coup d…'tat together, weren’t they?",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou expressing confusion about the rift between Carissa and the Knights Faction"
+  },
+  {
+   "id": "index18-00879",
+   "book": "index18",
+   "entry_index": 37,
+   "line": "That too, but…",
+   "expected_speaker": "KANZAKI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'Unusual for her, Kanzaki fumbled for words.'"
+  },
+  {
+   "id": "index18-00887",
+   "book": "index18",
+   "entry_index": 38,
+   "line": "What is it?",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'Kamijou asked.'"
+  },
+  {
+   "id": "index18-00920",
+   "book": "index18",
+   "entry_index": 39,
+   "line": "She might not be perfect, but she does have royal blood in her!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "a remembered warning from 'people from Born Again' before the mission; speakers are a group, individually unnamed"
+  },
+  {
+   "id": "index18-00976",
+   "book": "index18",
+   "entry_index": 40,
+   "line": "'I have no idea what just happened, but this is where I’m supposed to thank you?",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "answers Index's 'We should be fine now'; Index replies 'I'd like it if you did' and Kamijou then says 'Huh?'"
+  },
+  {
+   "id": "index18-00978",
+   "book": "index18",
+   "entry_index": 41,
+   "line": "Huh?",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'Kamijou looked at her dubiously.'"
+  },
+  {
+   "id": "index18-00980",
+   "book": "index18",
+   "entry_index": 42,
+   "line": "There’s this wall thingy with a blip-blop attached here.",
+   "expected_speaker": "INDEX",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding narration: 'Index politely pointed in front of them.'; the line is then called Indexian"
+  },
+  {
+   "id": "index18-00985",
+   "book": "index18",
+   "entry_index": 43,
+   "line": "Mgh?! Cough-hack-wheeze-cough!!",
+   "expected_speaker": "MIKOTO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'Unprepared for the shock, Mikoto almost choked.'"
+  },
+  {
+   "id": "index18-00997",
+   "book": "index18",
+   "entry_index": 44,
+   "line": "No, no. There’s some kind of shutter down over the entrance and I can’t get in. I mean, it’s an emergency so I can’t blame them, and we’re past the last train at this hour anyway, so normally you’d have the shutters down.",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "answers Mikoto's 'why the heck do you need to sneak into a station?' on the phone"
+  },
+  {
+   "id": "index18-01010",
+   "book": "index18",
+   "entry_index": 45,
+   "line": "I have no idea what you’ve gotten yourself caught up in, but this isn’t the thing to ask a girl for help with,",
+   "expected_speaker": "MIKOTO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'said Mikoto, appalled.'"
+  },
+  {
+   "id": "index18-01093",
+   "book": "index18",
+   "entry_index": 46,
+   "line": "A wall turning into a person and attacking you? Who the hell even thinks of that?!",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou's exasperated reaction to the wall becoming a person; Index is calling to him from elsewhere"
+  },
+  {
+   "id": "index18-01111",
+   "book": "index18",
+   "entry_index": 47,
+   "line": "You’ve’gotta be kidding me.",
+   "expected_speaker": "KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continues his own fight narration, between 'Did I get him?!' and 'When he looked again'"
+  },
+  {
+   "id": "index18-01140",
+   "book": "index18",
+   "entry_index": 48,
+   "line": "However, that is not a good reason for you to die. If that Soul Arm exists to prioritize the elimination of dangerous factors that could defeat its role as a wall, then I am the most well suited to be the decoy.",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration: 'As she finished speaking, Vilian jumped out.'"
+  },
+  {
+   "id": "index18-01150",
+   "book": "index18",
+   "entry_index": 49,
+   "line": "I may not have much, but even I have a little. If she insists on hurting those who stand up to support me—And if she would try and cause others to suffer using such overwhelming power that this much terror seems like a little…",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "first-person resolve in Vilian's voice, immediately before 'Vilian began to move'"
+  },
+  {
+   "id": "index18-01157",
+   "book": "index18",
+   "entry_index": 50,
+   "line": "IAWTOOSWITRB, SOTG!! (In accordance with the order of she who inherits the royal blood, swiftly open the gate!!)'",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "the incantation the preceding line calls 'the third princess's incantation'"
+  },
+  {
+   "id": "index18-01176",
+   "book": "index18",
+   "entry_index": 51,
+   "line": "Oh. That means you can indirectly attack the Curtana Original now, right?",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou asking Itsuwa for clarification on the phone"
+  },
+  {
+   "id": "index18-01213",
+   "book": "index18",
+   "entry_index": 52,
+   "line": "Look, you people—If you know that, then do your jobs already.",
+   "expected_speaker": "TSUSHIMA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Tsushima, sighed from a short distance away' directly follows"
+  },
+  {
+   "id": "index18-01292",
+   "book": "index18",
+   "entry_index": 53,
+   "line": "S-Sister Agnes! The Far Eastern religion seems to be having an interesting discussion about wasting their excessive breasts! Should we leave them alone?!",
+   "expected_speaker": "ANGELINE",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Angeline addressing Agnes"
+  },
+  {
+   "id": "index18-01310",
+   "book": "index18",
+   "entry_index": 54,
+   "line": "Everyone was all in a fluster and left without me. They spoke of bringing only what they absolutely needed, but I ended up with more luggage than I expected.",
+   "expected_speaker": "ORSOLA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Orsola replying to Sherry's question about leaving late"
+  },
+  {
+   "id": "index18-01315",
+   "book": "index18",
+   "entry_index": 55,
+   "line": "Ah-ha-ha. Have I been found out?",
+   "expected_speaker": "ORSOLA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Orsola responding when Sherry finds the statue of Ellis"
+  },
+  {
+   "id": "index18-01327",
+   "book": "index18",
+   "entry_index": 56,
+   "line": "No, this is just my style, so I don’t mind if my clothes are—Bgfftt?!",
+   "expected_speaker": "SHERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Sherry responding to Orsola before being interrupted"
+  },
+  {
+   "id": "index18-01333",
+   "book": "index18",
+   "entry_index": 57,
+   "line": "Ugh. You’re an old-lady character, mentally! I can’t trust anything you say about trends and fads!!",
+   "expected_speaker": "SHERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Sherry retorting to Orsola's comment about fashion trends"
+  },
+  {
+   "id": "index18-01355",
+   "book": "index18",
+   "entry_index": 58,
+   "line": "It would not change what I would do. I would only bring you to your knees a second time.",
+   "expected_speaker": "WILLIAM",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "William Orwell answering Knight Leader"
+  },
+  {
+   "id": "index18-01361",
+   "book": "index18",
+   "entry_index": 59,
+   "line": "'Unfitting, from a man who tried to behead the third princess with an executor’s ax.",
+   "expected_speaker": "WILLIAM",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "William Orwell mocking Knight Leader's assertion of loyalty"
+  },
+  {
+   "id": "index18-01387",
+   "book": "index18",
+   "entry_index": 60,
+   "line": "I do apologize. I’ve been doing nothing but pushing you hard. If I’m able to regain my political authority, I’d want to make you the first decorated horse in the world,",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Elizard considerately' follows"
+  },
+  {
+   "id": "index18-01421",
+   "book": "index18",
+   "entry_index": 61,
+   "line": "D-don’t even go there. I only did what I had to as a parent.",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Elizard spoke out to deny it' follows"
+  },
+  {
+   "id": "index18-01450",
+   "book": "index18",
+   "entry_index": 62,
+   "line": "A normal member of society? His life would be on the line if the knights detected his actions—I need to give more respect to the gentlemen in this country,",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Elizard before falling silent' follows"
+  },
+  {
+   "id": "index18-01478",
+   "book": "index18",
+   "entry_index": 63,
+   "line": "Yes, we understand that. I’m not saying that a normal high school student should come with us for a battle with someone stronger than a saint.",
+   "expected_speaker": "KAORI KANZAKI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Kanzaki nodded' follows her statement"
+  },
+  {
+   "id": "index18-01484",
+   "book": "index18",
+   "entry_index": 64,
+   "line": "Survive until the end. That is the most important mission given to you.",
+   "expected_speaker": "KAORI KANZAKI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kanzaki continuing her instructions to Kamijou"
+  },
+  {
+   "id": "index18-01505",
+   "book": "index18",
+   "entry_index": 65,
+   "line": "What’s more unbelievable to me is that we got permission to fire on Buckingham Palace.",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by an unnamed witch colleague of Smartveri"
+  },
+  {
+   "id": "index18-01531",
+   "book": "index18",
+   "entry_index": 66,
+   "line": "'Anyway, there’s not gonna be any collateral damage with all that shooting going on, is there?",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou asking Kanzaki and Index about potential collateral damage"
+  },
+  {
+   "id": "index18-01539",
+   "book": "index18",
+   "entry_index": 67,
+   "line": "Everyone’all over the United Kingdom, not only London’is sharing the pain. We would be pushing our luck if we wanted the British royal family alone to emerge unharmed—And if it meant calming this nationwide disturbance, we would smash that sort of palace into little pieces.",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Vilian expressing her willingness to see Buckingham Palace destroyed to restore peace"
+  },
+  {
+   "id": "index18-01560",
+   "book": "index18",
+   "entry_index": 68,
+   "line": "'A remnant of the omnidimensional slice from the Curtana Original'?!",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Right after he shouted' refers to Kamijou who remembered the structure"
+  },
+  {
+   "id": "index18-01568",
+   "book": "index18",
+   "entry_index": 69,
+   "line": "Shit!! Run away!!",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'The others didn't need Kamijou to shout it' attributes the shout to Kamijou"
+  },
+  {
+   "id": "index18-01570",
+   "book": "index18",
+   "entry_index": 70,
+   "line": "In’dex'? Kanzaki, Itsuwa!! Damn it! Where is everyone?!",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou calling out his friends' names after the crash"
+  },
+  {
+   "id": "index18-01635",
+   "book": "index18",
+   "entry_index": 71,
+   "line": "The knights were on the verge of collapse, and you forced me to reignite their passion, so. Though I did use somewhat rough methods.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by Carissa while addressing Kamijou"
+  },
+  {
+   "id": "index18-01673",
+   "book": "index18",
+   "entry_index": 72,
+   "line": "W?a?a?a?a?a?a?a?a?a?a?a?a?a?a?a?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?h?!",
+   "expected_speaker": "TOUMA KAMIJOU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kamijou screaming in pain after being launched by a massive strike"
+  },
+  {
+   "id": "index18-01716",
+   "book": "index18",
+   "entry_index": 73,
+   "line": "To either take away control, or to seal it. I’ll do it.",
+   "expected_speaker": "INDEX",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Index replying to Kanzaki's request for magical analysis"
+  },
+  {
+   "id": "index18-01794",
+   "book": "index18",
+   "entry_index": 74,
+   "line": "Then I will stop hiding and stand up as well. As princess of a nation, I will be a roof to protect everyone from this kind of torment and fear!!",
+   "expected_speaker": "VILIAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Vilian shouting her resolve to Carissa while aiming her crossbow"
+  },
+  {
+   "id": "index18-01797",
+   "book": "index18",
+   "entry_index": 75,
+   "line": "Rest in peace, dreamer,",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'declared Carissa' directly follows"
+  },
+  {
+   "id": "index18-01805",
+   "book": "index18",
+   "entry_index": 76,
+   "line": "This is the limit of relying on others!!",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa has been mocking Vilian's reliance on others two turns earlier - 'Justifying your reliance on others? It sickens me to think we're sisters'. The target continues that taunt, and the narration immediately after has Carissa act: 'Now that Vilian didn't have any other way, Carissa swung the Curtana Original.' The reply that follows - 'Yes, this is the pinnacle of reliance upon others, my sister' - opens with 'Yes' and turns 'limit' into 'pinnacle', which only works as Vilian answering Carissa, not as Vilian answering herself."
+  },
+  {
+   "id": "index18-01828",
+   "book": "index18",
+   "entry_index": 77,
+   "line": "I suppose that’s as far as unmanned ones can go, so. Actually, they were designed for attack, and I used them for the opposite, for interception. Their specs might not have been the only issue here.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa commenting on the destruction of the Gryphon Sky fortresses"
+  },
+  {
+   "id": "index18-01836",
+   "book": "index18",
+   "entry_index": 78,
+   "line": "Orders for the destroyer Wimbledon currently patrolling in the Strait of Dover. Prepare the cruise missiles loaded with bunker cluster warheads. Set the warheads' detonation depth to negative five meters, aim them at Buckingham Palace’and fire at once.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa speaking into a radio to order a missile strike"
+  },
+  {
+   "id": "index18-01921",
+   "book": "index18",
+   "entry_index": 79,
+   "line": "This is the conclusion: Carissa has two goals. The first is to make herself an overwhelming tyrant to eliminate France and the Roman Orthodox Church, protecting the United Kingdom even if later generations would call Carissa a dark stain on the nation’s history. The second is to seal away the ultimate, most terrible weapon, the Curtana Original, and, by removing an incompetent monarchy, make it so the will of the people could halt the nation’s rampage—Even if, after it all, the stars aligned to create a new system of monarchy different from ours’if that monarch tried to make the wrong decision’she wanted to leave them a weakness' that would make the monarch bend their ear to the people. It is for those goals that Carissa, now a tyrant, tries to shoulder alone the sin of wielding the wicked weapon Curtana and massacring foreign enemies wholesale.",
+   "expected_speaker": "LIMEIA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Princess Limeia's transmission explaining Carissa's true plan"
+  },
+  {
+   "id": "index18-01948",
+   "book": "index18",
+   "entry_index": 80,
+   "line": "Ha-ha-ha!! Do you think if you break the Curtana Original, it’ll send the missile a self-destruct signal for lack of orders from me? It’s not a nuclear weapon! Unfortunately, that warhead doesn’t have that feature!!",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa laughing and mocking Kamijou"
+  },
+  {
+   "id": "index18-01986",
+   "book": "index18",
+   "entry_index": 81,
+   "line": "I see. I hadn’t expected the charismatic, virtuous Vilian to be followed by my sister the intellectual!!",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'shouted Carissa, as sword clashed against sword' directly follows"
+  },
+  {
+   "id": "index18-02064",
+   "book": "index18",
+   "entry_index": 82,
+   "line": "Maybe,",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag directly identifies Carissa as the speaker"
+  },
+  {
+   "id": "index18-02082",
+   "book": "index18",
+   "entry_index": 83,
+   "line": "In fact, the more you have, the more strands of the web there are to cut.",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Carissa continues her battle monologue as confirmed by the subsequent attribution"
+  },
+  {
+   "id": "index18-02156",
+   "book": "index18",
+   "entry_index": 84,
+   "line": "I will gratefully accept all who wish to help me! You are even free to side with the usurpers! If you can show us a completely different alternative path, feel free to do so!! And you don’t need to force yourself to fight simply because you have the power!! If you don’t want it, you can will it to return. If you decide you trust someone else more than yourself, you can will it to transfer and it will!! In every sense, in this moment alone, this great power is yours. If you want to fight, or even if you want to flee, you can decide for yourselves!!",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Queen Regnant Elizard is delivering her nationwide broadcast address"
+  },
+  {
+   "id": "index18-02158",
+   "book": "index18",
+   "entry_index": 85,
+   "line": "Don’t let yourselves cater to the whims of others telling you what to do or that something is right! Reject even your own words!! Think about everything with all the information at your disposal, without any objective priorities, and after you’ve finished considering it all, stay true to the justice and courage and nerve you have left at the end!!",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Queen Elizard's nationwide broadcast speech"
+  },
+  {
+   "id": "index18-02183",
+   "book": "index18",
+   "entry_index": 86,
+   "line": "What should we do, boss?",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by an unnamed twelve-year-old girl addressing her sorcerer society boss"
+  },
+  {
+   "id": "index18-02185",
+   "book": "index18",
+   "entry_index": 87,
+   "line": "Couldn’t we also use this change to analyze the Curtana?",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by the unnamed young sorcerer girl to her society boss"
+  },
+  {
+   "id": "index18-02186",
+   "book": "index18",
+   "entry_index": 88,
+   "line": "If we do anything underhanded, that crowned hag is gonna blow her top. Let’s stay out of things this time and observe the places that aren’t being watched anymore, from the outside.",
+   "expected_speaker": "SMARTVERI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "The boss of the sorcerers' society answers the young girl's suggestion."
+  },
+  {
+   "id": "index18-02194",
+   "book": "index18",
+   "entry_index": 89,
+   "line": "You betcha, Bayloupe. Florice and Lancis are connected, too.",
+   "expected_speaker": "LESSER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Lesser answers Bayloupe over the communication spell"
+  },
+  {
+   "id": "index18-02282",
+   "book": "index18",
+   "entry_index": 90,
+   "line": "If that happens, we’ll simply have to admit it. Admit that magic exists in this world, and that it works in the shadows to protect them every day. We can call it a rebirth of the magical nation of Britain.",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Queen Elizard responding to the Knight Leader's concerns"
+  },
+  {
+   "id": "index18-02283",
+   "book": "index18",
+   "entry_index": 91,
+   "line": "But that would be…",
+   "expected_speaker": "KNIGHT LEADER",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Knight Leader interjecting during his conversation with Queen Elizard"
+  },
+  {
+   "id": "index18-02316",
+   "book": "index18",
+   "entry_index": 92,
+   "line": "'I-if he fought for everyone this time, then I can interpret that as me having a debt to him, too, right?",
+   "expected_speaker": "ITSUWA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Itsuwa hissed under her breath' directly follows"
+  },
+  {
+   "id": "index18-02351",
+   "book": "index18",
+   "entry_index": 93,
+   "line": "Well, yes. It is indeed a terrible loss. In fact, what you suggested might have actually been easier,",
+   "expected_speaker": "FIAMMA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'noted Fiamma offhandedly' directly follows"
+  },
+  {
+   "id": "index18-02363",
+   "book": "index18",
+   "entry_index": 94,
+   "line": "Damn. Failed partway through again. I have to say, I’ve acquired quite a troublesome companion.",
+   "expected_speaker": "FIAMMA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by Fiamma regarding the third arm sprouting from his shoulder"
+  },
+  {
+   "id": "index18-02371",
+   "book": "index18",
+   "entry_index": 95,
+   "line": "Impossible—It actually’existed'?!",
+   "expected_speaker": "CARISSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narrator indicates Carissa drew back in shock right before this exclamation"
+  },
+  {
+   "id": "index18-02393",
+   "book": "index18",
+   "entry_index": 96,
+   "line": "I see. I should have expected as much from that rare right hand I rightly desire. Now that I see it up close, I’m even more surprised at its singularity.",
+   "expected_speaker": "FIAMMA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Fiamma commenting on Kamijou's Imagine Breaker"
+  },
+  {
+   "id": "index18-02401",
+   "book": "index18",
+   "entry_index": 97,
+   "line": "It’s pretty great. You want to see?",
+   "expected_speaker": "FIAMMA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Fiamma answering Kamijou's question before showing the Soul Arm"
+  },
+  {
+   "id": "index18-02516",
+   "book": "index18",
+   "entry_index": 98,
+   "line": "The 103,000 grimoires cannot be managed through our personal feelings alone. If we hadn’t made her fully controllable and the mechanism safe, should she be caught in a crisis, we wouldn’t be able to argue against the opinions that it would be safer just to kill her because the Index is a threat—An extreme argument, but to stop it, we had to prepare several safety mechanisms.",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Queen Elizard explaining the remote control safety mechanism on Index"
+  },
+  {
+   "id": "index18-02525",
+   "book": "index18",
+   "entry_index": 99,
+   "line": "We’ll take care of the Index for the time being. We were the ones who built the Index of Prohibited Books and her system, so we’ll have experts apply healing to her and work to block as much of Fiamma’s influence as we can. But that won’t be enough. Unless we defeat him and completely destroy the remote-control Soul Arm, we can never guarantee her safety.",
+   "expected_speaker": "ELIZARD",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Queen Elizard explaining the plan to Kamijou to protect Index"
+  }
+ ],
+ "aliases": [
+  [
+   "KANZAKI",
+   "KAORI KANZAKI"
+  ],
+  [
+   "LAURA",
+   "LAURA STUART"
+  ],
+  [
+   "MIKOTO",
+   "MIKOTO MISAKA"
+  ],
+  [
+   "ELIZARD",
+   "QUEEN ELIZARD"
+  ],
+  [
+   "KAMIJOU",
+   "TOUMA KAMIJOU"
+  ],
+  [
+   "WILLIAM",
+   "WILLIAM ORWELL"
+  ],
+  [
+   "ORSOLA",
+   "ORSOLA AQUINAS"
+  ],
+  [
+   "SAIJI TATEMIYA",
+   "TATEMIYA"
+  ]
+ ],
+ "provisional": false,
+ "conventions": {
+  "letter_and_diary_text": {
+   "ruling": "author",
+   "means": "Text of a letter or diary is attributed to whoever WROTE it, not to the character reading it aloud."
+  },
+  "determinate_but_nameless": {
+   "ruling": "UNNAMED",
+   "means": "A speaker the text identifies but never names is UNNAMED, kept separate from UNKNOWN."
+  },
+  "nameless_with_a_known_role": {
+   "ruling": "UNNAMED",
+   "means": "A nameless speaker with a recognisable role stays UNNAMED rather than being labelled with the role. Does NOT cover a speaker with a proper roster name - index18-02186 is SMARTVERI because he is a named character."
+  },
+  "tagged_interior_thought": {
+   "ruling": "speech",
+   "means": "A thought tagged like dialogue counts as speech and is attributed to the thinker."
+  },
+  "_decided": "review 2026-07-28"
+ },
+ "roster_additions": {
+  "names": [
+   "LESSER",
+   "SAIJI TATEMIYA"
+  ],
+  "why": "Characters the judges named that build_roster did not find. Lines spoken by these people are unwinnable for any model constrained to the generated roster, so they are a roster bug rather than a model failure and must be added to the candidate set before scoring closed-set arms.",
+  "approved_by": "review 2026-07-28"
+ },
+ "status": {
+  "state": "gold",
+  "adopted": "2026-07-28",
+  "basis": "Two independent frontier judges (gemini, openai) read every row at 12 segments of context; every disagreement was adjudicated and every convention ruled.",
+  "second_judge_agreement": "96.5% across 793 rows [94.9-97.6]",
+  "known_limit": "No human read the passages. Where both judges share a blind spot - unmarked turn-taking in rapid exchanges is the demonstrated one - agreement measures correlation between models rather than truth. At the 50-79% range models currently score, that residual is far below the effects being measured."
+ }
+}

@@ -1,0 +1,422 @@
+[
+  {
+    "id": "owarimonogatari3-02465",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi-chan says dialogue tag"
+  },
+  {
+    "id": "owarimonogatari3-02476",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02478",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Ougi's turn"
+  },
+  {
+    "id": "owarimonogatari3-02537",
+    "speaker": "ONONOKI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ononoki-chan urges"
+  },
+  {
+    "id": "owarimonogatari3-02539",
+    "speaker": "SHINOBU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Shinobu is the first one to notice me"
+  },
+  {
+    "id": "owarimonogatari3-02543",
+    "speaker": "SHINOBU",
+    "confident": true,
+    "alias": null,
+    "reasoning": "she laughs"
+  },
+  {
+    "id": "owarimonogatari3-02550",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02558",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02570",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen-san speaks up"
+  },
+  {
+    "id": "owarimonogatari3-02587",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02597",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "footnote definition text"
+  },
+  {
+    "id": "owarimonogatari3-02607",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "quoted verb fragment within narrator text"
+  },
+  {
+    "id": "owarimonogatari3-02634",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "quoted noun fragment within narrator text"
+  },
+  {
+    "id": "owarimonogatari3-02651",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen-san responds"
+  },
+  {
+    "id": "owarimonogatari3-02659",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen-san says with a smile"
+  },
+  {
+    "id": "owarimonogatari3-02680",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanatory monologue"
+  },
+  {
+    "id": "owarimonogatari3-02689",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanatory monologue"
+  },
+  {
+    "id": "owarimonogatari3-02694",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's explanatory monologue"
+  },
+  {
+    "id": "owarimonogatari3-02698",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "Gaen's monologue addressing Shinobu"
+  },
+  {
+    "id": "owarimonogatari3-02731",
+    "speaker": "GAEN",
+    "confident": true,
+    "alias": "IZUKO GAEN",
+    "reasoning": "speaker's turn in Gaen's monologue"
+  },
+  {
+    "id": "owarimonogatari3-01940",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01956",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's turn explaining the date"
+  },
+  {
+    "id": "owarimonogatari3-02010",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02012",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02119",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02126",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02137",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02139",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "quoted noun fragment within narrator text"
+  },
+  {
+    "id": "owarimonogatari3-02145",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "quoted noun fragment within narrator text"
+  },
+  {
+    "id": "owarimonogatari3-02150",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02156",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "quoted phrase fragment within narrator text"
+  },
+  {
+    "id": "owarimonogatari3-02160",
+    "speaker": "OUGI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ougi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02183",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "footnote explanation text"
+  },
+  {
+    "id": "owarimonogatari3-02191",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02225",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn answering Senjougahara"
+  },
+  {
+    "id": "owarimonogatari3-02233",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02259",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-02345",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "karaoke machine score display"
+  },
+  {
+    "id": "owarimonogatari3-02425",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-02443",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01602",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn answering Ononoki"
+  },
+  {
+    "id": "owarimonogatari3-01608",
+    "speaker": "ONONOKI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ononoki's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01614",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01615",
+    "speaker": "ONONOKI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ononoki's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01644",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn addressing Ononoki"
+  },
+  {
+    "id": "owarimonogatari3-01660",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01669",
+    "speaker": "ONONOKI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ononoki's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01689",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01734",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn answering Tsukihi"
+  },
+  {
+    "id": "owarimonogatari3-01769",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01775",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01779",
+    "speaker": "TSUKIHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Tsukihi's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01780",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01783",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01810",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01812",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01821",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01844",
+    "speaker": "SENJOUGAHARA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Senjougahara's dialogue turn"
+  },
+  {
+    "id": "owarimonogatari3-01866",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  },
+  {
+    "id": "owarimonogatari3-01906",
+    "speaker": "ARARAGI",
+    "confident": true,
+    "alias": "KOYOMI ARARAGI",
+    "reasoning": "speaker's turn"
+  }
+]

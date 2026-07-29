@@ -1,0 +1,464 @@
+[
+  {
+    "id": "index18-02064",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag directly identifies Carissa as the speaker"
+  },
+  {
+    "id": "index18-02082",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa continues her battle monologue as confirmed by the subsequent attribution"
+  },
+  {
+    "id": "index18-02156",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "Queen Regnant Elizard is delivering her nationwide broadcast address"
+  },
+  {
+    "id": "index18-02158",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "continuation of Queen Elizard's nationwide broadcast speech"
+  },
+  {
+    "id": "index18-02183",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by an unnamed twelve-year-old girl addressing her sorcerer society boss"
+  },
+  {
+    "id": "index18-02185",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by the unnamed young sorcerer girl to her society boss"
+  },
+  {
+    "id": "index18-02186",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by the unnamed boss of the UK sorcerer society"
+  },
+  {
+    "id": "index18-02190",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative text describing Bayloupe's situation, incorrectly classified as dialogue"
+  },
+  {
+    "id": "index18-02194",
+    "speaker": "LESSER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Lesser answers Bayloupe over the communication spell"
+  },
+  {
+    "id": "index18-02282",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "Queen Elizard responding to the Knight Leader's concerns"
+  },
+  {
+    "id": "index18-02283",
+    "speaker": "KNIGHT LEADER",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Knight Leader interjecting during his conversation with Queen Elizard"
+  },
+  {
+    "id": "index18-02316",
+    "speaker": "ITSUWA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'Itsuwa hissed under her breath' directly follows"
+  },
+  {
+    "id": "index18-02351",
+    "speaker": "FIAMMA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'noted Fiamma offhandedly' directly follows"
+  },
+  {
+    "id": "index18-02363",
+    "speaker": "FIAMMA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Fiamma regarding the third arm sprouting from his shoulder"
+  },
+  {
+    "id": "index18-02371",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrator indicates Carissa drew back in shock right before this exclamation"
+  },
+  {
+    "id": "index18-02393",
+    "speaker": "FIAMMA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Fiamma commenting on Kamijou's Imagine Breaker"
+  },
+  {
+    "id": "index18-02401",
+    "speaker": "FIAMMA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Fiamma answering Kamijou's question before showing the Soul Arm"
+  },
+  {
+    "id": "index18-02406",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative sentence describing an explosion, misclassified as spoken dialogue"
+  },
+  {
+    "id": "index18-02516",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "Queen Elizard explaining the remote control safety mechanism on Index"
+  },
+  {
+    "id": "index18-02525",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "Queen Elizard explaining the plan to Kamijou to protect Index"
+  },
+  {
+    "id": "index18-01560",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "dialogue tag 'Right after he shouted' refers to Kamijou who remembered the structure"
+  },
+  {
+    "id": "index18-01568",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "dialogue tag 'The others didn't need Kamijou to shout it' attributes the shout to Kamijou"
+  },
+  {
+    "id": "index18-01570",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou calling out his friends' names after the crash"
+  },
+  {
+    "id": "index18-01585",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "part of a narrative sentence describing Kamijou's thoughts on dodging attacks"
+  },
+  {
+    "id": "index18-01635",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by Carissa while addressing Kamijou"
+  },
+  {
+    "id": "index18-01673",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou screaming in pain after being launched by a massive strike"
+  },
+  {
+    "id": "index18-01703",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word fragment from narrative sentence 'weren't her attack.'"
+  },
+  {
+    "id": "index18-01716",
+    "speaker": "INDEX",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Index replying to Kanzaki's request for magical analysis"
+  },
+  {
+    "id": "index18-01751",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word fragment from narrative sentence 'giant stake's shadow.'"
+  },
+  {
+    "id": "index18-01794",
+    "speaker": "VILIAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Vilian shouting her resolve to Carissa while aiming her crossbow"
+  },
+  {
+    "id": "index18-01797",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'declared Carissa' directly follows"
+  },
+  {
+    "id": "index18-01805",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa shouting at Vilian as she advances to strike her"
+  },
+  {
+    "id": "index18-01828",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa commenting on the destruction of the Gryphon Sky fortresses"
+  },
+  {
+    "id": "index18-01836",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa speaking into a radio to order a missile strike"
+  },
+  {
+    "id": "index18-01900",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "single word fragment from narrative sentence 'second princess's revolution,'"
+  },
+  {
+    "id": "index18-01921",
+    "speaker": "LIMEIA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "continuation of Princess Limeia's transmission explaining Carissa's true plan"
+  },
+  {
+    "id": "index18-01938",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative passage describing Vilian looking at Kamijou"
+  },
+  {
+    "id": "index18-01948",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Carissa laughing and mocking Kamijou"
+  },
+  {
+    "id": "index18-01965",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "text fragment from narrative sentence 'not a revolution' but a coup d'etat.'"
+  },
+  {
+    "id": "index18-01986",
+    "speaker": "CARISSA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'shouted Carissa, as sword clashed against sword' directly follows"
+  },
+  {
+    "id": "index18-01159",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative sentence describing the paper giant's collapse"
+  },
+  {
+    "id": "index18-01166",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative sentence describing the monster targeting Kamijou"
+  },
+  {
+    "id": "index18-01176",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou asking Itsuwa for clarification on the phone"
+  },
+  {
+    "id": "index18-01213",
+    "speaker": "TSUSHIMA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag 'Tsushima, sighed from a short distance away' directly follows"
+  },
+  {
+    "id": "index18-01234",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative sentence describing Kamijou standing with an empty plate"
+  },
+  {
+    "id": "index18-01292",
+    "speaker": "ANGELINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Angeline addressing Agnes"
+  },
+  {
+    "id": "index18-01310",
+    "speaker": "ORSOLA",
+    "confident": true,
+    "alias": "ORSOLA AQUINAS",
+    "reasoning": "Orsola replying to Sherry's question about leaving late"
+  },
+  {
+    "id": "index18-01315",
+    "speaker": "ORSOLA",
+    "confident": true,
+    "alias": "ORSOLA AQUINAS",
+    "reasoning": "Orsola responding when Sherry finds the statue of Ellis"
+  },
+  {
+    "id": "index18-01327",
+    "speaker": "SHERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sherry responding to Orsola before being interrupted"
+  },
+  {
+    "id": "index18-01333",
+    "speaker": "SHERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sherry retorting to Orsola's comment about fashion trends"
+  },
+  {
+    "id": "index18-01355",
+    "speaker": "WILLIAM",
+    "confident": true,
+    "alias": "WILLIAM ORWELL",
+    "reasoning": "William Orwell answering Knight Leader"
+  },
+  {
+    "id": "index18-01361",
+    "speaker": "WILLIAM",
+    "confident": true,
+    "alias": "WILLIAM ORWELL",
+    "reasoning": "William Orwell mocking Knight Leader's assertion of loyalty"
+  },
+  {
+    "id": "index18-01387",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "dialogue tag 'said Elizard considerately' follows"
+  },
+  {
+    "id": "index18-01421",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "dialogue tag 'Elizard spoke out to deny it' follows"
+  },
+  {
+    "id": "index18-01450",
+    "speaker": "ELIZARD",
+    "confident": true,
+    "alias": "QUEEN ELIZARD",
+    "reasoning": "dialogue tag 'said Elizard before falling silent' follows"
+  },
+  {
+    "id": "index18-01478",
+    "speaker": "KAORI KANZAKI",
+    "confident": true,
+    "alias": "KANZAKI",
+    "reasoning": "dialogue tag 'Kanzaki nodded' follows her statement"
+  },
+  {
+    "id": "index18-01484",
+    "speaker": "KAORI KANZAKI",
+    "confident": true,
+    "alias": "KANZAKI",
+    "reasoning": "Kanzaki continuing her instructions to Kamijou"
+  },
+  {
+    "id": "index18-01505",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by an unnamed witch colleague of Smartveri"
+  },
+  {
+    "id": "index18-01531",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou asking Kanzaki and Index about potential collateral damage"
+  },
+  {
+    "id": "index18-01539",
+    "speaker": "VILIAN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Vilian expressing her willingness to see Buckingham Palace destroyed to restore peace"
+  },
+  {
+    "id": "index18-00799",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou relieved at Index returning to her usual behavior"
+  },
+  {
+    "id": "index18-00807",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "unnamed Amakusa members teasing Itsuwa"
+  },
+  {
+    "id": "index18-00808",
+    "speaker": "ITSUWA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Itsuwa flusteredly responding to her comrades"
+  },
+  {
+    "id": "index18-00817",
+    "speaker": "SAIJI TATEMIYA",
+    "confident": true,
+    "alias": "TATEMIYA",
+    "reasoning": "Tatemiya addressing Kamijou and Kanzaki"
+  },
+  {
+    "id": "index18-00842",
+    "speaker": "SAIJI TATEMIYA",
+    "confident": true,
+    "alias": "TATEMIYA",
+    "reasoning": "narrator specifies Tatemiya changed the subject with this question"
+  },
+  {
+    "id": "index18-00863",
+    "speaker": "TOUMA KAMIJOU",
+    "confident": true,
+    "alias": "KAMIJOU",
+    "reasoning": "Kamijou expressing confusion about the rift between Carissa and the Knights Faction"
+  }
+]

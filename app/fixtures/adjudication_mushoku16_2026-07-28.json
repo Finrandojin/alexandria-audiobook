@@ -1,0 +1,31 @@
+{
+ "description": "Third-judge adjudication of every row where the gemini relabel disagreed with the original openai gold on mushoku16, decided on wider scene context than either judge was shown (the bundles supply 4 segments either side).",
+ "book": "mushoku16",
+ "adjudicated_by": "claude-2026-07-28 (third judge, wider context)",
+ "inter_judge_agreement": "128/133 = 96.2% before adjudication",
+ "outcome": "3 of 3 semantic disagreements resolved in favour of the gemini relabel; the remaining 2 were romanisation of one name and are now declared as an alias rather than counted as disagreement.",
+ "corrections": [
+  {
+   "id": "mushoku16-00818",
+   "original_gold": "GHYSLAINE",
+   "adjudicated": "ISOLTE",
+   "reasoning": "Ghyslaine is not named anywhere in the scene; Isolte is established two lines earlier as Eris's travelling companion, and the bitter smile after Eris's energetic reply is a reaction, not the reply itself.",
+   "line": "Eris, it's about time we head off."
+  },
+  {
+   "id": "mushoku16-01346",
+   "original_gold": "RUDEUS",
+   "adjudicated": "SYLPHY",
+   "reasoning": "The previous turn says 'Lilia said that reminds her of when Rudeus-sama was born' - the honorific proves the speaker is not Rudeus. The scene alternates Sylphy's substantive lines with Rudeus's 'Oh.', and the target continues Sylphy's turn.",
+   "line": "... Soon, she will start talking, and in a year, she'll start to walk."
+  },
+  {
+   "id": "mushoku16-01470",
+   "original_gold": "ORSTED",
+   "adjudicated": "RUDEUS",
+   "reasoning": "Bracketed by 'I bit Orsted's leg' and 'Still biting, I lifted my right arm' - a muffled cry from the narrator whose mouth is full, not from Orsted, who is unmoved enough to lecture him moments later.",
+   "line": "Fuguuuuaaa!"
+  }
+ ],
+ "note": "attribution_gold_random.json is deliberately NOT rewritten: every number in the ledger was scored against it, and correcting 3 of 147 rows in place would silently move published results. Use attribution_gold_mushoku16_provisional.json for new work; it already carries the adjudicated labels."
+}

@@ -1,0 +1,72 @@
+[
+ {
+  "id": "mushoku16-00818",
+  "speaker": "ISOLTE",
+  "confident": true,
+  "alias": null,
+  "reasoning": "Ghyslaine is never named in the scene; Isolte is Eris's travelling companion and the bitter smile is her reaction to Eris's reply"
+ },
+ {
+  "id": "mushoku16-00823",
+  "speaker": "UNNAMED",
+  "confident": true,
+  "alias": null,
+  "reasoning": "the mailman - 'they heard a voice from out of nowhere'; determinate but unnamed (the narrow pass said UNKNOWN, before UNNAMED existed)"
+ },
+ {
+  "id": "mushoku16-00831",
+  "speaker": "UNNAMED",
+  "confident": true,
+  "alias": null,
+  "reasoning": "the same mailman asking Eris to sign for the letter"
+ },
+ {
+  "id": "mushoku16-00849",
+  "speaker": "ERIS",
+  "confident": true,
+  "alias": null,
+  "reasoning": "Eris told Nina to read it, Nina says she cannot, and the target scolds her for it; Nina's retort follows"
+ },
+ {
+  "id": "mushoku16-00895",
+  "speaker": "NINA",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'Nina objected to Isolte with her opinion'"
+ },
+ {
+  "id": "mushoku16-00923",
+  "speaker": "HITOGAMI",
+  "confident": true,
+  "alias": null,
+  "reasoning": "the dream interlocutor directing Rudeus to fight Orsted; Rudeus answers 'Just as you instructed'"
+ },
+ {
+  "id": "mushoku16-00877",
+  "speaker": "RUDEUS",
+  "confident": true,
+  "alias": null,
+  "reasoning": "text of Rudeus's letter, read aloud by Isolte - following the convention already set on this passage"
+ },
+ {
+  "id": "mushoku16-00882",
+  "speaker": "RUDEUS",
+  "confident": true,
+  "alias": null,
+  "reasoning": "text of Rudeus's letter, read aloud by Isolte"
+ },
+ {
+  "id": "mushoku16-00884",
+  "speaker": "RUDEUS",
+  "confident": true,
+  "alias": null,
+  "reasoning": "text of Rudeus's letter, read aloud by Isolte"
+ },
+ {
+  "id": "mushoku16-00887",
+  "speaker": "RUDEUS",
+  "confident": true,
+  "alias": null,
+  "reasoning": "text of Rudeus's letter, read aloud by Isolte"
+ }
+]

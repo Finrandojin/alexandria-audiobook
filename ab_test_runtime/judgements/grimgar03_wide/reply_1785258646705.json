@@ -1,0 +1,702 @@
+[
+  {
+    "id": "grimgar03-01794",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro yelled back in response to Ranta"
+  },
+  {
+    "id": "grimgar03-01798",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro calls out instructions to his party"
+  },
+  {
+    "id": "grimgar03-01809",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco's initial surprised utterance before recognizing Haruhiro"
+  },
+  {
+    "id": "grimgar03-01818",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Choco said"
+  },
+  {
+    "id": "grimgar03-01820",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro recognizes Choco"
+  },
+  {
+    "id": "grimgar03-01822",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro's hesitation utterance"
+  },
+  {
+    "id": "grimgar03-01825",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco confirming recognition"
+  },
+  {
+    "id": "grimgar03-01827",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco greeting Haruhiro"
+  },
+  {
+    "id": "grimgar03-01846",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro addressing Choco"
+  },
+  {
+    "id": "grimgar03-01859",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco asking Haruhiro's party about their plans"
+  },
+  {
+    "id": "grimgar03-01863",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco stating her party's undecided status"
+  },
+  {
+    "id": "grimgar03-01864",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding to Choco"
+  },
+  {
+    "id": "grimgar03-01866",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro advising Choco's group"
+  },
+  {
+    "id": "grimgar03-01869",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco asking Haruhiro for clarification"
+  },
+  {
+    "id": "grimgar03-01884",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro explaining their relative strength"
+  },
+  {
+    "id": "grimgar03-01888",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro warning Choco about the danger"
+  },
+  {
+    "id": "grimgar03-01892",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco hesitating in response to Haruhiro's warning"
+  },
+  {
+    "id": "grimgar03-01901",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro stating his party's decision to proceed"
+  },
+  {
+    "id": "grimgar03-01904",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco reacting with surprise"
+  },
+  {
+    "id": "grimgar03-01906",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco asking why they are going"
+  },
+  {
+    "id": "grimgar03-01907",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta interjecting with his motivation"
+  },
+  {
+    "id": "grimgar03-01914",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta boasting about plundering"
+  },
+  {
+    "id": "grimgar03-01920",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Merry insulting Ranta's attitude"
+  },
+  {
+    "id": "grimgar03-01924",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta confronting Merry"
+  },
+  {
+    "id": "grimgar03-01926",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Merry responding dryly to Ranta"
+  },
+  {
+    "id": "grimgar03-01932",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta casting Demon Call while boasting"
+  },
+  {
+    "id": "grimgar03-01934",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun predicting Ranta's death upon being summoned"
+  },
+  {
+    "id": "grimgar03-01935",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta responding to Zodiac-kun addressing him"
+  },
+  {
+    "id": "grimgar03-01936",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun uttering death threats to Ranta"
+  },
+  {
+    "id": "grimgar03-01941",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun speaking to Yume while giving her his paw"
+  },
+  {
+    "id": "grimgar03-01945",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Yume speaking to Zodiac-kun"
+  },
+  {
+    "id": "grimgar03-01946",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun apologizing to Yume"
+  },
+  {
+    "id": "grimgar03-01949",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro told Choco's group"
+  },
+  {
+    "id": "grimgar03-01959",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by an unnamed warrior volunteer soldier at the watchtower stairs"
+  },
+  {
+    "id": "grimgar03-01967",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta arguing with Haruhiro about Zodiac-kun"
+  },
+  {
+    "id": "grimgar03-01968",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun talking back to Ranta"
+  },
+  {
+    "id": "grimgar03-01971",
+    "speaker": "ZODIAC-KUN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Zodiac-kun replying to Ranta"
+  },
+  {
+    "id": "grimgar03-01988",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro shouting back at Ranta before advancing"
+  },
+  {
+    "id": "grimgar03-02009",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo grunting as he executes First Thrust"
+  },
+  {
+    "id": "grimgar03-02013",
+    "speaker": "RON",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ron speaking to Haruhiro's party after the battle"
+  },
+  {
+    "id": "grimgar03-02027",
+    "speaker": "RENJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Renji said"
+  },
+  {
+    "id": "grimgar03-02033",
+    "speaker": "RENJI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Renji addressing Moguzo directly"
+  },
+  {
+    "id": "grimgar03-02044",
+    "speaker": "ADACHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Adachi said to Renji"
+  },
+  {
+    "id": "grimgar03-02046",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "spoken by an unnamed volunteer soldier shouting from below"
+  },
+  {
+    "id": "grimgar03-02060",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro attempting to scream as Choco is attacked"
+  },
+  {
+    "id": "grimgar03-02069",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro's recalled inner thoughts/dialogue"
+  },
+  {
+    "id": "grimgar03-02082",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro's recalled inner thoughts regarding Choco"
+  },
+  {
+    "id": "grimgar03-02095",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro asking Choco in a past memory"
+  },
+  {
+    "id": "grimgar03-02105",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro's inner thought upon seeing Choco in a memory"
+  },
+  {
+    "id": "grimgar03-02109",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro's past thought regarding Hidemasa"
+  },
+  {
+    "id": "grimgar03-02115",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco complaining about her throat after drinking soda"
+  },
+  {
+    "id": "grimgar03-02123",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Choco ('she added')"
+  },
+  {
+    "id": "grimgar03-02125",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding to Choco about athletes and soda"
+  },
+  {
+    "id": "grimgar03-02126",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Choco ('she said')"
+  },
+  {
+    "id": "grimgar03-02128",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco continuing her dialogue to Haruhiro"
+  },
+  {
+    "id": "grimgar03-02141",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco speaking to Haruhiro"
+  },
+  {
+    "id": "grimgar03-02148",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco answering Haruhiro's question"
+  },
+  {
+    "id": "grimgar03-02152",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro expressing surprise at Choco's remark"
+  },
+  {
+    "id": "grimgar03-02154",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding to Choco"
+  },
+  {
+    "id": "grimgar03-02162",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro answering Choco's question"
+  },
+  {
+    "id": "grimgar03-02169",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco responding to Haruhiro asking if she said something"
+  },
+  {
+    "id": "grimgar03-02178",
+    "speaker": "CHOCO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Choco asking Haruhiro to tell her"
+  },
+  {
+    "id": "grimgar03-02182",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro ('I said')"
+  },
+  {
+    "id": "grimgar03-02187",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narrative text quoting the single word 'everything' inside narration"
+  },
+  {
+    "id": "grimgar03-02214",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo shouting while struggling against bugs"
+  },
+  {
+    "id": "grimgar03-02215",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+    "id": "grimgar03-02217",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta muttered"
+  },
+  {
+    "id": "grimgar03-02221",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro cried"
+  },
+  {
+    "id": "grimgar03-02223",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Yume shouted"
+  },
+  {
+    "id": "grimgar03-02236",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+    "id": "grimgar03-02244",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+    "id": "grimgar03-02248",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro gasped out"
+  },
+  {
+    "id": "grimgar03-02261",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-02266",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro yelled"
+  },
+  {
+    "id": "grimgar03-02280",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "narration explicitly identifies the scream as Yume's"
+  },
+  {
+    "id": "grimgar03-02294",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro giving orders to retreat to the watchtower"
+  },
+  {
+    "id": "grimgar03-02297",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Yume said"
+  },
+  {
+    "id": "grimgar03-02302",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Moguzo replying to Yume"
+  },
+  {
+    "id": "grimgar03-02312",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro ('he said')"
+  },
+  {
+    "id": "grimgar03-02370",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro pointing at Sorcerer A"
+  },
+  {
+    "id": "grimgar03-02379",
+    "speaker": "YUME",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Yume shouted"
+  },
+  {
+    "id": "grimgar03-02383",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro bellowed"
+  },
+  {
+    "id": "grimgar03-02400",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-02402",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Merry yelled back"
+  },
+  {
+    "id": "grimgar03-02404",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro murmured"
+  },
+  {
+    "id": "grimgar03-02410",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-02417",
+    "speaker": "MERRY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Merry chanting her healing spell"
+  },
+  {
+    "id": "grimgar03-02423",
+    "speaker": "MOGUZO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Moguzo cried"
+  },
+  {
+    "id": "grimgar03-02454",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "screamed by an unnamed volunteer soldier priest set on fire"
+  },
+  {
+    "id": "grimgar03-02466",
+    "speaker": "ABAEL",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag explicitly names Abael shouting"
+  },
+  {
+    "id": "grimgar03-02476",
+    "speaker": "ABAEL",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag explicitly names Abael exclaiming"
+  },
+  {
+    "id": "grimgar03-02482",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta shouting after killing Abael"
+  },
+  {
+    "id": "grimgar03-02528",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-02532",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+    "id": "grimgar03-02537",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta shouting about the reward"
+  },
+  {
+    "id": "grimgar03-02538",
+    "speaker": "HARUHIRO",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Haruhiro responding to Ranta's shout"
+  },
+  {
+    "id": "grimgar03-02540",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta taunting Zoran as a decoy"
+  },
+  {
+    "id": "grimgar03-02546",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta calling out his Exhaust skill"
+  },
+  {
+    "id": "grimgar03-02573",
+    "speaker": "UNNAMED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "cheered by an unnamed volunteer soldier after Zoran's death"
+  },
+  {
+    "id": "grimgar03-02581",
+    "speaker": "RANTA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ranta celebrating the bounty victory"
+  }
+]

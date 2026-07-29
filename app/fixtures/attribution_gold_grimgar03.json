@@ -1,0 +1,3621 @@
+{
+ "description": "Hand-labelled attribution gold for grimgar03. Sampled uniformly from spoken, non-deterministic, textually unique segments; labelled without seeing any model output, so it can be used to measure model accuracy.",
+ "book": "grimgar03",
+ "source_run": "matrix_20260725-115148 / qwen3.5-9b-uncensored-hauhaucs-aggressive",
+ "sampling": {
+  "seed": 20260728,
+  "count": 396,
+  "context_segments": 12
+ },
+ "entries": [
+  {
+   "id": "grimgar03-00001",
+   "book": "grimgar03",
+   "entry_index": 1,
+   "line": "Ranta! Don’t wander off too far!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "followed by dialogue tag 'Haruhiro cautioned'[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00003",
+   "book": "grimgar03",
+   "entry_index": 2,
+   "line": "That line you saw is something anyone who’s gained some experience will have seen once or twice—or felt, rather. That might be the more correct way to describe it.",
+   "expected_speaker": "BARBARA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration identifies the speaker as Barbara-sensei from the thieves' guild[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00035",
+   "book": "grimgar03",
+   "entry_index": 3,
+   "line": "Moguzo, take the foreman! Ranta, one of the followers is yours! Take it out as quick as you can! For the other two, Yume and I will manage them for now...!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration states Haruhiro hastened to give orders[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00042",
+   "book": "grimgar03",
+   "entry_index": 4,
+   "line": "Ngh...!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag shows Haruhiro grunted while executing Swat[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00046",
+   "book": "grimgar03",
+   "entry_index": 5,
+   "line": "Yume!",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Shihoru shouts to warn Yume as her spell flies towards Yume's target[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00049",
+   "book": "grimgar03",
+   "entry_index": 6,
+   "line": "Meow, meow, meow, meow, meow!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Yume unleashed a flurry of blows while calling out[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00062",
+   "book": "grimgar03",
+   "entry_index": 7,
+   "line": "Nuh-uh, no way. Yume’s a hunter. And Yume loves her white god Elhit-chan, too. Yume just thinks, since she was facin’ that kobbie in solar combat, she shoulda kept it that way to the end! Also, don’t call my boobs tiny!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "speaker refers to herself as Yume in third person while answering Ranta[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00067",
+   "book": "grimgar03",
+   "entry_index": 8,
+   "line": "You say that, but Yume, she doesn’t know how to make her breasts get bigger!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "speaker refers to herself as Yume in response to Ranta's mocking[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00073",
+   "book": "grimgar03",
+   "entry_index": 9,
+   "line": "You’re terrible.",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag shows Merry sighed before delivering the line[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00080",
+   "book": "grimgar03",
+   "entry_index": 10,
+   "line": "Bwuh!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Moguzo spewing out whatever was in his mouth[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00082",
+   "book": "grimgar03",
+   "entry_index": 11,
+   "line": "Y-Yume...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Shihoru grabbed Yume by the arm while calling her[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00084",
+   "book": "grimgar03",
+   "entry_index": 12,
+   "line": "I-I don’t think you should do that in front of other people...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Shihoru advises Yume after grabbing her arm[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00085",
+   "book": "grimgar03",
+   "entry_index": 13,
+   "line": "Huh? Does it work better if Yume does it when no one’s around?",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "speaker refers to herself as Yume responding to Shihoru[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00086",
+   "book": "grimgar03",
+   "entry_index": 14,
+   "line": "No, uh... That’s not the problem...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Shihoru responds to Yume's question about doing it in private[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00089",
+   "book": "grimgar03",
+   "entry_index": 15,
+   "line": "Augh! Ranta, you dummy!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag shows Yume wailed[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00091",
+   "book": "grimgar03",
+   "entry_index": 16,
+   "line": "I’m no dummy! I’m the terrible king of sexual harassers! Freshly crowned! Revere me!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta responds directly to Yume calling him a dummy[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00096",
+   "book": "grimgar03",
+   "entry_index": 17,
+   "line": "You got something to complain about?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by Ranta while glaring at Haruhiro[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00098",
+   "book": "grimgar03",
+   "entry_index": 18,
+   "line": "Well, I do.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta counters Haruhiro's response of 'Not really'[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00100",
+   "book": "grimgar03",
+   "entry_index": 19,
+   "line": "About you, Haruhiro,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta answers Haruhiro's 'Huh?'[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00102",
+   "book": "grimgar03",
+   "entry_index": 20,
+   "line": "Man, I think you’re misunderstanding something.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta continues speaking to Haruhiro after flipping the nose ring[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00109",
+   "book": "grimgar03",
+   "entry_index": 21,
+   "line": "...the way you were moving was weird, man.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta lowered his voice to say this[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00140",
+   "book": "grimgar03",
+   "entry_index": 22,
+   "line": "Well, it’s not really that anything’s up.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration states Haruhiro was vague and then regretted saying it[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00142",
+   "book": "grimgar03",
+   "entry_index": 23,
+   "line": "...Are you going somewhere?",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Moguzo asked[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00152",
+   "book": "grimgar03",
+   "entry_index": 24,
+   "line": "—Ah... Geez.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag shows Haruhiro pulled at his hair right after speaking[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00168",
+   "book": "grimgar03",
+   "entry_index": 25,
+   "line": "No, it’s not that I need anything.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responds to the short-haired girl's inquiry[cite: 2]"
+  },
+  {
+   "id": "grimgar03-00171",
+   "book": "grimgar03",
+   "entry_index": 26,
+   "line": "Let’s go, Choco.",
+   "expected_speaker": "SASSA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "the short-haired girl who stepped between Choco and Haruhiro addresses Choco[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00178",
+   "book": "grimgar03",
+   "entry_index": 27,
+   "line": "—Heyyyyyy! Waaaaake uuuuuup!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta woke Haruhiro up with an elbow while shouting[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00185",
+   "book": "grimgar03",
+   "entry_index": 28,
+   "line": "You were sleeping the day away, so I decided to be a nice guy and gently wake you up, you know?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta continues explaining why he woke Haruhiro up[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00189",
+   "book": "grimgar03",
+   "entry_index": 29,
+   "line": "What could possibly be wrong with it?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Haruhiro demanded[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00194",
+   "book": "grimgar03",
+   "entry_index": 30,
+   "line": "Shove off, Moguzo! You just stay quiet! This is between me and Haruhiro! Until it’s settled, neither of us can move on! This is about setting things right between us, as men! Hey, Haruhiro! Right here, right now, we’ll settle this!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta interrupts Moguzo and addresses both Moguzo and Haruhiro[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00198",
+   "book": "grimgar03",
+   "entry_index": 31,
+   "line": "How should I know?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro answers Ranta after Ranta forgets what they were settling[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00200",
+   "book": "grimgar03",
+   "entry_index": 32,
+   "line": "—So,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro turned to face Ranta while speaking[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00205",
+   "book": "grimgar03",
+   "entry_index": 33,
+   "line": "You didn’t wake up at the usual time, and Moguzo said something stupid about waiting and letting you wake up on your own, so there I was, feeling real hungry, and so I went to the bakery. Yeah, the bakery. You know where I mean? Tattan’s Bakery, just outside of West Town. Well, when I did, there were a bunch of volunteer soldiers there. They were talking about it. Now, I’ll bet you want to ask what ‘it’ was, right? Well, hold your horses. There’s a proper order, a sequence, to all this. It’s like that in dating, too, isn’t it? Oh, maybe it’s too soon for you to understand that. You’re still just a little kid, after all. I mean, it’s pretty obvious that you’re still a virgin. Not me, of course. I’m the king of the old in and out. It’s like they say, experienced candidates receive preferential treatment. You get me? With my incredible technique, I leave those she-cats in an ecstatic frenzy.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta delivers a long rambling story after grinning at Haruhiro[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00208",
+   "book": "grimgar03",
+   "entry_index": 34,
+   "line": "It’s not nonsense,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta insisted[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00210",
+   "book": "grimgar03",
+   "entry_index": 35,
+   "line": "The only thing that comes out of my mouth is truth. In other words, it’s all fact.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta continues defending his statements to Haruhiro[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00216",
+   "book": "grimgar03",
+   "entry_index": 36,
+   "line": "How about you try dying then? Huh?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta exploded after Haruhiro refused to get down[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00220",
+   "book": "grimgar03",
+   "entry_index": 37,
+   "line": "Huh? Did you just say something?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta reacts to Haruhiro muttering under his breath[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00239",
+   "book": "grimgar03",
+   "entry_index": 38,
+   "line": "You’re repeating yourself, Haruhiro-kuuuun,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Ranta said[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00246",
+   "book": "grimgar03",
+   "entry_index": 39,
+   "line": "Y-You’re not holding back...! Ow! That hurts! Sto— Are you trying to kill me?! Fine! I’ll talk! I’ll talk, okay! Okay?! It’s an order! There’s an order!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by Ranta while Haruhiro throttles him[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00252",
+   "book": "grimgar03",
+   "entry_index": 40,
+   "line": "You can’t stop yourself from getting hungry. Look, we just so happen to have some bread here, so why not eat?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro continues speaking to Moguzo before Ranta snaps about the bread[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00258",
+   "book": "grimgar03",
+   "entry_index": 41,
+   "line": "—Yum...! This’s the stuff! It’s so good! Soruzo’s awesome!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta reacts after ordering and eating a bowl of soruzo[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00262",
+   "book": "grimgar03",
+   "entry_index": 42,
+   "line": "S-Soruzo’s delicious, huh,",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Moguzo said[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00264",
+   "book": "grimgar03",
+   "entry_index": 43,
+   "line": "...Moguzo, correct me if I’m wrong, but is that your second—No, third, bowl?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Haruhiro asked[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00266",
+   "book": "grimgar03",
+   "entry_index": 44,
+   "line": "Y-Yeah. It’s easy to eat, you know, so I just keep wolfing it down faster and faster...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo answers Haruhiro's question about how many bowls he has eaten[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00276",
+   "book": "grimgar03",
+   "entry_index": 45,
+   "line": "Huh...? Ah, yeah, uh... I’m not so sure...? The soup might be a bit hard...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo responds hesitantly to Ranta's idea of making soruzo soup[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00284",
+   "book": "grimgar03",
+   "entry_index": 46,
+   "line": "...I’m amazed you said you could make it, then,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag states Haruhiro took a shot at Ranta[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00286",
+   "book": "grimgar03",
+   "entry_index": 47,
+   "line": "...Yeah. If you add garlic, and maybe ginger... It might give it a more satisfying flavor.",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo speaks after drinking the soup and furrowing his brow[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00289",
+   "book": "grimgar03",
+   "entry_index": 48,
+   "line": "Moguzo, buddy, we could do it, don’t you think? Once we make some money, what say you and me open a restaurant?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta addresses Moguzo enthusiastically after Moguzo analyzes the soup[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00290",
+   "book": "grimgar03",
+   "entry_index": 49,
+   "line": "Ah, hahaha... But, we’re volunteer soldiers and all...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo responds nervously to Ranta's proposal to open a restaurant[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00291",
+   "book": "grimgar03",
+   "entry_index": 50,
+   "line": "Buddy, don’t sweat the small stuff like that!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag identifies Ranta declared[cite: 1]"
+  },
+  {
+   "id": "grimgar03-00294",
+   "book": "grimgar03",
+   "entry_index": 51,
+   "line": "You just said the same thing again,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro said helpfully' follows target line"
+  },
+  {
+   "id": "grimgar03-00296",
+   "book": "grimgar03",
+   "entry_index": 52,
+   "line": "Shut up, Haruhiro. Just shut up. Seriously. Seriously. You can get lost! I’m having an important talk with Moguzo here! Anyway, how about it, Moguzo? Want to do that with me? Ranta and Moguzo’s Soruzo Shop. We’ll split the profits seventy to me, thirty to you... is what I’d like to say, but I’m fine with splitting it fifty-fifty. We’ll start studying now, so we’ll be ready when the time comes. How about it? Hm?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta snapping at Haruhiro and addressing Moguzo about starting a restaurant"
+  },
+  {
+   "id": "grimgar03-00299",
+   "book": "grimgar03",
+   "entry_index": 53,
+   "line": "It could be nice. Doing something like that. Compared to fighting... Well, it seems easier at least. I’ll think about it.",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo reflecting aloud on the idea of opening a restaurant instead of fighting"
+  },
+  {
+   "id": "grimgar03-00302",
+   "book": "grimgar03",
+   "entry_index": 54,
+   "line": "—So! Finally, I think it’s time for me to talk about the order! Are you mentally prepared? Am I good to start? I am, right? Don’t you tell me otherwise at this late stage of the game.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta dramatically introducing the topic of the order after eating"
+  },
+  {
+   "id": "grimgar03-00303",
+   "book": "grimgar03",
+   "entry_index": 55,
+   "line": "You’re being seriously annoying, so just tell us already...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro muttered' follows target line"
+  },
+  {
+   "id": "grimgar03-00305",
+   "book": "grimgar03",
+   "entry_index": 56,
+   "line": "Haaaaruhiroooo! When you call people annoying, you’re being one hundred! Nay! One thousand, ten thousand, no, no, no, five hundred million times as annoying! Get that through your head already!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta shouting at Haruhiro in response to being called annoying"
+  },
+  {
+   "id": "grimgar03-00307",
+   "book": "grimgar03",
+   "entry_index": 57,
+   "line": "You only need to say ‘yeah’ one hundred times,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Ranta' follows target line"
+  },
+  {
+   "id": "grimgar03-00309",
+   "book": "grimgar03",
+   "entry_index": 58,
+   "line": "Yeah—Wait, not one time, one hundred times?! That’s too many!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro reacting to Ranta demanding he say 'yeah' one hundred times"
+  },
+  {
+   "id": "grimgar03-00310",
+   "book": "grimgar03",
+   "entry_index": 59,
+   "line": "Don’t underestimate me! Brilliantly surprising people is what I, Ranta-sama, do!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta self-identifying as 'Ranta-sama' while boasting"
+  },
+  {
+   "id": "grimgar03-00311",
+   "book": "grimgar03",
+   "entry_index": 60,
+   "line": "...Even Moguzo’s laughing,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro said' follows target line"
+  },
+  {
+   "id": "grimgar03-00320",
+   "book": "grimgar03",
+   "entry_index": 61,
+   "line": "Haaaaruhiiiiro-kuuuun...",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta said' follows target line"
+  },
+  {
+   "id": "grimgar03-00322",
+   "book": "grimgar03",
+   "entry_index": 62,
+   "line": "...What’s with that way of saying my name? It’s kind of creepy.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro complaining about how Ranta drew out his name"
+  },
+  {
+   "id": "grimgar03-00325",
+   "book": "grimgar03",
+   "entry_index": 63,
+   "line": "That’s your fault!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-00336",
+   "book": "grimgar03",
+   "entry_index": 64,
+   "line": "It’s a two-headed snake!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta explaining his arm-wiggling motion as representing a two-headed snake"
+  },
+  {
+   "id": "grimgar03-00341",
+   "book": "grimgar03",
+   "entry_index": 65,
+   "line": "One gold coin...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "It follows narration that Moguzo reacted wide-eyed and said Oooh."
+  },
+  {
+   "id": "grimgar03-00343",
+   "book": "grimgar03",
+   "entry_index": 66,
+   "line": "Consolation money. Take it.",
+   "expected_speaker": "RENJI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag in preceding narration explicitly names Renji speaking to Haruhiro"
+  },
+  {
+   "id": "grimgar03-00350",
+   "book": "grimgar03",
+   "entry_index": 67,
+   "line": "Won’t any spot do?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro asked' follows target line"
+  },
+  {
+   "id": "grimgar03-00358",
+   "book": "grimgar03",
+   "entry_index": 68,
+   "line": "Riverside Iron Fortress. This fortress, it’s about 40 km west of Deadhead, on the bank of a jet river, and if you go further upstream, you’ll run into the territory of the former Kingdom of Nananka. You know what that is? No, I bet you don’t. The former Kingdom of Nananka. It means orcs, man, orcs. Nowadays, there’s a country full of orcs there. So, they’re able to travel by boat and carry in supplies and troops. Deadhead’s a teeny-tiny little keep, but when the Frontier Army attacks, they raise smoke signals, or something. When they do that, reinforcements get sent in from Riverside immediately.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta explaining the geographical layout and tactical situation of Riverside Iron Fortress"
+  },
+  {
+   "id": "grimgar03-00360",
+   "book": "grimgar03",
+   "entry_index": 69,
+   "line": "But it’s a full 40 km away.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro questioning how reinforcements could arrive so fast over 40 km"
+  },
+  {
+   "id": "grimgar03-00361",
+   "book": "grimgar03",
+   "entry_index": 70,
+   "line": "The orcish army’s got what they call dragoons,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta said' follows target line"
+  },
+  {
+   "id": "grimgar03-00363",
+   "book": "grimgar03",
+   "entry_index": 71,
+   "line": "They’re called dragoons, but they don’t ride dragons, they ride these huge lizards,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration is 'Ranta said.'"
+  },
+  {
+   "id": "grimgar03-00369",
+   "book": "grimgar03",
+   "entry_index": 72,
+   "line": "Clever thinking, just what I’d expect from my business partner.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta praises Moguzo as 'my business partner', then tries to snap his fingers in the next narration"
+  },
+  {
+   "id": "grimgar03-00377",
+   "book": "grimgar03",
+   "entry_index": 73,
+   "line": "So, moving on... Where were we?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration is 'Haruhiro asked.'"
+  },
+  {
+   "id": "grimgar03-00380",
+   "book": "grimgar03",
+   "entry_index": 74,
+   "line": "Riverside Iron Fortress, was it?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration is 'Haruhiro asked.'"
+  },
+  {
+   "id": "grimgar03-00391",
+   "book": "grimgar03",
+   "entry_index": 75,
+   "line": "The Frontier Army’s learned from their mistakes, wahahaha,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding narration is 'Ranta talks about it with a condescending tone, like' - the target is the quoted example"
+  },
+  {
+   "id": "grimgar03-00393",
+   "book": "grimgar03",
+   "entry_index": 76,
+   "line": "...Isn’t it kinda dangerous?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro asked' immediately follows"
+  },
+  {
+   "id": "grimgar03-00395",
+   "book": "grimgar03",
+   "entry_index": 77,
+   "line": "And, hold on, we’re not attacking with just volunteer soldiers... there’s no way that’d be it, right?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro asking Ranta for clarification about the army's involvement"
+  },
+  {
+   "id": "grimgar03-00396",
+   "book": "grimgar03",
+   "entry_index": 78,
+   "line": "Obviously, the Frontier Army will accompany us, or rather, they’re the main force and we’ll be accompanying them,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta snorted' follows target line"
+  },
+  {
+   "id": "grimgar03-00398",
+   "book": "grimgar03",
+   "entry_index": 79,
+   "line": "The volunteer soldiers are there in a supporting role, of course. Try to think a little. Are you a moron? Don’t just keep looking at it with sleepy eyes like that, Haruhirion.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta addressing Haruhiro as 'Haruhirion' and making fun of his eyes"
+  },
+  {
+   "id": "grimgar03-00399",
+   "book": "grimgar03",
+   "entry_index": 80,
+   "line": "Don’t talk about my eyes. I’ll stab you from behind. Also, drop the Haruhirion thing.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding angrily to Ranta's mocking nicknames"
+  },
+  {
+   "id": "grimgar03-00407",
+   "book": "grimgar03",
+   "entry_index": 81,
+   "line": "Let’s see, at Deadhead there’ll be five hundred or six hundred from the Frontier Army, they were saying. As for volunteer soldiers, it was one hundred, maybe a hundred and fifty. Riverside’s one tough fortress, so I expect it’ll turn into a pretty intense battle. I hear Soma’s Day Breakers, ‘Red Devil’ Ducky’s Berserkers, ‘One-on-One’ Max’s Iron Knuckle, and Shinohara’s Orion will be participating there. Honestly, that’s some crazy stuff. ‘If you aren’t confident in your skills,’ it feels like they’re saying, ‘if you come, you’re gonna die, so don’t come, you’ll only get in the way.’",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta detailing the troop numbers and participating volunteer soldier teams"
+  },
+  {
+   "id": "grimgar03-00411",
+   "book": "grimgar03",
+   "entry_index": 82,
+   "line": "One gold coin! We’ve gotta do it, with that up for grabs! It’s decided! Yup! Let’s go and apply already! There’re three days left before the deadline, but you know that proverb about striking while the iron’s hot, right? Or was it an idiom? Well, whichever, it’s a thing they say, and I say I’ll go to the office right now and—",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta urging immediate application for the gold coin reward"
+  },
+  {
+   "id": "grimgar03-00418",
+   "book": "grimgar03",
+   "entry_index": 83,
+   "line": "Well, I’ll bring it up with them tonight, and we can make a decision after that. There’s still time, so it should be fine.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro setting the plan as party leader to discuss with the full team tonight"
+  },
+  {
+   "id": "grimgar03-00420",
+   "book": "grimgar03",
+   "entry_index": 84,
+   "line": "Oh, fine, if you insist.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta begrudgingly agreeing to Haruhiro's plan after snorting"
+  },
+  {
+   "id": "grimgar03-00423",
+   "book": "grimgar03",
+   "entry_index": 85,
+   "line": "Of course, I’m getting beer, like a real man should,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta declared' follows target line"
+  },
+  {
+   "id": "grimgar03-00427",
+   "book": "grimgar03",
+   "entry_index": 86,
+   "line": "I’ll get mead,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Haruhiro' follows target line"
+  },
+  {
+   "id": "grimgar03-00429",
+   "book": "grimgar03",
+   "entry_index": 87,
+   "line": "Ah, me, too,",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Merry' follows target line"
+  },
+  {
+   "id": "grimgar03-00439",
+   "book": "grimgar03",
+   "entry_index": 88,
+   "line": "Good work, everyone,",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'said Merry' follows target line"
+  },
+  {
+   "id": "grimgar03-00445",
+   "book": "grimgar03",
+   "entry_index": 89,
+   "line": "—Bwahh! I... win...!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta slammed his empty ceramic mug down' follows target line"
+  },
+  {
+   "id": "grimgar03-00451",
+   "book": "grimgar03",
+   "entry_index": 90,
+   "line": "I know, right? I am awesome, aren’t I? You really do get it, Moguzo,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta said proudly' follows target line"
+  },
+  {
+   "id": "grimgar03-00456",
+   "book": "grimgar03",
+   "entry_index": 91,
+   "line": "No, a business partner...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro at least made the effort to correct her' follows target line"
+  },
+  {
+   "id": "grimgar03-00462",
+   "book": "grimgar03",
+   "entry_index": 92,
+   "line": "What’s wrong, Shihoru?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro asked' follows target line"
+  },
+  {
+   "id": "grimgar03-00468",
+   "book": "grimgar03",
+   "entry_index": 93,
+   "line": "Shihoru. I’ll bet you were imagining something weird.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta teasing Shihoru about her blushing"
+  },
+  {
+   "id": "grimgar03-00472",
+   "book": "grimgar03",
+   "entry_index": 94,
+   "line": "So, that means I don’t have the same delusion energy coursing through me that you do, get it?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta went on' follows target line"
+  },
+  {
+   "id": "grimgar03-00486",
+   "book": "grimgar03",
+   "entry_index": 95,
+   "line": "Yume has her own opinion, too!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume asserting herself in argument with Ranta, referring to herself in third person"
+  },
+  {
+   "id": "grimgar03-00488",
+   "book": "grimgar03",
+   "entry_index": 96,
+   "line": "Ranta, you did!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume replying directly to Ranta during their argument"
+  },
+  {
+   "id": "grimgar03-00490",
+   "book": "grimgar03",
+   "entry_index": 97,
+   "line": "Yume knows that much!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume replying to Ranta, referring to herself as Yume"
+  },
+  {
+   "id": "grimgar03-00491",
+   "book": "grimgar03",
+   "entry_index": 98,
+   "line": "Yeah, well, before we talk about what you do or don’t know, stop getting words wrong so often! Do you have holes for ears?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-00495",
+   "book": "grimgar03",
+   "entry_index": 99,
+   "line": "Yep, they’re there. Holes in my ears. Everyone has holes for ears. Or are you blind? Do you have holes for eyes?",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume taking Ranta's idiom literally and retorting that everyone has ear holes"
+  },
+  {
+   "id": "grimgar03-00498",
+   "book": "grimgar03",
+   "entry_index": 100,
+   "line": "—Here we go again. This is it. This here. This is the problem with our party’s leader. He likes to pick at any little mistake people make! On top of that, the way he criticizes them for it is downright malicious! What an awful personality!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta deflecting his blunder by dramatically accusing Haruhiro"
+  },
+  {
+   "id": "grimgar03-00501",
+   "book": "grimgar03",
+   "entry_index": 101,
+   "line": "If you don’t want to hear it, then don’t act in a way that makes me say it, huh? Show some restraint, okay?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta replying to Haruhiro's criticism of his personality"
+  },
+  {
+   "id": "grimgar03-00506",
+   "book": "grimgar03",
+   "entry_index": 102,
+   "line": "A business?",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Merry asked' explicitly names speaker"
+  },
+  {
+   "id": "grimgar03-00508",
+   "book": "grimgar03",
+   "entry_index": 103,
+   "line": "Ohhh.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro making an understanding sound before explaining the food stall incident"
+  },
+  {
+   "id": "grimgar03-00520",
+   "book": "grimgar03",
+   "entry_index": 104,
+   "line": "Ramen—Wait...",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Merry said' directly follows target line"
+  },
+  {
+   "id": "grimgar03-00525",
+   "book": "grimgar03",
+   "entry_index": 105,
+   "line": "Ramen is... Um... Huh? That’s odd. Yume, did she know it... from somewhere? Maybe? What was it again? Huh? What was Yume talking about with everyone again?",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "speaker refers to self as Yume in third person and preceding narration identifies Yume"
+  },
+  {
+   "id": "grimgar03-00528",
+   "book": "grimgar03",
+   "entry_index": 106,
+   "line": "About ramen,",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Moguzo said in a strong tone' follows target line"
+  },
+  {
+   "id": "grimgar03-00530",
+   "book": "grimgar03",
+   "entry_index": 107,
+   "line": "We were talking about ramen. We... We probably know what ramen is. That’s right. Soruzo, it’s kind of like ramen. When I first ate it, I thought it tasted like something. It was ramen I was thinking of. I couldn’t remember it at the time. I wonder why not. I’ve always loved ramen. Ranta-kun.",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Moguzo's speech after dialogue tag"
+  },
+  {
+   "id": "grimgar03-00531",
+   "book": "grimgar03",
+   "entry_index": 108,
+   "line": "Huh? Oh...?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta asked' follows target line"
+  },
+  {
+   "id": "grimgar03-00535",
+   "book": "grimgar03",
+   "entry_index": 109,
+   "line": "But, me, I don’t want to open a soruzo place, I want to make ramen. I’ll save up money, study, and when I can make ramen that tastes just right, let’s do it, let’s open that restaurant.",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo explaining his dream to make ramen and open a restaurant with Ranta"
+  },
+  {
+   "id": "grimgar03-00538",
+   "book": "grimgar03",
+   "entry_index": 110,
+   "line": "Yeah! You’ll be in charge of the cooking and raising capital! Leave everything else to me! I swear I’ll lead us to success!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta enthusiastically accepting Moguzo's restaurant idea"
+  },
+  {
+   "id": "grimgar03-00540",
+   "book": "grimgar03",
+   "entry_index": 111,
+   "line": "...The cooking is fine, but raising capital, too...?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro muttered' follows target line"
+  },
+  {
+   "id": "grimgar03-00547",
+   "book": "grimgar03",
+   "entry_index": 112,
+   "line": "...Hrmm...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Shihoru looked down' indicates her hesitant vocalization"
+  },
+  {
+   "id": "grimgar03-00552",
+   "book": "grimgar03",
+   "entry_index": 113,
+   "line": "...Oh. Is that right?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro asked' follows target line"
+  },
+  {
+   "id": "grimgar03-00578",
+   "book": "grimgar03",
+   "entry_index": 114,
+   "line": "Majority vote.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta calling for a majority vote to decide on accepting the order"
+  },
+  {
+   "id": "grimgar03-00596",
+   "book": "grimgar03",
+   "entry_index": 115,
+   "line": "Well...",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume trailing off before stating her agreement with Merry in the next sentence"
+  },
+  {
+   "id": "grimgar03-00645",
+   "book": "grimgar03",
+   "entry_index": 116,
+   "line": "—It’s kind of like...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro muttering aloud while alone in the corridor holding his head"
+  },
+  {
+   "id": "grimgar03-00649",
+   "book": "grimgar03",
+   "entry_index": 117,
+   "line": "No, no...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro speaking aloud to himself in distress while alone"
+  },
+  {
+   "id": "grimgar03-00651",
+   "book": "grimgar03",
+   "entry_index": 118,
+   "line": "Augh...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro groaning aloud in frustration while alone in the hallway"
+  },
+  {
+   "id": "grimgar03-00668",
+   "book": "grimgar03",
+   "entry_index": 119,
+   "line": "W-Well... You know. What is it...? Well... Um, nothing... Really.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro stammering nervously after calling out to Choco"
+  },
+  {
+   "id": "grimgar03-00672",
+   "book": "grimgar03",
+   "entry_index": 120,
+   "line": "Bye.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco saying goodbye and turning to leave"
+  },
+  {
+   "id": "grimgar03-00681",
+   "book": "grimgar03",
+   "entry_index": 121,
+   "line": "Er... Ba...sically, yeah... Uh... Hm...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro trailing off incoherently in front of Choco"
+  },
+  {
+   "id": "grimgar03-00692",
+   "book": "grimgar03",
+   "entry_index": 122,
+   "line": "No way?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro reacting in shock to Choco calling him gross"
+  },
+  {
+   "id": "grimgar03-00698",
+   "book": "grimgar03",
+   "entry_index": 123,
+   "line": "What are you doing here?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco asking Haruhiro why he is in the hallway late at night"
+  },
+  {
+   "id": "grimgar03-00717",
+   "book": "grimgar03",
+   "entry_index": 124,
+   "line": "Somehow, what?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco prompting Haruhiro to finish his thought"
+  },
+  {
+   "id": "grimgar03-00722",
+   "book": "grimgar03",
+   "entry_index": 125,
+   "line": "I won’t say.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco refusing to tell Haruhiro what she was going to say"
+  },
+  {
+   "id": "grimgar03-00736",
+   "book": "grimgar03",
+   "entry_index": 126,
+   "line": "...Yeah. I don’t remember.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue turn answering Haruhiro's question about her memories"
+  },
+  {
+   "id": "grimgar03-00737",
+   "book": "grimgar03",
+   "entry_index": 127,
+   "line": "Neither do I. Not even my family or friends. I don’t remember them at all.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue turn in conversation with Choco where Haruhiro shares his own memory loss"
+  },
+  {
+   "id": "grimgar03-00740",
+   "book": "grimgar03",
+   "entry_index": 128,
+   "line": "So, on that note,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he said nervously' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-00742",
+   "book": "grimgar03",
+   "entry_index": 129,
+   "line": "could it be... Like, for me, I joined a party, and I think I met them all for the first time here, but maybe that’s not the case, right?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Haruhiro's speech after dialogue tag 'he said nervously'"
+  },
+  {
+   "id": "grimgar03-00761",
+   "book": "grimgar03",
+   "entry_index": 130,
+   "line": "Ah... Yeah, that’s right, isn’t it?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he asked' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-00767",
+   "book": "grimgar03",
+   "entry_index": 131,
+   "line": "...Hmm. Well, can I call you Hiro?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco asking Haruhiro if she can call him Hiro"
+  },
+  {
+   "id": "grimgar03-00768",
+   "book": "grimgar03",
+   "entry_index": 132,
+   "line": "Sure.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro agreeing to Choco calling him Hiro"
+  },
+  {
+   "id": "grimgar03-00770",
+   "book": "grimgar03",
+   "entry_index": 133,
+   "line": "I’m okay with that,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he said' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-00780",
+   "book": "grimgar03",
+   "entry_index": 134,
+   "line": "Better hit the hay. ...What are you up to, Choco? It’s pretty late.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro addressing Choco directly before her reply"
+  },
+  {
+   "id": "grimgar03-00783",
+   "book": "grimgar03",
+   "entry_index": 135,
+   "line": "Can’t sleep?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro asking Choco a follow-up question to her walk comment"
+  },
+  {
+   "id": "grimgar03-00786",
+   "book": "grimgar03",
+   "entry_index": 136,
+   "line": "Choco, you’re a thief?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he asked' refers to Haruhiro addressing Choco"
+  },
+  {
+   "id": "grimgar03-00791",
+   "book": "grimgar03",
+   "entry_index": 137,
+   "line": "Ah. You look like one,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'she agreed' refers to Choco"
+  },
+  {
+   "id": "grimgar03-00793",
+   "book": "grimgar03",
+   "entry_index": 138,
+   "line": "Huh? What part of me?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro questioning Choco's statement that he looks like a thief"
+  },
+  {
+   "id": "grimgar03-00794",
+   "book": "grimgar03",
+   "entry_index": 139,
+   "line": "You’re lanky.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco answering Haruhiro's question about what part of him looks like a thief"
+  },
+  {
+   "id": "grimgar03-00795",
+   "book": "grimgar03",
+   "entry_index": 140,
+   "line": "No, that may be true, but... I’m a thief because I’m lanky? Is that the image you have? Is that what thieves are like to you? Why did you become a thief?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro replying to Choco and asking why she became a thief"
+  },
+  {
+   "id": "grimgar03-00797",
+   "book": "grimgar03",
+   "entry_index": 141,
+   "line": "Going with the flow?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he asked' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-00803",
+   "book": "grimgar03",
+   "entry_index": 142,
+   "line": "Yeah. Since we’re both thieves, and all.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro answering Choco's clarification about trade names"
+  },
+  {
+   "id": "grimgar03-00807",
+   "book": "grimgar03",
+   "entry_index": 143,
+   "line": "It’s something someone else gave me, anyway,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'she added' refers to Choco"
+  },
+  {
+   "id": "grimgar03-00810",
+   "book": "grimgar03",
+   "entry_index": 144,
+   "line": "The same time?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco questioning Haruhiro's suggestion to say trade names at the same time"
+  },
+  {
+   "id": "grimgar03-00816",
+   "book": "grimgar03",
+   "entry_index": 145,
+   "line": "Old Cat.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro revealing his trade name simultaneously with Choco"
+  },
+  {
+   "id": "grimgar03-00829",
+   "book": "grimgar03",
+   "entry_index": 146,
+   "line": "That’s some coincidence,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'she said' refers to Choco"
+  },
+  {
+   "id": "grimgar03-00835",
+   "book": "grimgar03",
+   "entry_index": 147,
+   "line": "Who’s Barbara?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'she responded' refers to Choco"
+  },
+  {
+   "id": "grimgar03-00846",
+   "book": "grimgar03",
+   "entry_index": 148,
+   "line": "I should never have become a thief,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Choco said' explicitly names speaker"
+  },
+  {
+   "id": "grimgar03-00852",
+   "book": "grimgar03",
+   "entry_index": 149,
+   "line": "I’d say so.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro replying to Choco's question"
+  },
+  {
+   "id": "grimgar03-00853",
+   "book": "grimgar03",
+   "entry_index": 150,
+   "line": "I want to take it easy,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'she complained' refers to Choco"
+  },
+  {
+   "id": "grimgar03-00856",
+   "book": "grimgar03",
+   "entry_index": 151,
+   "line": "Do you find it all a pain?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates she asked, referring to Choco"
+  },
+  {
+   "id": "grimgar03-00867",
+   "book": "grimgar03",
+   "entry_index": 152,
+   "line": "Hiro, is your party accepting the order, too?",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco addresses Haruhiro by his nickname Hiro"
+  },
+  {
+   "id": "grimgar03-00871",
+   "book": "grimgar03",
+   "entry_index": 153,
+   "line": "I don’t want to do it, though. It seems kind of dangerous.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Choco let out a heavy breath while talking"
+  },
+  {
+   "id": "grimgar03-00873",
+   "book": "grimgar03",
+   "entry_index": 154,
+   "line": "But, apparently, we are.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Choco's speech"
+  },
+  {
+   "id": "grimgar03-00875",
+   "book": "grimgar03",
+   "entry_index": 155,
+   "line": "Okay, we’ll put it to a vote, then.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro as leader calling for a party vote"
+  },
+  {
+   "id": "grimgar03-00877",
+   "book": "grimgar03",
+   "entry_index": 156,
+   "line": "The subject is whether or not we participate in the order for Operation ‘Two-Headed Snake.’ All in favor, raise your hands.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro stating the subject of the vote"
+  },
+  {
+   "id": "grimgar03-00892",
+   "book": "grimgar03",
+   "entry_index": 157,
+   "line": "Huhh?! I did not! Like I’d do that! No, wait, maybe I did. Yeah, I did. So, what then, it’s four? Four. That’s a majority, huh.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta responding after Haruhiro points out he counted both hands"
+  },
+  {
+   "id": "grimgar03-00912",
+   "book": "grimgar03",
+   "entry_index": 158,
+   "line": "What are you, a magnifying glass?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta scoffed"
+  },
+  {
+   "id": "grimgar03-00913",
+   "book": "grimgar03",
+   "entry_index": 159,
+   "line": "Magnifying glasses don’t speak.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding pedantically to Ranta"
+  },
+  {
+   "id": "grimgar03-00919",
+   "book": "grimgar03",
+   "entry_index": 160,
+   "line": "No, it doesn’t quite mean that,",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Merry coldly corrected him"
+  },
+  {
+   "id": "grimgar03-00928",
+   "book": "grimgar03",
+   "entry_index": 161,
+   "line": "I’d like to know...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Moguzo took a sip of his beer"
+  },
+  {
+   "id": "grimgar03-00931",
+   "book": "grimgar03",
+   "entry_index": 162,
+   "line": "He’s garbage at it, though!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Ranta knocked back his beer and guffawed"
+  },
+  {
+   "id": "grimgar03-00935",
+   "book": "grimgar03",
+   "entry_index": 163,
+   "line": "Haruhiro-kun is trying his hardest for us!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo defending Haruhiro after Ranta's insult"
+  },
+  {
+   "id": "grimgar03-00938",
+   "book": "grimgar03",
+   "entry_index": 164,
+   "line": "...I think so, too,",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Shihoru put in"
+  },
+  {
+   "id": "grimgar03-00940",
+   "book": "grimgar03",
+   "entry_index": 165,
+   "line": "Agreed,",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Merry finished"
+  },
+  {
+   "id": "grimgar03-00944",
+   "book": "grimgar03",
+   "entry_index": 166,
+   "line": "Ganging up on me?! Well, I don’t care, it doesn’t matter to me one bit! Bring it on!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-00950",
+   "book": "grimgar03",
+   "entry_index": 167,
+   "line": "The fact that we’ll be getting one gold between the advance payment and the rest of the payment is a big deal. If it’s not wrapped up in a day, from the second day on we’ll be given a stipend of 30 silver a day. Also, there may be special compensation awarded in the field, too, right, Ranta?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro explaining the reward structure to the party"
+  },
+  {
+   "id": "grimgar03-00960",
+   "book": "grimgar03",
+   "entry_index": 168,
+   "line": "You know, for this order, we get paid just for participating in it, right?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro asked"
+  },
+  {
+   "id": "grimgar03-00966",
+   "book": "grimgar03",
+   "entry_index": 169,
+   "line": "Call me whatever you want. I don’t care in the slightest.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding calmly to Ranta's insults"
+  },
+  {
+   "id": "grimgar03-00967",
+   "book": "grimgar03",
+   "entry_index": 170,
+   "line": "Haruhiro, you weakling!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-00974",
+   "book": "grimgar03",
+   "entry_index": 171,
+   "line": "That’s got nothing to do with this!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "answers Ranta's 'You're small, too!' which the narration attributes to Ranta"
+  },
+  {
+   "id": "grimgar03-00977",
+   "book": "grimgar03",
+   "entry_index": 172,
+   "line": "...Y-Yume, he means...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration is 'Shihoru began.'"
+  },
+  {
+   "id": "grimgar03-00987",
+   "book": "grimgar03",
+   "entry_index": 173,
+   "line": "Heh, heh, heh, heh, heh, heh...",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration is 'Ranta suddenly put on a villainous smile.'"
+  },
+  {
+   "id": "grimgar03-00991",
+   "book": "grimgar03",
+   "entry_index": 174,
+   "line": "Awful personalityyyyyy? Huhhhhhhhhh? What are you talking abouuuuuuut? I just tell it like it is, you knoooooooow?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "answers Haruhiro's 'awful personality' jab; the next narration is Haruhiro's interior threat to Backstab Ranta"
+  },
+  {
+   "id": "grimgar03-00995",
+   "book": "grimgar03",
+   "entry_index": 175,
+   "line": "say what you will about us, we’re the party that took down Death Spots. And the keep this time is called Deadhead. The names are close. I dunno, don’t you think it’s a sign? It could be.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continues 'Besides,' which the narration tags 'Haruhiro said aloud,'"
+  },
+  {
+   "id": "grimgar03-01007",
+   "book": "grimgar03",
+   "entry_index": 176,
+   "line": "How about you, Merry?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates he asked, referring to Haruhiro asking Merry"
+  },
+  {
+   "id": "grimgar03-01009",
+   "book": "grimgar03",
+   "entry_index": 177,
+   "line": "If that’s what everyone’s decided, I’m okay with it. I’ll just do everything I can to keep you all alive.",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Merry nodded with something resembling a smile"
+  },
+  {
+   "id": "grimgar03-01017",
+   "book": "grimgar03",
+   "entry_index": 178,
+   "line": "Let’s go with that.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Haruhiro lifted his mug before speaking"
+  },
+  {
+   "id": "grimgar03-01019",
+   "book": "grimgar03",
+   "entry_index": 179,
+   "line": "—This is impossible!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Ranta was the first to start squirming"
+  },
+  {
+   "id": "grimgar03-01021",
+   "book": "grimgar03",
+   "entry_index": 180,
+   "line": "You can’t just suddenly expect us to fall asleep at this time of day...",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta griped"
+  },
+  {
+   "id": "grimgar03-01025",
+   "book": "grimgar03",
+   "entry_index": 181,
+   "line": "I can never get enough sleep, but I’m not tired yet...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Moguzo agreed"
+  },
+  {
+   "id": "grimgar03-01026",
+   "book": "grimgar03",
+   "entry_index": 182,
+   "line": "If we can’t sleep anyway, you wanna go?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-01041",
+   "book": "grimgar03",
+   "entry_index": 183,
+   "line": "There’s only one thing.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta speaking after Ranta demanded"
+  },
+  {
+   "id": "grimgar03-01043",
+   "book": "grimgar03",
+   "entry_index": 184,
+   "line": "The one thing is... that one thing!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta responding to Haruhiro"
+  },
+  {
+   "id": "grimgar03-01052",
+   "book": "grimgar03",
+   "entry_index": 185,
+   "line": "...What starts with ‘boo’?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta asked"
+  },
+  {
+   "id": "grimgar03-01056",
+   "book": "grimgar03",
+   "entry_index": 186,
+   "line": "You’re the one who started this. Are you just making it up as you go along? If you haven’t thought of something, why not just say so?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Haruhiro speaking"
+  },
+  {
+   "id": "grimgar03-01058",
+   "book": "grimgar03",
+   "entry_index": 187,
+   "line": "M-Me?",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Moguzo stammered"
+  },
+  {
+   "id": "grimgar03-01060",
+   "book": "grimgar03",
+   "entry_index": 188,
+   "line": "Boo...? Bo... Boo... Boooo....",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo tries to guess words starting with boo"
+  },
+  {
+   "id": "grimgar03-01061",
+   "book": "grimgar03",
+   "entry_index": 189,
+   "line": "Keep it up, Moguzo! It’s coming out! You’re almost there! Go on!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta encouraging Moguzo"
+  },
+  {
+   "id": "grimgar03-01082",
+   "book": "grimgar03",
+   "entry_index": 190,
+   "line": "I’ll squeeze them! I’ll squeeze them like crazy!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta declaring"
+  },
+  {
+   "id": "grimgar03-01083",
+   "book": "grimgar03",
+   "entry_index": 191,
+   "line": "...That’s practically rape, man.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro objecting to Ranta's claims"
+  },
+  {
+   "id": "grimgar03-01087",
+   "book": "grimgar03",
+   "entry_index": 192,
+   "line": "No, that’s not okay to do, as a person...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro telling Ranta that squeezing boobs is not okay"
+  },
+  {
+   "id": "grimgar03-01088",
+   "book": "grimgar03",
+   "entry_index": 193,
+   "line": "Well, yeah,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta agreed suddenly"
+  },
+  {
+   "id": "grimgar03-01094",
+   "book": "grimgar03",
+   "entry_index": 194,
+   "line": "Even if I forced them to let me squeeze them, it’d be pointless, wouldn’t it? What then? I want a ‘You can squeeze them.’ Or rather, a ‘Please, squeeze them.’ It’s gotta be something like that. You’ve gotta have love.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta's speech after Ranta added"
+  },
+  {
+   "id": "grimgar03-01120",
+   "book": "grimgar03",
+   "entry_index": 195,
+   "line": "Bullseye, huh? Merry’s got the best looks, no question there, but she’s clearly out of your league. Shihoru’s got huge boobs, which is a big point in her favor. Her face is decently cute, too. But that personality of hers seems like a pain, and she doesn’t talk to guys much, anyway. An indecisive guy with low self-esteem like you is gonna go for an airhead like Yume. That’s just how it is.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta analyzing Haruhiro's romantic prospects"
+  },
+  {
+   "id": "grimgar03-01126",
+   "book": "grimgar03",
+   "entry_index": 196,
+   "line": "I’m pretty sure girls aren’t into you, either, for an entirely different reason.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration confirms Haruhiro is the speaker"
+  },
+  {
+   "id": "grimgar03-01134",
+   "book": "grimgar03",
+   "entry_index": 197,
+   "line": "If there are men and there are women, there’s no way you don’t have someone! Our male instincts naturally select a female.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta speaking"
+  },
+  {
+   "id": "grimgar03-01145",
+   "book": "grimgar03",
+   "entry_index": 198,
+   "line": "It’s more like... I admire her, you could say,",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Moguzo said"
+  },
+  {
+   "id": "grimgar03-01148",
+   "book": "grimgar03",
+   "entry_index": 199,
+   "line": "Or I sometimes think... ‘She’s so pretty...’",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo continuing to describe his feelings"
+  },
+  {
+   "id": "grimgar03-01155",
+   "book": "grimgar03",
+   "entry_index": 200,
+   "line": "...You only ever say things you shouldn’t.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Haruhiro shook his head"
+  },
+  {
+   "id": "grimgar03-01159",
+   "book": "grimgar03",
+   "entry_index": 201,
+   "line": "You don’t dig wax out of your eyes, that’d go terribly, and how many times do I have to tell you not to talk about my eyes?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro asked"
+  },
+  {
+   "id": "grimgar03-01161",
+   "book": "grimgar03",
+   "entry_index": 202,
+   "line": "Still, though,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta mused"
+  },
+  {
+   "id": "grimgar03-01163",
+   "book": "grimgar03",
+   "entry_index": 203,
+   "line": "Moguzo wants Merry, huh. Nice choice. Yep, that’s my partner for you.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta's musing"
+  },
+  {
+   "id": "grimgar03-01165",
+   "book": "grimgar03",
+   "entry_index": 204,
+   "line": "Ha... hahaha... Um, but, I just think she’s pretty, that’s all...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Moguzo laughed nervously"
+  },
+  {
+   "id": "grimgar03-01171",
+   "book": "grimgar03",
+   "entry_index": 205,
+   "line": "The truth is, after that... I don’t know, but just a little... I’ve been more... conscious?... of her...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Moguzo speaking after agreeing"
+  },
+  {
+   "id": "grimgar03-01176",
+   "book": "grimgar03",
+   "entry_index": 206,
+   "line": "Moguzo, you dog, you! Push, push, and push harder! Who knows, maybe it’ll even work out for you?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Ranta was strangely excited"
+  },
+  {
+   "id": "grimgar03-01180",
+   "book": "grimgar03",
+   "entry_index": 207,
+   "line": "Just confess, okay?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta ordered"
+  },
+  {
+   "id": "grimgar03-01192",
+   "book": "grimgar03",
+   "entry_index": 208,
+   "line": "Don’t you want him to find happiness?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta shouting at Haruhiro in turn-taking dialogue"
+  },
+  {
+   "id": "grimgar03-01200",
+   "book": "grimgar03",
+   "entry_index": 209,
+   "line": "Yeah, that figures,",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta said"
+  },
+  {
+   "id": "grimgar03-01202",
+   "book": "grimgar03",
+   "entry_index": 210,
+   "line": "It’d be awkward for me if you did, anyway. I was just saying it! I’m first-rate at just saying stuff!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta's speech after Ranta said"
+  },
+  {
+   "id": "grimgar03-01203",
+   "book": "grimgar03",
+   "entry_index": 211,
+   "line": "Ranta, you’re totally third-rate,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro retorted"
+  },
+  {
+   "id": "grimgar03-01208",
+   "book": "grimgar03",
+   "entry_index": 212,
+   "line": "You asked me and Moguzo, but you haven’t said anything for yourself.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro demanded"
+  },
+  {
+   "id": "grimgar03-01212",
+   "book": "grimgar03",
+   "entry_index": 213,
+   "line": "Huhh? Meeee? You want meeee to? What, guys, do you reeeeally want to know?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta responding to Moguzo asking him to reveal who he likes"
+  },
+  {
+   "id": "grimgar03-01223",
+   "book": "grimgar03",
+   "entry_index": 214,
+   "line": "You’re hopeless, you know that. Well, if you insist...",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta giving in to Moguzo's insistence"
+  },
+  {
+   "id": "grimgar03-01225",
+   "book": "grimgar03",
+   "entry_index": 215,
+   "line": "I’m not goooonna tell you, moooorons.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration indicates Ranta turns around to tease them"
+  },
+  {
+   "id": "grimgar03-01226",
+   "book": "grimgar03",
+   "entry_index": 216,
+   "line": "Man, don’t screw with us...!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-01228",
+   "book": "grimgar03",
+   "entry_index": 217,
+   "line": "Y-You’re awful, Ranta-kun!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo addresses Ranta as Ranta-kun complaining about his trick"
+  },
+  {
+   "id": "grimgar03-01229",
+   "book": "grimgar03",
+   "entry_index": 218,
+   "line": "Gwaaaahahahahahahaha! Don’t think you’ll get a secret out of me so easily! I got your secrets perfectly, though!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta laughing maniacally after tricking them"
+  },
+  {
+   "id": "grimgar03-01235",
+   "book": "grimgar03",
+   "entry_index": 219,
+   "line": "You! Can’t! Do! It!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Ranta shouting at Haruhiro"
+  },
+  {
+   "id": "grimgar03-01236",
+   "book": "grimgar03",
+   "entry_index": 220,
+   "line": "I swear, I’ll make you talk!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro snarled"
+  },
+  {
+   "id": "grimgar03-01285",
+   "book": "grimgar03",
+   "entry_index": 221,
+   "line": "...Hahh. Hahh. Hahh...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Moguzo's breathing was weirdly rough"
+  },
+  {
+   "id": "grimgar03-01289",
+   "book": "grimgar03",
+   "entry_index": 222,
+   "line": "What’s up?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates he asked, referring to Haruhiro"
+  },
+  {
+   "id": "grimgar03-01291",
+   "book": "grimgar03",
+   "entry_index": 223,
+   "line": "Feeling tense?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro continues asking Moguzo if he is feeling tense"
+  },
+  {
+   "id": "grimgar03-01292",
+   "book": "grimgar03",
+   "entry_index": 224,
+   "line": "Huh? Ah, y-yeah... J-Just a little. No, a lot...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo responding nervously to Haruhiro's question"
+  },
+  {
+   "id": "grimgar03-01305",
+   "book": "grimgar03",
+   "entry_index": 225,
+   "line": "I think she means he doesn’t sweat the small stuff, and tries to be magnanimous, maybe...",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Shihoru quickly stepped in to explain"
+  },
+  {
+   "id": "grimgar03-01311",
+   "book": "grimgar03",
+   "entry_index": 226,
+   "line": "Ouyou...?",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Yume thought for a moment right after repeating the word"
+  },
+  {
+   "id": "grimgar03-01321",
+   "book": "grimgar03",
+   "entry_index": 227,
+   "line": "This’s it, y’know,",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Yume said"
+  },
+  {
+   "id": "grimgar03-01325",
+   "book": "grimgar03",
+   "entry_index": 228,
+   "line": "Hrm. Yume’s not sure herself, but it’s kinda like this?",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "character refers to herself in the third person as Yume"
+  },
+  {
+   "id": "grimgar03-01328",
+   "book": "grimgar03",
+   "entry_index": 229,
+   "line": "...Um, Yume,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro said"
+  },
+  {
+   "id": "grimgar03-01331",
+   "book": "grimgar03",
+   "entry_index": 230,
+   "line": "Ho? Sure. Guess so. Ah, Haru-kun, Haru-kun!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume responds to Haruhiro addressing him as Haru-kun"
+  },
+  {
+   "id": "grimgar03-01332",
+   "book": "grimgar03",
+   "entry_index": 231,
+   "line": "Huh? What?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates he asked, referring to Haruhiro"
+  },
+  {
+   "id": "grimgar03-01338",
+   "book": "grimgar03",
+   "entry_index": 232,
+   "line": "Moguzo-kun.",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration states Merry beat Haruhiro to calling out to Moguzo"
+  },
+  {
+   "id": "grimgar03-01348",
+   "book": "grimgar03",
+   "entry_index": 233,
+   "line": "Hoooooooo. Hahhhhhhhhh... Ah! Th-That calmed me down a bit... maybe.",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo responds to Merry's breathing instruction"
+  },
+  {
+   "id": "grimgar03-01349",
+   "book": "grimgar03",
+   "entry_index": 234,
+   "line": "Normally, breathing is something you do unconsciously,",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Merry said"
+  },
+  {
+   "id": "grimgar03-01357",
+   "book": "grimgar03",
+   "entry_index": 235,
+   "line": "I think that’s got to put a lot of pressure on you, doesn’t it?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Haruhiro speaking to Moguzo"
+  },
+  {
+   "id": "grimgar03-01364",
+   "book": "grimgar03",
+   "entry_index": 236,
+   "line": "If anyone’s leveled up to the max, it’s me, duh! If I’ve leveled up 30 times, Moguzo’s leveled up, like, 25, maybe!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Ranta jumped up like a monkey right before this speech"
+  },
+  {
+   "id": "grimgar03-01365",
+   "book": "grimgar03",
+   "entry_index": 237,
+   "line": "That’s awfully humble, coming from you,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro said"
+  },
+  {
+   "id": "grimgar03-01380",
+   "book": "grimgar03",
+   "entry_index": 238,
+   "line": "Meat shield...",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Merry's face twitched a little upon repeating the word"
+  },
+  {
+   "id": "grimgar03-01388",
+   "book": "grimgar03",
+   "entry_index": 239,
+   "line": "I’m counting on you, partner! No, meat shield!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Ranta put an arm around Moguzo's shoulder"
+  },
+  {
+   "id": "grimgar03-01389",
+   "book": "grimgar03",
+   "entry_index": 240,
+   "line": "I-I think I’d prefer to be called partner...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo responds to Ranta calling him meat shield"
+  },
+  {
+   "id": "grimgar03-01390",
+   "book": "grimgar03",
+   "entry_index": 241,
+   "line": "Hm? You would?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta asked"
+  },
+  {
+   "id": "grimgar03-01398",
+   "book": "grimgar03",
+   "entry_index": 242,
+   "line": "The area outside of Deadhead Watching Keep is as I was just saying. To quickly review, camps centered around towers are dotted around the area near the fortress. In each of these camps there are two to five orcs. Well, I think most of you here would know, but since a handful of you look like you don’t, I’ll say this just to be sure. These camps and the keep itself are collectively called Deadhead Watching Keep. Everyone follow me so far? Any questions? No? None, right? It would be a problem for me if there were. Anyway, next I’ll talk about the keep itself.",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Bri-chan is delivering the tactical briefing to the gathered forces"
+  },
+  {
+   "id": "grimgar03-01407",
+   "book": "grimgar03",
+   "entry_index": 243,
+   "line": "Next, for an outline of the operation.",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Bri-chan began playing with his sword"
+  },
+  {
+   "id": "grimgar03-01412",
+   "book": "grimgar03",
+   "entry_index": 244,
+   "line": "Yes. It’s not bad.",
+   "expected_speaker": "KAJIKO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Kajiko raised one eyebrow in response to Bri-chan"
+  },
+  {
+   "id": "grimgar03-01418",
+   "book": "grimgar03",
+   "entry_index": 245,
+   "line": "Your party is with me. Disappointed, aren’t you, Kajiko?",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Bri-chan speaks to Kajiko before Kajiko glares at him"
+  },
+  {
+   "id": "grimgar03-01419",
+   "book": "grimgar03",
+   "entry_index": 246,
+   "line": "Who’s disappointed?",
+   "expected_speaker": "KAJIKO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Kajiko glared at Bri-chan while speaking"
+  },
+  {
+   "id": "grimgar03-01421",
+   "book": "grimgar03",
+   "entry_index": 247,
+   "line": "Are you looking to get killed, Britney?",
+   "expected_speaker": "KAJIKO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kajiko addresses Bri-chan as Britney"
+  },
+  {
+   "id": "grimgar03-01437",
+   "book": "grimgar03",
+   "entry_index": 248,
+   "line": "Oh, my.",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "action tag indicates Bri-chan reacting to Kajiko showing her pocket watch"
+  },
+  {
+   "id": "grimgar03-01444",
+   "book": "grimgar03",
+   "entry_index": 249,
+   "line": "It’s old, so it’s expensive, you know? I have my doubts about its accuracy, though. Anyway, if you have a watch, the timing should be fine. I’ll tell you what the starting time is later. Now then, how the operation will progress. Once the operation begins, we take whatever camps we come across as we advance towards the walls. Crush any camp that has orcs in it. If we dawdle, the orcs may come out of their camps to surround us, so crush them as fast as you can manage. That is the first stage.",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Bri-chan's speech following the dialogue tag"
+  },
+  {
+   "id": "grimgar03-01456",
+   "book": "grimgar03",
+   "entry_index": 250,
+   "line": "Why do we have to do it? We already have to carry shields! Like we can carry big, heavy ladders on top of that!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding dialogue tag 'Ranta screwed up his face' identifies Ranta"
+  },
+  {
+   "id": "grimgar03-01458",
+   "book": "grimgar03",
+   "entry_index": 251,
+   "line": "I am the commander here. You don’t like it? Leave. After returning your advance, of course, okay?",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding narration describes Bri-chan pointing his sword at Ranta"
+  },
+  {
+   "id": "grimgar03-01461",
+   "book": "grimgar03",
+   "entry_index": 252,
+   "line": "...Already spent it all.",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta lowered his eyes' precedes target line"
+  },
+  {
+   "id": "grimgar03-01471",
+   "book": "grimgar03",
+   "entry_index": 253,
+   "line": "...Not ‘might.’",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'The look Merry gave him' follows target line"
+  },
+  {
+   "id": "grimgar03-01482",
+   "book": "grimgar03",
+   "entry_index": 254,
+   "line": "Shut up!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta said, glaring hard at Mr. Tall' follows target line"
+  },
+  {
+   "id": "grimgar03-01486",
+   "book": "grimgar03",
+   "entry_index": 255,
+   "line": "What are you, a squid, then?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta replying to Mr. Tall's denial of being an octopus"
+  },
+  {
+   "id": "grimgar03-01487",
+   "book": "grimgar03",
+   "entry_index": 256,
+   "line": "...Fine. Whatever.",
+   "expected_speaker": "MR. TALL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Mr. Tall giving up arguing with Ranta"
+  },
+  {
+   "id": "grimgar03-01488",
+   "book": "grimgar03",
+   "entry_index": 257,
+   "line": "Wahahahahahahahahahahahahahahaha! I won! Victory is mine!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta celebrating his argument victory over Mr. Tall"
+  },
+  {
+   "id": "grimgar03-01490",
+   "book": "grimgar03",
+   "entry_index": 258,
+   "line": "...You’re the worst.",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "described in narration as Ms. Short Hair from Choco's party"
+  },
+  {
+   "id": "grimgar03-01510",
+   "book": "grimgar03",
+   "entry_index": 259,
+   "line": "Oh, but, Bri-chan, sorry. Yume, she might’ve gone and done that thing. She may’ve detailed the conversation.",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "speaker refers to self as Yume and addresses Bri-chan"
+  },
+  {
+   "id": "grimgar03-01513",
+   "book": "grimgar03",
+   "entry_index": 260,
+   "line": "You have to derail it. Well, no, you don’t have to do that, okay?",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding dialogue tag 'Bri-chan said' identifies Bri-chan"
+  },
+  {
+   "id": "grimgar03-01516",
+   "book": "grimgar03",
+   "entry_index": 261,
+   "line": "Zip.",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume obeying Bri-chan's request to zip her lips"
+  },
+  {
+   "id": "grimgar03-01517",
+   "book": "grimgar03",
+   "entry_index": 262,
+   "line": "Okay. Now, back to the smoke signals. When Deadhead Watching Keep is under a large scale attack, they use smoke signals to alert Riverside Iron Fortress. I’m sure the signal will go up right away this time, too. But, the attack will be starting over there at the same time. Even if they call for them, reinforcements won’t come. That’s why you shouldn’t panic even if you do see a signal go up. Well, that’s about it, I suppose. I know I’ve talked a lot, but as long as we don’t make some incredible blunder, we should be able to win this. The keeper, and the bounty on any famous sorcerers, will likely have nothing to do with our detached force. Either way, it’s not going to be a difficult battle. You kids without much experience can put your minds at ease, too.",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "following narration identifies Bri-chan as directing these words"
+  },
+  {
+   "id": "grimgar03-01525",
+   "book": "grimgar03",
+   "entry_index": 263,
+   "line": "Achoo!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration details Ranta trying to hold in a sneeze right before the noise"
+  },
+  {
+   "id": "grimgar03-01530",
+   "book": "grimgar03",
+   "entry_index": 264,
+   "line": "Begin the attack!",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration describes Bri-chan giving the signal before shouting"
+  },
+  {
+   "id": "grimgar03-01532",
+   "book": "grimgar03",
+   "entry_index": 265,
+   "line": "Charge! Destroy the camps!",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Bri-chan shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-01541",
+   "book": "grimgar03",
+   "entry_index": 266,
+   "line": "Waaaay off in the distance, there’s smoke goin’ up, too!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Yume said' follows target line"
+  },
+  {
+   "id": "grimgar03-01553",
+   "book": "grimgar03",
+   "entry_index": 267,
+   "line": "We have to help them! Let’s take on the orcs ourselves! We’ll set down our ladders and shields for now!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding dialogue tag 'Haruhiro called' identifies Haruhiro"
+  },
+  {
+   "id": "grimgar03-01556",
+   "book": "grimgar03",
+   "entry_index": 268,
+   "line": "Sure thing!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta was always quick at times like this' follows target line"
+  },
+  {
+   "id": "grimgar03-01558",
+   "book": "grimgar03",
+   "entry_index": 269,
+   "line": "It’s finally time! To graduate! I’m losing my virginity!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding narration identifies Ranta speaking"
+  },
+  {
+   "id": "grimgar03-01559",
+   "book": "grimgar03",
+   "entry_index": 270,
+   "line": "Umph!",
+   "expected_speaker": "SHIHORU",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Shihoru picked up the shield' follows target line"
+  },
+  {
+   "id": "grimgar03-01561",
+   "book": "grimgar03",
+   "entry_index": 271,
+   "line": "Conserve your magic for now!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro shouted as he ran forward' follows target line"
+  },
+  {
+   "id": "grimgar03-01566",
+   "book": "grimgar03",
+   "entry_index": 272,
+   "line": "Once you get used to it, you can fight them!",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Merry's speech following dialogue tag 'Merry shouted'"
+  },
+  {
+   "id": "grimgar03-01570",
+   "book": "grimgar03",
+   "entry_index": 273,
+   "line": "We aren’t used to how orcs move yet, that’s all! Moguzo, you can do it! There’s no way you can’t!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he shouted' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-01581",
+   "book": "grimgar03",
+   "entry_index": 274,
+   "line": "Since when?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-01587",
+   "book": "grimgar03",
+   "entry_index": 275,
+   "line": "Hey, hey, hey!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta swung his longsword around wildly' follows target line"
+  },
+  {
+   "id": "grimgar03-01596",
+   "book": "grimgar03",
+   "entry_index": 276,
+   "line": "Heh, heh, heh...",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta raised his longsword aloft' follows target line"
+  },
+  {
+   "id": "grimgar03-01598",
+   "book": "grimgar03",
+   "entry_index": 277,
+   "line": "I got my vice! Finally, I graduated from being a virgin! Congratulations, me!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding dialogue tag 'Ranta raised his longsword aloft' identifies Ranta"
+  },
+  {
+   "id": "grimgar03-01613",
+   "book": "grimgar03",
+   "entry_index": 278,
+   "line": "Y-You saved us...",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "described in narration as Mr. Priest from Choco's party"
+  },
+  {
+   "id": "grimgar03-01624",
+   "book": "grimgar03",
+   "entry_index": 279,
+   "line": "Like I should know!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta flared' follows target line"
+  },
+  {
+   "id": "grimgar03-01627",
+   "book": "grimgar03",
+   "entry_index": 280,
+   "line": "Shut up! Just shut up! Just because you’re a little tall doesn’t mean...!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta arguing with Mr. Tall before Haruhiro interrupts"
+  },
+  {
+   "id": "grimgar03-01628",
+   "book": "grimgar03",
+   "entry_index": 281,
+   "line": "Ranta! Enough!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro barked' follows target line"
+  },
+  {
+   "id": "grimgar03-01630",
+   "book": "grimgar03",
+   "entry_index": 282,
+   "line": "—We’ve go to go! We’re the ladder team!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'he shouted' refers to Haruhiro"
+  },
+  {
+   "id": "grimgar03-01644",
+   "book": "grimgar03",
+   "entry_index": 283,
+   "line": "We’ve got to assemble them first!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-01646",
+   "book": "grimgar03",
+   "entry_index": 284,
+   "line": "—Oh! That’s right!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta reacting to Haruhiro's reminder to assemble the ladders first"
+  },
+  {
+   "id": "grimgar03-01647",
+   "book": "grimgar03",
+   "entry_index": 285,
+   "line": "Merry, Yume, Shihoru, use the shields!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro called' follows target line"
+  },
+  {
+   "id": "grimgar03-01658",
+   "book": "grimgar03",
+   "entry_index": 286,
+   "line": "Hunnnnnnnnnngh...!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Moguzo grunted' follows target line"
+  },
+  {
+   "id": "grimgar03-01664",
+   "book": "grimgar03",
+   "entry_index": 287,
+   "line": "It’s fine! We’ve got shields!",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Merry hollered' follows target line"
+  },
+  {
+   "id": "grimgar03-01666",
+   "book": "grimgar03",
+   "entry_index": 288,
+   "line": "Move...!",
+   "expected_speaker": "RENJI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Renji shoved Haruhiro aside' identifies Renji as the speaker"
+  },
+  {
+   "id": "grimgar03-01668",
+   "book": "grimgar03",
+   "entry_index": 289,
+   "line": "Hold on, Renji!",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'they heard Bri-chan shout' follows target line"
+  },
+  {
+   "id": "grimgar03-01672",
+   "book": "grimgar03",
+   "entry_index": 290,
+   "line": "From the main gate?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro screamed' follows target line"
+  },
+  {
+   "id": "grimgar03-01726",
+   "book": "grimgar03",
+   "entry_index": 291,
+   "line": "Drop dead!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "an unnamed warrior in Anthony's platoon chanting against Wren Water"
+  },
+  {
+   "id": "grimgar03-01729",
+   "book": "grimgar03",
+   "entry_index": 292,
+   "line": "Drop dead already!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "an unnamed warrior in Anthony's platoon chanting against Wren Water"
+  },
+  {
+   "id": "grimgar03-01736",
+   "book": "grimgar03",
+   "entry_index": 293,
+   "line": "Ohhhhhhhhhhhhhhhhhhhhhhhhhhhhhhsh...!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "roar from the orcs leaping down from the wall"
+  },
+  {
+   "id": "grimgar03-01757",
+   "book": "grimgar03",
+   "entry_index": 294,
+   "line": "No butts, no farting around, none of your crap! We’re going!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Ranta tried to pull Haruhiro by the arm' follows target line"
+  },
+  {
+   "id": "grimgar03-01775",
+   "book": "grimgar03",
+   "entry_index": 295,
+   "line": "Okay, let’s go! Moguzo and I will take the lead! Everyone else, follow after us!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro made up his mind' precedes target line"
+  },
+  {
+   "id": "grimgar03-01791",
+   "book": "grimgar03",
+   "entry_index": 296,
+   "line": "It’s dangerous to stay here!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag 'Haruhiro shouted' follows target line"
+  },
+  {
+   "id": "grimgar03-01793",
+   "book": "grimgar03",
+   "entry_index": 297,
+   "line": "Hurry! It’ll probably be safer once we get down off the wall!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continuation of Haruhiro's speech to the party"
+  },
+  {
+   "id": "grimgar03-01794",
+   "book": "grimgar03",
+   "entry_index": 298,
+   "line": "I know that, you dolt!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Ranta shouted.'"
+  },
+  {
+   "id": "grimgar03-01798",
+   "book": "grimgar03",
+   "entry_index": 299,
+   "line": "...Huh? Why don’t you have shields?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro calls out instructions to his party"
+  },
+  {
+   "id": "grimgar03-01809",
+   "book": "grimgar03",
+   "entry_index": 300,
+   "line": "Urkh... Even Merry did it...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "'Even Merry did it' then 'In fact, Haruhiro was in the minority'"
+  },
+  {
+   "id": "grimgar03-01818",
+   "book": "grimgar03",
+   "entry_index": 301,
+   "line": "You’re doing fabulous! If we keep on pushing, eventually our allies will come!",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Bri-chan was shouting things like that'"
+  },
+  {
+   "id": "grimgar03-01820",
+   "book": "grimgar03",
+   "entry_index": 302,
+   "line": "...No, it’s not!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro recognizes Choco"
+  },
+  {
+   "id": "grimgar03-01822",
+   "book": "grimgar03",
+   "entry_index": 303,
+   "line": "This is bad!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro's hesitation utterance"
+  },
+  {
+   "id": "grimgar03-01825",
+   "book": "grimgar03",
+   "entry_index": 304,
+   "line": "Anyone with hands to spare, go defend against the enemies on the other side!",
+   "expected_speaker": "BRI-CHAN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Bri-chan ordered immediately.'"
+  },
+  {
+   "id": "grimgar03-01827",
+   "book": "grimgar03",
+   "entry_index": 305,
+   "line": "We’ll do it, too!",
+   "expected_speaker": "MR PLEASANT",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment names him: 'Mr. Pleasant, the guy who seemed to be the leader of Choco's party, said'"
+  },
+  {
+   "id": "grimgar03-01846",
+   "book": "grimgar03",
+   "entry_index": 306,
+   "line": "Gashwarl!",
+   "expected_speaker": "ORC",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'the orc roared.'"
+  },
+  {
+   "id": "grimgar03-01859",
+   "book": "grimgar03",
+   "entry_index": 307,
+   "line": "Gahaha! Moguzo’s already taken down two of them, huh! That’s my partner for you!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Ranta bellowed.'"
+  },
+  {
+   "id": "grimgar03-01863",
+   "book": "grimgar03",
+   "entry_index": 308,
+   "line": "What’s your relationship with the girl...?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "continues Ranta's turn from 'Ranta shouted, leaping back with Exhaust.'"
+  },
+  {
+   "id": "grimgar03-01864",
+   "book": "grimgar03",
+   "entry_index": 309,
+   "line": "Why’re you acting like you can afford to ask questions right now?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding to Choco"
+  },
+  {
+   "id": "grimgar03-01866",
+   "book": "grimgar03",
+   "entry_index": 310,
+   "line": "I’m acting like I can afford to because I can, duh! Whoa...?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "answers Haruhiro's 'Why're you acting like you can afford to ask questions'"
+  },
+  {
+   "id": "grimgar03-01869",
+   "book": "grimgar03",
+   "entry_index": 311,
+   "line": "Shut up, moron! Take that! Reject...!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "'Reject' is Ranta's dread-knight skill; next segment has him locking blades"
+  },
+  {
+   "id": "grimgar03-01884",
+   "book": "grimgar03",
+   "entry_index": 312,
+   "line": "It’s no good! It doesn’t look like they’ve broken it! I can’t see from here, but it looks like they’re fighting a hard battle!",
+   "expected_speaker": "BRITNEY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "preceding segment: 'Bri-chan, who was still up on the east wall, simply shook his head'"
+  },
+  {
+   "id": "grimgar03-01888",
+   "book": "grimgar03",
+   "entry_index": 313,
+   "line": "One hundred...!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "an anonymous crowd reacting to the bounty; gold said AMBIGUOUS, the wide pass said HARUHIRO - the new schema's UNNAMED fits both better"
+  },
+  {
+   "id": "grimgar03-01892",
+   "book": "grimgar03",
+   "entry_index": 314,
+   "line": "One hundred gold?!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "same crowd reaction"
+  },
+  {
+   "id": "grimgar03-01901",
+   "book": "grimgar03",
+   "entry_index": 315,
+   "line": "I’m going to the front gate!",
+   "expected_speaker": "BRITNEY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Bri-chan shouted.'"
+  },
+  {
+   "id": "grimgar03-01904",
+   "book": "grimgar03",
+   "entry_index": 316,
+   "line": "Britney, by the time you get back, it’s all going to be over...!",
+   "expected_speaker": "KAJIKO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "addressed TO Britney, answering 'Kajiko, I'm counting on you!'"
+  },
+  {
+   "id": "grimgar03-01906",
+   "book": "grimgar03",
+   "entry_index": 317,
+   "line": "You go tell the worthless regular army that I’m going to take that bounty!",
+   "expected_speaker": "KAJIKO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Kajiko continuing about the bounty she means to take"
+  },
+  {
+   "id": "grimgar03-01907",
+   "book": "grimgar03",
+   "entry_index": 318,
+   "line": "Honestly...! Don’t be reckless, now!",
+   "expected_speaker": "BRITNEY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Britney answering Kajiko's boast"
+  },
+  {
+   "id": "grimgar03-01914",
+   "book": "grimgar03",
+   "entry_index": 319,
+   "line": "I doubt we can compete with Kajiko or Renji and win, so should we go for the northeast tower like the others...?",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta boasting about plundering"
+  },
+  {
+   "id": "grimgar03-01920",
+   "book": "grimgar03",
+   "entry_index": 320,
+   "line": "Yume and everyone wouldn’t be able to take their heads anyway, y’know.",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "third-person self-reference 'Yume and everyone' is Yume's verbal tic"
+  },
+  {
+   "id": "grimgar03-01924",
+   "book": "grimgar03",
+   "entry_index": 321,
+   "line": "Yeah. Well, sorta. I guess you’re right. All right! Plundering it is, then!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta confronting Merry"
+  },
+  {
+   "id": "grimgar03-01926",
+   "book": "grimgar03",
+   "entry_index": 322,
+   "line": "Hahaha...",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "next segment: 'Moguzo laughed.'"
+  },
+  {
+   "id": "grimgar03-01932",
+   "book": "grimgar03",
+   "entry_index": 323,
+   "line": "For a Dread Knight, those words are the highest of compliments! Mwahahaha! O Darkness, O Lord of Vice, Demon Call!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta casting Demon Call while boasting"
+  },
+  {
+   "id": "grimgar03-01934",
+   "book": "grimgar03",
+   "entry_index": 324,
+   "line": "...Kehe... Kehehehehe... Kehehehe... Kehehehehehehehe... Kehe... Ranta dies.",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun predicting Ranta's death upon being summoned"
+  },
+  {
+   "id": "grimgar03-01935",
+   "book": "grimgar03",
+   "entry_index": 325,
+   "line": "Not ‘die, Ranta,’ but ‘Ranta dies’?! You’re suddenly predicting my death, Zodiac-kun?!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta responding to Zodiac-kun addressing him"
+  },
+  {
+   "id": "grimgar03-01936",
+   "book": "grimgar03",
+   "entry_index": 326,
+   "line": "...Ehehe... Kill Ranta.",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun uttering death threats to Ranta"
+  },
+  {
+   "id": "grimgar03-01941",
+   "book": "grimgar03",
+   "entry_index": 327,
+   "line": "...Die... Ugly...",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun speaking to Yume while giving her his paw"
+  },
+  {
+   "id": "grimgar03-01945",
+   "book": "grimgar03",
+   "entry_index": 328,
+   "line": "Zodiac-kun’s such a good boy. But, y’know, callin’ people ugly is mean...",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Yume speaking to Zodiac-kun"
+  },
+  {
+   "id": "grimgar03-01946",
+   "book": "grimgar03",
+   "entry_index": 329,
+   "line": "...Kehehe... Sorry...",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun apologizing to Yume"
+  },
+  {
+   "id": "grimgar03-01949",
+   "book": "grimgar03",
+   "entry_index": 330,
+   "line": "You may not appreciate the advice, but you guys shouldn’t push yourselves!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro told Choco's group"
+  },
+  {
+   "id": "grimgar03-01959",
+   "book": "grimgar03",
+   "entry_index": 331,
+   "line": "Even if we wanted to go, we can’t... it’s gotten really crazy in there!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by an unnamed warrior volunteer soldier at the watchtower stairs"
+  },
+  {
+   "id": "grimgar03-01967",
+   "book": "grimgar03",
+   "entry_index": 332,
+   "line": "Oh, shove it! Zodiac-kun’s mine, so I can do whatever I want with him!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta arguing with Haruhiro about Zodiac-kun"
+  },
+  {
+   "id": "grimgar03-01968",
+   "book": "grimgar03",
+   "entry_index": 333,
+   "line": "...Wh... Who’re you saying is yours...? I’m not yours... Are you stupid...? Die...",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun talking back to Ranta"
+  },
+  {
+   "id": "grimgar03-01971",
+   "book": "grimgar03",
+   "entry_index": 334,
+   "line": "...Eehehehe... If you’ll die... I... I-I-I couldn’t be happier... Ehehehehehe...",
+   "expected_speaker": "ZODIAC-KUN",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Zodiac-kun replying to Ranta"
+  },
+  {
+   "id": "grimgar03-01988",
+   "book": "grimgar03",
+   "entry_index": 335,
+   "line": "You’re the damn fool! Let’s go!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro shouting back at Ranta before advancing"
+  },
+  {
+   "id": "grimgar03-02009",
+   "book": "grimgar03",
+   "entry_index": 336,
+   "line": "Hunghh...!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo grunting as he executes First Thrust"
+  },
+  {
+   "id": "grimgar03-02013",
+   "book": "grimgar03",
+   "entry_index": 337,
+   "line": "We didn’t need your help.",
+   "expected_speaker": "RON",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ron speaking to Haruhiro's party after the battle"
+  },
+  {
+   "id": "grimgar03-02027",
+   "book": "grimgar03",
+   "entry_index": 338,
+   "line": "Now we’re even,",
+   "expected_speaker": "RENJI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Renji said"
+  },
+  {
+   "id": "grimgar03-02033",
+   "book": "grimgar03",
+   "entry_index": 339,
+   "line": "You. I could use you.",
+   "expected_speaker": "RENJI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Renji addressing Moguzo directly"
+  },
+  {
+   "id": "grimgar03-02044",
+   "book": "grimgar03",
+   "entry_index": 340,
+   "line": "it seems the prize isn’t here. Should you be taking it easy now, Renji?",
+   "expected_speaker": "ADACHI",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Adachi said to Renji"
+  },
+  {
+   "id": "grimgar03-02046",
+   "book": "grimgar03",
+   "entry_index": 341,
+   "line": "Hey! Below!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "spoken by an unnamed volunteer soldier shouting from below"
+  },
+  {
+   "id": "grimgar03-02060",
+   "book": "grimgar03",
+   "entry_index": 342,
+   "line": "Sto—",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro attempting to scream as Choco is attacked"
+  },
+  {
+   "id": "grimgar03-02069",
+   "book": "grimgar03",
+   "entry_index": 343,
+   "line": "Well, Kawabe-kun is a good guy, after all.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro's recalled inner thoughts/dialogue"
+  },
+  {
+   "id": "grimgar03-02082",
+   "book": "grimgar03",
+   "entry_index": 344,
+   "line": "Well, yeah, of course I love her,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro's recalled inner thoughts regarding Choco"
+  },
+  {
+   "id": "grimgar03-02095",
+   "book": "grimgar03",
+   "entry_index": 345,
+   "line": "Is there nothing you really, really like?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro asking Choco in a past memory"
+  },
+  {
+   "id": "grimgar03-02105",
+   "book": "grimgar03",
+   "entry_index": 346,
+   "line": "Yeah, that’s it,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro's inner thought upon seeing Choco in a memory"
+  },
+  {
+   "id": "grimgar03-02109",
+   "book": "grimgar03",
+   "entry_index": 347,
+   "line": "Yeah, even I can totally see why.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro's past thought regarding Hidemasa"
+  },
+  {
+   "id": "grimgar03-02115",
+   "book": "grimgar03",
+   "entry_index": 348,
+   "line": "My throat hurts.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco complaining about her throat after drinking soda"
+  },
+  {
+   "id": "grimgar03-02123",
+   "book": "grimgar03",
+   "entry_index": 349,
+   "line": "But, you know, drinking it too often is probably bad for my health,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Choco ('she added')"
+  },
+  {
+   "id": "grimgar03-02125",
+   "book": "grimgar03",
+   "entry_index": 350,
+   "line": "Could be. Athletes aren’t supposed to drink it, I hear. Soda.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding to Choco about athletes and soda"
+  },
+  {
+   "id": "grimgar03-02126",
+   "book": "grimgar03",
+   "entry_index": 351,
+   "line": "Oh, I see,",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Choco ('she said')"
+  },
+  {
+   "id": "grimgar03-02128",
+   "book": "grimgar03",
+   "entry_index": 352,
+   "line": "Not that I’m athletic at all.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco continuing her dialogue to Haruhiro"
+  },
+  {
+   "id": "grimgar03-02141",
+   "book": "grimgar03",
+   "entry_index": 353,
+   "line": "I can’t be considerate, and I can’t look out for other people, so maybe I like people who can do that.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco speaking to Haruhiro"
+  },
+  {
+   "id": "grimgar03-02148",
+   "book": "grimgar03",
+   "entry_index": 354,
+   "line": "Maybe I don’t.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco answering Haruhiro's question"
+  },
+  {
+   "id": "grimgar03-02152",
+   "book": "grimgar03",
+   "entry_index": 355,
+   "line": "Really? Huh? Am I managing to be considerate?",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro expressing surprise at Choco's remark"
+  },
+  {
+   "id": "grimgar03-02154",
+   "book": "grimgar03",
+   "entry_index": 356,
+   "line": "Hmm. Well, we’ve known each other a long time, after all.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding to Choco"
+  },
+  {
+   "id": "grimgar03-02162",
+   "book": "grimgar03",
+   "entry_index": 357,
+   "line": "If I did, I’d tell you.",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro answering Choco's question"
+  },
+  {
+   "id": "grimgar03-02169",
+   "book": "grimgar03",
+   "entry_index": 358,
+   "line": "Yeah. I said something.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco responding to Haruhiro asking if she said something"
+  },
+  {
+   "id": "grimgar03-02178",
+   "book": "grimgar03",
+   "entry_index": 359,
+   "line": "But tell me.",
+   "expected_speaker": "CHOCO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Choco asking Haruhiro to tell her"
+  },
+  {
+   "id": "grimgar03-02182",
+   "book": "grimgar03",
+   "entry_index": 360,
+   "line": "Well, there’s a time and place for everything,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro ('I said')"
+  },
+  {
+   "id": "grimgar03-02214",
+   "book": "grimgar03",
+   "entry_index": 361,
+   "line": "Hwahhhhh...!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo shouting while struggling against bugs"
+  },
+  {
+   "id": "grimgar03-02215",
+   "book": "grimgar03",
+   "entry_index": 362,
+   "line": "Damn you and your petty tricks!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-02217",
+   "book": "grimgar03",
+   "entry_index": 363,
+   "line": "...Guh, nghhhhhhh....",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta muttered"
+  },
+  {
+   "id": "grimgar03-02221",
+   "book": "grimgar03",
+   "entry_index": 364,
+   "line": "Is it psychokinesis?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro cried"
+  },
+  {
+   "id": "grimgar03-02223",
+   "book": "grimgar03",
+   "entry_index": 365,
+   "line": "Nyeh!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Yume shouted"
+  },
+  {
+   "id": "grimgar03-02236",
+   "book": "grimgar03",
+   "entry_index": 366,
+   "line": "Leave this to me!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-02244",
+   "book": "grimgar03",
+   "entry_index": 367,
+   "line": "—Nwah!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Ranta shouted"
+  },
+  {
+   "id": "grimgar03-02248",
+   "book": "grimgar03",
+   "entry_index": 368,
+   "line": "Ah! Ah...! Ah! Ah...!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro gasped out"
+  },
+  {
+   "id": "grimgar03-02261",
+   "book": "grimgar03",
+   "entry_index": 369,
+   "line": "Yume, look after Merry!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-02266",
+   "book": "grimgar03",
+   "entry_index": 370,
+   "line": "What happened to Zodiac-kun?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro yelled"
+  },
+  {
+   "id": "grimgar03-02280",
+   "book": "grimgar03",
+   "entry_index": 371,
+   "line": "Myeek!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "narration explicitly identifies the scream as Yume's"
+  },
+  {
+   "id": "grimgar03-02294",
+   "book": "grimgar03",
+   "entry_index": 372,
+   "line": "To the watchtower we were in before!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro giving orders to retreat to the watchtower"
+  },
+  {
+   "id": "grimgar03-02297",
+   "book": "grimgar03",
+   "entry_index": 373,
+   "line": "Thanks, Moguzo,",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Yume said"
+  },
+  {
+   "id": "grimgar03-02302",
+   "book": "grimgar03",
+   "entry_index": 374,
+   "line": "Uh... but what are comrades for?",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Moguzo replying to Yume"
+  },
+  {
+   "id": "grimgar03-02312",
+   "book": "grimgar03",
+   "entry_index": 375,
+   "line": "...I’ll go scope things out,",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro ('he said')"
+  },
+  {
+   "id": "grimgar03-02370",
+   "book": "grimgar03",
+   "entry_index": 376,
+   "line": "That guy!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro pointing at Sorcerer A"
+  },
+  {
+   "id": "grimgar03-02379",
+   "book": "grimgar03",
+   "entry_index": 377,
+   "line": "Star Piercer, meow!",
+   "expected_speaker": "YUME",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Yume shouted"
+  },
+  {
+   "id": "grimgar03-02383",
+   "book": "grimgar03",
+   "entry_index": 378,
+   "line": "We’ve taken out two sorcerers!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro bellowed"
+  },
+  {
+   "id": "grimgar03-02400",
+   "book": "grimgar03",
+   "entry_index": 379,
+   "line": "Merry! Use your magic on Renji!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-02402",
+   "book": "grimgar03",
+   "entry_index": 380,
+   "line": "Heal won’t work if he’s moving! It targets an area!",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Merry yelled back"
+  },
+  {
+   "id": "grimgar03-02404",
+   "book": "grimgar03",
+   "entry_index": 381,
+   "line": "It targets an area...",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro murmured"
+  },
+  {
+   "id": "grimgar03-02410",
+   "book": "grimgar03",
+   "entry_index": 382,
+   "line": "No! Come get healed!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-02417",
+   "book": "grimgar03",
+   "entry_index": 383,
+   "line": "—O Light, may Lumiaris’ divine protection be upon you... cure!",
+   "expected_speaker": "MERRY",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Merry chanting her healing spell"
+  },
+  {
+   "id": "grimgar03-02423",
+   "book": "grimgar03",
+   "entry_index": 384,
+   "line": "No! Don’t try to handle things all by yourself!",
+   "expected_speaker": "MOGUZO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Moguzo cried"
+  },
+  {
+   "id": "grimgar03-02454",
+   "book": "grimgar03",
+   "entry_index": 385,
+   "line": "Arrrrgh...!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "screamed by an unnamed volunteer soldier priest set on fire"
+  },
+  {
+   "id": "grimgar03-02466",
+   "book": "grimgar03",
+   "entry_index": 386,
+   "line": "Gashgrasha!",
+   "expected_speaker": "ABAEL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag explicitly names Abael shouting"
+  },
+  {
+   "id": "grimgar03-02476",
+   "book": "grimgar03",
+   "entry_index": 387,
+   "line": "Ubogeh?!",
+   "expected_speaker": "ABAEL",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag explicitly names Abael exclaiming"
+  },
+  {
+   "id": "grimgar03-02482",
+   "book": "grimgar03",
+   "entry_index": 388,
+   "line": "Oh, also, a vice, too!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta shouting after killing Abael"
+  },
+  {
+   "id": "grimgar03-02528",
+   "book": "grimgar03",
+   "entry_index": 389,
+   "line": "Moguzo! Renji!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-02532",
+   "book": "grimgar03",
+   "entry_index": 390,
+   "line": "We’re doing this, Ranta!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "dialogue tag indicates Haruhiro shouted"
+  },
+  {
+   "id": "grimgar03-02537",
+   "book": "grimgar03",
+   "entry_index": 391,
+   "line": "It’s 150 gold!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta shouting about the reward"
+  },
+  {
+   "id": "grimgar03-02538",
+   "book": "grimgar03",
+   "entry_index": 392,
+   "line": "That’s your response?!",
+   "expected_speaker": "HARUHIRO",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Haruhiro responding to Ranta's shout"
+  },
+  {
+   "id": "grimgar03-02540",
+   "book": "grimgar03",
+   "entry_index": 393,
+   "line": "Hey, loser!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta taunting Zoran as a decoy"
+  },
+  {
+   "id": "grimgar03-02546",
+   "book": "grimgar03",
+   "entry_index": 394,
+   "line": "Exhaust!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta calling out his Exhaust skill"
+  },
+  {
+   "id": "grimgar03-02573",
+   "book": "grimgar03",
+   "entry_index": 395,
+   "line": "Woooooo!",
+   "expected_speaker": "UNNAMED",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "cheered by an unnamed volunteer soldier after Zoran's death"
+  },
+  {
+   "id": "grimgar03-02581",
+   "book": "grimgar03",
+   "entry_index": 396,
+   "line": "150 gold!",
+   "expected_speaker": "RANTA",
+   "judged_by": "frontier-model (single judge, provisional)",
+   "reasoning": "Ranta celebrating the bounty victory"
+  }
+ ],
+ "aliases": [
+  [
+   "BRI-CHAN",
+   "BRITNEY"
+  ],
+  [
+   "ZODIAC",
+   "ZODIAC-KUN"
+  ]
+ ],
+ "provisional": false,
+ "conventions": {
+  "letter_and_diary_text": {
+   "ruling": "author",
+   "means": "Text of a letter or diary is attributed to whoever WROTE it, not to the character reading it aloud."
+  },
+  "determinate_but_nameless": {
+   "ruling": "UNNAMED",
+   "means": "A speaker the text identifies but never names is UNNAMED, kept separate from UNKNOWN."
+  },
+  "nameless_with_a_known_role": {
+   "ruling": "UNNAMED",
+   "means": "A nameless speaker with a recognisable role stays UNNAMED rather than being labelled with the role. Does NOT cover a speaker with a proper roster name - index18-02186 is SMARTVERI because he is a named character."
+  },
+  "tagged_interior_thought": {
+   "ruling": "speech",
+   "means": "A thought tagged like dialogue counts as speech and is attributed to the thinker."
+  },
+  "_decided": "review 2026-07-28"
+ },
+ "roster_additions": {
+  "names": [
+   "ABAEL",
+   "BARBARA"
+  ],
+  "why": "Characters the judges named that build_roster did not find. Lines spoken by these people are unwinnable for any model constrained to the generated roster, so they are a roster bug rather than a model failure and must be added to the candidate set before scoring closed-set arms.",
+  "approved_by": "review 2026-07-28"
+ },
+ "status": {
+  "state": "gold",
+  "adopted": "2026-07-28",
+  "basis": "Two independent frontier judges (gemini, openai) read every row at 12 segments of context; every disagreement was adjudicated and every convention ruled.",
+  "second_judge_agreement": "96.5% across 793 rows [94.9-97.6]",
+  "known_limit": "No human read the passages. Where both judges share a blind spot - unmarked turn-taking in rapid exchanges is the demonstrated one - agreement measures correlation between models rather than truth. At the 50-79% range models currently score, that residual is far below the effects being measured."
+ }
+}

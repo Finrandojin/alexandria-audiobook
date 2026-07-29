@@ -170,11 +170,31 @@ def ask_scene(scene, order):
                 temperature=0.0, max_tokens=16 * len(order) + 64,
                 extra_body={"reasoning_effort": "none"})
             raw = (r.choices[0].message.content or "")
-            got = {}
+            # Models do not reliably echo the ids they are given: qwen3-14b
+            # returned the segment indices, llama-3.3-70b renumbered the items
+            # 1..N and every answer was discarded, producing an artifact that
+            # read 0.0% and still validated. So accept either - the supplied
+            # ids, or a 1-based sequence mapped back through `order`.
+            pairs = []
             for line in raw.splitlines():
                 m = re.match(r"\s*(\d+)\s*[:.\-]\s*(.+?)\s*$", line)
-                if m and int(m.group(1)) in set(order):
-                    got[int(m.group(1))] = m.group(2).upper().strip(".'\"* ")
+                if not m:
+                    continue
+                # The 70B answers "1: **33**: RUDI" - its own sequence number,
+                # then the id it was given, then the name. Taking the first
+                # capture as the name yielded "**33**: RUDI", which scored
+                # wrong while looking answered: 9.4% accuracy that passed the
+                # unanswered guard. The name is whatever follows the LAST
+                # separator, with markdown stripped.
+                tail = re.split(r"[:\-]", m.group(2))[-1]
+                name = re.sub(r"[*_`]", "", tail).upper().strip(".'\" ")
+                if name:
+                    pairs.append((int(m.group(1)), name))
+            supplied = set(order)
+            got = {k: v for k, v in pairs if k in supplied}
+            if not got and pairs and {k for k, _ in pairs} <= set(
+                    range(1, len(order) + 1)):
+                got = {order[k - 1]: v for k, v in pairs}
             return got, user, raw, attempt
         except RETRYABLE as exc:
             last = exc
@@ -287,6 +307,31 @@ for arm in ("independent", "joint-chrono", "joint-shuffled"):
 answers = {arm: {r["id"]: r["correct"] for r in record.rows if r["arm"] == arm}
            for arm in by_arm}
 
+
+# Same guard the width gate carries: an arm that answered almost nothing is an
+# environment or parsing failure, not a null result, and must not be written as
+# though it were one. The 70B joint run reached 0.0% and validated without it.
+# Two guards, because the first one was not enough. "Unanswered" caught the
+# arm that returned nothing; it did not catch the arm that returned
+# "**33**: RUDI" for every row - answered, parsed, and scored 9.4%. An answer
+# that is not a roster name is a parse failure wearing a result's clothes.
+_ROSTER = {r.upper() for r in roster} | {"UNKNOWN"}
+for _arm, (_hit, _n) in by_arm.items():
+    _rows = [r for r in record.rows if r["arm"] == _arm]
+    if not _rows:
+        continue
+    _blank = sum(1 for r in _rows if r["predicted"] is None) / len(_rows)
+    _named = [r for r in _rows if r["predicted"] is not None]
+    _off = (sum(1 for r in _named if (r["predicted"] or "").upper() not in _ROSTER)
+            / len(_named)) if _named else 0
+    if _blank > 0.25:
+        raise SystemExit(f"refusing to write: {_arm} left {_blank*100:.0f}% of "
+                         f"rows unanswered - check the reply format")
+    if _off > 0.5:
+        raise SystemExit(f"refusing to write: {_arm} produced {_off*100:.0f}% "
+                         f"answers that are not roster names, e.g. "
+                         f"{next(r['predicted'] for r in _named if (r['predicted'] or '').upper() not in _ROSTER)!r} "
+                         f"- that is a parse failure, not a result")
 
 MULTI = {SCOREABLE[i]["id"] for scene in SCENES if len(scene) > 1
          for i in scene if i in SCOREABLE}

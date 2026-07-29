@@ -1,0 +1,100 @@
+[
+ {
+  "id": "index18-00879",
+  "speaker": "KANZAKI",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'Unusual for her, Kanzaki fumbled for words.'"
+ },
+ {
+  "id": "index18-00887",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'Kamijou asked.'"
+ },
+ {
+  "id": "index18-00920",
+  "speaker": "UNNAMED",
+  "confident": true,
+  "alias": null,
+  "reasoning": "a remembered warning from 'people from Born Again' before the mission; speakers are a group, individually unnamed"
+ },
+ {
+  "id": "index18-00976",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "answers Index's 'We should be fine now'; Index replies 'I'd like it if you did' and Kamijou then says 'Huh?'"
+ },
+ {
+  "id": "index18-00978",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'Kamijou looked at her dubiously.'"
+ },
+ {
+  "id": "index18-00980",
+  "speaker": "INDEX",
+  "confident": true,
+  "alias": null,
+  "reasoning": "preceding narration: 'Index politely pointed in front of them.'; the line is then called Indexian"
+ },
+ {
+  "id": "index18-00985",
+  "speaker": "MIKOTO",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'Unprepared for the shock, Mikoto almost choked.'"
+ },
+ {
+  "id": "index18-00997",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "answers Mikoto's 'why the heck do you need to sneak into a station?' on the phone"
+ },
+ {
+  "id": "index18-01010",
+  "speaker": "MIKOTO",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'said Mikoto, appalled.'"
+ },
+ {
+  "id": "index18-01093",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "Kamijou's exasperated reaction to the wall becoming a person; Index is calling to him from elsewhere"
+ },
+ {
+  "id": "index18-01111",
+  "speaker": "KAMIJOU",
+  "confident": true,
+  "alias": null,
+  "reasoning": "continues his own fight narration, between 'Did I get him?!' and 'When he looked again'"
+ },
+ {
+  "id": "index18-01140",
+  "speaker": "VILIAN",
+  "confident": true,
+  "alias": null,
+  "reasoning": "following narration: 'As she finished speaking, Vilian jumped out.'"
+ },
+ {
+  "id": "index18-01150",
+  "speaker": "VILIAN",
+  "confident": true,
+  "alias": null,
+  "reasoning": "first-person resolve in Vilian's voice, immediately before 'Vilian began to move'"
+ },
+ {
+  "id": "index18-01157",
+  "speaker": "VILIAN",
+  "confident": true,
+  "alias": null,
+  "reasoning": "the incantation the preceding line calls 'the third princess's incantation'"
+ }
+]

@@ -1,0 +1,975 @@
+[
+  {
+    "id": "mushoku16-00035",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "spoken by Rudeus to Sylphy after she comforts him"
+  },
+  {
+    "id": "mushoku16-00038",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy responds to Rudeus asking her not to leave him"
+  },
+  {
+    "id": "mushoku16-00039",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus reassures Sylphy that they can make up"
+  },
+  {
+    "id": "mushoku16-00043",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy gives permission before being picked up by Rudeus"
+  },
+  {
+    "id": "mushoku16-00047",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy answers Rudeus when he asks to talk"
+  },
+  {
+    "id": "mushoku16-00049",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy sets boundaries regarding Rudeus wanting to be flirty"
+  },
+  {
+    "id": "mushoku16-00061",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus explains to Roxy why he is acting affectionate"
+  },
+  {
+    "id": "mushoku16-00064",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "dialogue tag directly attributes the question to Rudeus"
+  },
+  {
+    "id": "mushoku16-00066",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy responds to Rudeus asking about bodily changes"
+  },
+  {
+    "id": "mushoku16-00068",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy points out racial lifespan differences to Rudeus"
+  },
+  {
+    "id": "mushoku16-00236",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag attributes statement to Roxy speaking to Sylphy"
+  },
+  {
+    "id": "mushoku16-00238",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "dialogue tag explicitly attributes request to Rudi"
+  },
+  {
+    "id": "mushoku16-00271",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Sylphy about their daughter Luci"
+  },
+  {
+    "id": "mushoku16-00282",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus addresses Sylphy and Roxy regarding why he gathered them"
+  },
+  {
+    "id": "mushoku16-00284",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus continues explaining his encounter"
+  },
+  {
+    "id": "mushoku16-00286",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus answers Sylphy's clarification question"
+  },
+  {
+    "id": "mushoku16-00299",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy asks Roxy if she minds staying home"
+  },
+  {
+    "id": "mushoku16-00308",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy agrees with Roxy's perspective"
+  },
+  {
+    "id": "mushoku16-00312",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus responds to Roxy and Sylphy offering protection"
+  },
+  {
+    "id": "mushoku16-00326",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy asks if the new person mentioned is Nanahoshi"
+  },
+  {
+    "id": "mushoku16-00329",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus clarifies that the person isn't Nanahoshi"
+  },
+  {
+    "id": "mushoku16-00334",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag states Roxy remembers who Eris is"
+  },
+  {
+    "id": "mushoku16-00343",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus explains that Eris leaving was due to a misunderstanding"
+  },
+  {
+    "id": "mushoku16-00352",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus states his intentions to Sylphy regarding Eris"
+  },
+  {
+    "id": "mushoku16-00370",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus reassures Roxy"
+  },
+  {
+    "id": "mushoku16-00394",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami blames Rudeus during their dream encounter"
+  },
+  {
+    "id": "mushoku16-00412",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami explains why Orsted became a threat after Rudeus appeared"
+  },
+  {
+    "id": "mushoku16-00438",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami dismisses Rudeus's idea of family mottoes"
+  },
+  {
+    "id": "mushoku16-00442",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami sets up his demand to kill Orsted"
+  },
+  {
+    "id": "mushoku16-00450",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy coughs after Rudeus releases his tight embrace"
+  },
+  {
+    "id": "mushoku16-00479",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus offers get-well presents to Nanahoshi"
+  },
+  {
+    "id": "mushoku16-00486",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi to listen before revealing his story"
+  },
+  {
+    "id": "mushoku16-00494",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus provides proof regarding his future self"
+  },
+  {
+    "id": "mushoku16-00505",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus questions Nanahoshi's skepticism"
+  },
+  {
+    "id": "mushoku16-00506",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi questions whether Hitogami is trustworthy"
+  },
+  {
+    "id": "mushoku16-00509",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus expresses his sense of helplessness"
+  },
+  {
+    "id": "mushoku16-00511",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag introduces Nanahoshi's statement about Orsted"
+  },
+  {
+    "id": "mushoku16-00524",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus explains why his future self sent him to consult Nanahoshi"
+  },
+  {
+    "id": "mushoku16-00539",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus takes his leave of Nanahoshi"
+  },
+  {
+    "id": "mushoku16-00546",
+    "speaker": "ARUMANFI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Arumanfi calls out to Rudeus in the hallway"
+  },
+  {
+    "id": "mushoku16-00551",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus answers Arumanfi"
+  },
+  {
+    "id": "mushoku16-00552",
+    "speaker": "ARUMANFI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Arumanfi informs Rudeus about Nanahoshi's status"
+  },
+  {
+    "id": "mushoku16-00558",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus identifies himself at Nanahoshi's door"
+  },
+  {
+    "id": "mushoku16-00575",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus suggests a possibility about Nanahoshi's missing friends"
+  },
+  {
+    "id": "mushoku16-00605",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi poses analytical questions regarding time displacement"
+  },
+  {
+    "id": "mushoku16-00614",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus about his physical condition post-disaster"
+  },
+  {
+    "id": "mushoku16-00620",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks if Nanahoshi's theory is a guess"
+  },
+  {
+    "id": "mushoku16-00633",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks when the red sphere first appeared"
+  },
+  {
+    "id": "mushoku16-00641",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi notes that Rudeus is an foreign existence in this world"
+  },
+  {
+    "id": "mushoku16-00643",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi asks Rudeus about his transfer reason"
+  },
+  {
+    "id": "mushoku16-00651",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi for clarification"
+  },
+  {
+    "id": "mushoku16-00652",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi answers Rudeus's request for clarification"
+  },
+  {
+    "id": "mushoku16-00662",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus acknowledges Nanahoshi's hypothesis"
+  },
+  {
+    "id": "mushoku16-00674",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus warns Nanahoshi that Hitogami is watching"
+  },
+  {
+    "id": "mushoku16-00678",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi questions the reach of Hitogami's power"
+  },
+  {
+    "id": "mushoku16-00685",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus explains his strategy for targeting Orsted"
+  },
+  {
+    "id": "mushoku16-00701",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi hesitantly confirms she can contact Orsted"
+  },
+  {
+    "id": "mushoku16-00721",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "internal thought / non-dialogue narration fragment"
+  },
+  {
+    "id": "mushoku16-00734",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nina reacts defensively to Eris's pitiful look"
+  },
+  {
+    "id": "mushoku16-00760",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nina brings up rumors about Rudeus to Eris"
+  },
+  {
+    "id": "mushoku16-00778",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nina continues commenting on Rudeus's reputation"
+  },
+  {
+    "id": "mushoku16-00780",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag confirms Nina asks Eris if she was forgotten"
+  },
+  {
+    "id": "mushoku16-00792",
+    "speaker": "GHYSLAINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag attributes this arrival greeting to Ghyslaine"
+  },
+  {
+    "id": "mushoku16-00804",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nina rejects challenging the drunk Sword God dishonorably"
+  },
+  {
+    "id": "mushoku16-00805",
+    "speaker": "REIDA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Water Style God Reida praises Nina's sportsmanship"
+  },
+  {
+    "id": "mushoku16-00818",
+    "speaker": "ISOLTE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Isolte calls to Eris that it is time to depart"
+  },
+  {
+    "id": "mushoku16-00823",
+    "speaker": "UNKNOWN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "unnamed mailman asking for a signature"
+  },
+  {
+    "id": "mushoku16-00831",
+    "speaker": "UNKNOWN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "unnamed mailman requesting Eris's signature"
+  },
+  {
+    "id": "mushoku16-00849",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris hypocritically lectures Nina about literacy"
+  },
+  {
+    "id": "mushoku16-00877",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "text from Rudeus's letter read aloud by Isolte"
+  },
+  {
+    "id": "mushoku16-00882",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "text from Rudeus's letter read aloud by Isolte"
+  },
+  {
+    "id": "mushoku16-00884",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "text from Rudeus's letter read aloud by Isolte"
+  },
+  {
+    "id": "mushoku16-00887",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "text from Rudeus's letter read aloud by Isolte"
+  },
+  {
+    "id": "mushoku16-00895",
+    "speaker": "NINA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag confirms Nina responding to Isolte in defense of Rudeus"
+  },
+  {
+    "id": "mushoku16-00923",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami greets Rudeus in his dream state"
+  },
+  {
+    "id": "mushoku16-00927",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami expresses excitement to Rudeus about the upcoming fight"
+  },
+  {
+    "id": "mushoku16-00937",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami identifies himself while giving advice on magic armor"
+  },
+  {
+    "id": "mushoku16-00947",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami explains why he is helping Rudeus against Orsted"
+  },
+  {
+    "id": "mushoku16-00963",
+    "speaker": "HITOGAMI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Hitogami addresses his past lies to Rudeus"
+  },
+  {
+    "id": "mushoku16-00997",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus reassures Roxy"
+  },
+  {
+    "id": "mushoku16-01009",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi begs Rudeus to reconsider fighting Orsted"
+  },
+  {
+    "id": "mushoku16-01011",
+    "speaker": "NANAHOSHI",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Nanahoshi backs off upon realizing Rudeus won't change his mind"
+  },
+  {
+    "id": "mushoku16-01018",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Nanahoshi if she came up with an idea"
+  },
+  {
+    "id": "mushoku16-01039",
+    "speaker": "UNKNOWN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "unnamed underground poison dealer greets Rudeus"
+  },
+  {
+    "id": "mushoku16-01051",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus replies dryly to the drug dealer's comment"
+  },
+  {
+    "id": "mushoku16-01116",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus instructs his allies for magic armor testing"
+  },
+  {
+    "id": "mushoku16-01129",
+    "speaker": "CLIFF",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Cliff nervously asks Elinalise whose baby she is carrying"
+  },
+  {
+    "id": "mushoku16-01137",
+    "speaker": "ELINALISE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Elinalise complies with Cliff's examination"
+  },
+  {
+    "id": "mushoku16-01143",
+    "speaker": "CLIFF",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Cliff panics upon discovering Elinalise's pregnancy"
+  },
+  {
+    "id": "mushoku16-01144",
+    "speaker": "ELINALISE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Elinalise tells Cliff to calm down and do nothing"
+  },
+  {
+    "id": "mushoku16-01175",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy expresses her feelings about carrying Rudeus's child"
+  },
+  {
+    "id": "mushoku16-01180",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus teases Roxy about her phrasing"
+  },
+  {
+    "id": "mushoku16-01185",
+    "speaker": "NORN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag attributes line to Norn addressing Rudeus"
+  },
+  {
+    "id": "mushoku16-01187",
+    "speaker": "AISHA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag attributes line to Aisha defending Roxy and Rudeus"
+  },
+  {
+    "id": "mushoku16-01204",
+    "speaker": "NORN",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Norn brings up Aisha's rice crop to deflect attention"
+  },
+  {
+    "id": "mushoku16-01212",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus excitedly asks Aisha about future rice harvests"
+  },
+  {
+    "id": "mushoku16-01213",
+    "speaker": "AISHA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Aisha praises Rudeus's magic soil"
+  },
+  {
+    "id": "mushoku16-01216",
+    "speaker": "AISHA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Aisha asks Rudeus if she can jump into his arms"
+  },
+  {
+    "id": "mushoku16-01270",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "dialogue tag indicates Rudeus whispering to Sylphy under the table"
+  },
+  {
+    "id": "mushoku16-01272",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus prepares Sylphy before making a proposition"
+  },
+  {
+    "id": "mushoku16-01288",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy accepts Rudeus into bed despite her pregnancy"
+  },
+  {
+    "id": "mushoku16-01293",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Roxy to sit down for a serious talk"
+  },
+  {
+    "id": "mushoku16-01317",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus reassures Sylphy that he is not leaving her room"
+  },
+  {
+    "id": "mushoku16-01341",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy tells Rudeus to stop groping her during serious talk"
+  },
+  {
+    "id": "mushoku16-01346",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Sylphy speaks affectionately about Luci's development"
+  },
+  {
+    "id": "mushoku16-01373",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "printed text on a poster, not spoken dialogue"
+  },
+  {
+    "id": "mushoku16-01470",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "exclamation made by Rudeus while biting Orsted's leg"
+  },
+  {
+    "id": "mushoku16-01480",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris greets Rudeus after arriving to save him"
+  },
+  {
+    "id": "mushoku16-01535",
+    "speaker": "SYLPHY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag states Sylphy replied while crying"
+  },
+  {
+    "id": "mushoku16-01550",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion asks Eris which sword she wants to pick"
+  },
+  {
+    "id": "mushoku16-01563",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion explains the properties of the sword"
+  },
+  {
+    "id": "mushoku16-01565",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion instructs Eris on tactics against Orsted"
+  },
+  {
+    "id": "mushoku16-01578",
+    "speaker": "ORSTED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Orsted comments in surprise at Eris's tactical growth"
+  },
+  {
+    "id": "mushoku16-01585",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion advises Eris in a flashback"
+  },
+  {
+    "id": "mushoku16-01591",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris shouts her counter-technique name against Orsted"
+  },
+  {
+    "id": "mushoku16-01609",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion analyzes Orsted's combat tendencies"
+  },
+  {
+    "id": "mushoku16-01614",
+    "speaker": "GARU FARION",
+    "confident": true,
+    "alias": "SWORD GOD",
+    "reasoning": "Sword God Gal Farion points out Orsted's tendency to observe techniques"
+  },
+  {
+    "id": "mushoku16-01658",
+    "speaker": "ORSTED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag confirms Orsted called out Rudeus's name"
+  },
+  {
+    "id": "mushoku16-01670",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris immediately rejects Orsted's proposal"
+  },
+  {
+    "id": "mushoku16-01673",
+    "speaker": "ORSTED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Orsted offers terms of alliance to Rudeus"
+  },
+  {
+    "id": "mushoku16-01678",
+    "speaker": "ORSTED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Orsted reassures Rudeus that Hitogami cannot hear them"
+  },
+  {
+    "id": "mushoku16-01682",
+    "speaker": "ORSTED",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Orsted gives Rudeus an ultimatum to join him"
+  },
+  {
+    "id": "mushoku16-01722",
+    "speaker": "NOT_DIALOGUE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "hypothetical dialogue imagined in Rudeus's internal monologue"
+  },
+  {
+    "id": "mushoku16-01729",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy explains why she asked about Eris's reception date"
+  },
+  {
+    "id": "mushoku16-01740",
+    "speaker": "ROXY",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Roxy scolds Rudeus for teasing her during a serious moment"
+  },
+  {
+    "id": "mushoku16-01778",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus nervously addresses Eris after waking on her lap"
+  },
+  {
+    "id": "mushoku16-01780",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus apologizes to Eris for past misunderstandings"
+  },
+  {
+    "id": "mushoku16-01876",
+    "speaker": "LILIA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "dialogue tag states Lilia spoke up quietly to address Rudeus"
+  },
+  {
+    "id": "mushoku16-01878",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus responds to Lilia addressing him"
+  },
+  {
+    "id": "mushoku16-01890",
+    "speaker": "GHYSLAINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ghyslaine asks Eris if she can entrust her responsibilities to her"
+  },
+  {
+    "id": "mushoku16-01908",
+    "speaker": "GHYSLAINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ghyslaine confirms she knows the Water God and North Emperor"
+  },
+  {
+    "id": "mushoku16-01913",
+    "speaker": "GHYSLAINE",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Ghyslaine asks Rudeus who he is referring to"
+  },
+  {
+    "id": "mushoku16-01925",
+    "speaker": "AISHA",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Aisha shares her realization about Rudeus teaching Ghyslaine"
+  },
+  {
+    "id": "mushoku16-01941",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus recognizes Eris holding him down in the dark"
+  },
+  {
+    "id": "mushoku16-01947",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris focuses on being husband and wife immediately"
+  },
+  {
+    "id": "mushoku16-01952",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris informs Rudeus that Sylphy and Roxy gave her permission"
+  },
+  {
+    "id": "mushoku16-01953",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus asks Eris if Roxy raised any concerns"
+  },
+  {
+    "id": "mushoku16-01958",
+    "speaker": "ERIS",
+    "confident": true,
+    "alias": null,
+    "reasoning": "Eris confesses her feelings directly to Rudeus"
+  },
+  {
+    "id": "mushoku16-01976",
+    "speaker": "RUDEUS",
+    "confident": true,
+    "alias": "RUDI",
+    "reasoning": "Rudeus marvels at Eris's abdominal muscle tone"
+  }
+]
