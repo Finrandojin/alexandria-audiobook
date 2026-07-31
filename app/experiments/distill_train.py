@@ -131,8 +131,17 @@ def main():
         for s, u, c in zip(batch["system"], batch["user"], batch["completion"]):
             messages = [{"role": "system", "content": s},
                         {"role": "user", "content": u}]
-            prompt = tok.apply_chat_template(messages, tokenize=False,
-                                             add_generation_prompt=True)
+            # enable_thinking=False APPENDS an empty <think></think> block to
+            # the prompt; it is not a no-op flag. Production runs with
+            # reasoning suppressed, so training must use the same template or
+            # the adapter is tuned for a prompt shape inference never sends.
+            try:
+                prompt = tok.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                    enable_thinking=False)
+            except TypeError:
+                prompt = tok.apply_chat_template(messages, tokenize=False,
+                                                 add_generation_prompt=True)
             prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
             answer_ids = tok(c + tok.eos_token,
                              add_special_tokens=False)["input_ids"]

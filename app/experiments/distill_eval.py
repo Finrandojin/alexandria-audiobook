@@ -93,8 +93,20 @@ class LocalClient:
     def create(self, model=None, messages=None, temperature=0.0, top_p=1.0,
                presence_penalty=0.0, max_tokens=512, extra_body=None):
         import torch
-        prompt = self.tok.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True)
+        # Qwen3 emits <think> blocks by default. Production suppresses them
+        # through extra_body (reasoning_effort="none"), which a local
+        # tokenizer never sees - so without this the arms would run WITH
+        # reasoning while the thing they are compared against ran without it,
+        # and each call generated thousands of thinking tokens (~7 minutes per
+        # batch, against ~8 seconds). Wrong configuration first, slow second.
+        try:
+            prompt = self.tok.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True,
+                enable_thinking=False)
+        except TypeError:
+            # Tokenizers without the flag never had the behaviour to disable.
+            prompt = self.tok.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=True)
         enc = self.tok(prompt, return_tensors="pt").to(self.model.device)
         kw = dict(max_new_tokens=max_tokens,
                   pad_token_id=self.tok.pad_token_id or self.tok.eos_token_id)
