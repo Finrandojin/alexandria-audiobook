@@ -31,9 +31,12 @@ MODEL = os.environ.get("EXPERIMENT_MODEL", "qwen/qwen3-14b")
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD_PATH = APP + os.environ.get(
+    "EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + "/" + BOOK + "/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 roster = [r.upper() for r in build_roster([e for e in (cp.get("named") or []) if e], src)]
 AL = [{"RUDEUS", "RUDI"}, {"SYLPHY", "SYLPHIETTE"}]
@@ -82,7 +85,7 @@ def ask(index, line, as_id):
 
 record = ExperimentRecord(
     "candidate_id", REPO, MODEL, BASE_URL,
-    APP + "fixtures/attribution_gold_random.json",
+    GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 24, "reasoning_effort": "none"},
     notes="Free-form name output vs opaque candidate-ID output, same model and "
           "lines. Tests whether removing the naming job removes the errors it "

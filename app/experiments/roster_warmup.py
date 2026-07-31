@@ -45,9 +45,12 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BASE_URL = "http://localhost:1234/v1"
 BATCH = 25
 
-gold = json.load(open(APP + "fixtures/attribution_gold_random.json"))
-src = open(M + "inputs/mushoku16.txt", encoding="utf-8").read()
-cp = json.load(open(M + INPUT_RUN + "/mushoku16/result.json.threepass_checkpoint.json"))
+BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
+GOLD_PATH = APP + os.environ.get(
+    "EXPERIMENT_GOLD", "fixtures/attribution_gold_random.json")
+gold = json.load(open(GOLD_PATH))
+src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()
+cp = json.load(open(M + INPUT_RUN + "/" + BOOK + "/result.json.threepass_checkpoint.json"))
 seg = cp["segmented"]
 final_named = [e for e in (cp.get("named") or []) if e]
 discovered = build_roster(final_named, src)
@@ -73,7 +76,7 @@ params = LLMGenParams(max_tokens=12000, context_length=32768, temperature=0.0,
                       reasoning_effort="none")
 record = ExperimentRecord(
     "roster_warmup", REPO, MODEL, BASE_URL,
-    APP + "fixtures/attribution_gold_random.json",
+    GOLD_PATH,
     {"temperature": 0.0, "max_tokens": 12000, "reasoning_effort": "none"},
     notes="incremental vs warm vs oracle roster, reported by book quartile.")
 
