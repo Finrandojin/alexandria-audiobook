@@ -10,9 +10,13 @@ the failures are two distinct shapes:
     paragraph misfiled       plain third-person narration marked SPOKEN:
                              "A shallow cut opened in William Orwell's side."
 
-Both look mechanical, so this tries rules before anything heavier. The 839
-NOT_DIALOGUE labels from two independent judges make it self-scoring: no
-review, no adjudication, just precision and recall against gold.
+Both look mechanical, so this tries rules before anything heavier. The two
+judges' labels make it self-scoring - no review, no adjudication, just
+precision and recall against gold - across 839 judged rows, of which 46 are
+NOT_DIALOGUE and 793 are real speech. (An earlier version of this docstring
+called it "the 839 NOT_DIALOGUE labels", conflating the row count with the
+label count; the positives are 46, and `segmentation_classifier` shows that
+number is the binding constraint.)
 
 THE TRADE-OFF IS THE WHOLE POINT. A filter that flags everything reaches 100%
 recall and destroys the corpus. Real dialogue wrongly dropped is worse than

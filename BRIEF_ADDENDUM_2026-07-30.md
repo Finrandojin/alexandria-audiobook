@@ -122,8 +122,9 @@ elsewhere.
 ## What I would do next
 
 1. **Segmentation.** Largest correctness gap, upstream of everything, and the
-   839 NOT_DIALOGUE labels make it self-scoring. Rule-based filtering failed at
-   a 6% false-positive rate; a classifier is the remaining approach.
+   judges' labels make it self-scoring. Rule-based filtering failed at a 6%
+   false-positive rate; a classifier was the remaining approach and is now
+   measured - see the correction below.
 2. **More books.** Every routing claim is a line through four points. The gold
    pipeline is solid; the cost is judging time, not GPU.
 3. **The realizable router** (offline) - whether per-passage adaptation is real
@@ -177,3 +178,26 @@ Instance 0 (A6000) **deleted 2026-07-30**, billing stopped, after snapshot
 `alexandria-attribution-2026-07-31` (id `MRqS2nKqYE0DEGyDu4gM`, 300 GB) reached
 READY. The snapshot holds the CUDA llama.cpp build and the 70B weights — about
 four hours to reconstruct from scratch. Restore from it rather than rebuilding.
+
+## Correction: "839 NOT_DIALOGUE labels" was wrong (2026-07-30)
+
+Earlier text in this brief and in `segmentation_filter`'s docstring described
+"the 839 NOT_DIALOGUE labels". **839 is the number of judged rows.** Only **46**
+of them are NOT_DIALOGUE; 793 are real speech. The positives are also
+concentrated — index18 has 21 and owarimonogatari3 18, while grimgar06 and
+mushoku18 have none at all.
+
+That correction changes the segmentation plan. `experiments/segmentation_classifier.py`
+trains a logistic model leave-one-BOOK-out, with the operating threshold fixed
+at a 1% false-positive rate on the *training* books:
+
+    pooled recall     10/46 = 21.7%  [10.9-36.4]
+    pooled false pos  14/1033 = 1.36%  [0.74-2.26]
+
+Against the rule baseline (`cut`: 39.1% recall at 3.66% false positives) this is
+**not a demonstrated improvement**. The recall interval spans 25 points, so the
+labels cannot resolve whether a classifier beats the rules either way.
+
+**The binding constraint is the label count, not the model.** More
+NOT_DIALOGUE labels is the prerequisite for any further segmentation work; a
+better classifier on 46 positives is not.
