@@ -10,28 +10,41 @@ tested here.
 
 These drive the REAL attribute_batch and assert on what it produced: correct
 arity, speakers bound to the right indices, and the frozen text byte-exact.
+
+Imports are deliberately lazy. `update_test_inventory` imports every test
+module with plain importlib in an environment that has neither pytest nor
+openai, and a top-level import of either fails the release verifier rather
+than the test.
 """
 import importlib.util
 import json
 import os
 import sys
 import types
-
-import pytest
+import unittest
 
 APP = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, APP)
-
-from generate_script import LLMGenParams
-from three_pass_generate import attribute_batch
+if APP not in sys.path:
+    sys.path.insert(0, APP)
 
 BATCH = [{"type": "SPOKEN", "text": "Where are we going?"},
          {"type": "SPOKEN", "text": "Somewhere quieter."}]
 
 
-def _load_module():
+def _dependencies():
+    """Import the production path, or None when the environment lacks it."""
+    try:
+        from generate_script import LLMGenParams
+        from three_pass_generate import attribute_batch
+    except Exception:
+        return None
+    return LLMGenParams, attribute_batch
+
+
+def _load_distill_eval():
     spec = importlib.util.spec_from_file_location(
-        "distill_eval", os.path.join(APP, "experiments", "distill_eval.py"))
+        "distill_eval_under_test",
+        os.path.join(APP, "experiments", "distill_eval.py"))
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -75,79 +88,89 @@ class _Model:
         return [[1, 2, 3, 4, 5, 6]]
 
 
-@pytest.fixture(autouse=True)
-def _stub_torch(monkeypatch):
-    """The shim imports torch only for no_grad; nothing here needs the real one."""
-    if "torch" in sys.modules:
-        return
-    torch = types.ModuleType("torch")
+class DistillEvalShimTest(unittest.TestCase):
+    """The shim is the seam between a peft model and the shipped LLM path."""
 
-    class _NoGrad:
-        def __enter__(self):
-            return None
+    @classmethod
+    def setUpClass(cls):
+        if "torch" not in sys.modules:
+            # The shim imports torch only for no_grad; nothing here needs the
+            # real one, and CI has no GPU stack.
+            torch = types.ModuleType("torch")
 
-        def __exit__(self, *exc):
-            return False
+            class _NoGrad:
+                def __enter__(self):
+                    return None
 
-    torch.no_grad = lambda: _NoGrad()
-    monkeypatch.setitem(sys.modules, "torch", torch)
+                def __exit__(self, *exc):
+                    return False
+
+            torch.no_grad = lambda: _NoGrad()
+            sys.modules["torch"] = torch
+        cls.deps = _dependencies()
+        cls.module = _load_distill_eval() if cls.deps else None
+
+    def setUp(self):
+        if not self.deps:
+            self.skipTest("openai/production path unavailable in this environment")
+
+    def _params(self):
+        LLMGenParams, _ = self.deps
+        return LLMGenParams(max_tokens=800, context_length=32768,
+                            temperature=0.0, attribute_temperature=0.0,
+                            top_p=0.8, reasoning_effort="none")
+
+    def test_shim_drives_attribute_batch_and_freezes_text(self):
+        _, attribute_batch = self.deps
+        reply = json.dumps([{"n": 0, "head": "Where", "speaker": "HARUHIRO"},
+                            {"n": 1, "head": "Somewhere", "speaker": "RANTA"}])
+        client = self.module.LocalClient(_Model(), _Tok(reply))
+        out = attribute_batch(client, "stub", BATCH, self._params(),
+                              ["HARUHIRO", "RANTA"], neighbor_contexts=[{}, {}],
+                              source_text=" ".join(e["text"] for e in BATCH))
+
+        self.assertEqual([o["speaker"] for o in out], ["HARUHIRO", "RANTA"])
+        # The text freeze is the whole reason attribution returns only n/head/
+        # speaker; a shim that mangled the response could still round-trip text.
+        self.assertEqual([o["text"] for o in out], [e["text"] for e in BATCH])
+
+    def test_temperature_zero_is_greedy_not_sampled(self):
+        """Every other harness here ran deterministic; a sampled arm is not
+        comparable to any of them."""
+        model = _Model()
+        client = self.module.LocalClient(model, _Tok("[]"))
+        client.create(messages=[{"role": "user", "content": "x"}],
+                      temperature=0.0, max_tokens=16)
+        self.assertIs(model.kwargs["do_sample"], False)
+        self.assertNotIn("temperature", model.kwargs)
+
+        client.create(messages=[{"role": "user", "content": "x"}],
+                      temperature=0.7, max_tokens=16)
+        self.assertIs(model.kwargs["do_sample"], True)
+        self.assertEqual(model.kwargs["temperature"], 0.7)
+
+    def test_truncated_generation_reports_finish_reason_length(self):
+        """call_llm_for_entries' retry policy branches on
+        finish_reason=='length'. A shim that always said 'stop' would turn a
+        truncated response into an unexplained parse failure."""
+        client = self.module.LocalClient(_Model(), _Tok("["))
+        # _Model returns 6 tokens for a 3-token prompt, so 3 were generated.
+        self.assertEqual(
+            client.create(messages=[], max_tokens=3).choices[0].finish_reason,
+            "length")
+        self.assertEqual(
+            client.create(messages=[], max_tokens=99).choices[0].finish_reason,
+            "stop")
+
+    def test_response_exposes_only_what_the_caller_reads(self):
+        response = self.module.LocalClient(_Model(), _Tok("[]")).create(
+            messages=[], max_tokens=8)
+        self.assertIsInstance(response.choices[0].message.content, str)
+        # getattr(response, 'usage', None) is how the caller reads it; None is
+        # a value the caller already handles, and inventing token counts would
+        # put fabricated numbers into an artifact.
+        self.assertIsNone(response.usage)
 
 
-def _params():
-    return LLMGenParams(max_tokens=800, context_length=32768, temperature=0.0,
-                        attribute_temperature=0.0, top_p=0.8,
-                        reasoning_effort="none")
-
-
-def test_shim_drives_attribute_batch_and_freezes_text():
-    module = _load_module()
-    reply = json.dumps([{"n": 0, "head": "Where", "speaker": "HARUHIRO"},
-                        {"n": 1, "head": "Somewhere", "speaker": "RANTA"}])
-    client = module.LocalClient(_Model(), _Tok(reply))
-    out = attribute_batch(client, "stub", BATCH, _params(),
-                          ["HARUHIRO", "RANTA"], neighbor_contexts=[{}, {}],
-                          source_text=" ".join(e["text"] for e in BATCH))
-
-    assert [o["speaker"] for o in out] == ["HARUHIRO", "RANTA"]
-    # The text freeze is the whole reason attribution returns only n/head/
-    # speaker; a shim that mangled the response could still round-trip text.
-    assert [o["text"] for o in out] == [e["text"] for e in BATCH]
-
-
-def test_temperature_zero_is_greedy_not_sampled():
-    """Every other harness here ran deterministic; a sampled arm is not
-    comparable to any of them."""
-    module = _load_module()
-    model = _Model()
-    client = module.LocalClient(model, _Tok("[]"))
-    client.create(messages=[{"role": "user", "content": "x"}], temperature=0.0,
-                  max_tokens=16)
-    assert model.kwargs["do_sample"] is False
-    assert "temperature" not in model.kwargs
-
-    client.create(messages=[{"role": "user", "content": "x"}], temperature=0.7,
-                  max_tokens=16)
-    assert model.kwargs["do_sample"] is True
-    assert model.kwargs["temperature"] == 0.7
-
-
-def test_truncated_generation_reports_finish_reason_length():
-    """call_llm_for_entries' retry policy branches on finish_reason=='length'.
-    A shim that always said 'stop' would turn a truncated response into an
-    unexplained parse failure."""
-    module = _load_module()
-    client = module.LocalClient(_Model(), _Tok("["))
-    # _Model returns 6 tokens for a 3-token prompt, so 3 were generated.
-    assert client.create(messages=[], max_tokens=3).choices[0].finish_reason == "length"
-    assert client.create(messages=[], max_tokens=99).choices[0].finish_reason == "stop"
-
-
-def test_response_exposes_only_what_the_caller_reads():
-    module = _load_module()
-    response = module.LocalClient(_Model(), _Tok("[]")).create(
-        messages=[], max_tokens=8)
-    assert isinstance(response.choices[0].message.content, str)
-    # getattr(response, 'usage', None) is how the caller reads it; None is a
-    # value the caller already handles, and inventing token counts would put
-    # fabricated numbers into an artifact.
-    assert response.usage is None
+if __name__ == "__main__":
+    unittest.main()
