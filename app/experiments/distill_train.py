@@ -81,9 +81,13 @@ def main():
     ap.add_argument("--batch_size", type=int, default=1)
     ap.add_argument("--grad_accum", type=int, default=8)
     ap.add_argument("--max_len", type=int, default=2048)
-    ap.add_argument("--holdout", default="mushoku18",
-                    help="book kept out of training, as a sanity split "
-                         "SEPARATE from the four gold books")
+    # Default to holding nothing back. The four gold books already provide a
+    # clean cross-book evaluation, and with 1,091 rows total an internal
+    # holdout of 593 would cost more than half the training data to answer a
+    # question distill_eval already answers better.
+    ap.add_argument("--holdout", default="",
+                    help="optional book kept out of training; the real "
+                         "evaluation is cross-book against the four gold sets")
     ap.add_argument("--dry_run", action="store_true",
                     help="build and report the dataset without loading a model")
     args = ap.parse_args()
