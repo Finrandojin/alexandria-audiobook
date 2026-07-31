@@ -120,12 +120,19 @@
                                     <option value="external">External Server</option>
                                     <option value="local">Local Model</option>
                                 </select>
-                                <div class="form-text">Local loads model in-process; External connects to a Gradio TTS server</div>
+                                <div class="form-text">Local loads a model in-process; External uses the configured speech provider</div>
                             </div>
-                            <div class="col-md-5" id="tts-url-group">
+                            <div class="col-md-3" id="tts-provider-group">
+                                <label class="form-label">External Provider</label>
+                                <select class="form-select" id="tts-provider" onchange="toggleTTSMode()">
+                                    <option value="server">Existing Server</option>
+                                    <option value="minimax">MiniMax</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4" id="tts-url-group">
                                 <label class="form-label">TTS Server URL</label>
                                 <input type="text" class="form-control" id="tts-url" value="http://127.0.0.1:7860">
-                                <div class="form-text">URL for the Qwen3-TTS Gradio server</div>
+                                <div class="form-text">URL for the existing external speech server</div>
                             </div>
                             <div class="col-md-4" id="tts-device-group" style="display:none;">
                                 <label class="form-label">Device</label>
@@ -163,6 +170,32 @@
                                 <label class="form-label">Batch Seed</label>
                                 <input type="number" class="form-control" id="batch-seed" placeholder="-1 (random)">
                                 <div class="form-text">Seed for reproducibility</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3" id="tts-minimax-options" style="display:none;">
+                            <div class="col-md-4">
+                                <label class="form-label">MiniMax API Key</label>
+                                <input type="password" class="form-control" id="tts-api-key" autocomplete="off">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">MiniMax Region</label>
+                                <select class="form-select" id="tts-region">
+                                    <option value="global_en">Global</option>
+                                    <option value="cn_zh">China</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Speech Model</label>
+                                <select class="form-select" id="tts-model">
+                                    <option value="speech-2.8-hd">speech-2.8-hd</option>
+                                    <option value="speech-2.8-turbo">speech-2.8-turbo</option>
+                                    <option value="speech-2.6-hd">speech-2.6-hd</option>
+                                    <option value="speech-2.6-turbo">speech-2.6-turbo</option>
+                                    <option value="speech-02-hd">speech-02-hd</option>
+                                    <option value="speech-02-turbo">speech-02-turbo</option>
+                                    <option value="speech-01-hd">speech-01-hd</option>
+                                    <option value="speech-01-turbo">speech-01-turbo</option>
+                                </select>
                             </div>
                         </div>
                         <div class="row mb-3" id="tts-local-options" style="display:none;">
@@ -1162,7 +1195,12 @@
 
         function toggleTTSMode() {
             const mode = document.getElementById('tts-mode').value;
-            document.getElementById('tts-url-group').style.display = mode === 'external' ? '' : 'none';
+            const provider = document.getElementById('tts-provider').value;
+            const isExternal = mode === 'external';
+            const isMiniMax = isExternal && provider === 'minimax';
+            document.getElementById('tts-provider-group').style.display = isExternal ? '' : 'none';
+            document.getElementById('tts-url-group').style.display = isExternal && !isMiniMax ? '' : 'none';
+            document.getElementById('tts-minimax-options').style.display = isMiniMax ? '' : 'none';
             document.getElementById('tts-device-group').style.display = mode === 'local' ? '' : 'none';
             document.getElementById('tts-local-options').style.display = mode === 'local' ? '' : 'none';
         }
@@ -1178,6 +1216,10 @@
                 document.getElementById('llm-model').value = config.llm.model_name;
                 document.getElementById('tts-mode').value = config.tts.mode || 'external';
                 document.getElementById('tts-url').value = config.tts.url || 'http://127.0.0.1:7860';
+                document.getElementById('tts-provider').value = config.tts.provider || 'server';
+                document.getElementById('tts-api-key').value = config.tts.api_key || '';
+                document.getElementById('tts-model').value = config.tts.model || 'speech-2.8-hd';
+                document.getElementById('tts-region').value = config.tts.region || 'global_en';
                 document.getElementById('tts-device').value = config.tts.device || 'auto';
                 document.getElementById('tts-language').value = config.tts.language || 'English';
                 document.getElementById('parallel-workers').value = config.tts.parallel_workers || 2;
@@ -1356,6 +1398,10 @@
                 tts: {
                     mode: document.getElementById('tts-mode').value,
                     url: document.getElementById('tts-url').value,
+                    provider: document.getElementById('tts-provider').value,
+                    api_key: document.getElementById('tts-api-key').value,
+                    model: document.getElementById('tts-model').value,
+                    region: document.getElementById('tts-region').value,
                     device: document.getElementById('tts-device').value,
                     language: document.getElementById('tts-language').value,
                     parallel_workers: parallelWorkers,
@@ -1615,9 +1661,10 @@
                                 <div class="custom-opts" style="display: ${voiceType === 'custom' ? 'block' : 'none'}">
                                     <div class="row g-2">
                                         <div class="col-md-6">
-                                            <select class="form-select voice-select">
-                                                ${AVAILABLE_VOICES.map(v => `<option value="${v}" ${config.voice === v ? 'selected' : ''}>${v}</option>`).join('')}
-                                            </select>
+                                            <input type="text" class="form-control voice-select" list="voice-options-${index}" value="${escapeHtml(config.voice || AVAILABLE_VOICES[0])}" placeholder="Built-in voice or MiniMax voice ID">
+                                            <datalist id="voice-options-${index}">
+                                                ${AVAILABLE_VOICES.map(v => `<option value="${v}"></option>`).join('')}
+                                            </datalist>
                                         </div>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${escapeHtml(config.character_style || config.default_style || '')}">
@@ -1659,6 +1706,7 @@
 
                                 <!-- Clone Options -->
                                 <div class="clone-opts" style="display: ${voiceType === 'clone' ? 'block' : 'none'}">
+                                    <input type="text" class="form-control clone-voice-id mb-2" placeholder="MiniMax voice ID" value="${escapeHtml(config.voice_id || '')}">
                                     <div class="row g-2 mb-2 align-items-center">
                                         <div class="col">
                                             <select class="form-select designed-voice-select" onchange="onDesignedVoiceSelect(this)">
@@ -1702,6 +1750,7 @@
 
                                 <!-- Voice Design Options -->
                                 <div class="design-opts" style="display: ${voiceType === 'design' ? 'block' : 'none'}">
+                                    <input type="text" class="form-control design-voice-id mb-2" placeholder="MiniMax voice ID" value="${escapeHtml(config.voice_id || '')}">
                                     <input type="text" class="form-control design-description mb-1" placeholder="Base voice description (e.g. Young strong soldier)" value="${config.description || ''}">
                                     <span class="text-muted small">Per-line instruct is appended to this description as delivery/emotion direction</span>
                                     <div class="mt-2">
@@ -1774,6 +1823,7 @@
                 } else if (type === 'clone') {
                     config[name] = {
                         type: 'clone',
+                        voice_id: card.querySelector('.clone-voice-id').value,
                         ref_text: card.querySelector('.ref-text').value,
                         ref_audio: card.querySelector('.ref-audio').value,
                         seed: "-1"
@@ -1801,6 +1851,7 @@
                 } else if (type === 'design') {
                     config[name] = {
                         type: 'design',
+                        voice_id: card.querySelector('.design-voice-id').value,
                         description: card.querySelector('.design-description').value,
                         seed: "-1"
                     };

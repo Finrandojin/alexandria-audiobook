@@ -200,6 +200,10 @@ class LLMConfig(BaseModel):
 class TTSConfig(BaseModel):
     mode: str = "local"  # "local" or "external"
     url: str = "http://127.0.0.1:7860"  # external mode only
+    provider: str = "server"  # external speech provider
+    api_key: str = ""  # provider API key
+    model: str = "speech-2.8-hd"  # provider speech model
+    region: str = "global_en"  # provider regional endpoint
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
     language: str = "English"  # TTS language
     parallel_workers: int = 2  # concurrent TTS workers
@@ -476,6 +480,10 @@ async def get_config():
         "tts": {
             "mode": "local",
             "url": "http://127.0.0.1:7860",
+            "provider": "server",
+            "api_key": "",
+            "model": "speech-2.8-hd",
+            "region": "global_en",
             "device": "auto"
         },
         "prompts": {
