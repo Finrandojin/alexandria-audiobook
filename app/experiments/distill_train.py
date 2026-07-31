@@ -110,7 +110,7 @@ def main():
 
     import torch
     from transformers import (AutoModelForCausalLM, AutoTokenizer,
-                              TrainingArguments, Trainer, DataCollatorForLanguageModeling)
+                              TrainingArguments, Trainer, DataCollatorForSeq2Seq)
     from peft import LoraConfig, get_peft_model
     from datasets import Dataset
 
@@ -119,16 +119,29 @@ def main():
         tok.pad_token = tok.eos_token
 
     def encode(batch):
-        texts = []
+        """Tokenise, and mask the prompt so loss falls only on the answer.
+
+        The prompt is the roster plus the batch JSON and runs to ~740 chars,
+        while the completion is about 30. Training on the whole sequence would
+        spend almost all of the gradient teaching the model to reproduce its
+        own input, and the speaker - the only thing the 70B actually taught us -
+        would be a rounding error in the loss.
+        """
+        input_ids, labels = [], []
         for s, u, c in zip(batch["system"], batch["user"], batch["completion"]):
-            texts.append(tok.apply_chat_template(
-                [{"role": "system", "content": s},
-                 {"role": "user", "content": u},
-                 {"role": "assistant", "content": c}],
-                tokenize=False))
-        enc = tok(texts, truncation=True, max_length=args.max_len, padding=False)
-        enc["labels"] = [list(x) for x in enc["input_ids"]]
-        return enc
+            messages = [{"role": "system", "content": s},
+                        {"role": "user", "content": u}]
+            prompt = tok.apply_chat_template(messages, tokenize=False,
+                                             add_generation_prompt=True)
+            prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
+            answer_ids = tok(c + tok.eos_token,
+                             add_special_tokens=False)["input_ids"]
+            ids = (prompt_ids + answer_ids)[:args.max_len]
+            lab = ([-100] * len(prompt_ids) + answer_ids)[:args.max_len]
+            input_ids.append(ids)
+            labels.append(lab)
+        return {"input_ids": input_ids, "labels": labels,
+                "attention_mask": [[1] * len(x) for x in input_ids]}
 
     ds = Dataset.from_list(train).map(
         encode, batched=True, remove_columns=["system", "user", "completion", "book"])
@@ -154,7 +167,8 @@ def main():
             save_strategy="epoch", report_to=[], lr_scheduler_type="cosine",
             warmup_ratio=0.03),
         train_dataset=ds,
-        data_collator=DataCollatorForLanguageModeling(tok, mlm=False),
+        data_collator=DataCollatorForSeq2Seq(tok, padding=True,
+                                             label_pad_token_id=-100),
     ).train()
     model.save_pretrained(args.out)
     tok.save_pretrained(args.out)
