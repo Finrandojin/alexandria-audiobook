@@ -201,3 +201,55 @@ labels cannot resolve whether a classifier beats the rules either way.
 **The binding constraint is the label count, not the model.** More
 NOT_DIALOGUE labels is the prerequisite for any further segmentation work; a
 better classifier on 46 positives is not.
+
+## Two corrections from the baseline work (2026-07-31)
+
+### Book scores were never comparable, and owarimonogatari3 is below free
+
+`experiments/trivial_baselines.py` computes what each book scores with no model
+at all, on the same rows the harnesses score:
+
+    book               floor  (which)             best arm   arms below floor
+    grimgar03          35.3%  previous-speaker      86.8%      0/148
+    index18            39.1%  previous-speaker      82.6%      0/63
+    mushoku16          37.6%  majority              70.7%      3/87
+    owarimonogatari3   50.0%  previous-speaker      69.8%     50/63
+
+**Fifty of owarimonogatari3's 63 measured arms score below a baseline that just
+repeats the previous line's speaker.** The book has been called hard; it is
+worse than that — most interventions measured on it are worse than free. The
+floors differ by more than 20 points, so two books with equal accuracy have
+never meant the same thing, and any claim resting on owari needs re-reading
+against 50.0%.
+
+### `committed_history` was reported null. That was a pooling artifact.
+
+                    none    oracle   predicted   floor
+    grimgar03       63.5%   63.5%     62.3%      35.3%
+    index18         63.6%   60.6%     63.6%      39.1%
+    mushoku16       50.7%   54.4%     47.8%      37.6%
+    owarimonogatari3 50.0%  59.3%     46.9%      50.0%
+
+The TRUE previous speaker is worth **+9.3 points on owarimonogatari3** and +3.7
+on mushoku16, while the model's OWN previous answer costs 3.1 and 2.9. That is
+exactly the "oracle helps, predicted does not — work on the state source"
+reading `committed_history` fixed in advance, and averaging four books hid it.
+
+Note also that owari's `none` arm scores 50.0%, identical to its
+previous-speaker floor.
+
+**What this changes.** Sequential history is not retired. The representation
+works where turn-taking carries the evidence; what fails is the state source,
+because feeding back predictions that are wrong about half the time compounds
+the error. The open question is whether a confidence-gated history — supply the
+previous speaker only when it is likely right — beats supplying it always or
+never. That is a real experiment, distinct from the one already run.
+
+### Name-binding is worth ~10 oracle points, not the whole gap
+
+`experiments/cluster_vs_name.py` scores each arm's partition of lines by
+speaker, names discarded: mean ARI **0.416**, mean gain from an oracle
+relabelling **+9.9 points**, with predicted cluster counts tracking gold
+(21/22, 20/20) so the gain is structure rather than collapse. The model
+partially tracks who is speaking. Fixing name-binding alone is worth less than
+the 70B cascade's +11.1 to +22.0, so it is not the missing piece.
