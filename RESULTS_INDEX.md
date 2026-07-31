@@ -1,10 +1,14 @@
 # Results index
 
-Generated 2026-07-30 14:19 from `ab_test_runtime/experiments/` — 158 artifacts, 440 arms.
+Generated 2026-07-30 22:05 from `ab_test_runtime/experiments/` — 160 artifacts, 440 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
 `dirty=True` means tracked files were modified when the artifact was written: the numbers are inspectable but the run is not reproducible from its recorded commit.
+
+**`closed-oracle` arms are invalidated.** Their candidate sets were built from the pre-gold labels, so the arm was shown shortlists derived from answers that have since changed. `valid=ok` on those rows means internally consistent, NOT trustworthy — do not read them as results.
+
+Arms with `valid=None` had no validation recorded at write time (`closed_set.json`, `two_by_two.json`, both pre-contract). They are unverified rather than known-bad.
 
 
 ## batch_size

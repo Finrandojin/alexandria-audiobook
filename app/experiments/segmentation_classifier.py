@@ -167,7 +167,7 @@ def main():
           f"the prerequisite, not a better classifier.")
 
     out = REPO + "/ab_test_runtime/experiments/segmentation_classifier.json"
-    json.dump({"rows": len(rows), "positives": total_pos,
+    json.dump({"judged_rows": len(rows), "positives": total_pos,
                "per_book": {b: {"rows": counts[(b, 0)] + counts[(b, 1)],
                                 "positives": counts[(b, 1)]} for b in BOOKS},
                "target_fpr": TARGET_FPR,

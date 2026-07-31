@@ -1,5 +1,4 @@
 {
- "rows": 1079,
  "positives": 46,
  "per_book": {
   "grimgar03": {
@@ -42,5 +41,6 @@
    2.263476983203966
   ]
  },
- "verdict": "Underpowered. 46 positives over four books cannot resolve whether a classifier beats the rule baseline; more labels are the prerequisite."
+ "verdict": "Underpowered. 46 positives over four books cannot resolve whether a classifier beats the rule baseline; more labels are the prerequisite.",
+ "judged_rows": 1079
 }

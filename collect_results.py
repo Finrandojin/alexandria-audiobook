@@ -26,7 +26,15 @@ for path in files:
         rows.append({"artifact": name, "note": f"UNREADABLE: {exc}"})
         continue
     m, rr = d.get("meta") or {}, d.get("rows") or []
-    if not rr:
+    # Analysis artifacts are plain JSON and may legitimately use "rows" for a
+    # count rather than a list of scored lines - segmentation_classifier.json
+    # does. Iterating that raised TypeError and killed the whole index rather
+    # than skipping one file, so the shape is checked, not assumed.
+    if not isinstance(rr, list) or not rr:
+        continue
+    if not all(isinstance(r, dict) and "arm" in r for r in rr):
+        rows.append({"artifact": name,
+                     "note": "SKIPPED: 'rows' is not a list of scored arms"})
         continue
     env = m.get("lmstudio") or {}
     git = m.get("git") or {}
@@ -158,7 +166,19 @@ md = [f"# Results index\n",
       "`results_index.csv`.\n",
       "`dirty=True` means tracked files were modified when the artifact was "
       "written: the numbers are inspectable but the run is not reproducible "
-      "from its recorded commit.\n"]
+      "from its recorded commit.\n",
+      # `valid=ok` only means the artifact is internally consistent - its rows
+      # agree with its summary. It cannot know that an arm's INPUTS were built
+      # from labels the gold standard later replaced, which is exactly the
+      # closed-oracle case. Without this note the index shows closed-oracle at
+      # 83.0% next to real arms, with an ok beside it.
+      "**`closed-oracle` arms are invalidated.** Their candidate sets were "
+      "built from the pre-gold labels, so the arm was shown shortlists derived "
+      "from answers that have since changed. `valid=ok` on those rows means "
+      "internally consistent, NOT trustworthy — do not read them as results.\n",
+      "Arms with `valid=None` had no validation recorded at write time "
+      "(`closed_set.json`, `two_by_two.json`, both pre-contract). They are "
+      "unverified rather than known-bad.\n"]
 
 for exp in sorted({r.get("experiment", "") for r in rows if r.get("experiment")}):
     sub = [r for r in rows if r.get("experiment") == exp]
