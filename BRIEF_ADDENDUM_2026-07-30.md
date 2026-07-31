@@ -128,3 +128,52 @@ elsewhere.
    pipeline is solid; the cost is judging time, not GPU.
 3. **The realizable router** (offline) - whether per-passage adaptation is real
    or per-book is the end of it.
+
+## Distillation: built, not yet run (2026-07-30)
+
+The cost curve made the cascade a **70B-class commitment** — a 32B scored -2.2
+on routed rows and a 27B +3.0/+3.7, against the 70B's +11.1 to +22.0. So
+"escalate to something bigger" is false and "escalate to a 70B" is true. The
+attempt to move that capability into the 14B rather than rent it per book now
+has all three pieces written and committed:
+
+- **`experiments/distill_collect.py`** — done, and it produced the data.
+  **1,091 rows** from two books with no gold, grimgar06 (498) and mushoku18
+  (593), each a line where two cheap passes disagreed and the 70B answered.
+  The teacher supplies an answer *neither* cheap pass produced on 26% of
+  grimgar06's rows and 45% of mushoku18's, so there is something to learn
+  rather than a re-weighting of existing guesses.
+- **`experiments/distill_train.py`** — written, dry-run verified (1,091
+  examples, 61 distinct teacher labels, prompts median 742 / max 3,493 chars).
+  Holds nothing back: the four gold books are the evaluation.
+- **`experiments/distill_eval.py`** — written and tested, never run.
+
+**Nothing has been trained.** There is no adapter and therefore no result. The
+training needs a GPU that fits a 14B LoRA in bf16 (~30-40 GB), which the local
+16 GB card does not, so it waits on an instance restored from the snapshot.
+
+**The known risk, recorded before running rather than discovered after:**
+training is one entry per example, because a per-row teacher label cannot
+supervise a 25-entry batch response — but inference batches 25. That mismatch
+is the most likely reason this fails. `distill_eval` prints per-arm unanswered
+and distinct-speaker counts specifically to separate "learned nothing" from
+"can no longer follow the batch format", which are different failures.
+
+Both arms run through **one loaded model**, separated only by peft's
+`disable_adapter()`, so the adapter is provably the only difference; and both
+go through the production `attribute_batch`, so batching, JSON repair, the text
+freeze and the retry policy stay inside the comparison. The shim standing in
+for the OpenAI client is covered by `app/test_distill_eval_shim.py` (4 tests,
+no GPU) — if it drifted, every row would become a failed batch and the adapter
+would take the blame.
+
+**Read the result against the cascade's gains on these same books, not against
+zero.** A tuned 14B that beats base but falls well short of +11.1 has not
+replaced the 70B.
+
+## Cloud state
+
+Instance 0 (A6000) **deleted 2026-07-30**, billing stopped, after snapshot
+`alexandria-attribution-2026-07-31` (id `MRqS2nKqYE0DEGyDu4gM`, 300 GB) reached
+READY. The snapshot holds the CUDA llama.cpp build and the 70B weights — about
+four hours to reconstruct from scratch. Restore from it rather than rebuilding.
