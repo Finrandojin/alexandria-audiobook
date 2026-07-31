@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-07-30 22:05 from `ab_test_runtime/experiments/` — 160 artifacts, 440 arms.
+Generated 2026-07-30 22:07 from `ab_test_runtime/experiments/` — 160 artifacts, 440 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -8,7 +8,7 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 **`closed-oracle` arms are invalidated.** Their candidate sets were built from the pre-gold labels, so the arm was shown shortlists derived from answers that have since changed. `valid=ok` on those rows means internally consistent, NOT trustworthy — do not read them as results.
 
-Arms with `valid=None` had no validation recorded at write time (`closed_set.json`, `two_by_two.json`, both pre-contract). They are unverified rather than known-bad.
+`closed_set.json` and `two_by_two.json` predate the environment contract and captured no `context_length` or `parallel`, which cannot be reconstructed. Their rows and summaries were recomputed and are internally consistent, but the runs are not comparable to artifacts that record an environment: inspectable, not citable.
 
 
 ## batch_size
@@ -189,11 +189,11 @@ Arms with `valid=None` had no validation recorded at write time (`closed_set.jso
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-6 | 139 | 46.8% | ok | False | 496.9s |
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-oracle | 139 | 64.0% | ok | False | 496.9s |
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | open | 139 | 52.5% | ok | False | 496.9s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-6 | 147 | 34.7% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-6 | 147 | 34.7% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 34.7% | ok | False | 150.0s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-oracle | 147 | 49.0% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-oracle | 147 | 49.0% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.0% | ok | False | 150.0s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | open | 147 | 35.4% | ok | False | 150.0s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-6 | 162 | 41.4% | ok | False | 165.9s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-oracle | 162 | 57.4% | ok | False | 165.9s |
@@ -541,10 +541,10 @@ Arms with `valid=None` had no validation recorded at write time (`closed_set.jso
 
 | book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | A | 139 | 19.4% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | B | 139 | 2.2% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | C | 139 | 34.5% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | D | 139 | 18.7% | None | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | A | 139 | 19.4% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | B | 139 | 2.2% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | C | 139 | 34.5% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | D | 139 | 18.7% | ['no LM Studio load state recorded', 'en | True | 698.2s |
 
 ## voting
 

@@ -176,9 +176,11 @@ md = [f"# Results index\n",
       "built from the pre-gold labels, so the arm was shown shortlists derived "
       "from answers that have since changed. `valid=ok` on those rows means "
       "internally consistent, NOT trustworthy — do not read them as results.\n",
-      "Arms with `valid=None` had no validation recorded at write time "
-      "(`closed_set.json`, `two_by_two.json`, both pre-contract). They are "
-      "unverified rather than known-bad.\n"]
+      "`closed_set.json` and `two_by_two.json` predate the environment "
+      "contract and captured no `context_length` or `parallel`, which cannot "
+      "be reconstructed. Their rows and summaries were recomputed and are "
+      "internally consistent, but the runs are not comparable to artifacts "
+      "that record an environment: inspectable, not citable.\n"]
 
 for exp in sorted({r.get("experiment", "") for r in rows if r.get("experiment")}):
     sub = [r for r in rows if r.get("experiment") == exp]
