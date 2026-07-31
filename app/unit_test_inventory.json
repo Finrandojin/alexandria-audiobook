@@ -263,6 +263,12 @@
     "test_deterministic_classification.ClassificationTemperatureTest.test_instruct_still_samples",
     "test_deterministic_classification.ClassificationTemperatureTest.test_segment_and_attribute_default_to_zero"
   ],
+  "test_distill_eval_shim": [
+    "test_distill_eval_shim.DistillEvalShimTest.test_response_exposes_only_what_the_caller_reads",
+    "test_distill_eval_shim.DistillEvalShimTest.test_shim_drives_attribute_batch_and_freezes_text",
+    "test_distill_eval_shim.DistillEvalShimTest.test_temperature_zero_is_greedy_not_sampled",
+    "test_distill_eval_shim.DistillEvalShimTest.test_truncated_generation_reports_finish_reason_length"
+  ],
   "test_env_doctor": [
     "test_env_doctor.EvaluateEnvTests.test_all_required_present_is_ok",
     "test_env_doctor.EvaluateEnvTests.test_interpreter_not_found_fails_all_required",

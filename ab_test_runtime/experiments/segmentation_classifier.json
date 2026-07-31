@@ -1,0 +1,46 @@
+{
+ "rows": 1079,
+ "positives": 46,
+ "per_book": {
+  "grimgar03": {
+   "rows": 400,
+   "positives": 4
+  },
+  "grimgar06": {
+   "rows": 120,
+   "positives": 0
+  },
+  "index18": {
+   "rows": 120,
+   "positives": 21
+  },
+  "mushoku16": {
+   "rows": 139,
+   "positives": 3
+  },
+  "mushoku18": {
+   "rows": 120,
+   "positives": 0
+  },
+  "owarimonogatari3": {
+   "rows": 180,
+   "positives": 18
+  }
+ },
+ "target_fpr": 0.01,
+ "pooled": {
+  "tp": 10,
+  "positives": 46,
+  "recall_ci": [
+   10.948170016881653,
+   36.36243586153988
+  ],
+  "fp": 14,
+  "negatives": 1033,
+  "fpr_ci": [
+   0.7428694006236929,
+   2.263476983203966
+  ]
+ },
+ "verdict": "Underpowered. 46 positives over four books cannot resolve whether a classifier beats the rule baseline; more labels are the prerequisite."
+}

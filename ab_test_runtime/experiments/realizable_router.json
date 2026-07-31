@@ -1,0 +1,861 @@
+{
+ "features": {
+  "grimgar03": {
+   "first_person_per_1k": 20.99892588614393,
+   "speech_tags_per_1k": 12.271750805585391,
+   "dialogue_fraction": 0.5628121398386478,
+   "mean_spoken_chars": 48.366552901023894
+  },
+  "index18": {
+   "first_person_per_1k": 2.8475498321220623,
+   "speech_tags_per_1k": 5.185090739087934,
+   "dialogue_fraction": 0.6352347691113698,
+   "mean_spoken_chars": 115.59193646915088
+  },
+  "mushoku16": {
+   "first_person_per_1k": 63.438625252495676,
+   "speech_tags_per_1k": 3.7764571562399367,
+   "dialogue_fraction": 0.6075156576200418,
+   "mean_spoken_chars": 53.49226804123711
+  },
+  "owarimonogatari3": {
+   "first_person_per_1k": 57.92468414451345,
+   "speech_tags_per_1k": 2.569671755024626,
+   "dialogue_fraction": 0.6492782983033679,
+   "mean_spoken_chars": 102.7679407176287
+  }
+ },
+ "families": [
+  {
+   "family": "batch_size",
+   "books": 4,
+   "arms": [
+    "b10",
+    "b25",
+    "b5",
+    "b50"
+   ],
+   "loo_fixed": 0.49680622673578306,
+   "loo_router": 0.5337815353777584,
+   "oracle": 0.5691350707312938
+  },
+  {
+   "family": "cascade",
+   "books": 4,
+   "arms": [
+    "cascade",
+    "cheap-w1"
+   ],
+   "loo_fixed": 0.6324598856268521,
+   "loo_router": 0.5419660584663583,
+   "oracle": 0.6378555690800894
+  },
+  {
+   "family": "closed_set",
+   "books": 4,
+   "arms": [
+    "closed-6",
+    "closed-oracle",
+    "open"
+   ],
+   "loo_fixed": 0.6621447538938546,
+   "loo_router": 0.6621447538938546,
+   "oracle": 0.6621447538938546
+  },
+  {
+   "family": "committed_history",
+   "books": 4,
+   "arms": [
+    "none",
+    "oracle",
+    "predicted"
+   ],
+   "loo_fixed": 0.5944427114280055,
+   "loo_router": 0.5944427114280055,
+   "oracle": 0.6020184690037631
+  },
+  {
+   "family": "context_width",
+   "books": 4,
+   "arms": [
+    "w1",
+    "w15",
+    "w4"
+   ],
+   "loo_fixed": 0.5761312471116393,
+   "loo_router": 0.5761312471116393,
+   "oracle": 0.5761312471116393
+  },
+  {
+   "family": "context_width_production",
+   "books": 4,
+   "arms": [
+    "w1",
+    "w4"
+   ],
+   "loo_fixed": 0.5260366050593868,
+   "loo_router": 0.5310507755411832,
+   "oracle": 0.5648765331169407
+  },
+  {
+   "family": "grammar_constraint",
+   "books": 4,
+   "arms": [
+    "open-free",
+    "open-grammar",
+    "oracle-free",
+    "oracle-grammar"
+   ],
+   "loo_fixed": 0.6723419244402458,
+   "loo_router": 0.6500324992531228,
+   "oracle": 0.673885134316789
+  },
+  {
+   "family": "joint_scene",
+   "books": 4,
+   "arms": [
+    "independent",
+    "joint-chrono",
+    "joint-shuffled"
+   ],
+   "loo_fixed": 0.5567003871650155,
+   "loo_router": 0.5567003871650155,
+   "oracle": 0.5567003871650155
+  },
+  {
+   "family": "narrator_prior",
+   "books": 4,
+   "arms": [
+    "baseline",
+    "narrator"
+   ],
+   "loo_fixed": 0.552276406147809,
+   "loo_router": 0.552276406147809,
+   "oracle": 0.552276406147809
+  },
+  {
+   "family": "reasoning_arms",
+   "books": 3,
+   "arms": [
+    "baseline",
+    "because",
+    "scaffold",
+    "scaffold_thinking",
+    "thinking"
+   ],
+   "loo_fixed": 0.5667171717171717,
+   "loo_router": 0.5792171717171717,
+   "oracle": 0.6282257762813318
+  },
+  {
+   "family": "reasoning_check",
+   "books": 4,
+   "arms": [
+    "plain",
+    "reasoned"
+   ],
+   "loo_fixed": 0.5313173703461473,
+   "loo_router": 0.5140221156408207,
+   "oracle": 0.5360171458792562
+  },
+  {
+   "family": "roster_quality",
+   "books": 4,
+   "arms": [
+    "augmented",
+    "generated",
+    "gold",
+    "inflated"
+   ],
+   "loo_fixed": 0.5807923042858207,
+   "loo_router": 0.5807923042858207,
+   "oracle": 0.5807923042858207
+  },
+  {
+   "family": "scene_cast",
+   "books": 4,
+   "arms": [
+    "full",
+    "scene",
+    "scene+2"
+   ],
+   "loo_fixed": 0.5866364601299765,
+   "loo_router": 0.5640615042216873,
+   "oracle": 0.5885161593780968
+  },
+  {
+   "family": "tag_priority",
+   "books": 4,
+   "arms": [
+    "baseline",
+    "tagfirst"
+   ],
+   "loo_fixed": 0.5267254580174244,
+   "loo_router": 0.5205526185112516,
+   "oracle": 0.5573639472260575
+  },
+  {
+   "family": "voting",
+   "books": 4,
+   "arms": [
+    "greedy",
+    "vote3"
+   ],
+   "loo_fixed": 0.5128499574078111,
+   "loo_router": 0.5210002099330636,
+   "oracle": 0.5307701717413947
+  }
+ ],
+ "folds": [
+  {
+   "family": "batch_size",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "b25",
+   "router_arm": "b50",
+   "oracle_arm": "b50",
+   "fixed": 0.5575,
+   "router": 0.6375,
+   "oracle": 0.6375
+  },
+  {
+   "family": "batch_size",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "b50",
+   "router_arm": "b50",
+   "oracle_arm": "b10",
+   "fixed": 0.5454545454545454,
+   "router": 0.5454545454545454,
+   "oracle": 0.6868686868686869
+  },
+  {
+   "family": "batch_size",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "b50",
+   "router_arm": "b50",
+   "oracle_arm": "b50",
+   "fixed": 0.4892086330935252,
+   "router": 0.4892086330935252,
+   "oracle": 0.4892086330935252
+  },
+  {
+   "family": "batch_size",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "b25",
+   "router_arm": "b50",
+   "oracle_arm": "b50",
+   "fixed": 0.3950617283950617,
+   "router": 0.46296296296296297,
+   "oracle": 0.46296296296296297
+  },
+  {
+   "family": "cascade",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "cascade",
+   "router_arm": "cheap-w1",
+   "oracle_arm": "cascade",
+   "fixed": 0.7775,
+   "router": 0.5575,
+   "oracle": 0.7775
+  },
+  {
+   "family": "cascade",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "cascade",
+   "router_arm": "cascade",
+   "oracle_arm": "cascade",
+   "fixed": 0.7373737373737373,
+   "router": 0.7373737373737373,
+   "oracle": 0.7373737373737373
+  },
+  {
+   "family": "cascade",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "cascade",
+   "router_arm": "cascade",
+   "oracle_arm": "cheap-w1",
+   "fixed": 0.45323741007194246,
+   "router": 0.45323741007194246,
+   "oracle": 0.4748201438848921
+  },
+  {
+   "family": "cascade",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "cascade",
+   "router_arm": "cheap-w1",
+   "oracle_arm": "cascade",
+   "fixed": 0.5617283950617284,
+   "router": 0.41975308641975306,
+   "oracle": 0.5617283950617284
+  },
+  {
+   "family": "closed_set",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "closed-oracle",
+   "router_arm": "closed-oracle",
+   "oracle_arm": "closed-oracle",
+   "fixed": 0.7625,
+   "router": 0.7625,
+   "oracle": 0.7625
+  },
+  {
+   "family": "closed_set",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "closed-oracle",
+   "router_arm": "closed-oracle",
+   "oracle_arm": "closed-oracle",
+   "fixed": 0.7272727272727273,
+   "router": 0.7272727272727273,
+   "oracle": 0.7272727272727273
+  },
+  {
+   "family": "closed_set",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "closed-oracle",
+   "router_arm": "closed-oracle",
+   "oracle_arm": "closed-oracle",
+   "fixed": 0.6402877697841727,
+   "router": 0.6402877697841727,
+   "oracle": 0.6402877697841727
+  },
+  {
+   "family": "closed_set",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "closed-oracle",
+   "router_arm": "closed-oracle",
+   "oracle_arm": "closed-oracle",
+   "fixed": 0.5185185185185185,
+   "router": 0.5185185185185185,
+   "oracle": 0.5185185185185185
+  },
+  {
+   "family": "committed_history",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "oracle",
+   "router_arm": "oracle",
+   "oracle_arm": "none",
+   "fixed": 0.635,
+   "router": 0.635,
+   "oracle": 0.635
+  },
+  {
+   "family": "committed_history",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "oracle",
+   "router_arm": "oracle",
+   "oracle_arm": "none",
+   "fixed": 0.6060606060606061,
+   "router": 0.6060606060606061,
+   "oracle": 0.6363636363636364
+  },
+  {
+   "family": "committed_history",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "oracle",
+   "router_arm": "oracle",
+   "oracle_arm": "oracle",
+   "fixed": 0.5441176470588235,
+   "router": 0.5441176470588235,
+   "oracle": 0.5441176470588235
+  },
+  {
+   "family": "committed_history",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "oracle",
+   "router_arm": "oracle",
+   "oracle_arm": "oracle",
+   "fixed": 0.5925925925925926,
+   "router": 0.5925925925925926,
+   "oracle": 0.5925925925925926
+  },
+  {
+   "family": "context_width",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "w4",
+   "router_arm": "w4",
+   "oracle_arm": "w4",
+   "fixed": 0.62,
+   "router": 0.62,
+   "oracle": 0.62
+  },
+  {
+   "family": "context_width",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "w4",
+   "router_arm": "w4",
+   "oracle_arm": "w4",
+   "fixed": 0.6565656565656566,
+   "router": 0.6565656565656566,
+   "oracle": 0.6565656565656566
+  },
+  {
+   "family": "context_width",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "w4",
+   "router_arm": "w4",
+   "oracle_arm": "w4",
+   "fixed": 0.5588235294117647,
+   "router": 0.5588235294117647,
+   "oracle": 0.5588235294117647
+  },
+  {
+   "family": "context_width",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "w4",
+   "router_arm": "w4",
+   "oracle_arm": "w4",
+   "fixed": 0.4691358024691358,
+   "router": 0.4691358024691358,
+   "oracle": 0.4691358024691358
+  },
+  {
+   "family": "context_width_production",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "w1",
+   "router_arm": "w1",
+   "oracle_arm": "w4",
+   "fixed": 0.57,
+   "router": 0.57,
+   "oracle": 0.675
+  },
+  {
+   "family": "context_width_production",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "w4",
+   "router_arm": "w1",
+   "oracle_arm": "w4",
+   "fixed": 0.6868686868686869,
+   "router": 0.6565656565656566,
+   "oracle": 0.6868686868686869
+  },
+  {
+   "family": "context_width_production",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "w4",
+   "router_arm": "w1",
+   "oracle_arm": "w1",
+   "fixed": 0.4460431654676259,
+   "router": 0.49640287769784175,
+   "oracle": 0.49640287769784175
+  },
+  {
+   "family": "context_width_production",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "w4",
+   "router_arm": "w1",
+   "oracle_arm": "w1",
+   "fixed": 0.4012345679012346,
+   "router": 0.4012345679012346,
+   "oracle": 0.4012345679012346
+  },
+  {
+   "family": "grammar_constraint",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "oracle-grammar",
+   "router_arm": "oracle-grammar",
+   "oracle_arm": "oracle-grammar",
+   "fixed": 0.7676767676767676,
+   "router": 0.7676767676767676,
+   "oracle": 0.7676767676767676
+  },
+  {
+   "family": "grammar_constraint",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "oracle-grammar",
+   "router_arm": "oracle-free",
+   "oracle_arm": "oracle-grammar",
+   "fixed": 0.7474747474747475,
+   "router": 0.7373737373737373,
+   "oracle": 0.7474747474747475
+  },
+  {
+   "family": "grammar_constraint",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "oracle-grammar",
+   "router_arm": "oracle-free",
+   "oracle_arm": "oracle-grammar",
+   "fixed": 0.6618705035971223,
+   "router": 0.5827338129496403,
+   "oracle": 0.6618705035971223
+  },
+  {
+   "family": "grammar_constraint",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "oracle-grammar",
+   "router_arm": "oracle-grammar",
+   "oracle_arm": "oracle-free",
+   "fixed": 0.5123456790123457,
+   "router": 0.5123456790123457,
+   "oracle": 0.5185185185185185
+  },
+  {
+   "family": "joint_scene",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "independent",
+   "router_arm": "independent",
+   "oracle_arm": "independent",
+   "fixed": 0.605,
+   "router": 0.605,
+   "oracle": 0.605
+  },
+  {
+   "family": "joint_scene",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "independent",
+   "router_arm": "independent",
+   "oracle_arm": "independent",
+   "fixed": 0.6161616161616161,
+   "router": 0.6161616161616161,
+   "oracle": 0.6161616161616161
+  },
+  {
+   "family": "joint_scene",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "independent",
+   "router_arm": "independent",
+   "oracle_arm": "independent",
+   "fixed": 0.5179856115107914,
+   "router": 0.5179856115107914,
+   "oracle": 0.5179856115107914
+  },
+  {
+   "family": "joint_scene",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "independent",
+   "router_arm": "independent",
+   "oracle_arm": "independent",
+   "fixed": 0.4876543209876543,
+   "router": 0.4876543209876543,
+   "oracle": 0.4876543209876543
+  },
+  {
+   "family": "narrator_prior",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "narrator",
+   "router_arm": "narrator",
+   "oracle_arm": "narrator",
+   "fixed": 0.6025,
+   "router": 0.6025,
+   "oracle": 0.6025
+  },
+  {
+   "family": "narrator_prior",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "narrator",
+   "router_arm": "narrator",
+   "oracle_arm": "narrator",
+   "fixed": 0.6565656565656566,
+   "router": 0.6565656565656566,
+   "oracle": 0.6565656565656566
+  },
+  {
+   "family": "narrator_prior",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "narrator",
+   "router_arm": "narrator",
+   "oracle_arm": "narrator",
+   "fixed": 0.5611510791366906,
+   "router": 0.5611510791366906,
+   "oracle": 0.5611510791366906
+  },
+  {
+   "family": "narrator_prior",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "narrator",
+   "router_arm": "narrator",
+   "oracle_arm": "narrator",
+   "fixed": 0.3888888888888889,
+   "router": 0.3888888888888889,
+   "oracle": 0.3888888888888889
+  },
+  {
+   "family": "reasoning_arms",
+   "held_out": "grimgar03",
+   "nearest": "index18",
+   "fixed_arm": "scaffold_thinking",
+   "router_arm": "thinking",
+   "oracle_arm": "thinking",
+   "fixed": 0.685,
+   "router": 0.7225,
+   "oracle": 0.7225
+  },
+  {
+   "family": "reasoning_arms",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "because",
+   "router_arm": "because",
+   "oracle_arm": "thinking",
+   "fixed": 0.6262626262626263,
+   "router": 0.6262626262626263,
+   "oracle": 0.6868686868686869
+  },
+  {
+   "family": "reasoning_arms",
+   "held_out": "owarimonogatari3",
+   "nearest": "index18",
+   "fixed_arm": "thinking",
+   "router_arm": "thinking",
+   "oracle_arm": "because",
+   "fixed": 0.3888888888888889,
+   "router": 0.3888888888888889,
+   "oracle": 0.47530864197530864
+  },
+  {
+   "family": "reasoning_check",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "plain",
+   "router_arm": "plain",
+   "oracle_arm": "reasoned",
+   "fixed": 0.5808080808080808,
+   "router": 0.5808080808080808,
+   "oracle": 0.5934343434343434
+  },
+  {
+   "family": "reasoning_check",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "plain",
+   "router_arm": "reasoned",
+   "oracle_arm": "plain",
+   "fixed": 0.6262626262626263,
+   "router": 0.5858585858585859,
+   "oracle": 0.6262626262626263
+  },
+  {
+   "family": "reasoning_check",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "plain",
+   "router_arm": "reasoned",
+   "oracle_arm": "plain",
+   "fixed": 0.5107913669064749,
+   "router": 0.48201438848920863,
+   "oracle": 0.5107913669064749
+  },
+  {
+   "family": "reasoning_check",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "plain",
+   "router_arm": "plain",
+   "oracle_arm": "reasoned",
+   "fixed": 0.4074074074074074,
+   "router": 0.4074074074074074,
+   "oracle": 0.41358024691358025
+  },
+  {
+   "family": "roster_quality",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "augmented",
+   "router_arm": "augmented",
+   "oracle_arm": "augmented",
+   "fixed": 0.6363636363636364,
+   "router": 0.6363636363636364,
+   "oracle": 0.6363636363636364
+  },
+  {
+   "family": "roster_quality",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "augmented",
+   "router_arm": "augmented",
+   "oracle_arm": "augmented",
+   "fixed": 0.717391304347826,
+   "router": 0.717391304347826,
+   "oracle": 0.717391304347826
+  },
+  {
+   "family": "roster_quality",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "augmented",
+   "router_arm": "augmented",
+   "oracle_arm": "augmented",
+   "fixed": 0.518796992481203,
+   "router": 0.518796992481203,
+   "oracle": 0.518796992481203
+  },
+  {
+   "family": "roster_quality",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "augmented",
+   "router_arm": "augmented",
+   "oracle_arm": "augmented",
+   "fixed": 0.4506172839506173,
+   "router": 0.4506172839506173,
+   "oracle": 0.4506172839506173
+  },
+  {
+   "family": "scene_cast",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "full",
+   "router_arm": "scene",
+   "oracle_arm": "full",
+   "fixed": 0.6597402597402597,
+   "router": 0.6311688311688312,
+   "oracle": 0.6597402597402597
+  },
+  {
+   "family": "scene_cast",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "full",
+   "router_arm": "full",
+   "oracle_arm": "full",
+   "fixed": 0.717391304347826,
+   "router": 0.717391304347826,
+   "oracle": 0.717391304347826
+  },
+  {
+   "family": "scene_cast",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "full",
+   "router_arm": "full",
+   "oracle_arm": "scene",
+   "fixed": 0.518796992481203,
+   "router": 0.518796992481203,
+   "oracle": 0.5263157894736842
+  },
+  {
+   "family": "scene_cast",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "full",
+   "router_arm": "scene",
+   "oracle_arm": "full",
+   "fixed": 0.4506172839506173,
+   "router": 0.3888888888888889,
+   "oracle": 0.4506172839506173
+  },
+  {
+   "family": "tag_priority",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "baseline",
+   "router_arm": "baseline",
+   "oracle_arm": "tagfirst",
+   "fixed": 0.565,
+   "router": 0.565,
+   "oracle": 0.63
+  },
+  {
+   "family": "tag_priority",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "tagfirst",
+   "router_arm": "tagfirst",
+   "oracle_arm": "tagfirst",
+   "fixed": 0.6565656565656566,
+   "router": 0.6565656565656566,
+   "oracle": 0.6565656565656566
+  },
+  {
+   "family": "tag_priority",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "tagfirst",
+   "router_arm": "tagfirst",
+   "oracle_arm": "baseline",
+   "fixed": 0.45323741007194246,
+   "router": 0.45323741007194246,
+   "oracle": 0.5107913669064749
+  },
+  {
+   "family": "tag_priority",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "tagfirst",
+   "router_arm": "baseline",
+   "oracle_arm": "tagfirst",
+   "fixed": 0.43209876543209874,
+   "router": 0.4074074074074074,
+   "oracle": 0.43209876543209874
+  },
+  {
+   "family": "voting",
+   "held_out": "grimgar03",
+   "nearest": "mushoku16",
+   "fixed_arm": "greedy",
+   "router_arm": "vote3",
+   "oracle_arm": "vote3",
+   "fixed": 0.5575,
+   "router": 0.58,
+   "oracle": 0.58
+  },
+  {
+   "family": "voting",
+   "held_out": "index18",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "vote3",
+   "router_arm": "greedy",
+   "oracle_arm": "greedy",
+   "fixed": 0.6363636363636364,
+   "router": 0.6464646464646465,
+   "oracle": 0.6464646464646465
+  },
+  {
+   "family": "voting",
+   "held_out": "mushoku16",
+   "nearest": "owarimonogatari3",
+   "fixed_arm": "greedy",
+   "router_arm": "greedy",
+   "oracle_arm": "vote3",
+   "fixed": 0.4748201438848921,
+   "router": 0.4748201438848921,
+   "oracle": 0.4892086330935252
+  },
+  {
+   "family": "voting",
+   "held_out": "owarimonogatari3",
+   "nearest": "mushoku16",
+   "fixed_arm": "vote3",
+   "router_arm": "vote3",
+   "oracle_arm": "greedy",
+   "fixed": 0.38271604938271603,
+   "router": 0.38271604938271603,
+   "oracle": 0.4074074074074074
+  }
+ ],
+ "caveat": "Leave-one-out over 4 books. Negative results are informative; a positive result here is suggestive only and must not be reported as established."
+}
