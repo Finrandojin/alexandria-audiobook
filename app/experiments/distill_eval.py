@@ -150,6 +150,12 @@ def main():
     ap.add_argument("--tag", default=os.environ.get("EXPERIMENT_TAG", "distill"))
     ap.add_argument("--limit", type=int, default=0,
                     help="cap scored rows per book, for a smoke run")
+    # A 25-entry response is ~25 objects of {n, head, speaker} - about 600
+    # tokens. The production default of 12000 exists for a server that stops at
+    # EOS; here a degenerate generation runs the full budget at ~15 tok/s, so
+    # one bad batch cost ~13 minutes per attempt and ~50 across its retries.
+    # Capping bounds the failure without touching well-formed responses.
+    ap.add_argument("--max_tokens", type=int, default=2000)
     args = ap.parse_args()
 
     import torch
@@ -165,7 +171,7 @@ def main():
     model = PeftModel.from_pretrained(base, args.adapter)
     model.eval()
     client = LocalClient(model, tok)
-    params = LLMGenParams(max_tokens=12000, context_length=32768,
+    params = LLMGenParams(max_tokens=args.max_tokens, context_length=32768,
                           temperature=0.0, attribute_temperature=0.0,
                           top_p=0.8, reasoning_effort="none")
 
@@ -184,11 +190,16 @@ def main():
     record = ExperimentRecord(
         "distill_eval", REPO, args.model, f"peft:{args.adapter}",
         APP + f"fixtures/attribution_gold_{args.books[0]}.json",
-        {"temperature": 0.0, "batch": BATCH, "adapter": args.adapter},
+        {"temperature": 0.0, "batch": BATCH, "adapter": args.adapter,
+         "max_tokens": args.max_tokens},
         environment=environment,
         notes="LoRA distilled from a 70B on 1,091 routed rows of grimgar06 and "
               "mushoku18, scored on four gold books it never saw. Arms share "
               "one loaded model and differ only by peft disable_adapter().")
+    # Six hours of GPU with no resume point was a bad trade the first time.
+    record.enable_checkpoint(os.path.join(
+        REPO, "ab_test_runtime", "experiments",
+        f"distill_eval__{args.tag}.json.ckpt"))
     import hashlib
     record.meta["gold_files"] = {
         b: hashlib.sha256(open(APP + f"fixtures/attribution_gold_{b}.json",
