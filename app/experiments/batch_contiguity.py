@@ -104,17 +104,17 @@ contiguous = [w for w in contiguous if any(i in set(scored) for i in w)]
 # drawn from across the book rather than from its neighbourhood.
 rng = random.Random(SEED)
 pool = list(sendable)
-scattered, bucket = [], []
 targets = [i for w in contiguous for i in w if norm(seg[i].get("text")) in want]
+# Each scattered batch scores exactly ONE row - its target. Companions are
+# drawn from far away and are NOT scored even when they happen to be gold
+# lines: scoring them would put the same row in the arm many times over, which
+# is what the manifest rejected as 238 duplicate identities on the first run,
+# and would also score a row whose own companions were never controlled.
+scattered = []
 for target in targets:
-    bucket.append(target)
-    if len(bucket) == 1:
-        companions = []
-        far = [j for j in pool if abs(j - target) > 200]
-        rng.shuffle(far)
-        companions = far[:BATCH - 1]
-        scattered.append(sorted(set([target] + companions)))
-        bucket = []
+    far = [j for j in pool if abs(j - target) > 200]
+    rng.shuffle(far)
+    scattered.append((sorted(set([target] + far[:BATCH - 1])), target))
 
 ARMS = ("contiguous", "scattered")
 client = OpenAI(base_url=BASE_URL, api_key="local")
@@ -136,10 +136,12 @@ record.enable_checkpoint(os.path.join(
 
 summary, prompt_chars = {}, collections.defaultdict(list)
 for arm in ARMS:
-    windows = contiguous if arm == "contiguous" else scattered
+    windows = ([(w, None) for w in contiguous] if arm == "contiguous"
+               else scattered)
     started = time.time()
-    for k, win in enumerate(windows, 1):
-        rows = [i for i in win if norm(seg[i].get("text")) in want]
+    for k, (win, target) in enumerate(windows, 1):
+        rows = ([i for i in win if norm(seg[i].get("text")) in want]
+                if target is None else [target])
         if not rows:
             continue
         if all(record.done(arm, want[norm(seg[i].get("text"))]["id"]) for i in rows):
@@ -163,7 +165,7 @@ for arm in ARMS:
             continue
         for off, i in enumerate(win):
             key = norm(seg[i].get("text"))
-            if key not in want:
+            if key not in want or i not in rows:
                 continue
             g = want[key]
             sp = (out[off] or {}).get("speaker") if off < len(out) else None
