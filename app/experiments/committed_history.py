@@ -281,7 +281,7 @@ for key in ("0", "1", "2-3", "4+"):
 out = record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"committed_history__{BOOK}__{MODEL.replace('/', '__')}__{TAG}.json"),
-    contract={"expected_arms": ("none", "oracle", "predicted"),
+    contract={"expected_arms": ARMS,
               "expected_ids": {g["id"] for g in SCOREABLE},
               "require_clean_tree": True})
 print("wrote", out)
