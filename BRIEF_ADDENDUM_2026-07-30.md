@@ -353,3 +353,33 @@ contiguous - companions that happened to be gold lines were scored too, and
 repeatedly. `ExperimentRecord.validate` refused to write the artifact, naming
 238 duplicate identities, so no number entered the ledger. Each scattered
 batch now scores exactly its target and companions are context only.
+
+## The 70B was necessary: self-training buys nothing (2026-08-01)
+
+The distillation gain could have been the adapter learning the task's output
+format rather than anything the teacher knew. `--label_field cheap_a` trains an
+identical adapter on the STUDENT's own b25 answers to the same routed rows -
+same prompts, same count, same hyperparameters, only whose answer is learned.
+
+    book               base    own-labels    70B-labels
+    grimgar03         68.8%   68.3%  (-0.5)  78.4%  (+9.6)
+    owarimonogatari3  40.1%   45.7%  (+5.6)  61.1% (+21.0)
+    pooled            60.3%   61.6%  (+1.3)  71.6% (+11.7)
+                              p=0.576        p=3.588e-11
+
+**Self-training is indistinguishable from zero.** The teacher's labels are what
+transferred.
+
+FORMAT LEARNING HAPPENED WITHOUT ACCURACY. The self-trained adapter cut
+grimgar03's unanswered rows from 25 to 12 - it plainly learned the output shape
+- while accuracy moved -0.5. So the +11.7 is not an artifact of producing
+better-formed batches, which was the main alternative explanation.
+
+DETERMINISM CONTROL, obtained by re-running `base` rather than reusing the
+earlier numbers: grimgar03 base reproduced EXACTLY - 265/385, unanswered 25,
+distinct names 19 - across two runs fourteen hours and two adapter loads apart.
+Every cross-run comparison in this brief rests on that.
+
+THE SHAPE OF THE RESULT. Rent a 70B once for ~1,000 labels on books with no
+gold, then serve a 14B forever. No 70B at run time, and end-to-end it matches
+or beats the live cascade on three of four books.
