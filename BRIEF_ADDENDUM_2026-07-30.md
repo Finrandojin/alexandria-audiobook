@@ -293,3 +293,34 @@ claim is "distillation on these labels works", not "the 70B's knowledge
 transferred".
 
 Cost: ~1 hour training, ~14 hours evaluation on a rented A6000.
+
+## Correction: the cascade denominator warning was wrong (2026-08-01)
+
+The previous section warned that the cascade's +11.1 to +22.0 was measured on
+routed rows and could not be compared to distillation's +11.7 over all rows.
+**That was wrong.** Every cascade artifact scores `cheap-w1` and `cascade` over
+the SAME full row set, so the cascade's whole-book effect was available the
+whole time. `experiments/cascade_vs_distill.py` computes both.
+
+The real incomparability is different, and it runs the other way:
+
+    book               cascade end   adapter end   diff
+    grimgar03             77.8%        78.4%       +0.7
+    index18               73.7%        75.0%       +1.3
+    mushoku16             64.0%        62.4%       -1.6
+    owarimonogatari3      54.9%        61.1%       +6.2
+
+**The cascade's deltas are inflated by a weak baseline.** Its cheap arm is
+`cheap-w1` — context width ONE, a deliberately narrowed configuration — at Q4
+through llama.cpp, scoring 55.8% on grimgar03. The adapter's base is the same
+model in bf16 with production neighbour contexts at 68.8%. A lower starting
+point produces a bigger delta, so +22.0 and +11.7 were never measuring the same
+thing, and the END POINT is the fairer comparison.
+
+On end points the distilled 14B **matches or beats the 70B cascade on three of
+four books**, and loses one by 1.6. It does so at 14B inference cost with no
+70B in the loop at run time, against a cascade that rents a 70B on every book
+forever.
+
+Still not established: whether the 70B was needed to CREATE the adapter. The
+`--label_field cheap_a` ablation is what answers that.
