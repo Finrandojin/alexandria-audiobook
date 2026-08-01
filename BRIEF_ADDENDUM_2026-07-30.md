@@ -253,3 +253,43 @@ relabelling **+9.9 points**, with predicted cluster counts tracking gold
 (21/22, 20/20) so the gain is structure rather than collapse. The model
 partially tracks who is speaking. Fixing name-binding alone is worth less than
 the 70B cascade's +11.1 to +22.0, so it is not the missing piece.
+
+## Distillation works: +11.7 points, p=3.6e-11 (2026-07-31)
+
+A LoRA trained on 1,091 rows the 70B answered on two books with NO gold
+(grimgar06, mushoku18), evaluated on the four gold books it never saw. Both
+arms ran through one loaded model, separated only by peft's
+`disable_adapter()`, and through the production `attribute_batch`.
+
+    book               base    tuned    delta
+    grimgar03          68.8%   78.4%    +9.6
+    index18            71.7%   75.0%    +3.3
+    mushoku16          50.4%   62.4%   +12.0
+    owarimonogatari3   40.1%   61.1%   +21.0
+
+    pooled   base 463/772 = 60.0%   tuned 553/772 = 71.6%
+    paired   +11.7 points   +139/-49 of 772   p=3.588e-11
+
+Every book improves, and the effect is strongest exactly where the base model
+was worst. **owarimonogatari3 moves from 40.1% - BELOW its 50.0%
+previous-speaker floor - to 61.1%, above it.** Its unanswered rows fall from 15
+to 1.
+
+THE PREDICTED FAILURE DID NOT HAPPEN. Training was one entry per example and
+inference sends 25; the concern was batch-format collapse. Instead the tuned
+arm answers MORE rows (blank 4.0% vs 6.3%) with no name collapse (top
+prediction 15.5% of rows). It learned attribution, not a shortcut.
+
+DENOMINATOR WARNING. The cascade's headline +11.1 to +22.0 was measured on
+ROUTED ROWS - the subset where two cheap passes disagreed. The +11.7 here is
+over ALL scored rows. These are not the same denominator and the two numbers
+must not be quoted as if they were. A like-for-like comparison needs the
+cascade's whole-book effect, which has not been computed.
+
+WHAT IS NOT YET KNOWN. Whether the 70B was necessary. The adapter also learned
+the task's prompt format, and `--label_field cheap_a` trains the identical
+adapter on the student's own answers to separate the two. Until that runs, the
+claim is "distillation on these labels works", not "the 70B's knowledge
+transferred".
+
+Cost: ~1 hour training, ~14 hours evaluation on a rented A6000.

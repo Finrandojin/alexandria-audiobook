@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-07-30 22:07 from `ab_test_runtime/experiments/` — 160 artifacts, 440 arms.
+Generated 2026-07-31 21:55 from `ab_test_runtime/experiments/` — 164 artifacts, 442 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -263,6 +263,13 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | owarimonogatari3 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w4 | 162 | 62.3% | ok | False | 5596.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w1 | 162 | 40.1% | ok | False | 2955.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w4 | 162 | 40.1% | ok | False | 2955.3s |
+
+## distill_eval
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 772 | 60.0% | ok | False | 50138.1s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 772 | 71.6% | ok | False | 50138.1s |
 
 ## grammar_constraint
 
