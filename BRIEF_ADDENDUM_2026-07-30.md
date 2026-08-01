@@ -324,3 +324,32 @@ forever.
 
 Still not established: whether the 70B was needed to CREATE the adapter. The
 `--label_field cheap_a` ablation is what answers that.
+
+## Why batch size works: conversation, not context (2026-08-01)
+
+Batch size was the largest lever measured here - 60.5% at b1 to 79.2% at b25
+for the 70B on grimgar03 - and the mechanism was untested.
+`experiments/batch_contiguity.py` sends the same 25 entries with the same
+per-entry neighbour contexts in both arms, changing only the COMPANIONS: the
+line's own conversation, or 24 strangers drawn from >200 segments away.
+
+    contiguous  287/385 = 74.5%  [69.9-78.8]   mean batch 1201 chars   3 exhausted
+    scattered   223/385 = 57.9%  [52.8-62.9]   mean batch 1196 chars  33 exhausted
+
+    scattered - contiguous  -16.6 points  +42/-106 of 385  p=1.446e-07
+
+Prompt sizes are within 0.4% of each other, so this is not amortised context.
+**The gain is conversational structure**, and scattered batches also break the
+output format eleven times more often.
+
+WHAT THIS OPENS. Production cuts batches every 25 segments regardless of where
+conversations begin and end, so some fraction of batches straddle a boundary
+and get the scattered condition by accident. Aligning batch boundaries to
+scene or turn runs is a new lever, and this is the first evidence that it
+should be worth anything.
+
+A first attempt scored 821 rows in the scattered arm against 385 in
+contiguous - companions that happened to be gold lines were scored too, and
+repeatedly. `ExperimentRecord.validate` refused to write the artifact, naming
+238 duplicate identities, so no number entered the ledger. Each scattered
+batch now scores exactly its target and companions are context only.
