@@ -462,3 +462,30 @@ no misalignment left to fix.
 This is the pre-registered "aligned ~ fixed" reading: the lever
 `batch_contiguity` opened is closed, and the 16.6-point contiguity effect is
 already being captured by production.
+
+## The adapter and the cascade are COMPLEMENTARY (2026-08-01)
+
+They reach the same place; they do not fix the same rows.
+`experiments/adapter_vs_cascade_overlap.py`, offline over shared gold ids:
+
+    book               both  adapter-only  cascade-only  neither   union
+    grimgar03         69.6%      8.8%         10.9%       10.6%    89.4%
+    index18           66.3%      8.7%         13.0%       12.0%    88.0%
+    mushoku16         49.6%     12.8%         15.8%       21.8%    78.2%
+    owarimonogatari3  46.9%     14.2%          8.0%       30.9%    69.1%
+
+    pooled 772 rows: adapter alone 71.6%, cascade alone 72.4%,
+    ORACLE union 83.0% (+10.6 over the better one)
+
+**The cascade gets 11.4% of rows right that the adapter misses.** It is not
+redundant, and stacking is worth testing: run the cascade with the TUNED 14B as
+its cheap arm.
+
+A DISTINCTION THAT MATTERS. `realizable_router` retired **book-level** method
+selection (-0.96 against a fixed choice, oracle ceiling +2.42). This is a
+**row-level** question, and the cascade already solves row-level routing with
+two-pass disagreement - that is its design. So the +10.6 here is far more
+reachable than the router's ceiling, and the two findings do not conflict.
+
+The union remains an oracle until a stacked run measures what the disagreement
+signal actually collects.
