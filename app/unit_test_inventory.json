@@ -319,6 +319,24 @@
     "test_evaluation_tools.RepeatedDialogueTest.test_case_only_differences_are_not_a_disagreement",
     "test_evaluation_tools.RepeatedDialogueTest.test_unambiguous_lines_still_appear"
   ],
+  "test_experiment_infra": [
+    "test_experiment_infra.AnalysisScriptTest.test_every_experiment_module_parses",
+    "test_experiment_infra.AnalysisScriptTest.test_offline_analyses_declare_their_caveats",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
+    "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
+    "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",
+    "test_experiment_infra.ManifestGuardTest.test_arms_contract_mismatch_is_reported",
+    "test_experiment_infra.ManifestGuardTest.test_duplicate_identities_are_reported",
+    "test_experiment_infra.ManifestGuardTest.test_missing_environment_is_reported",
+    "test_experiment_infra.ManifestGuardTest.test_write_refuses_an_invalid_artifact",
+    "test_experiment_infra.ScoringTest.test_alias_groups_accepts_a_fixture_without_aliases",
+    "test_experiment_infra.ScoringTest.test_aliases_apply_in_both_directions",
+    "test_experiment_infra.ScoringTest.test_distinct_characters_are_not_merged",
+    "test_experiment_infra.ScoringTest.test_empty_prediction_is_never_correct",
+    "test_experiment_infra.ScoringTest.test_punctuation_does_not_make_a_correct_answer_wrong",
+    "test_experiment_infra.ScoringTest.test_romanisation_is_off_by_default",
+    "test_experiment_infra.ScoringTest.test_single_member_alias_groups_are_ignored"
+  ],
   "test_experiment_manifest": [
     "test_experiment_manifest.ArtifactValidationTest.test_a_clean_record_validates",
     "test_experiment_manifest.ArtifactValidationTest.test_a_missing_environment_is_a_problem",
