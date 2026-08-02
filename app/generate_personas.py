@@ -9,7 +9,7 @@ import tempfile
 from openai import OpenAI
 
 from tts import TTSEngine, sanitize_filename
-from utils import atomic_json_write as _atomic_json_write
+from utils import atomic_json_write as _atomic_json_write, uses_json_mode
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 
 
@@ -217,6 +217,7 @@ def _resolve_aliases_batch(client, model_name, speakers_info, existing_names):
             ],
             temperature=0.1,
             max_tokens=max(1500, len(speakers_info) * 80),
+            extra_body={"response_format": {"type": "json_object"}} if uses_json_mode(model_name) else {},
         )
         result = extract_json_object(response.choices[0].message.content.strip())
         if isinstance(result, dict):
@@ -543,6 +544,7 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
                 ],
                 temperature=0.2,
                 max_tokens=4000,
+                extra_body={"response_format": {"type": "json_object"}} if uses_json_mode(model_name) else {},
             )
             raw_content = response.choices[0].message.content.strip()
             parsed = extract_json_object(raw_content)
@@ -597,6 +599,7 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
                 ],
                 temperature=0.25,
                 max_tokens=600,
+                extra_body={"response_format": {"type": "json_object"}} if uses_json_mode(model_name) else {},
             )
             parsed = extract_json_object(response.choices[0].message.content.strip())
             if parsed:
@@ -838,6 +841,7 @@ def main():
                 ],
                 temperature=0.3,
                 max_tokens=400,
+                extra_body={"response_format": {"type": "json_object"}} if uses_json_mode(model_name) else {},
             )
 
             text = response.choices[0].message.content.strip()

@@ -5,6 +5,7 @@ import re
 import argparse
 from openai import OpenAI
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
+from utils import uses_json_mode
 
 # Cap for single-speaker mode: entries at this size pass through
 # group_into_chunks (MAX_CHUNK_CHARS=500) as-is without further splitting.
@@ -280,6 +281,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                         "top_k": top_k if top_k else None,
                         "min_p": min_p if min_p else None,
                         "banned_tokens": banned_tokens if banned_tokens else None,
+                        "response_format": {"type": "json_object"} if uses_json_mode(model_name) else None,
                     }.items() if v is not None
                 }
             )
