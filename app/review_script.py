@@ -6,6 +6,7 @@ import argparse
 from openai import OpenAI
 from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
+from utils import uses_json_mode
 
 
 def _is_section_break(text):
@@ -116,6 +117,7 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                         "top_k": top_k,
                         "min_p": min_p,
                         "banned_tokens": banned_tokens if banned_tokens else None,
+                        "response_format": {"type": "json_object"} if uses_json_mode(model_name) else None,
                     }.items() if v is not None
                 }
             )
