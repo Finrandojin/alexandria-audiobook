@@ -342,6 +342,18 @@ Prompt sizes are within 0.4% of each other, so this is not amortised context.
 **The gain is conversational structure**, and scattered batches also break the
 output format eleven times more often.
 
+REPLICATED on a second book, on different hardware and a different inference
+stack (local ROCm llama.cpp vs the cloud CUDA run):
+
+    owarimonogatari3   contiguous 53.7%   scattered 35.2%
+                       -18.5 points  +21/-51 of 162  p=0.000535
+
+The effect is LARGER there than on grimgar03, and owarimonogatari3 is the book
+with by far the most same-speaker structure (gold continuation 56.9% against
+31.7%). That is the direction the "model exploits conversational runs"
+explanation predicts, which is the first thing in this investigation to
+survive a prediction rather than only fit after the fact.
+
 WHAT THIS OPENS. Production cuts batches every 25 segments regardless of where
 conversations begin and end, so some fraction of batches straddle a boundary
 and get the scattered condition by accident. Aligning batch boundaries to
@@ -412,3 +424,116 @@ Testing it properly needs the separate b25/b50 sweep, about one more GPU hour.
 The oracle arm reproducing +9.3 exactly is the third independent determinism
 check of the day, after grimgar03's base arm reproducing 265/385 across
 fourteen hours and two adapter loads.
+
+### Second attempt, same failure — and the cause is structural
+
+Re-run with a genuinely independent confirming pass (no history, context width
+12 against the arms' 4):
+
+    none 50.0%   oracle 59.3% (+9.3)   predicted 48.1%   gated 48.8%
+    gate supplied history on 161/162 rows = 99.4%
+
+Identical coverage to the first attempt. The confirming pass was not the
+problem.
+
+**`prior_speakers` cannot express "supply nothing".** It walks backwards
+collecting three speakers and CONTINUES past any entry it rejects, so when the
+gate blocks a line the loop simply backfills from further back. The arm always
+ends up with three names; the gate only changes WHICH ones. That is not the
+intervention, and no confirming signal fixes it.
+
+Testing the real thing needs `prior_speakers` to stop at the first blocked
+entry, or a variant supplying only the immediately-previous line. That is a
+third design on the same experiment, and it is not being attempted here:
+two wrong designs in a row is a signal to stop and think rather than iterate
+against a rented GPU.
+
+**Left as an open, well-specified experiment**, with the +9.3 oracle showing
+there is something to win and the mechanism now understood.
+
+## Batch boundaries do NOT matter, which closes the lever (2026-08-01)
+
+`batch_contiguity` showed contiguity is worth 16.6 points, so the obvious next
+question was whether production's arbitrary cut every 25 segments costs
+anything. `experiments/batch_alignment.py` packs whole runs of consecutive
+spoken segments instead, never splitting one:
+
+    fixed     275/385 = 71.4%  [66.6-75.9]   mean 24.8 entries
+    aligned   273/385 = 70.9%  [66.1-75.4]   mean 24.4 entries
+    aligned - fixed  -0.5 points  +52/-54 of 385  p=0.9227
+
+A clean null, and the batch sizes match (24.8 vs 24.4) so it is not confounded
+by size.
+
+**Why both results are consistent.** grimgar03 has 940 spoken runs across 1,463
+sendable segments — a mean run length of about 1.6. Runs that short are almost
+never split by a 25-segment cut, so a fixed window already contains many
+complete conversations. Contiguity is what the model exploits; there is simply
+no misalignment left to fix.
+
+This is the pre-registered "aligned ~ fixed" reading: the lever
+`batch_contiguity` opened is closed, and the 16.6-point contiguity effect is
+already being captured by production.
+
+## The adapter and the cascade are COMPLEMENTARY (2026-08-01)
+
+They reach the same place; they do not fix the same rows.
+`experiments/adapter_vs_cascade_overlap.py`, offline over shared gold ids:
+
+    book               both  adapter-only  cascade-only  neither   union
+    grimgar03         69.6%      8.8%         10.9%       10.6%    89.4%
+    index18           66.3%      8.7%         13.0%       12.0%    88.0%
+    mushoku16         49.6%     12.8%         15.8%       21.8%    78.2%
+    owarimonogatari3  46.9%     14.2%          8.0%       30.9%    69.1%
+
+    pooled 772 rows: adapter alone 71.6%, cascade alone 72.4%,
+    ORACLE union 83.0% (+10.6 over the better one)
+
+**The cascade gets 11.4% of rows right that the adapter misses.** It is not
+redundant, and stacking is worth testing: run the cascade with the TUNED 14B as
+its cheap arm.
+
+A DISTINCTION THAT MATTERS. `realizable_router` retired **book-level** method
+selection (-0.96 against a fixed choice, oracle ceiling +2.42). This is a
+**row-level** question, and the cascade already solves row-level routing with
+two-pass disagreement - that is its design. So the +10.6 here is far more
+reachable than the router's ceiling, and the two findings do not conflict.
+
+The union remains an oracle until a stacked run measures what the disagreement
+signal actually collects.
+
+## Running the adapter on the local 16GB card (2026-08-01)
+
+Merging the LoRA into the base and quantizing was not possible locally: the box
+has **30GB RAM (24 available) and 14GB free disk**, against ~28GB RAM for a 14B
+bf16 merge plus ~29GB base, ~29GB merged and ~9GB GGUF.
+
+llama.cpp applies a LoRA at RUNTIME, so no merge is needed. The adapter
+converts to a **128MB** GGUF and rides on top of the Q4_K_M base already on
+disk.
+
+Build it:
+
+    cd /home/fakemitch/pinokio/api/alexandria-audiobook2.git
+    ./app/env/bin/python \
+      /home/fakemitch/.cache/yay/llama.cpp-hip/src/llama.cpp-b10121/convert_lora_to_gguf.py \
+      ab_test_runtime/distill/adapter \
+      --base-model-id Qwen/Qwen3-14B --outtype f16 \
+      --outfile ab_test_runtime/distill/gguf/alexandria-attrib-lora-f16.gguf
+
+Serve it (ROCm backend needs LM Studio's vendored libs on the path):
+
+    B=/home/fakemitch/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-amd-rocm-avx2-2.21.0
+    V=/home/fakemitch/.lmstudio/extensions/backends/vendor/linux-llama-rocm-vendor-v3
+    G=~/.lmstudio/models/lmstudio-community/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf
+    LD_LIBRARY_PATH=$V:$B $B/llama-server -m $G \
+      --lora ab_test_runtime/distill/gguf/alexandria-attrib-lora-f16.gguf \
+      --port 8090 --host 127.0.0.1 -ngl 99 -c 32768 --parallel 1
+
+**NOT YET VERIFIED FOR ACCURACY.** The +11.7 was measured on the bf16 model
+through transformers. This path is Q4_K_M base plus an f16 LoRA through
+llama.cpp, which is a different numeric stack, and quantisation could eat some
+or all of the gain. The adapter loads and serves; whether it still scores +11.7
+here has to be measured before the number is claimed for this configuration.
+
+Both the adapter (257MB) and this GGUF (128MB) are gitignored and rebuildable.

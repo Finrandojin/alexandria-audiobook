@@ -196,3 +196,6 @@ ab_test_runtime/fixtures_draft/
 # LoRA adapters and training checkpoints (2.5GB); the scored artifact is
 # committed, the weights are reproducible from distill_train.py
 ab_test_runtime/distill/adapter/
+
+# Derived LoRA GGUF (128MB); rebuild with convert_lora_to_gguf.py, see brief
+ab_test_runtime/distill/gguf/

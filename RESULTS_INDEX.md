@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-07-31 21:55 from `ab_test_runtime/experiments/` — 164 artifacts, 442 arms.
+Generated 2026-08-02 08:24 from `ab_test_runtime/experiments/` — 170 artifacts, 458 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -10,6 +10,22 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 `closed_set.json` and `two_by_two.json` predate the environment contract and captured no `context_length` or `parallel`, which cannot be reconstructed. Their rows and summaries were recomputed and are internally consistent, but the runs are not comparable to artifacts that record an environment: inspectable, not citable.
 
+
+## batch_alignment
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | aligned | 385 | 70.9% | ok | False | 1295.5s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | fixed | 385 | 71.4% | ok | False | 1295.5s |
+
+## batch_contiguity
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | contiguous | 385 | 74.5% | ok | False | 5518.1s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | scattered | 385 | 57.9% | ok | False | 5518.1s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 162 | 53.7% | ok | False | 19624.4s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 162 | 35.2% | ok | False | 19624.4s |
 
 ## batch_size
 
@@ -215,9 +231,17 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | none | 136 | 50.7% | ok | False | 77.8s |
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | oracle | 136 | 54.4% | ok | False | 77.8s |
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | predicted | 136 | 47.8% | ok | False | 77.8s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | gated | 162 | 48.8% | ok | False | 417.6s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | gated | 162 | 48.8% | ok | False | 579.9s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | none | 162 | 50.0% | ok | False | 116.4s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | none | 162 | 50.0% | ok | False | 417.6s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | none | 162 | 50.0% | ok | False | 579.9s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | oracle | 162 | 59.3% | ok | False | 116.4s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | oracle | 162 | 59.3% | ok | False | 417.6s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | oracle | 162 | 59.3% | ok | False | 579.9s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | predicted | 162 | 46.9% | ok | False | 116.4s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | predicted | 162 | 48.1% | ok | False | 417.6s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | predicted | 162 | 48.1% | ok | False | 579.9s |
 
 ## context_width
 
@@ -268,7 +292,9 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 | book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 547 | 60.3% | ok | False | 23636.2s |
 | grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 772 | 60.0% | ok | False | 50138.1s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 547 | 61.6% | ok | False | 23636.2s |
 | grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 772 | 71.6% | ok | False | 50138.1s |
 
 ## grammar_constraint
