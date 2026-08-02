@@ -1,0 +1,26 @@
+{
+ "shared_rows": 547,
+ "per_book": {
+  "grimgar03": {
+   "both": 242,
+   "bf16_only": 23,
+   "q4_only": 65,
+   "neither": 55
+  },
+  "POOLED": {
+   "both": 293,
+   "bf16_only": 37,
+   "q4_only": 101,
+   "neither": 116
+  },
+  "owarimonogatari3": {
+   "both": 51,
+   "neither": 61,
+   "bf16_only": 14,
+   "q4_only": 36
+  }
+ },
+ "bf16_only": 37,
+ "q4_only": 101,
+ "bf16_blank_on_q4_correct": 20
+}
