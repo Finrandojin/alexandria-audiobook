@@ -208,11 +208,37 @@ record.enable_checkpoint(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"committed_history__{BOOK}__{MODEL.replace('/', '__')}__{TAG}.json.ckpt"))
 
-# The gate's confirming pass: the same question asked with no history, whose
-# answers are independent of whatever the gated arm goes on to produce. Where
-# it agrees with the gated run's own answer, that answer is much more likely
-# right, and the agreement needs no gold.
+# The gate's confirming pass. The first version reused the `none` arm, which
+# fired on 99.4% of rows and made `gated` a rename of `predicted`: same model,
+# temperature 0, nearly identical prompt, so it agreed with itself almost
+# always. A confirming pass has to vary the EVIDENCE, not just be asked twice,
+# so this one runs at a different context width. Where two different views of
+# the passage agree, the answer is much more likely right - and it needs no
+# gold, so a win here is shippable.
+CONFIRM_WIDTH = int(os.environ.get("EXPERIMENT_CONFIRM_WIDTH", "12"))
 CONFIRM = {}
+
+
+def confirming_pass():
+    """Answer every scored line with no history at a different context width."""
+    global WIDTH
+    keep, WIDTH = WIDTH, CONFIRM_WIDTH
+    try:
+        for g in SCOREABLE:
+            i = pos.get(norm(g["line"]))
+            if i is None:
+                continue
+            got, _, _, _ = ask(g["line"], i, [])
+            CONFIRM[i] = got
+    finally:
+        WIDTH = keep
+
+
+confirming_pass()
+_agree = sum(1 for g in SCOREABLE
+             if pos.get(norm(g["line"])) in CONFIRM)
+print(f"  confirming pass done at width {CONFIRM_WIDTH} "
+      f"({_agree} lines answered)", flush=True)
 
 by_arm = {}
 for arm in ARMS:
