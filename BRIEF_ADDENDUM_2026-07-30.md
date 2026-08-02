@@ -342,6 +342,18 @@ Prompt sizes are within 0.4% of each other, so this is not amortised context.
 **The gain is conversational structure**, and scattered batches also break the
 output format eleven times more often.
 
+REPLICATED on a second book, on different hardware and a different inference
+stack (local ROCm llama.cpp vs the cloud CUDA run):
+
+    owarimonogatari3   contiguous 53.7%   scattered 35.2%
+                       -18.5 points  +21/-51 of 162  p=0.000535
+
+The effect is LARGER there than on grimgar03, and owarimonogatari3 is the book
+with by far the most same-speaker structure (gold continuation 56.9% against
+31.7%). That is the direction the "model exploits conversational runs"
+explanation predicts, which is the first thing in this investigation to
+survive a prediction rather than only fit after the fact.
+
 WHAT THIS OPENS. Production cuts batches every 25 segments regardless of where
 conversations begin and end, so some fraction of batches straddle a boundary
 and get the scattered condition by accident. Aligning batch boundaries to

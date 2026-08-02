@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-01 22:40 from `ab_test_runtime/experiments/` — 169 artifacts, 456 arms.
+Generated 2026-08-02 08:24 from `ab_test_runtime/experiments/` — 170 artifacts, 458 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -24,6 +24,8 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | contiguous | 385 | 74.5% | ok | False | 5518.1s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | scattered | 385 | 57.9% | ok | False | 5518.1s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 162 | 53.7% | ok | False | 19624.4s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 162 | 35.2% | ok | False | 19624.4s |
 
 ## batch_size
 
