@@ -383,3 +383,32 @@ Every cross-run comparison in this brief rests on that.
 THE SHAPE OF THE RESULT. Rent a 70B once for ~1,000 labels on books with no
 gold, then serve a 14B forever. No 70B at run time, and end-to-end it matches
 or beats the live cascade on three of four books.
+
+## The gated-history test was designed wrong and is UNTESTED (2026-08-01)
+
+The `gated` arm supplies the previous speaker only where a confirming pass
+agrees. On owarimonogatari3:
+
+    none       81/162 = 50.0%
+    oracle     96/162 = 59.3%   (+9.3, reproduces the earlier run exactly)
+    predicted  78/162 = 48.1%   (-1.9)
+    gated      79/162 = 48.8%   (-1.2)
+
+    gate supplied history on 161/162 rows = 99.4%
+
+**The gate is not a gate.** At 99.4% coverage it is `predicted` under another
+name, and the two scores match. The hypothesis is untested, not refuted.
+
+The cause was a shortcut. The confidence signal was specified as agreement
+between two INDEPENDENT passes at different batch sizes - the cascade's routing
+signal, which disagrees on roughly 40% of rows. It was then changed to reuse
+the `none` arm as the confirming pass because that costs no extra inference.
+But `none` and the gated run are the same model at temperature 0 on nearly
+identical prompts, so they agree almost always: the change removed exactly the
+independence that made the signal informative.
+
+Testing it properly needs the separate b25/b50 sweep, about one more GPU hour.
+
+The oracle arm reproducing +9.3 exactly is the third independent determinism
+check of the day, after grimgar03's base arm reproducing 265/385 across
+fourteen hours and two adapter loads.
