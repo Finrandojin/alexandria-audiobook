@@ -154,9 +154,15 @@ def prior_speakers(index, source, answers, k=3):
             who = truth_at.get(j)
         elif source == "gated":
             # Only trust this run's answer where the confirming pass agrees.
+            # STOP on a blocked entry rather than skipping past it. The first
+            # two attempts continued the loop, so a blocked line was silently
+            # replaced by one further back and the arm always ended up with
+            # three names - the gate changed WHICH names appeared, never
+            # whether any did, and fired on 99.4% of rows twice running.
+            # Stopping is what "supply nothing when uncertain" actually means.
             who = answers.get(j)
             if who and not same(who, CONFIRM.get(j, "")):
-                who = None
+                break
         else:
             who = answers.get(j)
         if who:
