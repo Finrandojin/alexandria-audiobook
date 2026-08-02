@@ -438,3 +438,27 @@ against a rented GPU.
 
 **Left as an open, well-specified experiment**, with the +9.3 oracle showing
 there is something to win and the mechanism now understood.
+
+## Batch boundaries do NOT matter, which closes the lever (2026-08-01)
+
+`batch_contiguity` showed contiguity is worth 16.6 points, so the obvious next
+question was whether production's arbitrary cut every 25 segments costs
+anything. `experiments/batch_alignment.py` packs whole runs of consecutive
+spoken segments instead, never splitting one:
+
+    fixed     275/385 = 71.4%  [66.6-75.9]   mean 24.8 entries
+    aligned   273/385 = 70.9%  [66.1-75.4]   mean 24.4 entries
+    aligned - fixed  -0.5 points  +52/-54 of 385  p=0.9227
+
+A clean null, and the batch sizes match (24.8 vs 24.4) so it is not confounded
+by size.
+
+**Why both results are consistent.** grimgar03 has 940 spoken runs across 1,463
+sendable segments — a mean run length of about 1.6. Runs that short are almost
+never split by a 25-segment cut, so a fixed window already contains many
+complete conversations. Contiguity is what the model exploits; there is simply
+no misalignment left to fix.
+
+This is the pre-registered "aligned ~ fixed" reading: the lever
+`batch_contiguity` opened is closed, and the 16.6-point contiguity effect is
+already being captured by production.
