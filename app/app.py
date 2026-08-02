@@ -2370,6 +2370,17 @@ async def dataset_builder_delete(name: str):
 
 # ── Preparer ─────────────────────────────────────────────────────────────────
 
+@app.get("/api/features")
+async def feature_availability():
+    """Report which optional features are usable in this install.
+
+    The Preparer UI depends on app/alexandria_preparer.py being present;
+    when it isn't, the frontend hides the tab so users don't upload audio
+    only to hit a 503.
+    """
+    return {"preparer": os.path.exists(PREPARER_SCRIPT_PATH)}
+
+
 @app.post("/api/preparer/start")
 async def preparer_start(
     background_tasks: BackgroundTasks,
