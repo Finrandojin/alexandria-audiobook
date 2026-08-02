@@ -42,6 +42,11 @@ module.exports = {
   }, {
     method: "fs.rm",
     params: {
+      path: "cloned_audiobook.flac"
+    }
+  }, {
+    method: "fs.rm",
+    params: {
       path: "voicelines"
     }
   }]

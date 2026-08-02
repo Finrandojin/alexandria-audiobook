@@ -349,7 +349,11 @@ class ProjectManager:
 
                 print(f"Generated WAV size: {os.path.getsize(temp_path)} bytes")
 
-                # Try to convert to mp3, fallback to wav if ffmpeg missing
+                # Store segments losslessly as FLAC. This avoids the generation
+                # loss caused by re-encoding MP3 at segment-save time and again
+                # at merge time. FLAC is lossless, ~50% the size of WAV, and
+                # decodes back to identical PCM. If ffmpeg/libsndfile can't
+                # write FLAC for some reason, fall back to raw WAV (also lossless).
                 filename_base = f"voiceline_{index+1:04d}_{sanitize_filename(speaker_to_use)}"
                 audio_path = None
 
@@ -357,29 +361,27 @@ class ProjectManager:
                     segment = AudioSegment.from_wav(temp_path)
 
                     if len(segment) == 0:
-                         self._update_chunk_fields(index, status="error")
-                         return False, "Generated audio has 0 duration"
+                        self._update_chunk_fields(index, status="error")
+                        return False, "Generated audio has 0 duration"
 
-                    mp3_filename = f"{filename_base}.mp3"
-                    mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
+                    flac_filename = f"{filename_base}.flac"
+                    flac_filepath = os.path.join(self.voicelines_dir, flac_filename)
 
-                    # This might fail if ffmpeg is missing or lacks MP3 encoder
-                    segment.export(mp3_filepath, format="mp3")
+                    segment.export(flac_filepath, format="flac")
 
-                    # Validate: conda ffmpeg often lacks libmp3lame, producing
-                    # a tiny (~428 byte) header-only file without raising an error
-                    mp3_size = os.path.getsize(mp3_filepath) if os.path.exists(mp3_filepath) else 0
-                    if mp3_size < 1024:
-                        print(f"MP3 export produced invalid file ({mp3_size} bytes) — ffmpeg likely lacks MP3 encoder (libmp3lame). Falling back to WAV.")
-                        os.remove(mp3_filepath)
-                        raise RuntimeError("MP3 export produced invalid file")
+                    # Validate that a real file was produced
+                    flac_size = os.path.getsize(flac_filepath) if os.path.exists(flac_filepath) else 0
+                    if flac_size < 1024:
+                        print(f"FLAC export produced invalid file ({flac_size} bytes) — ffmpeg/libsndfile issue. Falling back to WAV.")
+                        os.remove(flac_filepath)
+                        raise RuntimeError("FLAC export produced invalid file")
 
-                    audio_path = f"voicelines/{mp3_filename}"
+                    audio_path = f"voicelines/{flac_filename}"
 
                 except Exception as e:
                     if "invalid file" not in str(e).lower():
-                        print(f"MP3 conversion failed (ffmpeg missing?): {e}")
-                    # Fallback: copy WAV
+                        print(f"FLAC conversion failed (ffmpeg missing?): {e}")
+                    # Fallback: copy the raw WAV (still lossless)
                     wav_filename = f"{filename_base}.wav"
                     wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
                     shutil.copy(temp_path, wav_filepath)
@@ -454,9 +456,9 @@ class ProjectManager:
         final_audio = combine_audio_with_pauses(
             audio_segments, speakers, pause_ms, same_speaker_pause_ms, pause_overrides
         )
-        output_filename = "cloned_audiobook.mp3"
+        output_filename = "cloned_audiobook.flac"
         output_path = os.path.join(self.root_dir, output_filename)
-        final_audio.export(output_path, format="mp3")
+        final_audio.export(output_path, format="flac")
 
         return True, output_filename
 
@@ -602,7 +604,7 @@ class ProjectManager:
             with open(meta_path, "w", encoding="utf-8") as f:
                 f.write("\n".join(meta_lines))
 
-            # Phase 5 — FFmpeg: WAV + chapters → M4B (AAC)
+            # Phase 5 — FFmpeg: WAV + chapters → M4B (ALAC, lossless)
             cover_path = metadata.get("cover_path") or ""
             has_cover = cover_path and os.path.exists(cover_path)
 
@@ -616,8 +618,7 @@ class ProjectManager:
                 # Map cover as attached picture
                 cmd += ["-map", "1:v", "-c:v", "copy", "-disposition:v:0", "attached_pic"]
             cmd += [
-                "-c:a", "aac",
-                "-b:a", "128k",
+                "-c:a", "alac",
                 "-movflags", "+faststart",
                 output_path
             ]
@@ -918,7 +919,7 @@ class ProjectManager:
             # Call batch TTS with single seed
             batch_results = engine.generate_batch(batch_chunks, voice_config, self.root_dir, batch_seed)
 
-            # Process completed chunks - convert to MP3 and update status
+            # Process completed chunks - convert to FLAC and update status
             chunks = self.load_chunks()  # Reload for each batch
 
             for idx in batch_results["completed"]:
@@ -946,23 +947,22 @@ class ProjectManager:
                             chunks[idx]["status"] = "error"
                             continue
 
-                        mp3_filename = f"{filename_base}.mp3"
-                        mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
-                        segment.export(mp3_filepath, format="mp3")
+                        flac_filename = f"{filename_base}.flac"
+                        flac_filepath = os.path.join(self.voicelines_dir, flac_filename)
+                        segment.export(flac_filepath, format="flac")
 
-                        # Validate: conda ffmpeg often lacks libmp3lame, producing
-                        # a tiny (~428 byte) header-only file without raising an error
-                        mp3_size = os.path.getsize(mp3_filepath) if os.path.exists(mp3_filepath) else 0
-                        if mp3_size < 1024:
-                            print(f"MP3 export produced invalid file ({mp3_size} bytes) for chunk {idx} — ffmpeg likely lacks MP3 encoder (libmp3lame). Falling back to WAV.")
-                            os.remove(mp3_filepath)
-                            raise RuntimeError("MP3 export produced invalid file")
+                        # Validate that a real file was produced
+                        flac_size = os.path.getsize(flac_filepath) if os.path.exists(flac_filepath) else 0
+                        if flac_size < 1024:
+                            print(f"FLAC export produced invalid file ({flac_size} bytes) for chunk {idx} — ffmpeg/libsndfile issue. Falling back to WAV.")
+                            os.remove(flac_filepath)
+                            raise RuntimeError("FLAC export produced invalid file")
 
-                        chunks[idx]["audio_path"] = f"voicelines/{mp3_filename}"
+                        chunks[idx]["audio_path"] = f"voicelines/{flac_filename}"
 
                     except Exception as e:
                         if "invalid file" not in str(e).lower():
-                            print(f"MP3 conversion failed for chunk {idx}: {e}")
+                            print(f"FLAC conversion failed for chunk {idx}: {e}")
                         wav_filename = f"{filename_base}.wav"
                         wav_filepath = os.path.join(self.voicelines_dir, wav_filename)
                         shutil.copy(temp_path, wav_filepath)
