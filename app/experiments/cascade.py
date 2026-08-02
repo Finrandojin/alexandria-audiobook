@@ -57,8 +57,12 @@ if PHASE not in ("cheap", "expensive"):
 MODEL = os.environ.get("EXPERIMENT_MODEL", "qwen/qwen3-14b")
 BIG_MODEL = os.environ.get("EXPERIMENT_BIG_MODEL", "llama-3.3-70b")
 BOOK = os.environ.get("EXPERIMENT_BOOK", "grimgar03")
+# GOLD follows BOOK by default. It used to hardcode grimgar03's fixture
+# while BOOK stayed settable, so setting only EXPERIMENT_BOOK scored one
+# book's lines against another book's gold - three matches out of 162,
+# every arm 0.0%. Two runs were lost to it before the pattern was seen.
 GOLD = os.environ.get("EXPERIMENT_GOLD",
-                      "fixtures/attribution_gold_grimgar03_provisional.json")
+                      f"fixtures/attribution_gold_{BOOK}.json")
 GOLD_PATH = APP + GOLD
 BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://127.0.0.1:8090/v1")
 TAG = os.environ.get("EXPERIMENT_TAG", "cascade")
