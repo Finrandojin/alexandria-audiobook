@@ -51,8 +51,8 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Script Library** - Save and load annotated scripts with voice configurations
 
 ### Export Options
-- **Combined Audiobook** - Single MP3 with all voices and natural pauses
-- **Individual Voicelines** - Separate MP3 per line for DAW editing (Audacity, etc.)
+- **Combined Audiobook** - Single lossless FLAC file with all voices and natural pauses
+- **Individual Voicelines** - Separate lossless FLAC per line for DAW editing (Audacity, etc.)
 - **Audacity Export** - One-click zip with per-speaker WAV tracks, LOF project file, and labels for automatic multi-track import into Audacity
 - **M4B Audiobook** - Chaptered M4B (AAC) with per-chunk or auto-detected chapter markers for audiobook players (Audiobookshelf, Apple Books, VLC, etc.)
 
@@ -211,7 +211,7 @@ Each character detected in the script gets a voice card. For each speaker:
 
 **Step 5 — Result**
 - Listen to the finished audiobook in the browser
-- Download as MP3, or click **Export to Audacity** for per-speaker WAV tracks
+- Download as FLAC (lossless), or click **Export to Audacity** for per-speaker WAV tracks
 
 ### Advanced Tools (Optional)
 
@@ -366,9 +366,9 @@ High-speed rendering that sends multiple lines to the TTS engine in a single bat
 - **Parallel Workers** setting controls batch size (higher values use more VRAM)
 
 ### Result Tab
-Download your completed audiobook as MP3, export as **M4B** with chapter markers for audiobook players, or click **Export to Audacity** for per-speaker WAV tracks.
+Download your completed audiobook as lossless **FLAC**, export as **M4B** (Apple Lossless/ALAC) with chapter markers for audiobook players, or click **Export to Audacity** for per-speaker WAV tracks.
 
-- **Download MP3** - Standard merged audiobook
+- **Download FLAC** - Lossless merged audiobook
 - **Export M4B** - AAC audiobook with chapter markers. By default, chapters are auto-detected from headings in the script (e.g. "Chapter 1", "Prologue"). Toggle **Per-chunk chapters** for fine-grained navigation where every line becomes a chapter.
 - **Export to Audacity** - Zip with per-speaker WAV tracks. Unzip and open `project.lof` in Audacity to load all tracks, then import `labels.txt` via File > Import > Labels for chunk annotations.
 
@@ -447,14 +447,14 @@ Vocalizations are written as real pronounceable text that the TTS speaks directl
 ## Output Files
 
 **Final Audiobook:**
-- `cloned_audiobook.mp3` - Combined audiobook with natural pauses
+- `cloned_audiobook.flac` - Combined audiobook with natural pauses (lossless FLAC)
 
 **Individual Voicelines (for DAW editing):**
 ```
 voicelines/
-├── voiceline_0001_narrator.mp3
-├── voiceline_0002_elena.mp3
-├── voiceline_0003_marcus.mp3
+├── voiceline_0001_narrator.flac
+├── voiceline_0002_elena.flac
+├── voiceline_0003_marcus.flac
 └── ...
 ```
 
@@ -474,7 +474,7 @@ audacity_export.zip
 └── ...
 ```
 
-Each WAV track is padded to the same total duration with silence where other speakers are talking. Playing all tracks simultaneously sounds identical to the merged MP3.
+Each WAV track is padded to the same total duration with silence where other speakers are talking. Playing all tracks simultaneously sounds identical to the merged FLAC.
 
 **M4B Audiobook (chaptered):**
 - `audiobook.m4b` - AAC audiobook with embedded chapter markers
@@ -713,7 +713,7 @@ curl -X DELETE http://127.0.0.1:4200/api/dataset_builder/my_voice_dataset
 ### Audio Download
 ```bash
 # Download audiobook (after merging in editor)
-curl http://127.0.0.1:4200/api/audiobook --output audiobook.mp3
+curl http://127.0.0.1:4200/api/audiobook --output audiobook.flac
 
 # Export to Audacity (per-speaker tracks + LOF + labels)
 curl -X POST http://127.0.0.1:4200/api/export_audacity
@@ -868,11 +868,11 @@ For script generation, non-thinking models work best:
 - Close other GPU-intensive applications
 - Try `device: cpu` as a fallback (much slower)
 
-### Broken or tiny MP3 files (428 bytes)
-Conda's bundled ffmpeg on Windows often lacks the MP3 encoder (libmp3lame). Alexandria now detects this and automatically falls back to WAV, but if you want MP3 output:
-- Install ffmpeg with MP3 support: `conda install -c conda-forge ffmpeg`
+### Broken or tiny audio files (428 bytes)
+Per-line segments and the final audiobook are now written as **FLAC** (lossless) instead of MP3. Alexandria validates the output and falls back to raw **WAV** (also lossless) if ffmpeg/libsndfile can't write FLAC for some reason. If you see the fallback firing or want FLAC specifically:
+- Install ffmpeg with FLAC support: `conda install -c conda-forge ffmpeg`
 - Or remove conda's ffmpeg to use your system one: `conda remove ffmpeg`
-- Verify with: `ffmpeg -encoders 2>/dev/null | grep mp3`
+- Verify with: `ffmpeg -encoders 2>/dev/null | grep flac`
 
 ### Audio quality issues
 - Use 5-15 second clear reference audio for cloning

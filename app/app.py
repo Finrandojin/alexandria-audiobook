@@ -41,7 +41,7 @@ ROOT_DIR = os.path.dirname(BASE_DIR)
 CONFIG_PATH = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(BASE_DIR, "config.json")
 VOICE_CONFIG_PATH = os.path.join(ROOT_DIR, "voice_config.json")
 SCRIPT_PATH = os.path.join(ROOT_DIR, "annotated_script.json")
-AUDIOBOOK_PATH = os.path.join(ROOT_DIR, "cloned_audiobook.mp3")
+AUDIOBOOK_PATH = os.path.join(ROOT_DIR, "cloned_audiobook.flac")
 M4B_PATH = os.path.join(ROOT_DIR, "audiobook.m4b")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
 SCRIPTS_DIR = os.path.join(ROOT_DIR, "scripts")
@@ -944,7 +944,7 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 async def get_audiobook():
     if not os.path.exists(AUDIOBOOK_PATH):
         raise HTTPException(status_code=404, detail="Audiobook not found")
-    return FileResponse(AUDIOBOOK_PATH, filename="audiobook.mp3", media_type="audio/mpeg")
+    return FileResponse(AUDIOBOOK_PATH, filename="audiobook.flac", media_type="audio/flac")
 
 # --- Chunk Management Endpoints ---
 
