@@ -22,7 +22,13 @@
   "gold_sha256": "e10b3d056ee486aa43d4c48a548cca102f0ffed33c0c7ce8005d4d3ae4c9629d",
   "gold_lines": 147,
   "finished": 1785085200.0097806,
-  "elapsed_s": 698.2
+  "elapsed_s": 698.2,
+  "validation": [
+   "no LM Studio load state recorded",
+   "environment is missing context_length",
+   "environment is missing parallel"
+  ],
+  "validation_note": "Recomputed 2026-07-30: rows and summary are internally consistent (no duplicate (arm,id), every summary n and correct matches its rows). The ENVIRONMENT was never captured and cannot be reconstructed, so these runs are not comparable to artifacts that record context_length and parallel. Written before the environment contract existed; git tree was dirty. Treat as inspectable, not citable."
  },
  "summary": {
   "A": {
@@ -572,7 +578,7 @@
   {
    "arm": "A",
    "id": "iwontsaythatbutisthehumangodtrustworthy",
-   "line": "I won’t say that but… is the Human God trustworthy?",
+   "line": "I won\u2019t say that but\u2026 is the Human God trustworthy?",
    "expected": "NANAHOSHI",
    "predicted": "NORN",
    "correct": false,
@@ -587,7 +593,7 @@
   {
    "arm": "A",
    "id": "buttheresnothingicandoaboutit",
-   "line": "But… there’s nothing I can do about it…",
+   "line": "But\u2026 there\u2019s nothing I can do about it\u2026",
    "expected": "RUDEUS",
    "predicted": "NORN",
    "correct": false,
@@ -617,7 +623,7 @@
   {
    "arm": "A",
    "id": "mmmmaboutthathedidnttellmeyoudiedbutperhapsbecauseyouknowaboutorstedslocationandthenyouwouldbemoreknowledgeableaboutthistypeofthingthanmeandwouldprobablybeabletothinkupaplan",
-   "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
+   "line": "mmmm\u2026 about that\u2026 He didn\u2019t tell me you died but, perhaps because you know about Orsted\u2019s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
    "expected": "RUDEUS",
    "predicted": "NORN",
    "correct": false,
@@ -632,7 +638,7 @@
   {
    "arm": "A",
    "id": "imrelyingonyou",
-   "line": "I’m relying on you.",
+   "line": "I\u2019m relying on you.",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -662,7 +668,7 @@
   {
    "arm": "A",
    "id": "tonanahoshisroomhasshealreadygonetosleep",
-   "line": "To Nanahoshi’s room. Has she already gone to sleep?",
+   "line": "To Nanahoshi\u2019s room. Has she already gone to sleep?",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -677,7 +683,7 @@
   {
    "arm": "A",
    "id": "shejustaskedmeforsomepenandpapershesstillawake",
-   "line": "She just asked me for some pen and paper. She’s still awake.",
+   "line": "She just asked me for some pen and paper. She\u2019s still awake.",
    "expected": "ALMANFI",
    "predicted": "NORN",
    "correct": false,
@@ -692,7 +698,7 @@
   {
    "arm": "A",
    "id": "itsrudeus",
-   "line": "It’s Rudeus.",
+   "line": "It\u2019s Rudeus.",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -707,7 +713,7 @@
   {
    "arm": "A",
    "id": "whatsthepossibilityofthemdyingassoonastheyweretransferredhere",
-   "line": "What’s the possibility of them dying as soon as they were transferred here?",
+   "line": "What\u2019s the possibility of them dying as soon as they were transferred here?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -752,7 +758,7 @@
   {
    "arm": "A",
    "id": "isthatyourguess",
-   "line": "…. Is that your guess?",
+   "line": "\u2026. Is that your guess?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -767,7 +773,7 @@
   {
    "arm": "A",
    "id": "thatsacluerightdoyoustillrememberwhenitfirstappeared",
-   "line": "That’s a clue, right? Do you still remember when it first appeared?",
+   "line": "That\u2019s a clue, right? Do you still remember when it first appeared?",
    "expected": "NANAHOSHI",
    "predicted": "NORN",
    "correct": false,
@@ -782,7 +788,7 @@
   {
    "arm": "A",
    "id": "originallyyourenotsomeonewhoshouldhaveexistedinthisworldright",
-   "line": "Originally, you’re not someone who should have existed in this world, right?",
+   "line": "Originally, you\u2019re not someone who should have existed in this world, right?",
    "expected": "NANAHOSHI",
    "predicted": "NORN",
    "correct": false,
@@ -812,7 +818,7 @@
   {
    "arm": "A",
    "id": "idontunderstandintheendwhatareyoutryingtotellme",
-   "line": "I don’t understand. In the end, what are you trying to tell me?",
+   "line": "I don\u2019t understand. In the end, what are you trying to tell me?",
    "expected": "RUDEUS",
    "predicted": "RUDI",
    "correct": true,
@@ -827,7 +833,7 @@
   {
    "arm": "A",
    "id": "imsayingthatinorderfortheworldwherethehumangoddiesinthefuturetoexistthetwoofusarenecessary",
-   "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
+   "line": "I\u2019m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
    "expected": "NANAHOSHI",
    "predicted": "ROXY",
    "correct": false,
@@ -872,7 +878,7 @@
   {
    "arm": "A",
    "id": "butthehumangodshouldntbeabletojustlayhishandsonwhoeverhewantsright",
-   "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
+   "line": "\u2026But, the Human God shouldn\u2019t be able to just lay his hands on whoever he wants, right?",
    "expected": "NANAHOSHI",
    "predicted": "NANAHOSHI",
    "correct": true,
@@ -902,7 +908,7 @@
   {
    "arm": "A",
    "id": "yesthatsright",
-   "line": "….. Yes. That’s right.",
+   "line": "\u2026.. Yes. That\u2019s right.",
    "expected": "NANAHOSHI",
    "predicted": "NANAHOSHI",
    "correct": true,
@@ -1712,7 +1718,7 @@
   {
    "arm": "A",
    "id": "itdidntfitmebutyoucanprobablymasterit",
-   "line": "It didn’t fit me, but you can probably master it.",
+   "line": "It didn\u2019t fit me, but you can probably master it.",
    "expected": "GARU FARION",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -1907,7 +1913,7 @@
   {
    "arm": "A",
    "id": "yeahihadonetoososhouldntshegetonetooineedtoaskforadayoffthatdaysoifyoucantellmewhen",
-   "line": "Yeah, I had one too, so shouldn't she get one too?  I need to ask for a day off that day, so if you can tell me when...",
+   "line": "Yeah, I had one too, so shouldn't she get one too? \u00a0I need to ask for a day off that day, so if you can tell me when...",
    "expected": "ROXY",
    "predicted": "ROXY",
    "correct": true,
@@ -1922,7 +1928,7 @@
   {
    "arm": "A",
    "id": "heyimbeingseriousherequitjokingaround",
-   "line": "Hey!  I'm being serious here.  Quit joking around!",
+   "line": "Hey! \u00a0I'm being serious here. \u00a0Quit joking around!",
    "expected": "ROXY",
    "predicted": "RUDI",
    "correct": false,
@@ -2657,7 +2663,7 @@
   {
    "arm": "B",
    "id": "iwontsaythatbutisthehumangodtrustworthy",
-   "line": "I won’t say that but… is the Human God trustworthy?",
+   "line": "I won\u2019t say that but\u2026 is the Human God trustworthy?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2672,7 +2678,7 @@
   {
    "arm": "B",
    "id": "buttheresnothingicandoaboutit",
-   "line": "But… there’s nothing I can do about it…",
+   "line": "But\u2026 there\u2019s nothing I can do about it\u2026",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2702,7 +2708,7 @@
   {
    "arm": "B",
    "id": "mmmmaboutthathedidnttellmeyoudiedbutperhapsbecauseyouknowaboutorstedslocationandthenyouwouldbemoreknowledgeableaboutthistypeofthingthanmeandwouldprobablybeabletothinkupaplan",
-   "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
+   "line": "mmmm\u2026 about that\u2026 He didn\u2019t tell me you died but, perhaps because you know about Orsted\u2019s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
    "expected": "RUDEUS",
    "predicted": "NORN",
    "correct": false,
@@ -2717,7 +2723,7 @@
   {
    "arm": "B",
    "id": "imrelyingonyou",
-   "line": "I’m relying on you.",
+   "line": "I\u2019m relying on you.",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2747,7 +2753,7 @@
   {
    "arm": "B",
    "id": "tonanahoshisroomhasshealreadygonetosleep",
-   "line": "To Nanahoshi’s room. Has she already gone to sleep?",
+   "line": "To Nanahoshi\u2019s room. Has she already gone to sleep?",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -2762,7 +2768,7 @@
   {
    "arm": "B",
    "id": "shejustaskedmeforsomepenandpapershesstillawake",
-   "line": "She just asked me for some pen and paper. She’s still awake.",
+   "line": "She just asked me for some pen and paper. She\u2019s still awake.",
    "expected": "ALMANFI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2777,7 +2783,7 @@
   {
    "arm": "B",
    "id": "itsrudeus",
-   "line": "It’s Rudeus.",
+   "line": "It\u2019s Rudeus.",
    "expected": "RUDEUS",
    "predicted": "RUDI",
    "correct": true,
@@ -2792,7 +2798,7 @@
   {
    "arm": "B",
    "id": "whatsthepossibilityofthemdyingassoonastheyweretransferredhere",
-   "line": "What’s the possibility of them dying as soon as they were transferred here?",
+   "line": "What\u2019s the possibility of them dying as soon as they were transferred here?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2837,7 +2843,7 @@
   {
    "arm": "B",
    "id": "isthatyourguess",
-   "line": "…. Is that your guess?",
+   "line": "\u2026. Is that your guess?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2852,7 +2858,7 @@
   {
    "arm": "B",
    "id": "thatsacluerightdoyoustillrememberwhenitfirstappeared",
-   "line": "That’s a clue, right? Do you still remember when it first appeared?",
+   "line": "That\u2019s a clue, right? Do you still remember when it first appeared?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2867,7 +2873,7 @@
   {
    "arm": "B",
    "id": "originallyyourenotsomeonewhoshouldhaveexistedinthisworldright",
-   "line": "Originally, you’re not someone who should have existed in this world, right?",
+   "line": "Originally, you\u2019re not someone who should have existed in this world, right?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2897,7 +2903,7 @@
   {
    "arm": "B",
    "id": "idontunderstandintheendwhatareyoutryingtotellme",
-   "line": "I don’t understand. In the end, what are you trying to tell me?",
+   "line": "I don\u2019t understand. In the end, what are you trying to tell me?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2912,7 +2918,7 @@
   {
    "arm": "B",
    "id": "imsayingthatinorderfortheworldwherethehumangoddiesinthefuturetoexistthetwoofusarenecessary",
-   "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
+   "line": "I\u2019m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -2957,7 +2963,7 @@
   {
    "arm": "B",
    "id": "butthehumangodshouldntbeabletojustlayhishandsonwhoeverhewantsright",
-   "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
+   "line": "\u2026But, the Human God shouldn\u2019t be able to just lay his hands on whoever he wants, right?",
    "expected": "NANAHOSHI",
    "predicted": "NORN",
    "correct": false,
@@ -2987,7 +2993,7 @@
   {
    "arm": "B",
    "id": "yesthatsright",
-   "line": "….. Yes. That’s right.",
+   "line": "\u2026.. Yes. That\u2019s right.",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -3797,7 +3803,7 @@
   {
    "arm": "B",
    "id": "itdidntfitmebutyoucanprobablymasterit",
-   "line": "It didn’t fit me, but you can probably master it.",
+   "line": "It didn\u2019t fit me, but you can probably master it.",
    "expected": "GARU FARION",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -3992,7 +3998,7 @@
   {
    "arm": "B",
    "id": "yeahihadonetoososhouldntshegetonetooineedtoaskforadayoffthatdaysoifyoucantellmewhen",
-   "line": "Yeah, I had one too, so shouldn't she get one too?  I need to ask for a day off that day, so if you can tell me when...",
+   "line": "Yeah, I had one too, so shouldn't she get one too? \u00a0I need to ask for a day off that day, so if you can tell me when...",
    "expected": "ROXY",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4007,7 +4013,7 @@
   {
    "arm": "B",
    "id": "heyimbeingseriousherequitjokingaround",
-   "line": "Hey!  I'm being serious here.  Quit joking around!",
+   "line": "Hey! \u00a0I'm being serious here. \u00a0Quit joking around!",
    "expected": "ROXY",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4742,7 +4748,7 @@
   {
    "arm": "C",
    "id": "iwontsaythatbutisthehumangodtrustworthy",
-   "line": "I won’t say that but… is the Human God trustworthy?",
+   "line": "I won\u2019t say that but\u2026 is the Human God trustworthy?",
    "expected": "NANAHOSHI",
    "predicted": "ORSTED",
    "correct": false,
@@ -4757,7 +4763,7 @@
   {
    "arm": "C",
    "id": "buttheresnothingicandoaboutit",
-   "line": "But… there’s nothing I can do about it…",
+   "line": "But\u2026 there\u2019s nothing I can do about it\u2026",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -4787,7 +4793,7 @@
   {
    "arm": "C",
    "id": "mmmmaboutthathedidnttellmeyoudiedbutperhapsbecauseyouknowaboutorstedslocationandthenyouwouldbemoreknowledgeableaboutthistypeofthingthanmeandwouldprobablybeabletothinkupaplan",
-   "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
+   "line": "mmmm\u2026 about that\u2026 He didn\u2019t tell me you died but, perhaps because you know about Orsted\u2019s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
    "expected": "RUDEUS",
    "predicted": "ORSTED",
    "correct": false,
@@ -4802,7 +4808,7 @@
   {
    "arm": "C",
    "id": "imrelyingonyou",
-   "line": "I’m relying on you.",
+   "line": "I\u2019m relying on you.",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4832,7 +4838,7 @@
   {
    "arm": "C",
    "id": "tonanahoshisroomhasshealreadygonetosleep",
-   "line": "To Nanahoshi’s room. Has she already gone to sleep?",
+   "line": "To Nanahoshi\u2019s room. Has she already gone to sleep?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4847,7 +4853,7 @@
   {
    "arm": "C",
    "id": "shejustaskedmeforsomepenandpapershesstillawake",
-   "line": "She just asked me for some pen and paper. She’s still awake.",
+   "line": "She just asked me for some pen and paper. She\u2019s still awake.",
    "expected": "ALMANFI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4862,7 +4868,7 @@
   {
    "arm": "C",
    "id": "itsrudeus",
-   "line": "It’s Rudeus.",
+   "line": "It\u2019s Rudeus.",
    "expected": "RUDEUS",
    "predicted": "RUDI",
    "correct": true,
@@ -4877,7 +4883,7 @@
   {
    "arm": "C",
    "id": "whatsthepossibilityofthemdyingassoonastheyweretransferredhere",
-   "line": "What’s the possibility of them dying as soon as they were transferred here?",
+   "line": "What\u2019s the possibility of them dying as soon as they were transferred here?",
    "expected": "RUDEUS",
    "predicted": "RUDI",
    "correct": true,
@@ -4922,7 +4928,7 @@
   {
    "arm": "C",
    "id": "isthatyourguess",
-   "line": "…. Is that your guess?",
+   "line": "\u2026. Is that your guess?",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -4937,7 +4943,7 @@
   {
    "arm": "C",
    "id": "thatsacluerightdoyoustillrememberwhenitfirstappeared",
-   "line": "That’s a clue, right? Do you still remember when it first appeared?",
+   "line": "That\u2019s a clue, right? Do you still remember when it first appeared?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4952,7 +4958,7 @@
   {
    "arm": "C",
    "id": "originallyyourenotsomeonewhoshouldhaveexistedinthisworldright",
-   "line": "Originally, you’re not someone who should have existed in this world, right?",
+   "line": "Originally, you\u2019re not someone who should have existed in this world, right?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4982,7 +4988,7 @@
   {
    "arm": "C",
    "id": "idontunderstandintheendwhatareyoutryingtotellme",
-   "line": "I don’t understand. In the end, what are you trying to tell me?",
+   "line": "I don\u2019t understand. In the end, what are you trying to tell me?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -4997,7 +5003,7 @@
   {
    "arm": "C",
    "id": "imsayingthatinorderfortheworldwherethehumangoddiesinthefuturetoexistthetwoofusarenecessary",
-   "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
+   "line": "I\u2019m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -5042,7 +5048,7 @@
   {
    "arm": "C",
    "id": "butthehumangodshouldntbeabletojustlayhishandsonwhoeverhewantsright",
-   "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
+   "line": "\u2026But, the Human God shouldn\u2019t be able to just lay his hands on whoever he wants, right?",
    "expected": "NANAHOSHI",
    "predicted": "NANAHOSHI",
    "correct": true,
@@ -5072,7 +5078,7 @@
   {
    "arm": "C",
    "id": "yesthatsright",
-   "line": "….. Yes. That’s right.",
+   "line": "\u2026.. Yes. That\u2019s right.",
    "expected": "NANAHOSHI",
    "predicted": "NANAHOSHI",
    "correct": true,
@@ -5882,7 +5888,7 @@
   {
    "arm": "C",
    "id": "itdidntfitmebutyoucanprobablymasterit",
-   "line": "It didn’t fit me, but you can probably master it.",
+   "line": "It didn\u2019t fit me, but you can probably master it.",
    "expected": "GARU FARION",
    "predicted": "ERIS",
    "correct": false,
@@ -6077,7 +6083,7 @@
   {
    "arm": "C",
    "id": "yeahihadonetoososhouldntshegetonetooineedtoaskforadayoffthatdaysoifyoucantellmewhen",
-   "line": "Yeah, I had one too, so shouldn't she get one too?  I need to ask for a day off that day, so if you can tell me when...",
+   "line": "Yeah, I had one too, so shouldn't she get one too? \u00a0I need to ask for a day off that day, so if you can tell me when...",
    "expected": "ROXY",
    "predicted": "ROXY",
    "correct": true,
@@ -6092,7 +6098,7 @@
   {
    "arm": "C",
    "id": "heyimbeingseriousherequitjokingaround",
-   "line": "Hey!  I'm being serious here.  Quit joking around!",
+   "line": "Hey! \u00a0I'm being serious here. \u00a0Quit joking around!",
    "expected": "ROXY",
    "predicted": "ROXY",
    "correct": true,
@@ -6827,7 +6833,7 @@
   {
    "arm": "D",
    "id": "iwontsaythatbutisthehumangodtrustworthy",
-   "line": "I won’t say that but… is the Human God trustworthy?",
+   "line": "I won\u2019t say that but\u2026 is the Human God trustworthy?",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -6842,7 +6848,7 @@
   {
    "arm": "D",
    "id": "buttheresnothingicandoaboutit",
-   "line": "But… there’s nothing I can do about it…",
+   "line": "But\u2026 there\u2019s nothing I can do about it\u2026",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -6872,7 +6878,7 @@
   {
    "arm": "D",
    "id": "mmmmaboutthathedidnttellmeyoudiedbutperhapsbecauseyouknowaboutorstedslocationandthenyouwouldbemoreknowledgeableaboutthistypeofthingthanmeandwouldprobablybeabletothinkupaplan",
-   "line": "mmmm… about that… He didn’t tell me you died but, perhaps because you know about Orsted’s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
+   "line": "mmmm\u2026 about that\u2026 He didn\u2019t tell me you died but, perhaps because you know about Orsted\u2019s location, and then, you would be more knowledgeable about this type of thing than me, and would probably be able to think up a plan.",
    "expected": "RUDEUS",
    "predicted": "NORN",
    "correct": false,
@@ -6887,7 +6893,7 @@
   {
    "arm": "D",
    "id": "imrelyingonyou",
-   "line": "I’m relying on you.",
+   "line": "I\u2019m relying on you.",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -6917,7 +6923,7 @@
   {
    "arm": "D",
    "id": "tonanahoshisroomhasshealreadygonetosleep",
-   "line": "To Nanahoshi’s room. Has she already gone to sleep?",
+   "line": "To Nanahoshi\u2019s room. Has she already gone to sleep?",
    "expected": "RUDEUS",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -6932,7 +6938,7 @@
   {
    "arm": "D",
    "id": "shejustaskedmeforsomepenandpapershesstillawake",
-   "line": "She just asked me for some pen and paper. She’s still awake.",
+   "line": "She just asked me for some pen and paper. She\u2019s still awake.",
    "expected": "ALMANFI",
    "predicted": "NANAHOSHI",
    "correct": false,
@@ -6947,7 +6953,7 @@
   {
    "arm": "D",
    "id": "itsrudeus",
-   "line": "It’s Rudeus.",
+   "line": "It\u2019s Rudeus.",
    "expected": "RUDEUS",
    "predicted": "RUDI",
    "correct": true,
@@ -6962,7 +6968,7 @@
   {
    "arm": "D",
    "id": "whatsthepossibilityofthemdyingassoonastheyweretransferredhere",
-   "line": "What’s the possibility of them dying as soon as they were transferred here?",
+   "line": "What\u2019s the possibility of them dying as soon as they were transferred here?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -7007,7 +7013,7 @@
   {
    "arm": "D",
    "id": "isthatyourguess",
-   "line": "…. Is that your guess?",
+   "line": "\u2026. Is that your guess?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -7022,7 +7028,7 @@
   {
    "arm": "D",
    "id": "thatsacluerightdoyoustillrememberwhenitfirstappeared",
-   "line": "That’s a clue, right? Do you still remember when it first appeared?",
+   "line": "That\u2019s a clue, right? Do you still remember when it first appeared?",
    "expected": "NANAHOSHI",
    "predicted": "NORN",
    "correct": false,
@@ -7037,7 +7043,7 @@
   {
    "arm": "D",
    "id": "originallyyourenotsomeonewhoshouldhaveexistedinthisworldright",
-   "line": "Originally, you’re not someone who should have existed in this world, right?",
+   "line": "Originally, you\u2019re not someone who should have existed in this world, right?",
    "expected": "NANAHOSHI",
    "predicted": "RUDI",
    "correct": false,
@@ -7067,7 +7073,7 @@
   {
    "arm": "D",
    "id": "idontunderstandintheendwhatareyoutryingtotellme",
-   "line": "I don’t understand. In the end, what are you trying to tell me?",
+   "line": "I don\u2019t understand. In the end, what are you trying to tell me?",
    "expected": "RUDEUS",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -7082,7 +7088,7 @@
   {
    "arm": "D",
    "id": "imsayingthatinorderfortheworldwherethehumangoddiesinthefuturetoexistthetwoofusarenecessary",
-   "line": "I’m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
+   "line": "I\u2019m saying that in order for the world where the Human God dies in the future to exist, the two of us are necessary.",
    "expected": "NANAHOSHI",
    "predicted": "UNKNOWN",
    "correct": false,
@@ -7127,7 +7133,7 @@
   {
    "arm": "D",
    "id": "butthehumangodshouldntbeabletojustlayhishandsonwhoeverhewantsright",
-   "line": "…But, the Human God shouldn’t be able to just lay his hands on whoever he wants, right?",
+   "line": "\u2026But, the Human God shouldn\u2019t be able to just lay his hands on whoever he wants, right?",
    "expected": "NANAHOSHI",
    "predicted": "ROXY",
    "correct": false,
@@ -7157,7 +7163,7 @@
   {
    "arm": "D",
    "id": "yesthatsright",
-   "line": "….. Yes. That’s right.",
+   "line": "\u2026.. Yes. That\u2019s right.",
    "expected": "NANAHOSHI",
    "predicted": "NANAHOSHI",
    "correct": true,
@@ -7967,7 +7973,7 @@
   {
    "arm": "D",
    "id": "itdidntfitmebutyoucanprobablymasterit",
-   "line": "It didn’t fit me, but you can probably master it.",
+   "line": "It didn\u2019t fit me, but you can probably master it.",
    "expected": "GARU FARION",
    "predicted": "NORN",
    "correct": false,
@@ -8162,7 +8168,7 @@
   {
    "arm": "D",
    "id": "yeahihadonetoososhouldntshegetonetooineedtoaskforadayoffthatdaysoifyoucantellmewhen",
-   "line": "Yeah, I had one too, so shouldn't she get one too?  I need to ask for a day off that day, so if you can tell me when...",
+   "line": "Yeah, I had one too, so shouldn't she get one too? \u00a0I need to ask for a day off that day, so if you can tell me when...",
    "expected": "ROXY",
    "predicted": "ROXY",
    "correct": true,
@@ -8177,7 +8183,7 @@
   {
    "arm": "D",
    "id": "heyimbeingseriousherequitjokingaround",
-   "line": "Hey!  I'm being serious here.  Quit joking around!",
+   "line": "Hey! \u00a0I'm being serious here. \u00a0Quit joking around!",
    "expected": "ROXY",
    "predicted": "ROXY",
    "correct": true,

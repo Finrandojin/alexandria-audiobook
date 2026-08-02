@@ -33,7 +33,7 @@ REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 sys.path.insert(0, REPO + "/app")
 
 
-def build_examples(paths, tokenizer_name=None):
+def build_examples(paths, tokenizer_name=None, label_field="teacher"):
     """One (prompt, completion) pair per teacher-labelled row.
 
     The prompt mirrors what attribute_batch builds so the adapter transfers to
@@ -61,8 +61,16 @@ def build_examples(paths, tokenizer_name=None):
                 user = user_template.format(
                     roster=", ".join(r["roster"]) or "(none yet)",
                     batch=json.dumps([entry], ensure_ascii=False))
+                # `label_field` selects WHOSE answer is being learned. The
+                # teacher is the 70B; cheap_a is the student's own b25 answer on
+                # the same routed row. Training on cheap_a is the ablation that
+                # separates "the 70B taught it something" from "it learned the
+                # task format", and only the label differs between the two runs.
+                label = r.get(label_field)
+                if not label:
+                    continue
                 completion = json.dumps(
-                    [{"n": 0, "speaker": r["teacher"]}], ensure_ascii=False)
+                    [{"n": 0, "speaker": label}], ensure_ascii=False)
                 out.append({"system": system, "user": user,
                             "completion": completion, "book": r["book"]})
     return out
@@ -88,19 +96,25 @@ def main():
     ap.add_argument("--holdout", default="",
                     help="optional book kept out of training; the real "
                          "evaluation is cross-book against the four gold sets")
+    ap.add_argument("--label_field", default="teacher",
+                    choices=("teacher", "cheap_a", "cheap_b"),
+                    help="whose answers to learn; cheap_a is the self-training "
+                         "ablation against the 70B teacher")
     ap.add_argument("--dry_run", action="store_true",
                     help="build and report the dataset without loading a model")
     args = ap.parse_args()
 
-    rows = build_examples(args.data)
+    rows = build_examples(args.data, label_field=args.label_field)
     train = [r for r in rows if r["book"] != args.holdout]
     held = [r for r in rows if r["book"] == args.holdout]
     lens = sorted(len(r["user"]) for r in rows)
-    print(f"{len(rows)} examples from {len(args.data)} files")
+    print(f"{len(rows)} examples from {len(args.data)} files "
+          f"(labels: {args.label_field})")
     print(f"  train {len(train)}  holdout({args.holdout}) {len(held)}")
     print(f"  prompt chars: median {lens[len(lens)//2]}, max {lens[-1]}")
     import collections
-    print(f"  teacher labels: {len(collections.Counter(r['completion'] for r in rows))} distinct")
+    print(f"  {args.label_field} labels: "
+          f"{len(collections.Counter(r['completion'] for r in rows))} distinct")
     if args.dry_run:
         print("\n--- example ---")
         print(rows[0]["user"][:700])
@@ -131,8 +145,17 @@ def main():
         for s, u, c in zip(batch["system"], batch["user"], batch["completion"]):
             messages = [{"role": "system", "content": s},
                         {"role": "user", "content": u}]
-            prompt = tok.apply_chat_template(messages, tokenize=False,
-                                             add_generation_prompt=True)
+            # enable_thinking=False APPENDS an empty <think></think> block to
+            # the prompt; it is not a no-op flag. Production runs with
+            # reasoning suppressed, so training must use the same template or
+            # the adapter is tuned for a prompt shape inference never sends.
+            try:
+                prompt = tok.apply_chat_template(
+                    messages, tokenize=False, add_generation_prompt=True,
+                    enable_thinking=False)
+            except TypeError:
+                prompt = tok.apply_chat_template(messages, tokenize=False,
+                                                 add_generation_prompt=True)
             prompt_ids = tok(prompt, add_special_tokens=False)["input_ids"]
             answer_ids = tok(c + tok.eos_token,
                              add_special_tokens=False)["input_ids"]

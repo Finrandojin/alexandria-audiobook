@@ -1,0 +1,54 @@
+{
+ "grimgar03": {
+  "n": 385,
+  "majority": 0.3168831168831169,
+  "majority_ci": [
+   27.0674845205779,
+   36.59343069003186
+  ],
+  "alternate": 0.33246753246753247,
+  "previous": 0.35324675324675325,
+  "round_robin": 0.06753246753246753,
+  "speakers": 20,
+  "top_speaker": "HARUHIRO"
+ },
+ "index18": {
+  "n": 92,
+  "majority": 0.15217391304347827,
+  "majority_ci": [
+   8.576753870138967,
+   24.212308005383793
+  ],
+  "alternate": 0.14130434782608695,
+  "previous": 0.391304347826087,
+  "round_robin": 0.09782608695652174,
+  "speakers": 26,
+  "top_speaker": "CARISSA"
+ },
+ "mushoku16": {
+  "n": 133,
+  "majority": 0.37593984962406013,
+  "majority_ci": [
+   29.348967265659898,
+   46.40450094811342
+  ],
+  "alternate": 0.24060150375939848,
+  "previous": 0.37593984962406013,
+  "round_robin": 0.05263157894736842,
+  "speakers": 18,
+  "top_speaker": "RUDEUS"
+ },
+ "owarimonogatari3": {
+  "n": 162,
+  "majority": 0.32098765432098764,
+  "majority_ci": [
+   24.99031637880833,
+   39.87628201396579
+  ],
+  "alternate": 0.22839506172839505,
+  "previous": 0.5,
+  "round_robin": 0.11728395061728394,
+  "speakers": 13,
+  "top_speaker": "ARARAGI"
+ }
+}

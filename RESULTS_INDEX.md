@@ -1,10 +1,14 @@
 # Results index
 
-Generated 2026-07-30 14:19 from `ab_test_runtime/experiments/` — 158 artifacts, 440 arms.
+Generated 2026-07-31 21:55 from `ab_test_runtime/experiments/` — 164 artifacts, 442 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
 `dirty=True` means tracked files were modified when the artifact was written: the numbers are inspectable but the run is not reproducible from its recorded commit.
+
+**`closed-oracle` arms are invalidated.** Their candidate sets were built from the pre-gold labels, so the arm was shown shortlists derived from answers that have since changed. `valid=ok` on those rows means internally consistent, NOT trustworthy — do not read them as results.
+
+`closed_set.json` and `two_by_two.json` predate the environment contract and captured no `context_length` or `parallel`, which cannot be reconstructed. Their rows and summaries were recomputed and are internally consistent, but the runs are not comparable to artifacts that record an environment: inspectable, not citable.
 
 
 ## batch_size
@@ -185,11 +189,11 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-6 | 139 | 46.8% | ok | False | 496.9s |
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-oracle | 139 | 64.0% | ok | False | 496.9s |
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | open | 139 | 52.5% | ok | False | 496.9s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-6 | 147 | 34.7% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-6 | 147 | 34.7% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 34.7% | ok | False | 150.0s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-oracle | 147 | 49.0% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-oracle | 147 | 49.0% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.0% | ok | False | 150.0s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | None | True | 138.3s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | ['no LM Studio load state recorded', 'en | True | 138.3s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | open | 147 | 35.4% | ok | False | 150.0s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-6 | 162 | 41.4% | ok | False | 165.9s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-oracle | 162 | 57.4% | ok | False | 165.9s |
@@ -259,6 +263,13 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | owarimonogatari3 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w4 | 162 | 62.3% | ok | False | 5596.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w1 | 162 | 40.1% | ok | False | 2955.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w4 | 162 | 40.1% | ok | False | 2955.3s |
+
+## distill_eval
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 772 | 60.0% | ok | False | 50138.1s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 772 | 71.6% | ok | False | 50138.1s |
 
 ## grammar_constraint
 
@@ -537,10 +548,10 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 | book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | A | 139 | 19.4% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | B | 139 | 2.2% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | C | 139 | 34.5% | None | True | 698.2s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | D | 139 | 18.7% | None | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | A | 139 | 19.4% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | B | 139 | 2.2% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | C | 139 | 34.5% | ['no LM Studio load state recorded', 'en | True | 698.2s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | D | 139 | 18.7% | ['no LM Studio load state recorded', 'en | True | 698.2s |
 
 ## voting
 

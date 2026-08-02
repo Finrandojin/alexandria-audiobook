@@ -1,0 +1,3601 @@
+{
+ "per_book": {
+  "grimgar03": {
+   "gold": 0.3174061433447099,
+   "predicted_mean": 0.32227768065309986,
+   "delta": 0.004871537308389962,
+   "arms": 159
+  },
+  "index18": {
+   "gold": 0.5172413793103449,
+   "predicted_mean": 0.4986224003465383,
+   "delta": -0.018618978963806543,
+   "arms": 37
+  },
+  "mushoku16": {
+   "gold": 0.3880597014925373,
+   "predicted_mean": 0.4243066611050772,
+   "delta": 0.036246959612539875,
+   "arms": 97
+  },
+  "owarimonogatari3": {
+   "gold": 0.5689655172413793,
+   "predicted_mean": 0.5677164714530332,
+   "delta": -0.0012490457883461703,
+   "arms": 64
+  }
+ },
+ "arms": [
+  {
+   "artifact": "batch_size__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "b1",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3697478991596639,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.05234175581495398,
+   "pairs": 238
+  },
+  {
+   "artifact": "batch_size__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3435114503816794,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.026105307036969505,
+   "pairs": 262
+  },
+  {
+   "artifact": "batch_size__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.33797909407665505,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02057295073194515,
+   "pairs": 287
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "grimgar03",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3308550185873606,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.013448875242650704,
+   "pairs": 269
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "grimgar03",
+   "arm": "b50",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.34317343173431736,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025767288389607457,
+   "pairs": 271
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "grimgar03",
+   "arm": "b100",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.31851851851851853,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.001112375173808633,
+   "pairs": 270
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "b1",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.31785714285714284,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.0004509995124329369,
+   "pairs": 280
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.2640845070422535,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0533216363024564,
+   "pairs": 284
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.296028880866426,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.02137726247828392,
+   "pairs": 277
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.32806324110671936,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01065709776200946,
+   "pairs": 253
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "b1",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.31521739130434784,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.002188752040362063,
+   "pairs": 276
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.23674911660777384,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.08065702673693606,
+   "pairs": 283
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.2647058823529412,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.05270026099176872,
+   "pairs": 272
+  },
+  {
+   "artifact": "batch_size__grimgar03__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.2918149466192171,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.025591196725492815,
+   "pairs": 281
+  },
+  {
+   "artifact": "batch_size__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.38461538461538464,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.13262599469496023,
+   "pairs": 26
+  },
+  {
+   "artifact": "batch_size__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.48,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03724137931034488,
+   "pairs": 25
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "mushoku16",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.38333333333333336,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.004726368159203964,
+   "pairs": 60
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "mushoku16",
+   "arm": "b50",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.4642857142857143,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07622601279317698,
+   "pairs": 56
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json",
+   "book": "mushoku16",
+   "arm": "b100",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.11194029850746268,
+   "pairs": 50
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "b1",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.328125,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.05993470149253732,
+   "pairs": 64
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.45901639344262296,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07095669195008564,
+   "pairs": 61
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3793103448275862,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.008749356664951136,
+   "pairs": 58
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3559322033898305,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.03212749810270682,
+   "pairs": 59
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "b1",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3333333333333333,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.05472636815920401,
+   "pairs": 60
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.3333333333333333,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.05472636815920401,
+   "pairs": 60
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.41818181818181815,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03012211668928083,
+   "pairs": 55
+  },
+  {
+   "artifact": "batch_size__mushoku16__qwen__qwen3-14b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.33962264150943394,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.04843705998310338,
+   "pairs": 53
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "owarimonogatari3",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5918367346938775,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.022871217452498205,
+   "pairs": 49
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "owarimonogatari3",
+   "arm": "b50",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.6037735849056604,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03480806766428102,
+   "pairs": 53
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "owarimonogatari3",
+   "arm": "b100",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5952380952380952,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.026272577996715896,
+   "pairs": 42
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "owarimonogatari3",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5918367346938775,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.022871217452498205,
+   "pairs": 49
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "owarimonogatari3",
+   "arm": "b50",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.6037735849056604,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03480806766428102,
+   "pairs": 53
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "owarimonogatari3",
+   "arm": "b100",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5952380952380952,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.026272577996715896,
+   "pairs": 42
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "b5",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.40425531914893614,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.1647101980924432,
+   "pairs": 47
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "b10",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.47619047619047616,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.09277504105090317,
+   "pairs": 42
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "b25",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.5227272727272727,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.04623824451410663,
+   "pairs": 44
+  },
+  {
+   "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "b50",
+   "experiment": "batch_size",
+   "predicted_continuation": 0.6226415094339622,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.0536759921925829,
+   "pairs": 53
+  },
+  {
+   "artifact": "because_production__grimgar03__qwen__qwen3-14b__local.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "because_production",
+   "predicted_continuation": 0.29642857142857143,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.02097757191613847,
+   "pairs": 280
+  },
+  {
+   "artifact": "because_production__grimgar03__qwen__qwen3-14b__local.json",
+   "book": "grimgar03",
+   "arm": "thinking",
+   "experiment": "because_production",
+   "predicted_continuation": 0.34944237918215615,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.03203623583744625,
+   "pairs": 269
+  },
+  {
+   "artifact": "because_production__mushoku16__qwen__qwen3-14b__local.json",
+   "book": "mushoku16",
+   "arm": "baseline",
+   "experiment": "because_production",
+   "predicted_continuation": 0.2982456140350877,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.08981408745744962,
+   "pairs": 57
+  },
+  {
+   "artifact": "because_production__mushoku16__qwen__qwen3-14b__local.json",
+   "book": "mushoku16",
+   "arm": "thinking",
+   "experiment": "because_production",
+   "predicted_continuation": 0.425531914893617,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.0374722134010797,
+   "pairs": 47
+  },
+  {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "grimgar03",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.3129496402877698,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.00445650305694012,
+   "pairs": 278
+  },
+  {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "grimgar03",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.35563380281690143,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.03822765947219153,
+   "pairs": 284
+  },
+  {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__a6000-contig.json",
+   "book": "grimgar03",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.3129496402877698,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.00445650305694012,
+   "pairs": 278
+  },
+  {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__a6000-contig.json",
+   "book": "grimgar03",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.32867132867132864,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.011265185326618743,
+   "pairs": 286
+  },
+  {
+   "artifact": "cascade__index18__llama-3.3-70b__a6000-newbook.json",
+   "book": "index18",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.44,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.07724137931034486,
+   "pairs": 25
+  },
+  {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "mushoku16",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.35185185185185186,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.03620784964068546,
+   "pairs": 54
+  },
+  {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "mushoku16",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.41935483870967744,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03129513721714011,
+   "pairs": 62
+  },
+  {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__a6000-contig.json",
+   "book": "mushoku16",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.3584905660377358,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.0295691354548015,
+   "pairs": 53
+  },
+  {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__a6000-contig.json",
+   "book": "mushoku16",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.4576271186440678,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.06956741715153048,
+   "pairs": 59
+  },
+  {
+   "artifact": "cascade__mushoku16__qwen__qwen3-32b__a6000-contig.json",
+   "book": "mushoku16",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.3584905660377358,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.0295691354548015,
+   "pairs": 53
+  },
+  {
+   "artifact": "cascade__mushoku16__qwen__qwen3-32b__a6000-contig.json",
+   "book": "mushoku16",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.4772727272727273,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.08921302578018997,
+   "pairs": 44
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__google__gemma-3-27b__a6000-newbook.json",
+   "book": "owarimonogatari3",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.43478260869565216,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.13418290854572718,
+   "pairs": 46
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__google__gemma-3-27b__a6000-newbook.json",
+   "book": "owarimonogatari3",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.5106382978723404,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.05832721936903895,
+   "pairs": 47
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "owarimonogatari3",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.5294117647058824,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.03955375253549698,
+   "pairs": 51
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__a6000-batchtrig.json",
+   "book": "owarimonogatari3",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.48936170212765956,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.07960381511371978,
+   "pairs": 47
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__a6000-newbook.json",
+   "book": "owarimonogatari3",
+   "arm": "cascade",
+   "experiment": "cascade",
+   "predicted_continuation": 0.4716981132075472,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.09726740403383216,
+   "pairs": 53
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__a6000-newbook.json",
+   "book": "owarimonogatari3",
+   "arm": "cheap-w1",
+   "experiment": "cascade",
+   "predicted_continuation": 0.5106382978723404,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.05832721936903895,
+   "pairs": 47
+  },
+  {
+   "artifact": "closed_set__grimgar03__gemma-4-e4b-uncensored-hauhaucs-aggressive.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3250883392226148,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.007682195877904918,
+   "pairs": 283
+  },
+  {
+   "artifact": "closed_set__grimgar03__gemma-4-e4b-uncensored-hauhaucs-aggressive.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.36042402826855124,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.04301788492384134,
+   "pairs": 283
+  },
+  {
+   "artifact": "closed_set__grimgar03__gemma-4-e4b-uncensored-hauhaucs-aggressive.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.017406143344709912,
+   "pairs": 280
+  },
+  {
+   "artifact": "closed_set__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3284132841328413,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01100714078813142,
+   "pairs": 271
+  },
+  {
+   "artifact": "closed_set__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.33458646616541354,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.017180322820703642,
+   "pairs": 266
+  },
+  {
+   "artifact": "closed_set__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2894736842105263,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.027932459134183574,
+   "pairs": 266
+  },
+  {
+   "artifact": "closed_set__grimgar03__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.30584192439862545,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.011564218946084448,
+   "pairs": 291
+  },
+  {
+   "artifact": "closed_set__grimgar03__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3161512027491409,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0012549405955690207,
+   "pairs": 291
+  },
+  {
+   "artifact": "closed_set__grimgar03__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3137931034482759,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0036130398964340227,
+   "pairs": 290
+  },
+  {
+   "artifact": "closed_set__grimgar03__ministral-3-14b-instruct-2512.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3412969283276451,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.023890784982935176,
+   "pairs": 293
+  },
+  {
+   "artifact": "closed_set__grimgar03__ministral-3-14b-instruct-2512.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3020833333333333,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.015322810011376586,
+   "pairs": 288
+  },
+  {
+   "artifact": "closed_set__grimgar03__ministral-3-14b-instruct-2512.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.18835616438356165,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.12904997896114825,
+   "pairs": 292
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3737024221453287,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.056296278800618826,
+   "pairs": 289
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.39792387543252594,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.08051773208781604,
+   "pairs": 289
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3161512027491409,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0012549405955690207,
+   "pairs": 291
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.37542662116040953,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.058020477815699634,
+   "pairs": 293
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3958333333333333,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.07842718998862341,
+   "pairs": 288
+  },
+  {
+   "artifact": "closed_set__grimgar03__mistralai__magistral-small__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.28027681660899656,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.03712932673571334,
+   "pairs": 289
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.CLOUD-a6000.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3345323741007194,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.017126230756009497,
+   "pairs": 278
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.CLOUD-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31985294117647056,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.002446797831760661,
+   "pairs": 272
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.CLOUD-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2894736842105263,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.027932459134183574,
+   "pairs": 266
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.LOCAL-9070xt.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31899641577060933,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.0015902724258994305,
+   "pairs": 279
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.LOCAL-9070xt.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3090909090909091,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.008315234253800818,
+   "pairs": 275
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.LOCAL-9070xt.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2825278810408922,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.034878262303817686,
+   "pairs": 269
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3345323741007194,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.017126230756009497,
+   "pairs": 278
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31985294117647056,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.002446797831760661,
+   "pairs": 272
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2894736842105263,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.027932459134183574,
+   "pairs": 266
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.33451957295373663,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01711342960902673,
+   "pairs": 281
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31521739130434784,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.002188752040362063,
+   "pairs": 276
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2893772893772894,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.028028853967420497,
+   "pairs": 273
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.36860068259385664,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.05119453924914674,
+   "pairs": 293
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3611111111111111,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.043704967766401204,
+   "pairs": 288
+  },
+  {
+   "artifact": "closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.30313588850174217,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.014270254842967733,
+   "pairs": 287
+  },
+  {
+   "artifact": "closed_set__index18__mistralai__magistral-small__local-llamacpp.json",
+   "book": "index18",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5357142857142857,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.018472906403940836,
+   "pairs": 28
+  },
+  {
+   "artifact": "closed_set__index18__mistralai__magistral-small__local-llamacpp.json",
+   "book": "index18",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5172413793103449,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0,
+   "pairs": 29
+  },
+  {
+   "artifact": "closed_set__index18__mistralai__magistral-small__local-llamacpp.json",
+   "book": "index18",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5517241379310345,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.03448275862068961,
+   "pairs": 29
+  },
+  {
+   "artifact": "closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "index18",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.48148148148148145,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03575989782886341,
+   "pairs": 27
+  },
+  {
+   "artifact": "closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "index18",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.4230769230769231,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.09416445623342179,
+   "pairs": 26
+  },
+  {
+   "artifact": "closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.421875,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03381529850746268,
+   "pairs": 64
+  },
+  {
+   "artifact": "closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.4375,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.04944029850746268,
+   "pairs": 64
+  },
+  {
+   "artifact": "closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.25396825396825395,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.13409144752428337,
+   "pairs": 63
+  },
+  {
+   "artifact": "closed_set__mushoku16__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.45454545454545453,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.06648575305291721,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3787878787878788,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.009271822704658539,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__llama-3.3-70b__thunder-a6000-loopback.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.35384615384615387,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.03421354764638346,
+   "pairs": 65
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5373134328358209,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.14925373134328357,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.47761194029850745,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.08955223880597013,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.208955223880597,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.17910447761194032,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5522388059701493,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.16417910447761197,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.43283582089552236,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.04477611940298504,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__mistralai__magistral-small__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.22388059701492538,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.16417910447761194,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5909090909090909,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.20284938941655362,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.41935483870967744,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03129513721714011,
+   "pairs": 62
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31746031746031744,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.07059938403221988,
+   "pairs": 63
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5671641791044776,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.17910447761194026,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.41935483870967744,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03129513721714011,
+   "pairs": 62
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.328125,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.05993470149253732,
+   "pairs": 64
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.6060606060606061,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.21800090456806875,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.41935483870967744,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03129513721714011,
+   "pairs": 62
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3384615384615385,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.04959816303099884,
+   "pairs": 65
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-lmstudio.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5909090909090909,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.20284938941655362,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-lmstudio.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.46774193548387094,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07968223399133362,
+   "pairs": 62
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-lmstudio.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.328125,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.05993470149253732,
+   "pairs": 64
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-vulkan.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5909090909090909,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.20284938941655362,
+   "pairs": 66
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-vulkan.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.46774193548387094,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07968223399133362,
+   "pairs": 62
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-vulkan.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.3384615384615385,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.04959816303099884,
+   "pairs": 65
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.31343283582089554,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.07462686567164178,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.40298507462686567,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.014925373134328346,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__mushoku16__qwen__qwen3-32b__thunder-a6000.json",
+   "book": "mushoku16",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.2835820895522388,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.10447761194029853,
+   "pairs": 67
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.6896551724137931,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.12068965517241381,
+   "pairs": 58
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.5344827586206896,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.034482758620689724,
+   "pairs": 58
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.41379310344827586,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.15517241379310348,
+   "pairs": 58
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "owarimonogatari3",
+   "arm": "open",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.6551724137931034,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.08620689655172409,
+   "pairs": 58
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "owarimonogatari3",
+   "arm": "closed-6",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.6727272727272727,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.10376175548589339,
+   "pairs": 55
+  },
+  {
+   "artifact": "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json",
+   "book": "owarimonogatari3",
+   "arm": "closed-oracle",
+   "experiment": "closed_set",
+   "predicted_continuation": 0.45454545454545453,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.1144200626959248,
+   "pairs": 55
+  },
+  {
+   "artifact": "committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "none",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.32222222222222224,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.004816078877512342,
+   "pairs": 270
+  },
+  {
+   "artifact": "committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "oracle",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.3240418118466899,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.006635668501979997,
+   "pairs": 287
+  },
+  {
+   "artifact": "committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "predicted",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.3229166666666667,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.005510523321956784,
+   "pairs": 288
+  },
+  {
+   "artifact": "committed_history__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "none",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.4444444444444444,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.07279693486590044,
+   "pairs": 27
+  },
+  {
+   "artifact": "committed_history__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "oracle",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.4482758620689655,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.06896551724137934,
+   "pairs": 29
+  },
+  {
+   "artifact": "committed_history__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "predicted",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.4482758620689655,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.06896551724137934,
+   "pairs": 29
+  },
+  {
+   "artifact": "committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "none",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.5625,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.17444029850746268,
+   "pairs": 64
+  },
+  {
+   "artifact": "committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "oracle",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.4626865671641791,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07462686567164178,
+   "pairs": 67
+  },
+  {
+   "artifact": "committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "predicted",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.4696969696969697,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.0816372682044324,
+   "pairs": 66
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "none",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.6379310344827587,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.06896551724137934,
+   "pairs": 58
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "oracle",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.603448275862069,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03448275862068961,
+   "pairs": 58
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "predicted",
+   "experiment": "committed_history",
+   "predicted_continuation": 0.6896551724137931,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.12068965517241381,
+   "pairs": 58
+  },
+  {
+   "artifact": "context_width__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width",
+   "predicted_continuation": 0.32432432432432434,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.006918180979614441,
+   "pairs": 259
+  },
+  {
+   "artifact": "context_width__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width",
+   "predicted_continuation": 0.3212996389891697,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.003893495644459788,
+   "pairs": 277
+  },
+  {
+   "artifact": "context_width__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "w15",
+   "experiment": "context_width",
+   "predicted_continuation": 0.3678571428571429,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.05045099951243298,
+   "pairs": 280
+  },
+  {
+   "artifact": "context_width__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "w40",
+   "experiment": "context_width",
+   "predicted_continuation": 0.41935483870967744,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.10194869536496753,
+   "pairs": 279
+  },
+  {
+   "artifact": "context_width__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "w4",
+   "experiment": "context_width",
+   "predicted_continuation": 0.48148148148148145,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03575989782886341,
+   "pairs": 27
+  },
+  {
+   "artifact": "context_width__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "w15",
+   "experiment": "context_width",
+   "predicted_continuation": 0.48,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03724137931034488,
+   "pairs": 25
+  },
+  {
+   "artifact": "context_width__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "w1",
+   "experiment": "context_width",
+   "predicted_continuation": 0.5555555555555556,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.16749585406301826,
+   "pairs": 63
+  },
+  {
+   "artifact": "context_width__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "w4",
+   "experiment": "context_width",
+   "predicted_continuation": 0.4925373134328358,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.10447761194029848,
+   "pairs": 67
+  },
+  {
+   "artifact": "context_width__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "w15",
+   "experiment": "context_width",
+   "predicted_continuation": 0.6363636363636364,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.24830393487109903,
+   "pairs": 66
+  },
+  {
+   "artifact": "context_width__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "w1",
+   "experiment": "context_width",
+   "predicted_continuation": 0.6363636363636364,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.06739811912225702,
+   "pairs": 55
+  },
+  {
+   "artifact": "context_width__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "w4",
+   "experiment": "context_width",
+   "predicted_continuation": 0.6491228070175439,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.08015728977616454,
+   "pairs": 57
+  },
+  {
+   "artifact": "context_width__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "w15",
+   "experiment": "context_width",
+   "predicted_continuation": 0.7241379310344828,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.15517241379310343,
+   "pairs": 58
+  },
+  {
+   "artifact": "context_width_production__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.3310104529616725,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.013604309616962573,
+   "pairs": 287
+  },
+  {
+   "artifact": "context_width_production__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.34074074074074073,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02333459739603083,
+   "pairs": 270
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.3308550185873606,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.013448875242650704,
+   "pairs": 269
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.34265734265734266,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025251199312632755,
+   "pairs": 286
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.33458646616541354,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.017180322820703642,
+   "pairs": 266
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.34265734265734266,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025251199312632755,
+   "pairs": 286
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.33458646616541354,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.017180322820703642,
+   "pairs": 266
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.34265734265734266,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025251199312632755,
+   "pairs": 286
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local.json",
+   "book": "grimgar03",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.29642857142857143,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.02097757191613847,
+   "pairs": 280
+  },
+  {
+   "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local.json",
+   "book": "grimgar03",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.3238434163701068,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.006437273025396872,
+   "pairs": 281
+  },
+  {
+   "artifact": "context_width_production__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.64,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.12275862068965515,
+   "pairs": 25
+  },
+  {
+   "artifact": "context_width_production__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.5,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.017241379310344862,
+   "pairs": 28
+  },
+  {
+   "artifact": "context_width_production__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.47619047619047616,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.08813077469793884,
+   "pairs": 63
+  },
+  {
+   "artifact": "context_width_production__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.5573770491803278,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.1693173476877905,
+   "pairs": 61
+  },
+  {
+   "artifact": "context_width_production__mushoku16__qwen__qwen3-14b__local.json",
+   "book": "mushoku16",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.2982456140350877,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.08981408745744962,
+   "pairs": 57
+  },
+  {
+   "artifact": "context_width_production__mushoku16__qwen__qwen3-14b__local.json",
+   "book": "mushoku16",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.5283018867924528,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.1402421852999155,
+   "pairs": 53
+  },
+  {
+   "artifact": "context_width_production__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.5185185185185185,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.05044699872286085,
+   "pairs": 54
+  },
+  {
+   "artifact": "context_width_production__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.6,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03103448275862064,
+   "pairs": 55
+  },
+  {
+   "artifact": "context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "w1",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.5869565217391305,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.01799100449775115,
+   "pairs": 46
+  },
+  {
+   "artifact": "context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "w4",
+   "experiment": "context_width_production",
+   "predicted_continuation": 0.74,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.17103448275862065,
+   "pairs": 50
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=gemma,t=0.0,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3498233215547703,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.032417178210060404,
+   "pairs": 283
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=gemma,t=0.0,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.33574007220216606,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01833392885745616,
+   "pairs": 277
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=gemma,t=0.0,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3498233215547703,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.032417178210060404,
+   "pairs": 283
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=gemma,t=0.0,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.33574007220216606,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01833392885745616,
+   "pairs": 277
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=gemma,t=0.6,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.38434163701067614,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.06693549366596624,
+   "pairs": 281
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=gemma,t=0.6,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.33935018050541516,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.021944037160705254,
+   "pairs": 277
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=gemma,t=0.6,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.323943661971831,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.006537518627121097,
+   "pairs": 284
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=gemma,t=0.6,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3333333333333333,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.015927189988623414,
+   "pairs": 279
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=gemma,t=0.6,rep=3",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.35587188612099646,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.03846574277628656,
+   "pairs": 281
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=gemma,t=0.6,rep=3",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.32234432234432236,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.004938178999612464,
+   "pairs": 273
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=qwen,t=0.0,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.34050179211469533,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.023095648769985433,
+   "pairs": 279
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=qwen,t=0.0,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3076923076923077,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.009713835652402192,
+   "pairs": 273
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=qwen,t=0.0,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.34050179211469533,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.023095648769985433,
+   "pairs": 279
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=qwen,t=0.0,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3076923076923077,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.009713835652402192,
+   "pairs": 273
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=qwen,t=0.6,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.33093525179856115,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.013529108453851246,
+   "pairs": 278
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=qwen,t=0.6,rep=1",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3076923076923077,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.009713835652402192,
+   "pairs": 273
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=qwen,t=0.6,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.35125448028673834,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.033848336942028434,
+   "pairs": 279
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=qwen,t=0.6,rep=2",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3102189781021898,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0071871652425201105,
+   "pairs": 274
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=gemma,attr=qwen,t=0.6,rep=3",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.34532374100719426,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02791759766248436,
+   "pairs": 278
+  },
+  {
+   "artifact": "crossover__grimgar03__local.json",
+   "book": "grimgar03",
+   "arm": "seg=qwen,attr=qwen,t=0.6,rep=3",
+   "experiment": "segmentation_crossover",
+   "predicted_continuation": 0.3054545454545455,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.011951597890164423,
+   "pairs": 275
+  },
+  {
+   "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "open-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.33451957295373663,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01711342960902673,
+   "pairs": 281
+  },
+  {
+   "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "open-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.33214285714285713,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.014736713798147227,
+   "pairs": 280
+  },
+  {
+   "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "oracle-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.2956204379562044,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.021785705388505494,
+   "pairs": 274
+  },
+  {
+   "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "oracle-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.25830258302583026,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.059103560318879644,
+   "pairs": 271
+  },
+  {
+   "artifact": "grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "open-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.48148148148148145,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03575989782886341,
+   "pairs": 27
+  },
+  {
+   "artifact": "grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "open-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.5185185185185185,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0012771392081736277,
+   "pairs": 27
+  },
+  {
+   "artifact": "grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "oracle-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.4230769230769231,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.09416445623342179,
+   "pairs": 26
+  },
+  {
+   "artifact": "grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "oracle-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.4,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.11724137931034484,
+   "pairs": 25
+  },
+  {
+   "artifact": "grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "open-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.5373134328358209,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.14925373134328357,
+   "pairs": 67
+  },
+  {
+   "artifact": "grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "open-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.5373134328358209,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.14925373134328357,
+   "pairs": 67
+  },
+  {
+   "artifact": "grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "oracle-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.22388059701492538,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.16417910447761194,
+   "pairs": 67
+  },
+  {
+   "artifact": "grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "oracle-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.208955223880597,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.17910447761194032,
+   "pairs": 67
+  },
+  {
+   "artifact": "grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "open-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.6551724137931034,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.08620689655172409,
+   "pairs": 58
+  },
+  {
+   "artifact": "grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "open-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.6551724137931034,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.08620689655172409,
+   "pairs": 58
+  },
+  {
+   "artifact": "grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "oracle-free",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.45454545454545453,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.1144200626959248,
+   "pairs": 55
+  },
+  {
+   "artifact": "grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "oracle-grammar",
+   "experiment": "grammar_constraint",
+   "predicted_continuation": 0.45454545454545453,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.1144200626959248,
+   "pairs": 55
+  },
+  {
+   "artifact": "joint_scene__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.3170731707317073,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0003329726130025801,
+   "pairs": 287
+  },
+  {
+   "artifact": "joint_scene__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.3007246376811594,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.016681505663550478,
+   "pairs": 276
+  },
+  {
+   "artifact": "joint_scene__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.315018315018315,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.002387828326394892,
+   "pairs": 273
+  },
+  {
+   "artifact": "joint_scene__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.3018867924528302,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.015519350891879724,
+   "pairs": 265
+  },
+  {
+   "artifact": "joint_scene__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.3015267175572519,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.01587942578745799,
+   "pairs": 262
+  },
+  {
+   "artifact": "joint_scene__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.29457364341085274,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.022832499933857164,
+   "pairs": 258
+  },
+  {
+   "artifact": "joint_scene__index18__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "index18",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.4827586206896552,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.03448275862068967,
+   "pairs": 29
+  },
+  {
+   "artifact": "joint_scene__index18__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "index18",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.46153846153846156,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.0557029177718833,
+   "pairs": 26
+  },
+  {
+   "artifact": "joint_scene__index18__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "index18",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.4444444444444444,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.07279693486590044,
+   "pairs": 27
+  },
+  {
+   "artifact": "joint_scene__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.52,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0027586206896551557,
+   "pairs": 25
+  },
+  {
+   "artifact": "joint_scene__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.49230769230769234,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.10424799081515501,
+   "pairs": 65
+  },
+  {
+   "artifact": "joint_scene__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.4716981132075472,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.08363841171500985,
+   "pairs": 53
+  },
+  {
+   "artifact": "joint_scene__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.423728813559322,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.03566911206678469,
+   "pairs": 59
+  },
+  {
+   "artifact": "joint_scene__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.44776119402985076,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.05970149253731344,
+   "pairs": 67
+  },
+  {
+   "artifact": "joint_scene__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.5081967213114754,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.1201370198189381,
+   "pairs": 61
+  },
+  {
+   "artifact": "joint_scene__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.484375,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.09631529850746268,
+   "pairs": 64
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.39285714285714285,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.1761083743842365,
+   "pairs": 56
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.6470588235294118,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.07809330628803246,
+   "pairs": 51
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.58,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.011034482758620623,
+   "pairs": 50
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "independent",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.7090909090909091,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.14012539184952977,
+   "pairs": 55
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "joint-chrono",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.6341463414634146,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.0651808242220353,
+   "pairs": 41
+  },
+  {
+   "artifact": "joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "joint-shuffled",
+   "experiment": "joint_scene",
+   "predicted_continuation": 0.5641025641025641,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.00486295313881524,
+   "pairs": 39
+  },
+  {
+   "artifact": "narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.35687732342007433,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.03947118007536443,
+   "pairs": 269
+  },
+  {
+   "artifact": "narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "narrator",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.3333333333333333,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.015927189988623414,
+   "pairs": 276
+  },
+  {
+   "artifact": "narrator_prior__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "baseline",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.6,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.08275862068965512,
+   "pairs": 25
+  },
+  {
+   "artifact": "narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "baseline",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.38333333333333336,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.004726368159203964,
+   "pairs": 60
+  },
+  {
+   "artifact": "narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "narrator",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.3492063492063492,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.038853352286188136,
+   "pairs": 63
+  },
+  {
+   "artifact": "narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "baseline",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.5333333333333333,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.03563218390804601,
+   "pairs": 45
+  },
+  {
+   "artifact": "narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "narrator",
+   "experiment": "narrator_prior",
+   "predicted_continuation": 0.5918367346938775,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.022871217452498205,
+   "pairs": 49
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.31636363636363635,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0010425069810735543,
+   "pairs": 275
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "because",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.34306569343065696,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025659550085947058,
+   "pairs": 274
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.3293172690763052,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.011911125731595307,
+   "pairs": 249
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.31636363636363635,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0010425069810735543,
+   "pairs": 275
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+   "book": "grimgar03",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.3293172690763052,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.011911125731595307,
+   "pairs": 249
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.2918454935622318,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.02556064978247813,
+   "pairs": 233
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "because",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.35585585585585583,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.03844971251114593,
+   "pairs": 222
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.25806451612903225,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.05934162721567765,
+   "pairs": 186
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.2923728813559322,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0250332619887777,
+   "pairs": 236
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.25806451612903225,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.05934162721567765,
+   "pairs": 186
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.232,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.08540614334470989,
+   "pairs": 250
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "because",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.2923728813559322,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0250332619887777,
+   "pairs": 236
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.24535315985130113,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.07205298349340877,
+   "pairs": 269
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.33877551020408164,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02136936685937174,
+   "pairs": 245
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+   "book": "grimgar03",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.2454212454212454,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.07198489792346449,
+   "pairs": 273
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.2907801418439716,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.026626001500738294,
+   "pairs": 282
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "because",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.3344947735191638,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01708863017445389,
+   "pairs": 287
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.3076923076923077,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.009713835652402192,
+   "pairs": 286
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.322463768115942,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.0050576247712321165,
+   "pairs": 276
+  },
+  {
+   "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
+   "book": "grimgar03",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.31654676258992803,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0008593807547818688,
+   "pairs": 278
+  },
+  {
+   "artifact": "reasoning_arms__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.36,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.15724137931034488,
+   "pairs": 25
+  },
+  {
+   "artifact": "reasoning_arms__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.5357142857142857,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.018472906403940836,
+   "pairs": 28
+  },
+  {
+   "artifact": "reasoning_arms__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.39285714285714285,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.12438423645320201,
+   "pairs": 28
+  },
+  {
+   "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "baseline",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.6842105263157895,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.11524500907441015,
+   "pairs": 38
+  },
+  {
+   "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "because",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.5,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.06896551724137934,
+   "pairs": 44
+  },
+  {
+   "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "scaffold",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.4897959183673469,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.07916959887403241,
+   "pairs": 49
+  },
+  {
+   "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.5208333333333334,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.04813218390804597,
+   "pairs": 48
+  },
+  {
+   "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "scaffold_thinking",
+   "experiment": "reasoning_arms",
+   "predicted_continuation": 0.3018867924528302,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.26707872478854916,
+   "pairs": 53
+  },
+  {
+   "artifact": "reasoning_check__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "plain",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.32806324110671936,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01065709776200946,
+   "pairs": 253
+  },
+  {
+   "artifact": "reasoning_check__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "reasoned",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.32916666666666666,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.011760523321956762,
+   "pairs": 240
+  },
+  {
+   "artifact": "reasoning_check__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "reasoned",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.52,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0027586206896551557,
+   "pairs": 25
+  },
+  {
+   "artifact": "reasoning_check__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "plain",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.35714285714285715,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.030916844349680173,
+   "pairs": 56
+  },
+  {
+   "artifact": "reasoning_check__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "reasoned",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.42857142857142855,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.040511727078891224,
+   "pairs": 56
+  },
+  {
+   "artifact": "reasoning_check__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "plain",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.6,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03103448275862064,
+   "pairs": 45
+  },
+  {
+   "artifact": "reasoning_check__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "reasoned",
+   "experiment": "reasoning_check",
+   "predicted_continuation": 0.5106382978723404,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.05832721936903895,
+   "pairs": 47
+  },
+  {
+   "artifact": "roster_quality__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.33797909407665505,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02057295073194515,
+   "pairs": 287
+  },
+  {
+   "artifact": "roster_quality__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "augmented",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.34035087719298246,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.022944733848272558,
+   "pairs": 285
+  },
+  {
+   "artifact": "roster_quality__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.3368421052631579,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.019435961918447986,
+   "pairs": 285
+  },
+  {
+   "artifact": "roster_quality__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "inflated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.32974910394265233,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.012342960597942432,
+   "pairs": 279
+  },
+  {
+   "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.32806324110671936,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01065709776200946,
+   "pairs": 253
+  },
+  {
+   "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "augmented",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.34191176470588236,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.024505621361172458,
+   "pairs": 272
+  },
+  {
+   "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.32558139534883723,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.008175252004127331,
+   "pairs": 258
+  },
+  {
+   "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "inflated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.36213991769547327,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.04473377435076337,
+   "pairs": 243
+  },
+  {
+   "artifact": "roster_quality__index18__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "index18",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.44,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.07724137931034486,
+   "pairs": 25
+  },
+  {
+   "artifact": "roster_quality__index18__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "index18",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.52,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0027586206896551557,
+   "pairs": 25
+  },
+  {
+   "artifact": "roster_quality__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.5769230769230769,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.05968169761273201,
+   "pairs": 26
+  },
+  {
+   "artifact": "roster_quality__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.4444444444444444,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.056384742951907096,
+   "pairs": 63
+  },
+  {
+   "artifact": "roster_quality__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "augmented",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.43548387096774194,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.047424169475204614,
+   "pairs": 62
+  },
+  {
+   "artifact": "roster_quality__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.45161290322580644,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.06355320173326912,
+   "pairs": 62
+  },
+  {
+   "artifact": "roster_quality__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "inflated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.4576271186440678,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.06956741715153048,
+   "pairs": 59
+  },
+  {
+   "artifact": "roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.3392857142857143,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.04877398720682302,
+   "pairs": 56
+  },
+  {
+   "artifact": "roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "augmented",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.4666666666666667,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07860696517412935,
+   "pairs": 60
+  },
+  {
+   "artifact": "roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.39285714285714285,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.004797441364605526,
+   "pairs": 56
+  },
+  {
+   "artifact": "roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "inflated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.5384615384615384,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.1504018369690011,
+   "pairs": 52
+  },
+  {
+   "artifact": "roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "generated",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.5918367346938775,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.022871217452498205,
+   "pairs": 49
+  },
+  {
+   "artifact": "roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "augmented",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.6956521739130435,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.12668665667166412,
+   "pairs": 46
+  },
+  {
+   "artifact": "roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "gold",
+   "experiment": "roster_quality",
+   "predicted_continuation": 0.5306122448979592,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.03835327234342012,
+   "pairs": 49
+  },
+  {
+   "artifact": "scene_cast__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3368421052631579,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.019435961918447986,
+   "pairs": 285
+  },
+  {
+   "artifact": "scene_cast__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3250883392226148,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.007682195877904918,
+   "pairs": 283
+  },
+  {
+   "artifact": "scene_cast__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3240418118466899,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.006635668501979997,
+   "pairs": 287
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json",
+   "book": "grimgar03",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.34191176470588236,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.024505621361172458,
+   "pairs": 272
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json",
+   "book": "grimgar03",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3246268656716418,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.007220722326931883,
+   "pairs": 268
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json",
+   "book": "grimgar03",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3018181818181818,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.015587961526528082,
+   "pairs": 275
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "grimgar03",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.34191176470588236,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.024505621361172458,
+   "pairs": 272
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "grimgar03",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.30514705882352944,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.012259084521180463,
+   "pairs": 272
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "grimgar03",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.30434782608695654,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.01305831725775336,
+   "pairs": 276
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3380281690140845,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.0206220256693746,
+   "pairs": 284
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.29411764705882354,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.023288496285886362,
+   "pairs": 272
+  },
+  {
+   "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.2753623188405797,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.04204382450413019,
+   "pairs": 276
+  },
+  {
+   "artifact": "scene_cast__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.6153846153846154,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.09814323607427056,
+   "pairs": 26
+  },
+  {
+   "artifact": "scene_cast__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.5,
+   "gold_continuation": 0.5172413793103449,
+   "delta": -0.017241379310344862,
+   "pairs": 26
+  },
+  {
+   "artifact": "scene_cast__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.45161290322580644,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.06355320173326912,
+   "pairs": 62
+  },
+  {
+   "artifact": "scene_cast__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.4918032786885246,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.10374357719598726,
+   "pairs": 61
+  },
+  {
+   "artifact": "scene_cast__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.5,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.11194029850746268,
+   "pairs": 62
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "mushoku16",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.4666666666666667,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07860696517412935,
+   "pairs": 60
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "mushoku16",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.3620689655172414,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.025990735975295942,
+   "pairs": 58
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp-look6.json",
+   "book": "mushoku16",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.43333333333333335,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.045273631840796025,
+   "pairs": 60
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.4666666666666667,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.07860696517412935,
+   "pairs": 60
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.35185185185185186,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.03620784964068546,
+   "pairs": 54
+  },
+  {
+   "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.40350877192982454,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.015449070437287216,
+   "pairs": 57
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.54,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.0289655172413793,
+   "pairs": 50
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.48148148148148145,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.08748403575989788,
+   "pairs": 54
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "owarimonogatari3",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.5357142857142857,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.03325123152709364,
+   "pairs": 56
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "full",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.6956521739130435,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.12668665667166412,
+   "pairs": 46
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "scene",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.6,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.03103448275862064,
+   "pairs": 45
+  },
+  {
+   "artifact": "scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "scene+2",
+   "experiment": "scene_cast",
+   "predicted_continuation": 0.5869565217391305,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.01799100449775115,
+   "pairs": 46
+  },
+  {
+   "artifact": "tag_priority__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.34507042253521125,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.02766427919050135,
+   "pairs": 284
+  },
+  {
+   "artifact": "tag_priority__grimgar03__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3310104529616725,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.013604309616962573,
+   "pairs": 287
+  },
+  {
+   "artifact": "tag_priority__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.36153846153846153,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.04413231819375163,
+   "pairs": 260
+  },
+  {
+   "artifact": "tag_priority__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3067226890756303,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.010683454269079629,
+   "pairs": 238
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3680297397769517,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.05062359643224179,
+   "pairs": 269
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3037037037037037,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.013702439641006203,
+   "pairs": 270
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3516483516483517,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.034242208303641775,
+   "pairs": 273
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3037037037037037,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.013702439641006203,
+   "pairs": 270
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3516483516483517,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.034242208303641775,
+   "pairs": 273
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3037037037037037,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.013702439641006203,
+   "pairs": 270
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.32806324110671936,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01065709776200946,
+   "pairs": 253
+  },
+  {
+   "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3140794223826715,
+   "gold_continuation": 0.3174061433447099,
+   "delta": -0.0033267209620383986,
+   "pairs": 277
+  },
+  {
+   "artifact": "tag_priority__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.6,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.08275862068965512,
+   "pairs": 25
+  },
+  {
+   "artifact": "tag_priority__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.52,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.0027586206896551557,
+   "pairs": 25
+  },
+  {
+   "artifact": "tag_priority__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.4444444444444444,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.056384742951907096,
+   "pairs": 63
+  },
+  {
+   "artifact": "tag_priority__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
+   "book": "mushoku16",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.5396825396825397,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.15162283819000233,
+   "pairs": 63
+  },
+  {
+   "artifact": "tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.4406779661016949,
+   "gold_continuation": 0.3880597014925373,
+   "delta": 0.05261826460915758,
+   "pairs": 59
+  },
+  {
+   "artifact": "tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.3673469387755102,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.0207127627170271,
+   "pairs": 49
+  },
+  {
+   "artifact": "tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "baseline",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.5909090909090909,
+   "gold_continuation": 0.5689655172413793,
+   "delta": 0.021943573667711602,
+   "pairs": 44
+  },
+  {
+   "artifact": "tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "tagfirst",
+   "experiment": "tag_priority",
+   "predicted_continuation": 0.5416666666666666,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.027298850574712707,
+   "pairs": 48
+  },
+  {
+   "artifact": "voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "greedy",
+   "experiment": "voting",
+   "predicted_continuation": 0.32806324110671936,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.01065709776200946,
+   "pairs": 253
+  },
+  {
+   "artifact": "voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "vote3",
+   "experiment": "voting",
+   "predicted_continuation": 0.3424124513618677,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025006308017157808,
+   "pairs": 257
+  },
+  {
+   "artifact": "voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "grimgar03",
+   "arm": "vote5",
+   "experiment": "voting",
+   "predicted_continuation": 0.3424124513618677,
+   "gold_continuation": 0.3174061433447099,
+   "delta": 0.025006308017157808,
+   "pairs": 257
+  },
+  {
+   "artifact": "voting__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "greedy",
+   "experiment": "voting",
+   "predicted_continuation": 0.64,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.12275862068965515,
+   "pairs": 25
+  },
+  {
+   "artifact": "voting__index18__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "index18",
+   "arm": "vote3",
+   "experiment": "voting",
+   "predicted_continuation": 0.64,
+   "gold_continuation": 0.5172413793103449,
+   "delta": 0.12275862068965515,
+   "pairs": 25
+  },
+  {
+   "artifact": "voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "greedy",
+   "experiment": "voting",
+   "predicted_continuation": 0.3392857142857143,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.04877398720682302,
+   "pairs": 56
+  },
+  {
+   "artifact": "voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "vote3",
+   "experiment": "voting",
+   "predicted_continuation": 0.35714285714285715,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.030916844349680173,
+   "pairs": 56
+  },
+  {
+   "artifact": "voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "mushoku16",
+   "arm": "vote5",
+   "experiment": "voting",
+   "predicted_continuation": 0.35714285714285715,
+   "gold_continuation": 0.3880597014925373,
+   "delta": -0.030916844349680173,
+   "pairs": 56
+  },
+  {
+   "artifact": "voting__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "greedy",
+   "experiment": "voting",
+   "predicted_continuation": 0.5454545454545454,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.023510971786833923,
+   "pairs": 44
+  },
+  {
+   "artifact": "voting__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+   "book": "owarimonogatari3",
+   "arm": "vote3",
+   "experiment": "voting",
+   "predicted_continuation": 0.5581395348837209,
+   "gold_continuation": 0.5689655172413793,
+   "delta": -0.010825982357658415,
+   "pairs": 43
+  }
+ ],
+ "max_gap": 8
+}

@@ -13,12 +13,21 @@ no narration between them, so turn-taking is the only available evidence on
 most of the fixture. Production pass 2 attributes batches of 25 entries
 INDEPENDENTLY and never sees its own prior decisions.
 
-THREE ARMS, NOT TWO. The review is right that a two-arm test conflates two
-questions:
+FOUR ARMS. A two-arm test conflates two questions, and a three-arm one leaves
+the answer unbuilt:
 
     none        no history                    - what production does today
     oracle      TRUE previous speaker         - is the representation useful?
     predicted   this run's own prior answer   - can we supply it well enough?
+    gated       own answer, only where a second pass agrees - can we supply it
+                well enough SOMETIMES, and is that enough?
+
+The gated arm was added after the first run's null was found to be a pooling
+artifact. Per book the oracle is worth +9.3 on owarimonogatari3 and +3.7 on
+mushoku16 while predicted costs ~3 on both: the representation works and the
+state source fails. The gate supplies history only where the no-history pass
+independently agrees, trading coverage for correctness with no gold, so a win
+is shippable.
 
 Readings, fixed before running:
 
@@ -125,6 +134,11 @@ def prior_speakers(index, source, answers, k=3):
     source="oracle"    - gold, an upper bound on the representation's value
     source="predicted" - this run's own earlier answers, what production could
                          actually supply
+    source="gated"     - this run's own answers, but ONLY where an independent
+                         second pass agreed. Wrong history is what makes
+                         `predicted` lose, so the gate trades coverage for
+                         correctness using no gold, which means a win here is
+                         shippable rather than an upper bound.
     """
     out = []
     for j in range(index - 1, -1, -1):
@@ -132,7 +146,15 @@ def prior_speakers(index, source, answers, k=3):
             break
         if seg[j].get("type") == "NARRATOR":
             continue
-        who = (truth_at.get(j) if source == "oracle" else answers.get(j))
+        if source == "oracle":
+            who = truth_at.get(j)
+        elif source == "gated":
+            # Only trust this run's answer where the confirming pass agrees.
+            who = answers.get(j)
+            if who and not same(who, CONFIRM.get(j, "")):
+                who = None
+        else:
+            who = answers.get(j)
         if who:
             out.append(who)
     return list(reversed(out))
@@ -181,12 +203,19 @@ record = ExperimentRecord(
           "turn-taking, and 64% of gold lines abut another spoken segment. "
           "Separates whether the representation is useful from whether the "
           "state can be supplied.")
+ARMS = ("none", "oracle", "predicted", "gated")
 record.enable_checkpoint(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"committed_history__{BOOK}__{MODEL.replace('/', '__')}__{TAG}.json.ckpt"))
 
+# The gate's confirming pass: the same question asked with no history, whose
+# answers are independent of whatever the gated arm goes on to produce. Where
+# it agrees with the gated run's own answer, that answer is much more likely
+# right, and the agreement needs no gold.
+CONFIRM = {}
+
 by_arm = {}
-for arm in ("none", "oracle", "predicted"):
+for arm in ARMS:
     started = time.time()
     answers = {}
     for g in SCOREABLE:
@@ -198,6 +227,10 @@ for arm in ("none", "oracle", "predicted"):
         hist = [] if arm == "none" else prior_speakers(i, arm, answers)
         got, prompt, raw, retries = ask(g["line"], i, hist)
         answers[i] = got
+        if arm == "none":
+            # The no-history arm doubles as the gate's confirming pass; it is
+            # already being run, so the gate costs no extra inference.
+            CONFIRM[i] = got
         record.add(arm, g["id"], g["line"], g["expected_speaker"].upper(), got,
                    same(got, g["expected_speaker"]), candidates=roster,
                    provenance=f"{arm}|anchor_dist={anchor_distance(i)}|hist={len(hist)}",
@@ -208,9 +241,18 @@ for arm in ("none", "oracle", "predicted"):
     print(f"  {arm:10} {hit}/{len(rows)} = {hit/max(len(rows),1)*100:5.1f}%   "
           f"{time.time()-started:.0f}s", flush=True)
 
+gate_fired = sum(1 for r in record.rows if r["arm"] == "gated"
+                 and "hist=0" not in (r.get("candidate_provenance") or ""))
+gate_rows = sum(1 for r in record.rows if r["arm"] == "gated")
+print(f"\n  gate supplied history on {gate_fired}/{gate_rows} rows "
+      f"= {gate_fired/max(gate_rows,1)*100:.1f}%")
+print("  A gate that fires on almost nothing cannot move the score, and one "
+      "that\n  fires on almost everything is not a gate - read the arms "
+      "against this.")
+
 base = by_arm["none"]
 print("\n  arm         accuracy   vs none")
-for arm in ("none", "oracle", "predicted"):
+for arm in ARMS:
     h, n = by_arm[arm]
     print(f"  {arm:10} {h/n*100:7.1f}%  {(h-base[0])/n*100:+6.1f}")
 
@@ -239,7 +281,7 @@ for key in ("0", "1", "2-3", "4+"):
 out = record.write(os.path.join(
     REPO, "ab_test_runtime", "experiments",
     f"committed_history__{BOOK}__{MODEL.replace('/', '__')}__{TAG}.json"),
-    contract={"expected_arms": ("none", "oracle", "predicted"),
+    contract={"expected_arms": ARMS,
               "expected_ids": {g["id"] for g in SCOREABLE},
               "require_clean_tree": True})
 print("wrote", out)
