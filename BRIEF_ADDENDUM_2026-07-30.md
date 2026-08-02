@@ -412,3 +412,29 @@ Testing it properly needs the separate b25/b50 sweep, about one more GPU hour.
 The oracle arm reproducing +9.3 exactly is the third independent determinism
 check of the day, after grimgar03's base arm reproducing 265/385 across
 fourteen hours and two adapter loads.
+
+### Second attempt, same failure — and the cause is structural
+
+Re-run with a genuinely independent confirming pass (no history, context width
+12 against the arms' 4):
+
+    none 50.0%   oracle 59.3% (+9.3)   predicted 48.1%   gated 48.8%
+    gate supplied history on 161/162 rows = 99.4%
+
+Identical coverage to the first attempt. The confirming pass was not the
+problem.
+
+**`prior_speakers` cannot express "supply nothing".** It walks backwards
+collecting three speakers and CONTINUES past any entry it rejects, so when the
+gate blocks a line the loop simply backfills from further back. The arm always
+ends up with three names; the gate only changes WHICH ones. That is not the
+intervention, and no confirming signal fixes it.
+
+Testing the real thing needs `prior_speakers` to stop at the first blocked
+entry, or a variant supplying only the immediately-previous line. That is a
+third design on the same experiment, and it is not being attempted here:
+two wrong designs in a row is a signal to stop and think rather than iterate
+against a rented GPU.
+
+**Left as an open, well-specified experiment**, with the +9.3 oracle showing
+there is something to win and the mechanism now understood.
