@@ -1,0 +1,22 @@
+{
+ "distillation (bf16 transformers)": {
+  "base": {
+   "n": 772,
+   "acc": 0.5997409326424871,
+   "lead_acc": 0.5970873786407767,
+   "lead_n": 618,
+   "minor_line": 46,
+   "lead_line": 214,
+   "unanswered": 49
+  },
+  "tuned": {
+   "n": 772,
+   "acc": 0.716321243523316,
+   "lead_acc": 0.7297734627831716,
+   "lead_n": 618,
+   "lead_line": 148,
+   "minor_line": 40,
+   "unanswered": 31
+  }
+ }
+}

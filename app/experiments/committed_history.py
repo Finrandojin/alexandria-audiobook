@@ -70,8 +70,12 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 
 MODEL = os.environ.get("EXPERIMENT_MODEL", "qwen/qwen3-14b")
 BOOK = os.environ.get("EXPERIMENT_BOOK", "grimgar03")
+# GOLD follows BOOK by default. It used to hardcode grimgar03's fixture
+# while BOOK stayed settable, so setting only EXPERIMENT_BOOK scored one
+# book's lines against another book's gold - three matches out of 162,
+# every arm 0.0%. Two runs were lost to it before the pattern was seen.
 GOLD = os.environ.get("EXPERIMENT_GOLD",
-                      "fixtures/attribution_gold_grimgar03_provisional.json")
+                      f"fixtures/attribution_gold_{BOOK}.json")
 GOLD_PATH = APP + GOLD
 BASE_URL = os.environ.get("EXPERIMENT_BASE_URL", "http://127.0.0.1:8090/v1")
 TAG = os.environ.get("EXPERIMENT_TAG", "local-llamacpp")
@@ -150,9 +154,15 @@ def prior_speakers(index, source, answers, k=3):
             who = truth_at.get(j)
         elif source == "gated":
             # Only trust this run's answer where the confirming pass agrees.
+            # STOP on a blocked entry rather than skipping past it. The first
+            # two attempts continued the loop, so a blocked line was silently
+            # replaced by one further back and the arm always ended up with
+            # three names - the gate changed WHICH names appeared, never
+            # whether any did, and fired on 99.4% of rows twice running.
+            # Stopping is what "supply nothing when uncertain" actually means.
             who = answers.get(j)
             if who and not same(who, CONFIRM.get(j, "")):
-                who = None
+                break
         else:
             who = answers.get(j)
         if who:
