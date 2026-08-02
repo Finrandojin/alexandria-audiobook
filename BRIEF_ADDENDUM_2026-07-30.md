@@ -489,3 +489,39 @@ reachable than the router's ceiling, and the two findings do not conflict.
 
 The union remains an oracle until a stacked run measures what the disagreement
 signal actually collects.
+
+## Running the adapter on the local 16GB card (2026-08-01)
+
+Merging the LoRA into the base and quantizing was not possible locally: the box
+has **30GB RAM (24 available) and 14GB free disk**, against ~28GB RAM for a 14B
+bf16 merge plus ~29GB base, ~29GB merged and ~9GB GGUF.
+
+llama.cpp applies a LoRA at RUNTIME, so no merge is needed. The adapter
+converts to a **128MB** GGUF and rides on top of the Q4_K_M base already on
+disk.
+
+Build it:
+
+    cd /home/fakemitch/pinokio/api/alexandria-audiobook2.git
+    ./app/env/bin/python \
+      /home/fakemitch/.cache/yay/llama.cpp-hip/src/llama.cpp-b10121/convert_lora_to_gguf.py \
+      ab_test_runtime/distill/adapter \
+      --base-model-id Qwen/Qwen3-14B --outtype f16 \
+      --outfile ab_test_runtime/distill/gguf/alexandria-attrib-lora-f16.gguf
+
+Serve it (ROCm backend needs LM Studio's vendored libs on the path):
+
+    B=/home/fakemitch/.lmstudio/extensions/backends/llama.cpp-linux-x86_64-amd-rocm-avx2-2.21.0
+    V=/home/fakemitch/.lmstudio/extensions/backends/vendor/linux-llama-rocm-vendor-v3
+    G=~/.lmstudio/models/lmstudio-community/Qwen3-14B-GGUF/Qwen3-14B-Q4_K_M.gguf
+    LD_LIBRARY_PATH=$V:$B $B/llama-server -m $G \
+      --lora ab_test_runtime/distill/gguf/alexandria-attrib-lora-f16.gguf \
+      --port 8090 --host 127.0.0.1 -ngl 99 -c 32768 --parallel 1
+
+**NOT YET VERIFIED FOR ACCURACY.** The +11.7 was measured on the bf16 model
+through transformers. This path is Q4_K_M base plus an f16 LoRA through
+llama.cpp, which is a different numeric stack, and quantisation could eat some
+or all of the gain. The adapter loads and serves; whether it still scores +11.7
+here has to be measured before the number is claimed for this configuration.
+
+Both the adapter (257MB) and this GGUF (128MB) are gitignored and rebuildable.
