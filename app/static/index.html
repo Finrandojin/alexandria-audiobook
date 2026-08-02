@@ -73,7 +73,7 @@
                     <li class="nav-item"><a class="nav-link nav-pipeline" data-tab="editor">4. Editor</a></li>
                     <li class="nav-item"><a class="nav-link nav-pipeline" data-tab="audio">5. Result</a></li>
                     <li class="nav-item ms-3 border-start border-secondary ps-3"><a class="nav-link nav-advanced" data-tab="designer">Designer</a></li>
-                    <li class="nav-item"><a class="nav-link nav-advanced" data-tab="preparer">Preparer</a></li>
+                    <li class="nav-item" id="nav-preparer" style="display:none;"><a class="nav-link nav-advanced" data-tab="preparer">Preparer</a></li>
                     <li class="nav-item"><a class="nav-link nav-advanced" data-tab="dataset-builder">Dataset</a></li>
                     <li class="nav-item"><a class="nav-link nav-advanced" data-tab="training">Training</a></li>
                 </ul>
@@ -3927,12 +3927,24 @@
             } catch (e) { console.error('Failed to update system stats', e); }
         }
 
+        // Reveal optional feature tabs that depend on files not always present
+        // (e.g. the Preparer tab needs app/alexandria_preparer.py on disk).
+        async function initOptionalFeatures() {
+            try {
+                const features = await API.get('/api/features');
+                if (features.preparer) {
+                    document.getElementById('nav-preparer').style.display = '';
+                }
+            } catch (e) { console.error('Failed to load feature availability', e); }
+        }
+
         // Init
         loadConfig();
         loadVoices();
         loadSavedScripts();
         loadDesignedVoices();
         dsbLoadProjects();
+        initOptionalFeatures();
         updateSystemStats();
         setInterval(updateSystemStats, 10000); // Update every 10s
 

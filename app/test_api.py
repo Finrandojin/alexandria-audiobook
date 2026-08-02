@@ -696,6 +696,16 @@ def test_status_unknown_task():
 
 # ── Section: Preparer ─────────────────────────────────────────
 
+def test_features_endpoint():
+    r = get("/api/features")
+    assert_status(r, 200)
+    data = r.json()
+    # Preparer flag must exist and be a boolean so the frontend can
+    # decide whether to show the tab.
+    if not isinstance(data.get("preparer"), bool):
+        raise TestFailure(f"features.preparer must be bool, got {data}")
+
+
 def test_preparer_status():
     r = get("/api/status/preparer")
     assert_status(r, 200)
@@ -1251,6 +1261,7 @@ def run_all_tests():
     run_test("status_unknown_task", test_status_unknown_task)
 
     section("Preparer")
+    run_test("features_endpoint", test_features_endpoint)
     run_test("preparer_status", test_preparer_status)
     run_test("batch_preparer_status", test_batch_preparer_status)
     run_test("preparer_cancel_when_idle", test_preparer_cancel_when_idle)
