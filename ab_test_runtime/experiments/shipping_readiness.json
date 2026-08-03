@@ -1,0 +1,136 @@
+{
+ "per_book": {
+  "grimgar03": {
+   "n": 385,
+   "base": 0.7974025974025974,
+   "lora": 0.8389610389610389,
+   "gained": 39,
+   "lost": 23,
+   "p": 0.055897226699710825
+  },
+  "index18": {
+   "n": 92,
+   "base": 0.7391304347826086,
+   "lora": 0.8152173913043478,
+   "gained": 13,
+   "lost": 6,
+   "p": 0.167068481445313
+  },
+  "mushoku16": {
+   "n": 133,
+   "base": 0.518796992481203,
+   "lora": 0.6090225563909775,
+   "gained": 20,
+   "lost": 8,
+   "p": 0.03569813817739462
+  },
+  "owarimonogatari3": {
+   "n": 162,
+   "base": 0.5370370370370371,
+   "lora": 0.5802469135802469,
+   "gained": 21,
+   "lost": 14,
+   "p": 0.31050465907901603
+  }
+ },
+ "per_character": {
+  "grimgar03/CHOCO": {
+   "n": 26,
+   "delta": 0.0
+  },
+  "grimgar03/HARUHIRO": {
+   "n": 122,
+   "delta": 0.08196721311475409
+  },
+  "grimgar03/MOGUZO": {
+   "n": 32,
+   "delta": 0.03125
+  },
+  "grimgar03/RANTA": {
+   "n": 116,
+   "delta": 0.02586206896551724
+  },
+  "grimgar03/YUME": {
+   "n": 24,
+   "delta": 0.0
+  },
+  "index18/CARISSA": {
+   "n": 14,
+   "delta": 0.07142857142857142
+  },
+  "index18/ELIZARD": {
+   "n": 8,
+   "delta": 0.0
+  },
+  "index18/KNIGHT LEADER": {
+   "n": 10,
+   "delta": 0.2
+  },
+  "index18/TOUMA KAMIJOU": {
+   "n": 10,
+   "delta": 0.2
+  },
+  "mushoku16/HITOGAMI": {
+   "n": 9,
+   "delta": -0.1111111111111111
+  },
+  "mushoku16/NANAHOSHI": {
+   "n": 12,
+   "delta": -0.08333333333333333
+  },
+  "mushoku16/ROXY": {
+   "n": 11,
+   "delta": 0.0
+  },
+  "mushoku16/RUDEUS": {
+   "n": 50,
+   "delta": 0.18
+  },
+  "mushoku16/SYLPHY": {
+   "n": 8,
+   "delta": 0.0
+  },
+  "owarimonogatari3/ARARAGI": {
+   "n": 43,
+   "delta": 0.11627906976744186
+  },
+  "owarimonogatari3/GAEN": {
+   "n": 31,
+   "delta": -0.0967741935483871
+  },
+  "owarimonogatari3/HACHIKUJI": {
+   "n": 26,
+   "delta": -0.038461538461538464
+  },
+  "owarimonogatari3/KOYOMI ARARAGI": {
+   "n": 9,
+   "delta": 0.0
+  },
+  "owarimonogatari3/OUGI": {
+   "n": 10,
+   "delta": 0.2
+  },
+  "owarimonogatari3/SENJOUGAHARA": {
+   "n": 12,
+   "delta": -0.08333333333333333
+  },
+  "owarimonogatari3/TADATSURU": {
+   "n": 9,
+   "delta": 0.1111111111111111
+  }
+ },
+ "pooled": {
+  "base": 0.6878238341968912,
+  "lora": 0.7422279792746114,
+  "gained": 93,
+  "lost": 51,
+  "p": 0.0005851398425063638
+ },
+ "blockers": [
+  "mushoku16/HITOGAMI regresses (-11.1)",
+  "mushoku16/NANAHOSHI regresses (-8.3)",
+  "owarimonogatari3/GAEN regresses (-9.7)",
+  "owarimonogatari3/HACHIKUJI regresses (-3.8)",
+  "owarimonogatari3/SENJOUGAHARA regresses (-8.3)"
+ ]
+}
