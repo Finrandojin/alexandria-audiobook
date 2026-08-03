@@ -130,6 +130,33 @@ In `app/static/index.html`'s vanilla JS, always use `{ }` for
 one-line body silently grows to two lines and the second line falls outside
 the block.
 
+### Rule 19 — Mark Measurements Apart From Inferences, and Never Assert Absence
+
+Two failure modes, one root: treating something I produced as something I
+found.
+
+**(a) A number from a script and a sentence connecting numbers are different
+claims.** The number is reproducible; the sentence is an inference and is
+wrong far more often. State which is which. Do not let a measured figure lend
+its authority to the story told around it — "attribution is 25.8%" and
+"segmentation is the biggest problem" are not the same kind of statement, and
+the second was false while the first was exact. Before summarising across
+results, re-read the artifacts rather than the earlier summary; a summary of a
+summary is where per-book numbers get attached to the wrong book.
+
+**(b) Never claim a resource, dataset, option or avenue does not exist without
+searching for it.** "You would have to label that yourself", "there is no
+corpus for this", "the method space is exhausted" are claims about the world,
+not about the work, and they cost more than a wrong number because they stop
+the search. If the sentence being written is "the only way is for you to…",
+that is the trigger to go and look first.
+
+Both were violated repeatedly on 2026-08-03: a stratified table was read off
+the wrong novel and interpreted at length; generalisation was described as
+blocked on hand-labelling for two days when PDNC had 28 annotated public-domain
+novels; and non-English testing was called a dead end shortly before Chinese
+WP/JY turned up, Apache-2.0, with the correct task shape.
+
 ## This project: Alexandria Audiobook2
 
 A FastAPI app (`app/app.py`, title "Alexandria Audiobook") for multi-voice AI
