@@ -33,8 +33,9 @@ import unittest
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from experiments.tts_output_validation import (compute_threshold, say_number,
-                                               validate, word_errors, words)
+from experiments.tts_output_validation import (compute_threshold, is_non_speech,
+                                               say_number, validate,
+                                               word_errors, words)
 from experiments.voice_blending import (blend_capacity, parse_blend_spec)
 from experiments.booknlp_baseline import (align_to_gold, character_names,
                                           parse_booknlp)
@@ -70,6 +71,43 @@ class TestValidationNormalisation(unittest.TestCase):
 
     def test_words_drops_empty_tokens(self):
         self.assertEqual(words("--- '' ---"), [])
+
+    def test_typographic_apostrophe_matches_ascii(self):
+        # Books write you’ve (U+2019); ASR writes you've. Leaving these
+        # unmapped split the source token in two and charged a false error to
+        # every contraction - the biggest false-failure source in the first
+        # real run against generated audio.
+        errors, _, _ = word_errors("I guess you’ve got me", "i guess you've got me")
+        self.assertEqual(errors, 0)
+
+    def test_all_apostrophe_variants_normalise(self):
+        for ch in "’‘ʼ´":
+            errors, _, _ = word_errors(f"it{ch}s fine", "it's fine")
+            self.assertEqual(errors, 0, f"failed for U+{ord(ch):04X}")
+
+    def test_misheard_proper_noun_forgiven(self):
+        # English ASR on romanised Japanese: not a TTS defect.
+        errors, _, _ = word_errors("shinichirou tappei", "shinichiro tappei")
+        self.assertEqual(errors, 0)
+
+    def test_plural_mishearing_forgiven(self):
+        errors, _, _ = word_errors("the isbns listed", "the isbn listed")
+        self.assertEqual(errors, 0)
+
+    def test_forgiveness_does_not_hide_real_errors(self):
+        # The whole gate is worthless if near-matching swallows wrong words.
+        errors, _, _ = word_errors("the cat sat", "the dog sat")
+        self.assertEqual(errors, 1)
+        errors, _, _ = word_errors("he said yes", "he said no")
+        self.assertEqual(errors, 1)
+
+    def test_one_real_error_inside_a_forgiven_run_still_counts(self):
+        # Pairwise comparison matters: a run of substitutions where only one
+        # is genuine must score 1, not 0 and not 3.
+        errors, _, detail = word_errors("shinichirou cat tappei",
+                                        "shinichiro dog tappei")
+        self.assertEqual(errors, 1)
+        self.assertEqual(detail[0]["expected"], "cat")
 
     def test_number_verbalisation_across_ranges(self):
         # Every one of these is a segment that would otherwise be charged a
@@ -138,6 +176,25 @@ class TestValidateVerdict(unittest.TestCase):
         # The asymmetric check must not fire on every short line, or it is noise.
         r = validate("yes", "yes")
         self.assertFalse(r["possible_truncation"])
+
+    def test_non_speech_transcript_fails_regardless_of_budget(self):
+        # Found on the first real run: a 349-char table of contents produced
+        # 24.2s of audio at normal level transcribing to '* * * * * * * *'.
+        # The model vocalised instead of reading.
+        self.assertTrue(is_non_speech("* * * * * * * *"))
+        self.assertTrue(is_non_speech("   "))
+        r = validate(" ".join(["word"] * 60), "* * * * * * * *")
+        self.assertTrue(r["non_speech"])
+        self.assertTrue(r["failed"])
+
+    def test_real_speech_is_not_called_non_speech(self):
+        self.assertFalse(is_non_speech("the quick brown fox"))
+        # A legitimate short line must not trip it either.
+        self.assertFalse(validate("hello there", "hello there")["non_speech"])
+
+    def test_very_short_source_cannot_trip_non_speech(self):
+        # A 2-char chunk transcribing to nothing is not evidence of vocalising.
+        self.assertFalse(validate("Hi", "")["non_speech"])
 
     def test_detail_reports_what_was_heard(self):
         # A gate that only emits a number cannot be debugged or trusted.

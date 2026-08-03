@@ -93,19 +93,40 @@ def compute_threshold(num_words, strictness="moderate"):
     return max(0, -(-num_words // per) + offset)
 
 
+# Books use typographic apostrophes; ASR emits ASCII ones. Leaving U+2019
+# unmapped split "you've" into "you"+"ve" against the transcript's single
+# token, charging a false error to every contraction in the corpus. This was
+# the single largest source of false failures in the first real run.
+APOSTROPHES = {"’": "'", "‘": "'", "ʼ": "'", "´": "'"}
+
+
 def words(text):
     """Comparable word tokens: case, punctuation and digit spellings removed.
 
     Without this the gate fires on correct audio, because ASR writes '25' as
     'twenty five' and drops the comma we sent it.
     """
+    text = (text or "")
+    for bad, good in APOSTROPHES.items():
+        text = text.replace(bad, good)
     out = []
-    for raw in re.findall(r"[\w']+", (text or "").lower()):
+    for raw in re.findall(r"[\w']+", text.lower()):
         if raw.isdigit():
             out.extend(say_number(raw))
         else:
             out.append(raw.strip("'"))
     return [w for w in out if w]
+
+
+# Below this, two words are different words. Above it, they are the same word
+# heard imperfectly - "shinichirou"/"shinichiro", "isbns"/"isbn". Proper nouns
+# and romanised Japanese are where an English ASR model is weakest, and
+# charging those to the TTS would make the gate unusable on this corpus.
+NEAR_MATCH = 0.85
+
+
+def sounds_like(a, b):
+    return difflib.SequenceMatcher(a=a, b=b).ratio() >= NEAR_MATCH
 
 
 def word_errors(source, transcript):
@@ -121,10 +142,34 @@ def word_errors(source, transcript):
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
         if tag == "equal":
             continue
+        if tag == "replace" and (i2 - i1) == (j2 - j1):
+            # Same-length substitution: forgive the pairs that are the same
+            # word misheard, charge the rest. Done pairwise so one genuine
+            # error inside a run is still counted.
+            for x, y in zip(a[i1:i2], b[j1:j2]):
+                if sounds_like(x, y):
+                    continue
+                errors += 1
+                detail.append({"kind": "replace", "expected": x, "heard": y})
+            continue
         errors += max(i2 - i1, j2 - j1)
         detail.append({"kind": tag, "expected": " ".join(a[i1:i2]),
                        "heard": " ".join(b[j1:j2])})
     return errors, len(a), detail
+
+
+def is_non_speech(transcript):
+    """whisper.cpp emits '* * *' (or nothing) when the audio is not speech.
+
+    This is the strongest signal the gate can get and deserves its own flag
+    rather than being counted as N deletions. It found a real defect on the
+    first run: a 349-character table of contents produced 24.2 seconds of
+    audio at normal level that transcribed to '* * * * * * * *' - the model
+    vocalising rather than reading. A pure error count reports that as "52
+    words missing", which reads like a truncation and is a different bug.
+    """
+    stripped = re.sub(r"[\s*\-_.]+", "", transcript or "")
+    return not stripped
 
 
 def validate(source, transcript, strictness="moderate"):
@@ -132,8 +177,12 @@ def validate(source, transcript, strictness="moderate"):
     errors, n, detail = word_errors(source, transcript)
     threshold = compute_threshold(n, strictness)
     heard = len(words(transcript))
+    non_speech = n >= 3 and is_non_speech(transcript)
     return {"errors": errors, "words": n, "heard_words": heard,
-            "threshold": threshold, "failed": errors > threshold,
+            "threshold": threshold,
+            # Non-speech output is a failure at any error budget.
+            "failed": errors > threshold or non_speech,
+            "non_speech": non_speech,
             # Losing the tail is the failure mode a listener notices most and
             # the one a pure error count under-weights, so it is flagged apart.
             "possible_truncation": n >= 8 and heard < n * 0.6,
@@ -188,11 +237,13 @@ def main():
 
     failed = sum(r["failed"] for r in rows)
     trunc = sum(r["possible_truncation"] for r in rows)
+    nonspeech = sum(r.get("non_speech") for r in rows)
     total_err = sum(r["errors"] for r in rows)
     total_words = sum(r["words"] for r in rows)
     print(f"\n{len(rows)} segments, strictness={args.strictness}")
     print(f"  failed              {failed} ({failed / len(rows) * 100:.1f}%)")
     print(f"  possible truncation {trunc}")
+    print(f"  NON-SPEECH output   {nonspeech}")
     print(f"  word error rate     {total_err / max(total_words, 1) * 100:.2f}%")
 
     if args.by_length:
@@ -216,7 +267,7 @@ def main():
               "carries no quality claim.")
 
     json.dump({"strictness": args.strictness, "n": len(rows),
-               "failed": failed, "truncation": trunc,
+               "failed": failed, "truncation": trunc, "non_speech": nonspeech,
                "wer": total_err / max(total_words, 1), "rows": rows},
               open(args.out, "w"), indent=1)
     print("\nwrote", args.out)

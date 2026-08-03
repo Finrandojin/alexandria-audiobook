@@ -1,0 +1,394 @@
+{
+ "strictness": "moderate",
+ "n": 21,
+ "failed": 5,
+ "truncation": 1,
+ "non_speech": 1,
+ "wer": 0.14971209213051823,
+ "rows": [
+  {
+   "errors": 0,
+   "words": 7,
+   "heard_words": 7,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3457b0b04fbb.wav",
+   "chars": 34,
+   "transcript": "I guess this means you've got me."
+  },
+  {
+   "errors": 0,
+   "words": 57,
+   "heard_words": 57,
+   "threshold": 6,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/f8b9659f8dd8.wav",
+   "chars": 343,
+   "transcript": "The ensuing silence was painful. A cold sweat drenched Subaru's back, not to mention his hands and armpits, which was followed by heart palpitations, shortness of breath, as well as dizziness, and in addition to feeling faint, his nose stuffed up in an allergic reaction accompanied by a migraine, such that there were problems on every front."
+  },
+  {
+   "errors": 1,
+   "words": 113,
+   "heard_words": 113,
+   "threshold": 12,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "were",
+     "heard": "would"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4895fd561355.wav",
+   "chars": 601,
+   "transcript": "She was very tall for a woman, about the same height as Subaru, and she looked as though she were in her early twenties. The beautiful woman had eyes that angled down toward their edges, and she had a certain calmness about her. One thing that stood out about her in the darkness of the loot cellar was the almost sickly whiteness of her skin. She was wearing a black coat, but the front was open, and you could see that her clothes underneath were also black and would tightly fit against her skin. While she was fairly thin, she definitely had curves where they\n should be and a very nice body overall."
+  },
+  {
+   "errors": 1,
+   "words": 3,
+   "heard_words": 3,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "vol",
+     "heard": "volume"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/f1d1749695aa.wav",
+   "chars": 14,
+   "transcript": "ReZero Volume 1."
+  },
+  {
+   "errors": 3,
+   "words": 7,
+   "heard_words": 7,
+   "threshold": 1,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "rezero",
+     "heard": "resero"
+    },
+    {
+     "kind": "replace",
+     "expected": "kara",
+     "heard": "cara"
+    },
+    {
+     "kind": "replace",
+     "expected": "hajimeru",
+     "heard": "hajimeiro"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/2a39daf299ef.wav",
+   "chars": 44,
+   "transcript": "\"Resero Cara Hajimeiro, Isekai Seikatsu Vol. 1\""
+  },
+  {
+   "errors": 1,
+   "words": 8,
+   "heard_words": 8,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "tappei",
+     "heard": "tape"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/483c518aa54f.wav",
+   "chars": 45,
+   "transcript": "Tape Nagatsuki, Shinichiro Otsuka 2014."
+  },
+  {
+   "errors": 0,
+   "words": 13,
+   "heard_words": 13,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3c9906293b6a.wav",
+   "chars": 64,
+   "transcript": "First published in Japan in 2014 by Kadokawa Corporation, Tokyo"
+  },
+  {
+   "errors": 1,
+   "words": 21,
+   "heard_words": 21,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "mori",
+     "heard": "morey"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/d9026616aadc.wav",
+   "chars": 146,
+   "transcript": "English translation rights reserved by Yen Press, LLC under the license from Kadokawa Corporation, Tokyo, through Tuttle Morey Agency, Inc., Tokyo."
+  },
+  {
+   "errors": 4,
+   "words": 10,
+   "heard_words": 8,
+   "threshold": 1,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "two zero one six",
+     "heard": "twith t16"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/1dcd3da31439.wav",
+   "chars": 45,
+   "transcript": "English Translation Twith T16 by Yen Press, LLC."
+  },
+  {
+   "errors": 0,
+   "words": 33,
+   "heard_words": 33,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/38c20db02568.wav",
+   "chars": 196,
+   "transcript": "Yen Press, LLC supports the right to free expression and the value of copyright. The purpose of copyright is to encourage writers and artists to produce the creative works that enrich our culture."
+  },
+  {
+   "errors": 4,
+   "words": 21,
+   "heard_words": 21,
+   "threshold": 3,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "yen",
+     "heard": "yan"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen",
+     "heard": "yan"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen",
+     "heard": "yan"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen",
+     "heard": "yan"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4e0490c9186a.wav",
+   "chars": 98,
+   "transcript": "Yan On is an imprint of Yan Press, LLC. The Yan On name and logo are trademarks of Yan Press, LLC."
+  },
+  {
+   "errors": 9,
+   "words": 42,
+   "heard_words": 39,
+   "threshold": 5,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "zero",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "zero",
+     "heard": ""
+    },
+    {
+     "kind": "replace",
+     "expected": "ebook",
+     "heard": "e book"
+    },
+    {
+     "kind": "delete",
+     "expected": "zero",
+     "heard": ""
+    },
+    {
+     "kind": "replace",
+     "expected": "one six jv pc",
+     "heard": "hundred sixteen jvpc"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/b20d62371b67.wav",
+   "chars": 82,
+   "transcript": "ISBN 978-0316-315302 Paperback 978-0316-398398 E-book E3-2018-0216 JVPC"
+  },
+  {
+   "errors": 52,
+   "words": 52,
+   "heard_words": 0,
+   "threshold": 6,
+   "failed": true,
+   "non_speech": true,
+   "possible_truncation": true,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "contents cover insert title page copyright prologue the waste heat of the beginning chapter one the end of the beginning chapter two a struggle too late chapter three ending and beginning chapter four fourth time's the charm chapter five starting life in another world epilogue the moon is watching afterword yen newsletter",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7a89609a0d24.wav",
+   "chars": 349,
+   "transcript": "* * * * * * * *"
+  },
+  {
+   "errors": 0,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/120187caee13.wav",
+   "chars": 2,
+   "transcript": "3."
+  },
+  {
+   "errors": 0,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/5cb4e69e780d.wav",
+   "chars": 2,
+   "transcript": "4."
+  },
+  {
+   "errors": 0,
+   "words": 16,
+   "heard_words": 16,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/005399313433.wav",
+   "chars": 93,
+   "transcript": "It's Tammuz the 14th. At this point, according to the calendar, it's halfway through the year."
+  },
+  {
+   "errors": 0,
+   "words": 48,
+   "heard_words": 48,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/cdf090de272e.wav",
+   "chars": 243,
+   "transcript": "Sure, Subaru had lived the previous 17 years of his life peacefully, but depending on how you looked at it, if you multiplied 17 years by 365 days and 3 resets, Subaru had lived through quite a few days on which he could have died."
+  },
+  {
+   "errors": 1,
+   "words": 38,
+   "heard_words": 37,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "one",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/1cf2f85035aa.wav",
+   "chars": 197,
+   "transcript": "The bar set for the conditions necessary to clear the dumb dumber and dumbest event wasn't very high, but there wasn't a hundred percent chance that Subaru would be able to make it out of this alley."
+  },
+  {
+   "errors": 1,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "five",
+     "heard": "fine"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/87dbce0458ac.wav",
+   "chars": 2,
+   "transcript": "Fine."
+  },
+  {
+   "errors": 0,
+   "words": 5,
+   "heard_words": 5,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/0b5b79f506f5.wav",
+   "chars": 31,
+   "transcript": "Starting life in another world."
+  },
+  {
+   "errors": 0,
+   "words": 24,
+   "heard_words": 24,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/cd3e0aaca0ff.wav",
+   "chars": 112,
+   "transcript": "The force of the collision swept Subaru off his feet and he felt the world spin 180 degrees as he vomited blood."
+  }
+ ]
+}
