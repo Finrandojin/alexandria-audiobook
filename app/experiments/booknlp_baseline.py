@@ -153,7 +153,7 @@ def align_to_gold(booknlp_rows, gold):
             unmatched += 1
             continue
         if key in bn:
-            matched.append({"id": g["id"],
+            matched.append({"id": g["id"], "arm": "booknlp",
                             "expected": g["expected_speaker"].upper(),
                             "predicted": bn[key], "split": False})
             continue
@@ -165,7 +165,7 @@ def align_to_gold(booknlp_rows, gold):
         frags.sort(key=lambda ts: len(ts[0]), reverse=True)
         if len({s for _, s in frags}) > 1:
             conflicts += 1
-        matched.append({"id": g["id"],
+        matched.append({"id": g["id"], "arm": "booknlp",
                         "expected": g["expected_speaker"].upper(),
                         "predicted": frags[0][1], "split": True})
     return matched, unmatched, conflicts
@@ -256,7 +256,8 @@ def main():
               "reporting BookNLP alone")
 
     out = args.out or LEDGER + f"/booknlp_baseline__{args.book}.json"
-    json.dump({"book": args.book, "n": len(matched), "unaligned": unmatched,
+    json.dump({"meta": {"experiment": "booknlp_baseline", "model": "booknlp-big"},
+               "book": args.book, "n": len(matched), "unaligned": unmatched,
                "accuracy": correct / len(matched), "declined": declined,
                "split_matched": split, "split_conflicts": conflicts,
                "rows": matched}, open(out, "w"), indent=1)
