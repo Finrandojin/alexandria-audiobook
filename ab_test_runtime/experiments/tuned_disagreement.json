@@ -1,0 +1,66 @@
+{
+ "grimgar03": {
+  "untuned": {
+   "n": 340,
+   "disagree_share": 0.3352941176470588,
+   "agree_acc": 0.7654867256637168,
+   "disagree_acc": 0.2982456140350877,
+   "headroom": 0.2352941176470588
+  },
+  "tuned": {
+   "n": 377,
+   "disagree_share": 0.22015915119363394,
+   "agree_acc": 0.935374149659864,
+   "disagree_acc": 0.5903614457831325,
+   "headroom": 0.09018567639257294
+  }
+ },
+ "index18": {
+  "untuned": {
+   "n": 82,
+   "disagree_share": 0.2804878048780488,
+   "agree_acc": 0.7796610169491526,
+   "disagree_acc": 0.391304347826087,
+   "headroom": 0.1707317073170732
+  },
+  "tuned": {
+   "n": 89,
+   "disagree_share": 0.3146067415730337,
+   "agree_acc": 0.7540983606557377,
+   "disagree_acc": 0.35714285714285715,
+   "headroom": 0.20224719101123592
+  }
+ },
+ "mushoku16": {
+  "untuned": {
+   "n": 9,
+   "disagree_share": 0.3333333333333333,
+   "agree_acc": 0.6666666666666666,
+   "disagree_acc": 0.0,
+   "headroom": 0.3333333333333333
+  },
+  "tuned": {
+   "n": 15,
+   "disagree_share": 0.26666666666666666,
+   "agree_acc": 0.7272727272727273,
+   "disagree_acc": 0.25,
+   "headroom": 0.2
+  }
+ },
+ "owarimonogatari3": {
+  "untuned": {
+   "n": 153,
+   "disagree_share": 0.4444444444444444,
+   "agree_acc": 0.5647058823529412,
+   "disagree_acc": 0.20588235294117646,
+   "headroom": 0.35294117647058826
+  },
+  "tuned": {
+   "n": 155,
+   "disagree_share": 0.4064516129032258,
+   "agree_acc": 0.6521739130434783,
+   "disagree_acc": 0.3968253968253968,
+   "headroom": 0.24516129032258066
+  }
+ }
+}
