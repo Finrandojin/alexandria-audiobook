@@ -1,0 +1,460 @@
+{
+ "population_mean_b": 0.028871680581344067,
+ "population_std": 0.0040755782815708845,
+ "rows": [
+  {
+   "voice": "warm_baritone_40s_m_gothic",
+   "samples": 2,
+   "mean_b": 0.0017201398502837753,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_baritone_30s_m_fantasy",
+   "samples": 24,
+   "mean_b": 0.006316186740260684,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_20s_m_postapoc",
+   "samples": 81,
+   "mean_b": 0.019249922553585333,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_mezzo_30s_f",
+   "samples": 88,
+   "mean_b": 0.022359333727791003,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_alto_40s_f_3",
+   "samples": 116,
+   "mean_b": 0.02904903027229011,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_3",
+   "samples": 130,
+   "mean_b": 0.03307314817511448,
+   "tensors": 132
+  },
+  {
+   "voice": "bright_tenor_30s_m",
+   "samples": 170,
+   "mean_b": 0.02719515705989166,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_alto_40s_f_literary_2",
+   "samples": 188,
+   "mean_b": 0.022759011727898862,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_alto_50s_f_fantasy",
+   "samples": 200,
+   "mean_b": 0.0299901701933281,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_baritone_40s_m_literary",
+   "samples": 200,
+   "mean_b": 0.02290779755761226,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_1",
+   "samples": 200,
+   "mean_b": 0.03289823183281855,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_2",
+   "samples": 200,
+   "mean_b": 0.024427531399961674,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_mezzo_20s_f_scifi",
+   "samples": 200,
+   "mean_b": 0.030923348399951603,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_tenor_18s_m_supernatural",
+   "samples": 200,
+   "mean_b": 0.02955298239336998,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_tenor_20s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.03266626665594451,
+   "tensors": 132
+  },
+  {
+   "voice": "breathy_tenor_50s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.030662870267406106,
+   "tensors": 132
+  },
+  {
+   "voice": "crisp_mezzo_30s_f",
+   "samples": 200,
+   "mean_b": 0.029811980111072913,
+   "tensors": 132
+  },
+  {
+   "voice": "crisp_tenor_20s_m",
+   "samples": 200,
+   "mean_b": 0.031041150221206022,
+   "tensors": 132
+  },
+  {
+   "voice": "crisp_tenor_30s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.030782830633335943,
+   "tensors": 132
+  },
+  {
+   "voice": "gravelly_baritone_50s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.023312628099864178,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_alto_40s_f",
+   "samples": 200,
+   "mean_b": 0.03246804251279117,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_20s_m_anime",
+   "samples": 200,
+   "mean_b": 0.027939385184171526,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_20s_m_supernatural",
+   "samples": 200,
+   "mean_b": 0.019080606289207935,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_35s_m",
+   "samples": 200,
+   "mean_b": 0.03449767322815729,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_40s_m_1",
+   "samples": 200,
+   "mean_b": 0.0332000989636237,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_40s_m_2",
+   "samples": 200,
+   "mean_b": 0.023346077058125626,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_40s_m_military",
+   "samples": 200,
+   "mean_b": 0.03233428021441355,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_40s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.024525685828517784,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_50s_m_gothic",
+   "samples": 200,
+   "mean_b": 0.030496949097141623,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_baritone_50s_m_military",
+   "samples": 200,
+   "mean_b": 0.03136683293533596,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_soprano_20s_f",
+   "samples": 200,
+   "mean_b": 0.02977100095824536,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_tenor_30s_m",
+   "samples": 200,
+   "mean_b": 0.03213057015796728,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_tenor_30s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.031182553019431052,
+   "tensors": 132
+  },
+  {
+   "voice": "husky_tenor_30s_m_literary",
+   "samples": 200,
+   "mean_b": 0.023395949120943744,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_alto_40s_f",
+   "samples": 200,
+   "mean_b": 0.02972136821710702,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_alto_40s_f_cyberpunk",
+   "samples": 200,
+   "mean_b": 0.03134644303160409,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_alto_40s_f_literary_1",
+   "samples": 200,
+   "mean_b": 0.03042208313038855,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_baritone_30s_m",
+   "samples": 200,
+   "mean_b": 0.032861941691600914,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_baritone_30s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.031042933675714514,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_baritone_40s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.02444715408438986,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_baritone_45s_m",
+   "samples": 200,
+   "mean_b": 0.03385970846636954,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_mezzo_10s_f_fantasy",
+   "samples": 200,
+   "mean_b": 0.03496149834950991,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_mezzo_30s_f_fantasy",
+   "samples": 200,
+   "mean_b": 0.03328298544511199,
+   "tensors": 132
+  },
+  {
+   "voice": "silky_mezzo_30s_f_supernatural",
+   "samples": 200,
+   "mean_b": 0.028683758658272298,
+   "tensors": 132
+  },
+  {
+   "voice": "velvety_mezzo_30s_f_gothic",
+   "samples": 200,
+   "mean_b": 0.027910474031655627,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_alto_40s_f_1",
+   "samples": 200,
+   "mean_b": 0.0315346895279645,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_alto_40s_f_2",
+   "samples": 200,
+   "mean_b": 0.02443958982599504,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_alto_50s_f_anime",
+   "samples": 200,
+   "mean_b": 0.03401104470884258,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_alto_50s_f_gothic",
+   "samples": 200,
+   "mean_b": 0.028604128242780764,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_1",
+   "samples": 200,
+   "mean_b": 0.02481169087078535,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_2",
+   "samples": 200,
+   "mean_b": 0.030128490038667664,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_3",
+   "samples": 200,
+   "mean_b": 0.023470011306926608,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_fantasy_1",
+   "samples": 200,
+   "mean_b": 0.02512957111255012,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_fantasy_2",
+   "samples": 200,
+   "mean_b": 0.03409797266464342,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_30s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.025080037225658696,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_1",
+   "samples": 200,
+   "mean_b": 0.029196980571600074,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_2",
+   "samples": 200,
+   "mean_b": 0.031408472706309774,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_4",
+   "samples": 200,
+   "mean_b": 0.03143278592633027,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_5",
+   "samples": 200,
+   "mean_b": 0.02256331364200874,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.03257018621220733,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_military",
+   "samples": 200,
+   "mean_b": 0.03198670217710914,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_40s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.03382774836129763,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_50s_m",
+   "samples": 200,
+   "mean_b": 0.0295629552847734,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_baritone_50s_m_gothic",
+   "samples": 200,
+   "mean_b": 0.028339998697805586,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_bass_50s_m_fantasy",
+   "samples": 200,
+   "mean_b": 0.02414752499934173,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_mezzo_20s_f_anime",
+   "samples": 200,
+   "mean_b": 0.023801967007757135,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_mezzo_30s_f",
+   "samples": 200,
+   "mean_b": 0.024614970580759375,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_mezzo_30s_f_fantasy_1",
+   "samples": 200,
+   "mean_b": 0.023879328707345958,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_mezzo_30s_f_fantasy_2",
+   "samples": 200,
+   "mean_b": 0.025597274917262523,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_20s_m",
+   "samples": 200,
+   "mean_b": 0.021407176070197514,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_20s_m_scifi",
+   "samples": 200,
+   "mean_b": 0.02145536165599796,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_25s_m_military",
+   "samples": 200,
+   "mean_b": 0.0329792095334128,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_30s_m_1",
+   "samples": 200,
+   "mean_b": 0.03630689561197704,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_30s_m_2",
+   "samples": 200,
+   "mean_b": 0.024072856451808053,
+   "tensors": 132
+  },
+  {
+   "voice": "warm_tenor_30s_m_gothic",
+   "samples": 200,
+   "mean_b": 0.030689823194265817,
+   "tensors": 132
+  }
+ ],
+ "suspect": [
+  "warm_baritone_40s_m_gothic",
+  "breathy_baritone_30s_m_fantasy"
+ ]
+}
