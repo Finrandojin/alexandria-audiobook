@@ -66,3 +66,29 @@ Everything needed to resume lives in the snapshot. Restoring takes ~20 minutes.
 - **More `NOT_DIALOGUE` labels.** There are 46. That single number blocks
   segmentation entirely — not the model.
 - **More gold books.** Every per-book claim is a line through four points.
+
+## Cloud torn down (2026-08-03)
+
+Instance `kwami7f2` deleted at ~13:20Z after ~23.5 hours. Everything from it is
+retrieved and verified locally before deletion:
+
+    ab_test_runtime/distill/gguf/*.gguf     7 adapters, GGUF magic verified
+    ab_test_runtime/distill/train__*.jsonl  2,075 teacher rows, 4 books
+
+No new snapshot was taken. `alexandria-attribution-2026-08-01` already holds the
+expensive part - the CUDA llama.cpp build, the 70B weights, the scripts - and
+what accumulated since was either pulled down (above, ~500MB) or cheap to
+regenerate (Qwen3-8B weights, ~5 minutes). The six peft adapter directories,
+~14GB, were deliberately NOT kept: they are mostly optimizer state for resuming
+training, and the GGUF conversions are the servable form at 20x smaller.
+
+The teacher rows cannot be regenerated without a 70B, which is why they came
+down even though the learning curve says they are not needed.
+
+### Adapters on disk and what each is
+
+    attrib-lora-f16.gguf       the shipped adapter, 1,091 rows, +5.4 pooled
+    attrib-lora-8b.gguf        Qwen3-8B student, +8.1 - and an 8B WITH it beats
+                               a 14B without it (71.7% vs 64.4%)
+    attrib-lora-alldata.gguf   2,075 rows - no better than 818, curve saturates
+    attrib-lora-25/50/75.gguf  learning-curve points
