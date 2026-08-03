@@ -1,0 +1,32 @@
+[
+ {
+  "errors": 0,
+  "words": 52,
+  "heard_words": 52,
+  "threshold": 6,
+  "failed": false,
+  "non_speech": false,
+  "possible_truncation": false,
+  "detail": []
+ },
+ {
+  "errors": 0,
+  "words": 52,
+  "heard_words": 52,
+  "threshold": 6,
+  "failed": false,
+  "non_speech": false,
+  "possible_truncation": false,
+  "detail": []
+ },
+ {
+  "errors": 0,
+  "words": 52,
+  "heard_words": 52,
+  "threshold": 6,
+  "failed": false,
+  "non_speech": false,
+  "possible_truncation": false,
+  "detail": []
+ }
+]

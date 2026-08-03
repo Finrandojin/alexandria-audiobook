@@ -119,11 +119,30 @@ class TestValidationNormalisation(unittest.TestCase):
         self.assertEqual(say_number("100"), ["one", "hundred"])
         self.assertEqual(say_number("342"), ["three", "hundred", "forty", "two"])
 
-    def test_long_numbers_read_digitwise(self):
-        # A year or an id has no single correct reading; digit-by-digit at
-        # least stays stable rather than inventing one.
+    def test_years_read_as_years(self):
+        # A narrator says "twenty sixteen", not "two zero one six". Reading
+        # them digitwise charged a false error to every copyright line - seen
+        # on the first real run, where a correct "2016" scored 4 errors.
+        self.assertEqual(say_number("2016"), ["twenty", "sixteen"])
         self.assertEqual(say_number("1984"),
-                         ["one", "nine", "eight", "four"])
+                         ["nineteen", "eighty", "four"])
+        self.assertEqual(say_number("1900"), ["nineteen", "hundred"])
+        self.assertEqual(say_number("1905"), ["nineteen", "oh", "five"])
+
+    def test_early_two_thousands_read_naturally(self):
+        # "two thousand five", not "twenty oh five".
+        self.assertEqual(say_number("2005"), ["two", "thousand", "five"])
+        self.assertEqual(say_number("2000"), ["two", "thousand"])
+
+    def test_identifiers_still_read_digitwise(self):
+        # An ISBN is not a year; a narrator reads it digit by digit.
+        self.assertEqual(say_number("97814"),
+                         ["nine", "seven", "eight", "one", "four"])
+
+    def test_year_matches_a_correct_rendition(self):
+        errors, _, _ = word_errors("Copyright 2016 Tappei",
+                                   "copyright twenty sixteen tappei")
+        self.assertEqual(errors, 0)
 
     def test_round_hundred_has_no_trailing_zero(self):
         self.assertNotIn("zero", say_number("300"))

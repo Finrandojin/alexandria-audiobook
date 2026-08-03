@@ -1,0 +1,966 @@
+{
+ "strictness": "moderate",
+ "n": 60,
+ "failed": 5,
+ "truncation": 1,
+ "non_speech": 0,
+ "wer": 0.041357370095440084,
+ "rows": [
+  {
+   "errors": 0,
+   "words": 7,
+   "heard_words": 7,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3457b0b04fbb.wav",
+   "chars": 34,
+   "transcript": "I guess this means you've got me."
+  },
+  {
+   "errors": 0,
+   "words": 14,
+   "heard_words": 14,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/671ab805bdfa.wav",
+   "chars": 79,
+   "transcript": "She then explained how she, her daughter, Subaru and Satella had come to meet."
+  },
+  {
+   "errors": 0,
+   "words": 16,
+   "heard_words": 16,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7703f59e9cd4.wav",
+   "chars": 83,
+   "transcript": "But he didn't even think to look that person in the face. It didn't matter anymore."
+  },
+  {
+   "errors": 0,
+   "words": 24,
+   "heard_words": 24,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3f79b35a80ca.wav",
+   "chars": 125,
+   "transcript": "After giving the girl another pat on the head, Subaru held out his hand to her, and with a little hesitation, she grabbed it."
+  },
+  {
+   "errors": 1,
+   "words": 21,
+   "heard_words": 21,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "first",
+     "heard": "1st"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/fb6d728991ad.wav",
+   "chars": 116,
+   "transcript": "Starting life in another world, volume two will be out on November 1st. Be sure to hurry along to your bookstores."
+  },
+  {
+   "errors": 0,
+   "words": 19,
+   "heard_words": 19,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/e398e1fc3800.wav",
+   "chars": 108,
+   "transcript": "There wasn't any incantation or anything, but that chunk of ice had definitely shot out of that girl's palm."
+  },
+  {
+   "errors": 1,
+   "words": 7,
+   "heard_words": 7,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "her",
+     "heard": "a"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/85378606ee42.wav",
+   "chars": 31,
+   "transcript": "A voice had no emotion in it."
+  },
+  {
+   "errors": 0,
+   "words": 5,
+   "heard_words": 5,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/9cc2c000ac5c.wav",
+   "chars": 29,
+   "transcript": "With that kind of response?"
+  },
+  {
+   "errors": 0,
+   "words": 31,
+   "heard_words": 31,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/164ded2e276b.wav",
+   "chars": 158,
+   "transcript": "By the way, I thought that your hair and clothes and also your name are pretty unusual, but where are you from? Why did you come to the capital of Lugunica?"
+  },
+  {
+   "errors": 0,
+   "words": 24,
+   "heard_words": 24,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/a73f07d53aaa.wav",
+   "chars": 114,
+   "transcript": "That's a nice attitude you have there. I can't say I dislike it. So how much did that boy over there pay for it?"
+  },
+  {
+   "errors": 0,
+   "words": 12,
+   "heard_words": 12,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/6937b98289c9.wav",
+   "chars": 81,
+   "transcript": "Given his current situation and pitiful starting equipment, he couldn't help it."
+  },
+  {
+   "errors": 0,
+   "words": 25,
+   "heard_words": 25,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/68ab8e6fd94b.wav",
+   "chars": 134,
+   "transcript": "Perhaps it was because she thought the men were trying to change the subject, but you could hear an amount of irritation in her voice."
+  },
+  {
+   "errors": 0,
+   "words": 31,
+   "heard_words": 31,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4ef47925f38d.wav",
+   "chars": 154,
+   "transcript": "He felt as if he was having a not so well thought out dream, but even after pinching his cheeks and smacking his head against a wall, he wouldn't wake up."
+  },
+  {
+   "errors": 0,
+   "words": 15,
+   "heard_words": 15,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/64ff57ac8338.wav",
+   "chars": 80,
+   "transcript": "Subaru didn't want to experience that kind of death again, and that was not all."
+  },
+  {
+   "errors": 0,
+   "words": 24,
+   "heard_words": 24,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/e6a03775ea4b.wav",
+   "chars": 118,
+   "transcript": "As Felt's legs started to shake as she ran, she shook her head to try to deny the mess of thoughts running through it."
+  },
+  {
+   "errors": 0,
+   "words": 9,
+   "heard_words": 9,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/141953b3b3ef.wav",
+   "chars": 39,
+   "transcript": "I don't know. My body moved on its own."
+  },
+  {
+   "errors": 0,
+   "words": 33,
+   "heard_words": 33,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/d8e7b49d66a2.wav",
+   "chars": 176,
+   "transcript": "As soon as Subaru realized that, he felt his innards twisting in pain. The feeling of guilt was even stronger than the feeling of pain he had felt when he himself was attacked."
+  },
+  {
+   "errors": 0,
+   "words": 14,
+   "heard_words": 14,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/c14d4863b2a7.wav",
+   "chars": 85,
+   "transcript": "You really look like you're used to this... Subaru? Is your profession taming children?"
+  },
+  {
+   "errors": 0,
+   "words": 33,
+   "heard_words": 33,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/aae3b23166c6.wav",
+   "chars": 184,
+   "transcript": "As Rom looked on amazed at this mysterious item he had never seen before, Subaru quickly moved his fingers, and a moment later a white light flashed in the darkness inside the building."
+  },
+  {
+   "errors": 0,
+   "words": 18,
+   "heard_words": 18,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3fdcc63a3c55.wav",
+   "chars": 89,
+   "transcript": "Subaru looked back in shock at the woman who smiled, looking a bit unsure of how to react."
+  },
+  {
+   "errors": 3,
+   "words": 42,
+   "heard_words": 41,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "mister",
+     "heard": "mr"
+    },
+    {
+     "kind": "replace",
+     "expected": "with a",
+     "heard": "wither"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/b0406b858e84.wav",
+   "chars": 213,
+   "transcript": "First of all, I would like to thank my supervisor, Mr. Ikemoto, for inviting me to bring this story from the World Wide Web to print. Wither, why don't we give this a shot and show everyone what you're made of?"
+  },
+  {
+   "errors": 0,
+   "words": 46,
+   "heard_words": 46,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/8172ffb74292.wav",
+   "chars": 227,
+   "transcript": "He coughed and vomited the blood he felt rising in his throat, the source of his waning life. So much came out that it frothed at the edges of his mouth. With his hazy vision he could see the ground in front of him stained red."
+  },
+  {
+   "errors": 0,
+   "words": 45,
+   "heard_words": 45,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7ec584debba3.wav",
+   "chars": 245,
+   "transcript": "Subaru felt a sudden impact from his side. The impact was enough to force him to the side, and unable to catch himself, he tumbled to the ground. From Subaru's perspective, there was first pain and shock, his vision spinning as he hit the ground."
+  },
+  {
+   "errors": 1,
+   "words": 55,
+   "heard_words": 55,
+   "threshold": 6,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "metia",
+     "heard": "media"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/c08f9c034a55.wav",
+   "chars": 302,
+   "transcript": "There's no reason for you to act like such a baby. You should be embarrassed. Aren't you a man? It's true that 20 blessed gold coins is an outrageous amount. However, I remember saying that in the worst case, your media should sell for 20 gold coins. In other words, it's worth more than that."
+  },
+  {
+   "errors": 0,
+   "words": 48,
+   "heard_words": 48,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/81ff2ce002e0.wav",
+   "chars": 255,
+   "transcript": "It seems a little late to be asking this question, but that badge you say was stolen from you. Does it happen to look expensive? Even if we walk in expecting to be overcharged, it would be impossible to negotiate without having any idea of what it's worth."
+  },
+  {
+   "errors": 2,
+   "words": 39,
+   "heard_words": 40,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "lizardmen",
+     "heard": "lizard men"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/af15ac2be782.wav",
+   "chars": 212,
+   "transcript": "Without having to look too long, Subaru could see people with dog ears and cat ears, and there were even some who looked like they were lizard men. But of course, there were also ordinary humans, the same as Subaru."
+  },
+  {
+   "errors": 2,
+   "words": 47,
+   "heard_words": 46,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "zig zagging",
+     "heard": "zigzagging"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/794ae9206afc.wav",
+   "chars": 246,
+   "transcript": "How did I figure it out? Oh come on, I'm not that stupid. I mean, I'm not incredibly familiar with this area, but I'm confident in my sense of direction. The way we've been zigzagging around like this, even I'm going to start to get suspicious."
+  },
+  {
+   "errors": 1,
+   "words": 63,
+   "heard_words": 63,
+   "threshold": 7,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "he'd",
+     "heard": "he"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7ec246023f99.wav",
+   "chars": 331,
+   "transcript": "Looking back, Subaru had already died three times in this world. The first time was when he and Satella had visited the loot cellar together. The second time was when he, Rom, and Felt had all been cut down by Elsa's blade. Then the third time, which to Subaru just felt like it happened a few minutes ago, he died a dog's death."
+  },
+  {
+   "errors": 0,
+   "words": 43,
+   "heard_words": 43,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/2c7cb1d2361a.wav",
+   "chars": 211,
+   "transcript": "Like Subaru, the woman also had black hair, which seemed to be very rare in this world. Her hair was tied in a braid that reached all the way to her hips, the tip of which she was twirling around in her fingers."
+  },
+  {
+   "errors": 0,
+   "words": 47,
+   "heard_words": 47,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/c36b524c4132.wav",
+   "chars": 236,
+   "transcript": "So this is a world with half humans and probably wars and adventures too. As for whether there are any animals I'm used to around, I'm not too sure, but given that lizard cart thing, it looks like they use animals in the same way we do."
+  },
+  {
+   "errors": 0,
+   "words": 39,
+   "heard_words": 39,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/09437719b5e9.wav",
+   "chars": 203,
+   "transcript": "I don't really want to say this, but I think I can understand them. For the majority of people, the risk of interfering when thugs like those are involved is too great. You were right to call for guards."
+  },
+  {
+   "errors": 0,
+   "words": 46,
+   "heard_words": 46,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/a2990555849d.wav",
+   "chars": 217,
+   "transcript": "Well, damn, I just don't get you. I don't get you, but I feel like I've got to pay you back for not getting angry at me just now. Fine, I'll take you straight there. I'll just leave the rest of my doubts in Rom's hands."
+  },
+  {
+   "errors": 0,
+   "words": 40,
+   "heard_words": 40,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/d8e43d370ad4.wav",
+   "chars": 248,
+   "transcript": "Subaru had imagined there would be more light and energy being bounced around. In reality, all that happened was an unrefined-looking clump of ice suddenly materialized, was used as a blunt object for physical damage, and then suddenly disappeared."
+  },
+  {
+   "errors": 0,
+   "words": 47,
+   "heard_words": 47,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7691c54feaa0.wav",
+   "chars": 234,
+   "transcript": "In Subaru's range of vision, with his eyes open wide, he could see a tall figure with skin like a reptile, a beast-like humanoid that was only as tall as his waist, a young dancer with pink hair, a swordsman with six swords at his waist."
+  },
+  {
+   "errors": 0,
+   "words": 46,
+   "heard_words": 46,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/338bf822fa39.wav",
+   "chars": 248,
+   "transcript": "With all of Subaru's training in Kendo, his sense of shame about suddenly yelling out was long gone. Additionally, Subaru, who realized at this point in his life what a loser he was, wasn't one to let his pride be hurt by suddenly calling for help."
+  },
+  {
+   "errors": 0,
+   "words": 41,
+   "heard_words": 41,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/d7b6430df069.wav",
+   "chars": 215,
+   "transcript": "As for why Subaru was so quick to accept and understand his current situation, the fact that he was a modern Japanese youth poisoned by anime and games had something to do with it, and for that he was very thankful."
+  },
+  {
+   "errors": 0,
+   "words": 80,
+   "heard_words": 80,
+   "threshold": 8,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/aa6f847823e8.wav",
+   "chars": 449,
+   "transcript": "Going by everything that's happened so far, you'd think that this would signal the start of an argument, right? I imagine you'd say something like, \"Do you really expect me to just let a good-for-nothing like you, whose only ability is to convert oxygen into carbon dioxide? Handle something this important?\" Don't make me laugh! I'd expect a dog to do a better job than you! Then I, while hurt, would use the opportunity to renew my determination!"
+  },
+  {
+   "errors": 0,
+   "words": 36,
+   "heard_words": 36,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4e36705acbed.wav",
+   "chars": 205,
+   "transcript": "Given his occupation, Reinhard knew that this was not something he should overlook. But what other way of life did she have? What right did he have to talk of justice without offering her any alternatives?"
+  },
+  {
+   "errors": 2,
+   "words": 40,
+   "heard_words": 39,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "rom and",
+     "heard": "roman"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/76f565888ebc.wav",
+   "chars": 209,
+   "transcript": "The second time is simple. I was already with Roman felt when negotiations broke down To be killed twice by the same person is Elsa the kind of character that when you run into them it means certain death"
+  },
+  {
+   "errors": 0,
+   "words": 54,
+   "heard_words": 54,
+   "threshold": 6,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/795b45ee6db7.wav",
+   "chars": 279,
+   "transcript": "It was a strategy I formed after my experiences, from the first and second times in the slums, but I never imagined it would work this well. It was a strategy I formed after my experiences from the first and second times in the slums, but I never imagined it would work this well."
+  },
+  {
+   "errors": 0,
+   "words": 109,
+   "heard_words": 109,
+   "threshold": 11,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/f4074a23c1c4.wav",
+   "chars": 622,
+   "transcript": "Subaru shook the sleeve of his tracksuit, which was caked in dried mud. In order to help him track down felt, the brilliant plan he'd thought of after arriving at the slums was to make himself look as down and out and destitute as possible. The first time around, when Subaru visited the slums with not-satella, he had not long before been beaten up by dumb, dumber, and dumbest. Because of that, most of the slums' inhabitants pitied him and were fairly cooperative. The second time, however, when Subaru hadn't taken\n much damage, the people gave him a comparatively cold reception. The difference was like night and day."
+  },
+  {
+   "errors": 2,
+   "words": 113,
+   "heard_words": 111,
+   "threshold": 12,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "and a",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4895fd561355.wav",
+   "chars": 601,
+   "transcript": "She was very tall for a woman, about the same height as Subaru, and she looked as though she were in her early twenties. The beautiful woman had eyes that angled down toward their edges and she had a certain calmness about her. One thing that stood out about her in the darkness of the loot cellar was the almost sickly whiteness of her skin. She was wearing a black coat, but the front was open and you could see that her clothes underneath were also black and were tightly fit against her skin. While she was fairly thin, she definitely had curves where they should be,\n Very nice body overall."
+  },
+  {
+   "errors": 1,
+   "words": 3,
+   "heard_words": 3,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "vol",
+     "heard": "volume"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/f1d1749695aa.wav",
+   "chars": 14,
+   "transcript": "ReZero Volume 1."
+  },
+  {
+   "errors": 6,
+   "words": 7,
+   "heard_words": 8,
+   "threshold": 1,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "rezero",
+     "heard": "risero"
+    },
+    {
+     "kind": "replace",
+     "expected": "hajimeru isekai seikatsu vol",
+     "heard": "hajimaru is kai sekatsu volume"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/2a39daf299ef.wav",
+   "chars": 44,
+   "transcript": "Risero Kara Hajimaru is Kai Sekatsu, Volume 1."
+  },
+  {
+   "errors": 0,
+   "words": 6,
+   "heard_words": 6,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/483c518aa54f.wav",
+   "chars": 45,
+   "transcript": "Tappe Nagatsuki Shinichiro Otsuka 2014"
+  },
+  {
+   "errors": 0,
+   "words": 11,
+   "heard_words": 11,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/3c9906293b6a.wav",
+   "chars": 64,
+   "transcript": "first published in Japan in 2014 by KADOKAOA Corporation Tokyo."
+  },
+  {
+   "errors": 5,
+   "words": 21,
+   "heard_words": 19,
+   "threshold": 3,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "kadokawa",
+     "heard": "kadoc"
+    },
+    {
+     "kind": "replace",
+     "expected": "corporation",
+     "heard": "wacorpirajan"
+    },
+    {
+     "kind": "replace",
+     "expected": "tuttle mori",
+     "heard": "tatlmori"
+    },
+    {
+     "kind": "delete",
+     "expected": "tokyo",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/d9026616aadc.wav",
+   "chars": 146,
+   "transcript": "English translation rights reserved by Yen Press, LLC, under the license from KADOC, Wacorpirajan, Tokyo, through Tatlmori Agency, Inc.,"
+  },
+  {
+   "errors": 0,
+   "words": 8,
+   "heard_words": 8,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/1dcd3da31439.wav",
+   "chars": 45,
+   "transcript": "English Translation 2016 by Yen Press, LLC."
+  },
+  {
+   "errors": 0,
+   "words": 33,
+   "heard_words": 33,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/38c20db02568.wav",
+   "chars": 196,
+   "transcript": "Yen Press, LLC supports the right to free expression and the value of copyright. The purpose of copyright is to encourage writers and artists to produce the creative works that enrich our culture."
+  },
+  {
+   "errors": 8,
+   "words": 21,
+   "heard_words": 17,
+   "threshold": 3,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "replace",
+     "expected": "yen on",
+     "heard": "yenon"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen press",
+     "heard": "yenpress"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen on",
+     "heard": "yenon"
+    },
+    {
+     "kind": "replace",
+     "expected": "yen press",
+     "heard": "yenpress"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/4e0490c9186a.wav",
+   "chars": 98,
+   "transcript": "YenOn is an imprint of YenPress LLC. The YenOn name and logo are trademarks of YenPress LLC."
+  },
+  {
+   "errors": 15,
+   "words": 42,
+   "heard_words": 37,
+   "threshold": 5,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "zero",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "zero",
+     "heard": ""
+    },
+    {
+     "kind": "replace",
+     "expected": "ebook",
+     "heard": "e book"
+    },
+    {
+     "kind": "insert",
+     "expected": "",
+     "heard": "twenty eighteen"
+    },
+    {
+     "kind": "replace",
+     "expected": "zero one eight zero two one six jv pc",
+     "heard": "hundred sixteen jvpc"
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/b20d62371b67.wav",
+   "chars": 82,
+   "transcript": "ISBN 978-0316-315302 Paperback, 978-0316-39839-8 E-book, E3 2018-0216 JVPC."
+  },
+  {
+   "errors": 27,
+   "words": 52,
+   "heard_words": 25,
+   "threshold": 6,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": true,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "contents cover insert title page copyright prologue the waste heat of the beginning chapter one the end of the beginning chapter",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "chapter",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "chapter",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "chapter",
+     "heard": ""
+    },
+    {
+     "kind": "delete",
+     "expected": "afterword yen newsletter",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/7a89609a0d24.wav",
+   "chars": 349,
+   "transcript": "2. A struggle too late. 3. Ending and beginning. 4. Fourth times the charm. 5. Starting life in another world. Epilogue the moon is watching."
+  },
+  {
+   "errors": 0,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/120187caee13.wav",
+   "chars": 2,
+   "transcript": "3"
+  },
+  {
+   "errors": 0,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/5cb4e69e780d.wav",
+   "chars": 2,
+   "transcript": "for."
+  },
+  {
+   "errors": 0,
+   "words": 16,
+   "heard_words": 16,
+   "threshold": 2,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/005399313433.wav",
+   "chars": 93,
+   "transcript": "It's Tammuz the 14th. At this point, according to the calendar, it's halfway through the year."
+  },
+  {
+   "errors": 0,
+   "words": 48,
+   "heard_words": 48,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/cdf090de272e.wav",
+   "chars": 243,
+   "transcript": "Sure, Subaru had lived the previous 17 years of his life peacefully, but depending on how you looked at it, if you multiplied 17 years by 365 days and three resets, Subaru had lived through quite a few days on which he could have died."
+  },
+  {
+   "errors": 1,
+   "words": 38,
+   "heard_words": 37,
+   "threshold": 4,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [
+    {
+     "kind": "delete",
+     "expected": "one",
+     "heard": ""
+    }
+   ],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/1cf2f85035aa.wav",
+   "chars": 197,
+   "transcript": "The bar set for the conditions necessary to clear the dumb, dumber, and dumbest event wasn't very high, but there wasn't a hundred percent chance that Subaru would be able to make it out of this alley."
+  },
+  {
+   "errors": 0,
+   "words": 1,
+   "heard_words": 1,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/87dbce0458ac.wav",
+   "chars": 2,
+   "transcript": "5"
+  },
+  {
+   "errors": 0,
+   "words": 5,
+   "heard_words": 5,
+   "threshold": 1,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/0b5b79f506f5.wav",
+   "chars": 31,
+   "transcript": "Starting life in another world."
+  },
+  {
+   "errors": 0,
+   "words": 24,
+   "heard_words": 24,
+   "threshold": 3,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "detail": [],
+   "wav": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/validation_audio/cd3e0aaca0ff.wav",
+   "chars": 112,
+   "transcript": "The force of the collision swept Subaru off his feet and he felt the world spin 180 degrees as he vomited blood."
+  }
+ ]
+}

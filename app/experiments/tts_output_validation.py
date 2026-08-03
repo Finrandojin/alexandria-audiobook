@@ -75,6 +75,22 @@ def say_number(digits):
     if n < 1000:
         rest = say_number(str(n % 100)) if n % 100 else []
         return [ONES[n // 100], "hundred"] + rest
+    # Four digits are almost always a YEAR in a book, and a narrator reads
+    # 2016 as "twenty sixteen", not "two zero one six". Reading it digitwise
+    # charged a false error to every copyright line - observed on the first
+    # real run, where "2016" scored 4 errors against a correct rendition.
+    if len(digits) == 4 and 1100 <= n <= 9999:
+        high, low = n // 100, n % 100
+        if 2000 <= n <= 2009:
+            # "two thousand five", not "twenty oh five".
+            return ["two", "thousand"] + (say_number(str(low)) if low else [])
+        if low == 0:
+            return say_number(str(high)) + ["hundred"]
+        if low < 10:
+            return say_number(str(high)) + ["oh"] + say_number(str(low))
+        return say_number(str(high)) + say_number(str(low))
+    # Longer runs are identifiers - ISBNs, phone numbers - and are read out
+    # digit by digit, which is also what a narrator does.
     return [ONES[int(d)] for d in digits]
 
 
