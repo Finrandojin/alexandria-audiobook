@@ -172,6 +172,59 @@ class TestBookNLPParsing(unittest.TestCase):
         self.assertEqual(len(rows), 2)
         self.assertEqual(rows[1][1], "")
 
+    def test_interrupted_quote_is_matched_from_its_halves(self):
+        # PDNC records an interrupted quote as one quotation; the novel splits
+        # it around narration and BookNLP emits two. On Pride and Prejudice
+        # this is 420 of 1270 gold lines, and they are the HARDER cases, so
+        # dropping them would flatter the baseline.
+        gold = {"entries": [{
+            "id": "a",
+            "line": "My dear Mr. Bennet, have you heard that Netherfield "
+                    "Park is let at last?",
+            "expected_speaker": "MRS. BENNET"}]}
+        rows = parse_booknlp(
+            [{"quote": "My dear Mr. Bennet,", "char_id": "1"},
+             {"quote": "have you heard that Netherfield Park is let at last?",
+              "char_id": "1"}], self.ENTITIES)
+        matched, unmatched, conflicts = align_to_gold(rows, gold)
+        self.assertEqual(len(matched), 1)
+        self.assertEqual(matched[0]["predicted"], "ELIZABETH")
+        self.assertTrue(matched[0]["split"])
+        self.assertEqual((unmatched, conflicts), (0, 0))
+
+    def test_conflicting_halves_are_counted_not_excused(self):
+        # BookNLP giving the two halves different speakers is a real failure of
+        # its own; it must answer with one of them, not be let off the row.
+        gold = {"entries": [{
+            "id": "a",
+            "line": "My dear Mr. Bennet, have you heard that Netherfield "
+                    "Park is let at last?",
+            "expected_speaker": "MRS. BENNET"}]}
+        rows = parse_booknlp(
+            [{"quote": "My dear Mr. Bennet,", "char_id": "1"},
+             {"quote": "have you heard that Netherfield Park is let at last?",
+              "char_id": "2"}], self.ENTITIES)
+        matched, _, conflicts = align_to_gold(rows, gold)
+        self.assertEqual(len(matched), 1)
+        self.assertEqual(conflicts, 1)
+        # longest fragment wins, and char_id 2 owns it
+        self.assertEqual(matched[0]["predicted"], "HE")
+
+    def test_incidental_fragment_cannot_claim_a_long_line(self):
+        # A short quote appearing inside a long speech must not be treated as
+        # having matched it - that would attribute a whole speech from a scrap.
+        gold = {"entries": [{
+            "id": "a",
+            "line": "A very long speech indeed, going on at considerable "
+                    "length about many different subjects entirely.",
+            "expected_speaker": "ANNA"}]}
+        rows = parse_booknlp(
+            [{"quote": "going on at considerable", "char_id": "1"}],
+            self.ENTITIES)
+        matched, unmatched, _ = align_to_gold(rows, gold)
+        self.assertEqual(matched, [])
+        self.assertEqual(unmatched, 1)
+
     def test_repeated_lines_are_not_aligned(self):
         # "Yes." appears twice; matching either occurrence would be a coin flip
         # dressed up as data.
@@ -182,7 +235,7 @@ class TestBookNLPParsing(unittest.TestCase):
         rows = parse_booknlp(
             [{"quote": "Yes.", "char_id": "1"},
              {"quote": "Distinct line here.", "char_id": "1"}], self.ENTITIES)
-        matched, unmatched = align_to_gold(rows, gold)
+        matched, unmatched, _ = align_to_gold(rows, gold)
         self.assertEqual([m["id"] for m in matched], ["c"])
         self.assertEqual(unmatched, 2)
 
@@ -193,7 +246,7 @@ class TestBookNLPParsing(unittest.TestCase):
         rows = parse_booknlp([{"quote": "Narration here.", "char_id": "1"},
                               {"quote": "Real speech.", "char_id": "1"}],
                              self.ENTITIES)
-        matched, _ = align_to_gold(rows, gold)
+        matched, _, _ = align_to_gold(rows, gold)
         self.assertEqual([m["id"] for m in matched], ["b"])
 
 

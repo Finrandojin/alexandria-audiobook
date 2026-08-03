@@ -105,28 +105,70 @@ def parse_booknlp(quotes_rows, entity_rows):
     return out
 
 
+# Normalisation strips whitespace, so substring matching has no word
+# boundaries: "no" is inside "nothing". A floor is therefore needed against
+# spurious hits, but it must stay below the length of a real interrupted first
+# half - "My dear Mr. Bennet," normalises to 14 characters, and a floor of 20
+# discarded it, which hid the speaker conflicts this is meant to count.
+MIN_FRAGMENT = 10      # normalised chars
+MIN_COVERAGE = 0.6     # of the gold line
+
+
 def align_to_gold(booknlp_rows, gold):
     """Match BookNLP quotes to gold lines by normalised text.
 
-    Only lines that appear exactly ONCE in each source are matched. A repeated
+    Only lines appearing exactly ONCE in each source are matched. A repeated
     line ("Yes." appears forty times) cannot be aligned by text alone, and
     guessing which occurrence is which would fabricate agreement.
+
+    INTERRUPTED QUOTES are why this is not a dict lookup. PDNC records
+
+        "My dear Mr. Bennet, have you heard that Netherfield Park is let?"
+
+    as ONE quotation, but the novel splits it around `," said his lady, "` and
+    BookNLP emits TWO quotes. On Pride and Prejudice that is 420 of 1270 gold
+    lines - a third of the book, and disproportionately the harder cases, since
+    an interrupted quote is exactly where attribution gets difficult. Requiring
+    exact text would drop every one of them and flatter the baseline.
+
+    So a gold line also matches a SET of BookNLP quotes that are each substrings
+    of it, subject to two guards: each fragment must be long enough not to be an
+    incidental phrase, and the fragments together must cover most of the gold
+    line, so a passing mention inside a long speech cannot claim it.
+
+    The prediction is the speaker of the LONGEST fragment. When BookNLP gives
+    the halves different speakers it is counted as answering with one of them,
+    not excused - `conflicts` reports how often that happened.
     """
     bn_counts = collections.Counter(t for t, _ in booknlp_rows)
-    bn = {t: s for t, s in booknlp_rows if bn_counts[t] == 1}
+    bn = {t: s for t, s in booknlp_rows if bn_counts[t] == 1 and t}
     gold_entries = [g for g in gold["entries"]
                     if g["expected_speaker"].upper() not in SPECIAL]
     g_counts = collections.Counter(norm(g["line"]) for g in gold_entries)
-    matched, unmatched = [], 0
+
+    matched, unmatched, conflicts = [], 0, 0
     for g in gold_entries:
         key = norm(g["line"])
-        if g_counts[key] != 1 or key not in bn:
+        if g_counts[key] != 1:
             unmatched += 1
             continue
+        if key in bn:
+            matched.append({"id": g["id"],
+                            "expected": g["expected_speaker"].upper(),
+                            "predicted": bn[key], "split": False})
+            continue
+        frags = [(t, s) for t, s in bn.items()
+                 if len(t) >= MIN_FRAGMENT and t in key]
+        if not frags or sum(len(t) for t, _ in frags) < len(key) * MIN_COVERAGE:
+            unmatched += 1
+            continue
+        frags.sort(key=lambda ts: len(ts[0]), reverse=True)
+        if len({s for _, s in frags}) > 1:
+            conflicts += 1
         matched.append({"id": g["id"],
                         "expected": g["expected_speaker"].upper(),
-                        "predicted": bn[key]})
-    return matched, unmatched
+                        "predicted": frags[0][1], "split": True})
+    return matched, unmatched, conflicts
 
 
 def run_booknlp(text_path, out_dir, book_id):
@@ -166,7 +208,7 @@ def main():
             sys.exit(f"missing BookNLP output: {p}")
 
     rows = parse_booknlp(read_tsv(quotes_path), read_tsv(entities_path))
-    matched, unmatched = align_to_gold(rows, gold)
+    matched, unmatched, conflicts = align_to_gold(rows, gold)
     if not matched:
         sys.exit("no gold line matched a BookNLP quote - check the text source "
                  "is the same edition the gold was built from")
@@ -179,8 +221,11 @@ def main():
     declined = sum(1 for m in matched if not m["predicted"])
 
     print(f"BookNLP on {args.book}\n")
+    split = sum(1 for m in matched if m.get("split"))
     print(f"  {len(matched)} gold lines aligned, {unmatched} unaligned "
           f"(repeated or absent text)")
+    print(f"  {split} matched as interrupted quotes, {conflicts} of those "
+          f"given conflicting speakers by BookNLP")
     print(f"  accuracy {correct / len(matched) * 100:.1f}%  "
           f"({correct}/{len(matched)})")
     print(f"  declined to attribute: {declined} "
@@ -213,6 +258,7 @@ def main():
     out = args.out or LEDGER + f"/booknlp_baseline__{args.book}.json"
     json.dump({"book": args.book, "n": len(matched), "unaligned": unmatched,
                "accuracy": correct / len(matched), "declined": declined,
+               "split_matched": split, "split_conflicts": conflicts,
                "rows": matched}, open(out, "w"), indent=1)
     print("\nwrote", out)
 
