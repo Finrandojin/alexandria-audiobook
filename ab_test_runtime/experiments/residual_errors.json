@@ -1,0 +1,34 @@
+{
+ "arm": "lora",
+ "scored": 772,
+ "errors": 199,
+ "kinds": {
+  "lead confusion": 91,
+  "minor confusion": 84,
+  "unanswered": 20,
+  "roster miss": 4
+ },
+ "per_book": {
+  "index18": {
+   "lead confusion": 7,
+   "minor confusion": 10
+  },
+  "mushoku16": {
+   "minor confusion": 25,
+   "unanswered": 10,
+   "lead confusion": 17
+  },
+  "grimgar03": {
+   "minor confusion": 24,
+   "lead confusion": 26,
+   "unanswered": 9,
+   "roster miss": 3
+  },
+  "owarimonogatari3": {
+   "minor confusion": 25,
+   "lead confusion": 41,
+   "unanswered": 1,
+   "roster miss": 1
+  }
+ }
+}
