@@ -1077,6 +1077,15 @@
     "test_speaker_identity.SpeakerIdentityTests.test_safe_variants_reuse_first_established_spelling_without_mutation",
     "test_speaker_identity.SpeakerIdentityTests.test_uncertain_typo_and_extended_name_are_reported_not_merged"
   ],
+  "test_speaker_similarity": [
+    "test_speaker_similarity.TestSpeakerSimilarity.test_missing_speechbrain_fails_instead_of_falling_back"
+  ],
+  "test_stage3_harnesses": [
+    "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_clone_phase_is_required",
+    "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_clone_score_refuses_missing_manifest",
+    "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_phase_is_required",
+    "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_score_refuses_missing_manifest"
+  ],
   "test_support": [],
   "test_system_version": [
     "test_system_version.VersionEndpointTests.test_version_endpoint_returns_runtime_info"

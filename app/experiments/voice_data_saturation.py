@@ -16,13 +16,9 @@ cloned from (`ref_sample.wav`), so for each voice we:
 The training-set sizes already vary from 2 to 200 across the library, so this
 needs no new training - only generation.
 
-SIMILARITY METRIC. A speaker embedding (speechbrain ECAPA) is the right measure
-and lives in the sibling repo's environment, not this one. Where it is
-unavailable this falls back to a distance over the acoustic features
-`voice_profiler` already computes - pitch, brightness, rolloff, energy, rate -
-which is cruder and sensitive to the sentence being read. Whichever is used is
-printed, because the two are not comparable and quoting one as the other would
-be worse than having no number.
+SIMILARITY METRIC. SpeechBrain ECAPA lives in the sibling repo's environment,
+not this one. Generation and scoring are separate required phases; scoring
+fails if ECAPA is unavailable and never substitutes acoustic-feature distance.
 
 READING IT. Similarity rising then flattening near 100-120 samples would mean
 the 200 cap wastes audio, and characters currently skipped for insufficient
@@ -30,7 +26,6 @@ material could be voiced. Similarity still climbing at 200 would mean the cap is
 right and the low-sample voices in the library are unreliable.
 """
 import argparse, glob, json, os, sys
-import numpy as np
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
@@ -60,53 +55,57 @@ def pick_voices(limit_full=6):
     return sorted(below + at_cap, key=lambda r: r["samples"])
 
 
-def acoustic_vector(path):
-    import librosa, warnings
-    warnings.filterwarnings("ignore")
-    y, sr = librosa.load(path, sr=22050, mono=True)
-    f0, vf, _ = librosa.pyin(y, fmin=50, fmax=400, sr=sr)
-    v = f0[vf & ~np.isnan(f0)]
-    return np.array([
-        float(np.mean(v)) if len(v) else 0.0,
-        float(np.std(v)) if len(v) else 0.0,
-        float(np.mean(librosa.feature.spectral_centroid(y=y, sr=sr))),
-        float(np.mean(librosa.feature.spectral_rolloff(y=y, sr=sr))),
-        float(np.mean(librosa.feature.rms(y=y))) * 1000,
-    ])
-
-
-def embedder():
-    """speechbrain ECAPA if importable; otherwise None."""
-    try:
-        from speechbrain.inference.speaker import EncoderClassifier
-        return EncoderClassifier.from_hparams(
-            source="speechbrain/spkrec-ecapa-voxceleb",
-            savedir=os.path.join(REPO, "ab_test_runtime", "ecapa"))
-    except Exception:
-        return None
-
-
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    ap.add_argument("--out_dir", default=REPO + "/ab_test_runtime/voice_saturation")
-    ap.add_argument("--json", default=REPO + "/ab_test_runtime/experiments/voice_data_saturation.json")
+    ap.add_argument("--phase", required=True, choices=("generate", "score"),
+                    help="generate under app/env; score under the sibling env")
+    ap.add_argument("--out_dir", default=REPO + "/ab_test_runtime/voice_saturation_seeded")
+    ap.add_argument("--json", default=REPO + "/ab_test_runtime/experiments/voice_data_saturation_seeded.json")
+    ap.add_argument("--config", default=os.path.join(APP, "config.json"))
+    ap.add_argument("--ecapa-cache", default=os.path.join(
+        REPO, "ab_test_runtime", "ecapa"))
     ap.add_argument("--seed", type=int, default=1234,
                     help="fixed generation seed; unseeded, two voices could\n"
                          "differ by draw rather than by sample count")
     args = ap.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
 
+    if args.phase == "score":
+        if not os.path.exists(args.json):
+            raise SystemExit(f"generation manifest does not exist: {args.json}")
+        doc = json.load(open(args.json, encoding="utf-8"))
+        rows = doc.get("results")
+        if doc.get("status") != "generated" or not isinstance(rows, list) or not rows:
+            raise SystemExit("refusing to score an incomplete generation manifest")
+        from experiments.speaker_similarity import get_ecapa_encoder, score_ecapa_pair
+        encoder = get_ecapa_encoder(args.ecapa_cache)
+        for row in rows:
+            paths = {}
+            for field in ("reference", "generated_file"):
+                paths[field] = os.path.join(REPO, row.get(field, ""))
+                if not os.path.isfile(paths[field]):
+                    raise SystemExit(f"missing scoring input {field}: {row.get(field)}")
+            row["similarity"] = score_ecapa_pair(
+                encoder, paths["generated_file"], paths["reference"])
+        from experiments.provenance import provenance
+        doc["metric"] = "speechbrain/spkrec-ecapa-voxceleb cosine similarity"
+        doc["status"] = "scored"
+        doc["scoring_provenance"] = provenance(__file__, args)
+        json.dump(doc, open(args.json, "w", encoding="utf-8"), indent=1)
+        print(f"scored {len(rows)} voices with ECAPA\nwrote {args.json}")
+        return
+
     voices = pick_voices()
+    if not voices:
+        raise SystemExit("no voices with reference audio and sample counts")
     print(f"{len(voices)} voices, {sum(1 for v in voices if v['samples'] < 200)} below the cap\n")
 
     from tts import TTSEngine
     from experiments.generation import render, GenerationFailed
-    config = json.load(open(REPO + "/config.json")) if os.path.exists(REPO + "/config.json") else {}
+    if not os.path.isfile(args.config):
+        raise SystemExit(f"TTS config does not exist: {args.config}")
+    config = json.load(open(args.config, encoding="utf-8"))
     engine = TTSEngine(config)
-
-    enc = embedder()
-    metric = "ecapa speaker embedding" if enc else "acoustic feature distance"
-    print(f"similarity metric: {metric}\n")
 
     results = []
     for v in voices:
@@ -124,44 +123,18 @@ def main():
             print(f"  {v['voice'][:38]:40} generation FAILED: {str(exc)[:40]}")
             continue
         ref = os.path.join(v["dir"], "ref_sample.wav")
-        try:
-            if enc:
-                import torchaudio, torch
-                def emb(p):
-                    w, sr = torchaudio.load(p)
-                    if sr != 16000:
-                        w = torchaudio.functional.resample(w, sr, 16000)
-                    e = enc.encode_batch(w).squeeze().detach().cpu().numpy()
-                    return e / (np.linalg.norm(e) + 1e-9)
-                sim = float(np.dot(emb(out), emb(ref)))
-            else:
-                a, b = acoustic_vector(out), acoustic_vector(ref)
-                scale = np.maximum(np.abs(a), np.abs(b)) + 1e-9
-                sim = float(1.0 - np.mean(np.abs(a - b) / scale))
-        except Exception as exc:
-            print(f"  {v['voice'][:38]:40} scoring failed: {type(exc).__name__}")
-            continue
-        results.append({**{k: v[k] for k in ("voice", "samples")}, "similarity": sim})
-        print(f"  {v['voice'][:38]:40}{v['samples']:6} samples   similarity {sim:6.3f}")
+        results.append({"voice": v["voice"], "samples": v["samples"],
+                        "reference": os.path.relpath(ref, REPO),
+                        "generated_file": os.path.relpath(out, REPO)})
+        print(f"  generated {v['voice']} ({v['samples']} samples)")
 
-    if len(results) >= 4:
-        xs = np.array([r["samples"] for r in results], dtype=float)
-        ys = np.array([r["similarity"] for r in results])
-        low = ys[xs < 100]
-        high = ys[xs >= 100]
-        print(f"\n  below 100 samples: mean similarity "
-              f"{low.mean():.3f} (n={len(low)})" if len(low) else "")
-        print(f"  100 and above:     mean similarity "
-              f"{high.mean():.3f} (n={len(high)})" if len(high) else "")
-        if len(low) and len(high):
-            print(f"  difference {high.mean()-low.mean():+.3f}")
-        print(f"\n  metric was {metric}. An acoustic-feature distance is crude and")
-        print("  sensitive to the sentence read; only an embedding score should be")
-        print("  quoted as speaker similarity.")
-
-    json.dump({"metric": metric, "sentence": SENTENCE, "results": results},
-              open(args.json, "w"), indent=1)
-    print("\nwrote", args.json)
+    if len(results) != len(voices):
+        raise SystemExit(f"generation incomplete: {len(results)}/{len(voices)} voices")
+    from experiments.provenance import provenance
+    json.dump({"status": "generated", "metric": None, "sentence": SENTENCE,
+               "provenance": provenance(__file__, args),
+               "results": results}, open(args.json, "w", encoding="utf-8"), indent=1)
+    print("\nwrote generation manifest", args.json)
 
 
 if __name__ == "__main__":
