@@ -457,7 +457,14 @@
     "test_generation_guard.TestFailureModes.test_none_return_is_success",
     "test_generation_guard.TestStaleAudio.test_stale_file_does_not_mask_a_false_return",
     "test_generation_guard.TestStaleAudio.test_stale_file_is_deleted_before_generation",
-    "test_generation_guard.TestStaleAudio.test_stale_file_removed_even_when_generation_fails"
+    "test_generation_guard.TestStaleAudio.test_stale_file_removed_even_when_generation_fails",
+    "test_generation_guard.TestUndecodableAudio.test_a_decodable_but_short_file_is_still_caught",
+    "test_generation_guard.TestUndecodableAudio.test_a_file_that_is_not_audio_is_rejected",
+    "test_generation_guard.TestUndecodableAudio.test_a_partially_truncated_wav_is_rejected",
+    "test_generation_guard.TestUndecodableAudio.test_a_truncated_wav_is_rejected",
+    "test_generation_guard.TestUndecodableAudio.test_a_valid_header_with_no_samples_is_rejected",
+    "test_generation_guard.TestUndecodableAudio.test_real_audio_still_passes",
+    "test_generation_guard.TestUndecodableAudio.test_trailing_metadata_is_not_treated_as_truncation"
   ],
   "test_gold_set_builder": [
     "test_gold_set_builder.AdaptiveWindowTest.test_expansion_is_capped",

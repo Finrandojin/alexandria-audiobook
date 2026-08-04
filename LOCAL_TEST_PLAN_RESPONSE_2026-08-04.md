@@ -136,12 +136,11 @@ Already committed and mutation-checked:
 1. **Timeout behaviour.** Nothing tests that a wedged job is killed and the
    lock released. This matters more than it looks: a hung TTS render holds the
    card indefinitely and everything queued behind it waits silently.
-2. **Invalid-WAV rejection.** `render()` checks existence and non-emptiness,
-   **not decodability.** A truncated or malformed WAV passes today. The plan
-   asks for "decodable-WAV validation" and it does not exist yet.
+2. **Invalid-WAV rejection.** ~~Not implemented.~~ **Now closed** — see the
+   second addendum. Taken first because Stage 3's whole point is auditing
+   audio, and a validator that runs after Stage 3 validates nothing.
 
-The second is the more valuable of the two and I would take it before Stage 3,
-since Stage 3's whole point is that its old artifacts may contain bad audio.
+Timeout behaviour remains open.
 
 ---
 
@@ -241,3 +240,68 @@ provenance block with commit, dirty-tree file list, harness SHA-256 and seed,
 and it states its own limits in an `interpretation` field — "delivery quality
 still requires blinded listening". That is the standard the older artifacts
 should be brought to.
+
+---
+
+## Second addendum — decodable-WAV validation, and what building it taught me
+
+I flagged this as the highest-value gap and then closed it, since it is my code
+and needs no GPU. Card untouched; it is still yours.
+
+**The first version I wrote was wrong, and a real file proved it.** I added
+`sf.info()` as the decode check, wrote a test using a header-only stub, and it
+passed. Then I truncated an actual render from your Stage 1 output:
+
+```
+NARRATOR_same_seed_a.wav   195,884 bytes -> decodes, 97,920 frames
+truncated to 5,000 bytes   ->  still DECODES, 2,478 frames
+```
+
+**libsndfile returns the frames that happen to be present rather than
+raising.** So a run killed mid-write produces a short, valid, wrong file that
+`sf.info` accepts — and my decode check would have passed it while I reported
+decodability as validated. The synthetic stub in my test was the easy case and
+hid the real one.
+
+The fix compares the **declared RIFF size against the bytes on disk**:
+
+```
+header declares 195884 bytes, file is 5000 (190884 missing)
+```
+
+Tolerant in one direction on purpose — a file *larger* than declared is legal
+(trailing metadata chunks are common), so only a shortfall is an error. It also
+skips the check when the declared size is near 2^32, because this repo has
+already been bitten by the 32-bit WAV size field wrapping on long audiobook
+files, where the wrapped value is meaningless rather than a shortfall.
+
+`render()` now rejects: undecodable files, valid headers with zero frames, and
+files shorter than their own header claims. **17 tests**, including one that
+asserts the truncated file *does* decode — a guard against the guard, so the
+test cannot pass merely because the file is unreadable, which is exactly what
+made my first version look correct.
+
+**1,225 tests, 0 failures.**
+
+### Stage 10 housekeeping done
+
+`collect_results.py` regenerated: **230 artifacts, 483 arm rows, 68 not
+indexed.** `seed_instruction_controls.json` appears under **Not indexed**,
+correctly — it is a control artifact, not per-arm attribution accuracy, and the
+plan already anticipates that. Absence from the arm table is not absence of a
+result.
+
+### What this changes for Stage 3
+
+Stage 3 reruns `clone_vs_lora` and `voice_data_saturation` because their old
+harness could reuse stale audio. Both now go through `render()`, so they also
+inherit truncation and decodability rejection — which they did not have when I
+described them as fixed. That was accurate about the reuse defect and silent
+about this one.
+
+Two more places worth pointing the same check at, which I have **not** done:
+`tts.py`'s own generation paths write audio without validating it, and
+`project.py` assembles chunks into exports without checking that each chunk
+decodes. A truncated chunk would reach a finished M4B. That is production code
+rather than harness code, so it is a larger change than I would make while your
+plan is mid-flight.
