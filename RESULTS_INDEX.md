@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-04 14:49 from `ab_test_runtime/experiments/` — 222 artifacts, 495 arms.
+Generated 2026-08-04 16:18 from `ab_test_runtime/experiments/` — 228 artifacts, 483 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -628,3 +628,76 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote5 | 139 | 48.9% | ok | False | 3221.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | greedy | 162 | 40.7% | ok | False | 2872.6s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote3 | 162 | 38.3% | ok | False | 2872.6s |
+
+## Not indexed
+
+These artifacts exist and hold real results; this table only represents per-arm attribution accuracy, so they cannot be rendered as rows. Read them directly.
+
+| artifact | why |
+|---|---|
+| `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__a6000-contig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__local-bt-rep1.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__local-bt-rep2.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__thunder-a6000.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__grimgar03__tuned-cheap-arm.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__index18__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__index18__a6000-newbook.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__index18__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__index18__tuned-cheap-arm.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__mushoku16__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__mushoku16__a6000-contig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__mushoku16__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__mushoku16__thunder-a6000.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__mushoku16__tuned-cheap-arm.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__owarimonogatari3__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__owarimonogatari3__a6000-newbook.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__owarimonogatari3__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cascade_state__owarimonogatari3__tuned-cheap-arm.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chapter_manifest.json` | SKIPPED: not a result object (list) |
+| `chapter_validation.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `chinese_attribution_jy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chinese_attribution_jy_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chinese_attribution_wp.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chinese_attribution_wp_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `fix_verification.json` | SKIPPED: not a result object (list) |
+| `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `japanese_quote_robustness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `listener_impact.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `nonprose_gate.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `nonprose_mechanism.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `nonprose_split.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `nonprose_split_v2.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `offbyone_turns.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pdnc_eval.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pdnc_eval_full_summary.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pitch_separation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pitch_stability.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `prose_vs_nonprose.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `prose_vs_nonprose_v2.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `prose_vs_nonprose_v3.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `realizable_router.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `residual_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `run_lengths.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `scale_vs_register.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `segmentation_classifier.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `shipping_readiness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `stack_overlap.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `symbolization.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `symbolization_owari.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `trivial_baselines.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `tuned_disagreement.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `validation_baseline.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `validation_manifest.json` | SKIPPED: not a result object (list) |
+| `validation_smoke.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `voice_adapter_health.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `voice_blending.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `voice_data_saturation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `weak_supervision.json` | SKIPPED: 'rows' is not a list of scored arms |

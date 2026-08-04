@@ -39,7 +39,19 @@ for path in files:
     # count rather than a list of scored lines - segmentation_classifier.json
     # does. Iterating that raised TypeError and killed the whole index rather
     # than skipping one file, so the shape is checked, not assumed.
+    # THE SILENT ONE. Every other skip path above records a reason; this one
+    # was a bare `continue`, so an artifact with no `rows` list vanished from
+    # the index with no trace at all - not a row, not a note, nothing. On
+    # 2026-08-04 `pitch_stability.json` and `pitch_separation.json` were
+    # regenerated into the index and simply were not there, and the index still
+    # claimed to cover "every experiment artifact".
+    #
+    # An artifact this table cannot represent must SAY SO. Silence reads as
+    # "no such result", which is the most expensive kind of wrong.
     if not isinstance(rr, list) or not rr:
+        rows.append({"artifact": name,
+                     "note": "NOT INDEXED: no 'rows' list - this table only "
+                             "represents per-arm attribution results"})
         continue
     if not all(isinstance(r, dict) and "arm" in r for r in rr):
         rows.append({"artifact": name,
@@ -159,9 +171,14 @@ if os.path.isdir(_reps):
                                       time.localtime(os.path.getmtime(f)))})
 
 out_csv = os.path.join(REPO, "results_index.csv")
+# `note` is last but it is NOT optional: three code paths write it and it was
+# missing from this list, so extrasaction="ignore" silently threw every skip
+# reason away. Un-indexed artifacts appeared as a filename followed by nineteen
+# empty fields, which looks like a broken row rather than a deliberate note.
 cols = ["artifact", "experiment", "book", "model", "env_tag", "host", "backend",
         "ctx", "parallel", "kv", "arm", "n", "correct", "accuracy_pct",
-        "validation", "dirty", "commit", "elapsed_s", "finished", "endpoint"]
+        "validation", "dirty", "commit", "elapsed_s", "finished", "endpoint",
+        "note"]
 with open(out_csv, "w", newline="") as fh:
     w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
     w.writeheader()
@@ -170,7 +187,8 @@ with open(out_csv, "w", newline="") as fh:
 
 md = [f"# Results index\n",
       f"Generated {time.strftime('%Y-%m-%d %H:%M')} from "
-      f"`ab_test_runtime/experiments/` — {len(files)} artifacts, {len(rows)} arms.\n",
+      f"`ab_test_runtime/experiments/` — {len(files)} artifacts, "
+      f"{len([r for r in rows if r.get('arm')])} arms.\n",
       "Regenerate with `python3 collect_results.py`. Machine-readable copy in "
       "`results_index.csv`.\n",
       "`dirty=True` means tracked files were modified when the artifact was "
@@ -202,6 +220,23 @@ for exp in sorted({r.get("experiment", "") for r in rows if r.get("experiment")}
                   f"{r['arm']} | {r['n']} | {r['accuracy_pct']}% | "
                   f"{r['validation']} | {r['dirty']} | {r['elapsed_s']}s |")
 
+# Artifacts this table cannot represent, listed rather than omitted. Most are
+# TTS and audio experiments whose results are per-segment WER and failure
+# counts, not per-arm accuracy - a different shape, not a broken one. Naming
+# them keeps "not in the index" from being read as "no such result".
+skipped = [r for r in rows if r.get("note")]
+if skipped:
+    md.append("\n## Not indexed\n")
+    md.append("These artifacts exist and hold real results; this table only "
+              "represents per-arm attribution accuracy, so they cannot be "
+              "rendered as rows. Read them directly.\n")
+    md.append("| artifact | why |")
+    md.append("|---|---|")
+    for r in sorted(skipped, key=lambda x: x["artifact"]):
+        md.append(f"| `{r['artifact']}` | {r['note']} |")
+
 open(os.path.join(REPO, "RESULTS_INDEX.md"), "w").write("\n".join(md) + "\n")
-print(f"{len(files)} artifacts -> {len(rows)} arm rows")
+print(f"{len(files)} artifacts -> "
+      f"{len([r for r in rows if r.get('arm')])} arm rows, "
+      f"{len(skipped)} not indexed")
 print("wrote RESULTS_INDEX.md and results_index.csv")
