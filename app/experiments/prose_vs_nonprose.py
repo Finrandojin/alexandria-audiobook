@@ -28,6 +28,25 @@ book, because "first N chunks" is not a property a generator can act on:
 Both classes are generated WITH the normaliser active, so a difference that
 survives is structure, not symbols.
 
+CORRECTION, 2026-08-03, after the run. The result below is real but MUCH
+NARROWER than "non-prose fails". Auditing the 25 segments the sampler actually
+chose:
+
+    18 of 25 are near-duplicates of ONE line - "Identifiers LCCN 2016031562
+       ISBN 9780316315302..." - repeated across Re:Zero volumes
+     2 of 25 are not book text at all, but LLM quality-rejection messages that
+       leaked into scripts/*.json
+    ~5 genuinely distinct texts underlie all 25 "samples"
+
+So the measured 56-point gap says IDENTIFIER AND ISBN STRINGS FAIL BADLY. It
+does not establish anything about non-prose or structure in general, because
+the class was five texts replicated rather than 25 independent draws, and the
+effective n is nearer 5 than 25. The headline was stated wider than the data.
+
+Two fixes are needed before this claim can be widened: deduplicate near
+identical texts in the sampler, and exclude entries that are machine output
+rather than book text. Neither is done here; this docstring is the correction.
+
 READINGS, fixed before running:
 
   non-prose much worse    structure is a real, separate failure mode and the
