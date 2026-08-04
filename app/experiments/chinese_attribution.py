@@ -61,24 +61,40 @@ def set_scale(base_url, scale):
 
 
 def build_prompt(inst):
+    """Candidates are the TAGS from roleid2idx, not its keys.
+
+    The dataset maps role id -> tag, e.g. {'2': '[C0]', '0': '[C1]'}. The first
+    version iterated the KEYS and printed f"[C{key}]", which produced the right
+    set of tags only by coincidence and silently disagreed with the mapping.
+    """
     lines = inst["text"]
     t = inst["target_idx"]
-    roles = sorted(inst.get("roleid2idx", {}) or {}, key=str)
+    tags = sorted(set((inst.get("roleid2idx") or {}).values()), key=str)
     body = []
     for i, line in enumerate(lines):
         mark = "  <<< WHO SPEAKS THIS" if i == t else ""
         body.append(f"{i}: {line}{mark}")
-    cands = ", ".join(f"[C{r}]" if not str(r).startswith("[") else str(r)
-                      for r in roles) or "[C0]"
+    cands = ", ".join(str(tag) for tag in tags) or "[C0]"
     return (f"Candidates: {cands}\n\nPassage:\n" + "\n".join(body) +
             "\n\nWhich candidate speaks the marked line? Answer with the tag only.")
 
 
 def truth_of(inst):
+    """The gold TAG index, resolved through roleid2idx.
+
+    THIS IS THE BUG THAT VOIDED THE FIRST RUN. `speaker_ids` holds a role id
+    ('2'); the model answers with a tag ('[C0]') which normalises to '0'. The
+    first version compared the raw role id against the tag index - two
+    different namespaces - so nothing could ever match, and the run reported
+    0/150 on every arm. Resolve through the mapping instead.
+    """
     sid = inst.get("speaker_ids")
     if isinstance(sid, list):
         sid = sid[0] if sid else None
-    return str(sid) if sid is not None else None
+    if sid is None:
+        return None
+    tag = (inst.get("roleid2idx") or {}).get(str(sid))
+    return normalise(tag) if tag is not None else None
 
 
 def normalise(ans):
@@ -93,6 +109,8 @@ def main():
     ap.add_argument("--scales", nargs="+", type=float, default=[0.0, 1.0])
     ap.add_argument("--model", default="qwen/qwen3-14b")
     ap.add_argument("--base_url", default="http://127.0.0.1:8090/v1")
+    ap.add_argument("--no-scale", action="store_true", dest="no_scale",
+                    help="skip adapter scaling; measure the served model as-is")
     ap.add_argument("--out", default=REPO + "/ab_test_runtime/experiments/chinese_attribution.json")
     args = ap.parse_args()
 
@@ -105,25 +123,54 @@ def main():
     client = OpenAI(base_url=args.base_url, api_key="local")
     results = {}
     for scale in args.scales:
-        set_scale(args.base_url, scale)
-        started, hit, n, blank = time.time(), 0, 0, 0
+        # The adapter comparison needs llama.cpp's /lora-adapters endpoint.
+        # --no-scale runs base-only against any OpenAI-compatible server, so
+        # the prior question - can this model do Chinese attribution at all -
+        # can be answered without standing up the serving stack.
+        if not args.no_scale:
+            set_scale(args.base_url, scale)
+        started, hit, n, blank, errors = time.time(), 0, 0, 0, 0
+        raw_samples = []
         for inst in items:
             prompt = build_prompt(inst)
+            raw = None
             try:
                 r = client.chat.completions.create(
                     model=args.model, temperature=0.0, max_tokens=16,
                     messages=[{"role": "system", "content": SYSTEM},
                               {"role": "user", "content": prompt}],
                     extra_body={"reasoning_effort": "none"})
-                ans = normalise(r.choices[0].message.content)
-            except Exception:
+                raw = r.choices[0].message.content
+                ans = normalise(raw)
+            except Exception as exc:                       # noqa: BLE001
+                # A transport failure and an unparseable answer are different
+                # problems and were previously both tallied as "unparsed",
+                # which is how a run against a dead server produced a clean
+                # looking 0/150 artifact and got logged OK.
+                errors += 1
                 ans = None
+                if errors <= 3:
+                    print(f"    API error: {type(exc).__name__}: "
+                          f"{str(exc)[:120]}", flush=True)
             n += 1
             if ans is None:
                 blank += 1
+                if raw is not None and len(raw_samples) < 5:
+                    raw_samples.append(raw[:80])
             hit += (ans is not None and ans == truth_of(inst))
+        # An arm that answered nothing measured nothing. Say so loudly rather
+        # than emitting a plausible looking zero.
+        if blank == n:
+            print(f"    NOTHING PARSED on {n} rows. errors={errors}. "
+                  f"Sample answers: {raw_samples!r}", flush=True)
+        if errors > n * 0.5:
+            raise RuntimeError(
+                f"{errors}/{n} calls failed - the server is not answering; "
+                f"refusing to report this as a result")
         lo, hi = clopper_pearson(hit, max(n, 1))
-        results[str(scale)] = {"correct": hit, "n": n, "unparsed": blank}
+        results[str(scale)] = {"correct": hit, "n": n, "unparsed": blank,
+                               "api_errors": errors,
+                               "unparsed_samples": raw_samples}
         label = "adapter off" if scale == 0 else f"adapter {scale}"
         print(f"  {label:14} {hit}/{n} = {hit/max(n,1)*100:5.1f}%  "
               f"[{lo:.1f}-{hi:.1f}]  unparsed {blank}  {time.time()-started:.0f}s",

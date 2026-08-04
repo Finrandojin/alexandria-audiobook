@@ -618,6 +618,24 @@
     "test_multi_process_state.MultiProcessStateTests.test_batch_cancel_signals_every_process",
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
   ],
+  "test_normalize_for_speech": [
+    "test_normalize_for_speech.TestIdempotence.test_applying_twice_changes_nothing",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_dialogue_with_dashes_survives",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_ellipsis_is_preserved",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_empty_and_none_are_safe",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_plain_sentence_is_unchanged",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_symbol_only_text_does_not_become_a_bare_period",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_terminal_punctuation_is_not_duplicated",
+    "test_normalize_for_speech.TestLeavesProseAlone.test_typographic_quotes_are_preserved",
+    "test_normalize_for_speech.TestSpokenSymbols.test_already_spelled_word_is_not_doubled",
+    "test_normalize_for_speech.TestSpokenSymbols.test_ampersand_is_spoken",
+    "test_normalize_for_speech.TestSpokenSymbols.test_copyright_sign_is_spoken",
+    "test_normalize_for_speech.TestSpokenSymbols.test_daggers_are_dropped_not_spoken",
+    "test_normalize_for_speech.TestStructuralMarks.test_all_structural_marks_removed",
+    "test_normalize_for_speech.TestStructuralMarks.test_bullet_becomes_a_break_not_a_word",
+    "test_normalize_for_speech.TestStructuralMarks.test_runs_of_marks_collapse",
+    "test_normalize_for_speech.TestStructuralMarks.test_the_measured_defect"
+  ],
   "test_pass_quality": [
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_a_real_name_still_passes",
     "test_pass_quality.AttributionRejectsTypeAsSpeakerTest.test_literal_type_name_is_rejected",
@@ -986,9 +1004,10 @@
     "test_third_party_findings.TestValidationNormalisation.test_all_apostrophe_variants_normalise",
     "test_third_party_findings.TestValidationNormalisation.test_digits_match_their_spelling",
     "test_third_party_findings.TestValidationNormalisation.test_dropped_words_counted",
+    "test_third_party_findings.TestValidationNormalisation.test_early_two_thousands_read_naturally",
     "test_third_party_findings.TestValidationNormalisation.test_forgiveness_does_not_hide_real_errors",
     "test_third_party_findings.TestValidationNormalisation.test_hallucinated_words_counted",
-    "test_third_party_findings.TestValidationNormalisation.test_long_numbers_read_digitwise",
+    "test_third_party_findings.TestValidationNormalisation.test_identifiers_still_read_digitwise",
     "test_third_party_findings.TestValidationNormalisation.test_misheard_proper_noun_forgiven",
     "test_third_party_findings.TestValidationNormalisation.test_number_verbalisation_across_ranges",
     "test_third_party_findings.TestValidationNormalisation.test_one_real_error_inside_a_forgiven_run_still_counts",
@@ -997,7 +1016,9 @@
     "test_third_party_findings.TestValidationNormalisation.test_real_substitution_still_counted",
     "test_third_party_findings.TestValidationNormalisation.test_round_hundred_has_no_trailing_zero",
     "test_third_party_findings.TestValidationNormalisation.test_typographic_apostrophe_matches_ascii",
-    "test_third_party_findings.TestValidationNormalisation.test_words_drops_empty_tokens"
+    "test_third_party_findings.TestValidationNormalisation.test_words_drops_empty_tokens",
+    "test_third_party_findings.TestValidationNormalisation.test_year_matches_a_correct_rendition",
+    "test_third_party_findings.TestValidationNormalisation.test_years_read_as_years"
   ],
   "test_three_pass_generate": [
     "test_three_pass_generate.BoundedContextJoinTests.test_join_bounded_does_not_materialize_whole_book",

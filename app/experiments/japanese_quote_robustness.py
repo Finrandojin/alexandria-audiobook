@@ -22,7 +22,7 @@ those came from a run with different chunking - the stored resolutions do not
 reproduce when recomputed. Both sides are now computed the same way in the same
 run, which makes the gap larger rather than smaller.
 """
-import collections, glob, os, sys
+import collections, glob, json, os, sys
 
 REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
 sys.path.insert(0, REPO + "/app")
@@ -74,12 +74,26 @@ def main():
 
     print(f"  {'text':22}{'chunks':>8}{'clean':>7}{'repaired':>10}"
           f"{'contin.':>9}{'fellthru':>10}")
-    all_codes = {}
+    all_codes, rows_out = {}, {}
     for name, src in jobs:
         c, codes = survey(name, src)
         all_codes[name] = codes
+        rows_out[name] = dict(c)
         print(f"  {name:22}{c['chunks']:8}{c['clean']:7}{c['repaired']:10}"
               f"{c['continuation']:9}{c['fellthrough']:10}")
+
+    # Persist. This printed to a terminal and saved nothing, so the only copy
+    # of the result was whatever scrollback happened to survive.
+    out = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))),
+        "ab_test_runtime", "experiments", "japanese_quote_robustness.json")
+    json.dump({"per_text": rows_out,
+               "repair_codes": {k: dict(v) for k, v in all_codes.items()},
+               "reading": "Japanese repairs are all inferred_missing_close_quote: "
+                          "the chunk ends inside an open bracket and the code "
+                          "guesses where the quote closed. LATENT, NOT ACTIVE - "
+                          "the pipeline processes English translations."},
+              open(out, "w"), indent=1)
 
     print("\n  repair codes")
     for name, codes in all_codes.items():
@@ -96,6 +110,7 @@ def main():
     print("  rather than improving it.")
     print("\n  LATENT, NOT ACTIVE: the pipeline processes English translations, so")
     print("  no shipped output is affected today.")
+    print("\nwrote", out)
 
 
 if __name__ == "__main__":
