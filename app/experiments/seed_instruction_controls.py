@@ -15,6 +15,8 @@ import wave
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 APP = os.path.join(REPO, "app")
+if APP not in sys.path:
+    sys.path.insert(0, APP)
 DEFAULT_OUT_DIR = os.path.join(REPO, "ab_test_runtime", "assumption_controls")
 DEFAULT_OUT = os.path.join(
     REPO, "ab_test_runtime", "experiments", "seed_instruction_controls.json")

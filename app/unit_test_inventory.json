@@ -1037,6 +1037,7 @@
     "test_script_preflight.ScriptPreflightTests.test_unicode_audit_reports_nfc_and_unsafe_characters"
   ],
   "test_seed_instruction_controls": [
+    "test_seed_instruction_controls.TestSeedInstructionControls.test_provenance_import_resolves_from_documented_app_working_directory",
     "test_seed_instruction_controls.TestSeedInstructionControls.test_wav_info_hashes_bytes_and_reports_duration"
   ],
   "test_seed_plumbing": [

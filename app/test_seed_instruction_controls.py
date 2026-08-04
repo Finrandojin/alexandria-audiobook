@@ -6,10 +6,19 @@ import wave
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from experiments.seed_instruction_controls import file_sha256, wav_info
+from experiments.seed_instruction_controls import APP, file_sha256, wav_info
 
 
 class TestSeedInstructionControls(unittest.TestCase):
+    def test_provenance_import_resolves_from_documented_app_working_directory(self):
+        old = os.getcwd()
+        try:
+            os.chdir(APP)
+            from experiments.provenance import provenance
+            self.assertTrue(callable(provenance))
+        finally:
+            os.chdir(old)
+
     def test_wav_info_hashes_bytes_and_reports_duration(self):
         with tempfile.TemporaryDirectory() as td:
             path = os.path.join(td, "probe.wav")
