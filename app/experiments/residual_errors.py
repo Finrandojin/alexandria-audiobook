@@ -30,7 +30,8 @@ cheap fix exists.
 """
 import argparse, collections, glob, json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 from experiments.scoring import alias_groups, normalize, same_speaker

@@ -15,7 +15,8 @@ for a strong reader - an upper bound on what any model could get right.
 import collections
 import glob, json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 BOOK = os.environ.get("EXPERIMENT_BOOK", "index18")
 BUNDLE = os.environ.get("EXPERIMENT_BUNDLE", os.path.join(
     REPO, "ab_test_runtime", "fixtures_draft", f"labelling_bundle__{BOOK}.json"))

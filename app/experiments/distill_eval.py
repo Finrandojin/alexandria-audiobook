@@ -37,7 +37,8 @@ measured gains on these same books are the standard to read it against.
 """
 import argparse, collections, contextlib, json, os, re, sys, time
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 

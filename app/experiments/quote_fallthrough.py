@@ -33,7 +33,8 @@ The cost of the change, if made, is model latency on ~7% of chunks.
 """
 import argparse, collections, glob, json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from openai import OpenAI
 from generate_script import LLMGenParams, split_into_chunks

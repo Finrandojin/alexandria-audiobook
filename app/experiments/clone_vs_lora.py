@@ -36,7 +36,8 @@ and that is worth knowing with a number rather than by assumption.
 import argparse, glob, json, os, sys
 import numpy as np
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app"
 sys.path.insert(0, APP)
 MODELS = REPO + "/lora_models"
@@ -89,6 +90,12 @@ def main():
     ap.add_argument("--out_dir", default=REPO + "/ab_test_runtime/clone_vs_lora")
     ap.add_argument("--full", type=int, default=5)
     ap.add_argument("--json", default=REPO + "/ab_test_runtime/experiments/clone_vs_lora.json")
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="both arms at one seed. The clone arm previously hard "
+                         "-coded seed -1 and the lora arm passed none, so the "
+                         "two arms differed by random draw as well as by "
+                         "method - the difference this experiment exists to "
+                         "measure.")
     args = ap.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -98,6 +105,7 @@ def main():
           f"<100 samples)\n")
 
     from tts import TTSEngine
+    from experiments.generation import render, GenerationFailed
     config = json.load(open(REPO + "/config.json")) if os.path.exists(REPO + "/config.json") else {}
     engine = TTSEngine(config)
 
@@ -108,17 +116,29 @@ def main():
         ok = True
         for arm in ("clone", "lora"):
             path = os.path.join(args.out_dir, f"{v['voice']}__{arm}.wav")
-            if not os.path.exists(path):
-                if arm == "lora":
-                    good = engine.generate_lora_voice(
-                        SENTENCE, "", {"adapter_path": v["dir"]}, path)
-                else:
-                    cfg = {"X": {"type": "clone", "ref_audio": v["ref"],
-                                 "ref_text": v["ref_text"], "seed": "-1"}}
-                    good = engine.generate_clone_voice(SENTENCE, "X", cfg, path)
-                if not good or not os.path.exists(path):
-                    ok = False
-                    break
+            # Always regenerate. The old `if not os.path.exists(path)` reused
+            # whatever WAV happened to be at that path from an earlier run,
+            # which on an UNSEEDED path is a different draw of the voice - so a
+            # cached arm and a fresh arm could differ by chance alone and the
+            # difference would be read as clone-vs-lora.
+            #
+            # This file did check its return value, unlike the six routed
+            # through render() earlier; its defect was reuse, not a swallowed
+            # False. It goes through render() anyway so there is one way to
+            # render a segment rather than two that drift.
+            if arm == "lora":
+                entry = {"type": "lora", "adapter_path": v["dir"],
+                         "seed": str(args.seed)}
+                cfg = {"X": entry}
+            else:
+                entry = {"type": "clone", "ref_audio": v["ref"],
+                         "ref_text": v["ref_text"], "seed": str(args.seed)}
+                cfg = {"X": entry}
+            try:
+                render(engine, SENTENCE, "", "X", cfg, entry, path)
+            except GenerationFailed:
+                ok = False
+                break
             outs[arm] = path
         if not ok:
             print(f"  {v['voice'][:32]:34}{str(v['samples']):>8}   generation FAILED")

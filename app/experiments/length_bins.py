@@ -32,7 +32,8 @@ import json, os, re, statistics, sys
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 from experiments.stats import clopper_pearson
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 E = REPO + "/ab_test_runtime/experiments/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"

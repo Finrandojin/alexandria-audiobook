@@ -41,7 +41,8 @@ from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch_voted, build_roster,
                                  get_deterministic_named_entry)
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"

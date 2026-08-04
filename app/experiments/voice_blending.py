@@ -34,7 +34,8 @@ THIRD_PARTY_NOTICES.md.
 """
 import argparse, collections, glob, json, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 

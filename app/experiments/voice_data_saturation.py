@@ -32,7 +32,8 @@ right and the low-sample voices in the library are unreliable.
 import argparse, glob, json, os, sys
 import numpy as np
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app"
 sys.path.insert(0, APP)
 MODELS = REPO + "/lora_models"
@@ -89,6 +90,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--out_dir", default=REPO + "/ab_test_runtime/voice_saturation")
     ap.add_argument("--json", default=REPO + "/ab_test_runtime/experiments/voice_data_saturation.json")
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="fixed generation seed; unseeded, two voices could\n"
+                         "differ by draw rather than by sample count")
     args = ap.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
 
@@ -96,6 +100,7 @@ def main():
     print(f"{len(voices)} voices, {sum(1 for v in voices if v['samples'] < 200)} below the cap\n")
 
     from tts import TTSEngine
+    from experiments.generation import render, GenerationFailed
     config = json.load(open(REPO + "/config.json")) if os.path.exists(REPO + "/config.json") else {}
     engine = TTSEngine(config)
 
@@ -106,12 +111,18 @@ def main():
     results = []
     for v in voices:
         out = os.path.join(args.out_dir, v["voice"] + ".wav")
-        if not os.path.exists(out):
-            ok = engine.generate_lora_voice(
-                SENTENCE, "", {"adapter_path": v["dir"]}, out)
-            if not ok or not os.path.exists(out):
-                print(f"  {v['voice'][:38]:40} generation FAILED")
-                continue
+        # Always regenerate, at a fixed seed. The old `if not os.path.exists`
+        # reused any WAV left at that path by an earlier run; on an unseeded
+        # path that is a different draw of the voice, so a cached voice and a
+        # fresh one could differ by chance and the difference would be charged
+        # to the sample count this experiment is measuring.
+        entry = {"type": "lora", "adapter_path": v["dir"],
+                 "seed": str(args.seed)}
+        try:
+            render(engine, SENTENCE, "", "X", {"X": entry}, entry, out)
+        except GenerationFailed as exc:
+            print(f"  {v['voice'][:38]:40} generation FAILED: {str(exc)[:40]}")
+            continue
         ref = os.path.join(v["dir"], "ref_sample.wav")
         try:
             if enc:

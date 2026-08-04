@@ -19,7 +19,8 @@ a speaker-similarity measurement against each voice's own reference.
 import glob, json, os, sys
 import numpy as np
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 MODELS = REPO + "/lora_models"
 
 

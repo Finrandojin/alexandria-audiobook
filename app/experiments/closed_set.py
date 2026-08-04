@@ -47,7 +47,8 @@ INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BOOK = os.environ.get("EXPERIMENT_BOOK", "mushoku16")
 GOLD = os.environ.get("EXPERIMENT_GOLD",
                       "fixtures/attribution_gold_random.json")
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 GOLD_PATH = REPO + "/app/" + GOLD
 gold = json.load(open(GOLD_PATH))
 src = open(M + f"inputs/{BOOK}.txt", encoding="utf-8").read()

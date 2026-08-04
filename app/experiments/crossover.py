@@ -84,7 +84,8 @@ from experiments.manifest import ExperimentRecord
 from three_pass_generate import build_roster
 from lmstudio_settings import ensure_ideal_settings
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 OVERNIGHT = REPO + "/ab_test_runtime/results/overnight_20260726-185022/"

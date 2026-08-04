@@ -29,7 +29,8 @@ the RISK, and the accuracy gain would still need measuring separately.
 """
 import argparse, collections, glob, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from pass_quality import analyze_outer_quote_regions, _QUOTE_CHARS
 from generate_script import split_into_chunks

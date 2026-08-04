@@ -34,7 +34,8 @@ validates perfectly because the validator shares its assumption.
 """
 import collections, glob, json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from generate_script import split_into_chunks
 

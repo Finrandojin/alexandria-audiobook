@@ -24,7 +24,8 @@ run, which makes the gap larger rather than smaller.
 """
 import collections, glob, json, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from pass_quality import analyze_outer_quote_regions, validate_segment_quality
 from generate_script import split_into_chunks

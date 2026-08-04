@@ -31,7 +31,8 @@ structural reader helps only when the input is an EPUB - it does nothing for a
 """
 import argparse, collections, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from pass_quality import analyze_outer_quote_regions
 from generate_script import split_into_chunks

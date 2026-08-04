@@ -11,9 +11,10 @@ The two stages were never put on the same denominator. They are here.
 
 Both are counted per line delivered to TTS, over the same four books.
 """
-import glob, json, sys
+import glob, json, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 LEDGER = REPO + "/ab_test_runtime/experiments"
 
 

@@ -46,7 +46,8 @@ prompt length is reported so any imbalance is visible rather than assumed away.
 """
 import collections, json, os, random, re, sys, time
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 from openai import OpenAI

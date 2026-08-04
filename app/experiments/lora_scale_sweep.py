@@ -17,7 +17,8 @@ a flat curve, which is exactly the shape a null result has.
 import argparse, collections, json, os, re, sys, time
 import urllib.request
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 from openai import OpenAI

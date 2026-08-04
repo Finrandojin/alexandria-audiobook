@@ -56,7 +56,8 @@ AMBIGUOUS = {key for key in want if _occurrences[key] > 1}
 print(f"excluding {len(AMBIGUOUS)} gold lines whose text repeats in the book; "
       f"{len(want) - len(AMBIGUOUS)} scoreable", flush=True)
 BASE_URL = "http://localhost:1234/v1"
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 client = OpenAI(base_url=BASE_URL, api_key="local")
 record = ExperimentRecord(
     "two_by_two", REPO, MODEL, BASE_URL, GOLD_PATH,

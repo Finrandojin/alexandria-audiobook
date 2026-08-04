@@ -29,7 +29,8 @@ the ANNOTATIONS. Fine for internal evaluation, unresolved for anything shipped.
 """
 import argparse, ast, collections, csv, json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 SPECIAL = {"UNKNOWN", "UNNAMED", "NOT_DIALOGUE"}
 
 

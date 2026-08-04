@@ -29,10 +29,11 @@ zero.
 Each rule is reported alone and in combination, because a rule that only fires
 where another already fired is not worth its risk.
 """
-import collections, json, re, sys
+import collections, json, re, os, sys
 sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BOOKS = ("grimgar03", "index18", "mushoku16", "owarimonogatari3")

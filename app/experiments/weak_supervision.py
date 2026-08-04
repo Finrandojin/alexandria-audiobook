@@ -27,7 +27,8 @@ measurement: if the probabilistic labels are wrong, this says so.
 import argparse, collections, glob, json, os, re, sys
 import numpy as np
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 

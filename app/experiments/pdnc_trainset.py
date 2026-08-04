@@ -25,7 +25,8 @@ label came from.
 """
 import argparse, ast, collections, csv, json, os, random, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 HELD_OUT = {"PrideAndPrejudice", "TheSignOfTheFour", "TheAwakening"}
 SPECIAL = {"UNKNOWN", "UNNAMED", "NOT_DIALOGUE"}
 
