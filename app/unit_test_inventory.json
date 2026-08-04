@@ -177,6 +177,17 @@
     "test_build_scoring_sheet.NeighbourContextTest.test_start_of_book_has_no_leading_context",
     "test_build_scoring_sheet.NeighbourContextTest.test_window_is_respected"
   ],
+  "test_character_traits": [
+    "test_character_traits.TestDialogueIsNotEvidenceAboutItsSpeaker.test_dialogue_alone_yields_unknown",
+    "test_character_traits.TestDialogueIsNotEvidenceAboutItsSpeaker.test_male_speaker_talking_about_women_is_not_classified_female",
+    "test_character_traits.TestDialogueIsNotEvidenceAboutItsSpeaker.test_the_raw_counter_still_reads_female_on_that_text",
+    "test_character_traits.TestNoEvidence.test_empty_inputs_do_not_raise",
+    "test_character_traits.TestNoEvidence.test_nothing_at_all_is_unknown",
+    "test_character_traits.TestValidEvidenceStillWorks.test_character_label_is_high_confidence",
+    "test_character_traits.TestValidEvidenceStillWorks.test_label_outranks_persona",
+    "test_character_traits.TestValidEvidenceStillWorks.test_persona_description_is_medium_confidence",
+    "test_character_traits.TestValidEvidenceStillWorks.test_persona_survives_misleading_dialogue"
+  ],
   "test_chinese_attribution": [
     "test_chinese_attribution.TestNormalise.test_extracts_tag_index",
     "test_chinese_attribution.TestNormalise.test_unparseable_is_none",
