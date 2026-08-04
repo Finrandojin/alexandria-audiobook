@@ -303,10 +303,30 @@ def _infer_lora_age(model):
 
 
 def _infer_character_traits(name, profile, lines):
-    """Infer traits with evidence priority: label, persona, then dialogue."""
+    """Infer traits with evidence priority: label, then persona.
+
+    DIALOGUE IS NOT EVIDENCE ABOUT ITS SPEAKER. `_infer_character_gender`
+    counts gendered words, and the words a character SPEAKS describe whoever
+    they are talking about. Measured on the live book: Subaru's own 412 lines
+    contain 46 feminine tokens against 27 masculine - "she" x20, "her" x11,
+    "girl" x10 - because he spends the book talking to and about Emilia, Felt
+    and Satella. He was classified female. So were ROM and Reinhard; Emilia
+    came out male. The signal is inverted for exactly the characters who speak
+    most, which is the ones that matter.
+
+    It was rated "low" confidence, which correctly kept it out of the HARD
+    gender filter - but `get_voice_allocation` still applies a soft penalty of
+    3 against candidates whose gender differs from the inferred one, so a wrong
+    guess actively pushed correct-gender voices down the ranking.
+
+    Dropping the source leaves gender "unknown" when only dialogue is
+    available, and "unknown" is handled correctly everywhere: no hard filter,
+    no soft penalty. Determining gender properly needs coreference - which
+    pronoun refers to whom - and that is BookNLP's or the LLM's job, not a
+    regex over the wrong text.
+    """
     sources = (("character label", name, "high"),
-               ("existing persona/style", profile, "medium"),
-               ("representative dialogue", " ".join(lines), "low"))
+               ("existing persona/style", profile, "medium"))
     result = {"gender": "unknown", "gender_confidence": "unknown",
               "age_group": "unknown", "age_confidence": "unknown", "trait_evidence": ""}
     evidence = []
