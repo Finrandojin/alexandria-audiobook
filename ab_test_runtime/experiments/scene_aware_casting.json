@@ -1,0 +1,69 @@
+{
+ "window": 20,
+ "characters": 23,
+ "current": {
+  "adapters": 6,
+  "conflicts": 7,
+  "conflict_pairs": [
+   [
+    "ANASTASIA",
+    "MIZELDA"
+   ],
+   [
+    "ANASTASIA",
+    "ROM"
+   ],
+   [
+    "CROWD",
+    "FELT"
+   ],
+   [
+    "CROWD",
+    "REINHARD"
+   ],
+   [
+    "FELT",
+    "REINHARD"
+   ],
+   [
+    "LITTLE GIRL",
+    "SATELLA"
+   ],
+   [
+    "MIZELDA",
+    "ROM"
+   ]
+  ],
+  "min_pitch_gap": 0.0
+ },
+ "scene_aware": {
+  "adapters": 8,
+  "conflicts": 0,
+  "min_pitch_gap": 17.099999999999994,
+  "assignment": {
+   "KENJI": "warm_baritone_40s_m_scifi",
+   "NATSUKI SUBARU": "warm_bass_50s_m_fantasy",
+   "MAN 1": "husky_soprano_20s_f",
+   "MAN 2": "warm_baritone_40s_m_gothic",
+   "LITTLE GIRL": "breathy_alto_50s_f_fantasy",
+   "MAN": "warm_tenor_30s_m_2",
+   "MAN WITH KNIFE": "silky_mezzo_30s_f",
+   "NEW VOICE": "warm_baritone_40s_m_scifi",
+   "PUCK": "warm_baritone_40s_m_scifi",
+   "VOICE (CAT)": "silky_mezzo_30s_f",
+   "SATELLA": "warm_baritone_40s_m_scifi",
+   "LITTLE GIRL'S MOTHER": "warm_baritone_40s_m_gothic",
+   "SHOP OWNER": "warm_baritone_40s_m_gothic",
+   "MIZELDA": "warm_mezzo_30s_f_fantasy_2",
+   "MAN 3": "breathy_alto_50s_f_fantasy",
+   "ROM": "warm_baritone_40s_m_gothic",
+   "FELT": "warm_baritone_40s_m_scifi",
+   "ANASTASIA": "warm_tenor_30s_m_2",
+   "THUG (DUMBEST)": "warm_baritone_40s_m_scifi",
+   "CROWD": "warm_mezzo_30s_f_fantasy_2",
+   "REINHARD": "breathy_alto_50s_f_fantasy",
+   "NOT-SATELLA": "silky_mezzo_30s_f",
+   "EMILIA": "warm_baritone_40s_m_gothic"
+  }
+ }
+}
