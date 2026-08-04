@@ -80,3 +80,68 @@ Recorded so the same repositories are not re-reviewed from scratch.
 | transitive-bullshit/kindle-ai-export | Solves acquisition, not narration; drives the Kindle web reader with Playwright, which raises terms-of-service questions for no technical gain. |
 | ReadAlongs/Studio | Licence is unresolved (`NOASSERTION`), and our preparer alignment already works. |
 | aedocw/epub2tts, DrewThomasson/ebook2audiobookpiper-tts, pravinyo/AudioBook | Nothing structurally absent from this project. |
+
+---
+
+## Research and industry practice consulted
+
+No code or text is taken from these; they are recorded because they changed
+design decisions, and a decision whose reasoning cannot be traced is one that
+gets re-argued from scratch. Where a finding contradicted something already
+built, that is noted - those are the entries worth keeping.
+
+### Audiobook casting
+
+- [How Professional Audiobook Narrators Voice Characters — Jay Myers](https://www.jaymyersvoiceover.com/blog-ideas/how-audiobook-narrators-make-characters-sound-distinct-believable-and-consistent)
+- [How to Give Every Character a Different Voice in Your Audiobook — Audie](https://www.audie.ai/how-to-give-every-character-a-different-voice-in-your-audiobook)
+- [Narrator Voice vs Character Voices — Audie](https://www.audie.ai/narrator-voice-vs-character-voices-getting-dialogue-right)
+- [Character Voices in Audiobooks: 7 Key Considerations — Malk Williams](https://www.linkedin.com/pulse/character-voices-audiobooks-7-key-considerations-malk-williams)
+- [Creating Distinct Character Voices for Audiobooks — Vois](https://vois.so/blog/character-voices-audiobooks)
+
+Two findings changed the design:
+
+**4-8 distinct character voices plus a narrator is the working maximum; more
+risk listener confusion.** This CONTRADICTS the direction the voice-blending
+experiment was heading. `voice_blending.py` measured that blending an 8-voice
+pool reaches 148 identities and framed that as the prize. By professional
+practice 148 is far past the point where a listener stops tracking who is
+speaking. The arithmetic in that experiment stands; the goal it implied does
+not.
+
+**Contrast matters between characters who SHARE SCENES, not globally.**
+Narrators pick voices so that characters appearing together are
+distinguishable. Measured on the live book: 69% of character pairs never
+co-occur within a 20-line window, and a greedy colouring of the co-occurrence
+graph needs only 9 voices for 32 characters. So `audible_errors.py`'s
+assumption - that any two characters sharing a voice is a confusion - is
+stricter than practice. Sharing is fine when the characters never meet.
+
+### Anime and dub casting
+
+- [Answerman — Why Do Dubs Cast Men As Boy Characters, while Japan Casts Women? (ANN)](https://www.animenewsnetwork.com/answerman/2018-08-22/.135762)
+- [Cross-Dressing Voices / Anime (TV Tropes)](https://tvtropes.org/pmwiki/pmwiki.php/CrossDressingVoices/Anime)
+- [How Are English Dub Voice Actors Cast? (ANN)](https://www.animenewsnetwork.com/answerman/2015-09-11/.92806)
+- [Anime Voice Acting: From Start to Finish — Bunny Studio](https://bunnystudio.com/blog/voice-acting-anime-from-start-to-finish/)
+
+Adult women routinely voice boys and young men in Japanese originals - Naruto,
+Edward Elric, Luffy, Ash - because few adult men sound convincingly young and
+child actors bring scheduling and content limits. This matters for a corpus of
+translated light novels: an `_f_` adapter on a teenage boy is CONVENTION, not
+an error. It corrected a conclusion about Subaru, where the real mismatch was
+the `50s` age band rather than the `f` tag.
+
+### Voice and perceived sexual orientation
+
+- [The effect of sexual orientation on voice acoustic properties (Frontiers in Psychology, 2024)](https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2024.1412372/full)
+- [Speech Acoustic Features: Gay Men, Heterosexual Men, and Heterosexual Women (PMC)](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7497419/)
+- [Do gay-sounding men speak like women? — Smyth & Rogers (TWPL)](https://twpl.library.utoronto.ca/index.php/twpl/article/download/6168/3157/0)
+- ["Do I Sound Straight?" — Acoustic Correlates (JSLHR)](https://pubs.asha.org/doi/abs/10.1044/2018_JSLHR-S-17-0125)
+
+Checked because the folk model - "sounds more feminine, so higher pitch" - was
+about to be encoded. The literature does not support it. Findings on mean pitch
+are mixed and sometimes reversed; the reliable correlates are ARTICULATORY,
+chiefly /s/ with higher spectral peaks and longer duration, longer voice-onset
+times, and more alveolar /l/. One study reports sibilant variation as socially
+rather than anatomically determined. Nothing here is representable by an
+`_f_`/`_m_` tag, which is further evidence that the sex tag is the wrong
+primary key for casting.
