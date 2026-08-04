@@ -30,7 +30,7 @@ Each rule is reported alone and in combination, because a rule that only fires
 where another already fired is not worth its risk.
 """
 import collections, json, re, os, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))

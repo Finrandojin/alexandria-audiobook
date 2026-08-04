@@ -50,7 +50,7 @@ tag-priority rule should misfire. That is a hypothesis, not a measurement; it
 needs the epistolary sections marked before it can be tested.
 """
 import collections, json, re, statistics, os, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))

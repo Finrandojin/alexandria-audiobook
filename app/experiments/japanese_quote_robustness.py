@@ -57,10 +57,11 @@ def survey(name, src, chunk_size=3000):
 
 
 def main():
-    aozora = os.path.join(
-        "/home/fakemitch/pinokio/cache/TMPDIR/claude-1000",
-        "-home-fakemitch-pinokio-api-alexandria-audiobook2-git",
-        "e5db5129-c65a-459a-82cf-736dd0a173e7/scratchpad/aozora")
+    # See the note in quote_aware_chunking: this used to point into a
+    # session scratchpad and expired with it.
+    aozora = os.environ.get("ALEXANDRIA_AOZORA_CORPUS",
+                            os.path.join(REPO, "ab_test_runtime",
+                                         "corpora", "aozora"))
     jobs = []
     for p in sorted(glob.glob(aozora + "/*.txt")):
         jobs.append((os.path.basename(p)[:-4] + " (ja)",

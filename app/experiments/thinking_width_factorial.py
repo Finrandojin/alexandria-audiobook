@@ -44,7 +44,7 @@ Thinking is `reasoning_effort=None` against `"none"` - the same isolation
 import collections
 import json, os, re, sys, time
 from dataclasses import replace
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import openai
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord

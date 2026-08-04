@@ -19,7 +19,7 @@ Both arms share model, lines, context, decoding and frozen inputs; only the
 output contract differs.
 """
 import json, os, re, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
 from three_pass_generate import build_roster

@@ -498,6 +498,19 @@
     "test_gold_set_builder.ValidationTest.test_narrator_and_ambiguous_are_never_flagged_as_invented",
     "test_gold_set_builder.ValidationTest.test_unanswered_rows_are_reported"
   ],
+  "test_gpu_job": [
+    "test_gpu_job.GpuJobTest.test_a_failed_flock_refuses_to_run_the_command",
+    "test_gpu_job.GpuJobTest.test_a_successful_job_runs_and_logs_ok",
+    "test_gpu_job.GpuJobTest.test_an_unopenable_lock_file_refuses_to_run",
+    "test_gpu_job.GpuJobTest.test_failure_is_announced_on_stderr",
+    "test_gpu_job.GpuJobTest.test_interrupting_a_waiter_releases_nothing_and_logs_no_start",
+    "test_gpu_job.GpuJobTest.test_no_command_is_rejected",
+    "test_gpu_job.GpuJobTest.test_no_name_is_rejected",
+    "test_gpu_job.GpuJobTest.test_queue_log_order_is_queued_then_start_then_result",
+    "test_gpu_job.GpuJobTest.test_the_second_job_waits_rather_than_failing",
+    "test_gpu_job.GpuJobTest.test_two_jobs_do_not_overlap",
+    "test_gpu_job.GpuJobTest.test_wrapped_failure_propagates_the_exit_code"
+  ],
   "test_gpu_stats": [
     "test_gpu_stats.GpuStatsTests.test_nvidia_smi_utilization_parses_csv_output",
     "test_gpu_stats.GpuStatsTests.test_nvidia_smi_utilization_returns_none_on_unparseable_output",
@@ -678,6 +691,12 @@
   "test_multi_process_state": [
     "test_multi_process_state.MultiProcessStateTests.test_batch_cancel_signals_every_process",
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
+  ],
+  "test_no_machine_paths": [
+    "test_no_machine_paths.TestNoMachinePaths.test_allowed_files_take_an_environment_override",
+    "test_no_machine_paths.TestNoMachinePaths.test_no_home_directory_literals_in_source",
+    "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_actually_matches_the_defect",
+    "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_does_not_match_relocatable_forms"
   ],
   "test_normalize_for_speech": [
     "test_normalize_for_speech.TestIdempotence.test_applying_twice_changes_nothing",

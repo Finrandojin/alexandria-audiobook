@@ -60,7 +60,7 @@ Offline. Consumes committed artifacts and the segmentation checkpoint.
 """
 import collections
 import glob, json, os, re, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from experiments.stats import clopper_pearson
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(

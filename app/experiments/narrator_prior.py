@@ -47,7 +47,7 @@ way the earlier prompt sweeps were not.
 import collections
 import json, os, re, sys, time
 from dataclasses import replace
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from default_prompts import load_attribute_prompts
 from experiments.manifest import ExperimentRecord

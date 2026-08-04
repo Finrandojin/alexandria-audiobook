@@ -36,7 +36,7 @@ answers is not teaching much.
 """
 import collections
 import json, os, re, sys, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,

@@ -38,9 +38,13 @@ from openai import OpenAI
 from experiments.stats import clopper_pearson
 from generate_script import LLMGenParams
 
-SP = ("/home/fakemitch/pinokio/cache/TMPDIR/claude-1000/"
-      "-home-fakemitch-pinokio-api-alexandria-audiobook2-git/"
-      "e5db5129-c65a-459a-82cf-736dd0a173e7/scratchpad/chinese")
+# Corpus lives outside version control but INSIDE the repo, and is
+# overridable. It previously pointed at a Claude session scratchpad
+# whose path embedded a session UUID - so these results were
+# reproducible only until that session directory was cleaned.
+SP = os.environ.get("ALEXANDRIA_CHINESE_CORPUS",
+                    os.path.join(REPO, "ab_test_runtime", "corpora",
+                                 "chinese"))
 
 SYSTEM = ("You identify who speaks a line of dialogue in a Chinese novel. "
           "Characters appear as [C0], [C1] and so on. Answer with the single "

@@ -49,7 +49,7 @@ the line, and the roster, and nothing else.
 """
 import collections
 import json, os, random, re, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from three_pass_generate import build_roster, get_deterministic_named_entry
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(

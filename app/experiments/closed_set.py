@@ -8,7 +8,7 @@ Run on an idle GPU. Temperature 0, so single runs are exact.
 """
 import collections
 import json, os, re, sys, random, time, collections
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import openai
 from openai import OpenAI
 
@@ -31,7 +31,7 @@ def _safe_name(model):
     return model.replace("/", "__")
 from three_pass_generate import build_roster
 
-M = ("/home/fakemitch/pinokio/api/alexandria-audiobook2.git/"
+M = (REPO + "/"
      "ab_test_runtime/results/matrix_20260725-115148/")
 # The model under test. Only this varies between runs.
 MODEL = os.environ.get("EXPERIMENT_MODEL",

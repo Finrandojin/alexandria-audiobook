@@ -77,7 +77,7 @@ first, because pairing across a stochastic repeat is not meaningful.
 """
 import collections
 import json, os, re, statistics, sys, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import openai
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord

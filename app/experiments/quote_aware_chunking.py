@@ -36,9 +36,13 @@ from pass_quality import analyze_outer_quote_regions, _QUOTE_CHARS
 from generate_script import split_into_chunks
 
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
-AOZORA = ("/home/fakemitch/pinokio/cache/TMPDIR/claude-1000/"
-          "-home-fakemitch-pinokio-api-alexandria-audiobook2-git/"
-          "e5db5129-c65a-459a-82cf-736dd0a173e7/scratchpad/aozora")
+# Corpus lives outside version control but INSIDE the repo, and is
+# overridable. It previously pointed at a Claude session scratchpad
+# whose path embedded a session UUID - so these results were
+# reproducible only until that session directory was cleaned.
+AOZORA = os.environ.get("ALEXANDRIA_AOZORA_CORPUS",
+                        os.path.join(REPO, "ab_test_runtime",
+                                     "corpora", "aozora"))
 OPENERS = {'"', '“', '「', '『'}
 CLOSERS = {'"', '”', '」', '』'}
 SENTENCE_END = "。！？!?."

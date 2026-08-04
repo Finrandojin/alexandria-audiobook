@@ -33,7 +33,7 @@ under 3 points is not worth 5x on a book-length run, whatever its p-value.
 """
 import collections
 import json, os, re, sys, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
 from experiments.stats import clopper_pearson, paired
