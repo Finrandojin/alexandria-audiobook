@@ -45,13 +45,17 @@ distinct predicted clusters is printed next to every row.
 """
 import argparse, collections, glob, json, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 sys.path.insert(0, APP)
 from experiments.scoring import alias_groups, normalize, same_speaker
 
 LEDGER = REPO + "/ab_test_runtime/experiments"
-BOOKS = ("grimgar03", "index18", "mushoku16", "owarimonogatari3")
+# The PDNC fixtures have gold and are analysable here; they were absent only
+# because no artifact covered them when this was written.
+BOOKS = ("grimgar03", "index18", "mushoku16", "owarimonogatari3",
+         "pdnc_prideandprejudice", "pdnc_theawakening", "pdnc_thesignofthefour")
 SPECIAL = {"UNKNOWN", "UNNAMED", "NOT_DIALOGUE", ""}
 
 

@@ -1,0 +1,41 @@
+{
+ "arm": "lora",
+ "wrong": {
+  "prev speaker": 26,
+  "nearby": 39,
+  "unrelated": 102,
+  "next speaker": 12
+ },
+ "right": {
+  "unrelated": 93,
+  "next speaker": 138,
+  "prev speaker": 210,
+  "nearby": 132
+ },
+ "per_book": {
+  "index18": {
+   "prev speaker": 1,
+   "nearby": 9,
+   "unrelated": 6,
+   "next speaker": 1
+  },
+  "mushoku16": {
+   "prev speaker": 8,
+   "nearby": 12,
+   "unrelated": 18,
+   "next speaker": 4
+  },
+  "grimgar03": {
+   "unrelated": 34,
+   "nearby": 8,
+   "next speaker": 4,
+   "prev speaker": 7
+  },
+  "owarimonogatari3": {
+   "unrelated": 44,
+   "nearby": 10,
+   "prev speaker": 10,
+   "next speaker": 3
+  }
+ }
+}

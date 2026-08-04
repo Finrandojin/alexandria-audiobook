@@ -11,7 +11,8 @@ in every run scored against it.
 import collections
 import json, os, re, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 BOOK = os.environ.get("EXPERIMENT_BOOK", "owarimonogatari3")
 JUDGE = os.environ.get("EXPERIMENT_JUDGE", "frontier-model (single judge, provisional)")
 BUNDLE = os.environ.get("EXPERIMENT_BUNDLE", os.path.join(

@@ -199,3 +199,5 @@ ab_test_runtime/distill/adapter/
 
 # Derived LoRA GGUF (128MB); rebuild with convert_lora_to_gguf.py, see brief
 ab_test_runtime/distill/gguf/
+ab_test_runtime/pdnc/
+ab_test_runtime/booknlp/

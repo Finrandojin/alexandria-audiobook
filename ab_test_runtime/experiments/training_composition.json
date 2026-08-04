@@ -1,0 +1,147 @@
+{
+ "trained_on": [
+  "grimgar06",
+  "mushoku18",
+  "arc4_volume10wn",
+  "mushoku23"
+ ],
+ "book_level": {
+  "grimgar03": null,
+  "index18": null,
+  "mushoku16": null,
+  "owarimonogatari3": null
+ },
+ "character_level": {
+  "seen": [
+   {
+    "book": "grimgar03",
+    "lead": "HARUHIRO",
+    "n": 122,
+    "delta": 0.08196721311475409
+   },
+   {
+    "book": "grimgar03",
+    "lead": "YUME",
+    "n": 24,
+    "delta": 0.0
+   },
+   {
+    "book": "grimgar03",
+    "lead": "MOGUZO",
+    "n": 32,
+    "delta": 0.03125
+   },
+   {
+    "book": "grimgar03",
+    "lead": "RANTA",
+    "n": 116,
+    "delta": 0.02586206896551724
+   },
+   {
+    "book": "grimgar03",
+    "lead": "CHOCO",
+    "n": 26,
+    "delta": 0.0
+   },
+   {
+    "book": "mushoku16",
+    "lead": "RUDEUS",
+    "n": 50,
+    "delta": 0.18
+   },
+   {
+    "book": "mushoku16",
+    "lead": "SYLPHY",
+    "n": 8,
+    "delta": 0.0
+   },
+   {
+    "book": "mushoku16",
+    "lead": "ROXY",
+    "n": 11,
+    "delta": 0.0
+   },
+   {
+    "book": "mushoku16",
+    "lead": "HITOGAMI",
+    "n": 9,
+    "delta": -0.1111111111111111
+   },
+   {
+    "book": "mushoku16",
+    "lead": "NANAHOSHI",
+    "n": 12,
+    "delta": -0.08333333333333333
+   }
+  ],
+  "unseen": [
+   {
+    "book": "index18",
+    "lead": "KNIGHT LEADER",
+    "n": 10,
+    "delta": 0.2
+   },
+   {
+    "book": "index18",
+    "lead": "TOUMA KAMIJOU",
+    "n": 10,
+    "delta": 0.2
+   },
+   {
+    "book": "index18",
+    "lead": "CARISSA",
+    "n": 14,
+    "delta": 0.07142857142857142
+   },
+   {
+    "book": "index18",
+    "lead": "ELIZARD",
+    "n": 8,
+    "delta": 0.0
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "HACHIKUJI",
+    "n": 26,
+    "delta": -0.038461538461538464
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "ARARAGI",
+    "n": 43,
+    "delta": 0.11627906976744186
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "TADATSURU",
+    "n": 9,
+    "delta": 0.1111111111111111
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "SENJOUGAHARA",
+    "n": 12,
+    "delta": -0.08333333333333333
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "OUGI",
+    "n": 10,
+    "delta": 0.2
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "GAEN",
+    "n": 31,
+    "delta": -0.0967741935483871
+   },
+   {
+    "book": "owarimonogatari3",
+    "lead": "KOYOMI ARARAGI",
+    "n": 9,
+    "delta": 0.0
+   }
+  ]
+ },
+ "caveat": "underpowered; 2 series in-training vs 2 not"
+}

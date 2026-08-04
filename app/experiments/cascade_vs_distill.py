@@ -31,7 +31,8 @@ to a 70B", not "is it the same system".
 """
 import collections, glob, json, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 
 LEDGER = REPO + "/ab_test_runtime/experiments"

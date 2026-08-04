@@ -39,11 +39,12 @@ ten of those "disagreements" were KAMIJOU versus TOUMA KAMIJOU.
 """
 import collections
 import glob, json, os, re, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from experiments.scoring import alias_groups, same_speaker
 from experiments.stats import clopper_pearson
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 J = REPO + "/ab_test_runtime/judgements/"
 BOOKS = {"grimgar03": "attribution_gold_grimgar03_provisional.json",
          "index18": "attribution_gold_index18_provisional.json",

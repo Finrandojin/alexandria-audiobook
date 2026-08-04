@@ -29,7 +29,8 @@ that ROCm makes awkward. Run this on the instance.
 """
 import argparse, json, os, sys, glob
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 
 
@@ -89,6 +90,15 @@ def main():
     ap.add_argument("--batch_size", type=int, default=1)
     ap.add_argument("--grad_accum", type=int, default=8)
     ap.add_argument("--max_len", type=int, default=2048)
+    # A CUDA OOM killed this run twice on 2026-08-04, both times at step
+    # 218/1250 after ~41 minutes, and with save_strategy="epoch" there was
+    # nothing on disk to resume from either time. Saving mid-epoch turns a
+    # crash into a resumable interruption rather than 41 wasted GPU minutes.
+    ap.add_argument("--save_steps", type=int, default=100,
+                    help="mid-epoch checkpoint interval; 0 restores the old "
+                         "save-once-per-epoch behaviour")
+    ap.add_argument("--resume", action="store_true",
+                    help="continue from the latest checkpoint in --out")
     # Default to holding nothing back. The four gold books already provide a
     # clean cross-book evaluation, and with 1,091 rows total an internal
     # holdout of 593 would cost more than half the training data to answer a
@@ -187,12 +197,14 @@ def main():
             per_device_train_batch_size=args.batch_size,
             gradient_accumulation_steps=args.grad_accum,
             learning_rate=args.lr, bf16=True, logging_steps=10,
-            save_strategy="epoch", report_to=[], lr_scheduler_type="cosine",
+            save_strategy="steps" if args.save_steps else "epoch",
+            save_steps=args.save_steps or 500,
+            save_total_limit=2, report_to=[], lr_scheduler_type="cosine",
             warmup_ratio=0.03),
         train_dataset=ds,
         data_collator=DataCollatorForSeq2Seq(tok, padding=True,
                                              label_pad_token_id=-100),
-    ).train()
+    ).train(resume_from_checkpoint=args.resume or None)
     model.save_pretrained(args.out)
     tok.save_pretrained(args.out)
     print(f"\nwrote adapter to {args.out}")

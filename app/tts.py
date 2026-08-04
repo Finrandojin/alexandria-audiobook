@@ -55,6 +55,56 @@ def voice_category(voice_data):
     return "custom"
 
 
+# Characters that are not speech and have no pronunciation. Reaching the model
+# with these is not cosmetic: a 349-character table of contents separated by
+# U+2022 produced 24.2 seconds of audio at normal level that transcribed to
+# "* * *" - the model vocalising instead of reading. Measured 2026-08-03 by
+# experiments/tts_output_validation.py.
+#
+# Two classes, because they need opposite treatment. A bullet or a rule is
+# STRUCTURE: it separates items and must become a sentence break, not a word,
+# or the list runs together. A symbol like © is a WORD the writer expects read
+# aloud. Deleting the first class and speaking the second is why this is not
+# one mapping table.
+SPEECH_BREAKS = "•·▪◦‣∙■□◆●▲─━―*_~"
+SPEECH_WORDS = {
+    "©": "copyright", "®": "registered trademark", "™": "trademark",
+    "&": "and", "@": "at", "%": "percent", "°": "degrees",
+    "№": "number", "§": "section", "†": "", "‡": "",
+}
+# Absorbs whitespace either side, so "one ■■■ two" becomes "one. two."
+# rather than "one . two." with a floating full stop the model may voice.
+_BREAK_RE = re.compile(f"\\s*[{re.escape(SPEECH_BREAKS)}]+\\s*")
+_SPACE_RE = re.compile(r"[ \t]{2,}")
+_ORPHAN_PUNCT_RE = re.compile(r"(?:\.\s*){2,}")
+_DUPE_WORD_RE = re.compile(r"\b(\w+)(\s+\1)+\b", re.IGNORECASE)
+
+
+def normalize_for_speech(text):
+    """Make text speakable before it reaches the model.
+
+    Idempotent, so applying it twice is harmless - which is what lets it sit at
+    every public entry point without tracking whether an inner path already ran
+    it. Deliberately conservative: it does not touch typographic quotes, which
+    the model reads correctly and which account for 59,004 of the 62,000
+    non-ASCII characters in the library.
+    """
+    if not text:
+        return text
+    for symbol, word in SPEECH_WORDS.items():
+        if symbol in text:
+            text = text.replace(symbol, f" {word} " if word else " ")
+    # A structural mark becomes a full stop so the items either side are read
+    # as separate phrases rather than run together.
+    text = _BREAK_RE.sub(". ", text)
+    text = _ORPHAN_PUNCT_RE.sub(". ", text)
+    text = _SPACE_RE.sub(" ", text)
+    # "Copyright © 2016" would otherwise be read "copyright copyright 2016",
+    # because the writer already spelled out the word the symbol stands for.
+    text = _DUPE_WORD_RE.sub(r"\1", text)
+    return text.strip(" .\t\n") + "." if text.strip(" .\t\n") else ""
+
+
 def mix_to_unison(wav_paths, output_path, max_stretch=1.35):
     """Align same-text clips to a common length and mix them into one track.
 
@@ -835,6 +885,7 @@ class TTSEngine:
 
     def generate_custom_voice(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate audio using CustomVoice model. Returns True on success."""
+        text = normalize_for_speech(text)
         if self._mode == "local":
             return self._local_generate_custom(text, instruct_text, speaker, voice_config, output_path)
         else:
@@ -842,6 +893,7 @@ class TTSEngine:
 
     def generate_clone_voice(self, text, speaker, voice_config, output_path):
         """Generate audio using voice cloning. Returns True on success."""
+        text = normalize_for_speech(text)
         if self._mode == "local":
             return self._local_generate_clone(text, speaker, voice_config, output_path)
         else:
@@ -849,6 +901,7 @@ class TTSEngine:
 
     def generate_voice(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate audio using the appropriate method based on voice type config."""
+        text = normalize_for_speech(text)
         voice_data = voice_config.get(speaker)
         if not voice_data:
             print(f"Warning: No voice configuration for '{speaker}'. Skipping.")
@@ -971,6 +1024,7 @@ class TTSEngine:
         The voice_data 'description' field provides the base voice identity,
         and the per-line instruct_text is appended for delivery/emotion direction.
         """
+        text = normalize_for_speech(text)
         import shutil
 
         base_desc = (voice_data.get("description") or "").strip()
@@ -1010,6 +1064,7 @@ class TTSEngine:
 
         The LoRA weights refine voice identity beyond what the reference alone provides.
         """
+        text = normalize_for_speech(text)
         try:
             import time
 
@@ -1076,6 +1131,25 @@ class TTSEngine:
                 instruct_formatted = f"<|im_start|>user\n{instruct}<|im_end|>\n"
                 gen_extra["instruct_ids"] = model._tokenize_texts([instruct_formatted])
 
+            # THE LORA PATH NEVER SEEDED. generate_voice_design,
+            # _local_generate_custom and _local_generate_clone all read
+            # voice_data["seed"] and call torch.manual_seed; this one did not,
+            # in 121 lines, so the seed field was silently ignored for every
+            # `lora` voice - 22 characters including NARRATOR, which speaks
+            # 1,581 of 2,606 lines. Each line was an independent draw of the
+            # voice, which is audible as the narrator changing between
+            # paragraphs, and it made every A/B on this path uncontrolled:
+            # the same input produced an 18% swing in clip length.
+            #
+            # Verified before fixing: torch.manual_seed alone IS sufficient
+            # here. Seeding externally before three calls gave byte-identical
+            # output, so neither the cached clone prompt nor the ROCm kernels
+            # add nondeterminism of their own.
+            import torch
+            seed = int(voice_data.get("seed", -1))
+            if seed >= 0:
+                torch.manual_seed(seed)
+
             t_start = time.time()
             wavs, sr = model.generate_voice_clone(
                 text=text,
@@ -1140,6 +1214,13 @@ class TTSEngine:
 
         if not chunks:
             return results
+
+        # Normalised once here so every downstream path - including
+        # _local_batch_lora, which does not go through the single-item
+        # methods - sees speakable text. Copies rather than mutating the
+        # caller's chunk dicts (Rule 17); the caller still owns the originals.
+        chunks = [{**c, "text": normalize_for_speech(c.get("text"))}
+                  for c in chunks]
 
         # Reset torch.compile state to prevent progressive slowdown
         # from dynamo guard accumulation across batches

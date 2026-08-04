@@ -1,6 +1,7 @@
 """Score every pipeline repeat and report the run-level distribution."""
 import json, re, glob, collections, os, statistics
-ROOT = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 D = ROOT + "/ab_test_runtime/pipeline_repeats"
 gold = json.load(open(ROOT + "/app/fixtures/attribution_gold_grimgar03_provisional.json"))
 AL = [{n.upper() for n in g} for g in gold.get("aliases", [])]

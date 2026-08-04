@@ -46,7 +46,7 @@ without it for days.
 """
 import collections
 import json, os, re, sys, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
 from experiments.scoring import alias_groups, same_speaker
@@ -55,7 +55,8 @@ from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,
                                  get_deterministic_named_entry)
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"

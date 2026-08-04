@@ -1,0 +1,44 @@
+{
+ "per_text": {
+  "kokoro (ja)": {
+   "clean": 28,
+   "repaired": 51,
+   "chunks": 79
+  },
+  "ningen (ja)": {
+   "clean": 22,
+   "fellthrough": 7,
+   "repaired": 3,
+   "chunks": 32
+  },
+  "rashomon (ja)": {
+   "fellthrough": 1,
+   "clean": 4,
+   "chunks": 5
+  },
+  "index18 (en)": {
+   "fellthrough": 165,
+   "chunks": 165
+  },
+  "grimgar03 (en)": {
+   "clean": 90,
+   "fellthrough": 7,
+   "repaired": 2,
+   "chunks": 99
+  }
+ },
+ "repair_codes": {
+  "kokoro (ja)": {
+   "inferred_missing_close_quote": 51
+  },
+  "ningen (ja)": {
+   "inferred_missing_close_quote": 3
+  },
+  "rashomon (ja)": {},
+  "index18 (en)": {},
+  "grimgar03 (en)": {
+   "ignored_unmatched_close_quote": 4
+  }
+ },
+ "reading": "Japanese repairs are all inferred_missing_close_quote: the chunk ends inside an open bracket and the code guesses where the quote closed. LATENT, NOT ACTIVE - the pipeline processes English translations."
+}

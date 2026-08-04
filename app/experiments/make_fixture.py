@@ -49,10 +49,11 @@ the line, and the roster, and nothing else.
 """
 import collections
 import json, os, random, re, sys
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from three_pass_generate import build_roster, get_deterministic_named_entry
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"
 BOOK = os.environ.get("EXPERIMENT_BOOK", "owarimonogatari3")

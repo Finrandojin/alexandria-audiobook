@@ -206,7 +206,7 @@ class VoicesTests(unittest.TestCase):
 
         def suggest(confidence):
             parsed = {"characters": [{
-                "name": "Hero", "ranked_adapter_ids": ["male", "female"],
+                "name": "HERO", "ranked_adapter_ids": ["male", "female"],
                 "character_style": "Direct", "reason": "book evidence",
                 "character_gender": "male", "age_group": "young_adult",
                 "trait_evidence": "The text identifies him as male",
@@ -218,8 +218,17 @@ class VoicesTests(unittest.TestCase):
                 create=lambda **_kwargs: response)))
             with tempfile.TemporaryDirectory() as tmp:
                 script_path = os.path.join(tmp, "script.json")
+                # The speaker LABEL carries the trait, not the dialogue. This
+                # test used to give "Hero" the line "She was an old woman who
+                # entered quietly" and assert Hero was therefore female and
+                # elderly - encoding the inverted inference as correct. A
+                # character's words describe whoever they are talking about, so
+                # dialogue was removed as a trait source; the label is a
+                # legitimate one and keeps this test's actual subject, which is
+                # the authority ordering between local and LLM traits.
                 Path(script_path).write_text(json.dumps([
-                    {"speaker": "Hero", "text": "She was an old woman who entered quietly."}
+                    {"speaker": "HERO",
+                     "text": "She was an old woman who entered quietly."}
                 ]), encoding="utf-8")
                 with patch.object(voices_module, "SCRIPT_PATH", script_path), \
                      patch.object(voices_module, "VOICE_CONFIG_PATH", os.path.join(tmp, "missing.json")), \
@@ -229,14 +238,16 @@ class VoicesTests(unittest.TestCase):
                      patch.object(voices_module, "_make_llm_client", return_value=(client, "model")), \
                      patch.object(voices_module, "get_current_status", return_value={"context_length": None}):
                     return voices_module._suggest_voices_impl(
-                        voices_module.SuggestVoicesRequest(max_lines=4))["suggestions"]["Hero"]
+                        voices_module.SuggestVoicesRequest(max_lines=4)
+                    )["suggestions"]["HERO"]
 
+        # "HERO" carries no gender and the dialogue is no longer a trait
+        # source, so local traits are unknown. A non-authoritative LLM claim
+        # must not be adopted on top of that - "unknown" is a real answer, and
+        # every consumer treats it as do-not-filter, do-not-penalise.
         for confidence in ("unknown", "low"):
             suggestion = suggest(confidence)
-            self.assertEqual(suggestion["character_gender"], "female", confidence)
-            self.assertEqual(suggestion["gender_confidence"], "low", confidence)
-            self.assertEqual(suggestion["character_age_group"], "elderly", confidence)
-            self.assertEqual(suggestion["age_confidence"], "low", confidence)
+            self.assertEqual(suggestion["character_gender"], "unknown", confidence)
         for confidence in ("medium", "high"):
             suggestion = suggest(confidence)
             self.assertEqual(suggestion["character_gender"], "male", confidence)

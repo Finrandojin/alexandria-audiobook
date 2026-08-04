@@ -40,7 +40,7 @@ and is one of the capabilities LM Studio does not expose.
 """
 import collections
 import json, os, re, sys, random, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import openai
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
@@ -51,7 +51,8 @@ RETRYABLE = (openai.APIConnectionError, openai.APITimeoutError,
              openai.NotFoundError)
 MAX_ATTEMPTS = 6
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 INPUT_RUN = "qwen3.5-9b-uncensored-hauhaucs-aggressive"

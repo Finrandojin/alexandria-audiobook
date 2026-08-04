@@ -77,14 +77,15 @@ first, because pairing across a stochastic repeat is not meaningful.
 """
 import collections
 import json, os, re, statistics, sys, time
-sys.path.insert(0, "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app")
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import openai
 from openai import OpenAI
 from experiments.manifest import ExperimentRecord
 from three_pass_generate import build_roster
 from lmstudio_settings import ensure_ideal_settings
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 APP = REPO + "/app/"
 M = REPO + "/ab_test_runtime/results/matrix_20260725-115148/"
 OVERNIGHT = REPO + "/ab_test_runtime/results/overnight_20260726-185022/"

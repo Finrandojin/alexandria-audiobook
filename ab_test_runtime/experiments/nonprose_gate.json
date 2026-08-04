@@ -1,0 +1,523 @@
+{
+ "thresholds": {
+  "0.35": {
+   "flagged": 18296,
+   "total": 98119,
+   "share": 0.186467452786922,
+   "per_book": {
+    "Arc 1 - Volume 1": {
+     "n": 3384,
+     "flagged": 533,
+     "share": 0.15750591016548462
+    },
+    "Arc 1 - Volume 1_2": {
+     "n": 2385,
+     "flagged": 370,
+     "share": 0.15513626834381553
+    },
+    "Arc 1 - Volume 1_3": {
+     "n": 3388,
+     "flagged": 535,
+     "share": 0.15791027154663517
+    },
+    "Arc 1 - Volume 1_4": {
+     "n": 3355,
+     "flagged": 533,
+     "share": 0.15886736214605068
+    },
+    "Arc 2 - Volume 2": {
+     "n": 3909,
+     "flagged": 696,
+     "share": 0.1780506523407521
+    },
+    "Arc 2 - Volume 2_2": {
+     "n": 2563,
+     "flagged": 462,
+     "share": 0.18025751072961374
+    },
+    "Arc 2 - Volume 2_3": {
+     "n": 3912,
+     "flagged": 704,
+     "share": 0.17995910020449898
+    },
+    "Arc 2 - Volume 3": {
+     "n": 4064,
+     "flagged": 764,
+     "share": 0.18799212598425197
+    },
+    "Arc 2 - Volume 3_2": {
+     "n": 2726,
+     "flagged": 547,
+     "share": 0.20066030814380045
+    },
+    "Arc 2 - Volume 3_3": {
+     "n": 4111,
+     "flagged": 830,
+     "share": 0.20189734857698857
+    },
+    "Arc 2 - Volume 3_4": {
+     "n": 4118,
+     "flagged": 802,
+     "share": 0.19475473530840215
+    },
+    "Arc 3 - Volume 4": {
+     "n": 3813,
+     "flagged": 705,
+     "share": 0.1848937844217152
+    },
+    "Arc 3 - Volume 4_2": {
+     "n": 2468,
+     "flagged": 475,
+     "share": 0.19246353322528362
+    },
+    "Arc 3 - Volume 4_3": {
+     "n": 3823,
+     "flagged": 728,
+     "share": 0.19042636672770075
+    },
+    "Arc 3 - Volume 5": {
+     "n": 3840,
+     "flagged": 715,
+     "share": 0.18619791666666666
+    },
+    "Arc 3 - Volume 5_2": {
+     "n": 2231,
+     "flagged": 419,
+     "share": 0.18780815777678173
+    },
+    "Arc 3 - Volume 5_3": {
+     "n": 3873,
+     "flagged": 716,
+     "share": 0.18486961012135295
+    },
+    "Arc 3 - Volume 6": {
+     "n": 3883,
+     "flagged": 795,
+     "share": 0.20473860417203193
+    },
+    "Arc 3 - Volume 6_2": {
+     "n": 2343,
+     "flagged": 489,
+     "share": 0.2087067861715749
+    },
+    "Arc 3 - Volume 6_3": {
+     "n": 3750,
+     "flagged": 743,
+     "share": 0.19813333333333333
+    },
+    "Arc 3 - Volume 7": {
+     "n": 3565,
+     "flagged": 637,
+     "share": 0.17868162692847125
+    },
+    "Arc 3 - Volume 7_2": {
+     "n": 2247,
+     "flagged": 405,
+     "share": 0.1802403204272363
+    },
+    "Arc 3 - Volume 8": {
+     "n": 3923,
+     "flagged": 811,
+     "share": 0.20672954371654345
+    },
+    "Arc 3 - Volume 8_2": {
+     "n": 2790,
+     "flagged": 591,
+     "share": 0.2118279569892473
+    },
+    "Arc 3 - Volume 8_3": {
+     "n": 3925,
+     "flagged": 791,
+     "share": 0.20152866242038217
+    },
+    "Arc 3 - Volume 9": {
+     "n": 4243,
+     "flagged": 837,
+     "share": 0.1972660853169927
+    },
+    "Arc 3 - Volume 9_2": {
+     "n": 2493,
+     "flagged": 452,
+     "share": 0.18130766145206578
+    },
+    "Arc 4 - Volume 10": {
+     "n": 4162,
+     "flagged": 711,
+     "share": 0.17083133109082171
+    },
+    "Arc 4 - Volume 10_2": {
+     "n": 2832,
+     "flagged": 500,
+     "share": 0.1765536723163842
+    }
+   }
+  },
+  "0.45": {
+   "flagged": 2562,
+   "total": 98119,
+   "share": 0.026111150745523292,
+   "per_book": {
+    "Arc 1 - Volume 1": {
+     "n": 3384,
+     "flagged": 45,
+     "share": 0.013297872340425532
+    },
+    "Arc 1 - Volume 1_2": {
+     "n": 2385,
+     "flagged": 39,
+     "share": 0.016352201257861635
+    },
+    "Arc 1 - Volume 1_3": {
+     "n": 3388,
+     "flagged": 49,
+     "share": 0.014462809917355372
+    },
+    "Arc 1 - Volume 1_4": {
+     "n": 3355,
+     "flagged": 42,
+     "share": 0.012518628912071535
+    },
+    "Arc 2 - Volume 2": {
+     "n": 3909,
+     "flagged": 78,
+     "share": 0.019953952417498082
+    },
+    "Arc 2 - Volume 2_2": {
+     "n": 2563,
+     "flagged": 54,
+     "share": 0.021069059695669138
+    },
+    "Arc 2 - Volume 2_3": {
+     "n": 3912,
+     "flagged": 76,
+     "share": 0.019427402862985686
+    },
+    "Arc 2 - Volume 3": {
+     "n": 4064,
+     "flagged": 93,
+     "share": 0.022883858267716536
+    },
+    "Arc 2 - Volume 3_2": {
+     "n": 2726,
+     "flagged": 72,
+     "share": 0.02641232575201761
+    },
+    "Arc 2 - Volume 3_3": {
+     "n": 4111,
+     "flagged": 99,
+     "share": 0.024081731938701046
+    },
+    "Arc 2 - Volume 3_4": {
+     "n": 4118,
+     "flagged": 92,
+     "share": 0.022340942204953862
+    },
+    "Arc 3 - Volume 4": {
+     "n": 3813,
+     "flagged": 78,
+     "share": 0.020456333595594022
+    },
+    "Arc 3 - Volume 4_2": {
+     "n": 2468,
+     "flagged": 63,
+     "share": 0.025526742301458672
+    },
+    "Arc 3 - Volume 4_3": {
+     "n": 3823,
+     "flagged": 84,
+     "share": 0.02197227308396547
+    },
+    "Arc 3 - Volume 5": {
+     "n": 3840,
+     "flagged": 107,
+     "share": 0.027864583333333335
+    },
+    "Arc 3 - Volume 5_2": {
+     "n": 2231,
+     "flagged": 71,
+     "share": 0.03182429403854774
+    },
+    "Arc 3 - Volume 5_3": {
+     "n": 3873,
+     "flagged": 110,
+     "share": 0.028401755744900593
+    },
+    "Arc 3 - Volume 6": {
+     "n": 3883,
+     "flagged": 110,
+     "share": 0.028328611898016998
+    },
+    "Arc 3 - Volume 6_2": {
+     "n": 2343,
+     "flagged": 88,
+     "share": 0.03755868544600939
+    },
+    "Arc 3 - Volume 6_3": {
+     "n": 3750,
+     "flagged": 97,
+     "share": 0.025866666666666666
+    },
+    "Arc 3 - Volume 7": {
+     "n": 3565,
+     "flagged": 83,
+     "share": 0.023281907433380083
+    },
+    "Arc 3 - Volume 7_2": {
+     "n": 2247,
+     "flagged": 61,
+     "share": 0.027147307521139297
+    },
+    "Arc 3 - Volume 8": {
+     "n": 3923,
+     "flagged": 169,
+     "share": 0.04307927606423655
+    },
+    "Arc 3 - Volume 8_2": {
+     "n": 2790,
+     "flagged": 114,
+     "share": 0.04086021505376344
+    },
+    "Arc 3 - Volume 8_3": {
+     "n": 3925,
+     "flagged": 159,
+     "share": 0.040509554140127385
+    },
+    "Arc 3 - Volume 9": {
+     "n": 4243,
+     "flagged": 160,
+     "share": 0.037709168041480084
+    },
+    "Arc 3 - Volume 9_2": {
+     "n": 2493,
+     "flagged": 98,
+     "share": 0.03931006819093462
+    },
+    "Arc 4 - Volume 10": {
+     "n": 4162,
+     "flagged": 96,
+     "share": 0.023065833733781835
+    },
+    "Arc 4 - Volume 10_2": {
+     "n": 2832,
+     "flagged": 75,
+     "share": 0.026483050847457626
+    }
+   }
+  },
+  "0.55": {
+   "flagged": 2488,
+   "total": 98119,
+   "share": 0.025356964502288037,
+   "per_book": {
+    "Arc 1 - Volume 1": {
+     "n": 3384,
+     "flagged": 44,
+     "share": 0.013002364066193853
+    },
+    "Arc 1 - Volume 1_2": {
+     "n": 2385,
+     "flagged": 37,
+     "share": 0.01551362683438155
+    },
+    "Arc 1 - Volume 1_3": {
+     "n": 3388,
+     "flagged": 48,
+     "share": 0.014167650531286895
+    },
+    "Arc 1 - Volume 1_4": {
+     "n": 3355,
+     "flagged": 41,
+     "share": 0.012220566318926976
+    },
+    "Arc 2 - Volume 2": {
+     "n": 3909,
+     "flagged": 77,
+     "share": 0.019698132514709643
+    },
+    "Arc 2 - Volume 2_2": {
+     "n": 2563,
+     "flagged": 53,
+     "share": 0.020678891923527117
+    },
+    "Arc 2 - Volume 2_3": {
+     "n": 3912,
+     "flagged": 75,
+     "share": 0.019171779141104295
+    },
+    "Arc 2 - Volume 3": {
+     "n": 4064,
+     "flagged": 92,
+     "share": 0.022637795275590553
+    },
+    "Arc 2 - Volume 3_2": {
+     "n": 2726,
+     "flagged": 71,
+     "share": 0.026045487894350697
+    },
+    "Arc 2 - Volume 3_3": {
+     "n": 4111,
+     "flagged": 97,
+     "share": 0.023595232303575773
+    },
+    "Arc 2 - Volume 3_4": {
+     "n": 4118,
+     "flagged": 91,
+     "share": 0.022098105876639147
+    },
+    "Arc 3 - Volume 4": {
+     "n": 3813,
+     "flagged": 75,
+     "share": 0.01966955153422502
+    },
+    "Arc 3 - Volume 4_2": {
+     "n": 2468,
+     "flagged": 61,
+     "share": 0.02471636952998379
+    },
+    "Arc 3 - Volume 4_3": {
+     "n": 3823,
+     "flagged": 82,
+     "share": 0.021449123724823438
+    },
+    "Arc 3 - Volume 5": {
+     "n": 3840,
+     "flagged": 106,
+     "share": 0.027604166666666666
+    },
+    "Arc 3 - Volume 5_2": {
+     "n": 2231,
+     "flagged": 70,
+     "share": 0.031376064545047065
+    },
+    "Arc 3 - Volume 5_3": {
+     "n": 3873,
+     "flagged": 108,
+     "share": 0.027885360185902403
+    },
+    "Arc 3 - Volume 6": {
+     "n": 3883,
+     "flagged": 107,
+     "share": 0.02755601339170744
+    },
+    "Arc 3 - Volume 6_2": {
+     "n": 2343,
+     "flagged": 85,
+     "share": 0.03627827571489543
+    },
+    "Arc 3 - Volume 6_3": {
+     "n": 3750,
+     "flagged": 95,
+     "share": 0.025333333333333333
+    },
+    "Arc 3 - Volume 7": {
+     "n": 3565,
+     "flagged": 80,
+     "share": 0.02244039270687237
+    },
+    "Arc 3 - Volume 7_2": {
+     "n": 2247,
+     "flagged": 58,
+     "share": 0.0258121940364931
+    },
+    "Arc 3 - Volume 8": {
+     "n": 3923,
+     "flagged": 159,
+     "share": 0.04053020647463676
+    },
+    "Arc 3 - Volume 8_2": {
+     "n": 2790,
+     "flagged": 109,
+     "share": 0.03906810035842294
+    },
+    "Arc 3 - Volume 8_3": {
+     "n": 3925,
+     "flagged": 152,
+     "share": 0.03872611464968153
+    },
+    "Arc 3 - Volume 9": {
+     "n": 4243,
+     "flagged": 154,
+     "share": 0.036295074239924584
+    },
+    "Arc 3 - Volume 9_2": {
+     "n": 2493,
+     "flagged": 95,
+     "share": 0.03810669875651825
+    },
+    "Arc 4 - Volume 10": {
+     "n": 4162,
+     "flagged": 93,
+     "share": 0.022345026429601154
+    },
+    "Arc 4 - Volume 10_2": {
+     "n": 2832,
+     "flagged": 73,
+     "share": 0.02577683615819209
+    }
+   }
+  }
+ },
+ "sampled_flags": [
+  "Copyright.",
+  "REZERO Vol. One.",
+  "TAPPEI NAGATSUKI.",
+  "Translation by ZephyrRz.",
+  "Cover art by Shinichirou Otsuka.",
+  "REZERO KARA HAJIMERU ISEKAI SEIKATSU Vol. One.",
+  "First published in Japan in 2014 by KADOKAWA CORPORATION, Tokyo.",
+  "First Yen On Edition July 2016.",
+  "PROLOGUE. THE WASTE HEAT OF THE BEGINNING.",
+  "!",
+  "CHAPTER One. THE END OF THE BEGINNING.",
+  "\u201c\u2026\u201d",
+  "\u2026",
+  "\u2026\u201d",
+  "...",
+  "!",
+  "CHAPTER 2.",
+  "A STRUGGLE TOO LATE.",
+  "1.",
+  "2.",
+  "3.",
+  "\u2026",
+  "CHAPTER Three.",
+  "ENDING AND BEGINNING.",
+  "\u2026",
+  "\u2026",
+  "!",
+  "4.",
+  "3.",
+  "4.",
+  "7.",
+  "\u2026",
+  "8.",
+  "CHAPTER Five.",
+  "STARTING LIFE IN ANOTHER WORLD.",
+  "\u2026",
+  "2.",
+  "\u2026!",
+  "An ice shield! Nice cover!",
+  "6.",
+  "7.",
+  "EPILOGUE.",
+  "THE MOON IS WATCHING.",
+  "\"END\".",
+  "AFTERWORD.",
+  "Copyright.",
+  "REZERO Vol. One.",
+  "TAPPEI NAGATSUKI.",
+  "Translation by ZephyrRz.",
+  "Cover art by Shinichirou Otsuka.",
+  "REZERO KARA HAJIMERU ISEKAI SEIKATSU Vol. One.",
+  "First published in Japan in 2014 by KADOKAWA CORPORATION, Tokyo.",
+  "English translation \u00a9 2016 by Yen Press, LLC.",
+  "1290 Avenue of the Americas.",
+  "New York, NY 10104.",
+  "First Yen On Edition July 2016.",
+  "ISBNs 978-0-316-31530-2 (paperback).",
+  "978-0-316-39839-8 (ebook).",
+  "E3-20180216-JV-PC.",
+  "\u2022 Cover."
+ ],
+ "caveat": "coverage, not accuracy - there is no hand-labelled non-prose set, so the flags are for reading rather than scoring"
+}

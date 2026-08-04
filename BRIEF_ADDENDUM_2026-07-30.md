@@ -537,3 +537,39 @@ or all of the gain. The adapter loads and serves; whether it still scores +11.7
 here has to be measured before the number is claimed for this configuration.
 
 Both the adapter (257MB) and this GGUF (128MB) are gitignored and rebuildable.
+
+## More teacher data does not help: the curve saturates (2026-08-03)
+
+Controlled learning curve, one stack, one book (grimgar03), base arm identical
+at 248/385 = 64.4% in every run:
+
+    training rows              gain      p
+    273   (25%)               +3.6      0.15  (ns)
+    546   (50%)               +8.3      0.00013
+    818   (75%)              +12.2      4.3e-07
+    2,075 (four books)       +11.4      -
+
+**It saturates around 800 rows.** Doubling to 2,075 gained nothing. Collecting
+more teacher labels is not worth the money or the GPU time, and the two books
+collected on 2026-08-03 (arc4_volume10wn, mushoku23, ~1,000 rows, ~2 hours of
+A6000) bought no measurable accuracy.
+
+Caveat: the 2,075 set adds two new books, so composition changed alongside
+size. Both the 75%-to-100% flattening and the shape of the whole curve point
+the same way regardless.
+
+## Contiguity holds; my explanation for its variation does not
+
+All four books:
+
+    mushoku16         -36.8   p=6.8e-10    gold continuation 38.8%
+    owarimonogatari3  -18.5   p=0.0005                       56.9%
+    grimgar03         -16.6   p=1.4e-07                      31.7%
+    index18            -7.6   p=0.21 (ns)                    51.7%
+
+The effect is real and large on three of four books. But the earlier claim -
+that it is bigger where a book has more same-speaker structure, "the first
+prediction in this investigation to survive" - does NOT hold at four points.
+mushoku16 has middling continuation and the largest effect; index18 has high
+continuation and the smallest, non-significant one. Contiguity matters; why it
+varies by book is unexplained.

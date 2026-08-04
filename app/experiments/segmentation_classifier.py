@@ -31,9 +31,10 @@ THE OPERATING POINT IS FIXED IN ADVANCE at a 1% false-positive rate on real
 dialogue, and recall is read at that point. Choosing the threshold after seeing
 the curve is how a 6% false-positive rule gets reported as promising.
 """
-import collections, json, re, sys
+import collections, json, re, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 sys.path.insert(0, REPO + "/app")
 from experiments.stats import clopper_pearson
 

@@ -35,7 +35,8 @@ them. Asking the judge converts that unknown into a rate.
 """
 import json, math, os, sys
 
-REPO = "/home/fakemitch/pinokio/api/alexandria-audiobook2.git"
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__))))
 BOOK = os.environ.get("EXPERIMENT_BOOK", "index18")
 PER_PROMPT = int(os.environ.get("EXPERIMENT_PER_PROMPT", "30"))
 BUNDLE = os.environ.get("EXPERIMENT_BUNDLE", os.path.join(

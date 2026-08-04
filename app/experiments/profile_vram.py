@@ -13,17 +13,19 @@ each. model_vram_bytes comes from the baseline load; the delta across the extra
 24576 tokens gives bytes_per_extra_context_token.
 """
 import json
+import os
 import subprocess
 import sys
 import time
 
-sys.path.insert(0, '/home/fakemitch/pinokio/api/alexandria-audiobook2.git/app')
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from lmstudio_settings import get_local_vram_bytes
 
-LMS = "/home/fakemitch/.lmstudio/bin/lms"
+LMS = os.environ.get("LMS_BIN",
+                     os.path.expanduser("~/.lmstudio/bin/lms"))
 BASELINE_CONTEXT = 8192
 TARGET_CONTEXT = 32768
-MODELS = [m for m in __import__("os").environ.get("PROFILE_MODELS","").split(",") if m] or [
+MODELS = [m for m in os.environ.get("PROFILE_MODELS","").split(",") if m] or [
     "ministral-3-14b-instruct-2512",
     "ministral-3-14b-instruct-2512-absolute-heresy-i1",
     "gemma-4-12b-coder-fable5-composer2.5-v1",
