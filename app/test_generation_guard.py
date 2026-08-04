@@ -36,12 +36,44 @@ class FakeEngine:
         if self.behaviour == "empty_file":
             open(path, "wb").close()
             return True
-        if self.behaviour == "returns_none":
+        if self.behaviour == "truncated_wav":
+            # Header only, no sample data - this one fails to decode.
+            import io, soundfile as sf, numpy as np
+            buf = io.BytesIO()
+            sf.write(buf, np.zeros(2400, dtype="float32"), 24000, format="WAV")
             with open(path, "wb") as fh:
-                fh.write(self.payload)
+                fh.write(buf.getvalue()[:28])
+            return True
+        if self.behaviour == "partially_truncated_wav":
+            # THE HARD CASE, and the one the first version of this guard
+            # missed. A real render cut off mid-write still DECODES -
+            # libsndfile returns the frames that happen to be present rather
+            # than raising - so `sf.info` accepts it and the short, wrong file
+            # is scored. Only the declared RIFF size catches it.
+            import io, soundfile as sf, numpy as np
+            buf = io.BytesIO()
+            sf.write(buf, np.zeros(24000, dtype="float32"), 24000,
+                     format="WAV")
+            whole = buf.getvalue()
+            with open(path, "wb") as fh:
+                fh.write(whole[:len(whole) // 4])
+            return True
+        if self.behaviour == "not_audio":
+            with open(path, "wb") as fh:
+                fh.write(b"this is plainly not a wav file at all")
+            return True
+        if self.behaviour == "header_no_samples":
+            import soundfile as sf, numpy as np
+            sf.write(path, np.zeros(0, dtype="float32"), 24000, format="WAV")
+            return True
+        if self.behaviour == "returns_none":
+            import soundfile as sf, numpy as np
+            sf.write(path, np.zeros(2400, dtype="float32"), 24000, format="WAV")
             return None
-        with open(path, "wb") as fh:
-            fh.write(self.payload)
+        # The success path must write DECODABLE audio, or every test here
+        # passes for the wrong reason once decodability is checked.
+        import soundfile as sf, numpy as np
+        sf.write(path, np.zeros(2400, dtype="float32"), 24000, format="WAV")
         return True
 
     def generate_lora_voice(self, text, instruct, voice_data, path):
@@ -77,9 +109,16 @@ class TestStaleAudio(unittest.TestCase):
             path = os.path.join(tmp, "seg.wav")
             with open(path, "wb") as fh:
                 fh.write(b"STALE")
-            engine = FakeEngine("ok", payload=b"FRESH")
+            engine = FakeEngine("ok")
             render(engine, "text", "", "NARRATOR", {}, LORA, path)
-            self.assertEqual(open(path, "rb").read(), b"FRESH")
+            # The success path writes real WAV now that decodability is
+            # checked, so assert the stale bytes are GONE and the file is
+            # audio - which is the thing this test always meant.
+            with open(path, "rb") as fh:
+                head = fh.read(4)
+            self.assertEqual(head, b"RIFF")
+            import soundfile as sf
+            self.assertGreater(sf.info(path).frames, 0)
 
     def test_stale_file_removed_even_when_generation_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -159,6 +198,83 @@ class TestDispatch(unittest.TestCase):
     def test_custom_is_the_fallback(self):
         self.assertEqual(self._category_used({"type": "custom"}), "custom")
         self.assertEqual(self._category_used({}), "custom")
+
+
+class TestUndecodableAudio(unittest.TestCase):
+    """Non-empty is not the same as usable.
+
+    Existence and size were the only checks, so a file that is bytes but not
+    audio scored as a successful render. Same defect as stale audio, one layer
+    down: these bytes are fresh, and still not sound.
+    """
+
+    def test_a_truncated_wav_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(GenerationFailed) as cm:
+                render(FakeEngine("truncated_wav"), "t", "", "S", {}, LORA,
+                       os.path.join(tmp, "a.wav"))
+            self.assertIn("undecodable", str(cm.exception))
+
+    def test_a_partially_truncated_wav_is_rejected(self):
+        """Decoding is not enough. Truncating a real 195,884-byte render to
+        5,000 bytes still decodes to 2,478 frames instead of raising, so a
+        decode check alone passes it. The RIFF header declares the size the
+        file should be; a shortfall is truncation whatever it decodes to."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.wav")
+            with self.assertRaises(GenerationFailed) as cm:
+                render(FakeEngine("partially_truncated_wav"), "t", "", "S", {},
+                       LORA, path)
+            self.assertIn("truncated", str(cm.exception))
+            self.assertIn("missing", str(cm.exception))
+
+    def test_a_decodable_but_short_file_is_still_caught(self):
+        """Guard against the guard: confirm the truncated file really does
+        decode, so this test cannot pass merely because the file is unreadable
+        - which is what made the first version look like it worked."""
+        import soundfile as sf
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.wav")
+            FakeEngine("partially_truncated_wav")._do(path)
+            self.assertGreater(sf.info(path).frames, 0,
+                               "file should decode; the point is that decoding "
+                               "is insufficient")
+
+    def test_trailing_metadata_is_not_treated_as_truncation(self):
+        """Larger than declared is legal - trailing chunks are common. Only a
+        shortfall is an error, or the guard rejects valid audio."""
+        from experiments.generation import _check_riff_completeness
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.wav")
+            FakeEngine("ok")._do(path)
+            with open(path, "ab") as fh:
+                fh.write(b"LIST" + b"\x00" * 64)
+            _check_riff_completeness(path, "test", "S")   # must not raise
+
+    def test_a_file_that_is_not_audio_is_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(GenerationFailed):
+                render(FakeEngine("not_audio"), "t", "", "S", {}, LORA,
+                       os.path.join(tmp, "a.wav"))
+
+    def test_a_valid_header_with_no_samples_is_rejected(self):
+        """A header can be well-formed and describe nothing. Zero frames is
+        silence no listener would accept and no WER metric would flag."""
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaises(GenerationFailed) as cm:
+                render(FakeEngine("header_no_samples"), "t", "", "S", {}, LORA,
+                       os.path.join(tmp, "a.wav"))
+            self.assertIn("no audio", str(cm.exception))
+
+    def test_real_audio_still_passes(self):
+        """The guard must not reject good renders - a validator that fails
+        closed on everything is worse than none."""
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.wav")
+            self.assertEqual(
+                render(FakeEngine("ok"), "t", "", "S", {}, LORA, path), path)
+            import soundfile as sf
+            self.assertEqual(sf.info(path).frames, 2400)
 
 
 if __name__ == "__main__":

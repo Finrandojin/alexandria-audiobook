@@ -118,6 +118,7 @@ def main():
 
     from tts import TTSEngine
     from experiments.generation import render, GenerationFailed
+    from experiments.provenance import provenance
     from experiments.tts_output_validation import transcribe, validate
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
@@ -187,7 +188,8 @@ def main():
                    f"a stopgap.")
     print(f"  {verdict}")
 
-    json.dump({"seed": args.seed, "summary": summary, "rows": rows,
+    json.dump({"provenance": provenance(__file__, args),
+               "seed": args.seed, "summary": summary, "rows": rows,
                "skipped": skipped, "verdict": verdict},
               open(args.out, "w"), indent=1)
     print("\nwrote", args.out)

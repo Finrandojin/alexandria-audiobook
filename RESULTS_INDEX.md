@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-04 16:23 from `ab_test_runtime/experiments/` — 228 artifacts, 483 arms.
+Generated 2026-08-04 16:59 from `ab_test_runtime/experiments/` — 230 artifacts, 483 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -665,6 +665,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fix_verification.json` | SKIPPED: not a result object (list) |
+| `instruct_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `japanese_quote_robustness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -686,6 +687,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `run_lengths.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `scale_vs_register.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `seed_instruction_controls.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `segmentation_classifier.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `shipping_readiness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `stack_overlap.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

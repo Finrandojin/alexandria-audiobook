@@ -309,6 +309,7 @@ grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,gramm
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,open-grammar,162,75,46.3,ok,False,04a69e4c,135.1,07-29 01:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-free,162,84,51.9,ok,False,04a69e4c,135.1,07-29 01:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-grammar,162,83,51.2,ok,False,04a69e4c,135.1,07-29 01:33,http://127.0.0.1:8090/v1,
+instruct_listening.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 instruct_value.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 instruct_value_seeded.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 japanese_quote_robustness.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -489,6 +490,7 @@ scene_cast__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json,scene_cast,o
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,full,162,73,45.1,ok,True,fe025a5f,3728.1,07-29 21:00,http://127.0.0.1:8090/v1,
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene,162,63,38.9,ok,True,fe025a5f,3728.1,07-29 21:00,http://127.0.0.1:8090/v1,
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene+2,162,66,40.7,ok,True,fe025a5f,3728.1,07-29 21:00,http://127.0.0.1:8090/v1,
+seed_instruction_controls.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 segmentation_classifier.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 shipping_readiness.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 stack_overlap.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
