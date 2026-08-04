@@ -180,3 +180,64 @@ Stage 7 and Stage 8 are both larger and both gated on decisions that are not
 yet made — whether pitch will gate casting, and whether weight norm predicts
 identity. Running them before those decisions is how 12–24 GPU hours gets spent
 on a question nobody is waiting on.
+
+---
+
+## Addendum — Stage 1 completed, verified independently
+
+`seed_instruction_controls_rerun` finished 21:51, 3.5 min, and the gate passes.
+I re-derived it from the WAVs rather than reading the artifact's own flags.
+
+**Determinism, recomputed from the files:**
+
+| speaker | same-seed hash A | B | |
+| --- | --- | --- | --- |
+| NARRATOR | `4d0d24fc6120` | `4d0d24fc6120` | match |
+| EMILIA | `9c4e0f519c90` | `9c4e0f519c90` | match |
+| NATSUKI SUBARU | `d88603a06ac5` | `d88603a06ac5` | match |
+
+Different seed changes the hash in all three. **This is a stronger control than
+mine** — mine was same-process, so it could not have caught state carried across
+a process boundary. Cross-process byte equality on three adapters closes that.
+
+**The instruction positive control, measured from the audio:**
+
+| speaker | slow | neutral | fast | slow/fast |
+| --- | ---: | ---: | ---: | ---: |
+| NARRATOR | 4.80 s | 4.08 s | 3.36 s | 1.43× |
+| EMILIA | 4.56 s | 3.84 s | 3.36 s | 1.36× |
+| NATSUKI SUBARU | 5.12 s | 4.48 s | 3.60 s | 1.42× |
+
+Monotone slow > neutral > fast on every adapter. The plan is right that this is
+plumbing, not quality — but it settles something my `instruct_value` run could
+not, and it changes how that null should be read.
+
+**Instructions reach the model. They just do not change the words.** The
+seeded arms were 0.611% / 0% / 0% WER, and I described that as instructions
+having no measurable effect on content. That is still true and now better
+supported: an extreme instruction moves duration by 40%+ while content stays
+identical. The earlier flat result is evidence about *subtlety*, not about
+instructions being ignored — which is a materially different reading, and the
+one that justifies Stage 6 rather than abandoning the question.
+
+### One gap in the artifact
+
+The JSON records `duration_order_control_passes: true` for each adapter but
+**does not record the renders it is based on**. 18 WAVs exist on disk —
+`_instruction_very_slow`, `_instruction_neutral`, `_instruction_very_fast` for
+each speaker — while the artifact's `renders` map holds only 9, the seed
+controls. The durations above had to be measured from the audio because the
+artifact does not carry them.
+
+The control ran and passed; the log confirms `slow_gt_fast= True` for all
+three. But a published boolean whose supporting numbers are absent is the same
+shape as the problem this whole exercise is about — and by the plan's own
+Stage 10 rule ("validate the JSON shape, output files, and provenance"), the
+artifact is incomplete. One-line fix: put the three instruction renders in
+`renders` alongside the seed ones.
+
+Worth noting what the artifact does well, since it is new: it carries a full
+provenance block with commit, dirty-tree file list, harness SHA-256 and seed,
+and it states its own limits in an `interpretation` field — "delivery quality
+still requires blinded listening". That is the standard the older artifacts
+should be brought to.
