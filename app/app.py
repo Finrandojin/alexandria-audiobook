@@ -200,6 +200,10 @@ class LLMConfig(BaseModel):
 class TTSConfig(BaseModel):
     mode: str = "local"  # "local" or "external"
     url: str = "http://127.0.0.1:7860"  # external mode only
+    provider: str = "server"  # external speech provider ("server" or "minimax")
+    api_key: str = ""  # MiniMax API key
+    region: str = "global_en"  # MiniMax region ("global_en" or "cn_zh")
+    voice_clone_model: str = "speech-2.8-hd"  # MiniMax voice-clone model
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
     language: str = "English"  # TTS language
     parallel_workers: int = 2  # concurrent TTS workers
@@ -250,6 +254,11 @@ class VoiceConfigItem(BaseModel):
     adapter_id: Optional[str] = None
     adapter_path: Optional[str] = None
     description: Optional[str] = ""  # voice description (for design type)
+    voice_id: Optional[str] = None  # provider voice ID (e.g. MiniMax)
+
+class MiniMaxVoiceDesignRequest(BaseModel):
+    prompt: str  # voice description prompt for MiniMax voice design
+    voice_id: str  # self-defined MiniMax voice ID
 
 class ChunkUpdate(BaseModel):
     text: Optional[str] = None
@@ -476,6 +485,10 @@ async def get_config():
         "tts": {
             "mode": "local",
             "url": "http://127.0.0.1:7860",
+            "provider": "server",
+            "api_key": "",
+            "region": "global_en",
+            "voice_clone_model": "speech-2.8-hd",
             "device": "auto"
         },
         "prompts": {
@@ -1524,6 +1537,72 @@ async def clone_voices_delete(voice_id: str):
 
     logger.info(f"Clone voice deleted: {voice_id}")
     return {"status": "deleted", "voice_id": voice_id}
+
+## ── MiniMax Voice Clone / Voice Design ─────────────────────────
+
+MINIMAX_TMP_DIR = os.path.join(UPLOADS_DIR, "minimax")
+MINIMAX_UPLOAD_EXTS = {".mp3", ".m4a", ".wav"}
+
+@app.post("/api/minimax/voice_clone")
+async def minimax_voice_clone(file: UploadFile = File(...),
+                              voice_id: str = Form(...),
+                              model: Optional[str] = Form(None)):
+    """Clone a voice on MiniMax from an uploaded reference audio file.
+
+    The audio is uploaded to MiniMax (purpose "voice_clone") and then
+    POST /v1/voice_clone creates the cloned voice. Returns the resulting
+    MiniMax voice_id.
+    """
+    engine = project_manager.get_engine()
+    if not engine:
+        raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in MINIMAX_UPLOAD_EXTS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported format. Use: {', '.join(sorted(MINIMAX_UPLOAD_EXTS))}",
+        )
+
+    os.makedirs(MINIMAX_TMP_DIR, exist_ok=True)
+    base_name = _sanitize_name(os.path.splitext(file.filename)[0]) or "voice"
+    tmp_path = os.path.join(MINIMAX_TMP_DIR, f"{int(time.time())}_{base_name}{ext}")
+
+    try:
+        content = await file.read()
+        with open(tmp_path, "wb") as out_file:
+            out_file.write(content)
+
+        cloned_voice_id = engine.minimax_clone_voice(tmp_path, voice_id, model)
+    except Exception as e:
+        logger.error(f"MiniMax voice clone failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+
+    logger.info(f"MiniMax voice cloned as '{cloned_voice_id}'")
+    return {"status": "cloned", "voice_id": cloned_voice_id}
+
+@app.post("/api/minimax/voice_design")
+async def minimax_voice_design(request: MiniMaxVoiceDesignRequest):
+    """Design a voice on MiniMax from a text description.
+
+    Calls POST /v1/voice_design with prompt and a self-defined voice_id.
+    Returns the resulting MiniMax voice_id.
+    """
+    engine = project_manager.get_engine()
+    if not engine:
+        raise HTTPException(status_code=500, detail="Failed to initialize TTS engine")
+
+    try:
+        designed_voice_id = engine.minimax_voice_design(request.prompt, request.voice_id)
+    except Exception as e:
+        logger.error(f"MiniMax voice design failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+    logger.info(f"MiniMax voice designed as '{designed_voice_id}'")
+    return {"status": "designed", "voice_id": designed_voice_id}
 
 ## ── LoRA Training ──────────────────────────────────────────────
 
