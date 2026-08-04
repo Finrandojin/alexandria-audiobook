@@ -76,6 +76,7 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
 
     from tts import TTSEngine
+    from experiments.generation import render
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
     print(f"{args.speaker}, adapter {voice.get('adapter_id')}, seed {args.seed}\n")
 
@@ -83,7 +84,7 @@ def main():
     repeats = []
     for i in range(3):
         wav = os.path.join(args.out_dir, f"same_{i}.wav")
-        engine.generate_lora_voice(sample[0]["text"], "", voice, wav)
+        render(engine, sample[0]["text"], "", args.speaker, vc, voice, wav)
         p = median_pitch(wav)
         if p:
             repeats.append(p)
@@ -95,7 +96,7 @@ def main():
     across = []
     for i, chunk in enumerate(sample):
         wav = os.path.join(args.out_dir, f"line_{i}.wav")
-        engine.generate_lora_voice(chunk["text"], "", voice, wav)
+        render(engine, chunk["text"], "", args.speaker, vc, voice, wav)
         p = median_pitch(wav)
         if p:
             across.append(p)

@@ -87,27 +87,38 @@ def main():
 
     import numpy as np, soundfile as sf
     from tts import TTSEngine, normalize_for_speech
+    from experiments.generation import render
     from experiments.tts_output_validation import transcribe, validate
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
-    rows = []
+    rows, skipped = [], []
     for i, chunk in enumerate(targets, 1):
         text = chunk["text"]
-        whole_wav = os.path.join(args.out_dir, f"whole_{chunk['uid']}.wav")
-        engine.generate_lora_voice(text, chunk.get("instruct", ""),
-                                   voice_data, whole_wav)
-        whole = validate(text, transcribe(whole_wav))
+        # This comparison is PAIRED, so a failure in either arm must drop the
+        # whole segment rather than leave one arm scored against nothing.
+        # render() raises, so one bad segment would otherwise kill the run -
+        # and silently keeping the surviving arm is the asymmetry that review
+        # finding 5 was about.
+        try:
+            whole_wav = os.path.join(args.out_dir, f"whole_{chunk['uid']}.wav")
+            render(engine, text, chunk.get("instruct", ""), args.voice,
+                   voice_config, voice_data, whole_wav)
+            whole = validate(text, transcribe(whole_wav))
 
-        items = split_items(normalize_for_speech(text))
-        pieces, rate = [], None
-        for j, item in enumerate(items):
-            p = os.path.join(args.out_dir, f"split_{chunk['uid']}_{j}.wav")
-            engine.generate_lora_voice(item, chunk.get("instruct", ""),
-                                       voice_data, p)
-            if os.path.exists(p):
+            items = split_items(normalize_for_speech(text))
+            pieces, rate = [], None
+            for j, item in enumerate(items):
+                p = os.path.join(args.out_dir, f"split_{chunk['uid']}_{j}.wav")
+                render(engine, item, chunk.get("instruct", ""), args.voice,
+                       voice_config, voice_data, p)
                 audio, rate = sf.read(p)
                 pieces.append(audio)
+        except Exception as exc:                        # noqa: BLE001
+            skipped.append({"uid": chunk["uid"], "error": str(exc)[:160]})
+            print(f"  [{i}/{len(targets)}] SKIPPED (both arms): {str(exc)[:70]}")
+            continue
         if not pieces:
+            skipped.append({"uid": chunk["uid"], "error": "no split pieces"})
             continue
         gap = np.zeros(int((rate or 24000) * 0.25))
         joined = np.concatenate(
@@ -154,7 +165,10 @@ def main():
     else:
         print("  Splitting is NOT the remedy - the failure is per ITEM, not per\n"
               "  blob. Do not change the generation path; find the mechanism.")
-    json.dump({"rows": rows, "whole_failed": wf, "split_failed": sf_},
+    if skipped:
+        print(f"\n  {len(skipped)} segments dropped from BOTH arms")
+    json.dump({"rows": rows, "whole_failed": wf, "split_failed": sf_,
+               "skipped": skipped},
               open(args.out, "w"), indent=1)
     print("\nwrote", args.out)
 

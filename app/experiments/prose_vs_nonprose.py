@@ -245,6 +245,7 @@ def main():
 
     from tts import TTSEngine, voice_category
     from experiments.tts_output_validation import transcribe, validate
+    from experiments.generation import render
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     rows = []
@@ -255,17 +256,8 @@ def main():
             voice_data["seed"] = str(args.seed)
             wav = os.path.join(args.out_dir, f"{label}_{chunk['uid']}.wav")
             try:
-                if voice_category(voice_data) == "lora":
-                    engine.generate_lora_voice(chunk["text"],
-                                               chunk.get("instruct", ""),
-                                               voice_data, wav)
-                elif voice_category(voice_data) == "clone":
-                    engine.generate_clone_voice(chunk["text"], speaker,
-                                                voice_config, wav)
-                else:
-                    engine.generate_custom_voice(chunk["text"],
-                                                 chunk.get("instruct", ""),
-                                                 speaker, voice_config, wav)
+                render(engine, chunk["text"], chunk.get("instruct", ""),
+                       speaker, voice_config, voice_data, wav)
                 r = validate(chunk["text"], transcribe(wav))
             except Exception as exc:                  # noqa: BLE001
                 print(f"  [{i}] {label} FAILED: {str(exc)[:80]}")

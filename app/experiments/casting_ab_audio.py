@@ -96,6 +96,7 @@ def main():
 
     os.makedirs(args.out_dir, exist_ok=True)
     from tts import TTSEngine, voice_category
+    from experiments.generation import render
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     import soundfile as sf
@@ -120,13 +121,8 @@ def main():
                 entry["type"] = "lora"
             wav = os.path.join(args.out_dir, f"{arm}_{n:02d}.wav")
             try:
-                if voice_category(entry) == "lora" and entry.get("adapter_id"):
-                    engine.generate_lora_voice(chunk["text"],
-                                               chunk.get("instruct", ""), entry, wav)
-                else:
-                    engine.generate_custom_voice(chunk["text"],
-                                                 chunk.get("instruct", ""),
-                                                 speaker, vc, wav)
+                render(engine, chunk["text"], chunk.get("instruct", ""),
+                       speaker, vc, entry, wav)
             except Exception as exc:                       # noqa: BLE001
                 failures.setdefault(arm, []).append({"line": n,
                                                      "error": str(exc)[:120]})

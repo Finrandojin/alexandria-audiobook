@@ -96,6 +96,7 @@ def main():
 
     os.makedirs(args.out_dir, exist_ok=True)
     from tts import TTSEngine, voice_category
+    from experiments.generation import render
     engine = TTSEngine(config)
 
     manifest, failures = [], []
@@ -106,21 +107,17 @@ def main():
         wav = os.path.join(args.out_dir, f"{chunk['uid']}.wav")
         instruct = chunk.get("instruct") or ""
         try:
-            if category == "lora":
-                engine.generate_lora_voice(chunk["text"], instruct, voice_data, wav)
-            elif category == "clone":
-                engine.generate_clone_voice(chunk["text"], speaker, voice_config, wav)
-            else:
-                engine.generate_custom_voice(chunk["text"], instruct, speaker,
-                                             voice_config, wav)
+            # render() deletes any stale output first and checks the RETURNED
+            # BOOLEAN. tts.py returns False rather than raising, so testing
+            # os.path.exists alone scored a leftover WAV from an earlier run as
+            # a fresh success.
+            render(engine, chunk["text"], instruct, speaker, voice_config,
+                   voice_data, wav)
         except Exception as exc:                      # noqa: BLE001
             # A generation failure is itself a finding; recording it and
             # continuing beats losing the whole run to one bad segment.
             failures.append({"uid": chunk["uid"], "error": str(exc)[:200]})
             print(f"  [{i}/{len(picked)}] FAILED {speaker}: {str(exc)[:90]}")
-            continue
-        if not os.path.exists(wav):
-            failures.append({"uid": chunk["uid"], "error": "no file written"})
             continue
         manifest.append({"text": chunk["text"], "wav": wav, "band": label,
                          "speaker": speaker, "category": category,

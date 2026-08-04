@@ -443,6 +443,18 @@
     "test_frontend_regressions.FrontendTests.test_voicelab_health_dashboard_is_rendered_and_wired",
     "test_frontend_regressions.FrontendTests.test_voicelab_requires_visible_preflight_before_start"
   ],
+  "test_generation_guard": [
+    "test_generation_guard.TestDispatch.test_clone_routes_to_clone",
+    "test_generation_guard.TestDispatch.test_custom_is_the_fallback",
+    "test_generation_guard.TestDispatch.test_lora_routes_to_lora",
+    "test_generation_guard.TestFailureModes.test_empty_file_raises",
+    "test_generation_guard.TestFailureModes.test_false_return_raises",
+    "test_generation_guard.TestFailureModes.test_missing_file_raises",
+    "test_generation_guard.TestFailureModes.test_none_return_is_success",
+    "test_generation_guard.TestStaleAudio.test_stale_file_does_not_mask_a_false_return",
+    "test_generation_guard.TestStaleAudio.test_stale_file_is_deleted_before_generation",
+    "test_generation_guard.TestStaleAudio.test_stale_file_removed_even_when_generation_fails"
+  ],
   "test_gold_set_builder": [
     "test_gold_set_builder.AdaptiveWindowTest.test_expansion_is_capped",
     "test_gold_set_builder.AdaptiveWindowTest.test_names_match_case_insensitively",
