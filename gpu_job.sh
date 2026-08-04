@@ -48,8 +48,21 @@ shift
 stamp() { date -u +%FT%TZ; }
 
 echo "$(stamp) QUEUED   $NAME" >> "$QLOG"
-exec 9>"$LOCK"
-flock 9                     # blocks until the current GPU holder exits
+exec 9>"$LOCK" || {
+    echo "$(stamp) LOCK_FAILED $NAME (cannot open $LOCK)" >> "$QLOG"
+    echo "gpu_job: cannot open lock file $LOCK" >&2
+    exit 4
+}
+# The lock MUST be a gate, not a suggestion. `set -e` is deliberately not on
+# here (the wrapped command's exit code has to survive), so an unchecked
+# `flock` would fall through to running the command on failure - defeating the
+# entire purpose of this script. A concurrent GPU job is exactly what cost 42
+# minutes of training on 2026-08-04.
+if ! flock 9; then
+    echo "$(stamp) LOCK_FAILED $NAME (flock failed)" >> "$QLOG"
+    echo "gpu_job: failed to acquire GPU lock; refusing to run $NAME" >&2
+    exit 4
+fi
 echo "$(stamp) START    $NAME" >> "$QLOG"
 
 "$@"

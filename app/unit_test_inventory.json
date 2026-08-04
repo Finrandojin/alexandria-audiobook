@@ -177,6 +177,21 @@
     "test_build_scoring_sheet.NeighbourContextTest.test_start_of_book_has_no_leading_context",
     "test_build_scoring_sheet.NeighbourContextTest.test_window_is_respected"
   ],
+  "test_character_evidence": [
+    "test_character_evidence.TestAbstention.test_confidence_scales_with_evidence",
+    "test_character_evidence.TestAbstention.test_empty_inputs_are_safe",
+    "test_character_evidence.TestAbstention.test_mixed_evidence_is_unknown_not_forced",
+    "test_character_evidence.TestAbstention.test_thin_evidence_is_unknown",
+    "test_character_evidence.TestAliases.test_alias_lookup_is_case_insensitive_and_bidirectional",
+    "test_character_evidence.TestAliases.test_evidence_is_pooled_across_spellings",
+    "test_character_evidence.TestAliases.test_no_alias_map_is_safe",
+    "test_character_evidence.TestGrammaticalBinding.test_another_characters_body_part_does_not_leak",
+    "test_character_evidence.TestGrammaticalBinding.test_body_part_possessive_binds_to_the_named_subject",
+    "test_character_evidence.TestGrammaticalBinding.test_object_pronoun_is_not_counted",
+    "test_character_evidence.TestGrammaticalBinding.test_reflexive_binds_to_the_named_subject",
+    "test_character_evidence.TestNarrationText.test_dialogue_is_excluded",
+    "test_character_evidence.TestNarrationText.test_handles_missing_fields"
+  ],
   "test_character_traits": [
     "test_character_traits.TestDialogueIsNotEvidenceAboutItsSpeaker.test_dialogue_alone_yields_unknown",
     "test_character_traits.TestDialogueIsNotEvidenceAboutItsSpeaker.test_male_speaker_talking_about_women_is_not_classified_female",

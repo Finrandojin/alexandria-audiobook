@@ -231,7 +231,16 @@ def main():
     ap.add_argument("--out", default=LEDGER + "/tts_output_validation.json")
     args = ap.parse_args()
 
-    segments = json.load(open(args.manifest))
+    doc = json.load(open(args.manifest))
+    # Accept both shapes: the older bare list, and the structured form that
+    # also carries generation failures. Failures are counted in the
+    # denominator - a segment that never generated is a defect, not an absence.
+    if isinstance(doc, dict):
+        segments = doc.get("segments", [])
+        gen_failures = len(doc.get("failures") or [])
+        selected = doc.get("selected", len(segments) + gen_failures)
+    else:
+        segments, gen_failures, selected = doc, 0, len(doc)
     rows = []
     for i, seg in enumerate(segments, 1):
         try:
@@ -256,8 +265,14 @@ def main():
     nonspeech = sum(r.get("non_speech") for r in rows)
     total_err = sum(r["errors"] for r in rows)
     total_words = sum(r["words"] for r in rows)
-    print(f"\n{len(rows)} segments, strictness={args.strictness}")
-    print(f"  failed              {failed} ({failed / len(rows) * 100:.1f}%)")
+    print(f"\n{len(rows)} segments scored of {selected} selected, "
+          f"strictness={args.strictness}")
+    if gen_failures:
+        print(f"  GENERATION FAILURES {gen_failures} "
+              f"(counted as defects in the rate below)")
+    denom = len(rows) + gen_failures
+    print(f"  failed              {failed + gen_failures} "
+          f"({(failed + gen_failures) / max(denom, 1) * 100:.1f}%)")
     print(f"  possible truncation {trunc}")
     print(f"  NON-SPEECH output   {nonspeech}")
     print(f"  word error rate     {total_err / max(total_words, 1) * 100:.2f}%")
@@ -283,6 +298,7 @@ def main():
               "carries no quality claim.")
 
     json.dump({"strictness": args.strictness, "n": len(rows),
+               "selected": selected, "generation_failures": gen_failures,
                "failed": failed, "truncation": trunc, "non_speech": nonspeech,
                "wer": total_err / max(total_words, 1), "rows": rows},
               open(args.out, "w"), indent=1)

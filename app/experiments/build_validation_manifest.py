@@ -128,11 +128,22 @@ def main():
         print(f"  [{i}/{len(picked)}] ok {label:14} {len(chunk['text']):4} chars"
               f"  {speaker}")
 
-    json.dump(manifest, open(args.manifest, "w"), indent=1)
-    print(f"\n{len(manifest)} generated, {len(failures)} failed")
+    # Failures must reach the ARTIFACT, not just the terminal. Writing only
+    # the survivors removes failed segments from the population whose failure
+    # rate is being measured, biasing it downward - a run where 30 of 150
+    # generations crash would report a rate over the 120 that worked and leave
+    # no artifact-level evidence the other 30 existed.
+    json.dump({"selected": len(picked), "generated": len(manifest),
+               "failures": failures, "segments": manifest},
+              open(args.manifest, "w"), indent=1)
+    print(f"\n{len(manifest)} generated, {len(failures)} failed "
+          f"of {len(picked)} selected")
     if failures:
         print("  failures:", json.dumps(failures[:5], indent=1)[:400])
     print("wrote", args.manifest)
+    if failures:
+        # Non-zero so a caller cannot treat a partial run as complete.
+        sys.exit(3)
 
 
 if __name__ == "__main__":
