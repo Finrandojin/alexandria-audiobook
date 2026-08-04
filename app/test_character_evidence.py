@@ -8,15 +8,21 @@ and the tests below encode why, so nobody reintroduces one:
     pronouns near name    "Subaru looked at her" - 71% masculine, unusable.
     single-name sentences "She waited. Subaru saw her." - still only 74%.
 
-What works is grammatical binding: a reflexive must agree with its clause
-subject, and the possessor of a body part in a transitive clause is
-overwhelmingly the subject. On the live book that reads Subaru 90/12 MALE,
-Emilia 0/9 FEMALE, ROM 9/1 and Reinhard 14/2 - all correct.
+What works better is two constructions that USUALLY bind to the clause subject
+- a reflexive, and the possessor of a body part - plus an INTERVENING-NAME rule
+that discards a match when another known character is named in between. The
+constructions alone were not enough: an external review reproduced "Subaru
+watched Emilia raise her hand" scoring feminine for Subaru, so the original
+claim that they "cannot float to another referent" was wrong.
 
-Abstention is a feature. FELT (10/15) and SATELLA (5/13) come back "unknown"
-rather than being forced, because a wrong answer costs a main character their
-voice while silence costs nothing - "unknown" already means "do not filter, do
-not penalise" everywhere downstream.
+With the rule and a roster, on the live book: Subaru 83/11 MALE, Reinhard 14/1
+MALE, ROM 9/0 MALE, Emilia 0/9 FEMALE, SATELLA 3/12 FEMALE - all correct, and
+cleaner than without it.
+
+Abstention is a feature. FELT (9/14) comes back "unknown" rather than being
+forced, because a wrong answer costs a main character their voice while silence
+costs nothing - "unknown" already means "do not filter, do not penalise"
+everywhere downstream.
 """
 import os
 import sys
@@ -54,6 +60,48 @@ class TestGrammaticalBinding(unittest.TestCase):
     def test_another_characters_body_part_does_not_leak(self):
         text = "Emilia watched. Subaru scratched his head. " * 3
         gender, _, _ = gender_from_narration(text, "Emilia")
+        self.assertEqual(gender, "unknown")
+
+
+class TestInterveningName(unittest.TestCase):
+    """The rule that separates this from plain proximity.
+
+    An external review reproduced the defect it fixes: "Subaru watched Emilia
+    raise her hand" repeated three times returned female for Subaru, because
+    the regex only required the name to precede `her <body part>` within a
+    window. A nearer named character is the likelier subject, so the match is
+    discarded.
+    """
+
+    REPRO = "Subaru watched Emilia raise her hand. " * 3
+
+    def test_another_named_character_blocks_the_match(self):
+        gender, _, ev = gender_from_narration(self.REPRO, "Subaru",
+                                              roster=["Emilia"])
+        self.assertEqual(gender, "unknown")
+        self.assertEqual(ev["feminine"], 0)
+
+    def test_without_a_roster_it_degrades_to_proximity(self):
+        # Documented, not desirable: callers should pass a roster. Asserting it
+        # keeps the degradation visible rather than a silent surprise.
+        self.assertEqual(gender_from_narration(self.REPRO, "Subaru")[0],
+                         "female")
+
+    def test_direct_binding_survives_the_rule(self):
+        text = "Subaru scratched his head. " * 3
+        self.assertEqual(
+            gender_from_narration(text, "Subaru", roster=["Emilia"])[0], "male")
+
+    def test_unrelated_roster_names_do_not_block(self):
+        text = "Subaru scratched his head. " * 3
+        self.assertEqual(
+            gender_from_narration(text, "Subaru",
+                                  roster=["Reinhard", "Felt"])[0], "male")
+
+    def test_reflexive_is_blocked_too(self):
+        text = "Subaru watched Emilia steady herself. " * 3
+        gender, _, ev = gender_from_narration(text, "Subaru", roster=["Emilia"])
+        self.assertEqual(ev["feminine"], 0)
         self.assertEqual(gender, "unknown")
 
 

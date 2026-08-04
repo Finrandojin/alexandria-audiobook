@@ -162,10 +162,13 @@ def main():
 
     doc = json.load(open(args.script, encoding="utf-8"))
     entries = doc if isinstance(doc, list) else (doc.get("entries") or [])
+    # args.aliases, not a rebuilt default path. The CLI accepted --aliases and
+    # then ignored it, so a caller supplying a book-specific map silently got
+    # the repository default and a conflict count computed from the wrong
+    # canonicalisation.
     aliases = {}
-    alias_path = os.path.join(REPO, "character_aliases.json")
-    if os.path.exists(alias_path):
-        aliases = json.load(open(alias_path, encoding="utf-8"))
+    if os.path.exists(args.aliases):
+        aliases = json.load(open(args.aliases, encoding="utf-8"))
     speakers = canonicalise([e.get("speaker") for e in entries
                              if isinstance(e, dict) and e.get("text")], aliases)
     line_counts = collections.Counter(s for s in speakers if s)

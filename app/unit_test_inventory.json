@@ -189,6 +189,11 @@
     "test_character_evidence.TestGrammaticalBinding.test_body_part_possessive_binds_to_the_named_subject",
     "test_character_evidence.TestGrammaticalBinding.test_object_pronoun_is_not_counted",
     "test_character_evidence.TestGrammaticalBinding.test_reflexive_binds_to_the_named_subject",
+    "test_character_evidence.TestInterveningName.test_another_named_character_blocks_the_match",
+    "test_character_evidence.TestInterveningName.test_direct_binding_survives_the_rule",
+    "test_character_evidence.TestInterveningName.test_reflexive_is_blocked_too",
+    "test_character_evidence.TestInterveningName.test_unrelated_roster_names_do_not_block",
+    "test_character_evidence.TestInterveningName.test_without_a_roster_it_degrades_to_proximity",
     "test_character_evidence.TestNarrationText.test_dialogue_is_excluded",
     "test_character_evidence.TestNarrationText.test_handles_missing_fields"
   ],

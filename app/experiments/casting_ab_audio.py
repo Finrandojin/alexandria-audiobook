@@ -33,9 +33,16 @@ sys.path.insert(0, APP)
 
 
 def find_scene(chunks, want, size=14):
-    """First window containing at least two lines from each named character."""
+    """First window containing at least two lines from each named character.
+
+    `range(len(chunks) - size + 1)`, not `- size`: with exactly `size` chunks
+    the old form performed zero iterations, and a valid scene starting at the
+    last possible index was never examined.
+    """
     want = [w.upper() for w in want]
-    for i in range(len(chunks) - size):
+    if size <= 0 or not chunks:
+        return None, []
+    for i in range(len(chunks) - size + 1):
         window = chunks[i:i + size]
         speakers = [str(c.get("speaker") or "").upper() for c in window]
         if all(speakers.count(w) >= 2 for w in want):
@@ -88,14 +95,21 @@ def main():
             print(f"  {'':14}{pitch[cur]:>31.0f} Hz{pitch[new]:>31.0f} Hz")
 
     os.makedirs(args.out_dir, exist_ok=True)
-    from tts import TTSEngine, voice_category, combine_audio_with_pauses
+    from tts import TTSEngine, voice_category
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     import soundfile as sf
     import numpy as np
-    results = {}
+    # Render EVERY line for both arms first and only publish a comparison if
+    # both arms produced the identical, complete line set. Previously each arm
+    # caught its own failures and continued, so line 4 failing in one arm alone
+    # yielded a 14-line file against a 13-line file - both looking like a normal
+    # A/B while the CONTENT differed, not just the cast. An asymmetric pair is
+    # worse than no pair: it invites a listener to attribute a difference to
+    # casting that is actually a missing sentence.
+    results, rendered, failures = {}, {}, {}
     for arm in ("current", "scene_aware"):
-        pieces, rate = [], None
+        pieces, rate, ok = [], None, []
         for n, chunk in enumerate(scene):
             speaker = canon(chunk.get("speaker"))
             entry = dict(vc.get(speaker) or vc.get(chunk.get("speaker")) or {})
@@ -114,21 +128,46 @@ def main():
                                                  chunk.get("instruct", ""),
                                                  speaker, vc, wav)
             except Exception as exc:                       # noqa: BLE001
+                failures.setdefault(arm, []).append({"line": n,
+                                                     "error": str(exc)[:120]})
                 print(f"  [{arm} {n}] FAILED: {str(exc)[:70]}")
                 continue
             if os.path.exists(wav):
                 audio, rate = sf.read(wav)
                 pieces.append(audio)
                 pieces.append(np.zeros(int(rate * 0.35)))
-        if pieces:
-            joined = np.concatenate(pieces)
-            out = os.path.join(args.out_dir, f"scene_{arm}.wav")
-            sf.write(out, joined, rate)
-            results[arm] = {"path": out, "seconds": round(len(joined) / rate, 1)}
-            print(f"\n  wrote {out}  ({results[arm]['seconds']}s)")
+                ok.append(n)
+            else:
+                failures.setdefault(arm, []).append({"line": n,
+                                                     "error": "no file written"})
+        rendered[arm] = {"lines": ok, "pieces": pieces, "rate": rate}
+
+    complete = {arm: set(v["lines"]) for arm, v in rendered.items()}
+    expected = set(range(len(scene)))
+    asymmetric = [arm for arm, got in complete.items() if got != expected]
+    if asymmetric:
+        print(f"\n  REFUSING TO PUBLISH a comparison pair: "
+              f"{', '.join(asymmetric)} did not render every line.")
+        for arm, fails in failures.items():
+            print(f"    {arm}: {len(fails)} failed -> {fails[:3]}")
+        json.dump({"scene_index": index, "lines": len(scene),
+                   "characters": args.characters, "published": False,
+                   "rendered": {a: v["lines"] for a, v in rendered.items()},
+                   "failures": failures},
+                  open(os.path.join(args.out_dir, "manifest.json"), "w"), indent=1)
+        sys.exit(3)
+
+    for arm, v in rendered.items():
+        joined = np.concatenate(v["pieces"])
+        out = os.path.join(args.out_dir, f"scene_{arm}.wav")
+        sf.write(out, joined, v["rate"])
+        results[arm] = {"path": out, "seconds": round(len(joined) / v["rate"], 1),
+                        "lines": v["lines"]}
+        print(f"\n  wrote {out}  ({results[arm]['seconds']}s)")
 
     json.dump({"scene_index": index, "lines": len(scene),
-               "characters": args.characters, "arms": results},
+               "characters": args.characters, "published": True,
+               "line_ids": sorted(expected), "arms": results},
               open(os.path.join(args.out_dir, "manifest.json"), "w"), indent=1)
     print("\n  Play both. The question is whether FELT and REINHARD are\n"
           "  distinguishable in the current arm - the metric says they share a\n"

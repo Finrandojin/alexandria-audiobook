@@ -1,4 +1,12 @@
-"""Read a character's gender out of the narration, using grammatical binding.
+"""Read a character's gender out of the narration.
+
+NOT WIRED INTO PRODUCTION. Nothing in `routers/voices.py` calls this; the
+production change that removed dialogue as a trait source did not replace it
+with narration evidence, so a character with no gender-bearing label or persona
+still resolves "unknown" in casting. Connecting it is a deliberate behaviour
+change to voice allocation and has not been made. Treat the numbers below as an
+offline measurement, not as current system behaviour.
+
 
 THE PROBLEM WITH THE OBVIOUS APPROACHES, each measured on the live book before
 being discarded:
@@ -17,8 +25,8 @@ being discarded:
                                    across one: "She was waiting. Subaru saw
                                    her." Still only 74% masculine.
 
-WHAT WORKS is not proximity but GRAMMAR. Two constructions bind a pronoun to
-the clause subject and cannot float to another referent:
+WHAT WORKS BETTER, and the honest description of it. Two constructions USUALLY
+bind a pronoun to the clause subject:
 
     reflexives              "Subaru pulled himself up" - a reflexive must agree
                             with the subject of its own clause.
@@ -35,9 +43,19 @@ a minimum count are both required, and anything short returns "unknown" - which
 every consumer already treats as "do not filter, do not penalise". Being silent
 is cheap; being confidently wrong costs a main character their voice.
 
-WHAT THIS IS NOT. It is not coreference and does not pretend to be. It finds
-the cases where English grammar makes the referent unambiguous and abstains
-elsewhere. It also says nothing about characters who are androgynous, non-human
+AN EARLIER VERSION OF THIS DOCSTRING CLAIMED THESE CONSTRUCTIONS "cannot float
+to another referent". That was wrong, and an external review reproduced it:
+"Subaru watched Emilia raise her hand" matched `Subaru ... her hand` and scored
+feminine for Subaru. The regex was proximity wearing the vocabulary of grammar.
+What now separates it from plain proximity is the INTERVENING-NAME RULE - a
+match is discarded when another known character is named between the target and
+the construction, because the nearer name is the likelier subject. That needs a
+roster; without one the function degrades to the old behaviour and callers
+should pass one.
+
+WHAT THIS IS NOT. It is not coreference and does not pretend to be. It is a
+heuristic that abstains often, and it does not resolve subordinate clauses or
+coordination. It also says nothing about characters who are androgynous, non-human
 or deliberately ambiguous - those come back "unknown" or "mixed", which is the
 correct answer for them rather than a failure.
 """
@@ -58,24 +76,49 @@ MIN_EVIDENCE = 3
 MAJORITY = 0.8
 
 
-def _count(narration, name, window_reflexive=REFLEXIVE_WINDOW,
+def _spans(narration, name, window, tail):
+    """Text between `name` and a following construction, for each occurrence."""
+    pattern = rf"\b{re.escape(name)}\b([^.!?]{{0,{window}}}?)\b(?:{tail})\b"
+    return [m.group(1) for m in re.finditer(pattern, narration, re.I)]
+
+
+def _count(narration, name, others=(), window_reflexive=REFLEXIVE_WINDOW,
            window_possessive=POSSESSIVE_WINDOW):
-    n = re.escape(name)
-    masc = len(re.findall(rf"\b{n}\b[^.!?]{{0,{window_reflexive}}}?\bhimself\b",
-                          narration, re.I))
-    masc += len(re.findall(
-        rf"\b{n}\b[^.!?]{{0,{window_possessive}}}?\bhis ({BODY_PARTS})\b",
-        narration, re.I))
-    fem = len(re.findall(rf"\b{n}\b[^.!?]{{0,{window_reflexive}}}?\bherself\b",
-                         narration, re.I))
-    fem += len(re.findall(
-        rf"\b{n}\b[^.!?]{{0,{window_possessive}}}?\bher ({BODY_PARTS})\b",
-        narration, re.I))
+    """Count constructions that plausibly bind to `name`.
+
+    THE INTERVENING-NAME RULE IS WHAT MAKES THIS MORE THAN PROXIMITY, and its
+    absence was a real defect: "Subaru watched Emilia raise her hand" matched
+    `Subaru ... her hand` and scored FEMININE for Subaru. An external review
+    reproduced exactly that. A match is now discarded when another known
+    character is named between the target and the construction, because the
+    nearer name is the likelier subject.
+
+    This is still not parsing. It is a heuristic that abstains more often, and
+    it does not claim to resolve subordinate clauses or coordination - those
+    are left to `others` catching the second name, and to the majority
+    threshold when it does not.
+    """
+    others_re = "|".join(re.escape(o) for o in others if o and
+                         o.casefold() != str(name).casefold())
+    blocked = re.compile(rf"\b(?:{others_re})\b", re.I) if others_re else None
+
+    def tally(window, tail):
+        hits = 0
+        for span in _spans(narration, name, window, tail):
+            if blocked and blocked.search(span):
+                continue
+            hits += 1
+        return hits
+
+    masc = tally(window_reflexive, "himself")
+    masc += tally(window_possessive, rf"his (?:{BODY_PARTS})")
+    fem = tally(window_reflexive, "herself")
+    fem += tally(window_possessive, rf"her (?:{BODY_PARTS})")
     return masc, fem
 
 
 def gender_from_narration(narration, name, min_evidence=MIN_EVIDENCE,
-                          majority=MAJORITY, aliases=None):
+                          majority=MAJORITY, aliases=None, roster=None):
     """-> (gender, confidence, evidence dict).
 
     gender is "male", "female" or "unknown". Confidence is "high" when the
@@ -89,9 +132,13 @@ def gender_from_narration(narration, name, min_evidence=MIN_EVIDENCE,
     # because the prose says "Subaru"; without folding aliases the character
     # with the richest evidence in the book looks like the one with none.
     names = {name} | set(aliases_for(name, aliases))
+    # Every OTHER known character blocks a match that would have to reach past
+    # them. Without a roster this degrades to the old proximity behaviour, so
+    # callers should pass one.
+    others = [o for o in (roster or []) if o and o not in names]
     masc = fem = 0
     for candidate in names:
-        m, f = _count(narration, candidate)
+        m, f = _count(narration, candidate, others)
         masc += m
         fem += f
     total = masc + fem
@@ -117,13 +164,20 @@ def aliases_for(name, aliases):
     """
     if not aliases:
         return set()
-    target = (aliases.get(name) or aliases.get(name.upper())
-              or aliases.get(name.lower()) or name).upper()
+    # Normalise the WHOLE mapping once. Probing the original dict with three
+    # spellings of the query missed any stored key whose casing matched none of
+    # them: aliases_for('SUBARU', {'Subaru': 'NATSUKI SUBARU'}) returned an
+    # empty set, so a character's evidence was not pooled across spellings.
+    folded = {str(k).casefold(): str(v) for k, v in aliases.items()}
+    target = folded.get(str(name).casefold(), str(name)).casefold()
     out = {target}
-    for alias, canonical in aliases.items():
-        if str(canonical).upper() == target:
+    for alias, canonical in folded.items():
+        if canonical.casefold() == target:
             out.add(alias)
-    return {a for a in out if a and a.upper() != name.upper()}
+    # Return the ORIGINAL spellings, since they are what the narration uses.
+    originals = {str(k) for k in aliases} | {str(v) for v in aliases.values()}
+    return {o for o in originals
+            if o.casefold() in out and o.casefold() != str(name).casefold()}
 
 
 def narration_text(entries, narrator_names=("NARRATOR",)):
