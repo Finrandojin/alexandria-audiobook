@@ -107,11 +107,12 @@ def main():
                 except Exception as exc:
                     print(f"  {arm} block {s//BATCH}: {type(exc).__name__}",
                           flush=True)
-                    rows.extend({"e": e, "ok": False} for e in block)
+                    rows.extend({"e": e, "ok": False, "pred": None}
+                                for e in block)
                     continue
                 for off, e in enumerate(block):
                     sp = (out[off] or {}).get("speaker") if off < len(out) else None
-                    rows.append({"e": e, "ok": same_speaker(
+                    rows.append({"e": e, "pred": sp, "ok": same_speaker(
                         e["expected_speaker"], sp, groups)})
             hit = sum(1 for r in rows if r["ok"])
             lo, hi = clopper_pearson(hit, max(len(rows), 1))
@@ -134,7 +135,18 @@ def main():
                 if n:
                     print(f"    {name:14}{n:5} base {b/n*100:5.1f}%  "
                           f"lora {l/n*100:5.1f}%  {(l-b)/n*100:+5.1f}")
-        results[book] = {a: {"n": len(r), "correct": sum(1 for x in r if x["ok"])}
+        # Row level, not just counts. The previous artifact stored only n and
+        # correct, which made per-row agreement with any other method - a
+        # BookNLP ensemble, a second model - impossible to compute without
+        # paying for the whole run again.
+        results[book] = {a: {"n": len(r), "correct": sum(1 for x in r if x["ok"]),
+                             "rows": [{"id": x["e"].get("id"),
+                                       "expected": x["e"].get("expected_speaker"),
+                                       "predicted": x.get("pred"),
+                                       "correct": bool(x["ok"]),
+                                       "quote_type": x["e"].get("quote_type"),
+                                       "category": x["e"].get("category")}
+                                      for x in r]}
                          for a, r in per_arm.items()}
 
     if results:
