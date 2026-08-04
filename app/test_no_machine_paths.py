@@ -34,7 +34,17 @@ REPO = os.path.dirname(APP)
 # are not exempted; if one ever appears it should be made relocatable too.
 MACHINE_PATH = re.compile(r"['\"](/home/[a-z][\w.-]*|/Users/[a-z][\w.-]*)/")
 
-SEARCH_DIRS = ["app", "app/experiments", "app/routers"]
+# Every TRACKED Python file, not a hand-listed set of directories. The first
+# version of this test named three directories and therefore could not see
+# `ab_test_runtime/pipeline_repeats/score_repeats.py`, which had the same
+# hard-coded root - the reviewer pointed that out. "Directories I thought of"
+# is the same failure mode as the manual sweep this test replaces.
+#
+# `git ls-files` is the definition of tracked. Falling back to a walk keeps the
+# test meaningful in an exported tree with no git, and vendored environments
+# are excluded there because they are not ours to fix.
+EXCLUDED_DIRS = {"env", "venv", ".analysis_env", "preparer_env", "booknlp",
+                 "node_modules", ".git", "__pycache__", "site-packages"}
 
 # Paths that are genuinely outside the repository and cannot be derived from
 # __file__. Each must still be overridable; the test enforces that rather than
@@ -47,13 +57,23 @@ PATHS_ARE_THE_SUBJECT = {"test_voicelab_diagnostics.py"}
 
 
 def source_files():
-    for rel in SEARCH_DIRS:
-        d = os.path.join(REPO, rel)
-        if not os.path.isdir(d):
-            continue
-        for name in sorted(os.listdir(d)):
+    import subprocess
+    try:
+        out = subprocess.run(["git", "-C", REPO, "ls-files", "*.py"],
+                             capture_output=True, text=True, timeout=30)
+        if out.returncode == 0 and out.stdout.strip():
+            for rel in out.stdout.splitlines():
+                path = os.path.join(REPO, rel)
+                if os.path.exists(path):
+                    yield path
+            return
+    except Exception:                                   # noqa: BLE001
+        pass
+    for root, dirs, names in os.walk(REPO):
+        dirs[:] = [d for d in dirs if d not in EXCLUDED_DIRS]
+        for name in sorted(names):
             if name.endswith(".py"):
-                yield os.path.join(d, name)
+                yield os.path.join(root, name)
 
 
 class TestNoMachinePaths(unittest.TestCase):
@@ -86,7 +106,8 @@ class TestNoMachinePaths(unittest.TestCase):
             path = os.path.join(REPO, "app", "experiments", name)
             if not os.path.exists(path):
                 continue
-            src = open(path, encoding="utf-8").read()
+            with open(path, encoding="utf-8") as fh:
+                src = fh.read()
             self.assertTrue(
                 "os.environ.get" in src or "expanduser" in src,
                 f"{name} is exempted from the path rule but offers no override")

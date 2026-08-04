@@ -71,10 +71,13 @@ class GpuJobTest(unittest.TestCase):
         self.assertIn("START    good", self.log())
         self.assertIn("OK       good", self.log())
 
-    def test_queue_log_order_is_queued_then_start_then_result(self):
+    def test_queue_log_order_is_queued_then_ident_then_start_then_result(self):
+        # IDENT sits between QUEUED and START on purpose: it must describe the
+        # code that is ABOUT to run. Recorded after the fact it would be a
+        # post-mortem, which is what reading logs already gave us.
         self.run_job("ordered", "true")
         lines = [l.split()[1] for l in self.log().splitlines() if l.strip()]
-        self.assertEqual(lines, ["QUEUED", "START", "OK"])
+        self.assertEqual(lines, ["QUEUED", "IDENT", "START", "OK"])
 
     # ------------------------------------------------------- failure surfaces
 
@@ -165,6 +168,57 @@ class GpuJobTest(unittest.TestCase):
         self.assertFalse(os.path.exists(marker))
         self.assertNotIn("START    waiter", self.log())
         self.assertIn("OK       holder", self.log())
+
+    # -------------------------------------------------- deployment identity
+
+    def test_identity_is_logged_before_start(self):
+        """Written BEFORE the job runs, or it is a post-mortem, not a record.
+
+        Two jobs died on 2026-08-04 because a box was running a superseded copy
+        of this script. Nothing announced it; it was found by reading logs
+        afterwards.
+        """
+        self.run_job("ident", "true")
+        kinds = [l.split()[1] for l in self.log().splitlines() if l.strip()]
+        self.assertEqual(kinds, ["QUEUED", "IDENT", "START", "OK"])
+
+    def test_identity_carries_what_is_needed_to_tell_two_runs_apart(self):
+        self.run_job("ident", "echo", "hello")
+        line = [l for l in self.log().splitlines() if " IDENT " in l][0]
+        for field in ("commit=", "tree=", "gpu_job_sha=", "host=", "gpu=",
+                      "cmd="):
+            self.assertIn(field, line)
+        self.assertIn("echo hello", line)
+
+    def test_the_script_hash_actually_identifies_the_script(self):
+        """The field that would have caught the stale cloud copy."""
+        self.run_job("ident", "true")
+        line = [l for l in self.log().splitlines() if " IDENT " in l][0]
+        logged = line.split("gpu_job_sha=")[1].split()[0]
+        import hashlib
+        with open(GPU_JOB, "rb") as fh:
+            actual = hashlib.sha256(fh.read()).hexdigest()[:12]
+        self.assertEqual(logged, actual)
+
+    def test_identity_degrades_rather_than_blocking_the_job(self):
+        """Identity is evidence, not a gate.
+
+        With git and both smi tools absent, the job must still run - a
+        provenance record that can refuse to start work is worse than none.
+        """
+        d = self.tmp.name + "/emptybin"
+        os.makedirs(d, exist_ok=True)
+        for tool in ("git", "nvidia-smi", "rocm-smi", "sha256sum", "hostname"):
+            p = os.path.join(d, tool)
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write("#!/bin/bash\nexit 127\n")
+            os.chmod(p, 0o755)
+        marker = os.path.join(self.tmp.name, "ran_anyway")
+        r = self.run_job("degraded", "touch", marker, path_prefix=d)
+        self.assertTrue(os.path.exists(marker), "job blocked by identity capture")
+        self.assertEqual(r.returncode, 0)
+        self.assertIn("IDENT", self.log())
+        self.assertIn("unknown", self.log())
 
     # ------------------------------------------------------------- misuse
 

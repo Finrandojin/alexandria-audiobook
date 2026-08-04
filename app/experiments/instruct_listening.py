@@ -1,17 +1,21 @@
 """Build something to LISTEN to, because WER cannot answer this question.
 
 `instruct_value` compared per-line instructions, per-character instructions and
-none at all, seeded, and found them indistinguishable:
+none at all. Seeded (`instruct_value_seeded.json`, 18 segments, 491 words):
 
-    per_line   0.20% WER, 0 failed, 0 non-speech
-    per_char   0.20% WER, 0 failed, 0 non-speech
-    none       0.41% WER, 0 failed, 0 non-speech
+    per_line   0.611% WER, 3 errors, 0 failed, 0 non-speech
+    per_char   0.000% WER, 0 errors, 0 failed, 0 non-speech
+    none       0.000% WER, 0 errors, 0 failed, 0 non-speech
 
-One word of difference across 18 segments. That is a real result and it settles
-one thing: instructions do not change WHAT is said. It settles nothing about
-HOW, and delivery is the entire reason instructions exist. A transcript cannot
-carry tone, pace, or emphasis - scoring one is measuring the wrong channel and
-then reporting a null.
+Three words across 18 segments, all of them in the per-line arm. Beware the
+UNSEEDED artifact `instruct_value.json`, which reads 1/1/2 errors and looks
+like three identical arms; it was quoted as the seeded result once already.
+
+That settles one thing: instructions do not meaningfully change WHAT is said,
+and if anything the per-line arm is marginally worse at it. It settles nothing
+about HOW, and delivery is the entire reason instructions exist. A transcript
+cannot carry tone, pace, or emphasis - scoring one is measuring the wrong
+channel and then reporting a null.
 
 This is the same shape as the pitch mistake earlier today. An instability that
 had been measured twice and misfiled twice was identified by the user in

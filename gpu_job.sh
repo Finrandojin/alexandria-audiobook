@@ -63,6 +63,38 @@ if ! flock 9; then
     echo "gpu_job: failed to acquire GPU lock; refusing to run $NAME" >&2
     exit 4
 fi
+# DEPLOYMENT IDENTITY, written BEFORE the job starts rather than reconstructed
+# after it fails. On 2026-08-04 two jobs died because the box was running a
+# superseded copy of this very script and calling a helper that did not exist
+# there. Nothing announced either; both were found by reading logs afterwards.
+# A commit, a dirty-tree hash and a SHA-256 of the executable would have made
+# both visible at the moment they happened.
+#
+# Recorded on a best-effort basis: a missing `git` or an unreadable file must
+# degrade to "unknown" and must never stop the job. Identity is evidence, not
+# a gate.
+identity() {
+    local commit dirty script_sha gpu
+    commit=$(git -C "$(dirname "$0")" rev-parse --short HEAD 2>/dev/null) \
+        || commit=unknown
+    if git -C "$(dirname "$0")" diff --quiet HEAD 2>/dev/null; then
+        dirty=clean
+    else
+        # A hash of the working diff, so two runs from the same commit but
+        # different uncommitted state are distinguishable.
+        dirty=$(git -C "$(dirname "$0")" diff HEAD 2>/dev/null \
+                | sha256sum 2>/dev/null | cut -c1-12)
+        dirty="dirty:${dirty:-unknown}"
+    fi
+    script_sha=$(sha256sum "$0" 2>/dev/null | cut -c1-12)
+    gpu=$(nvidia-smi --query-gpu=name --format=csv,noheader 2>/dev/null | head -1)
+    [ -z "$gpu" ] && gpu=$(rocm-smi --showproductname 2>/dev/null \
+        | grep -oPm1 '(?<=Card Series:).*' | xargs) 
+    echo "$(stamp) IDENT    $NAME commit=$commit tree=$dirty" \
+         "gpu_job_sha=${script_sha:-unknown} host=$(hostname)" \
+         "gpu=${gpu:-unknown} cmd=$*"
+}
+identity "$@" >> "$QLOG"
 echo "$(stamp) START    $NAME" >> "$QLOG"
 
 "$@"
