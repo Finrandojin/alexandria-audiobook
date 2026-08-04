@@ -60,6 +60,12 @@ def main():
     ap.add_argument("--characters", nargs="+", default=["FELT", "REINHARD"])
     ap.add_argument("--size", type=int, default=14)
     ap.add_argument("--out-dir", default=os.path.join(REPO, "ab_test_runtime", "casting_ab"))
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="fixed generation seed. The first run was unseeded, so "
+                         "the two arms differed by random draw as well as by "
+                         "cast - and NARRATOR, identical in both arms, was "
+                         "redrawn per line. A listener could not tell which "
+                         "difference they were hearing.")
     args = ap.parse_args()
 
     chunks = [c for c in json.load(open(args.script, encoding="utf-8"))
@@ -114,6 +120,7 @@ def main():
         for n, chunk in enumerate(scene):
             speaker = canon(chunk.get("speaker"))
             entry = dict(vc.get(speaker) or vc.get(chunk.get("speaker")) or {})
+            entry["seed"] = str(args.seed)
             # The narrator is untouched in both arms; only characters move.
             if arm == "scene_aware" and speaker != "NARRATOR" and proposed.get(speaker):
                 entry["adapter_id"] = proposed[speaker]

@@ -81,11 +81,55 @@ class TestInterveningName(unittest.TestCase):
         self.assertEqual(gender, "unknown")
         self.assertEqual(ev["feminine"], 0)
 
-    def test_without_a_roster_it_degrades_to_proximity(self):
-        # Documented, not desirable: callers should pass a roster. Asserting it
-        # keeps the degradation visible rather than a silent surprise.
-        self.assertEqual(gender_from_narration(self.REPRO, "Subaru")[0],
+    def test_the_rule_holds_without_a_roster(self):
+        # This test previously asserted the OPPOSITE - that with no roster the
+        # function fell back to proximity and answered "female" for Subaru.
+        # That degradation was documented rather than fixed, and an external
+        # review was right that a rule which only works when the caller already
+        # supplies the answer is barely a rule. Capitalised non-sentence-initial
+        # tokens are now treated as intervening characters, so the review's own
+        # reproduction abstains with no roster at all.
+        gender, _, ev = gender_from_narration(self.REPRO, "Subaru")
+        self.assertEqual(gender, "unknown")
+        self.assertEqual(ev["feminine"], 0)
+
+    def test_the_true_referent_is_still_attributed(self):
+        # Abstaining for Subaru must not cost Emilia her evidence; a rule that
+        # blocked both would be safe and useless.
+        self.assertEqual(gender_from_narration(self.REPRO, "Emilia")[0],
                          "female")
+
+    def test_a_sentence_initial_capital_is_not_a_name(self):
+        # Every sentence starts capitalised. Treating those as intervening
+        # characters would block essentially all evidence.
+        text = "Subaru shook his head. Rain fell. " * 3
+        self.assertEqual(gender_from_narration(text, "Subaru")[0], "male")
+
+    def test_a_stoplisted_capital_does_not_block(self):
+        # A capitalised weekday sitting inside the window is not a character,
+        # and blocking on it would throw away good evidence. This is what the
+        # stoplist is for.
+        text = "Subaru on Monday shook his head. " * 3
+        self.assertEqual(gender_from_narration(text, "Subaru")[0], "male")
+
+    def test_only_a_name_BETWEEN_target_and_construction_blocks(self):
+        # The rule is directional and scoped, and both halves matter.
+        #
+        # A name AFTER the construction, or outside the window, is not evidence
+        # about who "his" refers to - blocking on it would abstain on nearly
+        # every sentence in a populated scene.
+        far = ("Subaru shook his head. " + "The road went on for miles. " * 3
+               + "Emilia was elsewhere. ") * 3
+        self.assertEqual(gender_from_narration(far, "Subaru")[0], "male")
+
+        # A name BEFORE the target is not intervening either. In "Emilia saw
+        # Subaru shake his head" the pronoun really does bind to Subaru, and
+        # answering "male" is correct rather than lucky.
+        before = "Emilia saw Subaru shake his head. " * 3
+        self.assertEqual(gender_from_narration(before, "Subaru")[0], "male")
+
+        # Only the sandwiched case is ambiguous, and that is the review's
+        # reproduction asserted above.
 
     def test_direct_binding_survives_the_rule(self):
         text = "Subaru scratched his head. " * 3

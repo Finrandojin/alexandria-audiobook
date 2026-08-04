@@ -82,6 +82,50 @@ def _spans(narration, name, window, tail):
     return [m.group(1) for m in re.finditer(pattern, narration, re.I)]
 
 
+# Capitalised words that are not people. Kept deliberately short: this list
+# exists to stop the commonest false blocks, not to enumerate English. A word
+# wrongly treated as a name costs one abstention; a name wrongly treated as a
+# word costs a wrong gender, which is the failure that shipped.
+_NOT_NAMES = frozenset("""
+a an and as at but by for from he her here his i if in into is it its my no not
+of on or she so that the their them then there they this to too was we what
+when where which who with you your mr mrs ms dr sir lady lord miss master
+monday tuesday wednesday thursday friday saturday sunday january february
+march april may june july august september october november december god
+""".split())
+
+_CAP_TOKEN = re.compile(r"(?<![.!?]\s)(?<!^)\b([A-Z][a-z]{2,})\b")
+
+
+def _has_unknown_name(span, name):
+    """Is there a name-like token in this span other than the target?
+
+    WHY THIS EXISTS SEPARATELY FROM `others`. The intervening-name rule needed
+    a roster, and an external review pointed out the obvious consequence: with
+    no roster the original false attribution simply returns. "Subaru watched
+    Emilia raise her hand" scores FEMININE for Subaru again, because nothing
+    knows Emilia is a person. A rule that only works when the caller supplies
+    the answer is not much of a rule.
+
+    So a capitalised, non-sentence-initial token that is not the target and not
+    a common capitalised non-name is treated as an intervening character. That
+    is a guess, and it will sometimes be a place or a fictional noun - but the
+    guess is asymmetric on purpose. Blocking wrongly costs one piece of
+    evidence out of hundreds; not blocking costs a character the wrong voice.
+
+    Sentence-initial words are exempt because every sentence starts capitalised
+    and treating those as names would block essentially everything.
+    """
+    target = {p.casefold() for p in str(name).split()}
+    for match in _CAP_TOKEN.finditer(span):
+        token = match.group(1)
+        low = token.casefold()
+        if low in target or low in _NOT_NAMES:
+            continue
+        return True
+    return False
+
+
 def _count(narration, name, others=(), window_reflexive=REFLEXIVE_WINDOW,
            window_possessive=POSSESSIVE_WINDOW):
     """Count constructions that plausibly bind to `name`.
@@ -106,6 +150,8 @@ def _count(narration, name, others=(), window_reflexive=REFLEXIVE_WINDOW,
         hits = 0
         for span in _spans(narration, name, window, tail):
             if blocked and blocked.search(span):
+                continue
+            if _has_unknown_name(span, name):
                 continue
             hits += 1
         return hits

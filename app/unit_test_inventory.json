@@ -189,11 +189,15 @@
     "test_character_evidence.TestGrammaticalBinding.test_body_part_possessive_binds_to_the_named_subject",
     "test_character_evidence.TestGrammaticalBinding.test_object_pronoun_is_not_counted",
     "test_character_evidence.TestGrammaticalBinding.test_reflexive_binds_to_the_named_subject",
+    "test_character_evidence.TestInterveningName.test_a_sentence_initial_capital_is_not_a_name",
+    "test_character_evidence.TestInterveningName.test_a_stoplisted_capital_does_not_block",
     "test_character_evidence.TestInterveningName.test_another_named_character_blocks_the_match",
     "test_character_evidence.TestInterveningName.test_direct_binding_survives_the_rule",
+    "test_character_evidence.TestInterveningName.test_only_a_name_BETWEEN_target_and_construction_blocks",
     "test_character_evidence.TestInterveningName.test_reflexive_is_blocked_too",
+    "test_character_evidence.TestInterveningName.test_the_rule_holds_without_a_roster",
+    "test_character_evidence.TestInterveningName.test_the_true_referent_is_still_attributed",
     "test_character_evidence.TestInterveningName.test_unrelated_roster_names_do_not_block",
-    "test_character_evidence.TestInterveningName.test_without_a_roster_it_degrades_to_proximity",
     "test_character_evidence.TestNarrationText.test_dialogue_is_excluded",
     "test_character_evidence.TestNarrationText.test_handles_missing_fields"
   ],
@@ -1008,6 +1012,14 @@
     "test_script_preflight.ScriptPreflightTests.test_speaker_apply_requires_expected_value_and_does_not_mutate",
     "test_script_preflight.ScriptPreflightTests.test_speaker_review_only_suggests_strong_third_person_case",
     "test_script_preflight.ScriptPreflightTests.test_unicode_audit_reports_nfc_and_unsafe_characters"
+  ],
+  "test_seed_plumbing": [
+    "test_seed_plumbing.TestSeedIsRead.test_dispatchers_delegate_and_do_not_generate",
+    "test_seed_plumbing.TestSeedIsRead.test_every_generation_path_calls_manual_seed",
+    "test_seed_plumbing.TestSeedIsRead.test_every_generation_path_exists",
+    "test_seed_plumbing.TestSeedIsRead.test_every_generation_path_reads_the_seed",
+    "test_seed_plumbing.TestSeedIsRead.test_negative_seed_does_not_seed",
+    "test_seed_plumbing.TestSeedIsRead.test_seed_is_not_a_hardcoded_constant"
   ],
   "test_source_normalization_lossy": [
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_apostrophe_between_letters",
