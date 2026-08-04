@@ -68,6 +68,12 @@ def main():
     ap.add_argument("--out-dir", default=os.path.join(
         REPO, "ab_test_runtime", "validation_audio"))
     ap.add_argument("--per-band", type=int, default=20)
+    ap.add_argument("--range", nargs=2, type=int, metavar=("START", "COUNT"),
+                    help="a CONTIGUOUS slice instead of a stratified sample. "
+                         "The stratified draw answers 'how does length affect "
+                         "failure'; a contiguous run answers 'what rate would "
+                         "a listener actually meet', which is the number that "
+                         "decides whether this becomes a shipping gate.")
     ap.add_argument("--manifest", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "validation_manifest.json"))
     args = ap.parse_args()
@@ -79,7 +85,11 @@ def main():
                     if isinstance(raw_vc.get("characters"), dict) else raw_vc)
     config = json.load(open(args.config, encoding="utf-8"))
 
-    picked = stratified_sample(chunks, args.per_band)
+    if args.range:
+        start, count = args.range
+        picked = [("contiguous", c) for c in chunks[start:start + count]]
+    else:
+        picked = stratified_sample(chunks, args.per_band)
     counts = collections.Counter(label for label, _ in picked)
     print(f"{len(picked)} segments selected: " +
           ", ".join(f"{k} {v}" for k, v in sorted(counts.items())))

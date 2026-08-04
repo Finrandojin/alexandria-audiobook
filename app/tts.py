@@ -1131,6 +1131,25 @@ class TTSEngine:
                 instruct_formatted = f"<|im_start|>user\n{instruct}<|im_end|>\n"
                 gen_extra["instruct_ids"] = model._tokenize_texts([instruct_formatted])
 
+            # THE LORA PATH NEVER SEEDED. generate_voice_design,
+            # _local_generate_custom and _local_generate_clone all read
+            # voice_data["seed"] and call torch.manual_seed; this one did not,
+            # in 121 lines, so the seed field was silently ignored for every
+            # `lora` voice - 22 characters including NARRATOR, which speaks
+            # 1,581 of 2,606 lines. Each line was an independent draw of the
+            # voice, which is audible as the narrator changing between
+            # paragraphs, and it made every A/B on this path uncontrolled:
+            # the same input produced an 18% swing in clip length.
+            #
+            # Verified before fixing: torch.manual_seed alone IS sufficient
+            # here. Seeding externally before three calls gave byte-identical
+            # output, so neither the cached clone prompt nor the ROCm kernels
+            # add nondeterminism of their own.
+            import torch
+            seed = int(voice_data.get("seed", -1))
+            if seed >= 0:
+                torch.manual_seed(seed)
+
             t_start = time.time()
             wavs, sr = model.generate_voice_clone(
                 text=text,

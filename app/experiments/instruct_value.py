@@ -81,6 +81,13 @@ def main():
     ap.add_argument("--out-dir", default=os.path.join(REPO, "ab_test_runtime", "instruct_audio"))
     ap.add_argument("--per-speaker", type=int, default=3)
     ap.add_argument("--speakers", type=int, default=6)
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="fixed generation seed. WITHOUT THIS THE COMPARISON "
+                         "IS UNCONTROLLED: generate_lora_voice ignored the "
+                         "seed field entirely until it was fixed, so the same "
+                         "input produced an 18%% swing in clip length and the "
+                         "arms differed for reasons unrelated to the "
+                         "instruction. Pass -1 to reproduce the old behaviour.")
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "instruct_value.json"))
     args = ap.parse_args()
@@ -113,6 +120,9 @@ def main():
         arms = {"per_line": chunk.get("instruct") or "",
                 "per_char": constant_for(speaker),
                 "none": ""}
+        # Same seed in every arm, so the only difference is the instruction.
+        voice_data = dict(voice_data)
+        voice_data["seed"] = str(args.seed)
         row = {"uid": chunk["uid"], "speaker": speaker,
                "chars": len(chunk["text"])}
         for arm, instruct in arms.items():
