@@ -146,16 +146,18 @@ def sounds_like(a, b):
     return difflib.SequenceMatcher(a=a, b=b).ratio() >= NEAR_MATCH
 
 
-def word_errors(source, transcript):
-    """(error count, source word count, per-error detail).
+def word_error_breakdown(source, transcript):
+    """Return WER total and explicit substitution/deletion/insertion counts.
 
-    Substitutions, deletions and insertions all count as one error each, which
-    is standard WER accounting. difflib gives the alignment; the detail is kept
-    because a gate that only reports a number cannot be debugged.
+    A replace run of unequal lengths contains substitutions for the overlap and
+    insertions or deletions for the remainder. Keeping these components is
+    necessary for non-prose: one 65-character sample produced WER above 100%,
+    which is evidence of over-generation that a pooled total conceals.
     """
     a, b = words(source), words(transcript)
     sm = difflib.SequenceMatcher(a=a, b=b, autojunk=False)
-    errors, detail = 0, []
+    counts = {"substitutions": 0, "deletions": 0, "insertions": 0}
+    detail = []
     for tag, i1, i2, j1, j2 in sm.get_opcodes():
         if tag == "equal":
             continue
@@ -166,13 +168,31 @@ def word_errors(source, transcript):
             for x, y in zip(a[i1:i2], b[j1:j2]):
                 if sounds_like(x, y):
                     continue
-                errors += 1
+                counts["substitutions"] += 1
                 detail.append({"kind": "replace", "expected": x, "heard": y})
             continue
-        errors += max(i2 - i1, j2 - j1)
+        expected_n, heard_n = i2 - i1, j2 - j1
+        if tag == "delete":
+            counts["deletions"] += expected_n
+        elif tag == "insert":
+            counts["insertions"] += heard_n
+        else:
+            overlap = min(expected_n, heard_n)
+            counts["substitutions"] += overlap
+            counts["deletions"] += expected_n - overlap
+            counts["insertions"] += heard_n - overlap
         detail.append({"kind": tag, "expected": " ".join(a[i1:i2]),
                        "heard": " ".join(b[j1:j2])})
-    return errors, len(a), detail
+    counts["errors"] = sum(counts.values())
+    counts["words"] = len(a)
+    counts["detail"] = detail
+    return counts
+
+
+def word_errors(source, transcript):
+    """Backward-compatible (error count, source word count, detail)."""
+    result = word_error_breakdown(source, transcript)
+    return result["errors"], result["words"], result["detail"]
 
 
 def is_non_speech(transcript):
@@ -191,11 +211,16 @@ def is_non_speech(transcript):
 
 def validate(source, transcript, strictness="moderate"):
     """-> dict. `failed` is the shippable verdict for one segment."""
-    errors, n, detail = word_errors(source, transcript)
+    breakdown = word_error_breakdown(source, transcript)
+    errors, n, detail = (breakdown["errors"], breakdown["words"],
+                         breakdown["detail"])
     threshold = compute_threshold(n, strictness)
     heard = len(words(transcript))
     non_speech = n >= 3 and is_non_speech(transcript)
     return {"errors": errors, "words": n, "heard_words": heard,
+            "substitutions": breakdown["substitutions"],
+            "deletions": breakdown["deletions"],
+            "insertions": breakdown["insertions"],
             "threshold": threshold,
             # Non-speech output is a failure at any error budget.
             "failed": errors > threshold or non_speech,
