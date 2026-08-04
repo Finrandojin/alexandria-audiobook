@@ -119,6 +119,7 @@ def main():
     import soundfile as sf
     from tts import TTSEngine
     from experiments.generation import render, GenerationFailed
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     manifest, published = [], True
@@ -182,7 +183,8 @@ def main():
     print("  instruction plumbing is doing nothing audible and that is worth")
     print("  knowing before more is built on it.")
 
-    json.dump({"seed": args.seed, "arms": list(ARMS),
+    json.dump({"provenance": provenance(__file__, args),
+               "seed": args.seed, "arms": list(ARMS),
                "all_arms_rendered": published, "comparisons": manifest},
               open(args.out, "w"), indent=1)
     print("\nwrote", args.out)
