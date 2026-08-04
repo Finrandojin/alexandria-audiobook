@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-02 08:24 from `ab_test_runtime/experiments/` — 170 artifacts, 458 arms.
+Generated 2026-08-04 14:49 from `ab_test_runtime/experiments/` — 222 artifacts, 495 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -24,6 +24,10 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | contiguous | 385 | 74.5% | ok | False | 5518.1s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | scattered | 385 | 57.9% | ok | False | 5518.1s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 92 | 75.0% | ok | False | 10801.7s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 92 | 67.4% | ok | False | 10801.7s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 133 | 68.4% | ok | False | 15992.9s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 133 | 31.6% | ok | False | 15992.9s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 162 | 53.7% | ok | False | 19624.4s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 162 | 35.2% | ok | False | 19624.4s |
 
@@ -83,6 +87,12 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | scaffold_thinking | 139 | 43.2% | ok | True | 4564.3s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | thinking | 139 | 52.5% | ok | False | 2668.6s |
 
+## booknlp_baseline
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| ? | booknlp-big | local-lmstudio | lmstudio |  | booknlp | 1226 | 54.2% | None | None | s |
+
 ## candidate_id
 
 | book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
@@ -96,26 +106,34 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 |---|---|---|---|---:|---|---:|---:|---|---|---:|
 | grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 396 | 73.7% | ok | False | 0.1s |
 | grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 400 | 77.8% | ok | False | 0.1s |
+| grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cascade | 396 | 84.6% | ok | False | 0.2s |
 | grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 396 | 57.3% | ok | False | 0.1s |
 | grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 400 | 55.8% | ok | False | 0.1s |
+| grimgar03 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cheap-w1 | 396 | 82.3% | ok | False | 0.2s |
 | index18 | gemma-3-27b | cloud-a6000-LM | LM Studio loopback | 16384 | cascade | 99 | 65.7% | ok | False | 0.1s |
 | index18 | gemma-3-27b | cloud-a6000-LM | LM Studio loopback | 16384 | cheap-w1 | 99 | 62.6% | ok | False | 0.1s |
 | index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 99 | 69.7% | ok | False | 0.1s |
 | index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 99 | 73.7% | ok | False | 0.1s |
+| index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cascade | 99 | 63.6% | ok | False | 0.1s |
 | index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 99 | 62.6% | ok | False | 0.1s |
 | index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 99 | 62.6% | ok | False | 0.1s |
+| index18 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cheap-w1 | 99 | 57.6% | ok | False | 0.1s |
 | mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 136 | 64.0% | ok | False | 0.1s |
 | mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 139 | 64.0% | ok | False | 0.1s |
+| mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cascade | 136 | 61.8% | ok | False | 0.1s |
 | mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 136 | 50.0% | ok | False | 0.1s |
 | mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 139 | 47.5% | ok | False | 0.1s |
+| mushoku16 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cheap-w1 | 136 | 55.1% | ok | False | 0.1s |
 | mushoku16 | qwen3-32b | cloud-a6000-LM | LM Studio loopback | 16384 | cascade | 139 | 45.3% | ok | False | 0.1s |
 | mushoku16 | qwen3-32b | cloud-a6000-LM | LM Studio loopback | 16384 | cheap-w1 | 139 | 47.5% | ok | False | 0.1s |
 | owarimonogatari3 | gemma-3-27b | cloud-a6000-LM | LM Studio loopback | 16384 | cascade | 162 | 46.3% | ok | False | 0.1s |
 | owarimonogatari3 | gemma-3-27b | cloud-a6000-LM | LM Studio loopback | 16384 | cheap-w1 | 162 | 42.6% | ok | False | 0.1s |
 | owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 162 | 54.9% | ok | False | 0.1s |
 | owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cascade | 162 | 56.2% | ok | False | 0.1s |
+| owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cascade | 162 | 59.9% | ok | False | 0.1s |
 | owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 162 | 40.1% | ok | False | 0.1s |
 | owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | cheap-w1 | 162 | 42.0% | ok | False | 0.1s |
+| owarimonogatari3 | qwen3-14b + llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 16384 | cheap-w1 | 162 | 54.3% | ok | False | 0.1s |
 
 ## closed_set
 
@@ -346,6 +364,23 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | independent | 162 | 48.8% | ok | False | 538.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | joint-chrono | 162 | 45.7% | ok | False | 538.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | joint-shuffled | 162 | 45.7% | ok | False | 538.3s |
+
+## lora_serving_eval
+
+| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---:|
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 772 | 58.7% | ok | False | 6206.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | ok | False | 2253.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | ok | False | 1984.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | ok | False | 1929.7s |
+| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 547 | 72.0% | ok | True | 28194.5s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 772 | 68.5% | ok | False | 6206.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 68.1% | ok | False | 2253.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 72.7% | ok | False | 1984.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 76.6% | ok | False | 1929.7s |
+| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 547 | 76.2% | ok | True | 28194.5s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 225 | 60.9% | ok | False | 19529.9s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 225 | 69.3% | ok | False | 19529.9s |
 
 ## narrator_prior
 

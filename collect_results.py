@@ -25,6 +25,15 @@ for path in files:
     except (ValueError, OSError) as exc:
         rows.append({"artifact": name, "note": f"UNREADABLE: {exc}"})
         continue
+    # The same lesson as the "rows" check below, one level up: a manifest can
+    # legitimately be a LIST (validation_manifest, chapter_manifest and
+    # fix_verification all are), and calling .get on it raised AttributeError
+    # and killed the whole index rather than skipping one file. Guard the
+    # top-level shape too, not just the field.
+    if not isinstance(d, dict):
+        rows.append({"artifact": name,
+                     "note": f"SKIPPED: not a result object ({type(d).__name__})"})
+        continue
     m, rr = d.get("meta") or {}, d.get("rows") or []
     # Analysis artifacts are plain JSON and may legitimately use "rows" for a
     # count rather than a list of scored lines - segmentation_classifier.json
