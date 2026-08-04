@@ -134,9 +134,20 @@ def main():
     fixed = sum(1 for r in rows if r["whole_failed"] and not r["split_failed"])
     broke = sum(1 for r in rows if r["split_failed"] and not r["whole_failed"])
     print(f"\n  split fixes {fixed}, breaks {broke}, of {len(rows)} segments")
-    if fixed and not broke:
-        print("  Splitting is the remedy. Worth building into the generation path.")
-    elif not fixed:
+    # "fixed one, broke none" is NOT sufficient to call something a remedy, and
+    # saying so was the first draft's mistake: 7 of 8 still failed. A remedy
+    # has to clear most of the failures, not shave the error count.
+    if sf_ == 0:
+        print("  Splitting clears every failure. It is the remedy.")
+    elif sf_ <= len(rows) * 0.4:
+        print("  Splitting clears most failures. Worth building, with the "
+              "residual\n  measured separately.")
+    elif fixed >= broke and statistics.mean(r["split_wer"] for r in rows) < \
+            statistics.mean(r["whole_wer"] for r in rows) * 0.75:
+        print("  PARTIAL MITIGATION ONLY. Error rate drops materially but most\n"
+              "  segments still fail, so the failure is also per ITEM, not just\n"
+              "  per blob. Splitting alone does not make this text safe to ship.")
+    else:
         print("  Splitting is NOT the remedy - the failure is per ITEM, not per\n"
               "  blob. Do not change the generation path; find the mechanism.")
     json.dump({"rows": rows, "whole_failed": wf, "split_failed": sf_},
