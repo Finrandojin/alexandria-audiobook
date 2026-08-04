@@ -106,6 +106,7 @@ def main():
 
     from tts import TTSEngine
     from experiments.generation import render, GenerationFailed
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     measured, skipped = [], []
@@ -185,7 +186,8 @@ def main():
                    "contrast must come from timbre or from listening.")
     print(f"\n  {verdict}")
 
-    json.dump({"seed": args.seed, "speaker": args.speaker,
+    json.dump({"provenance": provenance(__file__, args),
+               "seed": args.seed, "speaker": args.speaker,
                "lines": len(sample), "pool_size": len(pool),
                "measured": measured, "skipped": skipped,
                "declared_vs_measured_mae": statistics.mean(errs),

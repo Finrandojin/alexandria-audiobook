@@ -111,6 +111,7 @@ def main():
     from tts import TTSEngine, voice_category
     from experiments.tts_output_validation import transcribe, validate
     from experiments.generation import render
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     rows = []
@@ -171,6 +172,7 @@ def main():
                   "  test on more segments before acting on it.")
 
     json.dump({"summary": summary, "rows": rows,
+               "provenance": provenance(__file__, args),
                "caveat": "WER measures content, not delivery. A flat result "
                          "moves the question to a listening test rather than "
                          "settling it."},

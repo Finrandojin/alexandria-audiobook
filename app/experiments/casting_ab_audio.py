@@ -103,6 +103,7 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
     from tts import TTSEngine, voice_category
     from experiments.generation import render
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     import soundfile as sf
@@ -153,7 +154,8 @@ def main():
               f"{', '.join(asymmetric)} did not render every line.")
         for arm, fails in failures.items():
             print(f"    {arm}: {len(fails)} failed -> {fails[:3]}")
-        json.dump({"scene_index": index, "lines": len(scene),
+        json.dump({"provenance": provenance(__file__, args),
+                   "scene_index": index, "lines": len(scene),
                    "characters": args.characters, "published": False,
                    "rendered": {a: v["lines"] for a, v in rendered.items()},
                    "failures": failures},
@@ -168,7 +170,8 @@ def main():
                         "lines": v["lines"]}
         print(f"\n  wrote {out}  ({results[arm]['seconds']}s)")
 
-    json.dump({"scene_index": index, "lines": len(scene),
+    json.dump({"provenance": provenance(__file__, args),
+               "scene_index": index, "lines": len(scene),
                "characters": args.characters, "published": True,
                "line_ids": sorted(expected), "arms": results},
               open(os.path.join(args.out_dir, "manifest.json"), "w"), indent=1)

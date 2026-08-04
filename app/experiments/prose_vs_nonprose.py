@@ -246,6 +246,7 @@ def main():
     from tts import TTSEngine, voice_category
     from experiments.tts_output_validation import transcribe, validate
     from experiments.generation import render
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     rows = []
@@ -293,7 +294,9 @@ def main():
               f"length.")
         print("  Both classes were generated WITH the symbol normaliser "
               "active, so a\n  difference here is STRUCTURE, not symbols.")
-    json.dump({"summary": summary, "rows": rows}, open(args.out, "w"), indent=1)
+    json.dump({"summary": summary, "rows": rows,
+               "provenance": provenance(__file__, args)},
+              open(args.out, "w"), indent=1)
     print("\nwrote", args.out)
 
 

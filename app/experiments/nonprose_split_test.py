@@ -88,6 +88,7 @@ def main():
     import numpy as np, soundfile as sf
     from tts import TTSEngine, normalize_for_speech
     from experiments.generation import render
+    from experiments.provenance import provenance
     from experiments.tts_output_validation import transcribe, validate
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
@@ -168,6 +169,7 @@ def main():
     if skipped:
         print(f"\n  {len(skipped)} segments dropped from BOTH arms")
     json.dump({"rows": rows, "whole_failed": wf, "split_failed": sf_,
+               "provenance": provenance(__file__, args),
                "skipped": skipped},
               open(args.out, "w"), indent=1)
     print("\nwrote", args.out)

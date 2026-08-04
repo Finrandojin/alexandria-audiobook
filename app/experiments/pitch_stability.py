@@ -77,6 +77,7 @@ def main():
 
     from tts import TTSEngine
     from experiments.generation import render
+    from experiments.provenance import provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
     print(f"{args.speaker}, adapter {voice.get('adapter_id')}, seed {args.seed}\n")
 
@@ -124,7 +125,8 @@ def main():
                   "  apart still overlap across a book. The withdrawal stands and\n"
                   "  contrast must come from timbre or from listening.")
 
-    json.dump({"speaker": args.speaker, "adapter": voice.get("adapter_id"),
+    json.dump({"provenance": provenance(__file__, args),
+               "speaker": args.speaker, "adapter": voice.get("adapter_id"),
                "seed": args.seed, "declared_mean_f0": declared,
                "same_text": repeats, "across_lines": across,
                "across_spread": spread},
