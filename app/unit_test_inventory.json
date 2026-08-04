@@ -1078,6 +1078,8 @@
     "test_speaker_identity.SpeakerIdentityTests.test_uncertain_typo_and_extended_name_are_reported_not_merged"
   ],
   "test_speaker_similarity": [
+    "test_speaker_similarity.TestSpeakerSimilarity.test_embedding_decodes_and_resamples_without_torchaudio",
+    "test_speaker_similarity.TestSpeakerSimilarity.test_empty_audio_fails_loudly",
     "test_speaker_similarity.TestSpeakerSimilarity.test_missing_speechbrain_fails_instead_of_falling_back"
   ],
   "test_stage3_harnesses": [

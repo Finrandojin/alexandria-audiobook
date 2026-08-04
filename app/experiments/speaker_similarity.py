@@ -25,13 +25,19 @@ def get_ecapa_encoder(cache_dir):
 
 
 def get_ecapa_embedding(encoder, path):
+    import math
+    import soundfile as sf
+    from scipy.signal import resample_poly
     import torch
-    import torchaudio
-    waveform, rate = torchaudio.load(path)
-    if waveform.shape[0] > 1:
-        waveform = waveform.mean(dim=0, keepdim=True)
+    waveform, rate = sf.read(path, dtype="float32", always_2d=True)
+    waveform = waveform.mean(axis=1)
+    if not len(waveform) or not rate:
+        raise ValueError(f"speaker-similarity input has no audio: {path}")
     if rate != 16000:
-        waveform = torchaudio.functional.resample(waveform, rate, 16000)
+        divisor = math.gcd(int(rate), 16000)
+        waveform = resample_poly(waveform, 16000 // divisor,
+                                 int(rate) // divisor).astype("float32")
+    waveform = torch.from_numpy(waveform).unsqueeze(0)
     with torch.no_grad():
         value = encoder.encode_batch(waveform).squeeze().detach().cpu().numpy()
     return value / (np.linalg.norm(value) + 1e-9)
