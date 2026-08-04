@@ -3,12 +3,36 @@ import re
 import json
 import threading
 import shutil
+import requests
 import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
 
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
+
+# MiniMax voice-clone / voice-design API configuration.
+MINIMAX_VOICE_CLONE_ENDPOINTS = {
+    "global_en": "https://api.minimax.io/v1/voice_clone",
+    "cn_zh": "https://api.minimaxi.com/v1/voice_clone",
+}
+MINIMAX_VOICE_DESIGN_ENDPOINTS = {
+    "global_en": "https://api.minimax.io/v1/voice_design",
+    "cn_zh": "https://api.minimaxi.com/v1/voice_design",
+}
+MINIMAX_FILE_UPLOAD_ENDPOINTS = {
+    "global_en": "https://api.minimax.io/v1/files/upload",
+    "cn_zh": "https://api.minimaxi.com/v1/files/upload",
+}
+MINIMAX_VOICE_CLONE_MODELS = (
+    "speech-2.8-hd",
+    "speech-2.6-hd",
+    "speech-02-hd",
+    "speech-01-hd",
+)
+MINIMAX_VOICE_CLONE_PURPOSES = ("voice_clone", "prompt_audio")
+MINIMAX_VOICE_AUDIO_EXTS = (".mp3", ".m4a", ".wav")
+MINIMAX_DEFAULT_VOICE_CLONE_MODEL = MINIMAX_VOICE_CLONE_MODELS[0]
 
 
 def sanitize_filename(name):
@@ -101,6 +125,14 @@ class TTSEngine:
         self._url = tts_config.get("url", "http://127.0.0.1:7860")
         self._device = tts_config.get("device", "auto")
         self._compile_codec_enabled = tts_config.get("compile_codec", False)
+
+        # MiniMax provider configuration (used by the voice-clone flow)
+        self._provider = str(tts_config.get("provider", "server")).strip().lower()
+        self._api_key = str(tts_config.get("api_key", "")).strip()
+        self._speech_region = str(tts_config.get("region", "global_en")).strip()
+        self._voice_clone_model = str(
+            tts_config.get("voice_clone_model", MINIMAX_DEFAULT_VOICE_CLONE_MODEL)
+        ).strip()
 
         # Language setting (passed to Qwen3-TTS)
         self._language = tts_config.get("language", "English")
@@ -660,6 +692,129 @@ class TTSEngine:
         self._gradio_client = Client(self._url)
         print("Connected to external TTS server.")
         return self._gradio_client
+
+    # ── MiniMax voice-clone / voice-design flow ──────────────────
+
+    def _minimax_endpoint_for(self, endpoints):
+        """Resolve the configured regional MiniMax endpoint."""
+        endpoint = endpoints.get(self._speech_region)
+        if not endpoint:
+            raise ValueError(f"Unsupported MiniMax region: {self._speech_region}")
+        return endpoint
+
+    def _minimax_headers(self):
+        """Build authenticated MiniMax request headers."""
+        if not self._api_key:
+            raise ValueError("MiniMax API key is missing")
+        return {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
+
+    def _minimax_raise_for_base_resp(self, result, message):
+        """Raise if the MiniMax response reports a non-zero status code."""
+        base_response = result.get("base_resp") or {}
+        status_code = base_response.get("status_code")
+        if status_code not in (None, 0):
+            detail = base_response.get("status_msg") or message
+            raise RuntimeError(f"{message}: {detail}")
+
+    def minimax_upload_audio(self, file_path, purpose):
+        """Upload a reference audio file to MiniMax.
+
+        POST /v1/files/upload with purpose "voice_clone" or "prompt_audio".
+        Returns the uploaded file_id.
+        """
+        if purpose not in MINIMAX_VOICE_CLONE_PURPOSES:
+            raise ValueError(f"Unsupported MiniMax upload purpose: {purpose}")
+        if not os.path.exists(file_path):
+            raise ValueError(f"Reference audio not found: {file_path}")
+        ext = os.path.splitext(file_path)[1].lower()
+        if ext not in MINIMAX_VOICE_AUDIO_EXTS:
+            raise ValueError(
+                f"Unsupported audio format: {ext}. "
+                f"Use {', '.join(MINIMAX_VOICE_AUDIO_EXTS)}"
+            )
+        if not self._api_key:
+            raise ValueError("MiniMax API key is missing")
+
+        url = self._minimax_endpoint_for(MINIMAX_FILE_UPLOAD_ENDPOINTS)
+        with open(file_path, "rb") as audio_file:
+            response = requests.post(
+                url,
+                headers={"Authorization": f"Bearer {self._api_key}"},
+                data={"purpose": purpose},
+                files={"file": (os.path.basename(file_path), audio_file)},
+                timeout=120,
+            )
+        response.raise_for_status()
+        result = response.json()
+        self._minimax_raise_for_base_resp(result, "MiniMax audio upload failed")
+
+        file_id = ((result.get("file") or {}).get("file_id") or "").strip()
+        if not file_id:
+            raise RuntimeError("MiniMax audio upload response did not contain file_id")
+        return file_id
+
+    def minimax_clone_voice(self, file_path, voice_id, model=None):
+        """Clone a voice on MiniMax from a reference audio file.
+
+        Uploads the audio (purpose "voice_clone") then calls POST
+        /v1/voice_clone with file_id, voice_id and model. Returns the
+        cloned voice_id.
+        """
+        clone_model = model or self._voice_clone_model
+        if clone_model not in MINIMAX_VOICE_CLONE_MODELS:
+            raise ValueError(f"Unsupported MiniMax voice clone model: {clone_model}")
+
+        file_id = self.minimax_upload_audio(file_path, "voice_clone")
+        url = self._minimax_endpoint_for(MINIMAX_VOICE_CLONE_ENDPOINTS)
+        response = requests.post(
+            url,
+            headers=self._minimax_headers(),
+            json={
+                "file_id": file_id,
+                "voice_id": voice_id,
+                "model": clone_model,
+            },
+            timeout=120,
+        )
+        response.raise_for_status()
+        result = response.json()
+        self._minimax_raise_for_base_resp(result, "MiniMax voice clone failed")
+
+        cloned_voice_id = (result.get("voice_id") or "").strip()
+        if not cloned_voice_id:
+            raise RuntimeError("MiniMax voice clone response did not contain voice_id")
+        return cloned_voice_id
+
+    def minimax_voice_design(self, prompt, voice_id):
+        """Design a voice on MiniMax from a text description.
+
+        Calls POST /v1/voice_design with prompt and voice_id. Returns the
+        designed voice_id.
+        """
+        if not prompt or not str(prompt).strip():
+            raise ValueError("MiniMax voice design prompt is required")
+
+        url = self._minimax_endpoint_for(MINIMAX_VOICE_DESIGN_ENDPOINTS)
+        response = requests.post(
+            url,
+            headers=self._minimax_headers(),
+            json={
+                "prompt": str(prompt).strip(),
+                "voice_id": voice_id,
+            },
+            timeout=120,
+        )
+        response.raise_for_status()
+        result = response.json()
+        self._minimax_raise_for_base_resp(result, "MiniMax voice design failed")
+
+        designed_voice_id = (result.get("voice_id") or "").strip()
+        if not designed_voice_id:
+            raise RuntimeError("MiniMax voice design response did not contain voice_id")
+        return designed_voice_id
 
     # ── Clone prompt cache (local mode) ──────────────────────────
 
