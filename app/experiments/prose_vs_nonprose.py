@@ -55,7 +55,7 @@ READINGS, fixed before running:
   no difference           the bullet was the whole story and the fix is
                           complete. Front matter is safe as it stands.
 """
-import argparse, collections, json, os, re, statistics, sys
+import argparse, collections, difflib, json, os, re, statistics, sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 APP = os.path.join(REPO, "app")
@@ -99,6 +99,42 @@ def classify(text, high=0.45, low=0.12):
     return None          # ambiguous: excluded rather than guessed
 
 
+MACHINE_MARKERS = ("your previous response", "quality validation",
+                   "failures:", '"code":', '"value":', "retry policy")
+
+
+def is_machine_output(text):
+    """Entries that are pipeline logging, not book text.
+
+    Two of the first 25 non-prose segments were LLM quality-rejection messages
+    that had leaked into scripts/*.json. They are not front matter and their
+    presence inflated the class.
+    """
+    low = (text or "").lower()
+    return any(m in low for m in MACHINE_MARKERS)
+
+
+NEAR_DUPLICATE = 0.7
+
+
+def skeleton(text):
+    return re.sub(r"[^a-z]", "", (text or "").lower())
+
+
+def is_near_duplicate(text, accepted):
+    """Is this text a restatement of one already chosen?
+
+    18 of the first 25 non-prose segments were the same copyright-identifier
+    line repeated across Re:Zero volumes, so an apparent n=25 rested on about
+    five distinct texts. A fixed-length key does not merge them - stripping
+    digits still leaves 'v. one paperback' differing from 'v. 1 pbk.' - so
+    similarity is compared directly against everything already accepted.
+    """
+    sk = skeleton(text)
+    return any(difflib.SequenceMatcher(a=sk, b=other).ratio() >= NEAR_DUPLICATE
+               for other in accepted)
+
+
 def match_pairs(chunks, tolerance=0.25, limit=15):
     """Pair each non-prose segment with a prose one of similar length.
 
@@ -106,8 +142,14 @@ def match_pairs(chunks, tolerance=0.25, limit=15):
     showed runs the OTHER way - longer scored better - so an unmatched result
     would understate any structural effect or invent one.
     """
-    tagged = [(classify(c["text"]), c) for c in chunks]
-    nonprose = [c for t, c in tagged if t == "nonprose"]
+    tagged = [(classify(c["text"]), c) for c in chunks
+              if not is_machine_output(c["text"])]
+    nonprose, accepted = [], []
+    for t, c in tagged:
+        if t != "nonprose" or is_near_duplicate(c["text"], accepted):
+            continue
+        accepted.append(skeleton(c["text"]))
+        nonprose.append(c)
     prose = sorted([c for t, c in tagged if t == "prose"],
                    key=lambda c: len(c["text"]))
     used, pairs = set(), []
