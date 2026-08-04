@@ -177,6 +177,20 @@
     "test_build_scoring_sheet.NeighbourContextTest.test_start_of_book_has_no_leading_context",
     "test_build_scoring_sheet.NeighbourContextTest.test_window_is_respected"
   ],
+  "test_chinese_attribution": [
+    "test_chinese_attribution.TestNormalise.test_extracts_tag_index",
+    "test_chinese_attribution.TestNormalise.test_unparseable_is_none",
+    "test_chinese_attribution.TestPrompt.test_candidate_count_matches_the_roles",
+    "test_chinese_attribution.TestPrompt.test_candidates_are_the_tags_not_the_keys",
+    "test_chinese_attribution.TestPrompt.test_no_roles_still_builds",
+    "test_chinese_attribution.TestPrompt.test_target_line_is_marked_once",
+    "test_chinese_attribution.TestTruthMapping.test_mapping_is_not_identity",
+    "test_chinese_attribution.TestTruthMapping.test_missing_speaker_is_none",
+    "test_chinese_attribution.TestTruthMapping.test_speaker_absent_from_mapping_is_none",
+    "test_chinese_attribution.TestTruthMapping.test_truth_does_not_match_a_wrong_answer",
+    "test_chinese_attribution.TestTruthMapping.test_truth_matches_a_correct_model_answer",
+    "test_chinese_attribution.TestTruthMapping.test_truth_resolves_through_the_mapping"
+  ],
   "test_chunk_quality": [
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_fails_cleanly_when_both_halves_fail",
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_labels_full_and_split_attempt_telemetry",
@@ -785,6 +799,13 @@
     "test_release_verifier.ReleaseVerifierTests.test_unittest_summary_rejects_skips_and_missing_success"
   ],
   "test_repair_voice_config": [
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_ambiguous_splits_are_not_merged_by_default",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_force_ambiguous_does_merge",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_identical_adapter_is_not_a_split",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_lora_versus_custom_is_not_ambiguous",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_same_type_different_adapter_is_a_split",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_signature_reads_adapter_id",
+    "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_two_deliberate_voices_are_ambiguous",
     "test_repair_voice_config.TestApplyMerges.test_input_config_is_not_mutated",
     "test_repair_voice_config.TestApplyMerges.test_loser_keys_are_kept_not_deleted",
     "test_repair_voice_config.TestApplyMerges.test_losers_adopt_the_winner_voice",

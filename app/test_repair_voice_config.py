@@ -30,7 +30,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from repair_voice_config import (apply_merges, canonical, find_splits,
                                  voice_signature)
 
-LORA = {"type": "lora", "voice": "Ryan", "seed": "-1"}
+LORA = {"type": "lora", "voice": "Ryan", "seed": "-1",
+        "adapter_id": "husky_tenor_30s_m_fantasy"}
+LORA_OTHER = {"type": "lora", "voice": "Ryan", "seed": "-1",
+              "adapter_id": "breathy_alto_50s_f_fantasy"}
 CUSTOM = {"type": "custom", "voice": "Aiden", "seed": "-1"}
 DESIGN = {"type": "design", "voice": "Ryan", "seed": "-1"}
 CLONE = {"type": "clone", "voice": "Ryan", "seed": "-1"}
@@ -104,6 +107,57 @@ class TestFindSplits(unittest.TestCase):
                   "ANASTASIA": dict(CUSTOM)}
         splits = find_splits(config, {}, {})
         self.assertEqual([s["canonical"] for s in splits], ["ANASTASIA"])
+
+
+class TestAdapterIdIsPartOfIdentity(unittest.TestCase):
+    """The field is adapter_id, not adapter. Getting it wrong hid the worst
+    split in the book: NATSUKI SUBARU, 412 lines, a male baritone under one
+    spelling and a fifty-year-old female alto under the other, reported as
+    SAME VOICE because every LoRA entry looks alike on the wrong keys."""
+
+    def test_same_type_different_adapter_is_a_split(self):
+        config = {"Subaru": dict(LORA_OTHER), "NATSUKI SUBARU": dict(LORA)}
+        splits = find_splits(config, {"SUBARU": "NATSUKI SUBARU"},
+                             {"Subaru": 244, "NATSUKI SUBARU": 168})
+        self.assertEqual(len(splits), 1)
+
+    def test_identical_adapter_is_not_a_split(self):
+        config = {"Subaru": dict(LORA), "NATSUKI SUBARU": dict(LORA)}
+        self.assertEqual(
+            find_splits(config, {"SUBARU": "NATSUKI SUBARU"}, {}), [])
+
+    def test_signature_reads_adapter_id(self):
+        self.assertIn("husky_tenor_30s_m_fantasy", voice_signature(LORA))
+
+    def test_two_deliberate_voices_are_ambiguous(self):
+        # No principled winner exists, and line count is a coin flip on the
+        # most-heard voice in the book.
+        config = {"Subaru": dict(LORA_OTHER), "NATSUKI SUBARU": dict(LORA)}
+        splits = find_splits(config, {"SUBARU": "NATSUKI SUBARU"},
+                             {"Subaru": 244, "NATSUKI SUBARU": 168})
+        self.assertTrue(splits[0]["ambiguous"])
+
+    def test_ambiguous_splits_are_not_merged_by_default(self):
+        config = {"Subaru": dict(LORA_OTHER), "NATSUKI SUBARU": dict(LORA)}
+        splits = find_splits(config, {"SUBARU": "NATSUKI SUBARU"},
+                             {"Subaru": 244, "NATSUKI SUBARU": 168})
+        merged = apply_merges(config, splits)
+        self.assertEqual(merged["NATSUKI SUBARU"]["adapter_id"],
+                         "husky_tenor_30s_m_fantasy")
+
+    def test_force_ambiguous_does_merge(self):
+        config = {"Subaru": dict(LORA_OTHER), "NATSUKI SUBARU": dict(LORA)}
+        splits = find_splits(config, {"SUBARU": "NATSUKI SUBARU"},
+                             {"Subaru": 244, "NATSUKI SUBARU": 168})
+        merged = apply_merges(config, splits, force_ambiguous=True)
+        self.assertEqual(merged["NATSUKI SUBARU"]["adapter_id"],
+                         "breathy_alto_50s_f_fantasy")
+
+    def test_lora_versus_custom_is_not_ambiguous(self):
+        # A deliberate voice against an auto-created fallback IS decidable.
+        config = {"Anna": dict(LORA), "ANNA": dict(CUSTOM)}
+        splits = find_splits(config, {}, {"Anna": 68, "ANNA": 2})
+        self.assertFalse(splits[0]["ambiguous"])
 
 
 class TestApplyMerges(unittest.TestCase):

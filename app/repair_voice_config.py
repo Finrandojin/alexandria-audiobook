@@ -64,9 +64,28 @@ def entry_of(config, key):
 
 
 def voice_signature(entry):
-    """What makes two entries audibly identical, per audible_errors.py."""
-    return (entry.get("type"), entry.get("voice"), entry.get("adapter"),
-            entry.get("seed"), entry.get("style"))
+    """What makes two entries audibly identical.
+
+    THE FIELD NAMES MATTER AND THE FIRST VERSION HAD THEM WRONG. It compared
+    "adapter" and "style", which do not exist in voice_config.json - the real
+    keys are `adapter_id` and `character_style`. Every LoRA entry therefore
+    looked identical on ('lora', 'Ryan', None, '-1', None) regardless of which
+    of the 78 adapters it actually used.
+
+    That is not a cosmetic slip. It reported NATSUKI SUBARU - the protagonist,
+    412 lines across two spellings - as SAME VOICE while one spelling was
+    silky_baritone_30s_m_fantasy and the other breathy_alto_50s_f_fantasy, a
+    male baritone and a fifty-year-old female alto. Subaru was also the
+    fixture used to test the "harmless duplication" path, so the bug and its
+    test agreed with each other.
+
+    `ref_audio` is included because a clone voice's identity is its reference
+    sample; two clone entries agreeing on everything else but pointing at
+    different audio are different voices.
+    """
+    return (entry.get("type"), entry.get("voice"), entry.get("adapter_id"),
+            entry.get("seed"), entry.get("character_style"),
+            entry.get("ref_audio"))
 
 
 def find_splits(config, aliases, line_counts):
@@ -109,14 +128,27 @@ def find_splits(config, aliases, line_counts):
             reason += (f"; NOTE {by_lines!r} has more lines "
                        f"({line_counts.get(by_lines, 0)} vs "
                        f"{line_counts.get(winner, 0)})")
+        # When every candidate is a DELIBERATE voice of the same rank, there
+        # is no principled winner and line count is a coin flip. Subaru is the
+        # case in point: 244 lines on breathy_alto_50s_f_fantasy against 168 on
+        # silky_baritone_30s_m_fantasy, for a male protagonist. Picking by
+        # lines would give him a fifty-year-old female alto for the whole book.
+        # Nothing here knows a character's gender or intent, so it must not
+        # guess - these are reported and skipped unless --force-ambiguous.
+        ranks = {TYPE_RANK.get(entry_of(config, k).get("type"), 0) for k in keys}
+        ambiguous = len(ranks) == 1 and max(ranks) >= 3
+        if ambiguous:
+            reason = ("AMBIGUOUS - every spelling is a deliberate voice; "
+                      "needs a human choice")
         splits.append({"canonical": canon, "keys": ranked, "winner": winner,
                        "reason": reason, "disputed": disputed,
+                       "ambiguous": ambiguous,
                        "lines": {k: line_counts.get(k, 0) for k in ranked},
                        "signatures": {k: sigs[k] for k in ranked}})
     return splits
 
 
-def apply_merges(config, splits):
+def apply_merges(config, splits, force_ambiguous=False):
     """Point every spelling at the winner's settings. Returns a NEW dict.
 
     Keys are kept rather than deleted: the script still refers to them by their
@@ -125,6 +157,8 @@ def apply_merges(config, splits):
     """
     merged = dict(config)
     for split in splits:
+        if split.get("ambiguous") and not force_ambiguous:
+            continue
         winning = dict(entry_of(config, split["winner"]))
         for key in split["keys"]:
             if key != split["winner"]:
@@ -138,6 +172,11 @@ def main():
     ap.add_argument("--aliases", default=DEFAULT_ALIASES)
     ap.add_argument("--script", default=DEFAULT_SCRIPT,
                     help="chunks.json or annotated_script.json, for line counts")
+    ap.add_argument("--force-ambiguous", action="store_true",
+                    dest="force_ambiguous",
+                    help="also merge splits where every spelling is a "
+                         "deliberate voice and the tool cannot know which is "
+                         "intended")
     ap.add_argument("--apply", action="store_true",
                     help="write the merge (backs up first); default is report only")
     args = ap.parse_args()
@@ -186,7 +225,7 @@ def main():
 
     backup = f"{args.config}.bak-{time.strftime('%Y%m%d-%H%M%S')}"
     shutil.copy2(args.config, backup)
-    merged = apply_merges(config, splits)
+    merged = apply_merges(config, splits, args.force_ambiguous)
     if isinstance(raw.get("characters"), dict):
         raw["characters"] = merged
         out = raw
