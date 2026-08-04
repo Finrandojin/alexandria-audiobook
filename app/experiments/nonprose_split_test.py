@@ -55,6 +55,9 @@ def main():
     ap.add_argument("--out-dir", default=os.path.join(REPO, "ab_test_runtime", "split_audio"))
     ap.add_argument("--voice", default="NARRATOR")
     ap.add_argument("--limit", type=int, default=10)
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="fixed generation seed; the first run was unseeded so "
+                         "whole and split arms differed by random draw")
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "nonprose_split.json"))
     args = ap.parse_args()
@@ -78,7 +81,8 @@ def main():
     raw_vc = json.load(open(args.voice_config, encoding="utf-8"))
     voice_config = (raw_vc.get("characters")
                     if isinstance(raw_vc.get("characters"), dict) else raw_vc)
-    voice_data = voice_config.get(args.voice) or {}
+    voice_data = dict(voice_config.get(args.voice) or {})
+    voice_data["seed"] = str(args.seed)
     os.makedirs(args.out_dir, exist_ok=True)
 
     import numpy as np, soundfile as sf

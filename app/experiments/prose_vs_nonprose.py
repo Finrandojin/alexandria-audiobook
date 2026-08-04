@@ -217,6 +217,13 @@ def main():
                     help="draw from scripts/*.json instead of the live book")
     ap.add_argument("--voice", default="NARRATOR",
                     help="single voice used for every pooled segment")
+    ap.add_argument("--seed", type=int, default=1234,
+                    help="fixed generation seed. The first two runs of this "
+                         "experiment predate the discovery that "
+                         "generate_lora_voice never read the seed, so each "
+                         "segment was an independent draw of the voice and the "
+                         "prose/non-prose arms differed for reasons unrelated "
+                         "to the text. Pass -1 for the old behaviour.")
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "prose_vs_nonprose.json"))
     args = ap.parse_args()
@@ -244,7 +251,8 @@ def main():
     for i, pair in enumerate(pairs, 1):
         for label, chunk in (("nonprose", pair[0]), ("prose", pair[1])):
             speaker = chunk.get("speaker")
-            voice_data = voice_config.get(speaker) or {}
+            voice_data = dict(voice_config.get(speaker) or {})
+            voice_data["seed"] = str(args.seed)
             wav = os.path.join(args.out_dir, f"{label}_{chunk['uid']}.wav")
             try:
                 if voice_category(voice_data) == "lora":
