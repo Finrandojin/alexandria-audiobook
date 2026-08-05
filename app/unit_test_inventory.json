@@ -318,6 +318,12 @@
     "test_config_regressions.ConfigTests.test_project_config_cache_can_be_invalidated_when_mtime_is_unchanged",
     "test_config_regressions.ConfigTests.test_save_config_persists_normalized_copy_without_mutating_request"
   ],
+  "test_crossbook_normalization": [
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_dates_have_explicit_ordinal_and_year",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_identifiers_are_read_digitwise",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_locked_fixture_has_two_categories_across_three_books",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_summary_keeps_books_categories_and_arms_separate"
+  ],
   "test_dedup_benchmark": [
     "test_dedup_benchmark.DedupBenchmarkTests.test_changed_audio_is_rejected_before_dedup_runs",
     "test_dedup_benchmark.DedupBenchmarkTests.test_content_hash_ignores_archive_packaging"
