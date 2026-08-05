@@ -392,6 +392,7 @@
     "test_experiment_infra.AnalysisScriptTest.test_offline_analyses_declare_their_caveats",
     "test_experiment_infra.CollectResultsRobustnessTest.test_csv_uses_repository_lf_line_endings",
     "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_check_fails_when_audit_status_changes",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_is_independent_of_local_timezone",
     "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
     "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
     "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",

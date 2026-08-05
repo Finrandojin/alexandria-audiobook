@@ -248,6 +248,32 @@ class CollectResultsRobustnessTest(unittest.TestCase):
         self.assertNotEqual(0, checked.returncode)
         self.assertIn("results index is stale", checked.stderr)
 
+    def test_results_index_is_independent_of_local_timezone(self):
+        """The checked-in index must render identically on local and CI hosts."""
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copy2(os.path.join(os.path.dirname(APP), "collect_results.py"),
+                         os.path.join(tmp, "collect_results.py"))
+            experiments = os.path.join(tmp, "ab_test_runtime", "experiments")
+            audit = os.path.join(tmp, "ab_test_runtime", "audit")
+            os.makedirs(experiments)
+            os.makedirs(audit)
+            artifact = "probe.json"
+            with open(os.path.join(experiments, artifact), "w", encoding="utf-8") as handle:
+                json.dump({"meta": {"experiment": "probe", "finished": 1,
+                                     "git": {}, "validation": "ok"},
+                           "rows": [{"arm": "base", "correct": True}]}, handle)
+            for name in ("artifact_structural_audit.json",
+                         "legacy_attribution_audit.json"):
+                with open(os.path.join(audit, name), "w", encoding="utf-8") as handle:
+                    json.dump({"artifacts": []}, handle)
+            env = dict(os.environ, TZ="America/Chicago")
+            subprocess.run([sys.executable, "collect_results.py"], cwd=tmp,
+                           env=env, capture_output=True, check=True)
+            env["TZ"] = "UTC"
+            checked = subprocess.run([sys.executable, "collect_results.py", "--check"],
+                                     cwd=tmp, env=env, capture_output=True, text=True)
+        self.assertEqual(0, checked.returncode, checked.stderr)
+
 
 class AnalysisScriptTest(unittest.TestCase):
     """The offline analyses must at least be importable and syntactically sound.
