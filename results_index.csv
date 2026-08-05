@@ -359,6 +359,8 @@ narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json,narrator_prior,m
 narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json,narrator_prior,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,narrator,139,78,56.1,ok,False,2ca9413c,842.4,07-28 12:22,http://127.0.0.1:8090/v1,
 narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,narrator_prior,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,baseline,162,62,38.3,ok,False,04a69e4c,1783.8,07-28 23:24,http://127.0.0.1:8090/v1,
 narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,narrator_prior,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,narrator,162,63,38.9,ok,False,04a69e4c,1783.8,07-28 23:24,http://127.0.0.1:8090/v1,
+nonprose_category_expansion.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+nonprose_category_expansion_pilot.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 nonprose_gate.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 nonprose_mechanism.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 nonprose_replication.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms

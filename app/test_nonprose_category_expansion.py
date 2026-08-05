@@ -1,3 +1,4 @@
+import argparse
 import collections
 import os
 import sys
@@ -6,9 +7,9 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from experiments.nonprose_category_expansion import (
-    CATEGORIES, build_pair_manifest, is_ordinary_prose, load_locked_probes,
-    load_locked_pairs, load_prose_pool, match_controls, matching_cost,
-    summarize)
+    CATEGORIES, build_pair_manifest, get_category_run_fingerprint,
+    is_ordinary_prose, load_locked_probes, load_locked_pairs, load_prose_pool,
+    match_controls, matching_cost, summarize)
 
 
 class NonproseCategoryExpansionTest(unittest.TestCase):
@@ -30,6 +31,14 @@ class NonproseCategoryExpansionTest(unittest.TestCase):
         pilot = load_locked_probes(limit_per_category=1)
         self.assertEqual(set(CATEGORIES), {probe["category"] for probe in pilot})
         self.assertEqual(6, len(pilot))
+
+    def test_fingerprint_maps_category_limit_without_mutating_args(self):
+        args = argparse.Namespace(
+            source=__file__, config=__file__, seeds=[1234],
+            limit_per_category=1)
+        fingerprint = get_category_run_fingerprint(args, [], {})
+        self.assertEqual(1, fingerprint["limit"])
+        self.assertFalse(hasattr(args, "limit"))
 
     def test_controls_are_distinct_ordinary_prose_and_deterministic(self):
         repeated = match_controls(self.probes, self.pool)

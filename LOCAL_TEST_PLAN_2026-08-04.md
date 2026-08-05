@@ -8,17 +8,18 @@ result. GPU work runs serially through `gpu_job.sh`. Existing artifacts are
 preserved, new artifacts record provenance, and perceptual conclusions remain
 pending until people listen to blinded audio.
 
-## Progress snapshot — updated 2026-08-05 00:26 UTC
+## Progress snapshot — updated 2026-08-05 02:01 UTC
 
 | stage | state | evidence |
 |---|---|---|
 | 1 — controls | **complete** | Fresh-process determinism and instruction positive controls passed for three adapters. |
 | 2 — evidence audit | **decision-bearing review complete; broader audit remains** | 232 artifacts structurally inventoried; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
 | 3 — unreliable TTS reruns | **complete** | Seeded clone-vs-LoRA and saturation generation plus ECAPA scoring completed with provenance. |
-| 4 — non-prose replication | **fixed matrix complete; category pilot pending** | 144/144 validated renders; tracked six-category fixture and resumable 432-row expansion harness are ready. |
-| 5–8 | pending stage gates | Stage 5 remains gated on Stage 4 category expansion; later stages run only when their decisions remain open. |
+| 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
+| 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
+| 6–8 | pending decision gates | These stages run only if their human-listening, pitch-casting, or adapter-health decisions remain open. |
 | 9 — operational tests | **mostly complete; training-state resume remains** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, and exact-identity experiment-row resume are covered. |
-| 10 — validation/index | **complete through fixed Stage 4 matrix** | Both Stage 4 artifacts are explicitly not indexed; strict artifact validation and the full suite passed. Repeat after expansion. |
+| 10 — validation/index | **complete through category expansion** | All four Stage 4 artifacts are explicitly not indexed; indexes regenerated and all 1,256 tests passed. |
 
 ## Non-negotiable execution rules
 
@@ -176,7 +177,7 @@ Gate:
 Do not recommend routing non-prose away from TTS as a general policy unless the
 effect survives adapters, seeds, categories, and matched controls.
 
-Current state: **fixed matrix complete; category expansion required**.
+Current state: **complete; general-policy gate not cleared**.
 
 - `word_error_breakdown` now reports substitutions, deletions, and insertions
   separately so over-generation is not hidden inside pooled WER.
@@ -210,6 +211,27 @@ Current state: **fixed matrix complete; category expansion required**.
 - The all-category pilot is fixed at 12 renders (six categories × probe/control
   × one adapter × one seed). A strictly valid pilot gates the full expansion of
   3 adapters × 3 seeds × 24 pairs × 2 classes = 432 renders.
+- The pilot passed strict validation at 12/12 rows. The full expansion then
+  completed 432/432 distinct matrix rows with 432 fully decoded, RIFF-complete
+  WAVs, reproducible provenance, exact error arithmetic, and 108 summaries
+  equal to an independent recomputation.
+- Probe versus prose WER by category was: identifiers 31.6% versus 0.0%; URLs
+  11.1% versus 0.4%; copyright 17.4% versus 11.1%; lists/tables 3.6% versus
+  1.3%; dates/numbers 6.8% versus 2.2%; and headings/fragments 1.1% versus
+  0.0%. Probe failure counts were respectively 34, 4, 19, 2, 7, and 0 out of
+  36 renders per category. These are transcript metrics, not naturalness or
+  listener-preference results.
+- The probe had higher WER in all nine adapter×seed cells for identifiers and
+  dates/numbers, but only 7/9 for URLs, 7/9 for copyright, 6/9 for
+  lists/tables, and 2/9 for headings/fragments. One copyright prose control
+  failed in 8/9 cells. The effect therefore does not survive categories and
+  matched controls uniformly enough to support routing non-prose away from TTS
+  as a general policy.
+- Stage 5 is stopped at its gate. The evidence supports category-specific
+  follow-up for identifiers and possibly dates/numbers, not the plan's general
+  non-prose remedy comparison. All selected probes and controls came from one
+  saved-book library, so cross-book transfer remains untested rather than
+  assumed.
 
 ## Stage 5 — Non-prose remedy comparison
 
@@ -351,6 +373,11 @@ Current checkpoint:
   indexes, and passed the complete unit-test discovery. This checkpoint must be
   repeated after the category expansion rather than treated as final for all
   later stages.
+- The category pilot and full expansion now also appear explicitly under **Not
+  indexed** in both indexes. The full expansion passed strict validation at
+  432/432 rows. The first post-run suite correctly failed on one missing test-
+  inventory entry; after adding that entry, full discovery passed all 1,256
+  tests. No test was skipped silently in that pass.
 
 ## Schedule and stopping policy
 

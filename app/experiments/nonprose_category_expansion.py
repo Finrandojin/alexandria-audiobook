@@ -30,6 +30,13 @@ def normalized_text(text):
     return " ".join((text or "").split())
 
 
+def get_category_run_fingerprint(args, pair_manifest, adapter_paths):
+    fingerprint_args = argparse.Namespace(
+        **vars(args), limit=args.limit_per_category)
+    return get_run_fingerprint(
+        fingerprint_args, pair_manifest, adapter_paths, harness_file=__file__)
+
+
 def load_locked_probes(source=DEFAULT_FIXTURE, limit_per_category=4):
     if not 1 <= limit_per_category <= 4:
         raise ValueError("limit_per_category must be between 1 and 4")
@@ -286,8 +293,8 @@ def main():
         adapter_paths[adapter] = path
 
     checkpoint = args.checkpoint or args.out + ".checkpoint.json"
-    fingerprint = get_run_fingerprint(
-        args, pair_manifest, adapter_paths, harness_file=__file__)
+    fingerprint = get_category_run_fingerprint(
+        args, pair_manifest, adapter_paths)
     expected_rows = []
     for adapter in args.adapters:
         for seed in args.seeds:

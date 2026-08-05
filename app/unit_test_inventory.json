@@ -712,6 +712,7 @@
   ],
   "test_nonprose_category_expansion": [
     "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_controls_are_distinct_ordinary_prose_and_deterministic",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_fingerprint_maps_category_limit_without_mutating_args",
     "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_fixture_has_four_unique_locked_probes_per_category",
     "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pair_manifest_reports_matching_cost_and_feature_gaps",
     "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pilot_limit_still_spans_every_category",
