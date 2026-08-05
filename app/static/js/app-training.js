@@ -259,7 +259,7 @@
                                     <td>${m.epochs || '--'}</td>
                                     <td>${m.final_loss != null ? m.final_loss.toFixed(4) : '--'}</td>
                                     <td>${m.checkpoint_swap ? `<span class="badge bg-danger">recovery required</span>` : m.evaluation ? `<span class="badge ${m.evaluation.status === 'pass' ? 'bg-success' : m.evaluation.status === 'warning' ? 'bg-warning text-dark' : 'bg-danger'}" title="${escapeHtml((m.evaluation.warnings || []).join(', '))}">${escapeHtml(m.evaluation.status || 'unknown')}</span>${m.evaluation.recommended_candidate && m.evaluation.recommended_candidate !== 'production' ? ` <small title="Production remains unchanged">recommend ${escapeHtml(m.evaluation.recommended_candidate)}</small>` : ''}` : '--'}${renderCandidateSummary(m)}${renderReviewSummary(m)}</td>
-                                    <td>${m.sample_count || '--'}</td>
+                                    <td title="Dataset quantity only; not a voice-quality score">${m.sample_count || '--'}</td>
                                     <td>
                                         ${m.builtin && m.downloaded === false ? `
                                             <button class="btn btn-sm btn-outline-warning" id="lora-dl-btn-${escapeHtml(m.id)}" data-adapter-id="${escapeHtml(m.id)}" onclick="downloadBuiltinAdapter(this.dataset.adapterId)" title="Download from HuggingFace"><i class="fas fa-download me-1"></i>Download</button>
@@ -620,4 +620,3 @@
                 btn.innerHTML = origHtml;
             }
         };
-

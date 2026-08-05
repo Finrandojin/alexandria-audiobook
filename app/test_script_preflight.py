@@ -114,6 +114,25 @@ class ScriptPreflightTests(unittest.TestCase):
             {finding["code"] for finding in report["findings"]},
         )
 
+    def test_nonprose_risk_is_manual_and_validation_state_is_explicit(self):
+        report = audit_script([
+            _entry("Reference AB-1234-Z"),
+            _entry("Visit https://example.com/help"),
+            _entry("One • Two • Three"),
+            _entry("She arrived on 12 August 2026."),
+        ])
+        findings = [item for item in report["findings"]
+                    if item["code"] == "nonprose_speech_risk"]
+        self.assertEqual([1, 2, 3], [item["entry_numbers"][0] for item in findings])
+        self.assertEqual(0, report["counts"]["blocking"])
+        for finding in findings:
+            validation = finding["details"]["validation"]
+            self.assertTrue(validation["recommended"])
+            self.assertEqual("not_run", validation["status"])
+        identifier = findings[0]["details"]
+        self.assertEqual("Reference AB-1234-Z.", identifier["normalized_preview"])
+        self.assertEqual([], identifier["transformations"])
+
     def test_legitimate_japanese_is_allowed_when_source_backed(self):
         report = audit_script([_entry("彼はありがとうと言った。")], "彼はありがとうと言った。")
         self.assertEqual(0, report["counts"]["blocking"])

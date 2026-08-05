@@ -72,6 +72,13 @@ class FrontendJsSplitTests(unittest.TestCase):
 
 
 class FrontendTests(unittest.TestCase):
+    def test_saved_script_audit_surfaces_nonprose_validation_state(self):
+        frontend = _read_frontend_source()
+        for required in ("saved-script-preflight", "auditSavedScript",
+                         "nonprose_speech_risk", "details.validation",
+                         "/preflight`, {}"):
+            self.assertIn(required, frontend)
+
     def test_voicelab_requires_visible_preflight_before_start(self):
         frontend = _read_frontend_source()
         for required in ("vl-preflight", "/api/voicelab/preflight",

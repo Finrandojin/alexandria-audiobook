@@ -15,6 +15,16 @@ from routers import voices as voices_module
 
 
 class VoicesTests(unittest.TestCase):
+    def test_pitch_is_not_used_as_a_gender_classifier(self):
+        low = {"voice_features": {"mean_f0": 90}}
+        high = {"voice_features": {"mean_f0": 260}}
+        self.assertEqual("unknown", voices_module._infer_lora_gender(low))
+        self.assertEqual("unknown", voices_module._infer_lora_gender(high))
+        self.assertEqual(
+            "female", voices_module._infer_lora_gender(
+                {"description": "warm mezzo voice",
+                 "voice_features": {"mean_f0": 90}}))
+
     def test_voice_library_mutations_hold_lock_across_load_and_save(self):
         with tempfile.TemporaryDirectory() as tmp:
             library_path = os.path.join(tmp, "voice_library.json")

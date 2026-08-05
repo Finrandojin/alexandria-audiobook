@@ -9,6 +9,7 @@ import numpy as np
 import soundfile as sf
 
 import device_utils
+from speech_text import normalize_for_speech
 from pydub import AudioSegment
 
 try:
@@ -53,56 +54,6 @@ def voice_category(voice_data):
     if voice_type == "ensemble":
         return "ensemble"
     return "custom"
-
-
-# Characters that are not speech and have no pronunciation. Reaching the model
-# with these is not cosmetic: a 349-character table of contents separated by
-# U+2022 produced 24.2 seconds of audio at normal level that transcribed to
-# "* * *" - the model vocalising instead of reading. Measured 2026-08-03 by
-# experiments/tts_output_validation.py.
-#
-# Two classes, because they need opposite treatment. A bullet or a rule is
-# STRUCTURE: it separates items and must become a sentence break, not a word,
-# or the list runs together. A symbol like © is a WORD the writer expects read
-# aloud. Deleting the first class and speaking the second is why this is not
-# one mapping table.
-SPEECH_BREAKS = "•·▪◦‣∙■□◆●▲─━―*_~"
-SPEECH_WORDS = {
-    "©": "copyright", "®": "registered trademark", "™": "trademark",
-    "&": "and", "@": "at", "%": "percent", "°": "degrees",
-    "№": "number", "§": "section", "†": "", "‡": "",
-}
-# Absorbs whitespace either side, so "one ■■■ two" becomes "one. two."
-# rather than "one . two." with a floating full stop the model may voice.
-_BREAK_RE = re.compile(f"\\s*[{re.escape(SPEECH_BREAKS)}]+\\s*")
-_SPACE_RE = re.compile(r"[ \t]{2,}")
-_ORPHAN_PUNCT_RE = re.compile(r"(?:\.\s*){2,}")
-_DUPE_WORD_RE = re.compile(r"\b(\w+)(\s+\1)+\b", re.IGNORECASE)
-
-
-def normalize_for_speech(text):
-    """Make text speakable before it reaches the model.
-
-    Idempotent, so applying it twice is harmless - which is what lets it sit at
-    every public entry point without tracking whether an inner path already ran
-    it. Deliberately conservative: it does not touch typographic quotes, which
-    the model reads correctly and which account for 59,004 of the 62,000
-    non-ASCII characters in the library.
-    """
-    if not text:
-        return text
-    for symbol, word in SPEECH_WORDS.items():
-        if symbol in text:
-            text = text.replace(symbol, f" {word} " if word else " ")
-    # A structural mark becomes a full stop so the items either side are read
-    # as separate phrases rather than run together.
-    text = _BREAK_RE.sub(". ", text)
-    text = _ORPHAN_PUNCT_RE.sub(". ", text)
-    text = _SPACE_RE.sub(" ", text)
-    # "Copyright © 2016" would otherwise be read "copyright copyright 2016",
-    # because the writer already spelled out the word the symbol stands for.
-    text = _DUPE_WORD_RE.sub(r"\1", text)
-    return text.strip(" .\t\n") + "." if text.strip(" .\t\n") else ""
 
 
 def mix_to_unison(wav_paths, output_path, max_stretch=1.35):
