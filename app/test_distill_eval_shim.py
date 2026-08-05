@@ -93,6 +93,8 @@ class DistillEvalShimTest(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.original_torch = sys.modules.get("torch")
+        cls.installed_fake_torch = False
         if "torch" not in sys.modules:
             # The shim imports torch only for no_grad; nothing here needs the
             # real one, and CI has no GPU stack.
@@ -107,8 +109,16 @@ class DistillEvalShimTest(unittest.TestCase):
 
             torch.no_grad = lambda: _NoGrad()
             sys.modules["torch"] = torch
+            cls.installed_fake_torch = True
         cls.deps = _dependencies()
         cls.module = _load_distill_eval() if cls.deps else None
+
+    @classmethod
+    def tearDownClass(cls):
+        if cls.installed_fake_torch:
+            sys.modules.pop("torch", None)
+        elif cls.original_torch is not None:
+            sys.modules["torch"] = cls.original_torch
 
     def setUp(self):
         if not self.deps:
