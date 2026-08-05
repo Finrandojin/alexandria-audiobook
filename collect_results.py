@@ -10,10 +10,31 @@ Deliberately reports provenance next to every number: validation status, dirty
 tree, endpoint and harness fingerprint. A result whose provenance is weak should
 be visible as such in the same row, not discoverable by opening the file.
 """
-import collections, csv, glob, json, os, time
+import argparse, collections, csv, glob, io, json, os, re, sys, time
 
 REPO = os.path.dirname(os.path.abspath(__file__))
 E = os.path.join(REPO, "ab_test_runtime", "experiments")
+AUDIT = os.path.join(REPO, "ab_test_runtime", "audit")
+parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+parser.add_argument("--check", action="store_true")
+args = parser.parse_args()
+
+def _load_audit(name):
+    path = os.path.join(AUDIT, name)
+    try:
+        with open(path, encoding="utf-8") as handle:
+            doc = json.load(handle)
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"evidence audit is unreadable: {path}: {exc}") from exc
+    return {row["artifact"]: row["classification"]
+            for row in doc.get("artifacts", [])}
+
+structural_status = _load_audit("artifact_structural_audit.json")
+legacy_status = _load_audit("legacy_attribution_audit.json")
+
+def get_evidence_status(name):
+    return legacy_status.get(name, structural_status.get(name, "not_audited"))
+
 rows, files = [], sorted(glob.glob(os.path.join(E, "*.json")))
 
 for path in files:
@@ -23,7 +44,8 @@ for path in files:
     try:
         d = json.load(open(path))
     except (ValueError, OSError) as exc:
-        rows.append({"artifact": name, "note": f"UNREADABLE: {exc}"})
+        rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
+                     "note": f"UNREADABLE: {exc}"})
         continue
     # The same lesson as the "rows" check below, one level up: a manifest can
     # legitimately be a LIST (validation_manifest, chapter_manifest and
@@ -31,7 +53,7 @@ for path in files:
     # and killed the whole index rather than skipping one file. Guard the
     # top-level shape too, not just the field.
     if not isinstance(d, dict):
-        rows.append({"artifact": name,
+        rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
                      "note": f"SKIPPED: not a result object ({type(d).__name__})"})
         continue
     m, rr = d.get("meta") or {}, d.get("rows") or []
@@ -49,12 +71,12 @@ for path in files:
     # An artifact this table cannot represent must SAY SO. Silence reads as
     # "no such result", which is the most expensive kind of wrong.
     if not isinstance(rr, list) or not rr:
-        rows.append({"artifact": name,
+        rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
                      "note": "NOT INDEXED: no 'rows' list - this table only "
                              "represents per-arm attribution results"})
         continue
     if not all(isinstance(r, dict) and "arm" in r for r in rr):
-        rows.append({"artifact": name,
+        rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
                      "note": "SKIPPED: 'rows' is not a list of scored arms"})
         continue
     env = m.get("lmstudio") or {}
@@ -101,6 +123,7 @@ for path in files:
     for arm, (n, ok) in by.items():
         rows.append({
             "artifact": name,
+            "evidence_status": get_evidence_status(name),
             "experiment": m.get("experiment", ""),
             "book": book,
             "model": m.get("model", ""),
@@ -160,6 +183,7 @@ if os.path.isdir(_reps):
             continue
         rows.append({
             "artifact": os.path.basename(f), "experiment": "pipeline_repeat",
+            "evidence_status": "not_audited",
             "book": "grimgar03", "model": "qwen/qwen3-14b",
             "env_tag": "local-lmstudio", "host": "mitch-linux", "endpoint": "",
             "backend": "lmstudio", "ctx": 16384, "parallel": 1, "kv": "f16",
@@ -175,11 +199,12 @@ out_csv = os.path.join(REPO, "results_index.csv")
 # missing from this list, so extrasaction="ignore" silently threw every skip
 # reason away. Un-indexed artifacts appeared as a filename followed by nineteen
 # empty fields, which looks like a broken row rather than a deliberate note.
-cols = ["artifact", "experiment", "book", "model", "env_tag", "host", "backend",
+cols = ["artifact", "evidence_status", "experiment", "book", "model", "env_tag", "host", "backend",
         "ctx", "parallel", "kv", "arm", "n", "correct", "accuracy_pct",
         "validation", "dirty", "commit", "elapsed_s", "finished", "endpoint",
         "note"]
-with open(out_csv, "w", newline="") as fh:
+csv_buffer = io.StringIO(newline="")
+with csv_buffer as fh:
     # csv.excel defaults to CRLF. The repository is LF-normalized, so adding a
     # new result made `git diff --check` report every new CSV row as trailing
     # whitespace even though the fields were valid.
@@ -188,6 +213,7 @@ with open(out_csv, "w", newline="") as fh:
     w.writeheader()
     for r in rows:
         w.writerow(r)
+    csv_text = fh.getvalue()
 
 md = [f"# Results index\n",
       f"Generated {time.strftime('%Y-%m-%d %H:%M')} from "
@@ -195,6 +221,10 @@ md = [f"# Results index\n",
       f"{len([r for r in rows if r.get('arm')])} arms.\n",
       "Regenerate with `python3 collect_results.py`. Machine-readable copy in "
       "`results_index.csv`.\n",
+      "`evidence_status` comes from the committed audit snapshots. "
+      "`supported_structure` validates provenance shape only; "
+      "`supported_measurement` is the strongest attribution classification. "
+      "`not_audited` is explicit and must not be treated as support.\n",
       "`dirty=True` means tracked files were modified when the artifact was "
       "written: the numbers are inspectable but the run is not reproducible "
       "from its recorded commit.\n",
@@ -216,12 +246,13 @@ md = [f"# Results index\n",
 for exp in sorted({r.get("experiment", "") for r in rows if r.get("experiment")}):
     sub = [r for r in rows if r.get("experiment") == exp]
     md.append(f"\n## {exp}\n")
-    md.append("| book | model | env | backend | ctx | arm | n | acc | valid | dirty | elapsed |")
-    md.append("|---|---|---|---|---:|---|---:|---:|---|---|---:|")
+    md.append("| book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |")
+    md.append("|---|---|---|---|---:|---|---:|---:|---|---|---|---:|")
     for r in sorted(sub, key=lambda x: (x["book"], str(x["model"]), x["arm"])):
         md.append(f"| {r['book']} | {str(r['model']).split('/')[-1][:26]} | "
                   f"{r['env_tag']} | {str(r['backend'])[:18]} | {r['ctx']} | "
                   f"{r['arm']} | {r['n']} | {r['accuracy_pct']}% | "
+                  f"{r['evidence_status']} | "
                   f"{r['validation']} | {r['dirty']} | {r['elapsed_s']}s |")
 
 # Artifacts this table cannot represent, listed rather than omitted. Most are
@@ -239,7 +270,25 @@ if skipped:
     for r in sorted(skipped, key=lambda x: x["artifact"]):
         md.append(f"| `{r['artifact']}` | {r['note']} |")
 
-open(os.path.join(REPO, "RESULTS_INDEX.md"), "w").write("\n".join(md) + "\n")
+md_text = "\n".join(md) + "\n"
+md_path = os.path.join(REPO, "RESULTS_INDEX.md")
+if args.check:
+    try:
+        with open(out_csv, encoding="utf-8", newline="") as handle:
+            old_csv = handle.read()
+        with open(md_path, encoding="utf-8") as handle:
+            old_md = handle.read()
+    except OSError as exc:
+        raise SystemExit(f"results index is unreadable: {exc}") from exc
+    normalize = lambda text: re.sub(r"Generated .*? from ", "Generated TIME from ", text, count=1)
+    if old_csv != csv_text or normalize(old_md) != normalize(md_text):
+        raise SystemExit("results index is stale; regenerate with python3 collect_results.py")
+    print("results index is current")
+    sys.exit(0)
+with open(out_csv, "w", encoding="utf-8", newline="") as handle:
+    handle.write(csv_text)
+with open(md_path, "w", encoding="utf-8") as handle:
+    handle.write(md_text)
 print(f"{len(files)} artifacts -> "
       f"{len([r for r in rows if r.get('arm')])} arm rows, "
       f"{len(skipped)} not indexed")

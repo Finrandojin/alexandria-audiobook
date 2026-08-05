@@ -200,6 +200,12 @@ class CollectResultsRobustnessTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             shutil.copy2(os.path.join(os.path.dirname(APP), "collect_results.py"),
                          os.path.join(tmp, "collect_results.py"))
+            audit = os.path.join(tmp, "ab_test_runtime", "audit")
+            os.makedirs(audit)
+            for name in ("artifact_structural_audit.json",
+                         "legacy_attribution_audit.json"):
+                with open(os.path.join(audit, name), "w", encoding="utf-8") as handle:
+                    json.dump({"artifacts": []}, handle)
             experiments = os.path.join(tmp, "ab_test_runtime", "experiments")
             os.makedirs(experiments)
             with open(os.path.join(experiments, "probe.json"), "w",
@@ -211,6 +217,33 @@ class CollectResultsRobustnessTest(unittest.TestCase):
             content = open(os.path.join(tmp, "results_index.csv"), "rb").read()
         self.assertIn(b"\n", content)
         self.assertNotIn(b"\r\n", content)
+
+    def test_results_index_check_fails_when_audit_status_changes(self):
+        """CI must reject an index whose evidence label no longer matches its audit."""
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copy2(os.path.join(os.path.dirname(APP), "collect_results.py"),
+                         os.path.join(tmp, "collect_results.py"))
+            experiments = os.path.join(tmp, "ab_test_runtime", "experiments")
+            audit = os.path.join(tmp, "ab_test_runtime", "audit")
+            os.makedirs(experiments)
+            os.makedirs(audit)
+            artifact = "probe.json"
+            with open(os.path.join(experiments, artifact), "w", encoding="utf-8") as handle:
+                json.dump({"status": "complete"}, handle)
+            for name in ("artifact_structural_audit.json", "legacy_attribution_audit.json"):
+                with open(os.path.join(audit, name), "w", encoding="utf-8") as handle:
+                    json.dump({"artifacts": [{"artifact": artifact,
+                                               "classification": "exploratory"}]}, handle)
+            subprocess.run([sys.executable, "collect_results.py"], cwd=tmp,
+                           capture_output=True, check=True)
+            structural = os.path.join(audit, "artifact_structural_audit.json")
+            with open(structural, "w", encoding="utf-8") as handle:
+                json.dump({"artifacts": [{"artifact": artifact,
+                                           "classification": "supported_structure"}]}, handle)
+            checked = subprocess.run([sys.executable, "collect_results.py", "--check"],
+                                     cwd=tmp, capture_output=True, text=True)
+        self.assertNotEqual(0, checked.returncode)
+        self.assertIn("results index is stale", checked.stderr)
 
 
 class AnalysisScriptTest(unittest.TestCase):
