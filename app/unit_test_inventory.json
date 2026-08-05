@@ -1150,6 +1150,11 @@
     "test_seed_plumbing.TestSeedIsRead.test_negative_seed_does_not_seed",
     "test_seed_plumbing.TestSeedIsRead.test_seed_is_not_a_hardcoded_constant"
   ],
+  "test_simd_benchmark": [
+    "test_simd_benchmark.SimdBenchmarkTests.test_scalar_and_numpy_audio_metrics_match",
+    "test_simd_benchmark.SimdBenchmarkTests.test_summary_rejects_fake_baseline",
+    "test_simd_benchmark.SimdBenchmarkTests.test_summary_requires_disabled_baseline_and_equivalent_outputs"
+  ],
   "test_source_normalization_lossy": [
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_apostrophe_between_letters",
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_clean_text_is_untouched",
