@@ -598,6 +598,7 @@
     "test_launcher_supervisor.LauncherSupervisorTests.test_traceback_breaks"
   ],
   "test_legacy_attribution_audit": [
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_commit_identity_requires_ancestry_not_unrelated_object_presence",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_gold_rescore_exposes_changed_and_unmapped_rows",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_inventory_is_exhaustive_and_semantically_bounded",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_markdown_lists_every_artifact_once"

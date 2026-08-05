@@ -50,11 +50,11 @@ def _sha256(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def _commit_exists(commit):
+def _commit_is_in_history(commit):
     if not commit:
         return False
     return subprocess.run(
-        ["git", "cat-file", "-e", commit + "^{commit}"], cwd=REPO,
+        ["git", "merge-base", "--is-ancestor", commit, "HEAD"], cwd=REPO,
         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
 
 
@@ -103,8 +103,8 @@ def inspect_artifact(name):
     problems = list(record.validate())
     if record.summary() != doc.get("summary"):
         problems.append("saved summary differs from row recomputation")
-    if not _commit_exists((meta.get("git") or {}).get("commit")):
-        problems.append("recorded commit is unavailable")
+    if not _commit_is_in_history((meta.get("git") or {}).get("commit")):
+        problems.append("recorded commit is unavailable from current history")
     if meta.get("validation") != "ok":
         problems.append("artifact validation is not ok")
     gold = _current_gold(meta, rows)

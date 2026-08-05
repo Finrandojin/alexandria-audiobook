@@ -10,6 +10,14 @@ import audit_legacy_attribution as audit
 
 
 class LegacyAttributionAuditTests(unittest.TestCase):
+    def test_commit_identity_requires_ancestry_not_unrelated_object_presence(self):
+        with mock.patch.object(audit.subprocess, "run") as run:
+            run.return_value.returncode = 1
+            self.assertFalse(audit._commit_is_in_history("abc123"))
+            self.assertEqual(
+                ["git", "merge-base", "--is-ancestor", "abc123", "HEAD"],
+                run.call_args.args[0])
+
     def test_current_inventory_is_exhaustive_and_semantically_bounded(self):
         result = audit.build_audit()
         rows = result["artifacts"]
