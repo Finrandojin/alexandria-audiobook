@@ -8,7 +8,7 @@ result. GPU work runs serially through `gpu_job.sh`. Existing artifacts are
 preserved, new artifacts record provenance, and perceptual conclusions remain
 pending until people listen to blinded audio.
 
-## Progress snapshot — updated 2026-08-05 02:30 UTC
+## Progress snapshot — updated 2026-08-05 07:17 UTC
 
 | stage | state | evidence |
 |---|---|---|
@@ -18,10 +18,10 @@ pending until people listen to blinded audio.
 | 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
 | 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
 | 6 — blinded materials | **generation complete; human verdict pending** | Eight randomized sets contain 20 validated WAVs and a separately hashed concealed key. |
-| 7 — pitch profiling | **eligible; replacement harness verified, pilot pending** | Production auto-selection still falls back to declared `mean_f0`; a locked 75-adapter × 6-passage × 3-seed harness passed focused and full-suite verification before generation. |
+| 7 — pitch profiling | **measurement complete; listening gate pending** | The pilot passed and the full 1,350-row matrix passed independent pitch/WAV/provenance validation. No numerical casting threshold is adopted without blinded listening. |
 | 8 — adapter health | **stopped at gate** | Weight norm is not production-driving and existing seeded ECAPA samples do not demonstrate a positive relationship; no adapter action is justified. |
 | 9 — operational tests | **complete for implemented resume paths** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, row resume, and distillation training-state resume are covered. |
-| 10 — validation/index | **complete through Stage 6** | The listening manifest is explicitly not indexed; indexes regenerated and all 1,267 tests passed. |
+| 10 — validation/index | **complete through Stage 7** | Both pitch artifacts are explicitly not indexed; indexes regenerated and all 1,286 tests passed. |
 
 ## Non-negotiable execution rules
 
@@ -315,7 +315,7 @@ Gate:
 Before adopting any threshold, verify with blinded listening that differences
 near that threshold are perceptually useful.
 
-Current state: **eligible; replacement harness verified, pilot pending**.
+Current state: **measurement complete; blinded-listening gate pending**.
 
 - `app/routers/voices.py::_infer_lora_gender` still uses declared `mean_f0`
   with a 165 Hz threshold when explicit/name/description evidence is absent,
@@ -339,6 +339,24 @@ Current state: **eligible; replacement harness verified, pilot pending**.
   repository queue log, timeout wrapper, checked exit status, and per-stage
   log. Focused verification passed 18 tests; full discovery passed all 1,286
   tests before any Stage 7 generation.
+- The four-row pilot passed its gate with four valid pitch tracks. The full GPU
+  job then logged `OK` and published all 1,350 predeclared matrix rows.
+- Independent post-run validation decoded every WAV, checked RIFF completeness,
+  remeasured every pitch track with pYIN, and exactly reproduced the saved
+  summaries and octave flags. One row remains an explicit tracker failure:
+  `husky_baritone_20s_m_anime`, seed 9012, question dialogue produced only five
+  voiced frames (2.55% coverage); it was not silently dropped.
+- All 75 adapters have measured summaries. Typical within-adapter P90-minus-P10
+  dispersion is approximately 70.81 Hz. Only 924/2,775 adapter pairs (33.30%)
+  are farther apart than that measured dispersion, so pitch alone does not
+  establish broad voice separability.
+- The declared and measured values fall on opposite sides of production's
+  165 Hz fallback threshold for 18/75 adapters. The heuristic marked 523/1,350
+  rows as possible octave errors; because this diagnostic is itself broad, it
+  is a warning to inspect/listen, not proof that those rows are wrong.
+- No production metadata, fallback threshold, or casting behavior was changed.
+  The plan's final gate still requires blinded listening near any proposed
+  threshold before such a threshold can be adopted.
 
 ## Stage 8 — Adapter-health validation
 
@@ -445,6 +463,10 @@ Current checkpoint:
 - `blinded_listening.json` now appears explicitly under **Not indexed** in both
   indexes. Its independent audit verified eight sets and 20 WAVs; the Stage 6
   post-run discovery passed all 1,267 tests.
+- `pitch_profile_matrix_pilot.json` and `pitch_profile_matrix.json` now appear
+  explicitly under **Not indexed** in both indexes. Independent validation
+  remeasured all 1,350 full-matrix WAVs and reproduced the artifact exactly;
+  the Stage 7 post-run discovery passed all 1,286 tests with no skipped suite.
 
 ## Schedule and stopping policy
 

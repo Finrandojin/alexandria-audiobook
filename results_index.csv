@@ -371,6 +371,8 @@ nonprose_split_v2.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of score
 offbyone_turns.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pdnc_eval.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pdnc_eval_full_summary.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pitch_profile_matrix.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+pitch_profile_matrix_pilot.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 pitch_separation.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_stability.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 prose_vs_nonprose.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms

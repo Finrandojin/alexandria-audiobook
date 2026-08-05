@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-04 21:36 from `ab_test_runtime/experiments/` — 239 artifacts, 483 arms.
+Generated 2026-08-05 02:15 from `ab_test_runtime/experiments/` — 241 artifacts, 483 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -683,6 +683,8 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `offbyone_turns.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pdnc_eval.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pdnc_eval_full_summary.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pitch_profile_matrix.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `pitch_profile_matrix_pilot.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `pitch_separation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_stability.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `prose_vs_nonprose.json` | SKIPPED: 'rows' is not a list of scored arms |
