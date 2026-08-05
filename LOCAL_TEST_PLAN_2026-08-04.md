@@ -8,6 +8,18 @@ result. GPU work runs serially through `gpu_job.sh`. Existing artifacts are
 preserved, new artifacts record provenance, and perceptual conclusions remain
 pending until people listen to blinded audio.
 
+## Progress snapshot — updated 2026-08-05 00:26 UTC
+
+| stage | state | evidence |
+|---|---|---|
+| 1 — controls | **complete** | Fresh-process determinism and instruction positive controls passed for three adapters. |
+| 2 — evidence audit | **decision-bearing review complete; broader audit remains** | 232 artifacts structurally inventoried; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
+| 3 — unreliable TTS reruns | **complete** | Seeded clone-vs-LoRA and saturation generation plus ECAPA scoring completed with provenance. |
+| 4 — non-prose replication | **fixed matrix complete; category expansion required** | 144/144 validated renders across three adapters and three seeds; selected-sample effect replicated in all nine adapter×seed cells. |
+| 5–8 | pending stage gates | Stage 5 remains gated on Stage 4 category expansion; later stages run only when their decisions remain open. |
+| 9 — operational tests | **mostly complete; training-state resume remains** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, and exact-identity experiment-row resume are covered. |
+| 10 — validation/index | **complete through fixed Stage 4 matrix** | Both Stage 4 artifacts are explicitly not indexed; strict artifact validation and the full suite passed. Repeat after expansion. |
+
 ## Non-negotiable execution rules
 
 - Run every GPU experiment through `gpu_job.sh` with
@@ -53,7 +65,11 @@ Current state:
 - Full suite before the first run: 1,217 tests passed.
 - First attempt completed all 18 renders and printed passing controls, but
   failed before publishing JSON. It is not accepted as completed evidence.
-- A full provenance-bearing rerun is in progress.
+- Full provenance-bearing rerun completed successfully at commit `2c652ff`.
+- Same-seed hashes matched across fresh processes for all three adapters;
+  different seeds changed all three outputs.
+- Slow > neutral > fast duration held for all three adapters. This establishes
+  plumbing, not perceptual quality.
 
 ## Stage 2 — Existing-evidence audit
 
@@ -81,6 +97,18 @@ Classify each artifact as:
 
 Only rerun unreliable artifacts that influence a current product decision.
 
+Current state:
+
+- Structural audit completed for 232 artifacts and written to
+  `ab_test_runtime/audit/artifact_structural_audit.json`.
+- Counts at that checkpoint: 3 reproducible structural candidates, 112 older-
+  metadata artifacts requiring semantic review, and 117 without sufficient
+  embedded identity.
+- Manual decision-bearing classifications are committed in
+  `ARTIFACT_AUDIT_2026-08-04.md` as part of `8321f16`.
+- Broader semantic review of older attribution artifacts remains; it is CPU-
+  only and does not block the controlled Stage 4 pilot.
+
 ## Stage 3 — Known-unreliable TTS experiments
 
 Estimated runtime: **2–5 GPU hours**.
@@ -98,6 +126,23 @@ Gate:
 
 Compare old and new conclusions. Explicitly report whether stale audio changed
 the magnitude or direction of either finding.
+
+Current state: **complete**.
+
+- Generation/scoring phase split, strict ECAPA dependency, correct
+  `app/config.json`, provenance, and fail-loud tests committed in `fb5d55a`.
+- Sibling `torchaudio.load()` was proven to segfault on a valid WAV. SoundFile
+  decoding plus SciPy resampling fixed it in `ac99417`; no acoustic fallback
+  was used. Full suite: 1,232 tests passed at that checkpoint.
+- `clone_vs_lora_seeded.json`: 9/9 voices scored. One-sentence/one-seed mean
+  LoRA-minus-clone ECAPA similarity was approximately -0.0236; LoRA led 4/9.
+  This is provisional, not a Voice Lab policy.
+- `voice_data_saturation_seeded.json`: 14/14 voices scored. The selected set
+  did not show the assumed positive sample-count relationship; the comparison
+  remains observational and cannot establish causality.
+- The old `voice_data_saturation.json` has zero results and is invalid evidence.
+- No old `clone_vs_lora.json` existed, so that corrected artifact was a first
+  retained result rather than literally a rerun.
 
 ## Stage 4 — Non-prose replication
 
@@ -130,6 +175,33 @@ Gate:
 
 Do not recommend routing non-prose away from TTS as a general policy unless the
 effect survives adapters, seeds, categories, and matched controls.
+
+Current state: **fixed matrix complete; category expansion required**.
+
+- `word_error_breakdown` now reports substitutions, deletions, and insertions
+  separately so over-generation is not hidden inside pooled WER.
+- Harness and audit committed in `8321f16`; full suite passed 1,237 tests.
+- All eight original passages were recovered. Their prose controls match exact
+  character counts: 417, 222, 213, 131, 90, 78, 65, and 64. Digit, uppercase,
+  punctuation, and word-count gaps are recorded rather than assumed away.
+- Full matrix is fixed before results: 3 adapters × 3 seeds × 8 pairs × 2
+  classes = 144 renders, reported per adapter, seed, pair, class, and error kind.
+- The 2-pair × 1-adapter × 1-seed pilot published 4/4 valid rows and passed its
+  gate. The full run then published all 144 rows and the queue logged `OK`.
+- Independent validation confirmed 144 unique matrix keys, 144 fully decodable
+  and RIFF-complete WAVs, exact error-component arithmetic, eight input-pair
+  identities, reproducible harness provenance, and all 18 recomputed summaries.
+- Across the selected samples, non-prose failed 62/72 renders versus 0/72 prose
+  controls. Aggregate WER was approximately 49.3% versus 1.0%, with 619 versus
+  zero insertions. The direction held in all nine adapter×seed cells.
+- This does **not** clear the general-policy gate. The eight passages were
+  selected from earlier failures; seven reproduced broadly, while one failed
+  in zero of nine cells. The predeclared ISBN/URL/copyright/list/date/heading
+  category expansion is therefore the next Stage 4 experiment.
+- The harness now writes an atomic checkpoint after every row and resumes only
+  when source code, config, source artifact, adapter weights, seeds, and pair
+  identities match. The tracked Stage 4 checkpoint runner strictly validates
+  provenance, matrix identity, WAVs, summaries, indexes, and the full suite.
 
 ## Stage 5 — Non-prose remedy comparison
 
@@ -195,8 +267,8 @@ near that threshold are perceptually useful.
 
 ## Stage 8 — Adapter-health validation
 
-Estimated runtime: **6–12 GPU hours**, conditional on a functioning local
-speaker-embedding dependency.
+Estimated runtime: **6–12 GPU hours**, conditional on the earlier decision
+gate. The speaker-embedding dependency is now verified.
 
 Test whether LoRA weight magnitude predicts voice identity by comparing:
 
@@ -208,6 +280,10 @@ Test whether LoRA weight magnitude predicts voice identity by comparing:
 
 Until this correlation is demonstrated, weight norm is a diagnostic lead, not
 proof that an adapter is undertrained.
+
+Dependency update: SpeechBrain ECAPA loads in the sibling interpreter. Its
+`torchaudio.load()` path segfaulted and was replaced with verified SoundFile +
+SciPy decoding/resampling in `ac99417`. Real ECAPA scoring now completes.
 
 ## Stage 9 — Operational failure tests
 
@@ -227,6 +303,21 @@ Verify:
 
 Do not intentionally disrupt the active Thunder job.
 
+Current state: **mostly complete; training-state resume remains**.
+
+- GPU lock behavior and deployment identity: covered by 11 committed tests.
+- Stale, false-return, missing, empty, undecodable, zero-frame, and truncated
+  WAV handling: covered by 17 generation-guard tests.
+- A real `timeout` wrapper test now verifies exit code 124, `FAILED` queue
+  logging, lock release, and successful execution of the next queued job.
+- Stage 4 row-level checkpoint tests cover exact fingerprint matching,
+  incompatible-checkpoint archival without overwrite, corrupted/foreign/
+  duplicate rows, error arithmetic, repository-local paths, full decoding,
+  and RIFF completeness.
+- No local test currently proves that a training resume preserves optimizer,
+  scheduler, RNG, and sample order. That requirement remains open rather than
+  being inferred from the clean Thunder training curve or checkpoint files.
+
 ## Stage 10 — Validation and index regeneration
 
 After every completed stage:
@@ -243,6 +334,15 @@ After every completed stage:
 `collect_results.py` currently flattens per-arm attribution accuracy. TTS,
 acoustic, and listening artifacts may correctly appear under **Not indexed**.
 Changing that schema is separate design work and is not part of this plan.
+
+Current checkpoint:
+
+- `nonprose_replication.json` and its pilot appear explicitly under **Not
+  indexed** in both `RESULTS_INDEX.md` and `results_index.csv`.
+- The hardened Stage 4 runner validated both real artifacts, regenerated both
+  indexes, and passed the complete unit-test discovery. This checkpoint must be
+  repeated after the category expansion rather than treated as final for all
+  later stages.
 
 ## Schedule and stopping policy
 

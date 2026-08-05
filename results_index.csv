@@ -115,6 +115,7 @@ chinese_attribution_jy.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - thi
 chinese_attribution_jy_fixed.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_wp.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_wp_fixed.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+clone_vs_lora_seeded.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 closed_set.json,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,open,147,52,35.4,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 11:00,http://localhost:1234/v1,
 closed_set.json,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-6,147,51,34.7,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 11:00,http://localhost:1234/v1,
 closed_set.json,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-oracle,147,72,49.0,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 11:00,http://localhost:1234/v1,
@@ -360,6 +361,8 @@ narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,narrator_
 narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,narrator_prior,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,narrator,162,63,38.9,ok,False,04a69e4c,1783.8,07-28 23:24,http://127.0.0.1:8090/v1,
 nonprose_gate.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 nonprose_mechanism.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+nonprose_replication.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+nonprose_replication_pilot.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 nonprose_split.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 nonprose_split_v2.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 offbyone_turns.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -531,6 +534,7 @@ validation_smoke.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored
 voice_adapter_health.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 voice_blending.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 voice_data_saturation.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+voice_data_saturation_seeded.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,greedy,400,223,55.8,ok,False,6cb37edd,6517.4,07-28 08:45,http://127.0.0.1:8090/v1,
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,vote3,400,232,58.0,ok,False,6cb37edd,6517.4,07-28 08:45,http://127.0.0.1:8090/v1,
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,vote5,400,231,57.8,ok,False,6cb37edd,6517.4,07-28 08:45,http://127.0.0.1:8090/v1,

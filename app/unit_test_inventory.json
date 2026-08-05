@@ -519,6 +519,7 @@
     "test_gpu_job.GpuJobTest.test_queue_log_order_is_queued_then_ident_then_start_then_result",
     "test_gpu_job.GpuJobTest.test_the_script_hash_actually_identifies_the_script",
     "test_gpu_job.GpuJobTest.test_the_second_job_waits_rather_than_failing",
+    "test_gpu_job.GpuJobTest.test_timeout_kills_job_releases_lock_and_logs_failure",
     "test_gpu_job.GpuJobTest.test_two_jobs_do_not_overlap",
     "test_gpu_job.GpuJobTest.test_wrapped_failure_propagates_the_exit_code"
   ],
@@ -710,7 +711,12 @@
     "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_does_not_match_relocatable_forms"
   ],
   "test_nonprose_replication": [
+    "test_nonprose_replication.TestNonproseReplication.test_checkpoint_roundtrip_requires_exact_fingerprint",
     "test_nonprose_replication.TestNonproseReplication.test_feature_gap_does_not_claim_exact_matching",
+    "test_nonprose_replication.TestNonproseReplication.test_mismatched_checkpoint_is_archived_loudly",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_row_rejects_wav_outside_repository",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_row_requires_matching_identity_and_decodable_wav",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_rows_reject_duplicate_keys",
     "test_nonprose_replication.TestNonproseReplication.test_summary_keeps_adapter_seed_and_class_separate",
     "test_nonprose_replication.TestNonproseReplication.test_surface_features_are_explicit_and_bounded"
   ],
@@ -1092,6 +1098,13 @@
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_clone_score_refuses_missing_manifest",
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_phase_is_required",
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_score_refuses_missing_manifest"
+  ],
+  "test_stage4_checkpoint_runner": [
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_strict_validator_decodes_complete_exact_matrix",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_reads_entire_wav_and_rejects_truncation",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_recomputes_summary",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_rejects_duplicate_matrix_cell",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_requires_error_breakdown_identity"
   ],
   "test_support": [],
   "test_system_version": [

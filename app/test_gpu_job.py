@@ -17,6 +17,7 @@ Each test drives the real script in a temporary directory with its own lock and
 queue log, so nothing here touches the actual GPU lock.
 """
 import os
+import shutil
 import subprocess
 import tempfile
 import textwrap
@@ -91,6 +92,16 @@ class GpuJobTest(unittest.TestCase):
     def test_failure_is_announced_on_stderr(self):
         r = self.run_job("bad", "bash", "-c", "exit 1")
         self.assertIn("FAILED", r.stderr)
+
+    @unittest.skipUnless(shutil.which("timeout"), "timeout command unavailable")
+    def test_timeout_kills_job_releases_lock_and_logs_failure(self):
+        """A timed-out GPU job must not poison the queue behind it."""
+        r = self.run_job("timed", "timeout", "0.2", "sleep", "10")
+        self.assertEqual(124, r.returncode)
+        self.assertIn("FAILED   timed rc=124", self.log())
+        next_job = self.run_job("after_timeout", "true")
+        self.assertEqual(0, next_job.returncode)
+        self.assertIn("OK       after_timeout", self.log())
 
     # ------------------------------------------------------------ the gate
 
