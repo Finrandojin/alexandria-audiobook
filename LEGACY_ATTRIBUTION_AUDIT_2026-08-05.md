@@ -1,13 +1,13 @@
 # Legacy attribution audit — 2026-08-05
 
-All 112 legacy-metadata artifacts are listed exactly once. Classification describes whether the recorded measurement can be used with today's fixtures; it does not turn accuracy into a product or perceptual conclusion.
+All 110 legacy-metadata artifacts are listed exactly once. Classification describes whether the recorded measurement can be used with today's fixtures; it does not turn accuracy into a product or perceptual conclusion.
 
 ## Counts
 
 - `exploratory`: 2
 - `historical_only`: 42
 - `provisional`: 29
-- `supported_measurement`: 39
+- `supported_measurement`: 37
 
 `historical_only` means current-gold rescoring changes at least one judgment or cannot map at least one row. Original files remain preserved; their saved summaries were not rewritten.
 
@@ -15,8 +15,6 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 
 | artifact | family | class | rows | changed scores | unmapped | dirty | problems |
 |---|---|---|---:|---:|---:|---|---|
-| `batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json` | batch_contiguity | supported_measurement | 184 | 0 | 0 | False |  |
-| `batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json` | batch_contiguity | supported_measurement | 266 | 0 | 0 | False |  |
 | `batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json` | batch_contiguity | supported_measurement | 324 | 0 | 0 | False |  |
 | `batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp-wide.json` | batch_size | historical_only | 1200 | 41 | 12 | True |  |
 | `batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | batch_size | historical_only | 1600 | 27 | 16 | False |  |

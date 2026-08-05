@@ -101,6 +101,7 @@ def main():
         print(f"structural audit is current ({len(audit['artifacts'])} artifacts)")
         return
     from utils import atomic_json_write
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
     atomic_json_write(audit, args.out)
     print(f"wrote {len(audit['artifacts'])} artifacts to {args.out}")
 
