@@ -28,6 +28,7 @@ from default_prompts import load_default_prompts
 from review_prompts import load_review_prompts
 from persona_prompts import load_persona_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
+from speaker_canon import canonicalize, suggest_aliases
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -368,6 +369,32 @@ process_state = {
     "batch_preparer": {"running": False, "logs": [], "cancel": False, "tasks": [], "current_task_idx": -1},
 }
 
+
+# Task families where generate_script.py's exit code 3 ("output written,
+# but one or more spans fell back to NARRATOR -- review recommended") can
+# be reached. Distinct from a genuine failure: the script file was written
+# successfully and is usable, just degraded. See generate_script.py's
+# EXIT_DEGRADED constant / module docstring for the exit-code contract.
+_DEGRADED_EXIT_CODE = 3
+_SCRIPT_TASK_NAMES = {"script"}
+
+
+def _process_completion_message(task_name: str, return_code: int) -> str:
+    """Choose the log line for a finished (non-cancelled) task.
+
+    Factored out from run_process so the exit-code-3 special case is
+    independently testable without spinning up a real subprocess.
+    """
+    if return_code == 0:
+        return f"Task {task_name} completed successfully."
+    if return_code == _DEGRADED_EXIT_CODE and task_name in _SCRIPT_TASK_NAMES:
+        return (
+            f"Task {task_name} completed with degradations (return code 3): "
+            f"output was written; some spans fell back to NARRATOR — check the log above."
+        )
+    return f"Task {task_name} failed with return code {return_code}."
+
+
 def run_process(command: List[str], task_name: str):
     """Run a subprocess and stream its output into process_state logs."""
     state = process_state[task_name]
@@ -381,10 +408,8 @@ def run_process(command: List[str], task_name: str):
 
         if state.get("cancel"):
             state["logs"].append(f"Task {task_name} cancelled.")
-        elif return_code == 0:
-            state["logs"].append(f"Task {task_name} completed successfully.")
         else:
-            state["logs"].append(f"Task {task_name} failed with return code {return_code}.")
+            state["logs"].append(_process_completion_message(task_name, return_code))
 
     except Exception as e:
         logger.error(f"Error running {task_name}: {e}")
@@ -626,12 +651,20 @@ class _HTMLTextExtractor(HTMLParser):
         if self._skip_depth > 0:
             return
         if self._pending_newline and self.parts:
-            self.parts.append('\n')
+            self.parts.append('\n\n')
             self._pending_newline = False
         self.parts.append(data)
 
     def get_text(self):
-        return ''.join(self.parts)
+        text = ''.join(self.parts)
+        # Normalize intra-line whitespace noise from source indentation
+        # (e.g. pretty-printed XHTML) without disturbing paragraph breaks.
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r' *\n *', '\n', text)
+        # Collapse any run of 3+ newlines (from adjacent/nested block tags)
+        # down to a single blank line so paragraph structure stays uniform.
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
 
 
 def extract_epub_text(epub_path: str) -> str:
@@ -639,7 +672,20 @@ def extract_epub_text(epub_path: str) -> str:
 
     Parses the EPUB ZIP structure directly using stdlib only:
     META-INF/container.xml -> .opf manifest+spine -> XHTML content files.
+
+    Hrefs are resolved robustly against the OPF directory: percent-encoding
+    is decoded and '../'-style traversal is normalized before matching
+    against the archive's actual member names. If normalization doesn't
+    find a match, a case-insensitive lookup is tried, followed by an
+    unambiguous basename match. Any spine item that still can't be
+    resolved raises ValueError instead of being silently skipped. The
+    EPUB3 navigation document (manifest item with properties="nav") is
+    excluded from the extracted text. A per-chapter char-count report is
+    printed to stdout.
     """
+    import posixpath
+    from urllib.parse import unquote
+
     with zipfile.ZipFile(epub_path, 'r') as zf:
         # 1. Find the OPF file path from container.xml
         container_xml = zf.read('META-INF/container.xml')
@@ -656,15 +702,51 @@ def extract_epub_text(epub_path: str) -> str:
         # Detect OPF namespace (varies between EPUB 2 and 3)
         opf_ns = opf.tag.split('}')[0] + '}' if '}' in opf.tag else ''
 
-        # Build manifest: id -> href (resolve relative to OPF directory)
         opf_dir = opf_path.rsplit('/', 1)[0] + '/' if '/' in opf_path else ''
+
+        # Build a normalized index of every member in the archive so hrefs
+        # can be matched regardless of percent-encoding, '../' segments,
+        # or case differences.
+        normalized_index = {}   # normalized path -> actual member name
+        ci_index = {}            # lowercased normalized path -> actual member name
+        basename_index = {}      # lowercased basename -> [actual member names]
+        for name in zf.namelist():
+            norm = posixpath.normpath(name)
+            normalized_index.setdefault(norm, name)
+            ci_index.setdefault(norm.lower(), name)
+            basename_index.setdefault(posixpath.basename(norm).lower(), []).append(name)
+
+        def resolve_href(href, item_id):
+            joined = posixpath.normpath(unquote(opf_dir + href))
+            candidate = normalized_index.get(joined)
+            if candidate is None:
+                candidate = ci_index.get(joined.lower())
+            if candidate is None:
+                base = posixpath.basename(joined).lower()
+                matches = basename_index.get(base, [])
+                if len(matches) == 1:
+                    candidate = matches[0]
+            if candidate is None:
+                raise ValueError(
+                    f"EPUB spine item '{item_id}' references href '{href}' "
+                    f"(resolved to '{joined}') which does not match any file "
+                    f"in the archive."
+                )
+            return candidate
+
+        # Build manifest: id -> (href, media_type, is_nav_doc).
+        # Include ALL manifest items regardless of media type -- the spine
+        # may legally reference non-HTML content (e.g. an SVG cover page),
+        # and that's not the silent-skip bug class this fix targets. Only a
+        # genuinely absent manifest item should raise.
         manifest = {}
         for item in opf.findall(f'.//{opf_ns}item'):
             item_id = item.get('id')
             href = item.get('href')
             media_type = item.get('media-type', '')
-            if item_id and href and 'html' in media_type:
-                manifest[item_id] = opf_dir + href
+            properties = (item.get('properties') or '').split()
+            if item_id and href:
+                manifest[item_id] = (href, media_type, 'nav' in properties)
 
         # Get spine order
         spine_ids = []
@@ -675,20 +757,35 @@ def extract_epub_text(epub_path: str) -> str:
 
         # 3. Extract text from each spine item in order
         chapters = []
+        report = []
         for item_id in spine_ids:
-            href = manifest.get(item_id)
-            if href is None:
+            entry = manifest.get(item_id)
+            if entry is None:
+                raise ValueError(
+                    f"EPUB spine references idref '{item_id}' which has no "
+                    f"corresponding manifest item."
+                )
+            href, media_type, is_nav = entry
+            if is_nav:
+                continue  # EPUB3 navigation document isn't chapter content
+            if 'html' not in media_type:
+                # Legally spineable non-text content (e.g. an SVG cover
+                # page). Not a silent-skip bug -- intentionally excluded.
+                print(f"[extract_epub_text] skipping non-text spine item '{item_id}' ({media_type})")
                 continue
-            try:
-                html_bytes = zf.read(href)
-            except KeyError:
-                continue
+            member_name = resolve_href(href, item_id)
+            html_bytes = zf.read(member_name)
             html_content = html_bytes.decode('utf-8', errors='replace')
             extractor = _HTMLTextExtractor()
             extractor.feed(html_content)
             text = extractor.get_text().strip()
             if text:
                 chapters.append(text)
+                report.append((len(chapters), href, len(text)))
+
+    print(f"[extract_epub_text] {epub_path}: extracted {len(chapters)} chapter(s)")
+    for idx, href, char_count in report:
+        print(f"  chapter {idx}: {href} -> {char_count} chars")
 
     return '\n\n'.join(chapters)
 
@@ -830,24 +927,62 @@ async def get_status(task_name: str):
     state.pop("process", None)
     return state
 
+def build_voice_roster(script_data, voice_config):
+    """Build a canonical, fragment-free voice roster from script entries.
+
+    Args:
+        script_data: list of annotated_script.json entries (each with a
+            "speaker" and/or legacy "type" field). Speaker labels are only
+            ever read here -- never mutated, and entry "text" is untouched.
+        voice_config: dict loaded from voice_config.json, possibly keyed by
+            older non-canonical speaker names (e.g. "Mr. Mark").
+
+    Returns:
+        (roster_names, alias_suggestions, config_lookup):
+          - roster_names: sorted list of deduped canonical speaker names.
+          - alias_suggestions: suggest_aliases(roster_names) -- advisory
+            records only, never used to merge anything here.
+          - config_lookup: dict mapping each canonical roster name to the
+            voice_config entry that resolves for it (exact key match first,
+            falling back to scanning voice_config keys for one whose
+            canonicalize() equals the roster name; first match wins). Names
+            with no resolvable config are simply absent from this dict.
+    """
+    roster_set = set()
+    for entry in script_data:
+        raw_speaker = entry.get("speaker") or entry.get("type") or ""
+        canonical = canonicalize(raw_speaker)
+        if canonical:
+            roster_set.add(canonical)
+    roster_names = sorted(roster_set)
+
+    alias_suggestions = suggest_aliases(roster_names)
+
+    config_lookup = {}
+    for roster_name in roster_names:
+        if roster_name in voice_config:
+            config_lookup[roster_name] = voice_config[roster_name]
+            continue
+        for key, value in voice_config.items():
+            if canonicalize(key) == roster_name:
+                config_lookup[roster_name] = value
+                break
+
+    return roster_names, alias_suggestions, config_lookup
+
+
 @app.get("/api/voices")
 async def get_voices():
     # Parse voices directly from the current script (no stale cache)
-    voices_list = []
+    script_data = []
     if os.path.exists(SCRIPT_PATH):
         try:
             with open(SCRIPT_PATH, "r", encoding="utf-8") as f:
                 script_data = json.load(f)
-            voices_set = set()
-            for entry in script_data:
-                speaker = (entry.get("speaker") or entry.get("type") or "").strip()
-                if speaker:
-                    voices_set.add(speaker)
-            voices_list = sorted(voices_set)
         except (json.JSONDecodeError, ValueError):
-            pass
+            script_data = []
 
-    if not voices_list:
+    if not script_data:
         return []
 
     # Combine with config
@@ -859,15 +994,20 @@ async def get_voices():
         except (json.JSONDecodeError, ValueError):
             voice_config = {}
 
-    missing_speakers = {voice_name for voice_name in voices_list if voice_name not in voice_config}
+    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, voice_config)
+
+    if not roster_names:
+        return []
 
     result = []
-    for voice_name in voices_list:
-        config = voice_config.get(voice_name, {})
+    for voice_name in roster_names:
+        config = config_lookup.get(voice_name, {})
+        voice_aliases = [s for s in alias_suggestions if s["name"] == voice_name]
         result.append({
             "name": voice_name,
             "config": config,
-            "persona_pending": voice_name in missing_speakers
+            "persona_pending": voice_name not in config_lookup,
+            "alias_suggestions": voice_aliases
         })
     return result
 

@@ -7,6 +7,9 @@ import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
 
+from tts_normalizer import TTSNormalizer
+from speaker_canon import canonicalize
+
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
 
@@ -15,6 +18,126 @@ def sanitize_filename(name):
     """Make a string safe for use in filenames"""
     name = re.sub(r'[^\w\-]', '_', name)
     return name.lower()
+
+
+def resolve_voice(voice_config, raw_speaker):
+    """Resolve a raw speaker label to the voice_config key to use for synthesis.
+
+    `voice_config` is keyed by canonical UPPERCASE speaker names (see
+    `speaker_canon.canonicalize` / app.py's `build_voice_roster`), but a
+    "speaker" value flowing through the render pipeline (chunks.json,
+    annotated_script.json) may still be a raw, non-canonical label -- e.g.
+    "Narrator" (mixed case) or a pre-refactor project's "Mr. Mark". This is
+    the single shared helper every voice_config lookup that feeds synthesis
+    should go through, so a canonical roster and a raw-keyed (or legacy)
+    voice_config never silently miss each other.
+
+    This never reads or writes narration text -- it only ever compares and
+    returns speaker LABELS.
+
+    Resolution order (first match wins):
+      1. `raw_speaker` itself is a key in `voice_config` (handles configs
+         already keyed exactly as the script spells the speaker).
+      2. `canonicalize(raw_speaker)` is a key in `voice_config`.
+      3. Scan `voice_config` keys for one whose `canonicalize()` equals
+         `canonicalize(raw_speaker)` (handles a "Mr. Mark"-keyed config
+         resolving for a canonical "MARK" speaker, and vice versa).
+         Insertion order wins ties.
+
+    Whichever key is found then has its `alias_of`/`alias` chain followed
+    (same semantics as the legacy per-instance `_resolve_alias` helper in
+    project.py, but canonical-aware at each hop too), up to 8 hops with
+    cycle detection.
+
+    Returns the resolved key (str) to use with `voice_config.get(...)`, or
+    None if no strategy finds any match at all (caller decides on a
+    fallback, and should log which raw speaker fell through).
+    """
+    if not raw_speaker or not voice_config:
+        return None
+
+    def _find_key(name):
+        if not name:
+            return None
+        if name in voice_config:
+            return name
+        canon = canonicalize(name)
+        if not canon:
+            return None
+        if canon in voice_config:
+            return canon
+        for key in voice_config:
+            if canonicalize(key) == canon:
+                return key
+        return None
+
+    resolved = _find_key(raw_speaker)
+    if resolved is None:
+        return None
+
+    name = resolved
+    seen = set()
+    for _ in range(8):
+        if name in seen:
+            print(f"Warning: Alias cycle detected for speaker '{raw_speaker}': chain visited {seen}")
+            break
+        seen.add(name)
+        entry = voice_config.get(name, {})
+        alias = entry.get("alias_of") or entry.get("alias")
+        if not alias or not isinstance(alias, str) or alias.strip() == "" or alias == name:
+            break
+        next_key = _find_key(alias)
+        name = next_key if next_key is not None else alias
+
+    return name
+
+
+def _prepare_batch_chunks(chunks, voice_config, normalizer):
+    """Build a fresh list of chunk dicts with text normalized and speaker
+    resolved to a canonical voice_config key, EXACTLY ONCE, for every
+    downstream dispatch path in `generate_batch` (custom/clone/lora/design/
+    sequential) to consume -- all of those read chunk["text"]/chunk["speaker"]
+    directly and never call `generate_voice()` (which has its own
+    normalize+resolve for the single-chunk path).
+
+    `chunks` is treated as READ-ONLY: this returns shallow copies and never
+    mutates the caller's dicts in place. That matters because today's only
+    production caller (project.py's `generate_chunks_batch`) builds fresh
+    per-call dicts, so nothing currently leaks into chunks.json -- but a
+    future caller passing persisted `load_chunks()` dicts directly would,
+    if this mutated in place, silently write normalized text and rewritten
+    speaker labels back into chunks.json, and the next run would
+    double-normalize already-normalized text.
+
+    `instruct` is deliberately left untouched -- it is delivery direction,
+    not narration text, and must never be normalized.
+
+    Args:
+        chunks: list of dicts with at least 'text' and 'speaker' keys
+            (plus whatever else the caller put there, e.g. 'index').
+        voice_config: voice_config dict, consulted via resolve_voice().
+        normalizer: object with a `.normalize(text) -> text` method (a
+            TTSNormalizer instance in production; disabled -> identity).
+
+    Returns:
+        A new list of shallow-copied dicts: same keys/values as the input
+        except 'text' (normalized) and 'speaker' (resolved, when a match
+        is found -- left as the original raw value otherwise, so a later
+        raw lookup can still be attempted/logged by the caller).
+    """
+    prepared = []
+    for chunk in chunks:
+        new_chunk = dict(chunk)
+        new_chunk["text"] = normalizer.normalize(chunk.get("text", ""))
+        raw_speaker = chunk.get("speaker", "")
+        resolved_speaker = resolve_voice(voice_config, raw_speaker)
+        if resolved_speaker is None:
+            print(f"Warning: No canonical voice_config match for speaker '{raw_speaker}'; "
+                  f"falling back to raw lookup (may hit default voice).")
+        else:
+            new_chunk["speaker"] = resolved_speaker
+        prepared.append(new_chunk)
+    return prepared
 
 
 def combine_audio_with_pauses(audio_segments, speakers, pause_ms=DEFAULT_PAUSE_MS,
@@ -125,6 +248,13 @@ class TTSEngine:
         self._clone_prompt_cache = {}
         # LoRA clone prompt cache: adapter_path -> reusable voice_clone_prompt
         self._lora_prompt_cache = {}
+
+        # Optional TTS-boundary text normalization (off by default; see tts_normalizer.py)
+        root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        pronunciation_dict_path = os.path.join(root_dir, "pronunciation_dict.json")
+        self._normalizer = TTSNormalizer(
+            tts_config.get("enable_nemo_normalization", False), pronunciation_dict_path
+        )
 
     @property
     def mode(self):
@@ -720,6 +850,12 @@ class TTSEngine:
 
     def generate_voice(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate audio using the appropriate method based on voice type config."""
+        text = self._normalizer.normalize(text)
+        resolved_speaker = resolve_voice(voice_config, speaker)
+        if resolved_speaker is None:
+            print(f"Warning: No canonical voice_config match for speaker '{speaker}'; falling back to raw lookup.")
+        else:
+            speaker = resolved_speaker
         voice_data = voice_config.get(speaker)
         if not voice_data:
             print(f"Warning: No voice configuration for '{speaker}'. Skipping.")
@@ -945,7 +1081,10 @@ class TTSEngine:
         External mode: sequential individual calls.
 
         Args:
-            chunks: List of dicts with 'text', 'instruct', 'speaker', 'index' keys
+            chunks: List of dicts with 'text', 'instruct', 'speaker', 'index'
+                keys. Treated as READ-ONLY -- this method never mutates the
+                caller's dicts in place (see _prepare_batch_chunks); it works
+                from its own shallow-copied, normalized/resolved list.
             voice_config: Voice configuration dict
             output_dir: Directory to save output files
             batch_seed: Single seed for all generations (-1 for random)
@@ -962,6 +1101,16 @@ class TTSEngine:
         # from dynamo guard accumulation across batches
         if self._compile_codec_enabled:
             self._reset_compile_cache()
+
+        # Rebind `chunks` (this function's local name) to a FRESH list of
+        # shallow copies with text normalized and speaker resolved to its
+        # canonical voice_config key, EXACTLY ONCE, before any dispatch
+        # (custom/clone/lora/design/sequential below). The caller's original
+        # list/dicts are never touched -- see _prepare_batch_chunks for why
+        # in-place mutation here would be a latent trap (e.g. a future
+        # caller passing persisted load_chunks() dicts would otherwise get
+        # normalized text silently written back into chunks.json).
+        chunks = _prepare_batch_chunks(chunks, voice_config, self._normalizer)
 
         # Separate chunks by voice type
         custom_chunks = []

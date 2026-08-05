@@ -15,7 +15,8 @@ from tts import (
     compute_timeline,
     sanitize_filename,
     DEFAULT_PAUSE_MS,
-    SAME_SPEAKER_PAUSE_MS
+    SAME_SPEAKER_PAUSE_MS,
+    resolve_voice,
 )
 from pydub import AudioSegment
 
@@ -65,7 +66,15 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
         if (speaker == current_speaker and instruct == current_instruct
                 and not _is_structural_text(current_text)
                 and not _is_structural_text(text)):
-            combined = current_text + " " + text
+            # Entries now carry their own boundary whitespace verbatim (the
+            # pipeline is byte-verbatim end to end). Only inject a joining
+            # space when NEITHER adjacent side already has boundary
+            # whitespace -- legacy/stripped entries still get a readable
+            # join, but verbatim entries that already touch a space/newline
+            # at their boundary are joined byte-exact, with no space added
+            # that was never in the source.
+            needs_space = bool(current_text) and bool(text) and not current_text[-1].isspace() and not text[0].isspace()
+            combined = current_text + (" " if needs_space else "") + text
             if len(combined) <= max_chars:
                 current_text = combined
                 # Last merged entry's pause_after wins
@@ -165,30 +174,26 @@ class ProjectManager:
         return []
 
     def _resolve_alias(self, speaker, voice_config):
-        """Resolve speaker aliases by following `alias_of` chain in voice_config.
+        """Resolve a raw speaker label to the voice_config key used for TTS.
 
-        Prevent infinite loops by limiting chain length.
-        Returns the canonical speaker name (string).
+        Canonical-aware: voice_config is keyed by canonical UPPERCASE
+        speaker names (per app.py's build_voice_roster / speaker_canon),
+        but `speaker` here may be a raw, non-canonical label straight out
+        of chunks.json / annotated_script.json (e.g. mixed-case "Narrator",
+        or a pre-refactor project's "Mr. Mark"). Delegates to
+        `tts.resolve_voice`, the single shared resolver used by every
+        voice_config lookup that feeds synthesis (project.py and tts.py
+        alike), which tries an exact-key match, then a canonicalized-key
+        match, then a scan of voice_config keys by canonical form, then
+        follows the alias_of/alias chain (cycle-safe, max 8 hops).
+
+        Returns the resolved key, or `speaker` unchanged if it is falsy or
+        no resolution strategy finds a match (preserves this method's
+        original "never returns None" contract for existing callers).
         """
         if not speaker:
             return speaker
-        name = speaker
-        seen = set()
-        for _ in range(8):
-            if name in seen:
-                logger.warning(f"Alias cycle detected for speaker '{speaker}': chain visited {seen}")
-                break
-            seen.add(name)
-            entry = voice_config.get(name, {})
-            alias = entry.get('alias_of') or entry.get('alias')
-            if not alias:
-                break
-            # If alias is empty or same, stop
-            if not isinstance(alias, str) or alias.strip() == '' or alias == name:
-                break
-            # Continue resolution
-            name = alias
-        return name
+        return resolve_voice(voice_config, speaker) or speaker
 
     def save_chunks(self, chunks):
         with self._chunks_lock:

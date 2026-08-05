@@ -6,6 +6,71 @@ import argparse
 from openai import OpenAI
 from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
+from speaker_canon import canonicalize
+
+
+def _canonicalize_speakers(entries):
+    """Return a copy of `entries` with each "speaker" field canonicalized.
+
+    Never touches "text" -- only the speaker label. Safety net against
+    casing/formatting drift introduced by the review LLM (or older,
+    pre-canonicalization scripts) so the `!= "NARRATOR"` checks in
+    merge_consecutive_narrators stay reliable.
+    """
+    result = []
+    for entry in entries:
+        new_entry = dict(entry)
+        if "speaker" in new_entry:
+            new_entry["speaker"] = canonicalize(new_entry["speaker"])
+        result.append(new_entry)
+    return result
+
+
+def apply_positional_overlay(batch, corrected):
+    """Overlay LLM speaker/instruct corrections onto the ORIGINAL batch text.
+
+    This is the hard, structural guarantee against text damage: "text" is
+    ALWAYS taken from the original entry, never from the LLM's output, so no
+    amount of accidental rewording/splitting/merging/attribution-stripping in
+    a model response can touch the verbatim script. Only "speaker"
+    (canonicalized) and "instruct" are taken from the LLM's corresponding
+    entry, matched positionally (same index in `batch` and `corrected`).
+
+    Returns None if `corrected` has a different number of entries than
+    `batch`. The reviewer is no longer allowed to split, merge, add, or
+    remove entries -- a count mismatch means its response can't be aligned
+    positionally, so the caller must treat this as a failed batch (keep the
+    original entries) rather than guessing an alignment.
+    """
+    if len(corrected) != len(batch):
+        return None
+
+    accepted = []
+    for orig, corr in zip(batch, corrected):
+        new_entry = dict(orig)
+        corr = corr if isinstance(corr, dict) else {}
+
+        # Speaker: prefer the LLM's correction, but only if it canonicalizes
+        # to something non-empty. An empty string, None, or a value that
+        # canonicalizes to "" (e.g. a stray "(shouting)") must NOT blank out
+        # a good original label -- that would silently drop the entry from
+        # the voices roster and mute it at render time. Fall back to the
+        # original (canonicalized) speaker whenever the correction is empty,
+        # not only when the "speaker" key is absent entirely.
+        corrected_speaker = canonicalize(corr.get("speaker") or "")
+        new_entry["speaker"] = corrected_speaker or canonicalize(orig.get("speaker", ""))
+
+        # Instruct: only accept a non-empty string from the LLM. None, a
+        # list/dict, or a whitespace-only string is rejected in favor of the
+        # original instruct (already present via dict(orig) above) rather
+        # than writing a malformed value into annotated_script.json.
+        corrected_instruct = corr.get("instruct")
+        if isinstance(corrected_instruct, str) and corrected_instruct.strip():
+            new_entry["instruct"] = corrected_instruct
+
+        new_entry["text"] = orig.get("text", "")
+        accepted.append(new_entry)
+    return accepted
 
 
 def _is_section_break(text):
@@ -18,6 +83,24 @@ def _is_section_break(text):
     if stripped == stripped.upper() and len(stripped) < 80 and stripped.isascii():
         return True
     return False
+
+
+def _join_narrator_texts(left, right):
+    """Join two narrator texts across a merge boundary.
+
+    Verbatim entries already carry their own boundary whitespace (a
+    trailing/leading space or newline copied straight from the source), so
+    unconditionally inserting an extra " " would introduce a byte that was
+    never in the original text. Only inject a space when NEITHER side
+    already has boundary whitespace -- this keeps legacy scripts (older
+    annotated_script.json files whose entries were .strip()'d) merging
+    readably, while verbatim entries stay byte-exact.
+    """
+    if not left or not right:
+        return left + right
+    if left[-1].isspace() or right[0].isspace():
+        return left + right
+    return left + " " + right
 
 
 def merge_consecutive_narrators(entries, max_merged_length=800):
@@ -54,7 +137,7 @@ def merge_consecutive_narrators(entries, max_merged_length=800):
                 break
             if _is_section_break(next_entry.get("text", "")):
                 break
-            candidate = combined_text + " " + next_entry["text"]
+            candidate = _join_narrator_texts(combined_text, next_entry["text"])
             if len(candidate) > max_merged_length:
                 break
             combined_text = candidate
@@ -316,12 +399,15 @@ def main():
     client = OpenAI(base_url=base_url, api_key=api_key)
 
     all_corrected = []
+    # "text_changed"/"entries_added"/"entries_removed" are intentionally
+    # absent: the positional overlay (apply_positional_overlay) guarantees
+    # every accepted entry keeps its original text and every accepted batch
+    # keeps its original entry count, so those counters could only ever be
+    # 0 on batches that made it through. A batch that would have caused
+    # either is instead rejected outright and counted in batches_failed.
     total_stats = {
-        "text_changed": 0,
         "speaker_changed": 0,
         "instruct_changed": 0,
-        "entries_added": 0,
-        "entries_removed": 0,
         "batches_failed": 0,
     }
 
@@ -368,47 +454,46 @@ def main():
 
             if corrected is None:
                 print(f"  FAILED — keeping original entries for batch {batch_index}")
-                all_corrected.extend(batch)
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            passed, orig_text, corr_text, ratio = check_text_loss(batch, corrected, threshold=0.95, upper_bound=1.15)
+            if len(corrected) != len(batch):
+                print(f"  FAILED — reviewer returned {len(corrected)} entries for a {len(batch)}-entry "
+                      f"batch (splitting/merging is not permitted); keeping original entries for batch {batch_index}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            accepted = apply_positional_overlay(batch, corrected)
+
+            # Safety net only: the positional overlay always takes "text"
+            # from the original batch, so this can never actually fail. If
+            # it does, that's a structural bug -- surface it loudly instead
+            # of silently keeping originals.
+            passed, orig_text, corr_text, ratio = check_text_loss(batch, accepted, threshold=1.0, upper_bound=1.0)
             if not passed:
-                print(f"  WARNING: Text length mismatch (loss or gain)! Word ratio: {ratio:.2f} (acceptable range: 0.95-1.15)")
-                print(f"  Original words: {len(orig_text.split())}, Corrected words: {len(corr_text.split())}")
-                print(f"  Keeping original entries for batch {batch_index} to prevent data corruption.")
-                all_corrected.extend(batch)
+                print(f"  BUG: text-loss safety net tripped despite positional overlay (ratio {ratio:.4f})! "
+                      f"Keeping original entries for batch {batch_index}.")
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            stats = diff_entries(batch, corrected)
-            entry_diff = len(corrected) - len(batch)
-
-            if entry_diff > 0:
-                total_stats["entries_added"] += entry_diff
-            elif entry_diff < 0:
-                total_stats["entries_removed"] += abs(entry_diff)
-
-            total_stats["text_changed"] += stats["text_changed"]
+            stats = diff_entries(batch, accepted)
             total_stats["speaker_changed"] += stats["speaker_changed"]
             total_stats["instruct_changed"] += stats["instruct_changed"]
 
-            changes = stats["text_changed"] + stats["speaker_changed"] + stats["instruct_changed"]
-            if changes > 0 or entry_diff != 0:
-                print(f"  Changes: {stats['text_changed']} text, {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct", end="")
-                if entry_diff > 0:
-                    print(f", +{entry_diff} entries (split)")
-                elif entry_diff < 0:
-                    print(f", {entry_diff} entries (merge)")
-                else:
-                    print()
+            changes = stats["speaker_changed"] + stats["instruct_changed"]
+            if changes > 0:
+                print(f"  Changes: {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct")
             else:
                 print("  No changes")
 
-            all_corrected.extend(corrected)
-            previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
+            all_corrected.extend(accepted)
+            previous_tail = accepted[-2:] if len(accepted) >= 2 else accepted
     else:
         # Split entries into batches
         batches = []
@@ -440,49 +525,47 @@ def main():
 
             if corrected is None:
                 print(f"  FAILED — keeping original entries for batch {i}")
-                all_corrected.extend(batch)
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            # Text-loss safety check
-            passed, orig_text, corr_text, ratio = check_text_loss(batch, corrected)
+            if len(corrected) != len(batch):
+                print(f"  FAILED — reviewer returned {len(corrected)} entries for a {len(batch)}-entry "
+                      f"batch (splitting/merging is not permitted); keeping original entries for batch {i}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            accepted = apply_positional_overlay(batch, corrected)
+
+            # Safety net only: the positional overlay always takes "text"
+            # from the original batch, so this can never actually fail. If
+            # it does, that's a structural bug -- surface it loudly instead
+            # of silently keeping originals.
+            passed, orig_text, corr_text, ratio = check_text_loss(batch, accepted, threshold=1.0, upper_bound=1.0)
             if not passed:
-                print(f"  WARNING: Text length mismatch (loss or gain)! Word ratio: {ratio:.2f} (acceptable range: 0.95-1.05)")
-                print(f"  Original words: {len(orig_text.split())}, Corrected words: {len(corr_text.split())}")
-                print(f"  Keeping original entries for batch {i} to prevent data corruption.")
-                all_corrected.extend(batch)
+                print(f"  BUG: text-loss safety net tripped despite positional overlay (ratio {ratio:.4f})! "
+                      f"Keeping original entries for batch {i}.")
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
             # Diff stats
-            stats = diff_entries(batch, corrected)
-            entry_diff = len(corrected) - len(batch)
-
-            if entry_diff > 0:
-                total_stats["entries_added"] += entry_diff
-            elif entry_diff < 0:
-                total_stats["entries_removed"] += abs(entry_diff)
-
-            total_stats["text_changed"] += stats["text_changed"]
+            stats = diff_entries(batch, accepted)
             total_stats["speaker_changed"] += stats["speaker_changed"]
             total_stats["instruct_changed"] += stats["instruct_changed"]
 
-            changes = stats["text_changed"] + stats["speaker_changed"] + stats["instruct_changed"]
-            if changes > 0 or entry_diff != 0:
-                print(f"  Changes: {stats['text_changed']} text, {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct", end="")
-                if entry_diff > 0:
-                    print(f", +{entry_diff} entries (splits)")
-                elif entry_diff < 0:
-                    print(f", {entry_diff} entries (merges)")
-                else:
-                    print()
+            changes = stats["speaker_changed"] + stats["instruct_changed"]
+            if changes > 0:
+                print(f"  Changes: {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct")
             else:
                 print(f"  No changes")
 
-            all_corrected.extend(corrected)
-            previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
+            all_corrected.extend(accepted)
+            previous_tail = accepted[-2:] if len(accepted) >= 2 else accepted
 
     # Post-processing: merge consecutive NARRATOR entries with same instruct
     merge_narrators_enabled = generation_config.get("merge_narrators", False)
@@ -507,17 +590,17 @@ def main():
         print("Cleared old chunks.json")
 
     # Final summary
-    total_changes = (total_stats["text_changed"] + total_stats["speaker_changed"] +
-                     total_stats["instruct_changed"] + total_stats["entries_added"] +
-                     total_stats["entries_removed"] + narrator_merges)
+    # Text-loss and entry-count changes are structurally impossible on
+    # accepted batches (see apply_positional_overlay / total_stats comment
+    # above), so they're not tracked here -- only speaker/instruct edits and
+    # narrator merges count as "changes".
+    total_changes = (total_stats["speaker_changed"] +
+                     total_stats["instruct_changed"] + narrator_merges)
 
     print(f"\n{'='*60}")
     print(f"Review complete: {len(entries)} -> {len(all_corrected)} entries")
-    print(f"  Text changed:    {total_stats['text_changed']}")
     print(f"  Speaker changed: {total_stats['speaker_changed']}")
     print(f"  Instruct changed:{total_stats['instruct_changed']}")
-    print(f"  Entries added:   {total_stats['entries_added']}")
-    print(f"  Entries removed: {total_stats['entries_removed']}")
     print(f"  Narrators merged:{narrator_merges}")
     if total_stats["batches_failed"] > 0:
         print(f"  Batches failed:  {total_stats['batches_failed']}")
