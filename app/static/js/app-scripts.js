@@ -23,12 +23,37 @@
                                 <small class="text-muted ms-2">${date}</small>
                             </div>
                             <div>
+                                <button class="btn btn-sm btn-outline-info me-1" onclick='auditSavedScript(${JSON.stringify(s.name)})'><i class="fas fa-stethoscope me-1"></i>Audit</button>
                                 <button class="btn btn-sm btn-outline-success me-1" onclick='loadScript(${JSON.stringify(s.name)})'><i class="fas fa-upload me-1"></i>Load</button>
                                 <button class="btn btn-sm btn-outline-danger" onclick='deleteScript(${JSON.stringify(s.name)})'><i class="fas fa-trash"></i></button>
                             </div>
                         </div>`;
                 }).join('');
             });
+        }
+
+        async function auditSavedScript(name) {
+            const panel = document.getElementById('saved-script-preflight');
+            panel.style.display = 'block';
+            panel.className = 'alert alert-secondary small mt-3 mb-0';
+            panel.textContent = `Auditing ${name}…`;
+            try {
+                const report = await API.post(`/api/scripts/${encodeURIComponent(name)}/preflight`, {});
+                const counts = report.counts || {};
+                const risks = (report.findings || []).filter(item => item.code === 'nonprose_speech_risk');
+                panel.className = `alert ${counts.blocking ? 'alert-danger' : risks.length ? 'alert-warning' : 'alert-success'} small mt-3 mb-0`;
+                const items = risks.map(item => {
+                    const details = item.details || {};
+                    const entries = (item.entry_numbers || []).join(', ');
+                    const categories = (details.categories || []).join(', ');
+                    return `<li>Entry ${escapeHtml(entries)}: ${escapeHtml(categories)} — preview: ${escapeHtml(details.normalized_preview || '')}. Audio validation: ${escapeHtml((details.validation || {}).status || 'unknown')}.</li>`;
+                }).join('');
+                panel.innerHTML = `<strong>${escapeHtml(name)}:</strong> ${counts.blocking || 0} blocking, ${counts.manual_review || 0} manual review.`
+                    + (items ? `<div class="mt-1">Non-prose entries have elevated TTS error risk:</div><ul class="mb-0">${items}</ul>` : ' No non-prose speech risks detected.');
+            } catch (error) {
+                panel.className = 'alert alert-danger small mt-3 mb-0';
+                panel.textContent = `Audit failed: ${error.message || error}`;
+            }
         }
 
         async function saveScript() {
@@ -443,4 +468,3 @@
 
         // --- LoRA Training ---
         window._loraModelsCache = [];
-

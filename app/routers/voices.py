@@ -219,8 +219,7 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 # --- Auto-suggest best LoRA voice per character -------------------------------
 
 def _infer_lora_gender(model):
-    """Best-effort gender for a LoRA candidate: explicit field, then name suffix,
-    then description keywords, then mean f0 from voice_features."""
+    """Best-effort declared/profile gender; pitch is not identity evidence."""
     g = (model.get("gender") or "").strip().lower()
     if g in ("male", "female"):
         return g
@@ -234,9 +233,6 @@ def _infer_lora_gender(model):
         return "female"
     if any(w in desc for w in ("baritone", "tenor", "bass", "masculine", "man", "boy")):
         return "male"
-    f0 = (model.get("voice_features") or {}).get("mean_f0")
-    if isinstance(f0, (int, float)) and f0 > 0:
-        return "female" if f0 >= 165 else "male"
     return "unknown"
 
 

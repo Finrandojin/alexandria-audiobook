@@ -17,6 +17,7 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from tts import normalize_for_speech
+from speech_text import get_speech_normalization, get_speech_risks
 
 
 class TestStructuralMarks(unittest.TestCase):
@@ -108,6 +109,45 @@ class TestIdempotence(unittest.TestCase):
                      "Tom & Jerry", "Plain prose here.", "one ■■■ two"]:
             once = normalize_for_speech(text)
             self.assertEqual(normalize_for_speech(once), once, repr(text))
+
+
+class TestSpeechEvidence(unittest.TestCase):
+    def test_identifiers_and_dates_are_preserved(self):
+        for text in ("ISBN 978-1-4028-9462-6.", "Model RX-78-2.",
+                     "Published on 12 August 2026."):
+            self.assertEqual(text, normalize_for_speech(text))
+
+    def test_result_reports_transformations_without_mutating_input(self):
+        text = "Copyright © 2016 • ISBN 978-1-4028-9462-6"
+        result = get_speech_normalization(text)
+        self.assertEqual("Copyright © 2016 • ISBN 978-1-4028-9462-6", text)
+        self.assertTrue(result["changed"])
+        self.assertIn("identifier", result["risk_categories"])
+        self.assertEqual(
+            {"spoken_symbol", "structural_break", "duplicate_spoken_word"},
+            {item["type"] for item in result["transformations"]})
+
+    def test_risk_classifier_is_selective(self):
+        self.assertEqual([], get_speech_risks("She arrived on 12 August 2026."))
+        self.assertEqual(["url"], get_speech_risks("Visit https://example.com/help"))
+        self.assertIn("identifier", get_speech_risks("Reference AB-1234-Z"))
+        self.assertIn("list_or_table", get_speech_risks("One • Two • Three"))
+        self.assertIn(
+            "list_or_table",
+            get_speech_risks("Contents. Cover. Insert. Title Page. Copyright."))
+
+    def test_classifier_covers_locked_empirical_identifier_and_url_probes(self):
+        identifiers = (
+            "Identifiers LCCN 2016031562 ISBN 9780316315302 (v. 1 pbk.).",
+            "978-0-316-39839-8 (ebook).", "E3-20180216-JV-PC.",
+            "Classification LCC PZ7.1.N34 Re 2016 DDC Fic—dc23.",
+        )
+        urls = ("www.yenpress.com/booklink", "yenpress.com",
+                "facebook.com/yenpress", "https//lccn.loc.gov/2016031562")
+        for text in identifiers:
+            self.assertIn("identifier", get_speech_risks(text), text)
+        for text in urls:
+            self.assertIn("url", get_speech_risks(text), text)
 
 
 if __name__ == "__main__":

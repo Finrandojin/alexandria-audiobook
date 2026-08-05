@@ -985,6 +985,7 @@
                     <div id="saved-scripts-list">
                         <p class="text-muted mb-0">No saved scripts yet.</p>
                     </div>
+                    <div id="saved-script-preflight" class="alert alert-secondary small mt-3 mb-0" style="display:none;"></div>
                 </div>
             </div>
 
@@ -1620,7 +1621,7 @@
                                 <dt class="col-sm-3">LoRA Alpha</dt>
                                 <dd class="col-sm-9">Scaling factor for LoRA weights. Effective strength = alpha / rank. Higher alpha relative to rank means the adapter has more influence. A common starting point is alpha = 2x rank.</dd>
                                 <dt class="col-sm-3">Epochs</dt>
-                                <dd class="col-sm-9">Number of full passes over the dataset. <strong>Too few</strong>: voice identity won't converge. <strong>Too many</strong>: overfitting, stuttering, repetition artifacts. 15-30 epochs is a good range for 20+ samples.</dd>
+                                <dd class="col-sm-9">Number of full passes over the dataset. Too many can overfit; too few can underfit, but the experiments did not establish a universal range. Use retained checkpoint evaluation and blind listening rather than sample count or training loss alone.</dd>
                                 <dt class="col-sm-3">Learning Rate</dt>
                                 <dd class="col-sm-9">Step size for weight updates. Default 5e-6 is conservative. Higher (1e-5) trains faster but risks instability. Lower (1e-6) is safer for longer training runs.</dd>
                                 <dt class="col-sm-3">Batch Size</dt>
@@ -1631,7 +1632,7 @@
                                 <dd class="col-sm-9">Sets the codec language prefix token used during training. Must match the language of your training audio. For unsupported languages, try "english" as a proxy.</dd>
                             </dl>
                             <hr class="my-2">
-                            <p class="mb-0"><strong>Training data tip:</strong> For expressive voices, include samples with varied emotions (happy, sad, angry, calm). Neutral-only training data will produce a flat voice that resists instruct prompting.</p>
+                            <p class="mb-0"><strong>Training data:</strong> Sample count is inventory, not a quality score. Inspect recording consistency and the retained evaluation probes; compare Clone and LoRA by listening because neither mode won consistently across tested voices.</p>
                         </div>
                     </div>
 

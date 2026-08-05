@@ -5,6 +5,8 @@ import re
 import unicodedata
 from collections import Counter
 
+from speech_text import get_speech_normalization
+
 
 _CYRILLIC_RE = re.compile(r"[\u0400-\u04ff]")
 _WORD_RE = re.compile(r"\w+", re.UNICODE)
@@ -209,6 +211,22 @@ def audit_script(entries, source_text=None, is_generic_speaker_fn=None):
             findings.append(_finding(
                 "manual_review", "generic_speaker", "Generic speaker label needs book-local review.",
                 [index], speaker=speaker,
+            ))
+        speech = get_speech_normalization(text)
+        if speech["risk_categories"]:
+            findings.append(_finding(
+                "manual_review", "nonprose_speech_risk",
+                "Non-prose content has elevated TTS error risk; review the "
+                "spoken preview and validate the generated audio.",
+                [index], categories=speech["risk_categories"],
+                normalized_preview=speech["text"],
+                transformations=speech["transformations"],
+                validation={
+                    "recommended": True,
+                    "method": "targeted_transcription_or_human_listening",
+                    "status": "not_run",
+                    "reason": "Script preflight does not generate or transcribe audio.",
+                },
             ))
 
     findings.extend(find_adjacent_duplicate_blocks(texts, source_text))
