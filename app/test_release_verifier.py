@@ -61,7 +61,7 @@ class CiEnvParityTests(unittest.TestCase):
         self.assertIn(
             "python verify_release.py --json-report release-report.json", workflow)
         self.assertNotIn("python -m unittest discover", workflow)
-        self.assertIn("actions/upload-artifact@v4", workflow)
+        self.assertIn("actions/upload-artifact@v6", workflow)
         self.assertIn("Diagnose whether failure exists on the base commit", workflow)
         self.assertIn("fetch-depth: 0", workflow)
 
