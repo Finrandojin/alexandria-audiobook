@@ -232,17 +232,26 @@ def main():
           "  This does NOT judge whether a voice SUITS a character; a perfectly\n"
           "  separated but miscast cast would still score well here.")
 
-    json.dump({"window": args.window,
-               "characters": len(characters),
-               "current": {"adapters": len(set(current.values())),
-                           "conflicts": len(cur_conflicts),
-                           "conflict_pairs": cur_conflicts,
-                           "min_pitch_gap": cur_gap},
-               "scene_aware": {"adapters": k,
-                               "conflicts": len(new_conflicts),
-                               "min_pitch_gap": new_gap,
-                               "assignment": proposed}},
-              open(args.out, "w"), indent=1)
+    from experiments.provenance import input_sha256, provenance
+    from utils import atomic_json_write
+    result = {
+        "status": "complete",
+        "provenance": provenance(
+            __file__, args,
+            input_sha256=input_sha256((args.script, args.voice_config,
+                                       args.manifest, args.aliases))),
+        "window": args.window,
+        "characters": len(characters),
+        "current": {"adapters": len(set(current.values())),
+                    "conflicts": len(cur_conflicts),
+                    "conflict_pairs": cur_conflicts,
+                    "min_pitch_gap": cur_gap},
+        "scene_aware": {"adapters": k,
+                        "conflicts": len(new_conflicts),
+                        "min_pitch_gap": new_gap,
+                        "assignment": proposed},
+    }
+    atomic_json_write(result, args.out)
     print("\nwrote", args.out)
 
 

@@ -35,6 +35,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from experiments.tts_output_validation import (compute_threshold, is_non_speech,
                                                say_number, validate,
+                                               word_error_breakdown,
                                                word_errors, words)
 from experiments.voice_blending import (blend_capacity, parse_blend_spec)
 from experiments.booknlp_baseline import (align_to_gold, character_names,
@@ -68,6 +69,21 @@ class TestValidationNormalisation(unittest.TestCase):
         # Qwen3-TTS repeating or inventing speech is the failure this exists for.
         errors, _, _ = word_errors("hello there", "hello there there there")
         self.assertEqual(errors, 2)
+
+    def test_error_breakdown_separates_insertions_and_deletions(self):
+        inserted = word_error_breakdown("one two", "one extra words two")
+        self.assertEqual(2, inserted["insertions"])
+        self.assertEqual(0, inserted["deletions"])
+        deleted = word_error_breakdown("one missing words two", "one two")
+        self.assertEqual(2, deleted["deletions"])
+        self.assertEqual(0, deleted["insertions"])
+
+    def test_unequal_replacement_splits_overlap_from_remainder(self):
+        result = word_error_breakdown("one cat two", "one dog extra two")
+        self.assertEqual(1, result["substitutions"])
+        self.assertEqual(1, result["insertions"])
+        self.assertEqual(0, result["deletions"])
+        self.assertEqual(2, result["errors"])
 
     def test_words_drops_empty_tokens(self):
         self.assertEqual(words("--- '' ---"), [])

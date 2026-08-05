@@ -1,0 +1,54 @@
+{
+  "selection_rule": "Six ordinary-prose passages selected before Stage 7 generation to span narration, plain dialogue, questions, exclamations, and short/long dialogue; no pitch result was observed during selection.",
+  "source_artifact": "chunks.json",
+  "passages": [
+    {
+      "category": "narration",
+      "source_path": "chunks.json",
+      "source_index": 60,
+      "speaker": "NARRATOR",
+      "text": "They had blond hair, red hair, and brown hair…some even had blue or green hair, among others, and they were wearing armor, or black robes, or the kind of costume a dancer might wear…that sort of thing.",
+      "source_sha256": "72cd59af8eca44d6e866c414011f52e5c079ac7127cb743d9a67fb01adc3b462"
+    },
+    {
+      "category": "plain_dialogue",
+      "source_path": "chunks.json",
+      "source_index": 189,
+      "speaker": "MAN 1",
+      "text": "I’m going to remember your face, you bitch. The next time we see you it won’t go this well for you.",
+      "source_sha256": "1e0da240eb37f890c789aed9168ba3667adde0290093c08b8516e90463e66afb"
+    },
+    {
+      "category": "question_dialogue",
+      "source_path": "chunks.json",
+      "source_index": 82,
+      "speaker": "Subaru",
+      "text": "Without a little bit more of a welfare safety-net thing going on, a laid-back guy like myself isn’t going to be able to deal, you know?",
+      "source_sha256": "ee117e2c023519180083058e1f775a06589d4439b24725c2c3eb8220d6ebe01b"
+    },
+    {
+      "category": "exclamation_dialogue",
+      "source_path": "chunks.json",
+      "source_index": 149,
+      "speaker": "MAN",
+      "text": "Wait a second! If you’re not after this guy, then we’re not involved! I bet it was that girl from before!",
+      "source_sha256": "8dffc9d4f9811a4c4250a411d8c4e99316cb6069d2dda5910cbf250ccae2b9a8"
+    },
+    {
+      "category": "short_dialogue",
+      "source_path": "chunks.json",
+      "source_index": 963,
+      "speaker": "FELT",
+      "text": "Wait. Our cards have been played, but that doesn’t mean I’m not going to try to sweeten the deal.",
+      "source_sha256": "f0849940c5929f3e75374559e28b8a08ac0c9aca51b8e6ea267e274cb6b47af6"
+    },
+    {
+      "category": "long_dialogue",
+      "source_path": "chunks.json",
+      "source_index": 2533,
+      "speaker": "Emilia",
+      "text": "Wait, Reinhard. I understand that it is hard to let her off without a word, but she didn’t realize how much this badge is worth. Plus, I do not find fault with her. It was my fault that I let it get stolen in the first place.",
+      "source_sha256": "1f0717ab1f682b6fc7d79cc1f7ceba528eee459fb40af3f24243571c47f40c34"
+    }
+  ]
+}

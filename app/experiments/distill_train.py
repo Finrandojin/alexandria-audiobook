@@ -34,6 +34,11 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
 sys.path.insert(0, REPO + "/app")
 
 
+def get_resume_checkpoint(resume):
+    """Return the Trainer resume value selected by the CLI flag."""
+    return True if resume else None
+
+
 def build_examples(paths, tokenizer_name=None, label_field="teacher"):
     """One (prompt, completion) pair per teacher-labelled row.
 
@@ -204,7 +209,7 @@ def main():
         train_dataset=ds,
         data_collator=DataCollatorForSeq2Seq(tok, padding=True,
                                              label_pad_token_id=-100),
-    ).train(resume_from_checkpoint=args.resume or None)
+    ).train(resume_from_checkpoint=get_resume_checkpoint(args.resume))
     model.save_pretrained(args.out)
     tok.save_pretrained(args.out)
     print(f"\nwrote adapter to {args.out}")

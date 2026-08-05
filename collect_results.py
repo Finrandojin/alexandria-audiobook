@@ -180,7 +180,11 @@ cols = ["artifact", "experiment", "book", "model", "env_tag", "host", "backend",
         "validation", "dirty", "commit", "elapsed_s", "finished", "endpoint",
         "note"]
 with open(out_csv, "w", newline="") as fh:
-    w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore")
+    # csv.excel defaults to CRLF. The repository is LF-normalized, so adding a
+    # new result made `git diff --check` report every new CSV row as trailing
+    # whitespace even though the fields were valid.
+    w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore",
+                       lineterminator="\n")
     w.writeheader()
     for r in rows:
         w.writerow(r)

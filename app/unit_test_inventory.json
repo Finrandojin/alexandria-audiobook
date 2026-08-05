@@ -33,6 +33,10 @@
     "test_api_summary.ApiSummaryTests.test_json_summary_records_ordered_test_identities_statuses_and_reasons",
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
+  "test_artifact_structural_audit": [
+    "test_artifact_structural_audit.StructuralAuditTests.test_classifies_all_identity_contracts_without_scientific_claims",
+    "test_artifact_structural_audit.StructuralAuditTests.test_unreadable_json_is_visible_not_skipped"
+  ],
   "test_attribution_accuracy": [
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_book_and_entry_index_are_unique_in_every_fixture",
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_every_entry_has_an_expected_speaker",
@@ -160,6 +164,17 @@
     "test_benchmark_runner.BenchmarkRunnerTests.test_thunder_target_fails_loudly_when_endpoint_is_unconfigured",
     "test_benchmark_runner.BenchmarkRunnerTests.test_thunder_target_uses_remote_profile_and_status",
     "test_benchmark_runner.BenchmarkRunnerTests.test_tts_fixture_drift_is_rejected_before_worker"
+  ],
+  "test_blinded_listening": [
+    "test_blinded_listening.BlindedListeningTests.test_builds_eight_unlabeled_sets_and_strictly_revalidates",
+    "test_blinded_listening.BlindedListeningTests.test_failed_manifest_write_removes_all_new_outputs",
+    "test_blinded_listening.BlindedListeningTests.test_input_hashes_fail_loudly_for_missing_files",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_asymmetric_casting_arms",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_source_without_provenance",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_truncated_wav_during_full_decode",
+    "test_blinded_listening.BlindedListeningTests.test_same_seed_produces_the_same_concealed_mapping",
+    "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_audio_and_extra_files",
+    "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_source_manifest"
   ],
   "test_build_scoring_sheet": [
     "test_build_scoring_sheet.BuildSheetTest.test_agreement_is_marked",
@@ -318,6 +333,10 @@
     "test_distill_eval_shim.DistillEvalShimTest.test_temperature_zero_is_greedy_not_sampled",
     "test_distill_eval_shim.DistillEvalShimTest.test_truncated_generation_reports_finish_reason_length"
   ],
+  "test_distill_training_resume": [
+    "test_distill_training_resume.DistillTrainingResumeTest.test_disabled_resume_starts_without_a_checkpoint",
+    "test_distill_training_resume.DistillTrainingResumeTest.test_resume_preserves_training_state_rng_and_sample_order"
+  ],
   "test_env_doctor": [
     "test_env_doctor.EvaluateEnvTests.test_all_required_present_is_ok",
     "test_env_doctor.EvaluateEnvTests.test_interpreter_not_found_fails_all_required",
@@ -371,6 +390,7 @@
   "test_experiment_infra": [
     "test_experiment_infra.AnalysisScriptTest.test_every_experiment_module_parses",
     "test_experiment_infra.AnalysisScriptTest.test_offline_analyses_declare_their_caveats",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_csv_uses_repository_lf_line_endings",
     "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
     "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
     "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",
@@ -415,6 +435,13 @@
     "test_experiment_manifest.ManifestTest.test_the_written_artifact_round_trips",
     "test_experiment_manifest.UntrackedHarnessTest.test_a_fully_tracked_harness_reports_none",
     "test_experiment_manifest.UntrackedHarnessTest.test_an_untracked_harness_marks_the_tree_dirty"
+  ],
+  "test_experiment_provenance": [
+    "test_experiment_provenance.ReproducibleHarnessTests.test_clean_run_must_match_its_recorded_commit",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_dirty_run_can_match_exact_descendant_commit",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_dirty_uncommitted_harness_can_match_worktree",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_malformed_identity_is_rejected",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_unrelated_branch_does_not_rescue_recorded_run"
   ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
@@ -519,6 +546,7 @@
     "test_gpu_job.GpuJobTest.test_queue_log_order_is_queued_then_ident_then_start_then_result",
     "test_gpu_job.GpuJobTest.test_the_script_hash_actually_identifies_the_script",
     "test_gpu_job.GpuJobTest.test_the_second_job_waits_rather_than_failing",
+    "test_gpu_job.GpuJobTest.test_timeout_kills_job_releases_lock_and_logs_failure",
     "test_gpu_job.GpuJobTest.test_two_jobs_do_not_overlap",
     "test_gpu_job.GpuJobTest.test_wrapped_failure_propagates_the_exit_code"
   ],
@@ -557,6 +585,11 @@
     "test_launcher_supervisor.LauncherSupervisorTests.test_import_error_breaks",
     "test_launcher_supervisor.LauncherSupervisorTests.test_module_not_found_breaks_before_any_url",
     "test_launcher_supervisor.LauncherSupervisorTests.test_traceback_breaks"
+  ],
+  "test_legacy_attribution_audit": [
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_gold_rescore_exposes_changed_and_unmapped_rows",
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_inventory_is_exhaustive_and_semantically_bounded",
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_markdown_lists_every_artifact_once"
   ],
   "test_llm_benchmark_worker": [
     "test_llm_benchmark_worker.LlmBenchmarkWorkerTests.test_nickname_detection_stage_reuses_run_nickname_case",
@@ -653,6 +686,9 @@
     "test_lmstudio_settings.RemoteServerReachabilityTests.test_server_bound_none_on_ssh_failure",
     "test_lmstudio_settings.RemoteServerReachabilityTests.test_server_bound_true_when_listening_on_all_interfaces"
   ],
+  "test_local_gpu_job": [
+    "test_local_gpu_job.LocalGpuJobTests.test_runner_uses_one_approved_lock_queue_and_checked_timeout"
+  ],
   "test_lora_candidate_promotion": [
     "test_lora_candidate_promotion.LoraCandidatePromotionTests.test_backup_deletion_refuses_pending_checkpoint_recovery",
     "test_lora_candidate_promotion.LoraCandidatePromotionTests.test_backup_status_and_explicit_deletion",
@@ -709,6 +745,24 @@
     "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_actually_matches_the_defect",
     "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_does_not_match_relocatable_forms"
   ],
+  "test_nonprose_category_expansion": [
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_controls_are_distinct_ordinary_prose_and_deterministic",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_fingerprint_maps_category_limit_without_mutating_args",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_fixture_has_four_unique_locked_probes_per_category",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pair_manifest_reports_matching_cost_and_feature_gaps",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pilot_limit_still_spans_every_category",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_summary_never_pools_categories"
+  ],
+  "test_nonprose_replication": [
+    "test_nonprose_replication.TestNonproseReplication.test_checkpoint_roundtrip_requires_exact_fingerprint",
+    "test_nonprose_replication.TestNonproseReplication.test_feature_gap_does_not_claim_exact_matching",
+    "test_nonprose_replication.TestNonproseReplication.test_mismatched_checkpoint_is_archived_loudly",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_row_rejects_wav_outside_repository",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_row_requires_matching_identity_and_decodable_wav",
+    "test_nonprose_replication.TestNonproseReplication.test_resumed_rows_reject_duplicate_keys",
+    "test_nonprose_replication.TestNonproseReplication.test_summary_keeps_adapter_seed_and_class_separate",
+    "test_nonprose_replication.TestNonproseReplication.test_surface_features_are_explicit_and_bounded"
+  ],
   "test_normalize_for_speech": [
     "test_normalize_for_speech.TestIdempotence.test_applying_twice_changes_nothing",
     "test_normalize_for_speech.TestLeavesProseAlone.test_dialogue_with_dashes_survives",
@@ -760,6 +814,15 @@
     "test_pass_quality.SegmentQualityTests.test_rejects_attribution_tag_marked_spoken",
     "test_pass_quality.SegmentQualityTests.test_rejects_narration_combined_with_quoted_dialogue",
     "test_pass_quality.SegmentQualityTests.test_severe_truncation_fails_recall"
+  ],
+  "test_pitch_profile_matrix": [
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_default_manifest_has_75_complete_adapters",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_locked_fixture_matches_six_distinct_source_passages",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_surfaces_silence_as_tracker_failure",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_tracks_a_decodable_sine_wave",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_octave_flags_are_explicit_leads_not_ground_truth",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_row_validation_rejects_duplicates_and_recomputes_measurement",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_summary_reports_dispersion_and_threshold_disagreement"
   ],
   "test_preparer_asr_validation": [
     "test_preparer_asr_validation.WhisperCppTests.test_adapter_parses_json_written_by_cli",
@@ -1078,6 +1141,8 @@
     "test_speaker_identity.SpeakerIdentityTests.test_uncertain_typo_and_extended_name_are_reported_not_merged"
   ],
   "test_speaker_similarity": [
+    "test_speaker_similarity.TestSpeakerSimilarity.test_embedding_decodes_and_resamples_without_torchaudio",
+    "test_speaker_similarity.TestSpeakerSimilarity.test_empty_audio_fails_loudly",
     "test_speaker_similarity.TestSpeakerSimilarity.test_missing_speechbrain_fails_instead_of_falling_back"
   ],
   "test_stage3_harnesses": [
@@ -1085,6 +1150,22 @@
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_clone_score_refuses_missing_manifest",
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_phase_is_required",
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_score_refuses_missing_manifest"
+  ],
+  "test_stage4_checkpoint_runner": [
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_category_validator_rejects_wrong_row_category",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_same_validator_covers_category_expansion",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_strict_validator_decodes_complete_exact_matrix",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_reads_entire_wav_and_rejects_truncation",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_recomputes_summary",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_rejects_duplicate_matrix_cell",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_requires_error_breakdown_identity"
+  ],
+  "test_stage6_checkpoint_runner": [
+    "test_stage6_checkpoint_runner.Stage6RunnerTests.test_gpu_wrapper_delegates_to_shared_approved_runner"
+  ],
+  "test_stage7_pitch_runner": [
+    "test_stage7_pitch_runner.Stage7PitchRunnerTests.test_full_job_is_all_adapters_seeds_and_passages",
+    "test_stage7_pitch_runner.Stage7PitchRunnerTests.test_pilot_gate_requires_three_real_measurements"
   ],
   "test_support": [],
   "test_system_version": [
@@ -1124,6 +1205,7 @@
     "test_third_party_findings.TestValidationNormalisation.test_digits_match_their_spelling",
     "test_third_party_findings.TestValidationNormalisation.test_dropped_words_counted",
     "test_third_party_findings.TestValidationNormalisation.test_early_two_thousands_read_naturally",
+    "test_third_party_findings.TestValidationNormalisation.test_error_breakdown_separates_insertions_and_deletions",
     "test_third_party_findings.TestValidationNormalisation.test_forgiveness_does_not_hide_real_errors",
     "test_third_party_findings.TestValidationNormalisation.test_hallucinated_words_counted",
     "test_third_party_findings.TestValidationNormalisation.test_identifiers_still_read_digitwise",
@@ -1135,6 +1217,7 @@
     "test_third_party_findings.TestValidationNormalisation.test_real_substitution_still_counted",
     "test_third_party_findings.TestValidationNormalisation.test_round_hundred_has_no_trailing_zero",
     "test_third_party_findings.TestValidationNormalisation.test_typographic_apostrophe_matches_ascii",
+    "test_third_party_findings.TestValidationNormalisation.test_unequal_replacement_splits_overlap_from_remainder",
     "test_third_party_findings.TestValidationNormalisation.test_words_drops_empty_tokens",
     "test_third_party_findings.TestValidationNormalisation.test_year_matches_a_correct_rendition",
     "test_third_party_findings.TestValidationNormalisation.test_years_read_as_years"

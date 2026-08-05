@@ -201,3 +201,9 @@ ab_test_runtime/distill/adapter/
 ab_test_runtime/distill/gguf/
 ab_test_runtime/pdnc/
 ab_test_runtime/booknlp/
+
+# Stage 6 listening outputs stay local. In particular, committing the key next
+# to the public manifest would destroy the blind comparison.
+ab_test_runtime/blinded_listening/
+ab_test_runtime/blinded_listening.building/
+ab_test_runtime/blinded_listening_concealed_key.json
