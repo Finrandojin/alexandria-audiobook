@@ -586,6 +586,11 @@
     "test_launcher_supervisor.LauncherSupervisorTests.test_module_not_found_breaks_before_any_url",
     "test_launcher_supervisor.LauncherSupervisorTests.test_traceback_breaks"
   ],
+  "test_legacy_attribution_audit": [
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_gold_rescore_exposes_changed_and_unmapped_rows",
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_inventory_is_exhaustive_and_semantically_bounded",
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_markdown_lists_every_artifact_once"
+  ],
   "test_llm_benchmark_worker": [
     "test_llm_benchmark_worker.LlmBenchmarkWorkerTests.test_nickname_detection_stage_reuses_run_nickname_case",
     "test_llm_benchmark_worker.LlmBenchmarkWorkerTests.test_persona_generation_stage_reuses_run_persona_case",
