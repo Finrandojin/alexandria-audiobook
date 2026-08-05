@@ -17,6 +17,7 @@ from verbalization import (SET_APART_HINT, VERBALIZE, classify,
 from utils import (atomic_json_write, safe_load_json, is_oom_failure,
                    get_app_config_path, is_nonverbal_text)
 from config_settings import load_app_config
+from audio_validation import remove_stale_audio, validate_generated_audio
 from tts import (
     TTSEngine,
     combine_audio_with_pauses,
@@ -523,14 +524,15 @@ class ProjectManager:
             return False, "Invalid chunk index"
 
         chunk = chunks[index]
-        self._update_chunk_fields(index, status="generating")
+        self._update_chunk_fields(index, status="generating", error=None)
 
         temp_path = None
         try:
             engine = self.get_engine()
             if not engine:
-                self._update_chunk_fields(index, status="error")
-                return False, "TTS engine not initialized"
+                message = "TTS engine not initialized"
+                self._update_chunk_fields(index, status="error", error=message)
+                return False, message
 
             # atomic_json_write's write-temp+rename makes plain reads safe even
             # while app.py's voice_library endpoints hold file_lock(voice_config_path)
@@ -557,10 +559,8 @@ class ProjectManager:
             success = engine.generate_voice(text, instruct, speaker_to_use, voice_config, temp_path)
 
             if success:
-                # Check file size
-                if not os.path.exists(temp_path) or os.path.getsize(temp_path) == 0:
-                     self._update_chunk_fields(index, status="error")
-                     return False, "Generated audio file is missing or empty"
+                validate_generated_audio(
+                    temp_path, f"chunk {index} ({speaker_to_use})")
 
                 print(f"Generated WAV size: {os.path.getsize(temp_path)} bytes")
 
@@ -572,16 +572,18 @@ class ProjectManager:
                 # Shared MP3-export-with-WAV-fallback (raises on 0-duration audio,
                 # caught by the outer handler below).
                 audio_path = self._export_chunk_audio(temp_path, filename_base)
-                self._update_chunk_fields(index, status="done", audio_path=audio_path)
+                self._update_chunk_fields(
+                    index, status="done", audio_path=audio_path, error=None)
 
                 return True, audio_path
             else:
-                self._update_chunk_fields(index, status="error")
-                return False, "Generation failed"
+                message = "Generation returned False"
+                self._update_chunk_fields(index, status="error", error=message)
+                return False, message
 
         except Exception as e:
             try:
-                self._update_chunk_fields(index, status="error")
+                self._update_chunk_fields(index, status="error", error=str(e))
             except Exception as update_err:
                 print(f"Warning: Failed to update chunk {index} status to error: {update_err}")
             return False, str(e)
@@ -1158,9 +1160,11 @@ class ProjectManager:
         temp_path = os.path.join(self.root_dir, f"temp_batch_{idx}.wav")
         if not os.path.exists(temp_path):
             chunks[idx]["status"] = "error"
+            chunks[idx]["error"] = "Temp audio file not found"
             return "failed", idx, "Temp audio file not found"
 
         try:
+            validate_generated_audio(temp_path, f"batch chunk {idx}")
             chunk = chunks[idx]
             speaker = chunk.get("speaker", "unknown")
             # Stable uid (not list position) so the file can't collide with a
@@ -1168,12 +1172,15 @@ class ProjectManager:
             filename_base = f"voiceline_{chunk.get('uid') or f'{idx+1:04d}'}_{sanitize_filename(speaker)}"
             chunks[idx]["audio_path"] = self._export_chunk_audio(temp_path, filename_base)
             chunks[idx]["status"] = "done"
+            chunks[idx]["error"] = None
             print(f"Chunk {idx} completed: {chunks[idx]['audio_path']}")
             self._remove_temp_file(temp_path)
             return "completed", idx, chunks[idx]["audio_path"]
         except Exception as e:
             print(f"Error processing chunk {idx}: {e}")
             chunks[idx]["status"] = "error"
+            chunks[idx]["error"] = str(e)
+            self._remove_temp_file(temp_path)
             return "failed", idx, str(e)
 
     def _record_batch_failures(self, batch_failed, chunks, current_batch_size):
@@ -1193,6 +1200,7 @@ class ProjectManager:
                 continue
             if 0 <= idx < len(chunks):
                 chunks[idx]["status"] = "error"
+                chunks[idx]["error"] = str(error)
             hard_failures.append((idx, error))
         return oom_failed, hard_failures
 
@@ -1271,9 +1279,18 @@ class ProjectManager:
 
             # Build batch request data
             batch_chunks = []
+            cleanup_failures = []
             for idx in batch_indices:
                 if 0 <= idx < len(chunks):
                     chunk = chunks[idx]
+                    temp_path = os.path.join(
+                        self.root_dir, f"temp_batch_{idx}.wav")
+                    try:
+                        remove_stale_audio(temp_path)
+                    except OSError as exc:
+                        message = f"Could not remove stale temp audio: {exc}"
+                        cleanup_failures.append((idx, message))
+                        continue
                     # Resolve aliases so batch uses canonical speaker config
                     speaker = chunk.get("speaker", "")
                     canonical = self._resolve_alias(speaker, voice_config)
@@ -1284,8 +1301,12 @@ class ProjectManager:
                         "speaker": canonical
                     })
 
-            # Call batch TTS with single seed
-            batch_results = engine.generate_batch(batch_chunks, voice_config, self.root_dir, batch_seed)
+            # Call batch TTS with single seed. If stale-output cleanup rejected
+            # every row, there is nothing safe to dispatch.
+            batch_results = (engine.generate_batch(
+                batch_chunks, voice_config, self.root_dir, batch_seed)
+                if batch_chunks else {"completed": [], "failed": []})
+            batch_results["failed"].extend(cleanup_failures)
 
             # Process completed chunks - convert to MP3 and update status
             chunks = self.load_chunks()  # Reload for each batch

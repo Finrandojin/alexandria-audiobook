@@ -865,6 +865,14 @@
     "test_preparer_speaker_detection.PlanDetectionWindowsTests.test_ten_hour_book_gets_three_spread_windows",
     "test_preparer_speaker_detection.PlanDetectionWindowsTests.test_windows_are_clamped_inside_the_file"
   ],
+  "test_production_audio_validation": [
+    "test_production_audio_validation.ProductionCompletionBoundaryTests.test_batch_deletes_stale_output_before_dispatch",
+    "test_production_audio_validation.ProductionCompletionBoundaryTests.test_false_batch_completion_without_fresh_file_is_an_error",
+    "test_production_audio_validation.ProductionCompletionBoundaryTests.test_single_chunk_rejects_undecodable_success_and_records_reason",
+    "test_production_audio_validation.SharedAudioValidationTests.test_decodable_partial_riff_is_rejected",
+    "test_production_audio_validation.SharedAudioValidationTests.test_missing_empty_and_zero_frame_outputs_fail_loudly",
+    "test_production_audio_validation.SharedAudioValidationTests.test_valid_audio_passes_after_full_decode"
+  ],
   "test_project_chunks": [
     "test_project_chunks.BracketBoundaryTest.test_bracket_split_carries_no_pause",
     "test_project_chunks.BracketBoundaryTest.test_bracketed_part_gains_the_set_apart_hint",
