@@ -18,7 +18,7 @@ pending until people listen to blinded audio.
 | 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
 | 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
 | 6–8 | pending decision gates | These stages run only if their human-listening, pitch-casting, or adapter-health decisions remain open. |
-| 9 — operational tests | **mostly complete; training-state resume remains** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, and exact-identity experiment-row resume are covered. |
+| 9 — operational tests | **complete for implemented resume paths** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, row resume, and distillation training-state resume are covered. |
 | 10 — validation/index | **complete through category expansion** | All four Stage 4 artifacts are explicitly not indexed; indexes regenerated and all 1,256 tests passed. |
 
 ## Non-negotiable execution rules
@@ -333,7 +333,7 @@ Verify:
 
 Do not intentionally disrupt the active Thunder job.
 
-Current state: **mostly complete; training-state resume remains**.
+Current state: **complete for implemented resume paths**.
 
 - GPU lock behavior and deployment identity: covered by 11 committed tests.
 - Stale, false-return, missing, empty, undecodable, zero-frame, and truncated
@@ -344,9 +344,17 @@ Current state: **mostly complete; training-state resume remains**.
   incompatible-checkpoint archival without overwrite, corrupted/foreign/
   duplicate rows, error arithmetic, repository-local paths, full decoding,
   and RIFF completeness.
-- No local test currently proves that a training resume preserves optimizer,
-  scheduler, RNG, and sample order. That requirement remains open rather than
-  being inferred from the clean Thunder training curve or checkpoint files.
+- A CPU-only integration test now interrupts the installed Transformers
+  `Trainer` at step 3 of a fixed six-step run and resumes through the same
+  `get_resume_checkpoint` dispatch used by `distill_train.py`. The checkpoint
+  is required to contain model, optimizer, scheduler, RNG, trainer state, and
+  training arguments. The resumed run must reproduce the uninterrupted
+  forward-pass sample order and match final model weights, optimizer state,
+  and scheduler state exactly; dropout makes RNG restoration behavior-bearing
+  rather than a file-presence check.
+- `train_lora.py` does not implement training resume. The completed claim is
+  therefore limited to the distillation `Trainer` path; no resume guarantee is
+  asserted for the standalone Voice Lab LoRA trainer.
 
 ## Stage 10 — Validation and index regeneration
 
