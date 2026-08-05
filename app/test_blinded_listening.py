@@ -183,6 +183,49 @@ class BlindedListeningTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             input_sha256((str(self.root / "missing"),))
 
+    def _responses(self, public, listeners=2):
+        rows = []
+        for listener_index in range(listeners):
+            sets = []
+            for item in public["sets"]:
+                ratings = {
+                    sample["file"]: {field: 3 + (sample_index % 2)
+                                     for field in blind.SAMPLE_RATING_FIELDS}
+                    for sample_index, sample in enumerate(item["samples"])}
+                sets.append({"id": item["id"], "ratings": ratings,
+                             "preference": item["samples"][0]["file"]})
+            rows.append({"id": f"listener-{listener_index}", "sets": sets})
+        return {"listeners": rows}
+
+    def test_analyzes_only_complete_explicit_listener_count(self):
+        public, _, package, public_path, key_path = self.build()
+        responses_path = self.root / "responses.json"
+        responses_path.write_text(json.dumps(self._responses(public)), encoding="utf-8")
+
+        result = blind.analyze_responses(
+            public_path, key_path, package, str(responses_path), 2)
+
+        self.assertEqual("complete", result["status"])
+        self.assertEqual(2, result["listener_count"])
+        self.assertEqual(40, result["response_count"])
+        self.assertIn("no production threshold", result["limitations"][0])
+
+    def test_response_analysis_rejects_missing_listener_and_rating(self):
+        public, _, package, public_path, key_path = self.build()
+        responses = self._responses(public, listeners=1)
+        responses_path = self.root / "responses.json"
+        responses_path.write_text(json.dumps(responses), encoding="utf-8")
+        with self.assertRaisesRegex(blind.ListeningPackageError, "expected 2"):
+            blind.analyze_responses(
+                public_path, key_path, package, str(responses_path), 2)
+
+        first = responses["listeners"][0]["sets"][0]["ratings"]
+        first.pop(next(iter(first)))
+        responses_path.write_text(json.dumps(responses), encoding="utf-8")
+        with self.assertRaisesRegex(blind.ListeningPackageError, "incomplete ratings"):
+            blind.analyze_responses(
+                public_path, key_path, package, str(responses_path), 1)
+
 
 if __name__ == "__main__":
     unittest.main()

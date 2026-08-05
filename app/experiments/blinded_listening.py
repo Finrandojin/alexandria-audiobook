@@ -4,6 +4,7 @@ import json
 import os
 import random
 import shutil
+import statistics
 import string
 import sys
 
@@ -11,12 +12,13 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
 
-from experiments.provenance import file_sha256
+from experiments.provenance import file_sha256, provenance
 
 RATING_FIELDS = (
     "delivery", "emotional_fit", "voice_distinction", "intelligibility",
     "defects", "preference",
 )
+SAMPLE_RATING_FIELDS = RATING_FIELDS[:-1]
 
 
 class ListeningPackageError(RuntimeError):
@@ -172,7 +174,6 @@ def build_package(instruction_path, casting_path, control_path, package_dir,
             shutil.rmtree(temporary)
         raise
 
-    from experiments.provenance import provenance
     from utils import atomic_json_write
     key = {"status": "complete", "randomization_seed": seed,
            "sets": key_sets}
@@ -278,6 +279,83 @@ def validate_package(public_path, key_path, package_dir):
     return public, key
 
 
+def analyze_responses(public_path, key_path, package_dir, responses_path,
+                      expected_listeners):
+    """Validate complete blinded responses and summarize only observed ratings."""
+    if expected_listeners < 1:
+        raise ListeningPackageError("expected_listeners must be explicitly positive")
+    public, key = validate_package(public_path, key_path, package_dir)
+    responses = _load_json(responses_path)
+    listeners = responses.get("listeners")
+    if not isinstance(listeners, list) or len(listeners) != expected_listeners:
+        found = len(listeners) if isinstance(listeners, list) else 0
+        raise ListeningPackageError(
+            f"expected {expected_listeners} listeners, found {found}")
+    public_sets = {item["id"]: item for item in public["sets"]}
+    keyed_sets = {item["id"]: item for item in key["sets"]}
+    listener_ids, observations, preferences = set(), [], []
+    for listener in listeners:
+        listener_id = listener.get("id")
+        if not isinstance(listener_id, str) or not listener_id.strip() or \
+                listener_id in listener_ids:
+            raise ListeningPackageError("listener IDs must be non-empty and unique")
+        listener_ids.add(listener_id)
+        sets = listener.get("sets")
+        if not isinstance(sets, list) or {item.get("id") for item in sets} != \
+                set(public_sets) or len(sets) != len(public_sets):
+            raise ListeningPackageError(
+                f"listener {listener_id} must rate every set exactly once")
+        for response in sets:
+            set_id = response["id"]
+            samples = {item["file"] for item in public_sets[set_id]["samples"]}
+            ratings = response.get("ratings")
+            if not isinstance(ratings, dict) or set(ratings) != samples:
+                raise ListeningPackageError(
+                    f"listener {listener_id} has incomplete ratings for {set_id}")
+            mapping = keyed_sets[set_id]["mapping"]
+            for filename, values in ratings.items():
+                if not isinstance(values, dict) or set(values) != set(SAMPLE_RATING_FIELDS):
+                    raise ListeningPackageError(
+                        f"listener {listener_id} has wrong rating fields for {filename}")
+                if any(type(value) is not int or not 1 <= value <= 5
+                       for value in values.values()):
+                    raise ListeningPackageError("all sample ratings must be integers from 1 to 5")
+                observations.append({"kind": public_sets[set_id]["kind"],
+                                     "arm": mapping[filename]["arm"], **values})
+            preference = response.get("preference")
+            if preference != "tie" and preference not in samples:
+                raise ListeningPackageError(
+                    f"listener {listener_id} has invalid preference for {set_id}")
+            preferences.append({"kind": public_sets[set_id]["kind"],
+                                "arm": "tie" if preference == "tie"
+                                else mapping[preference]["arm"]})
+
+    summary = []
+    for kind, arm in sorted({(row["kind"], row["arm"]) for row in observations}):
+        rows = [row for row in observations
+                if row["kind"] == kind and row["arm"] == arm]
+        summary.append({"kind": kind, "arm": arm, "ratings": len(rows),
+                        "means": {field: statistics.fmean(row[field] for row in rows)
+                                  for field in SAMPLE_RATING_FIELDS},
+                        "preference_count": sum(
+                            item["kind"] == kind and item["arm"] == arm
+                            for item in preferences)})
+    return {
+        "status": "complete", "listener_count": len(listeners),
+        "response_count": len(observations), "summary": summary,
+        "ties": sum(item["arm"] == "tie" for item in preferences),
+        "provenance": provenance(
+            __file__, None, source_artifacts={
+                os.path.relpath(path, REPO): file_sha256(path)
+                for path in (public_path, key_path, responses_path)},
+            expected_listeners=expected_listeners),
+        "limitations": [
+            "Descriptive results only; no production threshold or statistical sufficiency was assumed.",
+            "Listener recruitment, independence, and listening conditions are not verified by this file.",
+        ],
+    }
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--instruction", default=os.path.join(
@@ -293,7 +371,23 @@ def main():
     ap.add_argument("--key", default=os.path.join(
         REPO, "ab_test_runtime", "blinded_listening_concealed_key.json"))
     ap.add_argument("--seed", type=int, default=20260804)
+    ap.add_argument("--responses")
+    ap.add_argument("--expected-listeners", type=int)
+    ap.add_argument("--results")
     args = ap.parse_args()
+    if args.responses:
+        if args.expected_listeners is None or not args.results:
+            ap.error("--responses requires --expected-listeners and --results")
+        if os.path.exists(args.results):
+            raise ListeningPackageError(
+                f"refusing to overwrite existing {args.results}")
+        result = analyze_responses(
+            args.out, args.key, args.package_dir, args.responses,
+            args.expected_listeners)
+        from utils import atomic_json_write
+        atomic_json_write(result, args.results)
+        print(f"wrote descriptive results for {result['listener_count']} listeners")
+        return
     public, _ = build_package(
         args.instruction, args.casting, args.controls, args.package_dir,
         args.out, args.key, args.seed)

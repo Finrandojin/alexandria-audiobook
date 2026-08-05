@@ -166,12 +166,14 @@
     "test_benchmark_runner.BenchmarkRunnerTests.test_tts_fixture_drift_is_rejected_before_worker"
   ],
   "test_blinded_listening": [
+    "test_blinded_listening.BlindedListeningTests.test_analyzes_only_complete_explicit_listener_count",
     "test_blinded_listening.BlindedListeningTests.test_builds_eight_unlabeled_sets_and_strictly_revalidates",
     "test_blinded_listening.BlindedListeningTests.test_failed_manifest_write_removes_all_new_outputs",
     "test_blinded_listening.BlindedListeningTests.test_input_hashes_fail_loudly_for_missing_files",
     "test_blinded_listening.BlindedListeningTests.test_rejects_asymmetric_casting_arms",
     "test_blinded_listening.BlindedListeningTests.test_rejects_source_without_provenance",
     "test_blinded_listening.BlindedListeningTests.test_rejects_truncated_wav_during_full_decode",
+    "test_blinded_listening.BlindedListeningTests.test_response_analysis_rejects_missing_listener_and_rating",
     "test_blinded_listening.BlindedListeningTests.test_same_seed_produces_the_same_concealed_mapping",
     "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_audio_and_extra_files",
     "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_source_manifest"
@@ -453,6 +455,10 @@
     "test_experiment_provenance.ReproducibleHarnessTests.test_dirty_uncommitted_harness_can_match_worktree",
     "test_experiment_provenance.ReproducibleHarnessTests.test_malformed_identity_is_rejected",
     "test_experiment_provenance.ReproducibleHarnessTests.test_unrelated_branch_does_not_rescue_recorded_run"
+  ],
+  "test_experiment_run_status": [
+    "test_experiment_run_status.ExperimentRunStatusTests.test_existing_or_malformed_status_fails_loudly",
+    "test_experiment_run_status.ExperimentRunStatusTests.test_status_records_checkpoint_identity_and_resume_decision"
   ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",

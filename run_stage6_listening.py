@@ -15,6 +15,9 @@ from experiments.blinded_listening import (  # noqa: E402
     _load_document, _resolve_source, validate_package)
 from experiments.provenance import (  # noqa: E402
     get_reproducible_harness_source, input_sha256)
+from experiments.run_status import (  # noqa: E402
+    finish_experiment_status, load_experiment_status,
+    record_experiment_stage, start_experiment_status)
 
 PYTHON = os.path.join(APP, "env", "bin", "python")
 SCENE = os.path.join(
@@ -36,6 +39,8 @@ VOICE_CONFIG = os.path.join(REPO, "voice_config.json")
 CONFIG = os.path.join(APP, "config.json")
 ALIASES = os.path.join(REPO, "character_aliases.json")
 LORA_MANIFEST = os.path.join(REPO, "lora_models", "manifest.json")
+STATUS = os.path.join(
+    REPO, "ab_test_runtime", "experiments", "stage6_run_status.json")
 
 
 def run(command, cwd=REPO, stdout=None):
@@ -127,40 +132,46 @@ def run_gpu(name, timeout, script, arguments):
 
 
 def ensure_scene():
-    if os.path.exists(SCENE):
+    resumed = os.path.exists(SCENE)
+    if resumed:
         validate_scene(SCENE)
         print("RESUME: strictly validated scene assignment", flush=True)
-        return
-    run([PYTHON, "experiments/scene_aware_casting.py", "--out", SCENE], cwd=APP)
-    validate_scene(SCENE)
+    else:
+        run([PYTHON, "experiments/scene_aware_casting.py", "--out", SCENE], cwd=APP)
+        validate_scene(SCENE)
+    record_experiment_stage(STATUS, "scene_assignment", SCENE, resumed)
 
 
 def ensure_instruction():
-    if os.path.exists(INSTRUCTION):
+    resumed = os.path.exists(INSTRUCTION)
+    if resumed:
         validate_instruction(INSTRUCTION)
         print("RESUME: strictly validated instruction audio", flush=True)
-        return
-    if os.path.exists(INSTRUCTION_DIR):
-        raise RuntimeError(
-            f"instruction audio exists without a valid manifest: {INSTRUCTION_DIR}")
-    run_gpu("stage6_instruction_source", 7200,
-            "experiments/instruct_listening.py",
-            ["--out-dir", INSTRUCTION_DIR, "--out", INSTRUCTION])
-    validate_instruction(INSTRUCTION)
+    else:
+        if os.path.exists(INSTRUCTION_DIR):
+            raise RuntimeError(
+                f"instruction audio exists without a valid manifest: {INSTRUCTION_DIR}")
+        run_gpu("stage6_instruction_source", 7200,
+                "experiments/instruct_listening.py",
+                ["--out-dir", INSTRUCTION_DIR, "--out", INSTRUCTION])
+        validate_instruction(INSTRUCTION)
+    record_experiment_stage(STATUS, "instruction_audio", INSTRUCTION, resumed)
 
 
 def ensure_casting():
-    if os.path.exists(CASTING):
+    resumed = os.path.exists(CASTING)
+    if resumed:
         validate_casting(CASTING)
         print("RESUME: strictly validated casting audio", flush=True)
-        return
-    if os.path.exists(CASTING_DIR):
-        raise RuntimeError(
-            f"casting audio exists without a valid manifest: {CASTING_DIR}")
-    run_gpu("stage6_casting_source", 7200,
-            "experiments/casting_ab_audio.py",
-            ["--casting", SCENE, "--out-dir", CASTING_DIR])
-    validate_casting(CASTING)
+    else:
+        if os.path.exists(CASTING_DIR):
+            raise RuntimeError(
+                f"casting audio exists without a valid manifest: {CASTING_DIR}")
+        run_gpu("stage6_casting_source", 7200,
+                "experiments/casting_ab_audio.py",
+                ["--casting", SCENE, "--out-dir", CASTING_DIR])
+        validate_casting(CASTING)
+    record_experiment_stage(STATUS, "casting_audio", CASTING, resumed)
 
 
 def ensure_package():
@@ -174,26 +185,41 @@ def ensure_package():
         if key.get("randomization_seed") != 20260804:
             raise RuntimeError("blind package randomization seed changed")
         print("RESUME: strictly validated complete blind package", flush=True)
-        return
-    run([PYTHON, "experiments/blinded_listening.py",
-         "--instruction", INSTRUCTION, "--casting", CASTING,
-         "--package-dir", PACKAGE_DIR, "--out", PUBLIC, "--key", KEY], cwd=APP)
-    public, key = validate_package(PUBLIC, KEY, PACKAGE_DIR)
-    if get_reproducible_harness_source(public["provenance"], REPO) is None or \
-            key.get("randomization_seed") != 20260804:
-        raise RuntimeError("new blind package identity is wrong")
-    print("Stage 6 blind package validated strictly (8/8 sets).", flush=True)
+    else:
+        run([PYTHON, "experiments/blinded_listening.py",
+             "--instruction", INSTRUCTION, "--casting", CASTING,
+             "--package-dir", PACKAGE_DIR, "--out", PUBLIC, "--key", KEY], cwd=APP)
+        public, key = validate_package(PUBLIC, KEY, PACKAGE_DIR)
+        if get_reproducible_harness_source(public["provenance"], REPO) is None or \
+                key.get("randomization_seed") != 20260804:
+            raise RuntimeError("new blind package identity is wrong")
+        print("Stage 6 blind package validated strictly (8/8 sets).", flush=True)
+    record_experiment_stage(STATUS, "blind_package", PUBLIC, bool(existing))
 
 
 def main():
-    _load_document(CONTROLS, "seed_instruction_controls.py")
-    ensure_scene()
-    ensure_instruction()
-    ensure_casting()
-    ensure_package()
-    run([PYTHON, "collect_results.py"])
-    run([PYTHON, "-m", "unittest", "discover", "-s", "app", "-p", "test_*.py"])
-    print("Stage 6 listening-material checkpoint complete.", flush=True)
+    if os.path.exists(STATUS):
+        prior = load_experiment_status(STATUS)
+        if prior.get("status") == "running":
+            raise RuntimeError(
+                f"unfinished status requires inspection before retry: {STATUS}")
+        os.unlink(STATUS)
+    start_experiment_status(STATUS, "stage6_listening", __file__)
+    try:
+        _load_document(CONTROLS, "seed_instruction_controls.py")
+        ensure_scene()
+        ensure_instruction()
+        ensure_casting()
+        ensure_package()
+        finish_experiment_status(
+            STATUS, "human_pending",
+            "Collect blinded responses, then run blinded_listening.py --responses with an explicit --expected-listeners value.")
+        run([PYTHON, "collect_results.py"])
+        run([PYTHON, "-m", "unittest", "discover", "-s", "app", "-p", "test_*.py"])
+        print("Stage 6 listening materials complete; human ratings are pending.", flush=True)
+    except Exception as exc:
+        finish_experiment_status(STATUS, "failed", "Inspect the failing stage before retrying.", str(exc))
+        raise
 
 
 if __name__ == "__main__":
