@@ -59,6 +59,33 @@ def normalize_date(text):
             + " ".join(say_number(match.group(3))))
 
 
+def normalize_transcript_for_scoring(transcript, category, arm):
+    """Undo ASR numeral formatting only where the prompt declared semantics.
+
+    Whisper commonly writes spoken "one zero five" as 105 and "twenty
+    seventh" as 27th. Letting the generic cardinal-number scorer reinterpret
+    those tokens would systematically favor the raw arm.
+    """
+    if arm != "normalized":
+        return transcript
+    if category == "identifier":
+        from experiments.tts_output_validation import ONES
+        return re.sub(r"\d+", lambda match: " ".join(
+            ONES[int(char)] for char in match.group(0)), transcript)
+    if category == "date":
+        def ordinal(match):
+            day = int(match.group(1))
+            return ORDINALS.get(day, match.group(0))
+        transcript = re.sub(r"\b(\d{1,2})(?:st|nd|rd|th)\b", ordinal,
+                            transcript, flags=re.I)
+        month_pattern = "|".join(list(MONTHS) + list(MONTHS.values()))
+        return re.sub(rf"\b({month_pattern})\s+(\d{{1,2}})\b",
+                      lambda match: f"{match.group(1)} "
+                      f"{ORDINALS.get(int(match.group(2)), match.group(2))}",
+                      transcript, flags=re.I)
+    raise ValueError(f"unsupported normalization category: {category!r}")
+
+
 def load_locked_samples(path=DEFAULT_FIXTURE):
     with open(path, encoding="utf-8") as handle:
         doc = json.load(handle)
@@ -169,7 +196,9 @@ def main():
                                        f"{adapter}__s{seed}__p{index}__{arm}.wav")
                     render(engine, text, "", "X", {"X": entry}, entry, wav)
                     heard = transcribe(wav)
-                    result = validate(text, heard)
+                    scored_heard = normalize_transcript_for_scoring(
+                        heard, sample["category"], arm)
+                    result = validate(text, scored_heard)
                     result.pop("detail", None)
                     result.update({"book": sample["book"],
                                    "category": sample["category"], "arm": arm,
@@ -179,7 +208,8 @@ def main():
                                    "uid": f"{sample['book']}:{sample['category']}:{arm}",
                                    "source_sha256": sample["source_sha256"],
                                    "wav": os.path.relpath(wav, REPO),
-                                   "transcript": heard})
+                                   "transcript": heard,
+                                   "scored_transcript": scored_heard})
                     rows.append(result)
                     completed.add(key)
                     save_checkpoint(checkpoint, fingerprint, rows)

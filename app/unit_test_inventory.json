@@ -322,6 +322,8 @@
     "test_crossbook_normalization.CrossbookNormalizationTests.test_dates_have_explicit_ordinal_and_year",
     "test_crossbook_normalization.CrossbookNormalizationTests.test_identifiers_are_read_digitwise",
     "test_crossbook_normalization.CrossbookNormalizationTests.test_locked_fixture_has_two_categories_across_three_books",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_scoring_restores_declared_date_ordinal_semantics",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_scoring_restores_declared_identifier_digit_semantics",
     "test_crossbook_normalization.CrossbookNormalizationTests.test_summary_keeps_books_categories_and_arms_separate"
   ],
   "test_dedup_benchmark": [

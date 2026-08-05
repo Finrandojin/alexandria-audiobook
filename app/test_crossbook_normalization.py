@@ -5,7 +5,8 @@ import unittest
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from experiments.crossbook_normalization import (
-    load_locked_samples, normalize_date, normalize_identifier, summarize)
+    load_locked_samples, normalize_date, normalize_identifier,
+    normalize_transcript_for_scoring, summarize)
 
 
 class CrossbookNormalizationTests(unittest.TestCase):
@@ -41,6 +42,20 @@ class CrossbookNormalizationTests(unittest.TestCase):
         result = summarize(rows)
         self.assertEqual(12, len(result))
         self.assertTrue(all(row["n"] == 1 for row in result))
+
+    def test_scoring_restores_declared_identifier_digit_semantics(self):
+        self.assertEqual("eBook number one zero five.",
+                         normalize_transcript_for_scoring(
+                             "eBook number 105.", "identifier", "normalized"))
+        self.assertEqual("eBook number 105.", normalize_transcript_for_scoring(
+            "eBook number 105.", "identifier", "raw"))
+
+    def test_scoring_restores_declared_date_ordinal_semantics(self):
+        self.assertEqual("Release date June twenty seventh, 2008.",
+                         normalize_transcript_for_scoring(
+                             "Release date June 27th, 2008.", "date", "normalized"))
+        self.assertEqual("Release date March first, 1997", normalize_transcript_for_scoring(
+            "Release date March 1, 1997", "date", "normalized"))
 
 
 if __name__ == "__main__":
