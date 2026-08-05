@@ -2,7 +2,8 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "exploratory": 102,
-    "provisional": 110
+    "provisional": 110,
+    "supported_structure": 1
   },
   "artifacts": [
     {
@@ -1417,6 +1418,19 @@
       "dirty": false,
       "classification": "provisional",
       "reason": "older metadata contract; semantic/manual review required"
+    },
+    {
+      "artifact": "crossbook_normalization.json",
+      "bytes": 88674,
+      "sha256": "e0b824e697b3cc3ed3c2637f702c0ed6d61ca84eef74337a49bb58731e737170",
+      "seed": null,
+      "status": "complete",
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "67709e57ba333bb6c449cd87a8c808a220880d83",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
     },
     {
       "artifact": "crossover__grimgar03__local.json",

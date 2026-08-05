@@ -318,6 +318,14 @@
     "test_config_regressions.ConfigTests.test_project_config_cache_can_be_invalidated_when_mtime_is_unchanged",
     "test_config_regressions.ConfigTests.test_save_config_persists_normalized_copy_without_mutating_request"
   ],
+  "test_crossbook_normalization": [
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_dates_have_explicit_ordinal_and_year",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_identifiers_are_read_digitwise",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_locked_fixture_has_two_categories_across_three_books",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_scoring_restores_declared_date_ordinal_semantics",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_scoring_restores_declared_identifier_digit_semantics",
+    "test_crossbook_normalization.CrossbookNormalizationTests.test_summary_keeps_books_categories_and_arms_separate"
+  ],
   "test_dedup_benchmark": [
     "test_dedup_benchmark.DedupBenchmarkTests.test_changed_audio_is_rejected_before_dedup_runs",
     "test_dedup_benchmark.DedupBenchmarkTests.test_content_hash_ignores_archive_packaging"
@@ -394,6 +402,7 @@
     "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_check_fails_when_audit_status_changes",
     "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_is_independent_of_local_timezone",
     "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_tts_provenance_rows_are_not_misindexed_as_attribution",
     "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
     "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",
     "test_experiment_infra.ManifestGuardTest.test_arms_contract_mismatch_is_reported",
@@ -589,6 +598,7 @@
     "test_launcher_supervisor.LauncherSupervisorTests.test_traceback_breaks"
   ],
   "test_legacy_attribution_audit": [
+    "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_commit_identity_requires_ancestry_not_unrelated_object_presence",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_gold_rescore_exposes_changed_and_unmapped_rows",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_current_inventory_is_exhaustive_and_semantically_bounded",
     "test_legacy_attribution_audit.LegacyAttributionAuditTests.test_markdown_lists_every_artifact_once"

@@ -1,10 +1,10 @@
 {
   "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
-  "source_structural_sha256": "a8129e5e8278061232851f23580966e81c0849d7949cb9a8cf2af9b840696f2d",
+  "source_structural_sha256": "115e85a319965312b1c5d929bbdd1b08b2744f5154d0a98a5e5861be9221a7a5",
   "summary": {
-    "exploratory": 4,
-    "historical_only": 41,
-    "provisional": 28,
+    "exploratory": 9,
+    "historical_only": 38,
+    "provisional": 26,
     "supported_measurement": 37
   },
   "artifacts": [
@@ -331,9 +331,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "provisional",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable from current history"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
@@ -620,7 +622,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -641,9 +643,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "historical_only",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable from current history"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
@@ -663,9 +667,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "historical_only",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable from current history"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
@@ -927,9 +933,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "historical_only",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable from current history"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
@@ -952,7 +960,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -1962,9 +1970,11 @@
         "oracle",
         "warm"
       ],
-      "classification": "provisional",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable from current history"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,

@@ -1,0 +1,8 @@
+{
+  "selection_rule": "Three independent public-domain books selected before TTS generation; each contributes its exact Project Gutenberg eBook number and release-date metadata.",
+  "sources": [
+    {"book": "alice", "title": "Alice's Adventures in Wonderland", "url": "https://www.gutenberg.org/ebooks/11", "identifier": "eBook-No. 11", "date": "Release Date: Jun 27, 2008"},
+    {"book": "styles", "title": "The Mysterious Affair at Styles", "url": "https://www.gutenberg.org/ebooks/863", "identifier": "eBook-No. 863", "date": "Release Date: Mar 1, 1997"},
+    {"book": "persuasion", "title": "Persuasion", "url": "https://www.gutenberg.org/ebooks/105", "identifier": "eBook-No. 105", "date": "Release Date: Feb 1, 1994"}
+  ]
+}

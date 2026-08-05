@@ -274,6 +274,28 @@ class CollectResultsRobustnessTest(unittest.TestCase):
                                      cwd=tmp, env=env, capture_output=True, text=True)
         self.assertEqual(0, checked.returncode, checked.stderr)
 
+    def test_tts_provenance_rows_are_not_misindexed_as_attribution(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copy2(os.path.join(os.path.dirname(APP), "collect_results.py"),
+                         os.path.join(tmp, "collect_results.py"))
+            experiments = os.path.join(tmp, "ab_test_runtime", "experiments")
+            audit = os.path.join(tmp, "ab_test_runtime", "audit")
+            os.makedirs(experiments)
+            os.makedirs(audit)
+            with open(os.path.join(experiments, "tts.json"), "w", encoding="utf-8") as handle:
+                json.dump({"provenance": {"git": {}},
+                           "rows": [{"arm": "raw", "correct": True}]}, handle)
+            for name in ("artifact_structural_audit.json",
+                         "legacy_attribution_audit.json"):
+                with open(os.path.join(audit, name), "w", encoding="utf-8") as handle:
+                    json.dump({"artifacts": []}, handle)
+            subprocess.run([sys.executable, "collect_results.py"], cwd=tmp,
+                           capture_output=True, check=True)
+            content = open(os.path.join(tmp, "results_index.csv"),
+                           encoding="utf-8").read()
+        self.assertIn("NOT INDEXED: TTS provenance artifact", content)
+        self.assertNotIn(",raw,", content)
+
 
 class AnalysisScriptTest(unittest.TestCase):
     """The offline analyses must at least be importable and syntactically sound.

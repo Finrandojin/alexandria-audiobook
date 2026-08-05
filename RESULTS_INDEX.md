@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-05 03:51 from `ab_test_runtime/experiments/` — 212 artifacts, 471 arms.
+Generated 2026-08-05 04:25 from `ab_test_runtime/experiments/` — 213 artifacts, 471 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -176,9 +176,9 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | closed-6 | 99 | 60.6% | supported_measurement | ok | False | 62.6s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | closed-oracle | 99 | 72.7% | supported_measurement | ok | False | 62.6s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | open | 99 | 66.7% | supported_measurement | ok | False | 62.6s |
-| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 38.8% | provisional | ok | False | 81.9s |
-| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.7% | provisional | ok | False | 81.9s |
-| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | open | 147 | 39.5% | provisional | ok | False | 81.9s |
+| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 38.8% | exploratory | ok | False | 81.9s |
+| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.7% | exploratory | ok | False | 81.9s |
+| mushoku16 | gemma-4-e4b-uncensored-hau | local-lmstudio | lmstudio | 32768 | open | 147 | 39.5% | exploratory | ok | False | 81.9s |
 | mushoku16 | gemma-3-27b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-6 | 139 | 44.6% | historical_only | ok | False | 421.3s |
 | mushoku16 | gemma-3-27b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-oracle | 139 | 59.0% | historical_only | ok | False | 421.3s |
 | mushoku16 | gemma-3-27b | cloud-a6000-lmstudio | lmstudio | 16384 | open | 139 | 55.4% | historical_only | ok | False | 421.3s |
@@ -188,12 +188,12 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | phi-4 | local-lmstudio | lmstudio | 16384 | closed-6 | 147 | 32.7% | exploratory | ok | False | 112.6s |
 | mushoku16 | phi-4 | local-lmstudio | lmstudio | 16384 | closed-oracle | 147 | 59.2% | exploratory | ok | False | 112.6s |
 | mushoku16 | phi-4 | local-lmstudio | lmstudio | 16384 | open | 147 | 45.6% | exploratory | ok | False | 112.6s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-6 | 147 | 41.5% | historical_only | ok | False | 64.0s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-oracle | 147 | 61.2% | historical_only | ok | False | 64.0s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | open | 147 | 47.6% | historical_only | ok | False | 64.0s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-6 | 147 | 40.8% | historical_only | ok | False | 84.9s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-oracle | 147 | 59.2% | historical_only | ok | False | 84.9s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | open | 147 | 46.9% | historical_only | ok | False | 84.9s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-6 | 147 | 41.5% | exploratory | ok | False | 64.0s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-oracle | 147 | 61.2% | exploratory | ok | False | 64.0s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | open | 147 | 47.6% | exploratory | ok | False | 64.0s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-6 | 147 | 40.8% | exploratory | ok | False | 84.9s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | closed-oracle | 147 | 59.2% | exploratory | ok | False | 84.9s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | open | 147 | 46.9% | exploratory | ok | False | 84.9s |
 | mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | closed-6 | 139 | 45.3% | historical_only | ok | False | 100.5s |
 | mushoku16 | magistral-small | cloud-a6000-lmstudio | lmstudio | 16384 | closed-6 | 139 | 45.3% | historical_only | ok | False | 254.3s |
 | mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | closed-oracle | 139 | 57.6% | historical_only | ok | False | 100.5s |
@@ -222,11 +222,11 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | closed-oracle | 139 | 64.0% | historical_only | ok | False | 496.9s |
 | mushoku16 | qwen3-32b | cloud-a6000-lmstudio | lmstudio | 16384 | open | 139 | 52.5% | historical_only | ok | False | 496.9s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-6 | 147 | 34.7% | exploratory | ['no LM Studio load state recorded', 'en | True | 138.3s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 34.7% | historical_only | ok | False | 150.0s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-6 | 147 | 34.7% | exploratory | ok | False | 150.0s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | closed-oracle | 147 | 49.0% | exploratory | ['no LM Studio load state recorded', 'en | True | 138.3s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.0% | historical_only | ok | False | 150.0s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | closed-oracle | 147 | 49.0% | exploratory | ok | False | 150.0s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio |  | open | 147 | 35.4% | exploratory | ['no LM Studio load state recorded', 'en | True | 138.3s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | open | 147 | 35.4% | historical_only | ok | False | 150.0s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | open | 147 | 35.4% | exploratory | ok | False | 150.0s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-6 | 162 | 41.4% | supported_measurement | ok | False | 165.9s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | closed-oracle | 162 | 57.4% | supported_measurement | ok | False | 165.9s |
 | owarimonogatari3 | magistral-small | local-llamacpp-hip | llama.cpp-hip | 16384 | open | 162 | 46.9% | supported_measurement | ok | False | 165.9s |
@@ -496,9 +496,9 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | incremental | 139 | 41.0% | provisional | ok | False | 8408.8s |
 | mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | oracle | 139 | 46.8% | provisional | ok | False | 8408.8s |
 | mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | warm | 139 | 44.6% | provisional | ok | False | 8408.8s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | incremental | 139 | 27.3% | provisional | ok | False | 1039.6s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | oracle | 139 | 35.3% | provisional | ok | False | 1039.6s |
-| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | warm | 139 | 32.4% | provisional | ok | False | 1039.6s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | incremental | 139 | 27.3% | exploratory | ok | False | 1039.6s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | oracle | 139 | 35.3% | exploratory | ok | False | 1039.6s |
+| mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | warm | 139 | 32.4% | exploratory | ok | False | 1039.6s |
 
 ## scene_cast
 
@@ -646,6 +646,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `chinese_attribution_jy_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_wp_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `crossbook_normalization.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fix_verification.json` | SKIPPED: not a result object (list) |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
