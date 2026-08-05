@@ -56,6 +56,11 @@ for path in files:
         rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
                      "note": f"SKIPPED: not a result object ({type(d).__name__})"})
         continue
+    if isinstance(d.get("provenance"), dict) and not isinstance(d.get("meta"), dict):
+        rows.append({"artifact": name, "evidence_status": get_evidence_status(name),
+                     "note": "NOT INDEXED: TTS provenance artifact; read its "
+                             "per-book/category summary directly"})
+        continue
     m, rr = d.get("meta") or {}, d.get("rows") or []
     # Analysis artifacts are plain JSON and may legitimately use "rows" for a
     # count rather than a list of scored lines - segmentation_classifier.json
