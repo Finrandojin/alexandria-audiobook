@@ -334,7 +334,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -622,7 +622,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -646,7 +646,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -670,7 +670,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -936,7 +936,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -960,7 +960,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
@@ -1973,7 +1973,7 @@
       "classification": "exploratory",
       "dirty": false,
       "problems": [
-        "recorded commit is unavailable"
+        "recorded commit is unavailable from current history"
       ],
       "current_gold": {
         "available": true,
