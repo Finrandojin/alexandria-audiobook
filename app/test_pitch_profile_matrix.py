@@ -19,16 +19,36 @@ class PitchProfileMatrixTests(unittest.TestCase):
         self.assertEqual(6, len(passages))
         self.assertEqual(6, len({row["category"] for row in passages}))
         self.assertTrue(rule)
-        self.assertEqual(os.path.join(pitch.REPO, "chunks.json"), chunks)
+        self.assertEqual(os.path.join(
+            pitch.REPO, "app", "experiments", "pitch_profile_source_chunks.json"),
+            chunks)
         for row in passages:
             self.assertEqual(64, len(row["source_sha256"]))
 
-    def test_default_manifest_has_75_complete_adapters(self):
-        manifest = os.path.join(pitch.REPO, "lora_models", "manifest.json")
-        adapters = pitch.load_adapters(manifest)
-        self.assertEqual(75, len(adapters))
-        self.assertEqual(75, len({row["adapter"] for row in adapters}))
-        self.assertTrue(all(row["declared_mean_f0"] > 0 for row in adapters))
+    def test_load_adapters_accepts_complete_manifest_entries(self):
+        with tempfile.TemporaryDirectory() as temp:
+            models = os.path.join(temp, "lora_models")
+            os.makedirs(models)
+            manifest = {}
+            for index, pitch_hz in enumerate((120, 210)):
+                adapter = f"voice-{index}"
+                path = os.path.join(models, adapter)
+                os.makedirs(path)
+                for name in ("adapter_config.json", "adapter_model.safetensors"):
+                    with open(os.path.join(path, name), "wb"):
+                        pass
+                manifest[adapter] = {"id": adapter,
+                                     "voice_features": {"mean_f0": pitch_hz}}
+            manifest_path = os.path.join(models, "manifest.json")
+            with open(manifest_path, "w", encoding="utf-8") as handle:
+                import json
+                json.dump(manifest, handle)
+            with patch.object(pitch, "REPO", temp):
+                adapters = pitch.load_adapters(manifest_path)
+        self.assertEqual(["voice-0", "voice-1"],
+                         [row["adapter"] for row in adapters])
+        self.assertEqual([120.0, 210.0],
+                         [row["declared_mean_f0"] for row in adapters])
 
     def test_measure_pitch_tracks_a_decodable_sine_wave(self):
         with tempfile.TemporaryDirectory() as temp:

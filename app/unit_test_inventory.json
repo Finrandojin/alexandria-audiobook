@@ -392,6 +392,7 @@
     "test_experiment_infra.AnalysisScriptTest.test_offline_analyses_declare_their_caveats",
     "test_experiment_infra.CollectResultsRobustnessTest.test_csv_uses_repository_lf_line_endings",
     "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_check_fails_when_audit_status_changes",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_results_index_is_independent_of_local_timezone",
     "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
     "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
     "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",
@@ -817,7 +818,7 @@
     "test_pass_quality.SegmentQualityTests.test_severe_truncation_fails_recall"
   ],
   "test_pitch_profile_matrix": [
-    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_default_manifest_has_75_complete_adapters",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_load_adapters_accepts_complete_manifest_entries",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_locked_fixture_matches_six_distinct_source_passages",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_surfaces_silence_as_tracker_failure",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_tracks_a_decodable_sine_wave",

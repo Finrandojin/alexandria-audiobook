@@ -144,7 +144,7 @@ for path in files:
             "commit": (git.get("commit") or "")[:8],
             "elapsed_s": m.get("elapsed_s", ""),
             "finished": time.strftime("%m-%d %H:%M",
-                                      time.localtime(m["finished"]))
+                                      time.gmtime(m["finished"]))
                         if m.get("finished") else "",
         })
 
@@ -192,7 +192,7 @@ if os.path.isdir(_reps):
             "validation": "n/a (pipeline output, not an ExperimentRecord)",
             "dirty": "", "commit": "", "elapsed_s": "",
             "finished": time.strftime("%m-%d %H:%M",
-                                      time.localtime(os.path.getmtime(f)))})
+                                      time.gmtime(os.path.getmtime(f)))})
 
 out_csv = os.path.join(REPO, "results_index.csv")
 # `note` is last but it is NOT optional: three code paths write it and it was

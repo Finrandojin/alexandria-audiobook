@@ -2,9 +2,9 @@
   "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
   "source_structural_sha256": "a8129e5e8278061232851f23580966e81c0849d7949cb9a8cf2af9b840696f2d",
   "summary": {
-    "exploratory": 2,
-    "historical_only": 42,
-    "provisional": 29,
+    "exploratory": 4,
+    "historical_only": 41,
+    "provisional": 28,
     "supported_measurement": 37
   },
   "artifacts": [
@@ -617,9 +617,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "provisional",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
@@ -947,9 +949,11 @@
         "closed-oracle",
         "open"
       ],
-      "classification": "historical_only",
+      "classification": "exploratory",
       "dirty": false,
-      "problems": [],
+      "problems": [
+        "recorded commit is unavailable"
+      ],
       "current_gold": {
         "available": true,
         "hash_changed": true,
