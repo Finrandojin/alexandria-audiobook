@@ -818,7 +818,7 @@
     "test_pass_quality.SegmentQualityTests.test_severe_truncation_fails_recall"
   ],
   "test_pitch_profile_matrix": [
-    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_default_manifest_has_75_complete_adapters",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_load_adapters_accepts_complete_manifest_entries",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_locked_fixture_matches_six_distinct_source_passages",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_surfaces_silence_as_tracker_failure",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_tracks_a_decodable_sine_wave",

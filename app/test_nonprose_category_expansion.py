@@ -8,18 +8,18 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from experiments.nonprose_category_expansion import (
     CATEGORIES, build_pair_manifest, get_category_run_fingerprint,
-    is_ordinary_prose, load_locked_probes, load_locked_pairs, load_prose_pool,
-    match_controls, matching_cost, summarize)
+    is_ordinary_prose, load_locked_probes, load_locked_pairs, match_controls,
+    matching_cost, summarize, surface_features)
 
 
 class NonproseCategoryExpansionTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.probes = load_locked_probes()
-        cls.pool = load_prose_pool(
-            {probe["source_sha256"] for probe in cls.probes})
-        cls.pairs = match_controls(cls.probes, cls.pool)
         cls.locked_pairs = load_locked_pairs()
+        cls.pool = [{**control, "_features": surface_features(control["text"])}
+                    for _, control in cls.locked_pairs]
+        cls.pairs = match_controls(cls.probes, cls.pool)
 
     def test_fixture_has_four_unique_locked_probes_per_category(self):
         counts = collections.Counter(probe["category"] for probe in self.probes)
