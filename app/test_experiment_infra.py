@@ -230,10 +230,13 @@ class CollectResultsRobustnessTest(unittest.TestCase):
             artifact = "probe.json"
             with open(os.path.join(experiments, artifact), "w", encoding="utf-8") as handle:
                 json.dump({"status": "complete"}, handle)
-            for name in ("artifact_structural_audit.json", "legacy_attribution_audit.json"):
-                with open(os.path.join(audit, name), "w", encoding="utf-8") as handle:
-                    json.dump({"artifacts": [{"artifact": artifact,
-                                               "classification": "exploratory"}]}, handle)
+            with open(os.path.join(audit, "artifact_structural_audit.json"),
+                      "w", encoding="utf-8") as handle:
+                json.dump({"artifacts": [{"artifact": artifact,
+                                           "classification": "exploratory"}]}, handle)
+            with open(os.path.join(audit, "legacy_attribution_audit.json"),
+                      "w", encoding="utf-8") as handle:
+                json.dump({"artifacts": []}, handle)
             subprocess.run([sys.executable, "collect_results.py"], cwd=tmp,
                            capture_output=True, check=True)
             structural = os.path.join(audit, "artifact_structural_audit.json")
