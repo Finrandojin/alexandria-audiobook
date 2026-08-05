@@ -13,9 +13,11 @@ class LegacyAttributionAuditTests(unittest.TestCase):
     def test_current_inventory_is_exhaustive_and_semantically_bounded(self):
         result = audit.build_audit()
         rows = result["artifacts"]
-        self.assertEqual(112, len(rows))
-        self.assertEqual(112, len({row["artifact"] for row in rows}))
-        self.assertEqual(112, sum(result["summary"].values()))
+        structural = json.loads(Path(audit.STRUCTURAL).read_text(encoding="utf-8"))
+        expected = {row["artifact"] for row in structural["artifacts"]
+                    if row["classification"] == "provisional"}
+        self.assertEqual(expected, {row["artifact"] for row in rows})
+        self.assertEqual(len(expected), sum(result["summary"].values()))
         self.assertTrue(all(row["semantic_limit"] for row in rows))
         self.assertTrue(any(row["classification"] == "historical_only"
                             for row in rows))

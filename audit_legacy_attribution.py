@@ -140,8 +140,8 @@ def build_audit():
     names = [row["artifact"] for row in structural["artifacts"]
              if row["classification"] == "provisional"]
     artifacts = [inspect_artifact(name) for name in sorted(names)]
-    if len(artifacts) != 112 or len({r["artifact"] for r in artifacts}) != 112:
-        raise RuntimeError(f"expected exactly 112 unique legacy artifacts, got {len(artifacts)}")
+    if len(artifacts) != len(names) or len({r["artifact"] for r in artifacts}) != len(names):
+        raise RuntimeError("legacy audit did not cover every provisional structural artifact")
     return {
         "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
         "source_structural_sha256": structural_sha256,
@@ -153,7 +153,7 @@ def build_audit():
 
 def render_markdown(audit):
     lines = ["# Legacy attribution audit — 2026-08-05", "",
-             "All 112 legacy-metadata artifacts are listed exactly once. "
+             f"All {len(audit['artifacts'])} legacy-metadata artifacts are listed exactly once. "
              "Classification describes whether the recorded measurement can be "
              "used with today's fixtures; it does not turn accuracy into a "
              "product or perceptual conclusion.", "",
@@ -193,7 +193,7 @@ def main():
             existing_md = handle.read()
         if existing != audit or existing_md != markdown:
             raise SystemExit("legacy attribution audit is stale")
-        print("legacy attribution audit is current (112 artifacts)")
+        print(f"legacy attribution audit is current ({len(audit['artifacts'])} artifacts)")
         return
     from utils import atomic_json_write
     atomic_json_write(audit, args.json)
