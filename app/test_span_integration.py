@@ -13,10 +13,13 @@ concatenate back to that chunk BYTE FOR BYTE. Failure costs speaker labels,
 never prose.
 """
 
+import atexit
 import io
 import json
 import os
+import shutil
 import sys
+import tempfile
 import types
 import unittest
 from contextlib import redirect_stdout
@@ -29,6 +32,16 @@ for _stream in (sys.stdout, sys.stderr):
         pass
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Redirect generate_script's raw-response log to a tempdir for the whole
+# process. Done at IMPORT time, not in setUpModule, so it also covers
+# test_api.py's Section 15, which imports FakeClient/labels_for from here and
+# drives process_chunk itself. Without this the suite appends fixture responses
+# to the production logs/llm_responses.log -- 1200+ records of noise in the file
+# used for live forensics.
+_LOG_TMPDIR = tempfile.mkdtemp(prefix="alexandria_test_llm_log_")
+os.environ["ALEXANDRIA_LLM_LOG_DIR"] = _LOG_TMPDIR
+atexit.register(shutil.rmtree, _LOG_TMPDIR, True)
 
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT  # noqa: E402
 from span_tokenizer import tokenize  # noqa: E402
@@ -44,6 +57,8 @@ from generate_script import (  # noqa: E402
     build_entries,
     build_span_payload,
     extract_labels,
+    is_whitespace_span,
+    llm_log_dir,
     labels_from_id_keyed_object,
     parse_label_response,
     process_chunk,
@@ -192,10 +207,12 @@ class _FakeCompletions:
         self.responses = list(responses)
         self.calls = 0
         self.last_kwargs = None
+        self.prompts = []          # user prompt of every call, in order
 
     def create(self, **kwargs):
         self.calls += 1
         self.last_kwargs = kwargs
+        self.prompts.append(kwargs["messages"][1]["content"])
         index = min(self.calls - 1, len(self.responses) - 1)
         item = self.responses[index]
         if isinstance(item, Exception):
@@ -217,6 +234,10 @@ class FakeClient:
     @property
     def last_user_prompt(self):
         return self.completions.last_kwargs["messages"][1]["content"]
+
+    @property
+    def user_prompts(self):
+        return self.completions.prompts
 
 
 # --------------------------------------------------------------------------
@@ -405,8 +426,9 @@ class TestTotalFailure(unittest.TestCase):
         self.assertEqual(entries[0]["speaker"], NARRATOR)
         self.assertEqual(entries[0]["instruct"], DEFAULT_NARRATOR_INSTRUCT)
         self.assertTrue(stats["degraded"])
-        self.assertEqual(stats["labelled"], 0)
-        self.assertEqual(stats["fallback"], stats["spans"])
+        self.assertEqual(stats["labelled"] - stats["whitespace"], 0,
+                         "the model labelled nothing (whitespace spans auto-resolve)")
+        self.assertEqual(stats["fallback"], stats["spans"] - stats["whitespace"])
         self.assertIn("DEGRADED", output)
         self.assertEqual(client.calls, 3, "should exhaust max_retries + 1 attempts")
 
@@ -433,7 +455,8 @@ class TestMalformedJson(unittest.TestCase):
 
         self.assertEqual(joined(entries), chunk)
         self.assertTrue(stats["degraded"])
-        self.assertEqual(stats["fallback"], stats["spans"])
+        self.assertEqual(stats["fallback"], stats["spans"] - stats["whitespace"],
+                         "every VISIBLE span fell back; whitespace auto-resolved")
         self.assertIn("DEGRADED", output)
 
     def test_salvageable_broken_json(self):
@@ -578,6 +601,8 @@ class TestRoleMissingDegrades(unittest.TestCase):
         self.assertTrue(stats["degraded"], "role-less labels must not exit 0 silently")
         self.assertIn("role=dialogue", stats["reason"])
         self.assertIn("DEGRADED", output)
+        self.assertEqual(client.calls, 3,
+                         "role-less labels now trigger retries; the fake repeats them, so all 3 burn")
 
         # The book is fully narrated: that is the damage being surfaced.
         self.assertEqual({entry["speaker"] for entry in entries}, {NARRATOR})
@@ -773,8 +798,8 @@ class TestRealResponseShapes(unittest.TestCase):
 
     def test_markdown_recovery_is_degraded_but_labels_apply(self):
         chunk = self.SIX_SPAN_CHUNK
-        entries, stats, output = run_chunk(
-            FakeClient(FakeResponse(REAL_MARKDOWN_SPAN)), chunk)
+        client = FakeClient(FakeResponse(REAL_MARKDOWN_SPAN))
+        entries, stats, output = run_chunk(client, chunk)
 
         self.assertEqual(joined(entries), chunk, "prose byte-identical either way")
         self.assertEqual(stats["recovery"], LABEL_MODE_MARKDOWN)
@@ -784,6 +809,8 @@ class TestRealResponseShapes(unittest.TestCase):
         self.assertIn("markdown", stats["reason"].lower())
         self.assertIn("markdown blocks", output)
         self.assertIn("BILL", {entry["speaker"] for entry in entries})
+        self.assertEqual(client.calls, 3,
+                         "3 of 6 spans unlabelled -> the retry budget is spent trying to fill them")
 
     def test_markdown_is_last_resort_only(self):
         # A well-formed array that also happens to mention "Span 1" in prose
@@ -843,6 +870,320 @@ class TestRealResponseShapes(unittest.TestCase):
                 self.assertEqual(extract_labels(text)[1], expected)
 
 
+class TestRetryOnIncompleteLabels(unittest.TestCase):
+    """Live evidence: the model closes the array early, dropping a contiguous
+    SUFFIX of span ids at finish_reason=stop (logged: missing [28] of 28, and
+    [27, 28] of 28), and separately invents role values ("thought" on a real
+    spoken line). Both are recoverable by re-asking for the named gaps."""
+
+    CHUNK = '"One." said A. "Two." said B. "Three." he added.'   # 6 spans
+
+    def setUp(self):
+        self.spans = tokenize(self.CHUNK)
+        self.assertEqual(len(self.spans), 6)
+
+    def _labels(self, ids, speaker="ELENA", role=None, instruct="Firm."):
+        out = []
+        for span in self.spans:
+            if span.id not in ids:
+                continue
+            label = {"id": span.id}
+            is_quoted = span.kind == "quoted"
+            label["speaker"] = speaker if is_quoted else "NARRATOR"
+            resolved_role = role if role is not None else ("dialogue" if is_quoted else "narration")
+            if resolved_role:
+                label["role"] = resolved_role
+            label["instruct"] = instruct
+            out.append(label)
+        return out
+
+    def _json(self, ids, **kw):
+        return json.dumps(self._labels(ids, **kw))
+
+    # --- the headline case ------------------------------------------------
+
+    def test_missing_suffix_is_recovered_on_retry(self):
+        client = FakeClient(
+            FakeResponse(self._json([1, 2, 3, 4, 5])),   # id 6 dropped, like the log
+            FakeResponse(self._json([6])),               # retry supplies the gap
+        )
+        entries, stats, output = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 2, "one retry, no more")
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertEqual(stats["labelled"], 6)
+        self.assertEqual(stats["fallback"], 0)
+        self.assertFalse(stats["degraded"], "a chunk fully labelled on retry is NOT degraded")
+        self.assertIn("retrying", output.lower())
+        self.assertIn("Retry recovered 1 new label(s)", output)
+
+    def test_retry_prompt_names_the_missing_ids(self):
+        client = FakeClient(
+            FakeResponse(self._json([1, 2, 3, 4, 5])),
+            FakeResponse(self._json([6])),
+        )
+        run_chunk(client, self.CHUNK)
+
+        first, second = client.user_prompts[0], client.user_prompts[1]
+        self.assertNotIn("CORRECTION", first, "attempt 1 must be the plain prompt")
+        self.assertTrue(second.startswith(first),
+                        "the nudge is appended, so the cached prefix is preserved")
+        self.assertIn("CORRECTION", second)
+        self.assertIn("still missing a label: 6", second)
+
+    def test_role_missing_is_fixed_on_retry(self):
+        # Logged live: {"id": 15, "speaker": "BILL", "role": "thought", ...}
+        # on a genuinely spoken quoted span.
+        bad = self._labels([1, 2, 3, 4, 5, 6])
+        bad[0]["role"] = "thought"
+        client = FakeClient(
+            FakeResponse(json.dumps(bad)),
+            FakeResponse(self._json([1])),
+        )
+        entries, stats, output = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 2)
+        self.assertEqual(stats["role_missing"], 0, "the invalid role was filled in")
+        self.assertFalse(stats["degraded"])
+        self.assertEqual(entries[0]["speaker"], "ELENA")
+        self.assertIn("unusable role", output)
+        self.assertIn("neither \"dialogue\" nor \"narration\": 1", client.user_prompts[1])
+
+    # --- monotonicity: a retry can never make things worse ----------------
+
+    def test_worse_retry_cannot_overwrite_good_labels(self):
+        good = self._labels([1, 2, 3, 4, 5], speaker="ELENA", instruct="Firm.")
+        worse = [{"id": 1, "speaker": "WRONG", "instruct": "Sloppy."}]  # no role
+        client = FakeClient(FakeResponse(json.dumps(good)), FakeResponse(json.dumps(worse)))
+        entries, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertEqual(entries[0]["speaker"], "ELENA", "attempt 1's label must survive")
+        self.assertEqual(entries[0]["instruct"], "Firm.")
+        self.assertEqual(stats["fallback"], 1, "only span 6 was never labelled")
+        self.assertTrue(stats["degraded"])
+        self.assertEqual(client.calls, 3, "budget exhausted trying to fill span 6")
+
+    def test_equal_field_from_a_later_attempt_does_not_replace_it(self):
+        first = [{"id": 1, "speaker": "ELENA", "role": "dialogue", "instruct": "Firm."}]
+        second = [{"id": 1, "speaker": "BETA", "role": "dialogue", "instruct": "Soft."}]
+        client = FakeClient(FakeResponse(json.dumps(first)), FakeResponse(json.dumps(second)))
+        entries, _, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(entries[0]["speaker"], "ELENA")
+        self.assertEqual(entries[0]["instruct"], "Firm.")
+
+    def test_blank_fields_are_filled_but_present_ones_are_not(self):
+        first = [{"id": 1, "speaker": "", "role": "dialogue", "instruct": "Firm."}]
+        second = [{"id": 1, "speaker": "BETA", "role": "narration", "instruct": "Soft."}]
+        client = FakeClient(FakeResponse(json.dumps(first)), FakeResponse(json.dumps(second)))
+        entries, _, _ = run_chunk(client, self.CHUNK)
+
+        # speaker was blank -> filled from attempt 2; role/instruct were present -> kept.
+        self.assertEqual(entries[0]["speaker"], "BETA")
+        self.assertEqual(entries[0]["instruct"], "Firm.")
+
+    def test_good_first_attempt_survives_a_garbage_retry(self):
+        client = FakeClient(
+            FakeResponse(self._json([1, 2, 3, 4, 5])),
+            FakeResponse("I'm sorry, I cannot help with that."),
+        )
+        entries, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertEqual(stats["labelled"], 5, "attempt 1's labels must not be dropped")
+        self.assertEqual(stats["fallback"], 1)
+
+    # --- completeness is membership, not a count --------------------------
+
+    def test_hallucinated_ids_do_not_fake_completeness(self):
+        # Logged live: 30 labels for 28 spans, and 137 labels for 41 spans.
+        labels = self._labels([1, 2, 3, 4, 5]) + [
+            {"id": 90, "speaker": "GHOST", "role": "dialogue", "instruct": "x"},
+            {"id": 91, "speaker": "GHOST", "role": "dialogue", "instruct": "x"},
+            {"id": 92, "speaker": "GHOST", "role": "dialogue", "instruct": "x"},
+        ]
+        client = FakeClient(FakeResponse(json.dumps(labels)))
+        entries, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertEqual(client.calls, 3, "8 labels for 6 spans must not count as complete")
+        self.assertEqual(stats["labelled"], 5)
+        self.assertEqual(stats["fallback"], 1)
+        self.assertEqual(stats["discarded"], 3, "distinct phantom ids, counted once each")
+
+    # --- the truncation gate ----------------------------------------------
+
+    def test_truncated_partial_is_accepted_without_retry(self):
+        client = FakeClient(
+            FakeResponse(self._json([1, 2, 3]), finish_reason="length"))
+        entries, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 1, "re-rolling at the same max_tokens is pointless")
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertEqual(stats["fallback"], 3)
+        self.assertTrue(stats["degraded"])
+
+    def test_truncated_with_nothing_usable_still_retries(self):
+        # A truncated response we could not parse at all is a different failure
+        # from a truncated response that gave us partial labels.
+        client = FakeClient(FakeResponse("blah blah", finish_reason="length"))
+        _, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 3)
+        self.assertTrue(stats["degraded"])
+
+    # --- budget --------------------------------------------------------------
+
+    def test_never_exceeds_the_existing_budget(self):
+        client = FakeClient(FakeResponse(self._json([1])))
+        run_chunk(client, self.CHUNK, max_retries=2)
+        self.assertEqual(client.calls, 3)
+
+        client = FakeClient(FakeResponse(self._json([1])))
+        run_chunk(client, self.CHUNK, max_retries=0)
+        self.assertEqual(client.calls, 1, "max_retries=0 means exactly one attempt")
+
+    def test_worst_recovery_mode_is_reported_across_attempts(self):
+        # attempt 1 array (partial) + attempt 2 markdown -> markdown must win,
+        # so the contract violation is not hidden behind the array.
+        client = FakeClient(
+            FakeResponse(self._json([1, 2, 3, 4, 5])),
+            FakeResponse(REAL_MARKDOWN_SPAN),
+        )
+        _, stats, _ = run_chunk(client, self.CHUNK)
+        self.assertEqual(stats["recovery"], LABEL_MODE_MARKDOWN)
+        self.assertTrue(stats["degraded"])
+
+
+class TestWhitespaceSpansOutOfTheLoop(unittest.TestCase):
+    """A "\\n\\n" between two quoted paragraphs has no audible content and its
+    label is discarded by _absorb_whitespace_groups regardless. It must never
+    reach the model, never cost a retry, and never degrade a chunk."""
+
+    CHUNK = TWO_DIALOGUE_PARAGRAPHS          # '"Hi."\n\n"Bye."'
+
+    def setUp(self):
+        self.spans = tokenize(self.CHUNK)
+        self.assertEqual(len(self.spans), 3)
+        self.assertEqual([s.id for s in self.spans], [1, 2, 3])
+        self.assertTrue(is_whitespace_span(self.spans[1], self.CHUNK),
+                        "span 2 is the paragraph break")
+
+    def _visible_labels(self):
+        return [
+            {"id": 1, "speaker": "ALPHA", "role": "dialogue", "instruct": "Bright."},
+            {"id": 3, "speaker": "BETA", "role": "dialogue", "instruct": "Flat."},
+        ]
+
+    # --- the payload -------------------------------------------------------
+
+    def test_payload_omits_the_whitespace_span(self):
+        payload = build_span_payload(self.spans, self.CHUNK)
+        lines = payload.split("\n")
+
+        self.assertEqual(len(lines), 2, "3 spans, 1 of them whitespace -> 2 payload lines")
+        ids = [json.loads(line)["id"] for line in lines]
+        self.assertEqual(ids, [1, 3], "ids stay the tokenizer's; the gap is the omission")
+        self.assertNotIn('"id": 2', payload)
+
+    def test_payload_ids_are_stable_not_renumbered(self):
+        # The reassembly contract keys on tokenizer ids; renumbering would
+        # silently misalign every label after a whitespace span.
+        payload = build_span_payload(tokenize(STRAIGHT_QUOTES), STRAIGHT_QUOTES)
+        ids = [json.loads(line)["id"] for line in payload.split("\n")]
+        self.assertEqual(ids, sorted(ids))
+
+    # --- resolution and degradation ---------------------------------------
+
+    def test_labelling_only_visible_spans_is_not_degraded(self):
+        client = FakeClient(FakeResponse(json.dumps(self._visible_labels())))
+        entries, stats, output = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 1, "no retry for the unlabelled whitespace span")
+        self.assertEqual(joined(entries), self.CHUNK, "byte-identity unaffected")
+        self.assertFalse(stats["degraded"])
+        self.assertEqual(stats["fallback"], 0, "whitespace is not a fallback")
+        self.assertEqual(stats["whitespace"], 1)
+        self.assertEqual(stats["labelled"] + stats["fallback"], stats["spans"],
+                         "the accounting invariant test_api.py relies on")
+        self.assertNotIn("DEGRADED", output)
+
+    def test_whitespace_is_still_absorbed_into_the_preceding_entry(self):
+        client = FakeClient(FakeResponse(json.dumps(self._visible_labels())))
+        entries, _, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual([e["speaker"] for e in entries], ["ALPHA", "BETA"])
+        self.assertEqual(entries[0]["text"], '"Hi."\n\n')
+        self.assertEqual(entries[1]["text"], '"Bye."')
+        for entry in entries:
+            self.assertTrue(entry["text"].strip())
+
+    def test_a_real_missing_span_still_degrades(self):
+        # Guard against over-suppression: omitting id 3 must still be caught.
+        client = FakeClient(FakeResponse(json.dumps(self._visible_labels()[:1])))
+        _, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 3, "a genuinely missing visible span is retried")
+        self.assertEqual(stats["fallback"], 1)
+        self.assertTrue(stats["degraded"])
+
+    def test_phantom_label_for_a_whitespace_id_is_ignored(self):
+        labels = self._visible_labels() + [
+            {"id": 2, "speaker": "GHOST", "role": "dialogue", "instruct": "x"}]
+        client = FakeClient(FakeResponse(json.dumps(labels)))
+        entries, stats, _ = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertNotIn("GHOST", {e["speaker"] for e in entries})
+        self.assertFalse(stats["degraded"])
+
+    def test_all_whitespace_chunk_skips_the_llm_entirely(self):
+        client = FakeClient(FakeResponse("[]"))
+        entries, stats, _ = run_chunk(client, "\n\n")
+
+        self.assertEqual(client.calls, 0, "nothing audible to classify")
+        self.assertEqual(joined(entries), "\n\n")
+        self.assertFalse(stats["degraded"])
+        self.assertEqual(stats["whitespace"], stats["spans"])
+
+    def test_resolve_span_labels_without_source_is_unchanged(self):
+        # Back-compat: direct callers that pass no source get the old behavior.
+        resolved, stats = resolve_span_labels(self.spans, self._visible_labels())
+        self.assertEqual(stats["whitespace"], 0)
+        self.assertEqual(stats["fallback"], 1, "span 2 counts as fallback without source")
+
+
+class TestLogIsolation(unittest.TestCase):
+    """The suite must not append to the production forensic log."""
+
+    def test_log_dir_honours_the_env_override(self):
+        self.assertEqual(llm_log_dir(), os.environ["ALEXANDRIA_LLM_LOG_DIR"])
+        self.assertEqual(llm_log_dir(), _LOG_TMPDIR)
+
+    def test_process_chunk_writes_to_the_override_dir_only(self):
+        production_log = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), "..", "logs", "llm_responses.log")
+        before = os.path.getsize(production_log) if os.path.exists(production_log) else None
+
+        run_chunk(FakeClient(FakeResponse("[]")), '"Hi." he said.')
+
+        override_log = os.path.join(_LOG_TMPDIR, "llm_responses.log")
+        self.assertTrue(os.path.exists(override_log), "log must land in the override dir")
+        self.assertIn("CHUNK", io.open(override_log, encoding="utf-8").read())
+
+        after = os.path.getsize(production_log) if os.path.exists(production_log) else None
+        self.assertEqual(before, after, "production log must not grow during tests")
+
+    def test_default_is_unchanged_without_the_env_var(self):
+        saved = os.environ.pop("ALEXANDRIA_LLM_LOG_DIR")
+        try:
+            self.assertEqual(llm_log_dir(), generate_script.LLM_LOG_DIR)
+            self.assertTrue(llm_log_dir().replace("\\", "/").endswith("/logs"))
+        finally:
+            os.environ["ALEXANDRIA_LLM_LOG_DIR"] = saved
+
+
 class TestSalvageAndPayload(unittest.TestCase):
     def test_salvage_label_entries_is_field_order_agnostic(self):
         text = '[{"role": "dialogue", "instruct": "Calm.", "speaker": "MARCUS", "id": 4}]'
@@ -859,12 +1200,17 @@ class TestSalvageAndPayload(unittest.TestCase):
         self.assertEqual(len(parse_label_response(text)), 1)
 
     def test_span_payload_never_contains_offsets_and_is_one_line_per_span(self):
-        payload = build_span_payload(tokenize(STRAIGHT_QUOTES), STRAIGHT_QUOTES)
+        spans = tokenize(STRAIGHT_QUOTES)
+        visible = [s for s in spans if not is_whitespace_span(s, STRAIGHT_QUOTES)]
+        self.assertLess(len(visible), len(spans), "fixture should have a whitespace span")
+
+        payload = build_span_payload(spans, STRAIGHT_QUOTES)
         lines = payload.split("\n")
-        self.assertEqual(len(lines), len(tokenize(STRAIGHT_QUOTES)))
+        self.assertEqual(len(lines), len(visible), "one line per VISIBLE span")
         for line in lines:
             record = json.loads(line)
             self.assertEqual(set(record.keys()), {"id", "kind", "text"})
+            self.assertTrue(record["text"].strip(), "whitespace spans are never shown")
 
     def test_old_salvage_export_still_present_for_review_script(self):
         # review_script.py imports these three by name.
@@ -960,7 +1306,8 @@ class TestPromptSchemaGuard(unittest.TestCase):
         entries, stats, _ = run_chunk(client, chunk)
 
         self.assertEqual(joined(entries), chunk)
-        self.assertEqual(stats["labelled"], 0)
+        self.assertEqual(stats["labelled"] - stats["whitespace"], 0,
+                         "old-schema output carries no ids, so nothing is labelled")
         self.assertTrue(stats["degraded"])
 
 

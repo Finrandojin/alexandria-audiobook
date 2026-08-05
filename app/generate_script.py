@@ -51,6 +51,18 @@ PROMPT_SCHEMA_MARKER = "span-labels-v1"
 # input, not output -- a snippet is enough and keeps the prompt cheap.
 CONTEXT_SNIPPET_CHARS = 120
 
+# Where raw LLM responses are logged. Production default; the test suite points
+# ALEXANDRIA_LLM_LOG_DIR at a tempdir so fixture responses never pollute the
+# real forensic log (it had accumulated 1200+ test records).
+LLM_LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "logs")
+LLM_LOG_DIR_ENV = "ALEXANDRIA_LLM_LOG_DIR"
+
+
+def llm_log_dir():
+    """Directory for llm_responses.log. Read per call so an override set after
+    import (e.g. by a test harness) still takes effect."""
+    return os.environ.get(LLM_LOG_DIR_ENV) or LLM_LOG_DIR
+
 def strip_thinking_tags(text):
     """Remove reasoning-model thinking blocks from a raw response.
 
@@ -539,11 +551,32 @@ def select_prompt(custom_prompt, default_prompt, config_key):
     return default_prompt
 
 
+def is_whitespace_span(span, source):
+    """True for a span with no audible content (e.g. the "\\n\\n" between two
+    quoted paragraphs).
+
+    Such spans are excluded from the LLM loop entirely: the model never sees
+    them, is never asked to label them, is never retried for skipping them, and
+    they never degrade a chunk. Their label would be thrown away regardless --
+    _absorb_whitespace_groups folds a whitespace-only group's TEXT into a
+    neighbour and drops its speaker/instruct. They stay in the span list, so
+    byte-identity and whitespace absorption are unaffected.
+    """
+    return not span.text(source).strip()
+
+
+def visible_spans(spans, source):
+    """The spans worth asking the LLM about."""
+    return [span for span in spans if not is_whitespace_span(span, source)]
+
+
 def build_span_payload(spans, source):
     """Render spans as the numbered listing the classifier receives.
 
     One JSON object per line: {"id", "kind", "text"}. The LLM sees the text so
-    it can classify it; it is instructed never to send text back.
+    it can classify it; it is instructed never to send text back. Whitespace-only
+    spans are omitted -- they cost tokens and invite phantom skips, and their
+    ids stay the tokenizer's, so the visible ids simply have gaps.
     """
     return "\n".join(
         json.dumps(
@@ -551,7 +584,126 @@ def build_span_payload(spans, source):
             ensure_ascii=False,
         )
         for span in spans
+        if not is_whitespace_span(span, source)
     )
+
+
+# Recovery modes ranked by fidelity, worst-last. When labels for one chunk are
+# merged across attempts, the WORST contributing mode is reported, so an
+# attempt-1 array followed by an attempt-2 markdown salvage still surfaces the
+# markdown contract violation instead of hiding it behind the array.
+_MODE_FIDELITY = {
+    "array": 0,
+    "id-keyed object": 1,
+    "regex salvage": 2,
+    "markdown salvage": 3,
+}
+
+
+def _worst_mode(current, new):
+    """Return the lower-fidelity of two recovery modes."""
+    if new is None:
+        return current
+    if current is None:
+        return new
+    return new if _MODE_FIDELITY.get(new, 0) > _MODE_FIDELITY.get(current, 0) else current
+
+
+def _usable_field(name, value):
+    """True when a label field carries information we can actually act on.
+
+    ``role`` is special: only the two contract values mean anything, so an
+    invented value ("thought" was observed live on a genuinely spoken line)
+    counts as absent and is therefore fillable by a retry.
+    """
+    if not isinstance(value, str) or not value.strip():
+        return False
+    if name == "role":
+        return value.strip().lower() in ("dialogue", "narration")
+    return True
+
+
+def _merge_label(old, new):
+    """Fill blank fields from ``new``; never overwrite information already held.
+
+    This is the cross-attempt merge, and it is deliberately NOT
+    _label_completeness (which ranks whole labels and would let a retry replace
+    a correct label with a differently-shaped one). Filling blanks makes
+    "a retry can never make things worse" a structural property: a later
+    attempt can only add ids, or fill fields that were missing, empty or --
+    for role -- outside the contract.
+    """
+    if old is None:
+        return dict(new)
+    merged = dict(old)
+    for field in ("speaker", "role", "instruct"):
+        if not _usable_field(field, merged.get(field)) and _usable_field(field, new.get(field)):
+            merged[field] = new[field]
+    return merged
+
+
+def _incomplete_span_ids(spans, merged, source=None):
+    """Return ``(missing_ids, bad_role_ids)`` -- what a retry should ask for.
+
+    Membership, never a count: live responses hallucinate ids past N (137
+    labels for 41 spans in one logged response), so ``len(merged) >= len(spans)``
+    would fake completeness. ``bad_role_ids`` mirrors resolve_span_labels'
+    role_missing condition exactly, so the retry predicate and the degradation
+    reason can never disagree.
+
+    When ``source`` is given, whitespace-only spans are skipped: the model was
+    never shown them, so it cannot be "missing" one.
+    """
+    if source is not None:
+        spans = visible_spans(spans, source)
+
+    missing = [span.id for span in spans if span.id not in merged]
+    bad_role = []
+    for span in spans:
+        label = merged.get(span.id)
+        if label is None or _usable_field("role", label.get("role")):
+            continue
+        raw_speaker = label.get("speaker")
+        canonical = canonicalize(raw_speaker) if isinstance(raw_speaker, str) else ""
+        if canonical and canonical != NARRATOR:
+            bad_role.append(span.id)
+    return missing, bad_role
+
+
+# Cap the id list in a nudge so a wholly-unlabelled chunk cannot balloon the prompt.
+_NUDGE_ID_CAP = 50
+
+
+def _format_id_list(ids):
+    if len(ids) <= _NUDGE_ID_CAP:
+        return ", ".join(str(i) for i in ids)
+    head = ", ".join(str(i) for i in ids[:_NUDGE_ID_CAP])
+    return f"{head} (and {len(ids) - _NUDGE_ID_CAP} more)"
+
+
+def _retry_nudge(missing_ids, bad_role_ids):
+    """Correction text appended to the retry prompt.
+
+    Appended AFTER .format(), so it cannot interact with the {context}/{chunk}
+    placeholders or the doubled braces in the template, and nothing is stored
+    in config.json -- select_prompt / PROMPT_SCHEMA_MARKER are untouched, and a
+    marker-bearing custom prompt keeps working.
+
+    Naming the ids matters: logged misses are a contiguous SUFFIX of the id
+    sequence (the model closes the array early, well under max_tokens), so a
+    blind re-roll re-rolls the same "I am finished" judgement. Naming the gap
+    corrects it instead.
+    """
+    parts = ["\n\nCORRECTION: your previous reply did not label every span."]
+    if missing_ids:
+        parts.append("These span ids are still missing a label: "
+                     f"{_format_id_list(missing_ids)}.")
+    if bad_role_ids:
+        parts.append('These span ids had a "role" that was neither "dialogue" nor '
+                     f'"narration": {_format_id_list(bad_role_ids)}.')
+    parts.append("Return the JSON array again. It MUST contain one object for every id "
+                 'listed above, and every "role" must be exactly "dialogue" or "narration".')
+    return " ".join(parts)
 
 
 def _label_completeness(label):
@@ -571,13 +723,19 @@ def _label_completeness(label):
     return score
 
 
-def resolve_span_labels(spans, labels):
+def resolve_span_labels(spans, labels, source=None):
     """Resolve each span to (span, speaker, instruct) using the LLM's labels.
 
     A span is NARRATOR unless a label exists for its id AND that label says
     role == "dialogue" AND its speaker canonicalizes to a non-empty name.
     Labels for ids that do not exist are discarded. Returns
     (resolved, stats_dict).
+
+    When ``source`` is given, whitespace-only spans are auto-resolved to
+    NARRATOR with no instruct and counted in ``whitespace`` rather than
+    ``fallback``: the model was never shown them, so a missing label is not a
+    failure. ``labelled`` stays inclusive of them so callers may continue to
+    rely on ``labelled + fallback == spans``.
     """
     valid_ids = {span.id for span in spans}
     by_id = {}
@@ -599,8 +757,17 @@ def resolve_span_labels(spans, labels):
     resolved = []
     labelled = 0
     role_missing = 0
+    whitespace = 0
 
     for span in spans:
+        if source is not None and is_whitespace_span(span, source):
+            # Never shown to the model; its label would be discarded by
+            # _absorb_whitespace_groups anyway. Any label sent for this id is
+            # ignored here, exactly as a phantom label would be.
+            resolved.append((span, NARRATOR, None))
+            whitespace += 1
+            continue
+
         label = by_id.get(span.id)
         speaker = NARRATOR
         instruct = None
@@ -628,8 +795,11 @@ def resolve_span_labels(spans, labels):
         resolved.append((span, speaker, instruct))
 
     return resolved, {
-        "labelled": labelled,
-        "fallback": len(spans) - labelled,
+        # Inclusive of auto-resolved whitespace spans, so callers keep the
+        # `labelled + fallback == spans` accounting invariant.
+        "labelled": labelled + whitespace,
+        "fallback": len(spans) - labelled - whitespace,
+        "whitespace": whitespace,
         "discarded": discarded,
         "role_missing": role_missing,
     }
@@ -828,17 +998,33 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     validate_spans(spans, chunk)
 
     if not spans:
-        return [], {"spans": 0, "labelled": 0, "fallback": 0, "discarded": 0,
-                    "role_missing": 0, "degraded": False, "reason": None,
-                    "recovery": None}
+        return [], {"spans": 0, "labelled": 0, "fallback": 0, "whitespace": 0,
+                    "discarded": 0, "role_missing": 0, "degraded": False,
+                    "reason": None, "recovery": None}
+
+    if not visible_spans(spans, chunk):
+        # Nothing audible to classify (a chunk of pure whitespace). Resolve
+        # locally rather than spending an LLM call on an empty span listing.
+        resolved, stats = resolve_span_labels(spans, None, source=chunk)
+        entries = build_entries(resolved, chunk)
+        _assert_chunk_verbatim(entries, chunk, chunk_num)
+        stats.update({"spans": len(spans), "degraded": False,
+                      "reason": None, "recovery": None})
+        return entries, stats
 
     context = build_context(chunk_num, total_chunks, previous_entries)
-    user_prompt = usr_template.format(context=context, chunk=build_span_payload(spans, chunk))
+    base_prompt = usr_template.format(context=context, chunk=build_span_payload(spans, chunk))
 
-    labels = None
+    # Labels accumulate ACROSS attempts, filling blanks only (see _merge_label),
+    # so a retry can only ever improve the result. Live runs showed the model
+    # closing the array early -- dropping a contiguous SUFFIX of ids with
+    # finish_reason=stop, nowhere near max_tokens -- and separately inventing
+    # role values ("thought"). Both are recoverable by re-asking for the gap.
+    merged_labels = {}
     recovery = None
     truncated = False
     reason = None
+    retry_nudge = ""
 
     for attempt in range(max_retries + 1):
         try:
@@ -846,7 +1032,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 model=model_name,
                 messages=[
                     {"role": "system", "content": sys_prompt},
-                    {"role": "user", "content": user_prompt}
+                    {"role": "user", "content": base_prompt + retry_nudge}
                 ],
                 temperature=temperature,
                 top_p=top_p,
@@ -867,7 +1053,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             usage = getattr(response, 'usage', None)
 
             # Log raw response for debugging
-            log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
+            log_dir = llm_log_dir()
             os.makedirs(log_dir, exist_ok=True)
             log_path = os.path.join(log_dir, "llm_responses.log")
             with open(log_path, "a", encoding="utf-8") as lf:
@@ -897,32 +1083,65 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             break
 
         # Recover labels from whatever shape the model actually produced.
-        labels, recovery = extract_labels(text)
+        labels, mode = extract_labels(text)
 
         if labels:
-            if attempt > 0:
-                print(f"  Succeeded on retry {attempt + 1}")
-            if recovery == LABEL_MODE_OBJECT:
+            recovery = _worst_mode(recovery, mode)
+            if mode == LABEL_MODE_OBJECT:
                 print(f"  Note: model returned an id-keyed JSON object instead of an array; "
                       f"recovered all {len(labels)} label(s) from it")
-            elif recovery == LABEL_MODE_SALVAGE:
+            elif mode == LABEL_MODE_SALVAGE:
                 print(f"  Regex-salvaged {len(labels)} label(s) from a malformed/truncated response")
-            elif recovery == LABEL_MODE_MARKDOWN:
+            elif mode == LABEL_MODE_MARKDOWN:
                 print(f"  Recovered {len(labels)} label(s) from markdown blocks "
                       "(model ignored the JSON output contract)")
+
+            before = len(merged_labels)
+            for label in labels:
+                label_id = _label_id(label)
+                if label_id is not None:
+                    merged_labels[label_id] = _merge_label(merged_labels.get(label_id), label)
+            if attempt > 0:
+                print(f"  Retry recovered {len(merged_labels) - before} new label(s)")
+        else:
+            print(f"Warning: Could not recover labels from chunk {chunk_num} response (attempt {attempt + 1})")
+            print(f"Response preview: {text[:300]}...")
+            if attempt < max_retries:
+                print("Retrying...")
+                continue
+            if not merged_labels:
+                reason = "no usable labels recovered from LLM response"
+            break  # keep whatever earlier attempts recovered
+
+        missing_ids, bad_role_ids = _incomplete_span_ids(spans, merged_labels, source=chunk)
+
+        if not missing_ids and not bad_role_ids:
+            if attempt > 0:
+                print(f"  Succeeded on retry {attempt + 1} -- all {len(spans)} spans labelled")
             break
 
-        print(f"Warning: Could not recover labels from chunk {chunk_num} response (attempt {attempt + 1})")
-        print(f"Response preview: {text[:300]}...")
+        if truncated:
+            # Re-rolling at the same max_tokens genuinely is pointless: accept
+            # the partial labels and let the rest fall back to NARRATOR.
+            break
 
         if attempt < max_retries:
-            print("Retrying...")
-        else:
-            reason = "no usable labels recovered from LLM response"
+            gaps = []
+            if missing_ids:
+                gaps.append(f"{len(missing_ids)} span(s) unlabelled")
+            if bad_role_ids:
+                gaps.append(f"{len(bad_role_ids)} label(s) with an unusable role")
+            print(f"  {' and '.join(gaps)} -- retrying (attempt {attempt + 2}"
+                  f"/{max_retries + 1}), naming the gaps")
+            retry_nudge = _retry_nudge(missing_ids, bad_role_ids)
+            continue
+
+        break
 
     # Reassemble regardless of what came back. Unlabelled spans -> NARRATOR,
-    # so a failure costs labels, never prose.
-    resolved, stats = resolve_span_labels(spans, labels)
+    # so a failure costs labels, never prose. Phantom ids stay in the merged map
+    # on purpose: resolve_span_labels discards and counts them (once each).
+    resolved, stats = resolve_span_labels(spans, list(merged_labels.values()), source=chunk)
     entries = build_entries(resolved, chunk)
     _assert_chunk_verbatim(entries, chunk, chunk_num)
 

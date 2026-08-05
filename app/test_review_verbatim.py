@@ -25,9 +25,11 @@ Run directly:
     python app/test_review_verbatim.py
 Exits 0 if all tests pass, non-zero otherwise.
 """
+import io
 import os
 import sys
 import traceback
+from contextlib import redirect_stdout
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -35,6 +37,10 @@ from review_script import (  # noqa: E402
     apply_positional_overlay,
     merge_consecutive_narrators,
     _join_narrator_texts,
+    select_review_prompt,
+    REVIEW_PROMPT_SCHEMA_MARKER,
+    REVIEW_SYSTEM_PROMPT,
+    REVIEW_USER_PROMPT,
 )
 
 
@@ -289,6 +295,99 @@ def test_narrator_casing_canonicalized_by_overlay():
     )
 
 
+def test_select_review_prompt_stale_custom_falls_back_with_warning():
+    """F8: a saved custom prompt from before the verbatim-review refactor
+    (no REVIEW_PROMPT_SCHEMA_MARKER) must NOT be used as-is -- it still
+    carries the retired "strip attribution tags / rewrite" methodology,
+    which causes entry-count mismatches (failed batches) and degraded
+    speaker/instruct fixes under the new positional-overlay contract. It
+    must fall back to the built-in default and print a warning naming the
+    offending config key."""
+    stale_prompt = "You are a script reviewer. STRIP ATTRIBUTION TAGS FROM DIALOGUE. Rephrase as needed."
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        result = select_review_prompt(stale_prompt, REVIEW_SYSTEM_PROMPT, "review_system_prompt")
+    output = buffer.getvalue()
+    check(
+        "select_review_prompt: stale custom (no marker) falls back to the default",
+        result == REVIEW_SYSTEM_PROMPT,
+        detail=repr(result[:80]),
+    )
+    check(
+        "select_review_prompt: warning names the offending config key",
+        "review_system_prompt" in output and "WARNING" in output,
+        detail=repr(output),
+    )
+
+
+def test_select_review_prompt_marker_bearing_custom_used_as_is():
+    """A custom prompt that DOES carry the marker is the operator's own,
+    intentional, up-to-date customization -- it must be used byte-identically,
+    not silently altered."""
+    custom_prompt = "My own custom review prompt (prompt schema: verbatim-review-v1) with extra house rules."
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        result = select_review_prompt(custom_prompt, REVIEW_SYSTEM_PROMPT, "review_system_prompt")
+    output = buffer.getvalue()
+    check(
+        "select_review_prompt: marker-bearing custom prompt used byte-identically",
+        result == custom_prompt,
+        detail=repr(result),
+    )
+    check(
+        "select_review_prompt: no warning printed for a valid custom prompt",
+        output == "",
+        detail=repr(output),
+    )
+
+
+def test_select_review_prompt_absent_or_blank_uses_default_silently():
+    """No saved custom prompt (None, missing) or a blank one -- both are the
+    common/unconfigured case and must silently use the built-in default,
+    with no warning noise."""
+    for label, value in [("None", None), ("empty string", ""), ("whitespace-only", "   ")]:
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            result = select_review_prompt(value, REVIEW_USER_PROMPT, "review_user_prompt")
+        output = buffer.getvalue()
+        check(
+            f"select_review_prompt: absent/blank custom ({label}) -> default, silently",
+            result == REVIEW_USER_PROMPT and output == "",
+            detail=repr(output),
+        )
+
+
+def test_shipped_review_prompts_pass_their_own_guard():
+    """The review_prompts.txt shipped with the repo must carry the marker in
+    BOTH halves (system prompt and user prompt template), so a fresh
+    install's own default prompts pass select_review_prompt's guard exactly
+    like a valid custom prompt would."""
+    check(
+        "shipped prompts: REVIEW_SYSTEM_PROMPT carries the marker",
+        REVIEW_PROMPT_SCHEMA_MARKER in REVIEW_SYSTEM_PROMPT,
+        detail=repr(REVIEW_SYSTEM_PROMPT[:120]),
+    )
+    check(
+        "shipped prompts: REVIEW_USER_PROMPT carries the marker",
+        REVIEW_PROMPT_SCHEMA_MARKER in REVIEW_USER_PROMPT,
+        detail=repr(REVIEW_USER_PROMPT[:200]),
+    )
+    # Also exercise the actual guard function end-to-end with the shipped
+    # prompts, standing in for "prompts_config" being empty (the common
+    # fresh-install case) and for a config that happens to echo the
+    # shipped default back (still must pass, no warning).
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        sys_result = select_review_prompt(REVIEW_SYSTEM_PROMPT, REVIEW_SYSTEM_PROMPT, "review_system_prompt")
+        usr_result = select_review_prompt(REVIEW_USER_PROMPT, REVIEW_USER_PROMPT, "review_user_prompt")
+    output = buffer.getvalue()
+    check(
+        "shipped prompts: both pass select_review_prompt's guard with no warning",
+        sys_result == REVIEW_SYSTEM_PROMPT and usr_result == REVIEW_USER_PROMPT and output == "",
+        detail=repr(output),
+    )
+
+
 def main():
     tests = [
         test_overlay_preserves_text_applies_speaker_and_instruct,
@@ -303,6 +402,10 @@ def main():
         test_merge_consecutive_narrators_byte_exact_for_verbatim_entries,
         test_merge_consecutive_narrators_legacy_stripped_entries_still_readable,
         test_narrator_casing_canonicalized_by_overlay,
+        test_select_review_prompt_stale_custom_falls_back_with_warning,
+        test_select_review_prompt_marker_bearing_custom_used_as_is,
+        test_select_review_prompt_absent_or_blank_uses_default_silently,
+        test_shipped_review_prompts_pass_their_own_guard,
     ]
     for t in tests:
         try:

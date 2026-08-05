@@ -8,6 +8,44 @@ from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
 from speaker_canon import canonicalize
 
+# Marker embedded in both halves of review_prompts.txt (see the file itself)
+# identifying prompts written for the current positional-overlay review
+# schema: the reviewer only ever corrects "speaker"/"instruct" and must
+# return exactly as many entries as it was given. This is review_script.py's
+# own equivalent of generate_script.py's PROMPT_SCHEMA_MARKER
+# ("span-labels-v1") for the classifier stage -- kept separate (rather than
+# sharing generate_script.select_prompt) because that marker is specific to
+# the span-classifier schema, not the review schema, and generate_script.py
+# is out of scope for this fix.
+REVIEW_PROMPT_SCHEMA_MARKER = "verbatim-review-v1"
+
+
+def select_review_prompt(custom_prompt, default_prompt, config_key):
+    """Choose between a saved custom review prompt and the built-in default.
+
+    A custom prompt is honoured only when it carries
+    REVIEW_PROMPT_SCHEMA_MARKER, i.e. when it was written for the current
+    verbatim/positional-overlay review schema (speaker/instruct-only
+    corrections, same entry count out as in). A prompt saved before that
+    refactor still instructs the old "strip attribution tags, rephrase,
+    split/merge, rewrite front-matter" methodology -- the overlay makes that
+    incapable of damaging annotated_script.json's text, but it still causes
+    entry-count mismatches (failed batches) and degrades speaker/instruct
+    fixes, so a stale prompt is rejected loudly rather than used silently.
+    """
+    if not custom_prompt or not custom_prompt.strip():
+        return default_prompt
+
+    if REVIEW_PROMPT_SCHEMA_MARKER in custom_prompt:
+        return custom_prompt
+
+    print(f"  {'!' * 60}")
+    print(f"  WARNING: saved custom prompt '{config_key}' predates the verbatim-review")
+    print(f"  pipeline (missing '{REVIEW_PROMPT_SCHEMA_MARKER}' marker) -- using the built-in")
+    print("  default instead. Re-customize starting from the new default if needed.")
+    print(f"  {'!' * 60}")
+    return default_prompt
+
 
 def _canonicalize_speakers(entries):
     """Return a copy of `entries` with each "speaker" field canonicalized.
@@ -377,8 +415,12 @@ def main():
 
     # Load custom review prompts or use defaults from review_prompts.txt
     prompts_config = config.get("prompts", {})
-    review_sys = prompts_config.get("review_system_prompt") or REVIEW_SYSTEM_PROMPT
-    review_usr = prompts_config.get("review_user_prompt") or REVIEW_USER_PROMPT
+    review_sys = select_review_prompt(
+        prompts_config.get("review_system_prompt"), REVIEW_SYSTEM_PROMPT, "review_system_prompt"
+    )
+    review_usr = select_review_prompt(
+        prompts_config.get("review_user_prompt"), REVIEW_USER_PROMPT, "review_user_prompt"
+    )
 
     generation_config = config.get("generation", {})
     batch_size = generation_config.get("review_batch_size", 25)
