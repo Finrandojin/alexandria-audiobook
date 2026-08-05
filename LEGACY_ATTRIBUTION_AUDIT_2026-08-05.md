@@ -4,9 +4,9 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 
 ## Counts
 
-- `exploratory`: 4
-- `historical_only`: 41
-- `provisional`: 28
+- `exploratory`: 2
+- `historical_only`: 42
+- `provisional`: 29
 - `supported_measurement`: 37
 
 `historical_only` means current-gold rescoring changes at least one judgment or cannot map at least one row. Original files remain preserved; their saved summaries were not rewritten.
@@ -42,7 +42,7 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json` | closed_set | historical_only | 1200 | 59 | 12 | False |  |
 | `closed_set__index18__mistralai__magistral-small__local-llamacpp.json` | closed_set | supported_measurement | 297 | 0 | 0 | False |  |
 | `closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json` | closed_set | supported_measurement | 297 | 0 | 0 | False |  |
-| `closed_set__microsoft__phi-4.json` | closed_set | exploratory | 441 | 0 | 0 | False | recorded commit is unavailable |
+| `closed_set__microsoft__phi-4.json` | closed_set | provisional | 441 | 0 | 0 | False |  |
 | `closed_set__ministral-3-14b-instruct-2512-absolute-heresy-i1.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
 | `closed_set__ministral-3-14b-instruct-2512.json` | closed_set | historical_only | 441 | 3 | 0 | False |  |
 | `closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json` | closed_set | historical_only | 417 | 3 | 0 | False |  |
@@ -57,7 +57,7 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json` | closed_set | supported_measurement | 486 | 0 | 0 | False |  |
 | `closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json` | closed_set | supported_measurement | 486 | 0 | 0 | False |  |
 | `closed_set__qwen3.5-9b-uncensored-hauhaucs-aggressive.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
-| `closed_set__qwen__qwen3-14b.json` | closed_set | exploratory | 441 | 2 | 0 | False | recorded commit is unavailable |
+| `closed_set__qwen__qwen3-14b.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
 | `committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | committed_history | historical_only | 1200 | 43 | 12 | False |  |
 | `committed_history__index18__qwen__qwen3-14b__local-llamacpp.json` | committed_history | supported_measurement | 297 | 0 | 0 | False |  |
 | `committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | committed_history | supported_measurement | 408 | 0 | 0 | False |  |
