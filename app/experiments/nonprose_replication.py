@@ -30,10 +30,11 @@ def file_sha256(path):
     return digest.hexdigest()
 
 
-def get_run_fingerprint(args, pair_manifest, adapter_paths):
+def get_run_fingerprint(args, pair_manifest, adapter_paths,
+                        harness_file=__file__):
     """Return everything that must match before rows may be resumed."""
     sources = [
-        __file__,
+        harness_file,
         os.path.join(APP, "experiments", "generation.py"),
         os.path.join(APP, "experiments", "tts_output_validation.py"),
         os.path.join(APP, "tts.py"),

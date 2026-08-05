@@ -15,7 +15,7 @@ pending until people listen to blinded audio.
 | 1 — controls | **complete** | Fresh-process determinism and instruction positive controls passed for three adapters. |
 | 2 — evidence audit | **decision-bearing review complete; broader audit remains** | 232 artifacts structurally inventoried; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
 | 3 — unreliable TTS reruns | **complete** | Seeded clone-vs-LoRA and saturation generation plus ECAPA scoring completed with provenance. |
-| 4 — non-prose replication | **fixed matrix complete; category expansion required** | 144/144 validated renders across three adapters and three seeds; selected-sample effect replicated in all nine adapter×seed cells. |
+| 4 — non-prose replication | **fixed matrix complete; category pilot pending** | 144/144 validated renders; tracked six-category fixture and resumable 432-row expansion harness are ready. |
 | 5–8 | pending stage gates | Stage 5 remains gated on Stage 4 category expansion; later stages run only when their decisions remain open. |
 | 9 — operational tests | **mostly complete; training-state resume remains** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, and exact-identity experiment-row resume are covered. |
 | 10 — validation/index | **complete through fixed Stage 4 matrix** | Both Stage 4 artifacts are explicitly not indexed; strict artifact validation and the full suite passed. Repeat after expansion. |
@@ -202,6 +202,14 @@ Current state: **fixed matrix complete; category expansion required**.
   when source code, config, source artifact, adapter weights, seeds, and pair
   identities match. The tracked Stage 4 checkpoint runner strictly validates
   provenance, matrix identity, WAVs, summaries, indexes, and the full suite.
+- The category fixture is now locked and tracked: four pre-render probes in
+  each of identifiers, URLs, copyright, lists/tables, dates/numbers, and
+  headings/fragments. Each probe retains its saved-library citation, exact text,
+  and hash. Distinct ordinary-prose controls are chosen deterministically by a
+  declared surface-feature cost, with all residual gaps recorded.
+- The all-category pilot is fixed at 12 renders (six categories × probe/control
+  × one adapter × one seed). A strictly valid pilot gates the full expansion of
+  3 adapters × 3 seeds × 24 pairs × 2 classes = 432 renders.
 
 ## Stage 5 — Non-prose remedy comparison
 

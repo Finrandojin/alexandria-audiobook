@@ -11,6 +11,8 @@ import run_stage4_checkpoint as runner
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from experiments.nonprose_replication import summarize
+from experiments.nonprose_category_expansion import (
+    summarize as category_summarize)
 
 
 class Stage4CheckpointRunnerTest(unittest.TestCase):
@@ -110,6 +112,61 @@ class Stage4CheckpointRunnerTest(unittest.TestCase):
         with self.assertRaisesRegex(runner.ArtifactValidationError,
                                     "error breakdown is wrong"):
             runner.validate_stage4_artifact(self._write(doc), 2)
+
+    @patch.object(runner, "_provenance_harness_matches", return_value=True)
+    def test_same_validator_covers_category_expansion(self, _match):
+        doc = self._artifact()
+        doc["provenance"]["script"] = "nonprose_category_expansion.py"
+        args = doc["provenance"]["args"]
+        args["limit_per_category"] = args.pop("limit")
+        doc["selection"]["categories"] = ["urls"]
+        pair = doc["selection"]["pairs"][0]
+        pair["probe_uid"] = pair.pop("nonprose_uid")
+        pair["probe_sha256"] = pair.pop("nonprose_sha256")
+        pair["probe_features"] = pair.pop("nonprose_features")
+        pair["category"] = "urls"
+        for row in doc["rows"]:
+            row["category"] = "urls"
+            if row["class"] == "nonprose":
+                row["class"] = "probe"
+        doc["summary"] = category_summarize(doc["rows"])
+        matrix = {("adapter", 7, 0, "probe"),
+                  ("adapter", 7, 0, "prose")}
+        result = runner.validate_stage4_artifact(
+            self._write(doc), 2, matrix,
+            expected_script="nonprose_category_expansion.py",
+            class_prefixes={"probe": "probe", "prose": "prose"},
+            extra_arg_fields=("limit_per_category",),
+            expected_categories=("urls",),
+            summary_function=category_summarize)
+        self.assertEqual(2, len(result["rows"]))
+
+    @patch.object(runner, "_provenance_harness_matches", return_value=True)
+    def test_category_validator_rejects_wrong_row_category(self, _match):
+        doc = self._artifact()
+        doc["provenance"]["script"] = "nonprose_category_expansion.py"
+        args = doc["provenance"]["args"]
+        args["limit_per_category"] = args.pop("limit")
+        doc["selection"]["categories"] = ["urls"]
+        pair = doc["selection"]["pairs"][0]
+        pair["probe_uid"] = pair.pop("nonprose_uid")
+        pair["probe_sha256"] = pair.pop("nonprose_sha256")
+        pair["probe_features"] = pair.pop("nonprose_features")
+        pair["category"] = "urls"
+        for row in doc["rows"]:
+            row["category"] = "wrong"
+            if row["class"] == "nonprose":
+                row["class"] = "probe"
+        doc["summary"] = category_summarize(doc["rows"])
+        with self.assertRaisesRegex(runner.ArtifactValidationError,
+                                    "category does not match"):
+            runner.validate_stage4_artifact(
+                self._write(doc), 2,
+                expected_script="nonprose_category_expansion.py",
+                class_prefixes={"probe": "probe", "prose": "prose"},
+                extra_arg_fields=("limit_per_category",),
+                expected_categories=("urls",),
+                summary_function=category_summarize)
 
 
 if __name__ == "__main__":

@@ -710,6 +710,13 @@
     "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_actually_matches_the_defect",
     "test_no_machine_paths.TestNoMachinePaths.test_the_pattern_does_not_match_relocatable_forms"
   ],
+  "test_nonprose_category_expansion": [
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_controls_are_distinct_ordinary_prose_and_deterministic",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_fixture_has_four_unique_locked_probes_per_category",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pair_manifest_reports_matching_cost_and_feature_gaps",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_pilot_limit_still_spans_every_category",
+    "test_nonprose_category_expansion.NonproseCategoryExpansionTest.test_summary_never_pools_categories"
+  ],
   "test_nonprose_replication": [
     "test_nonprose_replication.TestNonproseReplication.test_checkpoint_roundtrip_requires_exact_fingerprint",
     "test_nonprose_replication.TestNonproseReplication.test_feature_gap_does_not_claim_exact_matching",
@@ -1100,6 +1107,8 @@
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_saturation_score_refuses_missing_manifest"
   ],
   "test_stage4_checkpoint_runner": [
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_category_validator_rejects_wrong_row_category",
+    "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_same_validator_covers_category_expansion",
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_strict_validator_decodes_complete_exact_matrix",
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_reads_entire_wav_and_rejects_truncation",
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_recomputes_summary",
