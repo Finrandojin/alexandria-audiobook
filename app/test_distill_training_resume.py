@@ -3,49 +3,55 @@ import sys
 import tempfile
 import unittest
 
-import torch
-from torch import nn
-from transformers import Trainer, TrainerCallback, TrainingArguments
-from transformers.modeling_outputs import CausalLMOutput
+try:
+    import torch
+    from torch import nn
+    from transformers import Trainer, TrainerCallback, TrainingArguments
+    from transformers.modeling_outputs import CausalLMOutput
+    TRAINING_STACK_AVAILABLE = True
+except ImportError:
+    torch = None
+    TRAINING_STACK_AVAILABLE = False
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from experiments.distill_train import get_resume_checkpoint
 
 
-class _Dataset(torch.utils.data.Dataset):
-    def __len__(self):
-        return 12
+if TRAINING_STACK_AVAILABLE:
+    class _Dataset(torch.utils.data.Dataset):
+        def __len__(self):
+            return 12
 
-    def __getitem__(self, index):
-        return {
-            "input_ids": torch.tensor([index]),
-            "labels": torch.tensor([index % 3]),
-        }
-
-
-class _Model(nn.Module):
-    def __init__(self, seen):
-        super().__init__()
-        self.embedding = nn.Embedding(12, 8)
-        self.dropout = nn.Dropout(0.35)
-        self.projection = nn.Linear(8, 3)
-        self.seen = seen
-
-    def forward(self, input_ids=None, labels=None):
-        self.seen.extend(input_ids.reshape(-1).detach().cpu().tolist())
-        hidden = self.dropout(self.embedding(input_ids))
-        logits = self.projection(hidden).mean(1)
-        loss = nn.functional.cross_entropy(logits, labels.reshape(-1))
-        return CausalLMOutput(loss=loss, logits=logits)
+        def __getitem__(self, index):
+            return {
+                "input_ids": torch.tensor([index]),
+                "labels": torch.tensor([index % 3]),
+            }
 
 
-class _StopAtCheckpoint(TrainerCallback):
-    def on_step_end(self, args, state, control, **kwargs):
-        if state.global_step == 3:
-            control.should_save = True
-            control.should_training_stop = True
-        return control
+    class _Model(nn.Module):
+        def __init__(self, seen):
+            super().__init__()
+            self.embedding = nn.Embedding(12, 8)
+            self.dropout = nn.Dropout(0.35)
+            self.projection = nn.Linear(8, 3)
+            self.seen = seen
+
+        def forward(self, input_ids=None, labels=None):
+            self.seen.extend(input_ids.reshape(-1).detach().cpu().tolist())
+            hidden = self.dropout(self.embedding(input_ids))
+            logits = self.projection(hidden).mean(1)
+            loss = nn.functional.cross_entropy(logits, labels.reshape(-1))
+            return CausalLMOutput(loss=loss, logits=logits)
+
+
+    class _StopAtCheckpoint(TrainerCallback):
+        def on_step_end(self, args, state, control, **kwargs):
+            if state.global_step == 3:
+                control.should_save = True
+                control.should_training_stop = True
+            return control
 
 
 def _training_args(output_dir):
@@ -91,6 +97,10 @@ def _assert_nested_equal(testcase, expected, actual):
 
 
 class DistillTrainingResumeTest(unittest.TestCase):
+    @unittest.skipUnless(
+        TRAINING_STACK_AVAILABLE,
+        "requires the optional Torch/Transformers training stack",
+    )
     def test_resume_preserves_training_state_rng_and_sample_order(self):
         with tempfile.TemporaryDirectory() as tmp:
             full_seen = []
