@@ -1,0 +1,2455 @@
+{
+  "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
+  "source_structural_sha256": "a8129e5e8278061232851f23580966e81c0849d7949cb9a8cf2af9b840696f2d",
+  "summary": {
+    "exploratory": 2,
+    "historical_only": 42,
+    "provisional": 29,
+    "supported_measurement": 37
+  },
+  "artifacts": [
+    {
+      "artifact": "batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json",
+      "family": "batch_contiguity",
+      "rows": 324,
+      "arms": [
+        "contiguous",
+        "scattered"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Isolates companion ordering, not end-to-end production quality."
+    },
+    {
+      "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp-wide.json",
+      "family": "batch_size",
+      "rows": 1200,
+      "arms": [
+        "b100",
+        "b25",
+        "b50"
+      ],
+      "classification": "historical_only",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 41,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "batch_size",
+      "rows": 1600,
+      "arms": [
+        "b1",
+        "b10",
+        "b25",
+        "b5"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 16,
+        "expected_changed_rows": 180,
+        "correctness_changed_rows": 27,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "batch_size",
+      "rows": 396,
+      "arms": [
+        "b10",
+        "b25",
+        "b5",
+        "b50"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json",
+      "family": "batch_size",
+      "rows": 417,
+      "arms": [
+        "b100",
+        "b25",
+        "b50"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "batch_size",
+      "rows": 556,
+      "arms": [
+        "b1",
+        "b10",
+        "b25",
+        "b5"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep1.json",
+      "family": "batch_size",
+      "rows": 486,
+      "arms": [
+        "b100",
+        "b25",
+        "b50"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep2.json",
+      "family": "batch_size",
+      "rows": 486,
+      "arms": [
+        "b100",
+        "b25",
+        "b50"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "batch_size",
+      "rows": 648,
+      "arms": [
+        "b10",
+        "b25",
+        "b5",
+        "b50"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Accuracy and throughput must be considered together; books differ."
+    },
+    {
+      "artifact": "because_production__grimgar03__qwen__qwen3-14b__local.json",
+      "family": "because_production",
+      "rows": 800,
+      "arms": [
+        "baseline",
+        "thinking"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 33,
+        "line_count_changed": true
+      },
+      "semantic_limit": "A justification field test; explanations are not confidence estimates."
+    },
+    {
+      "artifact": "because_production__mushoku16__qwen__qwen3-14b__local.json",
+      "family": "because_production",
+      "rows": 278,
+      "arms": [
+        "baseline",
+        "thinking"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A justification field test; explanations are not confidence estimates."
+    },
+    {
+      "artifact": "because_production__qwen__qwen3-14b.json",
+      "family": "because_production",
+      "rows": 417,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold_thinking"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A justification field test; explanations are not confidence estimates."
+    },
+    {
+      "artifact": "candidate_id__qwen__qwen3-14b.json",
+      "family": "candidate_id",
+      "rows": 294,
+      "arms": [
+        "id",
+        "name"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 1,
+        "line_count_changed": false
+      },
+      "semantic_limit": "One model/corpus comparison; opaque IDs do not prove general naming gains."
+    },
+    {
+      "artifact": "closed_set.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "exploratory",
+      "dirty": true,
+      "problems": [
+        "artifact validation is not ok",
+        "environment is missing context_length",
+        "environment is missing parallel",
+        "no LM Studio load state recorded",
+        "no harness fingerprint: the code that ran is unidentified"
+      ],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__gemma-4-e4b-uncensored-hauhaucs-aggressive.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__gemma-4-e4b-uncensored-hauhaucs-aggressive.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 50,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 54,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__ministral-3-14b-instruct-2512.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 52,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+      "family": "closed_set",
+      "rows": 1188,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__mistralai__magistral-small__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 58,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__qwen__qwen3-14b.CLOUD-a6000.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 53,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__qwen__qwen3-14b.LOCAL-9070xt.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 53,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__qwen__qwen3-14b.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 53,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json",
+      "family": "closed_set",
+      "rows": 1188,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 1200,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 59,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__index18__mistralai__magistral-small__local-llamacpp.json",
+      "family": "closed_set",
+      "rows": 297,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json",
+      "family": "closed_set",
+      "rows": 297,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__microsoft__phi-4.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__ministral-3-14b-instruct-2512-absolute-heresy-i1.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__ministral-3-14b-instruct-2512.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 3,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 3,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 1,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__mistralai__magistral-small__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 1,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json",
+      "family": "closed_set",
+      "rows": 408,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-lmstudio.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-vulkan.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__mushoku16__qwen__qwen3-32b__thunder-a6000.json",
+      "family": "closed_set",
+      "rows": 417,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 3,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json",
+      "family": "closed_set",
+      "rows": 486,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json",
+      "family": "closed_set",
+      "rows": 486,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__qwen3.5-9b-uncensored-hauhaucs-aggressive.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "closed_set__qwen__qwen3-14b.json",
+      "family": "closed_set",
+      "rows": 441,
+      "arms": [
+        "closed-6",
+        "closed-oracle",
+        "open"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle candidate arms are invalid for current claims because their lists used superseded labels."
+    },
+    {
+      "artifact": "committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "committed_history",
+      "rows": 1200,
+      "arms": [
+        "none",
+        "oracle",
+        "predicted"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 43,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Oracle history is an upper bound and is not shippable state."
+    },
+    {
+      "artifact": "committed_history__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "committed_history",
+      "rows": 297,
+      "arms": [
+        "none",
+        "oracle",
+        "predicted"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle history is an upper bound and is not shippable state."
+    },
+    {
+      "artifact": "committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "committed_history",
+      "rows": 408,
+      "arms": [
+        "none",
+        "oracle",
+        "predicted"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle history is an upper bound and is not shippable state."
+    },
+    {
+      "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "committed_history",
+      "rows": 486,
+      "arms": [
+        "none",
+        "oracle",
+        "predicted"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Oracle history is an upper bound and is not shippable state."
+    },
+    {
+      "artifact": "context_width__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width",
+      "rows": 1600,
+      "arms": [
+        "w1",
+        "w15",
+        "w4",
+        "w40"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 16,
+        "expected_changed_rows": 180,
+        "correctness_changed_rows": 49,
+        "line_count_changed": true
+      },
+      "semantic_limit": "A harness diagnostic; production-path confirmation is separate."
+    },
+    {
+      "artifact": "context_width__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width",
+      "rows": 297,
+      "arms": [
+        "w1",
+        "w15",
+        "w4"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A harness diagnostic; production-path confirmation is separate."
+    },
+    {
+      "artifact": "context_width__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width",
+      "rows": 408,
+      "arms": [
+        "w1",
+        "w15",
+        "w4"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A harness diagnostic; production-path confirmation is separate."
+    },
+    {
+      "artifact": "context_width__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width",
+      "rows": 486,
+      "arms": [
+        "w1",
+        "w15",
+        "w4"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A harness diagnostic; production-path confirmation is separate."
+    },
+    {
+      "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+      "family": "context_width_production",
+      "rows": 800,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 26,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+      "family": "context_width_production",
+      "rows": 800,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 23,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+      "family": "context_width_production",
+      "rows": 800,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 23,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local.json",
+      "family": "context_width_production",
+      "rows": 800,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 26,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width_production",
+      "rows": 198,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__mushoku16__qwen__qwen3-14b__local.json",
+      "family": "context_width_production",
+      "rows": 278,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "context_width_production",
+      "rows": 324,
+      "arms": [
+        "w1",
+        "w4"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Book-specific repeats; report each book/repeat rather than pooling."
+    },
+    {
+      "artifact": "crossover__grimgar03__local.json",
+      "family": "segmentation_crossover",
+      "rows": 7980,
+      "arms": [
+        "seg=gemma,attr=gemma,t=0.0,rep=1",
+        "seg=gemma,attr=gemma,t=0.0,rep=2",
+        "seg=gemma,attr=gemma,t=0.6,rep=1",
+        "seg=gemma,attr=gemma,t=0.6,rep=2",
+        "seg=gemma,attr=gemma,t=0.6,rep=3",
+        "seg=gemma,attr=qwen,t=0.0,rep=1",
+        "seg=gemma,attr=qwen,t=0.0,rep=2",
+        "seg=gemma,attr=qwen,t=0.6,rep=1",
+        "seg=gemma,attr=qwen,t=0.6,rep=2",
+        "seg=gemma,attr=qwen,t=0.6,rep=3",
+        "seg=qwen,attr=gemma,t=0.0,rep=1",
+        "seg=qwen,attr=gemma,t=0.0,rep=2",
+        "seg=qwen,attr=gemma,t=0.6,rep=1",
+        "seg=qwen,attr=gemma,t=0.6,rep=2",
+        "seg=qwen,attr=gemma,t=0.6,rep=3",
+        "seg=qwen,attr=qwen,t=0.0,rep=1",
+        "seg=qwen,attr=qwen,t=0.0,rep=2",
+        "seg=qwen,attr=qwen,t=0.6,rep=1",
+        "seg=qwen,attr=qwen,t=0.6,rep=2",
+        "seg=qwen,attr=qwen,t=0.6,rep=3"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 60,
+        "expected_changed_rows": 900,
+        "correctness_changed_rows": 320,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Factorial diagnostic on one book; retain repeat-level uncertainty."
+    },
+    {
+      "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "grammar_constraint",
+      "rows": 1584,
+      "arms": [
+        "open-free",
+        "open-grammar",
+        "oracle-free",
+        "oracle-grammar"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Roster-valid output does not establish correct speaker identity."
+    },
+    {
+      "artifact": "grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "grammar_constraint",
+      "rows": 396,
+      "arms": [
+        "open-free",
+        "open-grammar",
+        "oracle-free",
+        "oracle-grammar"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Roster-valid output does not establish correct speaker identity."
+    },
+    {
+      "artifact": "grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json",
+      "family": "grammar_constraint",
+      "rows": 556,
+      "arms": [
+        "open-free",
+        "open-grammar",
+        "oracle-free",
+        "oracle-grammar"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Roster-valid output does not establish correct speaker identity."
+    },
+    {
+      "artifact": "grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "grammar_constraint",
+      "rows": 648,
+      "arms": [
+        "open-free",
+        "open-grammar",
+        "oracle-free",
+        "oracle-grammar"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Roster-valid output does not establish correct speaker identity."
+    },
+    {
+      "artifact": "joint_scene__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "joint_scene",
+      "rows": 1200,
+      "arms": [
+        "independent",
+        "joint-chrono",
+        "joint-shuffled"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 30,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Joint and shuffled controls answer ordering only within the tested fixtures."
+    },
+    {
+      "artifact": "joint_scene__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "joint_scene",
+      "rows": 297,
+      "arms": [
+        "independent",
+        "joint-chrono",
+        "joint-shuffled"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Joint and shuffled controls answer ordering only within the tested fixtures."
+    },
+    {
+      "artifact": "joint_scene__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "joint_scene",
+      "rows": 417,
+      "arms": [
+        "independent",
+        "joint-chrono",
+        "joint-shuffled"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 2,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Joint and shuffled controls answer ordering only within the tested fixtures."
+    },
+    {
+      "artifact": "joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "joint_scene",
+      "rows": 486,
+      "arms": [
+        "independent",
+        "joint-chrono",
+        "joint-shuffled"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Joint and shuffled controls answer ordering only within the tested fixtures."
+    },
+    {
+      "artifact": "lora_serving_eval__local-rocm-lora-b2.json",
+      "family": "lora_serving_eval",
+      "rows": 450,
+      "arms": [
+        "base",
+        "lora"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 266,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Two gold books and one serving stack; not a universal adapter claim."
+    },
+    {
+      "artifact": "lora_serving_eval__local-rocm-lora.json",
+      "family": "lora_serving_eval",
+      "rows": 1094,
+      "arms": [
+        "base",
+        "lora"
+      ],
+      "classification": "historical_only",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 324,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Two gold books and one serving stack; not a universal adapter claim."
+    },
+    {
+      "artifact": "narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "narrator_prior",
+      "rows": 800,
+      "arms": [
+        "baseline",
+        "narrator"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 29,
+        "line_count_changed": true
+      },
+      "semantic_limit": "A predeclared book-contrast test, not a general narrator rule."
+    },
+    {
+      "artifact": "narrator_prior__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "narrator_prior",
+      "rows": 198,
+      "arms": [
+        "baseline",
+        "narrator"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A predeclared book-contrast test, not a general narrator rule."
+    },
+    {
+      "artifact": "narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "narrator_prior",
+      "rows": 278,
+      "arms": [
+        "baseline",
+        "narrator"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A predeclared book-contrast test, not a general narrator rule."
+    },
+    {
+      "artifact": "narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "narrator_prior",
+      "rows": 324,
+      "arms": [
+        "baseline",
+        "narrator"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "A predeclared book-contrast test, not a general narrator rule."
+    },
+    {
+      "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",
+      "family": "reasoning_arms",
+      "rows": 2000,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold",
+        "scaffold_thinking",
+        "thinking"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 20,
+        "expected_changed_rows": 225,
+        "correctness_changed_rows": 111,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Reasoning/justification settings are model- and serving-stack-specific."
+    },
+    {
+      "artifact": "reasoning_arms__grimgar03__qwen__qwen3-14b.json",
+      "family": "reasoning_arms",
+      "rows": 2000,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold",
+        "scaffold_thinking",
+        "thinking"
+      ],
+      "classification": "historical_only",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 20,
+        "expected_changed_rows": 225,
+        "correctness_changed_rows": 79,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Reasoning/justification settings are model- and serving-stack-specific."
+    },
+    {
+      "artifact": "reasoning_arms__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_arms",
+      "rows": 495,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold",
+        "scaffold_thinking",
+        "thinking"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Reasoning/justification settings are model- and serving-stack-specific."
+    },
+    {
+      "artifact": "reasoning_arms__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_arms",
+      "rows": 810,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold",
+        "scaffold_thinking",
+        "thinking"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Reasoning/justification settings are model- and serving-stack-specific."
+    },
+    {
+      "artifact": "reasoning_arms__qwen__qwen3-14b.json",
+      "family": "reasoning_arms",
+      "rows": 695,
+      "arms": [
+        "baseline",
+        "because",
+        "scaffold",
+        "scaffold_thinking",
+        "thinking"
+      ],
+      "classification": "historical_only",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 4,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Reasoning/justification settings are model- and serving-stack-specific."
+    },
+    {
+      "artifact": "reasoning_check__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_check",
+      "rows": 792,
+      "arms": [
+        "plain",
+        "reasoned"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 2,
+        "correctness_changed_rows": 1,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Justification disagreement is a routing signal, not calibrated confidence."
+    },
+    {
+      "artifact": "reasoning_check__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_check",
+      "rows": 198,
+      "arms": [
+        "plain",
+        "reasoned"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Justification disagreement is a routing signal, not calibrated confidence."
+    },
+    {
+      "artifact": "reasoning_check__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_check",
+      "rows": 278,
+      "arms": [
+        "plain",
+        "reasoned"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Justification disagreement is a routing signal, not calibrated confidence."
+    },
+    {
+      "artifact": "reasoning_check__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "reasoning_check",
+      "rows": 324,
+      "arms": [
+        "plain",
+        "reasoned"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Justification disagreement is a routing signal, not calibrated confidence."
+    },
+    {
+      "artifact": "reexamine__qwen__qwen3-14b.json",
+      "family": "reexamine",
+      "rows": 695,
+      "arms": [
+        "baseline",
+        "narration",
+        "narrator",
+        "prose",
+        "voting"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Selected previously negative results; selection prevents broad inference."
+    },
+    {
+      "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "roster_quality",
+      "rows": 1540,
+      "arms": [
+        "augmented",
+        "generated",
+        "gold",
+        "inflated"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Gold-roster arms are upper bounds and not deployable inputs."
+    },
+    {
+      "artifact": "roster_quality__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "roster_quality",
+      "rows": 368,
+      "arms": [
+        "augmented",
+        "generated",
+        "gold",
+        "inflated"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Gold-roster arms are upper bounds and not deployable inputs."
+    },
+    {
+      "artifact": "roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "roster_quality",
+      "rows": 532,
+      "arms": [
+        "augmented",
+        "generated",
+        "gold",
+        "inflated"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Gold-roster arms are upper bounds and not deployable inputs."
+    },
+    {
+      "artifact": "roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "roster_quality",
+      "rows": 648,
+      "arms": [
+        "augmented",
+        "generated",
+        "gold",
+        "inflated"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Gold-roster arms are upper bounds and not deployable inputs."
+    },
+    {
+      "artifact": "roster_warmup.json",
+      "family": "roster_warmup",
+      "rows": 417,
+      "arms": [
+        "incremental",
+        "oracle",
+        "warm"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Book-quartile diagnostic; oracle roster is not deployable."
+    },
+    {
+      "artifact": "roster_warmup__ministral-3-14b-instruct-2512.json",
+      "family": "roster_warmup",
+      "rows": 417,
+      "arms": [
+        "incremental",
+        "oracle",
+        "warm"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Book-quartile diagnostic; oracle roster is not deployable."
+    },
+    {
+      "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json",
+      "family": "scene_cast",
+      "rows": 1155,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json",
+      "family": "scene_cast",
+      "rows": 1155,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "scene_cast",
+      "rows": 1155,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "scene_cast",
+      "rows": 276,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp-look6.json",
+      "family": "scene_cast",
+      "rows": 399,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "scene_cast",
+      "rows": 399,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "scene_cast",
+      "rows": 486,
+      "arms": [
+        "full",
+        "scene",
+        "scene+2"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Scene-cast extraction and attribution effects cannot be conflated."
+    },
+    {
+      "artifact": "tag_priority__grimgar03__mistralai__magistral-small__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 792,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
+      "family": "tag_priority",
+      "rows": 792,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep2.json",
+      "family": "tag_priority",
+      "rows": 792,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json",
+      "family": "tag_priority",
+      "rows": 792,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 800,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "historical_only",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 8,
+        "expected_changed_rows": 90,
+        "correctness_changed_rows": 22,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__index18__mistralai__magistral-small__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 198,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 198,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 278,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "tag_priority",
+      "rows": 324,
+      "arms": [
+        "baseline",
+        "tagfirst"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Prompt rule effects vary by book/model and require per-book reporting."
+    },
+    {
+      "artifact": "two_by_two.json",
+      "family": "two_by_two",
+      "rows": 556,
+      "arms": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "classification": "exploratory",
+      "dirty": true,
+      "problems": [
+        "artifact validation is not ok",
+        "environment is missing context_length",
+        "environment is missing parallel",
+        "no LM Studio load state recorded",
+        "no harness fingerprint: the code that ran is unidentified"
+      ],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 556,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "The two factors are not independent; this prices context, not batching."
+    },
+    {
+      "artifact": "voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "voting",
+      "rows": 1200,
+      "arms": [
+        "greedy",
+        "vote3",
+        "vote5"
+      ],
+      "classification": "historical_only",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 12,
+        "expected_changed_rows": 135,
+        "correctness_changed_rows": 30,
+        "line_count_changed": true
+      },
+      "semantic_limit": "Voting cost and routing coverage accompany accuracy; no pooled policy claim."
+    },
+    {
+      "artifact": "voting__index18__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "voting",
+      "rows": 198,
+      "arms": [
+        "greedy",
+        "vote3"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Voting cost and routing coverage accompany accuracy; no pooled policy claim."
+    },
+    {
+      "artifact": "voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "voting",
+      "rows": 417,
+      "arms": [
+        "greedy",
+        "vote3",
+        "vote5"
+      ],
+      "classification": "provisional",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": true,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Voting cost and routing coverage accompany accuracy; no pooled policy claim."
+    },
+    {
+      "artifact": "voting__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
+      "family": "voting",
+      "rows": 324,
+      "arms": [
+        "greedy",
+        "vote3"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Voting cost and routing coverage accompany accuracy; no pooled policy claim."
+    }
+  ]
+}
