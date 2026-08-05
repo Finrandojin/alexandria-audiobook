@@ -11,7 +11,8 @@ sys.path.insert(0, APP)
 
 from experiments.blinded_listening import (  # noqa: E402
     _load_document, _resolve_source, validate_package)
-from experiments.provenance import input_sha256, provenance  # noqa: E402
+from experiments.provenance import (  # noqa: E402
+    get_reproducible_harness_source, input_sha256)
 
 PYTHON = os.path.join(APP, "env", "bin", "python")
 GPU_JOB = os.path.join(REPO, "gpu_job.sh")
@@ -34,7 +35,6 @@ VOICE_CONFIG = os.path.join(REPO, "voice_config.json")
 CONFIG = os.path.join(APP, "config.json")
 ALIASES = os.path.join(REPO, "character_aliases.json")
 LORA_MANIFEST = os.path.join(REPO, "lora_models", "manifest.json")
-CURRENT_HARNESS = provenance(__file__)["git"]["harness_sha256"]
 
 
 def run(command, cwd=REPO, stdout=None):
@@ -53,8 +53,8 @@ def require_identity(path, script, expected_args, expected_inputs):
     if doc.get("status") != "complete":
         raise RuntimeError(f"checkpoint is not complete: {path}")
     recorded = doc["provenance"]
-    if recorded.get("git", {}).get("harness_sha256") != CURRENT_HARNESS:
-        raise RuntimeError(f"checkpoint harness changed: {path}")
+    if get_reproducible_harness_source(recorded, REPO) is None:
+        raise RuntimeError(f"checkpoint harness cannot be reproduced: {path}")
     if recorded.get("args") != expected_args:
         raise RuntimeError(
             f"checkpoint arguments changed: {path}\n"
@@ -123,9 +123,16 @@ def validate_scene(path):
 def run_gpu(name, timeout, script, arguments):
     log_path = os.path.join(REPO, "ab_test_runtime", "logs", "stage6_listening.log")
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    env = os.environ.copy()
+    env["GPU_LOCK"] = os.path.expanduser("~/.alexandria_gpu.lock")
+    env["GPU_QLOG"] = os.path.join(
+        REPO, "ab_test_runtime", "logs", "gpu_jobq.log")
     with open(log_path, "a", encoding="utf-8") as log:
-        run([GPU_JOB, name, "timeout", str(timeout), PYTHON, "-u", script,
-             *arguments], cwd=APP, stdout=log)
+        print("+", GPU_JOB, name, flush=True)
+        subprocess.run(
+            [GPU_JOB, name, "timeout", str(timeout), PYTHON, "-u", script,
+             *arguments], cwd=APP, check=True, stdout=log,
+            stderr=subprocess.STDOUT, env=env)
 
 
 def ensure_scene():
@@ -171,8 +178,8 @@ def ensure_package():
         if len(existing) != 3:
             raise RuntimeError("partial blind package exists: " + ", ".join(existing))
         public, key = validate_package(PUBLIC, KEY, PACKAGE_DIR)
-        if public["provenance"]["git"]["harness_sha256"] != CURRENT_HARNESS:
-            raise RuntimeError("blind package harness changed")
+        if get_reproducible_harness_source(public["provenance"], REPO) is None:
+            raise RuntimeError("blind package harness cannot be reproduced")
         if key.get("randomization_seed") != 20260804:
             raise RuntimeError("blind package randomization seed changed")
         print("RESUME: strictly validated complete blind package", flush=True)
@@ -181,7 +188,7 @@ def ensure_package():
          "--instruction", INSTRUCTION, "--casting", CASTING,
          "--package-dir", PACKAGE_DIR, "--out", PUBLIC, "--key", KEY], cwd=APP)
     public, key = validate_package(PUBLIC, KEY, PACKAGE_DIR)
-    if public["provenance"]["git"]["harness_sha256"] != CURRENT_HARNESS or \
+    if get_reproducible_harness_source(public["provenance"], REPO) is None or \
             key.get("randomization_seed") != 20260804:
         raise RuntimeError("new blind package identity is wrong")
     print("Stage 6 blind package validated strictly (8/8 sets).", flush=True)

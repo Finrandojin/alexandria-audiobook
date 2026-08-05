@@ -32,42 +32,9 @@ class ArtifactValidationError(RuntimeError):
     """A Stage 4 artifact cannot support a completed checkpoint."""
 
 
-def _git_harness_fingerprint(commit):
-    """Reconstruct manifest._source_fingerprint for a recorded commit."""
-    names = subprocess.run(
-        ["git", "ls-tree", "-r", "--name-only", commit, "--",
-         "app/experiments"], cwd=REPO, capture_output=True, check=True,
-        text=True).stdout.splitlines()
-    names = sorted(name for name in names
-                   if name.startswith("app/experiments/")
-                   and "/" not in name[len("app/experiments/"):]
-                   and name.endswith(".py"))
-    digest = hashlib.sha256()
-    for path in names:
-        content = subprocess.run(
-            ["git", "show", f"{commit}:{path}"], cwd=REPO,
-            capture_output=True, check=True).stdout
-        digest.update(os.path.basename(path).encode("utf-8"))
-        digest.update(content)
-    return digest.hexdigest()
-
-
 def _provenance_harness_matches(provenance):
-    git = provenance.get("git") or {}
-    recorded = git.get("harness_sha256")
-    commit = git.get("commit")
-    if not recorded or len(recorded) != 64:
-        return False
-    try:
-        if commit and _git_harness_fingerprint(commit) == recorded:
-            return True
-    except (OSError, subprocess.SubprocessError):
-        pass
-    try:
-        from experiments.manifest import _source_fingerprint
-        return _source_fingerprint(os.path.join(APP, "experiments")) == recorded
-    except (OSError, ImportError):
-        return False
+    from experiments.provenance import get_reproducible_harness_source
+    return get_reproducible_harness_source(provenance, REPO) is not None
 
 
 def _read_wav_fully(path):

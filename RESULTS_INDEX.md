@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-04 21:05 from `ab_test_runtime/experiments/` — 236 artifacts, 483 arms.
+Generated 2026-08-04 21:36 from `ab_test_runtime/experiments/` — 239 artifacts, 483 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -636,6 +636,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | artifact | why |
 |---|---|
 | `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `blinded_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cascade_state__grimgar03__a6000-contig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cascade_state__grimgar03__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -696,6 +697,8 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `segmentation_classifier.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `shipping_readiness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `stack_overlap.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `stage6_instruction_source.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `stage6_scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `symbolization.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `symbolization_owari.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

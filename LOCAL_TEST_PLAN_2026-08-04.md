@@ -8,18 +8,20 @@ result. GPU work runs serially through `gpu_job.sh`. Existing artifacts are
 preserved, new artifacts record provenance, and perceptual conclusions remain
 pending until people listen to blinded audio.
 
-## Progress snapshot — updated 2026-08-05 02:01 UTC
+## Progress snapshot — updated 2026-08-05 02:30 UTC
 
 | stage | state | evidence |
 |---|---|---|
 | 1 — controls | **complete** | Fresh-process determinism and instruction positive controls passed for three adapters. |
-| 2 — evidence audit | **decision-bearing review complete; broader audit remains** | 232 artifacts structurally inventoried; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
+| 2 — evidence audit | **decision-bearing review complete; broader audit remains** | Reproducible structural inventory refreshed to 239 artifacts; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
 | 3 — unreliable TTS reruns | **complete** | Seeded clone-vs-LoRA and saturation generation plus ECAPA scoring completed with provenance. |
 | 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
 | 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
-| 6–8 | pending decision gates | These stages run only if their human-listening, pitch-casting, or adapter-health decisions remain open. |
+| 6 — blinded materials | **generation complete; human verdict pending** | Eight randomized sets contain 20 validated WAVs and a separately hashed concealed key. |
+| 7 — pitch profiling | **eligible; harness preparation pending** | Production auto-selection still falls back to declared `mean_f0`; the legacy six-adapter artifact cannot support that decision. |
+| 8 — adapter health | **stopped at gate** | Weight norm is not production-driving and existing seeded ECAPA samples do not demonstrate a positive relationship; no adapter action is justified. |
 | 9 — operational tests | **complete for implemented resume paths** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, row resume, and distillation training-state resume are covered. |
-| 10 — validation/index | **complete through category expansion** | All four Stage 4 artifacts are explicitly not indexed; indexes regenerated and all 1,256 tests passed. |
+| 10 — validation/index | **complete through Stage 6** | The listening manifest is explicitly not indexed; indexes regenerated and all 1,267 tests passed. |
 
 ## Non-negotiable execution rules
 
@@ -100,11 +102,14 @@ Only rerun unreliable artifacts that influence a current product decision.
 
 Current state:
 
-- Structural audit completed for 232 artifacts and written to
+- Structural audit refreshed for 239 artifacts and written to
   `ab_test_runtime/audit/artifact_structural_audit.json`.
-- Counts at that checkpoint: 3 reproducible structural candidates, 112 older-
-  metadata artifacts requiring semantic review, and 117 without sufficient
+- Current counts: 10 reproducible structural candidates, 112 older-metadata
+  artifacts requiring semantic review, and 117 without sufficient
   embedded identity.
+- `audit_experiment_artifacts.py` now regenerates this inventory and preserves
+  the original 232 classifications exactly; `--check` fails loudly when the
+  checked artifact set or any file hash changes.
 - Manual decision-bearing classifications are committed in
   `ARTIFACT_AUDIT_2026-08-04.md` as part of `8321f16`.
 - Broader semantic review of older attribution artifacts remains; it is CPU-
@@ -273,6 +278,21 @@ Record the concealed key separately. Ask listeners to rate delivery, emotional
 fit, voice distinction, intelligibility, defects, and preference. Automated
 systems may build these artifacts but must not supply the human verdict.
 
+Current state: **generation complete; human verdict pending**.
+
+- A committed, resumable runner generated four instruction comparisons, one
+  current-versus-scene-aware casting comparison, and three extreme slow/fast
+  positive controls. Stage 5 remedies are absent because that stage did not
+  clear its gate; the public manifest says so explicitly.
+- The public package contains eight randomized sets and 20 generic WAV names.
+  The concealed key is separate and its exact SHA-256 is recorded publicly.
+- Independent validation fully decoded every WAV, checked RIFF completeness,
+  verified every source/package/key hash, confirmed the 4+1+3 composition, and
+  found no arm-label leakage in the public JSON.
+- Both GPU jobs logged `OK`; the indexes were regenerated and the full suite
+  passed 1,267 tests. No automated delivery, preference, or casting verdict is
+  claimed.
+
 ## Stage 7 — Seeded pitch profiling
 
 Estimated runtime: **12–24 GPU hours**. Run only if pitch will affect production
@@ -295,6 +315,16 @@ Gate:
 Before adopting any threshold, verify with blinded listening that differences
 near that threshold are perceptually useful.
 
+Current state: **eligible; replacement harness required before generation**.
+
+- `app/routers/voices.py::_infer_lora_gender` still uses declared `mean_f0`
+  with a 165 Hz threshold when explicit/name/description evidence is absent,
+  so pitch affects production auto-selection.
+- All 75 manifest adapters have complete weights/configuration and declared
+  pitch. The old artifact covers six adapters, one seed, and one text set; it
+  lacks voiced-frame coverage and octave-error evidence and cannot satisfy this
+  stage.
+
 ## Stage 8 — Adapter-health validation
 
 Estimated runtime: **6–12 GPU hours**, conditional on the earlier decision
@@ -310,6 +340,17 @@ Test whether LoRA weight magnitude predicts voice identity by comparing:
 
 Until this correlation is demonstrated, weight norm is a diagnostic lead, not
 proof that an adapter is undertrained.
+
+Current state: **stopped at gate; no production action**.
+
+- Weight norm is not consumed by production code. The two available seeded
+  ECAPA samples join 9 and 14 adapters respectively and show no supported
+  positive norm-similarity relationship (permutation p=0.265 and p=0.220;
+  uncertainty intervals cross zero).
+- Those selected, observational samples also cannot establish a negative or
+  causal sample-count effect. No adapter will be removed or retrained from
+  them; human identity judgments remain required if such an action is later
+  proposed.
 
 Dependency update: SpeechBrain ECAPA loads in the sibling interpreter. Its
 `torchaudio.load()` path segfaulted and was replaced with verified SoundFile +
@@ -386,6 +427,9 @@ Current checkpoint:
   432/432 rows. The first post-run suite correctly failed on one missing test-
   inventory entry; after adding that entry, full discovery passed all 1,256
   tests. No test was skipped silently in that pass.
+- `blinded_listening.json` now appears explicitly under **Not indexed** in both
+  indexes. Its independent audit verified eight sets and 20 WAVs; the Stage 6
+  post-run discovery passed all 1,267 tests.
 
 ## Schedule and stopping policy
 

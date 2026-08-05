@@ -28,6 +28,8 @@ import glob
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -192,6 +194,23 @@ class CollectResultsRobustnessTest(unittest.TestCase):
         self.assertIn("isinstance(rr, list)", source,
                       "collect_results must check the shape of 'rows' before "
                       "iterating it")
+
+    def test_csv_uses_repository_lf_line_endings(self):
+        """CRLF made every newly indexed row fail git diff --check."""
+        with tempfile.TemporaryDirectory() as tmp:
+            shutil.copy2(os.path.join(os.path.dirname(APP), "collect_results.py"),
+                         os.path.join(tmp, "collect_results.py"))
+            experiments = os.path.join(tmp, "ab_test_runtime", "experiments")
+            os.makedirs(experiments)
+            with open(os.path.join(experiments, "probe.json"), "w",
+                      encoding="utf-8") as handle:
+                json.dump({"status": "complete"}, handle)
+            subprocess.run(
+                [sys.executable, "collect_results.py"], cwd=tmp,
+                capture_output=True, check=True)
+            content = open(os.path.join(tmp, "results_index.csv"), "rb").read()
+        self.assertIn(b"\n", content)
+        self.assertNotIn(b"\r\n", content)
 
 
 class AnalysisScriptTest(unittest.TestCase):

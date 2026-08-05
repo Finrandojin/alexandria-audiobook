@@ -8,8 +8,9 @@ a recorded commit does not prove a conclusion. The structural inventory covers
 the artifacts currently used to justify TTS, instruction, non-prose, pitch,
 and adapter decisions.
 
-Structural inventory: 3 reproducible candidates, 112 artifacts on the older
-metadata contract, and 117 artifacts without sufficient embedded identity.
+Structural inventory refreshed after Stage 6: 10 reproducible structural
+candidates, 112 artifacts on the older metadata contract, and 117 artifacts
+without sufficient embedded identity (239 total).
 The machine-readable snapshot is
 `ab_test_runtime/audit/artifact_structural_audit.json`.
 
@@ -37,6 +38,7 @@ The machine-readable snapshot is
 | `instruct_value.json` | Exploratory | Internally reports 1/491, 1/491, and 2/491 errors across its three arms. | Predates the seed fix and records no provenance or seed. It cannot support seeded comparisons. |
 | `instruct_value_seeded.json` | Provisional | Reports 3/491 errors for per-line and 0/491 for per-character and none; WER measures content only. | The file itself records neither seed nor commit. Its seeded identity depends on external timestamp/log history. Delivery remains unmeasured. |
 | `instruct_listening.json` | Human-pending, structurally exploratory | Four fixed-order comparison files exist and record seed 1234. | No embedded commit/harness provenance; spoken labels and fixed ordering make it a listening aid, not a blind preference test. |
+| `blinded_listening.json` | Supported structure + human-pending | Eight randomized sets, 20 fully validated WAVs, separately hashed concealed key, exact source identities, and no public arm-label leakage. | Contains no human ratings and supplies no automated perceptual verdict. Non-prose remedy arms are absent because Stage 5 did not clear its gate. |
 | `prose_vs_nonprose_v3.json` | Provisional | Seeded rerun reports 11/25 non-prose failures versus 0/25 prose failures at equal mean character length. | No embedded seed or commit; matching character length does not control digits, punctuation, capitalization, syntax, or category. |
 | `nonprose_mechanism.json` | Provisional measurement; unsupported policy | For eight selected failures on one adapter and seed, every ablation still failed 7/8. | One adapter, one seed, selected failures, uncontrolled length/category, and no commit provenance. It does not establish that all non-prose should be routed away from TTS. |
 | `nonprose_split_v2.json` | Provisional | Paired whole-versus-split results exist for eight recovered segments. | No embedded provenance and tests only one proposed repair on a selected set. |
@@ -61,14 +63,14 @@ The machine-readable snapshot is
 
 1. Stage 4: non-prose replication across adapters, seeds, categories, and
    surface-feature-matched controls, reporting insertions separately.
-2. Stage 6: randomized, unlabeled listening materials for instructions and
-   casting; the current fixed-order audio is not a blind test.
+2. Human ratings of the completed Stage 6 randomized package; the fixed-order
+   legacy audio remains only a listening aid.
 3. Additional sentences and seeds before turning clone-versus-LoRA ECAPA scores
    into a Voice Lab policy.
 4. Controlled or matched analysis before attributing saturation scores to
    training sample count.
-5. Seeded standardized pitch profiling only if pitch will actually gate
-   production casting.
+5. Seeded standardized pitch profiling is now eligible because production
+   auto-selection still falls back to declared pitch.
 
 ## Audit integrity note
 

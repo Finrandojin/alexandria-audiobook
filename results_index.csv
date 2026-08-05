@@ -56,6 +56,7 @@ because_production__mushoku16__qwen__qwen3-14b__local.json,because_production,mu
 because_production__qwen__qwen3-14b.json,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,baseline,139,69,49.6,ok,True,2ce90a96,4564.3,07-27 06:04,http://localhost:1234/v1,
 because_production__qwen__qwen3-14b.json,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,because,139,59,42.4,ok,True,2ce90a96,4564.3,07-27 06:04,http://localhost:1234/v1,
 because_production__qwen__qwen3-14b.json,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,scaffold_thinking,139,60,43.2,ok,True,2ce90a96,4564.3,07-27 06:04,http://localhost:1234/v1,
+blinded_listening.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 booknlp_baseline__pdnc_prideandprejudice.json,booknlp_baseline,?,booknlp-big,local-lmstudio,,lmstudio,,,f16?,booknlp,1226,665,54.2,None,,,,,,
 candidate_id__qwen__qwen3-14b.json,candidate_id,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,name,147,72,49.0,ok,False,53299de7,68.3,07-26 15:39,http://localhost:1234/v1,
 candidate_id__qwen__qwen3-14b.json,candidate_id,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,id,147,52,35.4,ok,False,53299de7,68.3,07-26 15:39,http://localhost:1234/v1,
@@ -499,6 +500,8 @@ seed_instruction_controls.json,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list 
 segmentation_classifier.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 shipping_readiness.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 stack_overlap.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+stage6_instruction_source.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+stage6_scene_aware_casting.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 symbolization.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 symbolization_owari.json,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 tag_priority__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,tag_priority,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,baseline,396,327,82.6,ok,False,,4007.5,07-29 19:40,http://127.0.0.1:8090/v1,

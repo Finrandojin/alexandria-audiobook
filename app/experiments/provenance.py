@@ -36,8 +36,11 @@ USE IT LIKE THIS, at the point of writing the artifact:
 single field whose absence caused this.
 """
 import hashlib
+import functools
 import os
 import platform
+import re
+import subprocess
 import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
@@ -56,6 +59,73 @@ def file_sha256(path):
 def input_sha256(paths):
     """Return repo-relative content identities, failing on missing inputs."""
     return {os.path.relpath(path, REPO): file_sha256(path) for path in paths}
+
+
+@functools.lru_cache(maxsize=256)
+def get_harness_sha256_at_commit(repo, commit, harness_path="app/experiments"):
+    """Reconstruct manifest._source_fingerprint from one Git commit."""
+    names = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", commit, "--", harness_path],
+        cwd=repo, capture_output=True, check=True, text=True,
+        timeout=10).stdout.splitlines()
+    prefix = harness_path.rstrip("/") + "/"
+    names = sorted(name for name in names
+                   if name.startswith(prefix)
+                   and "/" not in name[len(prefix):]
+                   and name.endswith(".py"))
+    if not names:
+        raise ValueError(f"no Python harness files at {commit}:{harness_path}")
+    digest = hashlib.sha256()
+    for path in names:
+        content = subprocess.run(
+            ["git", "show", f"{commit}:{path}"], cwd=repo,
+            capture_output=True, check=True, timeout=10).stdout
+        digest.update(os.path.basename(path).encode("utf-8"))
+        digest.update(content)
+    return digest.hexdigest()
+
+
+def get_reproducible_harness_source(
+        provenance_block, repo=REPO, harness_path="app/experiments"):
+    """Return the exact commit (or WORKTREE) reproducing a recorded harness.
+
+    A dirty run often records the parent commit and is committed immediately
+    afterward. Only descendants of that recorded commit are eligible: finding
+    the same bytes on an unrelated branch would not establish the run's
+    history. Clean runs must match their recorded commit and are never rescued
+    by a later working tree.
+    """
+    git = provenance_block.get("git") if isinstance(provenance_block, dict) \
+        else None
+    if not isinstance(git, dict):
+        return None
+    target, recorded = git.get("harness_sha256"), git.get("commit")
+    if not isinstance(target, str) or not re.fullmatch(r"[0-9a-f]{64}", target):
+        return None
+    if not isinstance(recorded, str) or not re.fullmatch(r"[0-9a-f]{7,40}", recorded):
+        return None
+    try:
+        if get_harness_sha256_at_commit(repo, recorded, harness_path) == target:
+            return recorded
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+    if not git.get("dirty"):
+        return None
+    try:
+        descendants = subprocess.run(
+            ["git", "rev-list", "--ancestry-path", f"{recorded}..HEAD", "--",
+             harness_path], cwd=repo, capture_output=True, check=True,
+            text=True, timeout=10).stdout.splitlines()
+        for commit in reversed(descendants):
+            if get_harness_sha256_at_commit(
+                    repo, commit, harness_path) == target:
+                return commit
+        from experiments.manifest import _source_fingerprint
+        if _source_fingerprint(os.path.join(repo, harness_path)) == target:
+            return "WORKTREE"
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+    return None
 
 
 def provenance(script_file, args=None, **extra):

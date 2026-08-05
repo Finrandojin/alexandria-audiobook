@@ -33,6 +33,10 @@
     "test_api_summary.ApiSummaryTests.test_json_summary_records_ordered_test_identities_statuses_and_reasons",
     "test_api_summary.ApiSummaryTests.test_main_writes_summary_before_exiting_after_a_failure"
   ],
+  "test_artifact_structural_audit": [
+    "test_artifact_structural_audit.StructuralAuditTests.test_classifies_all_identity_contracts_without_scientific_claims",
+    "test_artifact_structural_audit.StructuralAuditTests.test_unreadable_json_is_visible_not_skipped"
+  ],
   "test_attribution_accuracy": [
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_book_and_entry_index_are_unique_in_every_fixture",
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_every_entry_has_an_expected_speaker",
@@ -386,6 +390,7 @@
   "test_experiment_infra": [
     "test_experiment_infra.AnalysisScriptTest.test_every_experiment_module_parses",
     "test_experiment_infra.AnalysisScriptTest.test_offline_analyses_declare_their_caveats",
+    "test_experiment_infra.CollectResultsRobustnessTest.test_csv_uses_repository_lf_line_endings",
     "test_experiment_infra.CollectResultsRobustnessTest.test_rows_as_a_count_does_not_crash_the_index",
     "test_experiment_infra.GoldFollowsBookTest.test_no_harness_hardcodes_a_book_specific_gold_default",
     "test_experiment_infra.ManifestGuardTest.test_a_clean_record_writes",
@@ -430,6 +435,13 @@
     "test_experiment_manifest.ManifestTest.test_the_written_artifact_round_trips",
     "test_experiment_manifest.UntrackedHarnessTest.test_a_fully_tracked_harness_reports_none",
     "test_experiment_manifest.UntrackedHarnessTest.test_an_untracked_harness_marks_the_tree_dirty"
+  ],
+  "test_experiment_provenance": [
+    "test_experiment_provenance.ReproducibleHarnessTests.test_clean_run_must_match_its_recorded_commit",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_dirty_run_can_match_exact_descendant_commit",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_dirty_uncommitted_harness_can_match_worktree",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_malformed_identity_is_rejected",
+    "test_experiment_provenance.ReproducibleHarnessTests.test_unrelated_branch_does_not_rescue_recorded_run"
   ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
@@ -1130,6 +1142,9 @@
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_recomputes_summary",
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_rejects_duplicate_matrix_cell",
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_requires_error_breakdown_identity"
+  ],
+  "test_stage6_checkpoint_runner": [
+    "test_stage6_checkpoint_runner.Stage6RunnerTests.test_gpu_wrapper_sets_approved_lock_and_repository_queue_log"
   ],
   "test_support": [],
   "test_system_version": [
