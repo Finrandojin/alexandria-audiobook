@@ -21,7 +21,7 @@ pending until people listen to blinded audio.
 | 7 — pitch profiling | **measurement complete; listening gate pending** | The pilot passed and the full 1,350-row matrix passed independent pitch/WAV/provenance validation. No numerical casting threshold is adopted without blinded listening. |
 | 8 — adapter health | **stopped at gate** | Weight norm is not production-driving and existing seeded ECAPA samples do not demonstrate a positive relationship; no adapter action is justified. |
 | 9 — operational tests | **complete for implemented resume paths** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, row resume, and distillation training-state resume are covered. |
-| 10 — validation/index | **complete through Stage 7** | Both pitch artifacts are explicitly not indexed; indexes regenerated and all 1,286 tests passed. |
+| 10 — validation/index | **complete** | Indexes and both audits are current; all new artifacts are explicit; final discovery passed all 1,289 tests. |
 
 ## Non-negotiable execution rules
 
@@ -472,6 +472,11 @@ Current checkpoint:
   explicitly under **Not indexed** in both indexes. Independent validation
   remeasured all 1,350 full-matrix WAVs and reproduced the artifact exactly;
   the Stage 7 post-run discovery passed all 1,286 tests with no skipped suite.
+- The final CPU audit accounts for all 112 legacy attribution artifacts exactly
+  once and passes its deterministic `--check`. After adding its three
+  behavior-bearing tests and refreshing the committed inventory, final full
+  discovery passed all 1,289 tests. The local GPU queue is empty, its lock is
+  acquirable, and no Stage 7 checkpoint remains.
 
 ## Schedule and stopping policy
 
