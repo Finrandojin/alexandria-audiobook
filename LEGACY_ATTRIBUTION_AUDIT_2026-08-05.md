@@ -4,9 +4,9 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 
 ## Counts
 
-- `exploratory`: 2
-- `historical_only`: 42
-- `provisional`: 29
+- `exploratory`: 9
+- `historical_only`: 38
+- `provisional`: 26
 - `supported_measurement`: 37
 
 `historical_only` means current-gold rescoring changes at least one judgment or cannot map at least one row. Original files remain preserved; their saved summaries were not rewritten.
@@ -29,7 +29,7 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `because_production__qwen__qwen3-14b.json` | because_production | provisional | 417 | 0 | 0 | True |  |
 | `candidate_id__qwen__qwen3-14b.json` | candidate_id | historical_only | 294 | 1 | 0 | False |  |
 | `closed_set.json` | closed_set | exploratory | 441 | 2 | 0 | True | artifact validation is not ok; environment is missing context_length; environment is missing parallel; no LM Studio load state recorded; no harness fingerprint: the code that ran is unidentified |
-| `closed_set__gemma-4-e4b-uncensored-hauhaucs-aggressive.json` | closed_set | provisional | 441 | 0 | 0 | False |  |
+| `closed_set__gemma-4-e4b-uncensored-hauhaucs-aggressive.json` | closed_set | exploratory | 441 | 0 | 0 | False | recorded commit is unavailable |
 | `closed_set__grimgar03__gemma-4-e4b-uncensored-hauhaucs-aggressive.json` | closed_set | historical_only | 1200 | 50 | 12 | False |  |
 | `closed_set__grimgar03__google__gemma-3-27b__thunder-a6000.json` | closed_set | historical_only | 1200 | 54 | 12 | False |  |
 | `closed_set__grimgar03__ministral-3-14b-instruct-2512.json` | closed_set | historical_only | 1200 | 52 | 12 | False |  |
@@ -42,9 +42,9 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `closed_set__grimgar03__qwen__qwen3-32b__thunder-a6000.json` | closed_set | historical_only | 1200 | 59 | 12 | False |  |
 | `closed_set__index18__mistralai__magistral-small__local-llamacpp.json` | closed_set | supported_measurement | 297 | 0 | 0 | False |  |
 | `closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json` | closed_set | supported_measurement | 297 | 0 | 0 | False |  |
-| `closed_set__microsoft__phi-4.json` | closed_set | provisional | 441 | 0 | 0 | False |  |
-| `closed_set__ministral-3-14b-instruct-2512-absolute-heresy-i1.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
-| `closed_set__ministral-3-14b-instruct-2512.json` | closed_set | historical_only | 441 | 3 | 0 | False |  |
+| `closed_set__microsoft__phi-4.json` | closed_set | exploratory | 441 | 0 | 0 | False | recorded commit is unavailable |
+| `closed_set__ministral-3-14b-instruct-2512-absolute-heresy-i1.json` | closed_set | exploratory | 441 | 2 | 0 | False | recorded commit is unavailable |
+| `closed_set__ministral-3-14b-instruct-2512.json` | closed_set | exploratory | 441 | 3 | 0 | False | recorded commit is unavailable |
 | `closed_set__mushoku16__google__gemma-3-27b__thunder-a6000.json` | closed_set | historical_only | 417 | 3 | 0 | False |  |
 | `closed_set__mushoku16__mistralai__magistral-small__local-llamacpp.json` | closed_set | historical_only | 417 | 1 | 0 | False |  |
 | `closed_set__mushoku16__mistralai__magistral-small__thunder-a6000.json` | closed_set | historical_only | 417 | 1 | 0 | False |  |
@@ -56,8 +56,8 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `closed_set__mushoku16__qwen__qwen3-32b__thunder-a6000.json` | closed_set | historical_only | 417 | 3 | 0 | False |  |
 | `closed_set__owarimonogatari3__mistralai__magistral-small__local-llamacpp.json` | closed_set | supported_measurement | 486 | 0 | 0 | False |  |
 | `closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json` | closed_set | supported_measurement | 486 | 0 | 0 | False |  |
-| `closed_set__qwen3.5-9b-uncensored-hauhaucs-aggressive.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
-| `closed_set__qwen__qwen3-14b.json` | closed_set | historical_only | 441 | 2 | 0 | False |  |
+| `closed_set__qwen3.5-9b-uncensored-hauhaucs-aggressive.json` | closed_set | exploratory | 441 | 2 | 0 | False | recorded commit is unavailable |
+| `closed_set__qwen__qwen3-14b.json` | closed_set | exploratory | 441 | 2 | 0 | False | recorded commit is unavailable |
 | `committed_history__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | committed_history | historical_only | 1200 | 43 | 12 | False |  |
 | `committed_history__index18__qwen__qwen3-14b__local-llamacpp.json` | committed_history | supported_measurement | 297 | 0 | 0 | False |  |
 | `committed_history__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | committed_history | supported_measurement | 408 | 0 | 0 | False |  |
@@ -102,7 +102,7 @@ All 110 legacy-metadata artifacts are listed exactly once. Classification descri
 | `roster_quality__index18__qwen__qwen3-14b__local-llamacpp.json` | roster_quality | provisional | 368 | 0 | 0 | True |  |
 | `roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | roster_quality | provisional | 532 | 0 | 0 | True |  |
 | `roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | roster_quality | provisional | 648 | 0 | 0 | True |  |
-| `roster_warmup.json` | roster_warmup | provisional | 417 | 0 | 0 | False |  |
+| `roster_warmup.json` | roster_warmup | exploratory | 417 | 0 | 0 | False | recorded commit is unavailable |
 | `roster_warmup__ministral-3-14b-instruct-2512.json` | roster_warmup | provisional | 417 | 0 | 0 | False |  |
 | `scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json` | scene_cast | provisional | 1155 | 0 | 0 | True |  |
 | `scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json` | scene_cast | provisional | 1155 | 0 | 0 | True |  |
