@@ -18,7 +18,7 @@ pending until people listen to blinded audio.
 | 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
 | 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
 | 6 — blinded materials | **generation complete; human verdict pending** | Eight randomized sets contain 20 validated WAVs and a separately hashed concealed key. |
-| 7 — pitch profiling | **eligible; harness preparation pending** | Production auto-selection still falls back to declared `mean_f0`; the legacy six-adapter artifact cannot support that decision. |
+| 7 — pitch profiling | **eligible; replacement harness verified, pilot pending** | Production auto-selection still falls back to declared `mean_f0`; a locked 75-adapter × 6-passage × 3-seed harness passed focused and full-suite verification before generation. |
 | 8 — adapter health | **stopped at gate** | Weight norm is not production-driving and existing seeded ECAPA samples do not demonstrate a positive relationship; no adapter action is justified. |
 | 9 — operational tests | **complete for implemented resume paths** | Lock, timeout release, queue propagation, generation guards, invalid/truncated WAVs, identity, row resume, and distillation training-state resume are covered. |
 | 10 — validation/index | **complete through Stage 6** | The listening manifest is explicitly not indexed; indexes regenerated and all 1,267 tests passed. |
@@ -315,7 +315,7 @@ Gate:
 Before adopting any threshold, verify with blinded listening that differences
 near that threshold are perceptually useful.
 
-Current state: **eligible; replacement harness required before generation**.
+Current state: **eligible; replacement harness verified, pilot pending**.
 
 - `app/routers/voices.py::_infer_lora_gender` still uses declared `mean_f0`
   with a 165 Hz threshold when explicit/name/description evidence is absent,
@@ -324,6 +324,21 @@ Current state: **eligible; replacement harness required before generation**.
   pitch. The old artifact covers six adapters, one seed, and one text set; it
   lacks voiced-frame coverage and octave-error evidence and cannot satisfy this
   stage.
+- Six passages were locked before generation across narration, plain dialogue,
+  question dialogue, exclamation dialogue, short dialogue, and long dialogue.
+  The full matrix is fixed at 75 adapters × 3 seeds × 6 passages = 1,350 rows.
+- The replacement harness checkpoints every row against exact code, input,
+  adapter-weight, seed, and passage identities. Resume validation fully decodes
+  each WAV and recomputes pYIN measurements; completed artifacts also require a
+  reproducible harness, current input/weight hashes, exact matrix coverage,
+  recomputed summaries, and recomputed likely-octave flags.
+- The pilot is fixed at one adapter × two seeds × two passage types = four
+  rows. At least three must produce valid pitch tracks before the full matrix
+  may start. Tracker failures remain explicit rows rather than being dropped.
+- The shared GPU-job helper is now the single source for the approved lock,
+  repository queue log, timeout wrapper, checked exit status, and per-stage
+  log. Focused verification passed 18 tests; full discovery passed all 1,286
+  tests before any Stage 7 generation.
 
 ## Stage 8 — Adapter-health validation
 

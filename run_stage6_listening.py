@@ -5,6 +5,8 @@ import os
 import subprocess
 import sys
 
+from local_gpu_job import run_gpu_job
+
 REPO = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
@@ -15,7 +17,6 @@ from experiments.provenance import (  # noqa: E402
     get_reproducible_harness_source, input_sha256)
 
 PYTHON = os.path.join(APP, "env", "bin", "python")
-GPU_JOB = os.path.join(REPO, "gpu_job.sh")
 SCENE = os.path.join(
     REPO, "ab_test_runtime", "experiments", "stage6_scene_aware_casting.json")
 INSTRUCTION = os.path.join(
@@ -121,18 +122,8 @@ def validate_scene(path):
 
 
 def run_gpu(name, timeout, script, arguments):
-    log_path = os.path.join(REPO, "ab_test_runtime", "logs", "stage6_listening.log")
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    env = os.environ.copy()
-    env["GPU_LOCK"] = os.path.expanduser("~/.alexandria_gpu.lock")
-    env["GPU_QLOG"] = os.path.join(
-        REPO, "ab_test_runtime", "logs", "gpu_jobq.log")
-    with open(log_path, "a", encoding="utf-8") as log:
-        print("+", GPU_JOB, name, flush=True)
-        subprocess.run(
-            [GPU_JOB, name, "timeout", str(timeout), PYTHON, "-u", script,
-             *arguments], cwd=APP, check=True, stdout=log,
-            stderr=subprocess.STDOUT, env=env)
+    run_gpu_job(REPO, APP, PYTHON, name, timeout, script, arguments,
+                "stage6_listening.log")
 
 
 def ensure_scene():

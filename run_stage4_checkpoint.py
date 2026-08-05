@@ -6,6 +6,8 @@ import os
 import subprocess
 import sys
 
+from local_gpu_job import run_gpu_job
+
 
 REPO = os.path.dirname(os.path.abspath(__file__))
 APP = os.path.join(REPO, "app")
@@ -189,16 +191,8 @@ def run(command, cwd=REPO, env=None, stdout=None):
 
 
 def run_gpu_experiment(name, timeout_seconds, script, arguments, log_name):
-    env = os.environ.copy()
-    env.setdefault("GPU_LOCK", os.path.expanduser("~/.alexandria_gpu.lock"))
-    env.setdefault("GPU_QLOG", os.path.join(
-        REPO, "ab_test_runtime", "logs", "gpu_jobq.log"))
-    log_path = os.path.join(REPO, "ab_test_runtime", "logs", log_name)
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    command = [os.path.join(REPO, "gpu_job.sh"), name, "timeout",
-               str(timeout_seconds), sys.executable, "-u", script] + arguments
-    with open(log_path, "a", encoding="utf-8") as log:
-        run(command, cwd=APP, env=env, stdout=log)
+    run_gpu_job(REPO, APP, sys.executable, name, timeout_seconds, script,
+                arguments, log_name)
 
 
 def require_index_entries(*filenames):

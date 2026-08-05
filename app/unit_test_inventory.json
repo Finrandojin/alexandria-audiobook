@@ -681,6 +681,9 @@
     "test_lmstudio_settings.RemoteServerReachabilityTests.test_server_bound_none_on_ssh_failure",
     "test_lmstudio_settings.RemoteServerReachabilityTests.test_server_bound_true_when_listening_on_all_interfaces"
   ],
+  "test_local_gpu_job": [
+    "test_local_gpu_job.LocalGpuJobTests.test_runner_uses_one_approved_lock_queue_and_checked_timeout"
+  ],
   "test_lora_candidate_promotion": [
     "test_lora_candidate_promotion.LoraCandidatePromotionTests.test_backup_deletion_refuses_pending_checkpoint_recovery",
     "test_lora_candidate_promotion.LoraCandidatePromotionTests.test_backup_status_and_explicit_deletion",
@@ -806,6 +809,15 @@
     "test_pass_quality.SegmentQualityTests.test_rejects_attribution_tag_marked_spoken",
     "test_pass_quality.SegmentQualityTests.test_rejects_narration_combined_with_quoted_dialogue",
     "test_pass_quality.SegmentQualityTests.test_severe_truncation_fails_recall"
+  ],
+  "test_pitch_profile_matrix": [
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_default_manifest_has_75_complete_adapters",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_locked_fixture_matches_six_distinct_source_passages",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_surfaces_silence_as_tracker_failure",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_measure_pitch_tracks_a_decodable_sine_wave",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_octave_flags_are_explicit_leads_not_ground_truth",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_row_validation_rejects_duplicates_and_recomputes_measurement",
+    "test_pitch_profile_matrix.PitchProfileMatrixTests.test_summary_reports_dispersion_and_threshold_disagreement"
   ],
   "test_preparer_asr_validation": [
     "test_preparer_asr_validation.WhisperCppTests.test_adapter_parses_json_written_by_cli",
@@ -1144,7 +1156,11 @@
     "test_stage4_checkpoint_runner.Stage4CheckpointRunnerTest.test_validator_requires_error_breakdown_identity"
   ],
   "test_stage6_checkpoint_runner": [
-    "test_stage6_checkpoint_runner.Stage6RunnerTests.test_gpu_wrapper_sets_approved_lock_and_repository_queue_log"
+    "test_stage6_checkpoint_runner.Stage6RunnerTests.test_gpu_wrapper_delegates_to_shared_approved_runner"
+  ],
+  "test_stage7_pitch_runner": [
+    "test_stage7_pitch_runner.Stage7PitchRunnerTests.test_full_job_is_all_adapters_seeds_and_passages",
+    "test_stage7_pitch_runner.Stage7PitchRunnerTests.test_pilot_gate_requires_three_real_measurements"
   ],
   "test_support": [],
   "test_system_version": [
