@@ -35,12 +35,27 @@ USE IT LIKE THIS, at the point of writing the artifact:
 `seed` is pulled from args automatically when present, because the seed is the
 single field whose absence caused this.
 """
+import hashlib
 import os
 import platform
 import time
 
 REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
+
+
+def file_sha256(path):
+    """Return the content identity used by experiment provenance."""
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def input_sha256(paths):
+    """Return repo-relative content identities, failing on missing inputs."""
+    return {os.path.relpath(path, REPO): file_sha256(path) for path in paths}
 
 
 def provenance(script_file, args=None, **extra):

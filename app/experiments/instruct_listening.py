@@ -119,7 +119,7 @@ def main():
     import soundfile as sf
     from tts import TTSEngine
     from experiments.generation import render, GenerationFailed
-    from experiments.provenance import provenance
+    from experiments.provenance import input_sha256, provenance
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     manifest, published = [], True
@@ -132,7 +132,7 @@ def main():
         # the per-line one is what the annotator wrote for this line.
         per_char = (entry.get("character_style") or "").strip()
 
-        pieces, rate, arms_done = [], None, []
+        pieces, rate, arms_done, arm_files = [], None, [], {}
         for arm in ARMS:
             text_instruct = {"none": "", "per_char": per_char,
                              "per_line": instruct}[arm]
@@ -159,6 +159,7 @@ def main():
             pieces.append(audio)
             pieces.append(np.zeros(int((rate or 24000) * 0.8)))
             arms_done.append(arm)
+            arm_files[arm] = os.path.relpath(wav, REPO)
 
         if len(arms_done) != len(ARMS):
             print(f"  line {n}: DROPPED, only {arms_done} rendered")
@@ -168,7 +169,8 @@ def main():
         manifest.append({"line": n, "speaker": speaker,
                          "text": chunk["text"], "per_line_instruct": instruct,
                          "per_char_instruct": per_char, "arms": list(ARMS),
-                         "file": joined})
+                         "arm_files": arm_files,
+                         "file": os.path.relpath(joined, REPO)})
         print(f"  line {n} [{speaker}] {instruct[:44]:46} -> "
               f"{os.path.basename(joined)}")
 
@@ -183,10 +185,15 @@ def main():
     print("  instruction plumbing is doing nothing audible and that is worth")
     print("  knowing before more is built on it.")
 
-    json.dump({"provenance": provenance(__file__, args),
-               "seed": args.seed, "arms": list(ARMS),
-               "all_arms_rendered": published, "comparisons": manifest},
-              open(args.out, "w"), indent=1)
+    from utils import atomic_json_write
+    atomic_json_write({"status": "complete",
+                       "provenance": provenance(
+                           __file__, args,
+                           input_sha256=input_sha256(
+                               (args.script, args.voice_config, args.config))),
+                       "seed": args.seed, "arms": list(ARMS),
+                       "all_arms_rendered": published,
+                       "comparisons": manifest}, args.out)
     print("\nwrote", args.out)
 
 

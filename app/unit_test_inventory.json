@@ -161,6 +161,17 @@
     "test_benchmark_runner.BenchmarkRunnerTests.test_thunder_target_uses_remote_profile_and_status",
     "test_benchmark_runner.BenchmarkRunnerTests.test_tts_fixture_drift_is_rejected_before_worker"
   ],
+  "test_blinded_listening": [
+    "test_blinded_listening.BlindedListeningTests.test_builds_eight_unlabeled_sets_and_strictly_revalidates",
+    "test_blinded_listening.BlindedListeningTests.test_failed_manifest_write_removes_all_new_outputs",
+    "test_blinded_listening.BlindedListeningTests.test_input_hashes_fail_loudly_for_missing_files",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_asymmetric_casting_arms",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_source_without_provenance",
+    "test_blinded_listening.BlindedListeningTests.test_rejects_truncated_wav_during_full_decode",
+    "test_blinded_listening.BlindedListeningTests.test_same_seed_produces_the_same_concealed_mapping",
+    "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_audio_and_extra_files",
+    "test_blinded_listening.BlindedListeningTests.test_validation_rejects_changed_source_manifest"
+  ],
   "test_build_scoring_sheet": [
     "test_build_scoring_sheet.BuildSheetTest.test_agreement_is_marked",
     "test_build_scoring_sheet.BuildSheetTest.test_correct_speaker_starts_blank",

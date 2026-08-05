@@ -103,7 +103,11 @@ def main():
     os.makedirs(args.out_dir, exist_ok=True)
     from tts import TTSEngine, voice_category
     from experiments.generation import render
-    from experiments.provenance import provenance
+    from experiments.provenance import input_sha256, provenance
+    provenance_inputs = input_sha256((
+        args.script, args.voice_config, args.config, args.casting,
+        os.path.join(REPO, "character_aliases.json"),
+        os.path.join(REPO, "lora_models", "manifest.json")))
     engine = TTSEngine(json.load(open(args.config, encoding="utf-8")))
 
     import soundfile as sf
@@ -154,27 +158,34 @@ def main():
               f"{', '.join(asymmetric)} did not render every line.")
         for arm, fails in failures.items():
             print(f"    {arm}: {len(fails)} failed -> {fails[:3]}")
-        json.dump({"provenance": provenance(__file__, args),
-                   "scene_index": index, "lines": len(scene),
-                   "characters": args.characters, "published": False,
-                   "rendered": {a: v["lines"] for a, v in rendered.items()},
-                   "failures": failures},
-                  open(os.path.join(args.out_dir, "manifest.json"), "w"), indent=1)
+        from utils import atomic_json_write
+        atomic_json_write(
+            {"status": "failed", "provenance": provenance(
+                __file__, args, input_sha256=provenance_inputs),
+             "scene_index": index, "lines": len(scene),
+             "characters": args.characters, "published": False,
+             "rendered": {a: v["lines"] for a, v in rendered.items()},
+             "failures": failures},
+            os.path.join(args.out_dir, "manifest.json"))
         sys.exit(3)
 
     for arm, v in rendered.items():
         joined = np.concatenate(v["pieces"])
         out = os.path.join(args.out_dir, f"scene_{arm}.wav")
         sf.write(out, joined, v["rate"])
-        results[arm] = {"path": out, "seconds": round(len(joined) / v["rate"], 1),
+        results[arm] = {"path": os.path.relpath(out, REPO),
+                        "seconds": round(len(joined) / v["rate"], 1),
                         "lines": v["lines"]}
         print(f"\n  wrote {out}  ({results[arm]['seconds']}s)")
 
-    json.dump({"provenance": provenance(__file__, args),
-               "scene_index": index, "lines": len(scene),
-               "characters": args.characters, "published": True,
-               "line_ids": sorted(expected), "arms": results},
-              open(os.path.join(args.out_dir, "manifest.json"), "w"), indent=1)
+    from utils import atomic_json_write
+    atomic_json_write(
+        {"status": "complete", "provenance": provenance(
+            __file__, args, input_sha256=provenance_inputs),
+         "scene_index": index, "lines": len(scene),
+         "characters": args.characters, "published": True,
+         "line_ids": sorted(expected), "arms": results},
+        os.path.join(args.out_dir, "manifest.json"))
     print("\n  Play both. The question is whether FELT and REINHARD are\n"
           "  distinguishable in the current arm - the metric says they share a\n"
           "  voice exactly, 0 Hz apart. If that is inaudible, the conflict\n"
