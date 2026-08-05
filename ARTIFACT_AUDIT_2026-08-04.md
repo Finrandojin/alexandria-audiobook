@@ -4,13 +4,13 @@
 
 This audit separates artifact integrity from scientific support. Valid JSON or
 a recorded commit does not prove a conclusion. The structural inventory covers
-232 JSON files under `ab_test_runtime/experiments/`; manual review begins with
+241 JSON files under `ab_test_runtime/experiments/`; manual review begins with
 the artifacts currently used to justify TTS, instruction, non-prose, pitch,
 and adapter decisions.
 
-Structural inventory refreshed after Stage 6: 10 reproducible structural
+Structural inventory refreshed after Stage 7: 12 reproducible structural
 candidates, 112 artifacts on the older metadata contract, and 117 artifacts
-without sufficient embedded identity (239 total).
+without sufficient embedded identity (241 total).
 The machine-readable snapshot is
 `ab_test_runtime/audit/artifact_structural_audit.json`.
 
@@ -44,6 +44,7 @@ The machine-readable snapshot is
 | `nonprose_split_v2.json` | Provisional | Paired whole-versus-split results exist for eight recovered segments. | No embedded provenance and tests only one proposed repair on a selected set. |
 | `pitch_stability.json` | Provisional | Records seeded same-text and across-line pitch measurements for one adapter. | One adapter is not the pool; pitch-tracker validity and voiced-frame coverage are not carried in the artifact. |
 | `pitch_separation.json` | Provisional | Records six-adapter seeded measurements and the discrepancy between declared and measured pitch. | Pair-separation percentage relies on declared pool values whose observed error is comparable to the proposed threshold. It cannot yet drive casting. |
+| `pitch_profile_matrix.json` | Supported measurement + human-pending | Covers all 75 usable adapters over six locked passage types and three seeds; all 1,350 rows retain provenance and independently revalidated WAV/pYIN measurements. | One tracker failure and 523 likely-octave flags remain explicit. Acoustic separation and the 18 declared-versus-measured threshold-side disagreements do not establish perceptual usefulness or justify changing production without blinded listening. |
 
 ## Restated claims requiring care
 
@@ -69,8 +70,10 @@ The machine-readable snapshot is
    into a Voice Lab policy.
 4. Controlled or matched analysis before attributing saturation scores to
    training sample count.
-5. Seeded standardized pitch profiling is now eligible because production
-   auto-selection still falls back to declared pitch.
+5. Blinded listening near any proposed pitch threshold before production
+   metadata, the 165 Hz fallback, or casting policy is changed. Standardized
+   seeded profiling is complete, but it is acoustic rather than perceptual
+   evidence.
 
 ## Audit integrity note
 

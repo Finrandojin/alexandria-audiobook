@@ -13,7 +13,7 @@ pending until people listen to blinded audio.
 | stage | state | evidence |
 |---|---|---|
 | 1 — controls | **complete** | Fresh-process determinism and instruction positive controls passed for three adapters. |
-| 2 — evidence audit | **decision-bearing review complete; broader audit remains** | Reproducible structural inventory refreshed to 239 artifacts; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
+| 2 — evidence audit | **decision-bearing review complete; broader audit remains** | Reproducible structural inventory refreshed to 241 artifacts; manual TTS/non-prose/pitch classifications in `ARTIFACT_AUDIT_2026-08-04.md`. |
 | 3 — unreliable TTS reruns | **complete** | Seeded clone-vs-LoRA and saturation generation plus ECAPA scoring completed with provenance. |
 | 4 — non-prose replication | **complete** | Fixed 144-row matrix and six-category 432-row expansion both passed strict validation. The effect is category-specific, not a general non-prose failure. |
 | 5 — non-prose remedies | **stopped at gate** | Stage 4 did not justify a general non-prose routing policy, so the general remedy comparison is not eligible. |
@@ -102,9 +102,9 @@ Only rerun unreliable artifacts that influence a current product decision.
 
 Current state:
 
-- Structural audit refreshed for 239 artifacts and written to
+- Structural audit refreshed for 241 artifacts and written to
   `ab_test_runtime/audit/artifact_structural_audit.json`.
-- Current counts: 10 reproducible structural candidates, 112 older-metadata
+- Current counts: 12 reproducible structural candidates, 112 older-metadata
   artifacts requiring semantic review, and 117 without sufficient
   embedded identity.
 - `audit_experiment_artifacts.py` now regenerates this inventory and preserves
