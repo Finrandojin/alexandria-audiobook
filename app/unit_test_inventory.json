@@ -519,6 +519,27 @@
     "test_frontend_regressions.FrontendTests.test_voicelab_health_dashboard_is_rendered_and_wired",
     "test_frontend_regressions.FrontendTests.test_voicelab_requires_visible_preflight_before_start"
   ],
+  "test_generate_personas": [
+    "test_generate_personas.JaccardTest.test_empty_names_score_zero",
+    "test_generate_personas.JaccardTest.test_it_takes_the_same_honorific_decision_as_its_caller",
+    "test_generate_personas.NormalizationTest.test_case_and_punctuation_always_fold",
+    "test_generate_personas.NormalizationTest.test_honorific_stripping_is_optional",
+    "test_generate_personas.NormalizationTest.test_non_string_input_is_empty",
+    "test_generate_personas.RealRosterTest.test_the_live_config_has_no_honorific_ambiguity",
+    "test_generate_personas.RefTextTest.test_it_picks_something_from_real_lines",
+    "test_generate_personas.RefTextTest.test_no_lines_does_not_crash",
+    "test_generate_personas.ResolutionTest.test_a_bare_surname_still_resolves_on_an_ambiguous_roster",
+    "test_generate_personas.ResolutionTest.test_a_couple_resolves_to_two_distinct_voices",
+    "test_generate_personas.ResolutionTest.test_a_third_honorific_is_refused_rather_than_guessed",
+    "test_generate_personas.ResolutionTest.test_case_variants_still_resolve",
+    "test_generate_personas.ResolutionTest.test_empty_input_is_none",
+    "test_generate_personas.ResolutionTest.test_loose_matching_survives_where_it_is_safe",
+    "test_generate_personas.ResolutionTest.test_short_names_do_not_match_longer_ones",
+    "test_generate_personas.ResolutionTest.test_unrelated_names_do_not_match",
+    "test_generate_personas.RosterAmbiguityTest.test_a_married_couple_is_detected",
+    "test_generate_personas.RosterAmbiguityTest.test_an_ordinary_roster_is_not",
+    "test_generate_personas.RosterAmbiguityTest.test_empty_and_none_are_safe"
+  ],
   "test_generation_guard": [
     "test_generation_guard.TestDispatch.test_clone_routes_to_clone",
     "test_generation_guard.TestDispatch.test_custom_is_the_fallback",
