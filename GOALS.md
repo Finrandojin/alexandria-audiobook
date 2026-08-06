@@ -426,15 +426,30 @@ language, RX 9070 XT). **MET, barely.**
 > them, mangle them, or emit noise. There is currently no check at all, so
 > whatever happens, happens silently.
 >
-> **Why there is no target number yet.** Because nobody has counted. Committing
-> to "reduce it by half" without knowing whether it happens twice or ten
-> thousand times would be inventing a goal. The first job is to count.
+> **What the first count found.** Counting the eight source books on 2026-08-06
+> gave a partial answer. Chinese or Japanese characters appear inside otherwise
+> English text in **five of eight books**, between 23 and 779 times each. And
+> one book, index18, turned out to be **1.4% corrupt** — 6,662 "unknown
+> character" marks left behind by a bad text conversion. The app already refuses
+> that book at the door, which is correct, and is why it does not appear in the
+> three-pass comparison.
+>
+> **What is still uncounted.** The source files are only the front door. Nobody
+> has yet counted what reaches the *voice engine* after all processing, which is
+> where the damage would actually occur. That is the measurement still owed.
 
 **Metric** — characters passed to TTS with no spoken form.
-**Current** — **NO BASELINE.** No gate catches these.
+**Probe** — source-level count is a script over the input `.txt` files; the
+TTS-level count does not exist yet.
+**Current** — **PARTIAL BASELINE.** Sources: CJK inside non-CJK text in 5 of 8
+books (23–779 occurrences); index18 carries 6,662 U+FFFD and is refused by the
+existing source gate. **At the TTS boundary: still NO BASELINE.**
 
-**Target — measure the rate first, then drive it to 0 with a verbalization
-pass.**
+**Target — count what reaches the engine, then drive it to 0 with a
+verbalization pass.**
+
+The source gate proves the app can refuse bad input. It does not prove nothing
+unspeakable survives the journey to the speaker.
 
 ### 5.2 Names pronounced consistently
 
