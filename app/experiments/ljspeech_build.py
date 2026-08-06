@@ -82,10 +82,15 @@ def main():
                 continue
             rel = os.path.join("train", row["id"] + ".wav")
             secs = resample_to(src, os.path.join(args.out, rel))
+            # train_lora.py resolves audio_filepath against --data_dir, which
+            # IS this train/ directory - so the entry must be the bare
+            # filename. Writing "train/x.wav" produced train/train/x.wav and
+            # the trainer aborted on a missing reference.
+            entry_rel = os.path.basename(rel)
             # `normalized` is what a reader SAYS ("nineteen forty-two", not
             # "1942"). Training on the raw column would teach the model to
             # pronounce digits it will never be handed at inference.
-            fh.write(json.dumps({"audio_filepath": rel,
+            fh.write(json.dumps({"audio_filepath": entry_rel,
                                  "text": row["normalized"]},
                                 ensure_ascii=False) + "\n")
             train_rows.append({"id": row["id"], "seconds": secs})
@@ -101,6 +106,13 @@ def main():
     ref_path = os.path.join(args.out, "ref_sample.wav")
     import shutil
     shutil.copy2(os.path.join(args.out, ref_rel), ref_path)
+    # train_lora.py looks for ref.wav inside the data dir; without it the
+    # trainer silently uses the FIRST sample as the voice prompt, which is a
+    # different (and unchosen) clip.
+    shutil.copy2(ref_path, os.path.join(train_dir, "ref.wav"))
+    with open(os.path.join(train_dir, "ref_text.txt"), "w",
+              encoding="utf-8") as rfh:
+        rfh.write(ref_row["normalized"])
 
     # ── held-out human audio ────────────────────────────────────────────
     test_rows = []

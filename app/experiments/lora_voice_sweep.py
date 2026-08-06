@@ -40,7 +40,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
 
-BASELINE = {"samples": 200, "lora_r": 32, "lora_alpha": 128, "epochs": 6}
+# Matches every one of the 75 adapters that actually work in this library.
+# The FIRST version of this file used lora_r 32 and left --lr at train_lora's
+# CLI default of 5e-6, which no working adapter uses: five times the rate the
+# library trains at. Both adapters trained that way generated 163.8 seconds of
+# audio for a seven-second line - every render, hitting the token ceiling,
+# never emitting an end of speech. The sweep would have produced seven more.
+BASELINE = {"samples": 200, "lora_r": 64, "lora_alpha": 128, "epochs": 6,
+            "lr": 1e-6}
 
 
 def configs(levers):
@@ -69,6 +76,12 @@ def configs(levers):
     if "epochs" in levers:
         for e in (3, 12):
             add(f"epochs{e}", epochs=e)
+    if "lr" in levers:
+        # The lever that turned out to matter: 5e-6 produced adapters that
+        # never stop generating. 2e-6 probes whether 1e-6 is conservative or
+        # near the edge.
+        for r in (5e-7, 2e-6):
+            add(f"lr{r:.0e}", lr=r)
     return out
 
 
@@ -86,7 +99,7 @@ def main():
     ap.add_argument("--work", default=os.path.join(
         REPO, "ab_test_runtime", "lora_sweep"))
     ap.add_argument("--levers", nargs="+",
-                    default=["samples", "rank", "epochs"])
+                    default=["samples", "rank", "epochs", "lr"])
     ap.add_argument("--score-lines", type=int, default=50,
                     help="subset for ranking; the winner is re-scored in full")
     ap.add_argument("--seed", type=int, default=1234)
@@ -108,7 +121,8 @@ def main():
     print(f"{len(plan)} configurations, one lever at a time from baseline")
     for c in plan:
         print(f"  {c['name']:12} samples={c['samples']:3} r={c['lora_r']:2} "
-              f"alpha={c['lora_alpha']:3} epochs={c['epochs']:2}")
+              f"alpha={c['lora_alpha']:3} epochs={c['epochs']:2} "
+              f"lr={c['lr']:.0e}")
     print()
 
     results = []
@@ -139,6 +153,7 @@ def main():
                   "--data_dir", data, "--output_dir", adapter,
                   "--epochs", str(c["epochs"]), "--lora_r", str(c["lora_r"]),
                   "--lora_alpha", str(c["lora_alpha"]),
+                  "--lr", str(c["lr"]),
                   "--seed", str(args.seed)],
                  os.path.join(logs, f"sweep_{c['name']}_train.log"), 14400)
         if rc != 0:

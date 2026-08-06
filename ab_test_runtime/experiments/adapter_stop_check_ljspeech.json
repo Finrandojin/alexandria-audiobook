@@ -1,0 +1,72 @@
+{
+ "adapter": "ab_test_runtime/ljspeech_eval/adapter_lr1e6",
+ "seed": 1234,
+ "max_ratio": 3.0,
+ "median_ratio": 1.0104133678582736,
+ "worst_ratio": 1.0934798129660888,
+ "passed": true,
+ "verdict": "PASS - the adapter stops. Median 1.0x the human duration.",
+ "lines": [
+  {
+   "id": "LJ020-0001",
+   "human_seconds": 5.37,
+   "generated_seconds": 5.28,
+   "ratio": 0.98
+  },
+  {
+   "id": "LJ020-0002",
+   "human_seconds": 10.1,
+   "generated_seconds": 11.04,
+   "ratio": 1.09
+  },
+  {
+   "id": "LJ020-0003",
+   "human_seconds": 8.95,
+   "generated_seconds": 9.04,
+   "ratio": 1.01
+  },
+  {
+   "id": "LJ020-0005",
+   "human_seconds": 7.34,
+   "generated_seconds": 7.92,
+   "ratio": 1.08
+  },
+  {
+   "id": "LJ020-0007",
+   "human_seconds": 5.07,
+   "generated_seconds": 5.12,
+   "ratio": 1.01
+  }
+ ],
+ "provenance": {
+  "script": "verify_adapter_stops.py",
+  "written": "2026-08-06T03:22:32",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "1578a1cbf10c3e88aeba1af30c739cf7e1ed3eda",
+   "branch": "agent/simd-evidence",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M RESULTS_INDEX.md",
+    " M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json",
+    " M app/experiments/ljspeech_build.py",
+    " M app/experiments/lora_voice_sweep.py",
+    " M results_index.csv"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "6f8e28d5632793a0e6eedc9e0fd31c8453bddc6c547823ccddd875e2e970bb51"
+  },
+  "args": {
+   "build": "ab_test_runtime/ljspeech_eval/build.json",
+   "adapter": "ab_test_runtime/ljspeech_eval/adapter_lr1e6",
+   "config": "app/config.json",
+   "lines": 5,
+   "seed": 1234,
+   "max_ratio": 3.0,
+   "out_dir": null,
+   "out": "ab_test_runtime/experiments/adapter_stop_check_ljspeech.json"
+  },
+  "seed": 1234
+ }
+}

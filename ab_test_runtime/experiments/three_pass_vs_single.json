@@ -1,0 +1,61 @@
+{
+ "books": [
+  "grimgar03",
+  "index18",
+  "mushoku16",
+  "owarimonogatari3"
+ ],
+ "results": [],
+ "failures": [
+  {
+   "book": "grimgar03",
+   "arm": "single",
+   "rc": 1
+  },
+  {
+   "book": "index18",
+   "arm": "single",
+   "rc": 1
+  },
+  {
+   "book": "mushoku16",
+   "arm": "single",
+   "rc": 1
+  },
+  {
+   "book": "owarimonogatari3",
+   "arm": "single",
+   "rc": 1
+  }
+ ],
+ "provenance": {
+  "script": "three_pass_vs_single.py",
+  "written": "2026-08-06T03:09:13",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "1578a1cbf10c3e88aeba1af30c739cf7e1ed3eda",
+   "branch": "agent/simd-evidence",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json",
+    " M app/experiments/ljspeech_build.py",
+    " M app/experiments/lora_voice_sweep.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "6f8e28d5632793a0e6eedc9e0fd31c8453bddc6c547823ccddd875e2e970bb51"
+  },
+  "args": {
+   "books": [
+    "grimgar03",
+    "index18",
+    "mushoku16",
+    "owarimonogatari3"
+   ],
+   "inputs": "ab_test_runtime/results/collect_all_20260722-155801/inputs",
+   "work": "ab_test_runtime/three_pass_vs_single",
+   "timeout": 14400,
+   "out": "ab_test_runtime/experiments/three_pass_vs_single.json"
+  }
+ }
+}
