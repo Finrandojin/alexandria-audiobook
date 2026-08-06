@@ -87,6 +87,45 @@ to 84.4 on the same method) is larger than the spread between most methods.
 Book identity dominates — some novels are simply harder than others, and a
 result from one book does not transfer to the next.
 
+#### These numbers are measured on the HARD SUBSET, and understate real accuracy
+
+The light-novel gold says how it was drawn: *"Sampled uniformly from spoken,
+**non-deterministic**, textually unique segments."* Lines the deterministic
+namer already resolves — the ordinary `"…," said Haruhiro` case — were
+**excluded before sampling**. Every light-novel accuracy in this document is
+therefore conditional on *the line being hard enough that the cheap path
+failed*, not on a representative page of the book.
+
+The PDNC evaluation does not filter that way: it takes `entries[:limit]`
+straight off the fixture. Which is why the same base model, on human-annotated
+gold, scores far higher there:
+
+| set | gold labelled by | sampling | base model |
+|---|---|---|---|
+| PDNC Pride and Prejudice | humans (published corpus) | first N, unfiltered | **80.5%** |
+| PDNC The Awakening | humans | first N, unfiltered | **86.0%** |
+| PDNC The Sign of the Four | humans | first N, unfiltered | **80.5%** |
+| four light novels | two frontier models | hard subset only | 46–67% median |
+
+**Do not read that gap as genre difficulty, and do not read it as the
+LLM-judged gold being wrong.** It is mostly the sampling. Comparing a
+hard-subset score against a whole-population score and concluding anything
+about the books, the judges, or the language is the exact error this table
+exists to prevent.
+
+Two consequences worth keeping straight:
+
+- **Real-world accuracy on a whole book is higher than goal 1.1's numbers**,
+  because most lines never reach the LLM at all. What 1.1 measures is the part
+  that does.
+- The one comparison that *is* clean: BookNLP, the field-standard tool, scores
+  **54.2%** on PDNC Pride and Prejudice (n=1226) under this harness. That is a
+  ruler from outside this project, on human gold.
+
+**Before any cross-set comparison, harmonise the sampling.** Running every
+method on every book — which is worth doing — will produce nonsense if a hard
+subset is scored against a full set.
+
 ### 1.2 Close the selection gap
 
 > **What this is.** Before deciding who spoke, the app assembles a shortlist of
@@ -117,6 +156,121 @@ picks it **29.9%** of the time. **OPEN.**
 **Why this and not more context.** Two independent measurements say supply is
 not the constraint. Feeding the model more of the book is treating the wrong
 problem, and has been tried.
+
+#### What has already been tried, with numbers
+
+Recorded here because this knowledge lived in ~30 scattered artifacts, and on
+2026-08-06 that cost a session in which three already-rejected ideas were
+proposed as if new. **Read this before proposing a fix for the selection gap.**
+
+| approach | result | verdict |
+|---|---|---|
+| widen attribution context (w1→w4) | +10.0 grimgar03 (4 repeats), +3.0 index18, **−5.0 mushoku16**, 0.0 owari | book-dependent, not a fix |
+| route per book | leave-one-out router **56.5%** vs fixed **57.2%** | **worse than picking one setting** |
+| constrain decoding to the roster (GBNF) | open arm: 0.0, −1.0, −1.4, −1.2 | no gain where it matters |
+| shrink candidate set to 6 | +1.8 grimgar03, **−6.1 index18, −12.5 mushoku16, −4.9 owari** | loses the right name |
+| oracle candidate set | +10 to +18 everywhere | not achievable; it needs the answer |
+
+The shape of it: **`closed-oracle` wins big and `closed-6` loses**, and the only
+difference is whether the shortlist contains the right name. Constraining the
+model is not the lever. Whether the answer is *in the list* is.
+
+**Routing deserves its own warning.** Every routing gain quoted before
+`realizable_router` was fitted — the best arm per book read off the results
+afterwards. When the choice must be made without seeing the held-out book, the
+router wins 4 families, loses 5, ties 6, and lands **below** a fixed setting.
+An oracle-routed number is not an achievable number.
+
+#### The one lever positive on all four tested books — and only four
+
+**Scope first, because the result is easy to overstate and was.** This ran on
+grimgar03, index18, mushoku16 and owarimonogatari3. All four are Japanese light
+novels **in English translation** — one genre, one language, one translation
+pipeline. It has never run on the three PDNC public-domain English novels, on
+the Chinese WP/JY sets, or on any Japanese-language text. Read every number
+below as "four books of one kind", not "every book".
+
+`roster_quality` varied the roster instead of the model. Adding the names
+`build_roster` missed beats the generated roster on all four, and beats a
+*perfect* roster too:
+
+| book | generated | augmented | gold |
+|---|---|---|---|
+| grimgar03 | 59.7 | **63.6** | 61.6 |
+| index18 | 67.4 | **71.7** | 69.6 |
+| mushoku16 | 48.9 | **51.9** | 48.9 |
+| owarimonogatari3 | 40.7 | **45.1** | 42.6 |
+
+**+3.0 to +4.4, same direction every time** — the only intervention measured so
+far with no book that it hurts. The experiment pre-registered this reading:
+*"augmented >> generated → roster extraction is worth fixing, and the size of
+the effect is the prize."*
+
+The misses are not walk-on parts: ten characters across four books that
+`build_roster` never found, including HITOGAMI with 9 lines in mushoku16 and
+OUGI with 10 in owarimonogatari3.
+
+The `inflated` arm — a gold roster plus twenty decoys — is the guard rail:
+30.9% on owarimonogatari3 against 40.7% generated. **Adding names is only safe
+when they are real.** A recall fix that pads the list will lose more than it
+gains.
+
+**So the next move on 1.2 is `build_roster` in `three_pass_generate.py`, not a
+prompt, a constraint, or a router — but see the scope note first.**
+
+#### Before acting on it: widen the book set
+
+The cheapest way to find out whether this generalises is to run the same
+experiment on PDNC. It is not blocked by missing data:
+
+- PDNC ships its own curated roster (74 names for Pride and Prejudice), which
+  is what the `gold` arm needs, and from a published annotated corpus rather
+  than this project's own judging.
+- Its gold sets are LARGER than the light novels': 1270 / 640 / 584 rows
+  against 396 / 162 / 136 / 99.
+- **PDNC contamination does not apply here.** That contamination concerns the
+  distilled adapter's training set. `roster_quality` trains nothing; it runs
+  the base model and varies only the roster at inference. Nothing is fitted, so
+  held-out status is irrelevant to this particular experiment.
+
+**What it actually costs** — corrected after reading the script's data
+dependencies rather than guessing at them, having first written "an afternoon"
+here without checking:
+
+1. **A three-pass checkpoint per book. This is the real cost.**
+   `roster_quality` reads `segmented` and `named` from a prior pipeline run
+   (`matrix_20260725-115148/<model>/<book>/result.json.threepass_checkpoint.json`).
+   Only six light novels have one. The PDNC books have never been through the
+   pipeline, so each needs a **GPU segmentation run first** — mushoku16's single
+   pass took 80 minutes at 45 chunks, and Pride and Prejudice is a longer book.
+   Budget hours per novel, not minutes.
+2. **Source text** must be placed where the script expects it; the matrix
+   `inputs/` directory holds only the eight light novels.
+3. **`roster_additions` does not exist in PDNC gold.** The light novels carry a
+   hand-curated list of names the judges found missing; PDNC instead carries a
+   `roster` of 74 curated names. So `additions` becomes `roster - generated`,
+   which is arguably a cleaner definition — derived from a published corpus
+   rather than from this project's own judging.
+4. The hardcoded four-book decoy pool needs widening. This part *is* trivial;
+   it was the only part visible without reading the data flow.
+
+Chinese (WP/JY) would need more work: those sets use a different structure
+(`dataset`/`results` rather than `entries`). No Japanese-language attribution
+gold exists at all — the light novels are Japanese-origin but English text.
+
+If roster augmentation holds on three English public-domain novels of a
+different century and genre, it is a real finding and goal 1.3 gains evidence
+at the same time. If it does not, then it was a property of translated light
+novels and the whole recommendation changes.
+
+#### Still open
+
+`candidates.py` exists, states its own plan — *"an upper bound on recall;
+ablate afterwards to find the smallest reliable set"* — and has no artifact.
+The size-versus-recall curve it proposed was never run. Given `closed-6` fails
+by losing the right name and `closed-oracle` wins by keeping it, that curve is
+the one measurement that would say whether a small, honest candidate set is
+reachable at all.
 
 ### 1.3 Generalisation beyond the four books
 
