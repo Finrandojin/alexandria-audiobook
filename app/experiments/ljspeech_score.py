@@ -35,7 +35,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
 
-SIBLING_PY = "/home/fakemitch/pinokio/api/alexandria-audiobook.git/app/env/bin/python"
+# The sibling repo sits beside this one, so derive rather than hard-code - and
+# allow an override, because "the interpreter that has speechbrain" is a
+# machine fact, not a repository fact. The path guard caught the literal form
+# of this line, which is what it exists for.
+SIBLING_PY = os.environ.get(
+    "ALEXANDRIA_SIBLING_PYTHON",
+    os.path.join(os.path.dirname(REPO), "alexandria-audiobook.git",
+                 "app", "env", "bin", "python"))
 
 
 def f0_contour_correlation(a_path, b_path):
