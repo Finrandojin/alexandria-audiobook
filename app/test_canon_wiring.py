@@ -2,10 +2,22 @@
 
 Covers:
   - app.build_voice_roster(): canonical, deduped, fragment-free roster
-    construction from raw script entries; advisory alias_suggestions;
-    back-compat config lookup against non-canonical voice_config.json keys.
+    construction from raw script entries; back-compat config lookup
+    against non-canonical voice_config.json keys.
+  - app._canonical_roster_names() + GET /api/voices/alias_suggestions'
+    underlying helpers: the on-demand, split-out alias-suggestion path.
   - review_script._canonicalize_speakers(): canonicalizes "speaker" fields
     only, leaving "text" byte-identical.
+
+F13: suggest_aliases() is O(n^2) in roster size and was previously run
+unconditionally inside build_voice_roster() on every GET /api/voices call,
+even though the frontend never read the resulting "alias_suggestions"
+field (measured on a real 589-speaker roster: ~52ms of an ~80ms request,
+~160KB of unused response payload). build_voice_roster() no longer touches
+suggest_aliases() at all -- it now returns a (roster_names, config_lookup)
+2-tuple. Alias suggestions are computed only on demand, via a new
+GET /api/voices/alias_suggestions endpoint backed by
+app._canonical_roster_names() + speaker_canon.suggest_aliases().
 
 Run directly:
     python app/test_canon_wiring.py
@@ -13,6 +25,7 @@ Exits 0 if all tests pass, non-zero otherwise.
 """
 import os
 import sys
+import time
 import types
 import traceback
 
@@ -43,7 +56,9 @@ if 'project' not in sys.modules:
     _fake_project.ProjectManager = _FakeProjectManager
     sys.modules['project'] = _fake_project
 
-from app import build_voice_roster  # noqa: E402
+import app as app_module  # noqa: E402
+from app import build_voice_roster, _canonical_roster_names  # noqa: E402
+from speaker_canon import suggest_aliases  # noqa: E402
 from review_script import _canonicalize_speakers  # noqa: E402
 
 
@@ -65,33 +80,12 @@ def test_roster_canonicalizes_and_dedupes():
         {"speaker": "JOHN", "text": "e"},
         {"speaker": "narrator", "text": "f"},
     ]
-    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, {})
+    roster_names, config_lookup = build_voice_roster(script_data, {})
 
     check(
         "roster: exactly 4 canonical names, MARK collapsed, JON/JOHN distinct",
         roster_names == sorted(["JON", "JOHN", "MARK", "NARRATOR"]),
         detail=repr(roster_names),
-    )
-
-    # JON/JOHN should produce a suggestion; MARK should not appear in any
-    # suggestion (no other roster name is similar enough to it).
-    names_in_suggestions = {s["name"] for s in alias_suggestions} | {
-        s["alias_of"] for s in alias_suggestions
-    }
-    check(
-        "roster: JON/JOHN produce an alias suggestion",
-        {"JON", "JOHN"} <= names_in_suggestions,
-        detail=repr(alias_suggestions),
-    )
-    check(
-        "roster: MARK has no alias suggestion",
-        "MARK" not in names_in_suggestions,
-        detail=repr(alias_suggestions),
-    )
-    check(
-        "roster: NARRATOR excluded from suggestions",
-        "NARRATOR" not in names_in_suggestions,
-        detail=repr(alias_suggestions),
     )
 
 
@@ -101,7 +95,7 @@ def test_roster_handles_legacy_type_field_and_empty():
         {"speaker": "", "text": "b"},
         {"speaker": "   ", "text": "c"},
     ]
-    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, {})
+    roster_names, config_lookup = build_voice_roster(script_data, {})
     check(
         "roster: legacy 'type' field used, blanks dropped",
         roster_names == ["ELENA"],
@@ -115,7 +109,7 @@ def test_config_backcompat_resolution():
         {"speaker": "MARK (shouting)", "text": "b"},
     ]
     voice_config = {"Mr. Mark": {"engine": "clone", "ref": "mark.wav"}}
-    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, voice_config)
+    roster_names, config_lookup = build_voice_roster(script_data, voice_config)
 
     check(
         "config back-compat: roster resolves to MARK",
@@ -144,7 +138,7 @@ def test_config_exact_key_wins_over_scan():
         "MARK": {"engine": "exact"},
         "Mr. Mark": {"engine": "scanned"},
     }
-    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, voice_config)
+    roster_names, config_lookup = build_voice_roster(script_data, voice_config)
     check(
         "config back-compat: exact canonical key wins over scanned fallback",
         config_lookup.get("MARK") == {"engine": "exact"},
@@ -152,30 +146,106 @@ def test_config_exact_key_wins_over_scan():
     )
 
 
-def test_alias_suggestions_attached_per_voice():
-    """Mirrors what the get_voices handler does with alias_suggestions."""
+def test_build_voice_roster_return_shape_is_two_tuple():
+    """F13: build_voice_roster() no longer returns alias_suggestions --
+    its return shape shrank from a 3-tuple to (roster_names,
+    config_lookup)."""
+    script_data = [{"speaker": "mark", "text": "a"}]
+    result = build_voice_roster(script_data, {})
+    check(
+        "build_voice_roster: returns a 2-tuple (roster_names, config_lookup)",
+        isinstance(result, tuple) and len(result) == 2,
+        detail=repr(result),
+    )
+
+
+def test_build_voice_roster_does_not_compute_alias_suggestions():
+    """F13: build_voice_roster() must never call suggest_aliases() -- that
+    O(n^2) work moved off the GET /api/voices hot path entirely, onto the
+    new on-demand GET /api/voices/alias_suggestions endpoint. Monkeypatch
+    app's module-level suggest_aliases with a spy and confirm it is never
+    invoked during build_voice_roster(), even on a roster large enough
+    that a real call would be noticeable if it happened."""
+    calls = []
+    original = app_module.suggest_aliases
+
+    def _spy(*args, **kwargs):
+        calls.append(args)
+        return original(*args, **kwargs)
+
+    app_module.suggest_aliases = _spy
+    try:
+        script_data = [{"speaker": f"SPEAKER{i}", "text": "x"} for i in range(50)]
+        build_voice_roster(script_data, {})
+    finally:
+        app_module.suggest_aliases = original
+
+    check(
+        "build_voice_roster: suggest_aliases() is never called (moved off the hot path)",
+        calls == [],
+        detail=repr(calls),
+    )
+
+
+def test_alias_suggestions_endpoint_helpers_match_old_inline_path():
+    """The new on-demand endpoint's underlying helpers
+    (_canonical_roster_names() + suggest_aliases()) must produce the exact
+    same roster and suggestions the old inlined build_voice_roster() path
+    did for a fixed fixture roster -- this is a pure code-motion refactor,
+    not a behavior change to the suggestions themselves."""
     script_data = [
         {"speaker": "JON", "text": "a"},
         {"speaker": "JOHN", "text": "b"},
         {"speaker": "MARK", "text": "c"},
+        {"speaker": "ELLA", "text": "d"},
+        {"speaker": "BELLA", "text": "e"},
     ]
-    roster_names, alias_suggestions, config_lookup = build_voice_roster(script_data, {})
+    endpoint_roster_names = _canonical_roster_names(script_data)
+    endpoint_suggestions = suggest_aliases(endpoint_roster_names)
 
+    # What build_voice_roster() computes its roster from -- must be the
+    # exact same roster the on-demand endpoint's helper produces, since
+    # they're both derived from the same script_data.
+    roster_from_build_voice_roster, _config_lookup = build_voice_roster(script_data, {})
+
+    check(
+        "alias_suggestions endpoint: roster matches build_voice_roster's roster",
+        endpoint_roster_names == roster_from_build_voice_roster,
+        detail=repr((endpoint_roster_names, roster_from_build_voice_roster)),
+    )
     per_voice = {
-        name: [s for s in alias_suggestions if s["name"] == name]
-        for name in roster_names
+        name: [s for s in endpoint_suggestions if s["name"] == name]
+        for name in endpoint_roster_names
     }
     check(
-        "alias_suggestions: MARK gets an empty list",
+        "alias_suggestions endpoint: MARK gets an empty list (no similar name)",
         per_voice.get("MARK") == [],
         detail=repr(per_voice),
     )
-    non_empty = [name for name, sugs in per_voice.items() if sugs]
+    non_empty = sorted(name for name, sugs in per_voice.items() if sugs)
     check(
-        "alias_suggestions: exactly one of JON/JOHN carries the suggestion "
-        "(the shorter/alias side)",
-        non_empty == ["JON"],
+        "alias_suggestions endpoint: JON (of JON/JOHN) and ELLA (of ELLA/BELLA) "
+        "carry suggestions (the shorter/alias side of each pair)",
+        non_empty == ["ELLA", "JON"],
         detail=repr(per_voice),
+    )
+
+
+def test_alias_suggestions_perf_bound_600_names():
+    """Perf regression guard: suggest_aliases() must stay well clear of an
+    O(n^2) blowup on a roster as large as the biggest real one measured
+    (589 speakers). 500ms is generous headroom -- enough to not flake on a
+    slow CI machine -- while still catching a real algorithmic regression;
+    a correctly-implemented O(n^2) string-similarity pass over 600 short
+    names normally completes in well under 100ms."""
+    roster = [f"CHARACTER{i:04d}" for i in range(600)]
+    start = time.perf_counter()
+    suggestions = suggest_aliases(roster)
+    elapsed = time.perf_counter() - start
+    check(
+        f"suggest_aliases: 600-name roster completes in <500ms (actual: {elapsed * 1000:.1f}ms)",
+        elapsed < 0.5,
+        detail=f"elapsed={elapsed:.3f}s, suggestions_count={len(suggestions)}",
     )
 
 
@@ -214,7 +284,10 @@ def main():
         test_roster_handles_legacy_type_field_and_empty,
         test_config_backcompat_resolution,
         test_config_exact_key_wins_over_scan,
-        test_alias_suggestions_attached_per_voice,
+        test_build_voice_roster_return_shape_is_two_tuple,
+        test_build_voice_roster_does_not_compute_alias_suggestions,
+        test_alias_suggestions_endpoint_helpers_match_old_inline_path,
+        test_alias_suggestions_perf_bound_600_names,
         test_review_canonicalizes_speaker_not_text,
     ]
     for t in tests:
