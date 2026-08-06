@@ -129,6 +129,62 @@ def ecapa_scores(pairs):
         return None, f"unparsable ecapa output: {exc}"
 
 
+ANCHOR_MIN_SECONDS = 7.0
+"""Minimum audio per anchor side.
+
+Chosen from the measured curve on the Chinese set, joining same-speaker clips:
+
+    3.27s -> 0.670   below both arms; unusable
+    6.86s -> 0.837   clears both arms
+   10.22s -> 0.867
+   13.63s -> 0.901
+
+7s is just past the knee. Below it the anchor is unstable; above it the gains
+are real but small, and every extra second costs held-out material that could
+have been a scored line instead.
+"""
+
+
+def build_anchor_side(rows, start, resolve, min_seconds, out_dir):
+    """Join consecutive clips from `start` until min_seconds is reached.
+
+    Returns a path - the single clip itself when it is already long enough, so
+    the common case writes nothing. Returns None if the material runs out,
+    which is reported rather than papered over: an anchor built from too little
+    audio is the failure this exists to prevent.
+    """
+    import soundfile as sf
+    picked, total = [], 0.0
+    for k in range(len(rows)):
+        row = rows[(start + k) % len(rows)]
+        path = resolve(row["human_wav"])
+        if not os.path.exists(path):
+            continue
+        picked.append(path)
+        total += duration(path)
+        if total >= min_seconds:
+            break
+    if not picked or total < min_seconds:
+        return None
+    if len(picked) == 1:
+        return picked[0]
+    import numpy as np
+    chunks, rate = [], None
+    for p in picked:
+        y, sr = sf.read(p, dtype="float32")
+        if y.ndim > 1:
+            y = y.mean(axis=1)
+        if rate is None:
+            rate = sr
+        elif sr != rate:
+            return None          # never resample silently
+        chunks.append(y)
+    os.makedirs(out_dir, exist_ok=True)
+    dest = os.path.join(out_dir, f"anchor_{start:05d}.wav")
+    sf.write(dest, np.concatenate(chunks), rate)
+    return dest
+
+
 def find_invalid_anchors(summary, arms):
     """Arms that beat the ceiling meant to bound them.
 
@@ -167,6 +223,8 @@ def main():
     print(f"{len(rows)} lines, arms {arms} + anchors\n")
 
     ap_ = lambda p: os.path.join(REPO, p)
+    anchor_dir = os.path.join(REPO, "ab_test_runtime", "anchor_cache",
+                              os.path.basename(args.out).replace(".json", ""))
     scored, pairs, index = [], [], []
 
     for i, r in enumerate(rows):
@@ -181,15 +239,33 @@ def main():
                 "dur_ratio": duration(gen) / max(r["human_seconds"], 1e-6),
             }
             pairs.append((human, gen)); index.append((i, arm))
-        # CEILING: the same narrator on a different held-out line. Costs no
+        # CEILING: the same narrator on different held-out material. Costs no
         # generation and is what makes every other number readable.
+        #
+        # BOTH SIDES MUST CARRY ENOUGH AUDIO. This paired one clip against one
+        # clip, which broke on the Chinese set: at a 3.17s median the narrator
+        # scored 0.691 against herself while synthetic arms reached 0.720 and
+        # 0.765 - a ceiling below the things it bounds, so nothing measured
+        # against it could be read.
+        #
+        # Length was the whole cause, established in both directions on
+        # 2026-08-06. Truncating ENGLISH clips to 3.17s drove its anchor from
+        # 0.783 to 0.632, below its own clone arm. Joining Chinese clips from
+        # the same speaker lifted it 0.670 -> 0.837 at 6.9s, and 0.901 at 13.6s.
+        # Not the corpus, not the language, not ECAPA: the clips were too short
+        # for a speaker embedding to be stable.
+        #
+        # So each side is built by joining consecutive clips until it reaches
+        # ANCHOR_MIN_SECONDS. Continuity does not matter to a speaker
+        # embedding, only quantity of voiced material.
+        o = build_anchor_side(rows, i + 1, ap_, ANCHOR_MIN_SECONDS, anchor_dir)
         other = rows[(i + 1) % len(rows)]
-        if other["id"] != r["id"]:
-            o = ap_(other["human_wav"])
+        if o and other["id"] != r["id"]:
             rec["human_vs_human"] = {
                 "f0_corr": f0_contour_correlation(human, o),
                 "mcd": mel_cepstral_distortion(human, o),
                 "dur_ratio": other["human_seconds"] / max(r["human_seconds"], 1e-6),
+                "anchor_seconds": round(duration(o), 2),
             }
             pairs.append((human, o)); index.append((i, "human_vs_human"))
         scored.append(rec)
