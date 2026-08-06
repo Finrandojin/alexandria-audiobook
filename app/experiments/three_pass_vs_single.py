@@ -30,6 +30,7 @@ import argparse
 import collections
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -38,6 +39,10 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__))))
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
+
+# The repo's one alias-aware speaker comparison, same as the legacy audit uses.
+# Writing a local name-match here is how two scorers drift apart.
+from experiments.scoring import alias_groups, same_speaker  # noqa: E402
 
 DEFAULT_INPUTS = os.path.join(
     REPO, "ab_test_runtime", "results", "collect_all_20260722-155801", "inputs")
@@ -49,27 +54,55 @@ def load_gold(book):
         raw = json.load(fh)
     rows = raw if isinstance(raw, list) else (raw.get("rows")
                                               or raw.get("entries") or [])
-    return {r["id"]: r for r in rows if r.get("id")}
+    # Aliases are load-bearing: BRITNEY/BRI-CHAN and ELIZARD/QUEEN ELIZARD are
+    # one character each, and scoring without them reports name-form
+    # differences as attribution errors.
+    return ({r["id"]: r for r in rows if r.get("id")},
+            alias_groups(raw) if isinstance(raw, dict) else ())
 
 
-def normalise(name):
-    """Compare speakers the way the other scorers do: case and spacing only."""
-    return " ".join(str(name or "").split()).upper()
+def norm_text(s):
+    """Match key for a line: letters and digits only, casefolded."""
+    return re.sub(r"[^0-9a-z]+", "", str(s or "").lower())
 
 
 def index_entries(path):
-    """-> {entry_index: speaker} from a generated script."""
+    """-> {normalised line text: speaker} from a generated script.
+
+    KEYED ON TEXT, NOT POSITION. This returned {entry_index: speaker} and the
+    caller looked gold up by its own entry_index. Those indices come from
+    different segmentations - the gold's are from source_run
+    matrix_20260725-115148, and every fresh run re-segments the book - so index
+    N in a new run is simply a different line. On 2026-08-06 that produced
+    "single 0.0%, three_pass 0.7%" on 136 comparable lines for a book whose
+    real accuracy is around 73%.
+
+    The docstring above already named this hazard for the two arms against each
+    other and guarded it. The same hazard against GOLD was not guarded. It only
+    became visible because 0.0% is obviously broken; had it landed at 60 and 62
+    it would have been believed.
+
+    Lines whose normalised text is not unique within a script are dropped by the
+    caller, because an ambiguous match is not a match. Same approach as
+    collect_results.py's pipeline-repeat scoring.
+    """
     try:
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
     except (OSError, ValueError):
-        return {}
+        return {}, collections.Counter()
     entries = doc if isinstance(doc, list) else (doc.get("entries") or [])
-    out = {}
-    for i, e in enumerate(entries, 1):
-        if isinstance(e, dict) and e.get("speaker"):
-            out[i] = e["speaker"]
-    return out
+    out, occurrences = {}, collections.Counter()
+    for e in entries:
+        if not isinstance(e, dict):
+            continue
+        key = norm_text(e.get("text") or e.get("line"))
+        if not key:
+            continue
+        occurrences[key] += 1
+        if e.get("speaker"):
+            out.setdefault(key, e["speaker"])
+    return out, occurrences
 
 
 def main():
@@ -97,7 +130,7 @@ def main():
             failures.append({"book": book, "error": f"no source at {src}"})
             print(f"  {book}: SKIPPED, no source text")
             continue
-        gold = load_gold(book)
+        gold, aliases = load_gold(book)
         if not gold:
             failures.append({"book": book, "error": "no gold"})
             continue
@@ -123,7 +156,7 @@ def main():
                 print(f"  {book:18} {arm:11} FAILED rc={rc} ({mins:.0f}m)")
                 break
             produced[arm] = (index_entries(out_path), mins)
-            print(f"  {book:18} {arm:11} ok, {len(produced[arm][0])} entries "
+            print(f"  {book:18} {arm:11} ok, {len(produced[arm][0][0])} entries "
                   f"({mins:.0f}m)")
 
         # A book missing an arm is dropped whole. Scoring one arm against gold
@@ -132,12 +165,17 @@ def main():
             print(f"  {book}: dropped, both arms required")
             continue
 
-        single, three = produced["single"][0], produced["three_pass"][0]
-        # Gold is keyed by entry_index within the book, so only indices BOTH
-        # paths produced and gold covers can be compared.
-        common = [g for g in gold.values()
-                  if int(g.get("entry_index") or 0) in single
-                  and int(g.get("entry_index") or 0) in three]
+        (single, single_occ) = produced["single"][0]
+        (three, three_occ) = produced["three_pass"][0]
+        # A gold line is comparable only when BOTH paths produced it and it is
+        # unambiguous in both. Position cannot be used: all three segmentations
+        # differ. See index_entries.
+        common = []
+        for g in gold.values():
+            key = norm_text(g.get("line") or g.get("text"))
+            if (key and single_occ.get(key) == 1 and three_occ.get(key) == 1
+                    and key in single and key in three):
+                common.append((key, g))
         row = {"book": book, "gold_lines": len(gold),
                "comparable": len(common),
                "single_entries": len(single), "three_entries": len(three),
@@ -145,9 +183,8 @@ def main():
                "three_minutes": round(produced["three_pass"][1], 1)}
         for arm, mapping in (("single", single), ("three_pass", three)):
             correct = sum(
-                1 for g in common
-                if normalise(mapping.get(int(g["entry_index"])))
-                == normalise(g["expected_speaker"]))
+                1 for key, g in common
+                if same_speaker(mapping.get(key), g["expected_speaker"], aliases))
             row[arm] = {"correct": correct,
                         "accuracy": correct / len(common) if common else None}
         results.append(row)
