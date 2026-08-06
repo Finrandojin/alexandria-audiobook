@@ -40,7 +40,10 @@ cd "$REPO"
   # This shell owns the server for its whole life and kills it on any exit
   # path - success, failure, or interrupt - so nothing is left on the card.
   "$REPO/start_llama_server.sh" || exit 2
-  SRV=$(pgrep -f "llama-server.*--port 8090" | head -1)
+  # -x on the process NAME, not -f on the command line: this shell'"'"'s own
+  # command line contains the pattern, so -f matches it and the trap below
+  # would kill this job instead of the server.
+  SRV=$(pgrep -x llama-server | head -1)
   trap "[ -n \"$SRV\" ] && kill $SRV 2>/dev/null; sleep 2" EXIT INT TERM
   echo "server pid $SRV, owned by this job"
   cd "$REPO/app"
@@ -53,8 +56,8 @@ echo "three_pass_vs_single rc=$rc"
 tail -14 "$L/three_pass_vs_single_v2.log"
 
 # The server must not outlive this job. Verified, not assumed.
-if pgrep -f 'llama-server.*--port 8090' >/dev/null; then
-    echo "WARNING: llama-server still up after the job; killing it"
-    pkill -f 'llama-server.*--port 8090'
-fi
+for p in $(pgrep -x llama-server); do
+    echo "WARNING: llama-server $p still up after the job; killing it"
+    kill "$p" 2>/dev/null
+done
 exit $rc

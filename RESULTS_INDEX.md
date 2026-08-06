@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-06 05:11 from `ab_test_runtime/experiments/` — 252 artifacts, 521 arms.
+Generated 2026-08-06 06:49 from `ab_test_runtime/experiments/` — 260 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -675,7 +675,11 @@ These artifacts exist and hold real results; this table only represents per-arm 
 
 | artifact | why |
 |---|---|
+| `adapter_stop_check_aishell3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `adapter_stop_check_kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `adapter_stop_check_ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `aishell3_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `aishell3_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `blinded_listening.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -714,7 +718,11 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `japanese_quote_robustness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `kokoro_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `kokoro_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `listener_impact.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `ljspeech_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `ljspeech_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_category_expansion.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_category_expansion_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_gate.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

@@ -1,0 +1,65 @@
+{
+ "adapter": "ab_test_runtime/kokoro_eval/adapter_lr1e6",
+ "seed": 1234,
+ "max_ratio": 3.0,
+ "median_ratio": 0.8673392561361241,
+ "worst_ratio": 0.9600464538606707,
+ "passed": true,
+ "verdict": "PASS - the adapter stops. Median 0.9x the human duration.",
+ "lines": [
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00001",
+   "human_seconds": 5.54,
+   "generated_seconds": 4.08,
+   "ratio": 0.74
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00002",
+   "human_seconds": 3.32,
+   "generated_seconds": 2.88,
+   "ratio": 0.87
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00003",
+   "human_seconds": 5.17,
+   "generated_seconds": 4.96,
+   "ratio": 0.96
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00004",
+   "human_seconds": 4.11,
+   "generated_seconds": 3.12,
+   "ratio": 0.76
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00005",
+   "human_seconds": 6.62,
+   "generated_seconds": 6.16,
+   "ratio": 0.93
+  }
+ ],
+ "provenance": {
+  "script": "verify_adapter_stops.py",
+  "written": "2026-08-06T05:18:41",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+   "branch": "agent/voice-assignment-and-adapter",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
+  },
+  "args": {
+   "build": "ab_test_runtime/kokoro_eval/build.json",
+   "adapter": "ab_test_runtime/kokoro_eval/adapter_lr1e6",
+   "config": "app/config.json",
+   "lines": 5,
+   "seed": 1234,
+   "max_ratio": 3.0,
+   "out_dir": null,
+   "out": "ab_test_runtime/experiments/adapter_stop_check_kokoro.json"
+  },
+  "seed": 1234
+ }
+}

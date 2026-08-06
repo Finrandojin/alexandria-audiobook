@@ -1,0 +1,1391 @@
+{
+ "seed": 1234,
+ "arms": [
+  "lora",
+  "clone"
+ ],
+ "reference_id": "gan-by-ogai-mori-01138",
+ "test_books": [
+  "kouyahijiri-by-kyoka-izumi"
+ ],
+ "rows": [
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00001",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u3055\u3093\u307c\u3046\u672c\u90e8\u3078\u3093\u3055\u3093\u306e\u5730\u56f3\u3092\u307e\u305f\u304f\u308a\u3072\u3089\u3044\u3066\u898b\u308b\u3067\u3082\u306a\u304b\u308d\u3046\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00001.wav",
+   "human_seconds": 5.5380416666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00001__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00001__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00002",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3068\u601d\u3063\u305f\u3051\u308c\u3069\u3082\u3001\u4f59\u308a\u306e\u9053\u3058\u3083\u304b\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00002.wav",
+   "human_seconds": 3.3205,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00002__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00002__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00003",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u624b\u3092\u3055\u308f\u308b\u3055\u3048\u6691\u304f\u308b\u3057\u3044\u3001\u65c5\u306e\u3053\u308d\u3082\u306e\u305d\u3067\u3092\u304b\u304b\u3052\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00003.wav",
+   "human_seconds": 5.166416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00003__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00003__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00004",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u8868\u7d19\u3092\u3064\u3051\u305f\u6298\u672c\u306b\u306a\u3063\u3066\u308b\u306e\u3092\u3072\u3063\u3071\u308a\u51fa\u3057\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00004.wav",
+   "human_seconds": 4.109916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00004__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00004__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00005",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3072\u3060\u304b\u3089\u4fe1\u5dde\u3078\u3053\u3048\u308b\u307f\u3084\u307e\u306e\u9593\u9053\u3067\u3001\u3061\u3087\u3046\u3069\u7acb\u4f11\u3089\u304a\u3046\u3068\u3044\u3046\u4e00",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00005.wav",
+   "human_seconds": 6.617708333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00005__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00005__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00006",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u672c\u306e\u3053\u3060\u3061\u3082\u7121\u3044\u3001\u53f3\u3082\u5de6\u3082\u5c71\u3070\u304b\u308a\u3058\u3083\u3001\u624b",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00006.wav",
+   "human_seconds": 4.713708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00006__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00006__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00058",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3075\u3067\u306f\u307e\u3060\u3042\u304a\u305e\u3089\u304c\u898b\u3048\u305f\u3051\u308c\u3069\u3082\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00058.wav",
+   "human_seconds": 3.494625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00058__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00058__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00060",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307e\u3044\u3070\u3089\u3001\u306a\u304c\u306f\u307e\u306f\u3046\u3059\u3050\u3082\u308a\u3001\u304b\u3059\u304b\u306b\u65e5\u304c\u3055\u3057\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00060.wav",
+   "human_seconds": 4.574291666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00060__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00060__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00061",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5bd2\u3055\u304c\u8eab\u306b\u67d3\u307f\u308b\u3068\u601d\u3063\u305f\u304c\u3001\u3084\u306a\u30f6\u305b\u3067\u306f\u96e8\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00061.wav",
+   "human_seconds": 3.7035833333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00061__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00061__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00062",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u6c7d\u8eca\u306e\u7a93\u304c\u6697\u304f\u306a\u308b\u306b\u5f93\u3046\u3066\u3001\u767d\u3044\u3082\u306e\u304c\u3061\u3089\u3061\u3089\u307e\u3058\u3063\u3066\u6765\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00062.wav",
+   "human_seconds": 5.596041666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00062__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00062__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00063",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff08\u96ea\u3067\u3059\u3088\u3002\uff09\uff08\u3055\u3088\u3046\u3058\u3083\u306a\u3002\uff09\u3068\u3044\u3063\u305f\u3070\u304b\u308a\u3067",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00063.wav",
+   "human_seconds": 4.260916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00063__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00063__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00064",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5225\u306b\u6c17\u306b\u7559\u3081\u305a\u3001\u3042\u304a\u3044\u3067\u7a7a\u3092\u898b\u3088\u3046\u3068\u3082\u3057\u306a\u3044\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00064.wav",
+   "human_seconds": 4.179625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00064__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00064__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00124",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u3053\u3078\u6765\u3066\u5bdd\u308b\u305d\u3046\u3058\u3083\u304c\u3001\u304a\u524d\u69d8\u3068\u540c\u56fd\u3058\u3083\u306e\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00124.wav",
+   "human_seconds": 4.411791666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00124__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00124__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00126",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3044\u3084\u3053\u306e\u7537\u306a\u305e\u306f\u82e5\u3044\u304c\u611f\u5fc3\u306b\u3058\u3063\u3066\u3044\u306a\u3088\u3044\u7537\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00126.wav",
+   "human_seconds": 5.398625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00126__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00126__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00127",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u308f\u305f\u3057\u304c\u4eca\u8a71\u306e\u3058\u3087\u3073\u3089\u304d\u3092\u3057\u305f\u305d\u306e\u98db\u9a28\u306e\u3084\u307e\u3054\u3048\u3092\u3084\u3063\u305f\u6642\u306e\u3001\u3075\u3082\u3068\u306e\u8336\u5c4b\u3067\u3044\u3063\u3057\u3087\u306b\u306a\u3063\u305f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00127.wav",
+   "human_seconds": 7.6394166666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00127__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00127__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00128",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3068\u3084\u307e\u306e\u58f2\u85ac\u3068\u3044\u3046\u3084\u3064\u3042\u3001\u3051\u305f\u3044\u306e\u60aa\u3044\u3001\u306d\u3058\u306d\u3058\u3057\u305f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00128.wav",
+   "human_seconds": 4.214458333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00128__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00128__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00130",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3068\u3046\u3052\u306b\u304b\u304b\u308d\u3046\u3068\u3044\u3046\u65e5\u306e\u3001\u671d\u65e9\u304f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00130.wav",
+   "human_seconds": 3.018625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00130__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00130__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00131",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3082\u3063\u3068\u3082\u305b\u3093\u306e\u3068\u307e\u308a\u306f\u3082\u306e\u306e\u4e09\u6642\u3050\u3089\u3044\u306b\u306f\u305f\u3063\u3066\u6765\u305f\u306e\u3067\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00131.wav",
+   "human_seconds": 4.50475,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00131__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00131__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00179",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u308f\u3057\u3082\u306f\u3089\u305f\u3061\u307e\u304e\u308c\u3058\u3083\u3001\u3080\u3084\u307f\u3068\u6025\u3044\u3067\u3001\u305d\u308c\u304b\u3089\u3069\u3093\u3069\u3093\u5c71\u306e\u3059\u305d\u3092",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00179.wav",
+   "human_seconds": 6.652541666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00179__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00179__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00180",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305f\u3093\u307c\u307f\u3061\u3078\u304b\u304b\u308b\u3002\u534a\u753a\u3070\u304b\u308a\u884c\u304f\u3068\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00180.wav",
+   "human_seconds": 3.9937916666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00180__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00180__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00181",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307f\u3061\u304c\u3053\u3046\u6025\u306b\u9ad8\u304f\u306a\u3063\u3066\u3001\u306e\u307c\u308a\u304c\u4e00\u30ab\u51e6\u3001\u6a2a\u304b\u3089\u3088\u304f\u898b\u3048\u305f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00181.wav",
+   "human_seconds": 5.944333333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00181__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00181__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00182",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3086\u307f\u306a\u308a\u3067\u307e\u308b\u3067\u571f\u3067\u3061\u3087\u304f\u3057\u3070\u3057\u304c\u304b\u304b\u3063\u3066\u308b\u3088\u3046\u306a\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00182.wav",
+   "human_seconds": 4.4002083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00182__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00182__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00183",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e0a\u3092\u898b\u306a\u304c\u3089\u3001\u3053\u308c\u3078\u8db3\u3092\u3075\u307f\u304b\u3051\u305f\u6642\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00183.wav",
+   "human_seconds": 3.5294166666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00183__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00183__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00184",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4ee5\u524d\u306e\u304f\u3059\u308a\u3046\u308a\u304c\u3059\u305f\u3059\u305f\u3084\u3063\u3066\u6765\u3066\u304a\u3044\u3064\u3044\u305f\u304c\u3002\u5225\u306b\u8a00\u8449\u3082\u304b\u308f\u3055\u305a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00184.wav",
+   "human_seconds": 6.966,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00184__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00184__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00232",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e94\u300c\u3055\u3063\u304d\u306e\u3061\u3083\u307f\u305b\u304b\u3089\u3053\u3053\u3078\u6765\u308b\u307e\u3067\u3001\u58f2\u85ac\u306e\u5916\u306f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00232.wav",
+   "human_seconds": 6.281,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00232__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00232__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00233",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3060\u308c\u306b\u3082\u3042\u308f\u306a\u3093\u3060\u3053\u3068\u306f\u7533\u4e0a\u3052\u308b\u307e\u3067\u3082\u306a\u3044\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00233.wav",
+   "human_seconds": 3.50625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00233__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00233__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00234",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4eca\u5225\u308c\u304e\u308f\u306b\u58f0\u3092\u61f8\u3051\u3089\u308c\u305f\u306e\u3067\u3001\u3080\u3053\u3046\u306f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00234.wav",
+   "human_seconds": 4.922625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00234__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00234__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00235",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u9053\u4e2d\u306e\u5546\u58f2\u4eba\u3068\u898b\u305f\u3060\u3051\u306b\u3001\u307e\u3055\u304b\u3068\u601d\u3063\u3066\u3082\u304d\u307e\u3088\u3044\u304c\u3059\u308b\u306e\u3067\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00235.wav",
+   "human_seconds": 5.212916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00235__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00235__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00236",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3051\u3055\u3082\u7acb\u3061\u304e\u308f\u306b\u3088\u304f\u898b\u3066\u6765\u305f\u3001\u524d\u306b\u3082\u7533\u3059\u3001\u305d\u306e\u56f3\u9762\u3092\u306a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00236.wav",
+   "human_seconds": 5.770208333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00236__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00236__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00237",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u3053\u3067\u3082\u958b\u3051\u3066\u898b\u3088\u3046\u3068\u3057\u3066\u3044\u305f\u3068\u3053\u308d\u3002\uff08\u3061\u3087\u3044\u3068\u3046\u304b\u304c\u3044\u3068\u3046\u5b58\u3058\u307e\u3059\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00237.wav",
+   "human_seconds": 6.350708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00237__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00237__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00287",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u308f\u3057\u306f\u305d\u308c\u304b\u3089\u3072\u306e\u304d\u306e\u88cf\u3092\u629c\u3051\u305f\u3001\u5ca9\u306e\u4e0b\u304b\u3089\u5ca9\u306e\u4e0a\u3078\u51fa\u305f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00287.wav",
+   "human_seconds": 5.874625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00287__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00287__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00288",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304d\u306e\u4e2d\u3092\u304f\u3050\u3063\u3066\u8349\u6df1\u3044\u3053\u307f\u3061\u3092\u3069\u3053\u307e\u3067\u3082\u3001\u3069\u3053\u307e\u3067\u3082\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00288.wav",
+   "human_seconds": 5.630833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00288__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00288__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00289",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3059\u308b\u3068\u3044\u3064\u306e\u9593\u306b\u304b\u4eca\u4e0a\u3063\u305f\u5c71\u306f\u904e\u304e\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00289.wav",
+   "human_seconds": 3.808125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00289__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00289__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00290",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307e\u305f\u4e00\u30c4\u5c71\u304c\u3061\u304b\u3065\u3044\u3066\u6765\u305f\u3001\u3053\u306e\u3042\u305f\u308a\u3057\u3070\u3089\u304f\u306e\u9593\u306f\u91ce",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00290.wav",
+   "human_seconds": 4.969125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00290__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00290__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00291",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304c\u5e83\u3005\u3068\u3057\u3066\u3001\u3055\u3063\u304d\u901a\u3063\u305f\u672c\u8857\u9053\u3088\u308a",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00291.wav",
+   "human_seconds": 3.7500416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00291__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00291__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00293",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u3053\u308d\u3082\u3061\u897f\u3068\u3001\u6771\u3068\u3001\u307e\u3093\u306a\u304b\u306b\u5c71\u3092\u4e00\u30c4\u7f6e\u3044\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00293.wav",
+   "human_seconds": 5.154791666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00293__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00293__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00340",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u306f\u3066\u3057\u304c\u7121\u3044\u304b\u3089\u304d\u3082\u3092\u3059\u3048\u305f\u3001\u3082\u3068\u3088\u308a\u5f15\u8fd4\u3059\u5206\u3067\u306f\u306a\u3044\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00340.wav",
+   "human_seconds": 5.7005,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00340__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00340__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00341",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3082\u3068\u306e\u3068\u3053\u308d\u306b\u306f\u3084\u3063\u3071\u308a\u3058\u3087\u3046\u305f\u3089\u305a\u306e\u3080\u304f\u308d\u304c\u3042\u308b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00341.wav",
+   "human_seconds": 4.075125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00341__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00341__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00343",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4eca\u306b\u3082\u3042\u3068\u306e\u534a\u5206\u304c\u307e\u3068\u3044\u3064\u304d\u305d\u3046\u3067\u305f\u307e\u3089\u306c\u304b\u3089\u304d\u304a\u304f\u308c\u304c\u3057\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00343.wav",
+   "human_seconds": 5.3522083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00343__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00343__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00344",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u8db3\u304c\u3059\u3058\u3070\u308b\u3068\u77f3\u306b\u3064\u307e\u305a\u3044\u3066\u8ee2\u3093\u3060\u3001\u305d\u306e\u6642",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00344.wav",
+   "human_seconds": 4.794958333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00344__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00344__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00345",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3072\u3056\u3076\u3057\u3092\u75db\u3081\u307e\u3057\u305f\u3082\u306e\u3068\u898b\u3048\u308b\u3002\u305d\u308c\u304b\u3089",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00345.wav",
+   "human_seconds": 3.9937916666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00345__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00345__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00346",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304c\u304f\u304c\u304f\u3057\u3066\u3042\u308b\u304f\u306e\u304c\u5c11\u3057\u306a\u3093\u3058\u3085\u3046\u306b\u306a\u3063\u305f\u3051\u308c\u3069\u3082\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00346.wav",
+   "human_seconds": 4.017125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00346__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00346__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00392",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u5fc3\u7d30\u3055\u306f\u7533\u3059\u307e\u3067\u3082\u306a\u304b\u3063\u305f\u304c\u3001\u3072\u304d\u3087\u3046\u306a\u3088\u3046\u3067\u3082\u3057\u3085\u304e\u3087\u3046\u306e\u7a4d\u307e\u306c\u8eab\u306b\u306f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00392.wav",
+   "human_seconds": 5.990708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00392__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00392__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00393",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u3046\u3044\u3046\u6697\u3044\u51e6\u306e\u65b9\u304c\u304b\u3048\u3063\u3066\u89b3\u5ff5\u306b\u305f\u3088\u308a\u304c\u3088\u3044\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00393.wav",
+   "human_seconds": 4.899416666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00393__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00393__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00395",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u8db3\u306e\u3088\u308f\u308a\u3082\u5fd8\u308c\u305f\u306e\u3067\u3001\u9053\u3082\u5927\u304d\u306b\u306f\u304b\u3069\u3063\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00395.wav",
+   "human_seconds": 4.713708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00395__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00395__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00396",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307e\u305a\u3053\u308c\u3067\u4e03\u5206\u306f\u68ee\u306e\u4e2d\u3092\u8d8a\u3057\u305f\u308d\u3046\u3068\u601d\u3046\u51e6\u3067",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00396.wav",
+   "human_seconds": 4.144833333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00396__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00396__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00397",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e94\u516d\u5c3a\u3042\u305f\u307e\u306e\u4e0a\u3089\u3057\u304b\u3063\u305f\u6a39\u306e\u679d\u304b\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00397.wav",
+   "human_seconds": 3.7152083333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00397__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00397__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00398",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307c\u305f\u308a\u3068\u7b20\u306e\u4e0a\u3078\u843d\u3061\u7559\u307e\u3063\u305f\u3082\u306e\u304c\u3042\u308b\u3002\u306a\u307e\u308a\u306e\u304a\u3082\u308a\u304b\u3068\u304a\u3082\u3046\u5fc3\u6301\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00398.wav",
+   "human_seconds": 6.652541666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00398__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00398__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00445",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u304a\u3088\u305d\u4eba\u9593\u304c\u6ec5\u3073\u308b\u306e\u306f\u3001\u5730\u7403\u306e\u3046\u3059\u304b\u308f\u304c\u7834\u308c\u3066\u7a7a\u304b\u3089\u706b\u304c\u964d\u308b\u306e\u3067\u3082\u306a\u3051\u308c\u3070\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00445.wav",
+   "human_seconds": 7.093708333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00445__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00445__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00446",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5927\u6d77\u304c\u304a\u3063\u304b\u3076\u3055\u308b\u306e\u3067\u3082\u306a\u3044\u3001\u3072\u3060\u306e\u304f\u306b\u306e\u304d\u3070\u3084\u3057\u304c\u86ed\u306b\u306a\u308b\u306e\u304c\u6700\u521d\u3067\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00446.wav",
+   "human_seconds": 6.118541666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00446__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00446__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00447",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3057\u307e\u3044\u306b\u306f\u307f\u3093\u306a\u8840\u3068\u6ce5\u306e\u4e2d\u306b\u7b4b\u306e\u9ed2\u3044\u866b\u304c\u6cf3\u3050\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00447.wav",
+   "human_seconds": 5.096791666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00447__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00447__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00448",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u308c\u304c\u3060\u3044\u304c\u308f\u308a\u306e\u4e16\u754c\u3067\u3042\u308d\u3046\u3068\u3001\u307c\u3093\u3084\u308a\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00448.wav",
+   "human_seconds": 3.7152083333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00448__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00448__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00449",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u306a\u308b\u307b\u3069\u3053\u306e\u68ee\u3082\u5165\u53e3\u3067\u306f\u4f55\u306e\u4e8b\u3082\u306a\u304b\u3063\u305f\u306e\u306b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00449.wav",
+   "human_seconds": 4.551125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00449__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00449__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00450",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e2d\u3078\u6765\u308b\u3068\u3053\u306e\u901a\u308a\u3001\u3082\u3063\u3068\u5965\u6df1\u304f\u9032\u3093\u3060\u3089",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00450.wav",
+   "human_seconds": 4.109916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00450__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00450__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00497",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u3068\u3066\u3082\u3053\u306e\u3064\u304b\u308c\u3088\u3046\u3067\u306f\u3001\u5742\u3092\u4e0a\u308b\u308f\u3051\u306b\u306f\u884c\u304f\u307e\u3044\u3068\u601d\u3063\u305f\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00497.wav",
+   "human_seconds": 4.574291666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00497__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00497__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00498",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3075\u3068\u3086\u304f\u3066\u306b\u3001\u30d2\u30a4\u30a4\u30f3\u3068\u99ac\u306e\u3044\u306a\u306a\u304f\u306e\u304c\u3053\u3060\u307e\u3057\u3066\u805e\u3048\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00498.wav",
+   "human_seconds": 4.620833333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00498__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00498__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00500",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4eca\u671d\u4e00\u4eba\u306e\u767e\u59d3\u306b\u5225\u308c\u3066\u304b\u3089\u6642\u306e\u7d4c\u3063\u305f\u306f\u308f\u305a\u304b\u3058\u3083\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00500.wav",
+   "human_seconds": 4.307333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00500__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00500__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00501",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e09\u5e74\u3082\u4e94\u5e74\u3082\u304a\u3093\u306a\u3058\u3082\u306e\u3092\u3044\u3046\u4eba\u9593\u3068\u306f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00501.wav",
+   "human_seconds": 3.657125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00501__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00501__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00502",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e2d\u3092\u3078\u3060\u3066\u305f\u3002\u99ac\u304c\u5c45\u308b\u3088\u3046\u3067\u306f\u3068\u3082\u304b\u304f\u3082\u4eba\u91cc\u306b\u7e01\u304c\u3042\u308b\u3068\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00502.wav",
+   "human_seconds": 5.166416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00502__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00502__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00503",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u308c\u304c\u305f\u3081\u306b\u6c17\u304c\u52c7\u3093\u3067\u3001\u3048\u3048\u3084\u3063\u3068\u4eca\u3072\u3068\u3082\u307f\u3002\u4e00",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00503.wav",
+   "human_seconds": 4.3189166666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00503__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00503__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00546",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u4e00\uff08\u3042\u306a\u305f\u307e\u3060\u516b\u91cc\u3042\u307e\u308a\u3067\u3054\u3056\u3044\u307e\u3059\u3088\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00546.wav",
+   "human_seconds": 5.212916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00546__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00546__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00547",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\uff08\u305d\u306e\u307b\u304b\u306b\u5225\u306b\u6cca\u3081\u3066\u304f\u308c\u307e\u3059\u3046\u3061\u3082\u306a\u3044\u306e\u3067\u3057\u3087\u3046\u304b\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00547.wav",
+   "human_seconds": 4.458208333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00547__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00547__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00548",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\uff08\u305d\u308c\u306f\u3054\u3056\u3044\u307e\u305b\u3093\u3002\uff09\u3068\u3044\u3044\u306a\u304c\u3089\u307e\u305f\u305f\u304d\u3082\u3057\u306a\u3044\u3067",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00548.wav",
+   "human_seconds": 5.003916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00548__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00548__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00549",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3059\u305a\u3057\u3044\u76ee\u3067\u308f\u3057\u306e\u9854\u3092\u3064\u304f\u3065\u304f\u898b\u3066\u3044\u305f\u3002\uff08\u3044\u3048",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00549.wav",
+   "human_seconds": 3.599125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00549__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00549__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00550",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3082\u3046\u4f55\u3067\u3054\u3056\u3044\u307e\u3059\u3001\u5b9f\u306f\u3053\u306e\u5148\u4e00\u753a\u884c\u3051\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00550.wav",
+   "human_seconds": 5.201333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00550__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00550__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00551",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u3046\u3059\u308c\u3070\u4e0a\u6bb5\u306e\u3078\u3084\u306b\u5bdd\u304b\u3057\u3066\u4e00\u6669\u3042\u304a\u3044\u3067\u3044\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00551.wav",
+   "human_seconds": 4.3537083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00551__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00551__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00601",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u4e8c\u300c\uff08\u3055\u3042\u3001\u79c1\u306b\u3064\u3044\u3066\u3053\u3061\u3089\u3078\u3001\uff09\u3068\u4ef6\u306e\u3053\u3081\u3068\u304e\u304a\u3051\u3092\u3072\u3063\u304b\u304b\u3048",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00601.wav",
+   "human_seconds": 7.1982083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00601__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00601__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00602",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3066\u3066\u306c\u3050\u3044\u3092\u7d30\u3044\u5e2f\u306b\u306f\u3055\u3093\u3067\u7acb\u3063\u305f\u3002\u9aea\u306f\u3075\u3063\u3055\u308a\u3068\u3059\u308b\u306e\u3092\u305f\u3070\u306d\u3066\u306a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00602.wav",
+   "human_seconds": 5.72375,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00602__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00602__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00603",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304f\u3057\u3092\u306f\u3055\u3093\u3067\u304b\u3093\u3056\u3057\u3067\u3068\u3081\u3066\u3044\u308b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00603.wav",
+   "human_seconds": 3.1579166666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00603__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00603__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00605",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u308f\u3057\u3082\u624b\u65e9\u304f\u8349\u978b\u3092\u3068\u3044\u305f\u304b\u3089\u3001\u65e9\u901f\u53e4\u4e0b\u99c4\u3092\u3061\u3087\u3046\u3060\u3044\u3057\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00605.wav",
+   "human_seconds": 5.642416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00605__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00605__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00606",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u7e01\u304b\u3089\u7acb\u3064\u6642\u3061\u3087\u3044\u3068\u898b\u308b\u3068\u3001\u305d\u308c\u4f8b\u306e\u3070\u304b\u3069\u306e\u3058\u3083\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00606.wav",
+   "human_seconds": 4.818125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00606__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00606__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00607",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u540c\u3058\u304f\u308f\u3057\u304c\u304b\u305f\u3092\u3058\u308d\u308a\u3068\u898b\u305f\u3063\u3051\u3088\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00607.wav",
+   "human_seconds": 3.599125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00607__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00607__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00648",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u4e09\u300c\u305d\u3053\u304b\u3089\u4e0b\u308a\u308b\u306e\u3060\u3068\u601d\u308f\u308c\u308b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00648.wav",
+   "human_seconds": 4.0635,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00648__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00648__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00650",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3072\u3087\u308d\u3072\u3087\u308d\u3057\u305f\u304a\u3088\u305d\u4e94\u516d\u9593\u4e0a\u307e\u3067\u306f\u5c0f\u679d\u4e00\u30c4\u3082\u306a\u3044\u306e\u304c\u3042\u308b\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00650.wav",
+   "human_seconds": 5.5263333333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00650__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00650__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00651",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u306e\u4e2d\u3092\u304f\u3050\u3063\u305f\u304c\u3001\u3042\u304a\u3050\u3068\u3053\u305a\u3048\u306b\u51fa\u3066\u767d\u3044\u3001\u6708\u306e\u5f62\u306f\u3053\u3053\u3067\u3082\u5225\u306b\u304b\u308f\u308a\u306f\u7121\u304b\u3063\u305f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00651.wav",
+   "human_seconds": 7.999333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00651__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00651__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00652",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3046\u304d\u3088\u306f\u3069\u3053\u306b\u3042\u308b\u304b\u5341\u4e09\u591c\u3067\u3002\u5148\u3078\u7acb\u3063\u305f\u304a\u3093\u306a\u306e\u59ff\u304c",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00652.wav",
+   "human_seconds": 5.839833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00652__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00652__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00653",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u76ee\u3055\u304d\u3092\u653e\u308c\u305f\u304b\u3089\u3001\u677e\u306e\u307f\u304d\u306b\u3064\u304b\u307e\u3063\u3066\u306e\u305e\u304f\u3068\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00653.wav",
+   "human_seconds": 4.202833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00653__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00653__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00654",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3064\u3044\u4e0b\u306b\u5c45\u305f\u3002\u3042\u304a\u3080\u3044\u3066\u3001\uff08\u6025\u306b\u4f4e\u304f\u306a\u308a\u307e\u3059\u304b\u3089\u6c17\u3092\u3064\u3051\u3066\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00654.wav",
+   "human_seconds": 5.66575,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00654__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00654__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00700",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u56db\u300c\uff08\u3044\u3044\u3042\u3093\u3070\u3044\u306b\u4eca\u65e5\u306f\u6c34\u304c\u3075\u3048\u3066\u304a\u308a\u307e\u3059\u304b\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00700.wav",
+   "human_seconds": 5.305833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00700__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00700__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00701",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e2d\u3078\u5165\u308a\u307e\u305b\u3093\u3067\u3082\u3053\u306e\u4e0a\u3067\u3088\u3046\u3054\u3056\u3044\u307e\u3059\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00701.wav",
+   "human_seconds": 3.761625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00701__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00701__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00702",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\u3068\u7532\u3092\u3072\u305f\u3057\u3066\u3064\u307e\u3055\u304d\u3092\u304b\u304c\u3081\u306a\u304c\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00702.wav",
+   "human_seconds": 3.390125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00702__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00702__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00703",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u96ea\u306e\u3088\u3046\u306a\u7d20\u8db3\u3067\u77f3\u306e\u3070\u3093\u306e\u4e0a\u306b\u7acb\u3063\u3066\u3044\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00703.wav",
+   "human_seconds": 3.7732083333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00703__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00703__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00704",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u81ea\u5206\u9054\u304c\u7acb\u3063\u305f\u304b\u308f\u306f\u3001\u304b\u3048\u3063\u3066\u3053\u3063\u3061\u306e\u5c71\u306e\u88fe\u304c\u6c34\u306b\u8feb\u3063\u3066\u3001\u3061\u3087\u3046\u3069\u5207\u7a74\u306e\u5f62\u306b\u306a\u3063\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00704.wav",
+   "human_seconds": 8.254708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00704__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00704__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00705",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u3053\u3078\u3053\u306e\u77f3\u3092\u306f\u3081\u305f\u3088\u3046\u306a\u3042\u3064\u3089\u3048\u3002\u5ddd\u4e0a\u3082\u4e0b\u6d41\u3082\u898b\u3048\u306c\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00705.wav",
+   "human_seconds": 5.805,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00705__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00705__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00753",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff08\u305d\u308c\u3067\u306f\u68ee\u306e\u4e2d\u3067\u3001\u5927\u5909\u3067\u3054\u3056\u3044\u307e\u3059\u3053\u3068\u3002\u65c5\u3092\u3059\u308b\u4eba\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00753.wav",
+   "human_seconds": 5.236125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00753__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00753__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00754",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3072\u3060\u306e\u5c71\u3067\u306f\u86ed\u304c\u964d\u308b\u3068\u3044\u3046\u306e\u306f\u3042\u3059\u3053\u3067\u3054\u3056\u3093\u3059\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00754.wav",
+   "human_seconds": 4.109916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00754__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00754__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00755",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3042\u306a\u305f\u306f\u629c\u9053\u3092\u3054\u5b58\u3058\u306a\u3044\u304b\u3089\u307e\u3068\u3082\u306b\u86ed\u306e\u5de3\u3092\u304a\u901a\u308a\u306a\u3055\u3044\u307e\u3057\u305f\u306e\u3067\u3054\u3056\u3044\u307e\u3059\u3088\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00755.wav",
+   "human_seconds": 6.966,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00755__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00755__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00756",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304a\u3044\u306e\u3061\u3082\u307f\u3087\u3046\u304c\u306a\u304f\u3089\u3044\u3001\u99ac\u3067\u3082\u725b\u3067\u3082\u5438\u3044\u6bba\u3059\u306e\u3067\u3054\u3056\u3044\u307e\u3059\u3082\u306e\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00756.wav",
+   "human_seconds": 5.758541666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00756__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00756__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00757",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3057\u304b\u3057\u3046\u305a\u304f\u3088\u3046\u306b\u304a\u304b\u3086\u3044\u306e\u3067\u3054\u3056\u3093\u3057\u3087\u3046\u306d\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00757.wav",
+   "human_seconds": 3.970625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00757__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00757__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00758",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\uff08\u305f\u3060\u3044\u307e\u3067\u306f\u3082\u3046\u75db\u307f\u307e\u3059\u3070\u304b\u308a\u306b\u306a\u308a\u307e\u3057\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00758.wav",
+   "human_seconds": 3.8545416666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00758__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00758__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00794",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u516d\u300c\u306a\u308b\u307b\u3069\u898b\u305f\u3068\u3053\u308d\u3001\u304d\u3082\u306e\u3092\u7740\u305f\u6642\u306e\u59ff\u3068\u306f\u3061\u3054\u3046\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00794.wav",
+   "human_seconds": 6.083583333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00794__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00794__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00795",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff08\u3055\u3063\u304d\u5c0f\u5c4b\u3078\u5165\u3063\u3066\u4e16\u8a71\u3092\u3057\u307e\u3057\u305f\u306e\u3067\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00795.wav",
+   "human_seconds": 3.123125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00795__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00795__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00796",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u6c17\u5473\u304c\u60aa\u3046\u3054\u3056\u3093\u3059\u3002\u3061\u3087\u3046\u3069\u3088\u3046\u3054\u3056\u3044\u307e\u3059\u304b\u3089",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00796.wav",
+   "human_seconds": 3.7965416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00796__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00796__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00797",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u79c1\u3082\u4f53\u3092\u62ed\u304d\u307e\u3057\u3087\u3046\u3002\uff09\u3068\u304d\u3087\u3046\u3060\u3044\u304c",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00797.wav",
+   "human_seconds": 3.390125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00797__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00797__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00798",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3046\u3061\u308f\u3070\u306a\u3057\u3092\u3059\u308b\u3088\u3046\u306a\u8abf\u5b50\u3002\u624b\u3092\u3042\u3052\u3066\u9ed2\u9aea\u3092\u304a\u3055\u3048\u306a\u304c\u3089",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00798.wav",
+   "human_seconds": 4.911041666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00798__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00798__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00799",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u308f\u304d\u306e\u4e0b\u3092\u624b\u62ed\u3067\u3050\u3044\u3068\u62ed\u304d\u3001\u3042\u3068\u3092\u4e21\u624b\u3067\u7d5e\u308a\u306a\u304c\u3089\u7acb\u3063\u305f\u59ff\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00799.wav",
+   "human_seconds": 5.66575,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00799__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00799__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00839",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u306a\u308c\u306a\u308c\u3057\u304f\u3066\u72af\u3057\u3084\u3059\u304b\u3089\u306c\u54c1\u306e\u3044\u3044\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00839.wav",
+   "human_seconds": 3.3205,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00839__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00839__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00840",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3044\u304b\u306a\u308b\u3053\u3068\u306b\u3082\u3044\u3056\u3068\u306a\u308c\u3070\u9a5a\u304f\u306b\u8db3\u3089\u306c\u3068\u3044\u3046",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00840.wav",
+   "human_seconds": 4.040333333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00840__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00840__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00841",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u8eab\u306b\u3053\u305f\u3048\u306e\u3042\u308b\u3068\u3044\u3063\u305f\u3088\u3046\u306a\u98a8\u306e\u304a\u3093\u306a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00841.wav",
+   "human_seconds": 3.2855833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00841__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00841__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00842",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304b\u304f\u304d\u3087\u3046\u3057\u3093\u3092\u767a\u3057\u3066\u306f\u304d\u3063\u3068\u3044\u3044\u3053\u3068\u306f\u3042\u308b\u307e\u3044\u3001\u4eca",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00842.wav",
+   "human_seconds": 5.050333333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00842__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00842__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00843",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u306e\u304a\u3093\u306a\u306b\u3058\u3083\u3051\u3093\u306b\u3055\u308c\u3066\u306f\u6728\u304b\u3089\u843d\u3061\u305f\u733f\u540c\u7136\u3058\u3083\u3068\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00843.wav",
+   "human_seconds": 4.469833333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00843__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00843__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00844",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304a\u3063\u304b\u306a\u3073\u3063\u304f\u308a\u3067\u3001\u304a\u305a\u304a\u305a\u63a7\u3048\u3066\u3044\u305f\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00844.wav",
+   "human_seconds": 3.0999166666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00844__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00844__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00887",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5341\u516b\u300c\u30d2\u30a4\u30a4\u30f3\uff01\u3000\u3057\u3063\u3001\u3069\u3046\u3069\u3046\u3069\u3046\u3068",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00887.wav",
+   "human_seconds": 5.572791666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00887__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00887__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00888",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u80cc\u6238\u3092\u307e\u308f\u308b\u3072\u3065\u3081\u306e\u97f3\u304c\u3048\u3093\u3078\u3072\u3073\u3044\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00888.wav",
+   "human_seconds": 3.2972083333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00888__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00888__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00889",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304a\u3084\u3058\u306f\u4e00\u982d\u306e\u99ac\u3092\u9580\u524d\u3078\u5f15\u304d\u51fa\u3057\u305f\u3002\u304f\u3064\u308f\u3065\u3089\u3092\u53d6\u3063\u3066\u7acb\u3061\u306f\u3060\u304b\u308a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00889.wav",
+   "human_seconds": 6.222916666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00889__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00889__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00890",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff08\u5b22\u69d8\u305d\u3093\u306a\u3089\u3053\u306e\u307e\u307e\u3067\u308f\u3057\u53c2\u308a\u3084\u3059\u308b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00890.wav",
+   "human_seconds": 4.017125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00890__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00890__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00891",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u306f\u3044\u3001\u3054\u307c\u3046\u3055\u307e\u306b\u305f\u304f\u3055\u3093\u3054\u3061\u305d\u3046\u3057\u3066\u4e0a\u3052\u306a\u3055\u308c\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00891.wav",
+   "human_seconds": 4.713708333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00891__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00891__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00892",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\u304a\u3093\u306a\u306f\u308d\u3076\u3061\u306b\u3042\u3093\u3069\u3046\u3092\u3072\u304d\u3064\u3051\u3001\u3046\u3064\u3080\u3044\u3066\u306a\u3079\u306e\u4e0b\u3092\u3044\u3076\u3057\u3066\u3044\u305f\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00892.wav",
+   "human_seconds": 6.362333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00892__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00892__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00940",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u5bcc\u5c71\u306e\u306f\u3093\u3054\u3093\u305f\u3093\u3046\u308a\u306b\u9022\u3044\u307e\u3057\u305f\u304c\u3001\u4e00\u8db3\u5148\u306b\u3084\u3063\u3071\u308a\u3053\u306e\u8def\u3078\u5165\u308a\u307e\u3057\u305f\u3002\uff09\uff08\u3042\u3042\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00940.wav",
+   "human_seconds": 5.897916666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00940__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00940__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00941",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u3046\u3002\uff09\u3068\u4f1a\u5fc3\u306e\u3048\u307f\u3092\u3082\u3089\u3057\u3066\u304a\u3093\u306a\u306f\u3042\u3057\u3052\u306e\u65b9\u3092\u898b\u305f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00941.wav",
+   "human_seconds": 5.3174166666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00941__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00941__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00942",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304a\u3088\u305d\u305f\u307e\u3089\u306a\u304f\u304a\u304b\u3057\u3044\u3068\u3044\u3063\u305f\u306f\u3057\u305f\u306a\u3044\u3068\u308a\u306a\u308a\u3067\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00942.wav",
+   "human_seconds": 4.585916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00942__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00942__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00943",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u6975\u3081\u3066\u304f\u307f\u3057\u3084\u3059\u3046\u898b\u3048\u305f\u306e\u3067\u3001\uff08\u3082\u3057\u3084",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00943.wav",
+   "human_seconds": 4.109916666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00943__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00943__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00944",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u3061\u3089\u3078\u53c2\u308a\u307e\u305b\u306a\u3093\u3060\u3067\u3054\u3056\u3044\u307e\u3057\u3087\u3046\u304b\u3002\uff09\uff08\u3044\u3044\u3048\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00944.wav",
+   "human_seconds": 3.0999166666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00944__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00944__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00946",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305f\u3061\u307e\u3061\u72af\u3059\u3079\u304b\u3089\u3056\u308b\u8005\u306b\u306a\u3063\u305f\u304b\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00946.wav",
+   "human_seconds": 3.2392083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00946__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00946__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00992",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u3055\u3066\u3001\u305d\u308c\u304b\u3089\u3054\u98ef\u306e\u6642\u3058\u3083\u3001\u305c\u3093\u306b\u306f\u3084\u307e\u304c\u306e\u3053\u3046\u306e\u7269\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00992.wav",
+   "human_seconds": 5.886333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00992__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00992__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00993",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u306f\u3058\u304b\u307f\u306e\u3064\u3051\u305f\u306e\u3068\u3001\u308f\u304b\u3081\u3092\u3046\u3067\u305f\u306e\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00993.wav",
+   "human_seconds": 3.8777083333333335,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00993__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00993__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00995",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3044\u3084\u306a\u304b\u306a\u304b\u306b\u3093\u3058\u3093\u3068\u304b\u3093\u3074\u3087\u3046\u3069\u3053\u308d\u3067\u306f\u3054\u3056\u3089\u306c\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00995.wav",
+   "human_seconds": 4.493125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00995__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00995__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00996",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u54c1\u7269\u306f\u308f\u3073\u3057\u3044\u304c\u3001\u306a\u304b\u306a\u304b\u306e\u304a\u624b\u6599\u7406\u3001\u3046\u3048\u3066\u306f\u3044\u308b\u3057\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00996.wav",
+   "human_seconds": 5.607625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00996__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00996__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00997",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u307f\u3087\u3046\u304c\u3057\u3054\u304f\u306a\u304a\u7d66\u4ed5\u3001\u76c6\u3092\u819d\u306b\u69cb\u3048\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00997.wav",
+   "human_seconds": 4.005416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00997__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00997__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-00998",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u306e\u4e0a\u306b\u3072\u3058\u3092\u3064\u3044\u3066\u3001\u307b\u304a\u3092\u652f\u3048\u306a\u304c\u3089\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-00998.wav",
+   "human_seconds": 3.0418333333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00998__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-00998__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01038",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u3057\u3070\u3089\u304f\u3057\u3087\u3093\u307c\u308a\u3057\u3066\u3044\u305f\u3063\u3051\u3002\uff08\u3042\u306a\u305f\u3001\u3055\u305e\u304a\u3064\u304b\u308c\u3001\u3059\u3050\u306b\u304a",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01038.wav",
+   "human_seconds": 6.3855,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01038__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01038__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01039",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4f11\u307e\u305b\u7533\u3057\u307e\u3057\u3087\u3046\u304b\u3002\uff09\uff08\u3042\u308a\u304c\u3068\u3046\u5b58\u3058\u307e\u3059\u3001\u307e\u3060\u3061\u3063\u3068\u3082\u7720\u304f\u306f\u3054\u3056\u308a\u307e\u305b\u3093\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01039.wav",
+   "human_seconds": 6.733791666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01039__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01039__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01040",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3055\u3063\u304d\u4f53\u3092\u6d17\u3044\u307e\u3057\u305f\u306e\u3067\u304f\u305f\u3073\u308c\u3082\u3059\u3063\u304b\u308a\u306a\u304a\u308a\u307e\u3057\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01040.wav",
+   "human_seconds": 5.3754583333333334,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01040__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01040__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01041",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\uff09\uff08\u3042\u306e\u6d41\u308c\u306f\u3069\u3093\u306a\u75c5\u306b\u3067\u3082\u3088\u304f\u5229\u304d\u307e\u3059\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01041.wav",
+   "human_seconds": 4.284083333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01041__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01041__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01042",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u308f\u305f\u3057\u304c\u82e6\u52b4\u3092\u3044\u305f\u3057\u307e\u3057\u3066\u9aa8\u3068\u76ae\u3070\u304b\u308a\u306b\u4f53\u304c\u304b\u308c\u307e\u3057\u3066\u3082\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01042.wav",
+   "human_seconds": 5.5380416666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01042__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01042__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01090",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u3068\u3053\u3046\u3057\u3066\u3001\u304a\u3093\u306a\u304c\u3001\u306f\u3052\u307e\u3059\u3088\u3046\u306b\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01090.wav",
+   "human_seconds": 3.065,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01090__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01090__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01091",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3059\u304b\u3059\u3088\u3046\u306b\u3057\u3066\u52e7\u3081\u308b\u3068\u3001\u3070\u304b\u306f\u9996\u3092\u66f2\u3052\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01091.wav",
+   "human_seconds": 3.98225,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01091__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01091__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01092",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304b\u306e\u3078\u305d\u3092\u3082\u3066\u3042\u305d\u3073\u306a\u304c\u3089\u5504\u3063\u305f\u3002\u304d\u305d\u306e\u304a\u3093\u305f\u3051\u3055\u3093\u306f\u590f\u3067\u3082\u5bd2\u3044\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01092.wav",
+   "human_seconds": 6.0140416666666665,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01092__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01092__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01093",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3042\u308f\u305b\u3084\u308a\u305f\u3084\u305f\u3073\u305d\u3048\u3066\u3002\uff08\u3088\u304f\u77e5\u3063\u3066\u304a\u308a\u307e\u3057\u3087\u3046\u3001\uff09\u3068\u304a\u3093\u306a\u306f\u805e\u304d\u6f84\u3057\u3066\u306b\u3063\u3053\u308a\u3059\u308b\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01093.wav",
+   "human_seconds": 7.906416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01093__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01093__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01094",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e0d\u601d\u8b70\u3084\u3001\u5504\u3063\u305f\u6642\u306e\u3070\u304b\u306e\u58f0\u306f\u3053\u306e\u8a71\u3092\u304a\u805e\u304d\u306a\u3055\u308b",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01094.wav",
+   "human_seconds": 5.816625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01094__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01094__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01133",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u4e8c\u5341\u4e09\u3053\u306e\u6298\u304b\u3089\u4e0b\u306e\u308d\u3046\u304b\u306b\u3042\u3057\u304a\u3068\u304c\u3057\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01133.wav",
+   "human_seconds": 5.14325,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01133__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01133__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01134",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3057\u305a\u304b\u306b\u304a\u304a\u307e\u305f\u306b\u3042\u308b\u3044\u305f\u306e\u304c\u3001\u305b\u304d\u3068\u3057\u3066\u3044\u308b\u304b\u3089\u3088\u304f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01134.wav",
+   "human_seconds": 4.423416666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01134__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01134__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01135",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3084\u304c\u3066\u3053\u3088\u3046\u3092\u305f\u3057\u305f\u69d8\u5b50\u3001\u96e8\u6238\u3092\u3070\u305f\u308a\u3068\u958b\u3051\u308b\u306e\u304c\u805e\u3048\u305f\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01135.wav",
+   "human_seconds": 6.24625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01135__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01135__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01136",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3061\u3087\u3046\u305a\u3070\u3061\u3078\u3072\u3057\u3083\u304f\u306e\u3072\u3073\u304d\u3002\u300c\u304a\u304a\u3001\u3064\u3082\u3063\u305f\u3001\u7a4d\u3063\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01136.wav",
+   "human_seconds": 5.154791666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01136__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01136__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01137",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300d\u3068\u3064\u3076\u3084\u3044\u305f\u306e\u306f\u3001\u306f\u305f\u3054\u3084\u306e\u4ead\u4e3b\u306e\u58f0\u3067\u3042\u308b\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01137.wav",
+   "human_seconds": 3.668833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01137__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01137__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01187",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u91cc\u8fd1\u304f\u3001\u6edd\u306e\u3042\u308b\u51e6\u3067\u3001\u304d\u306e\u3046\u99ac\u3092\u58f2\u308a\u306b\u884c\u3063\u305f\u304a\u3084\u3058\u306e\u5e30\u308a\u306b\u304a\u3046\u305f\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01187.wav",
+   "human_seconds": 6.501625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01187__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01187__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01188",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3061\u3087\u3046\u3069\u308f\u3057\u304c\u4fee\u884c\u306b\u51fa\u308b\u306e\u3092\u3088\u3057\u3066\u3072\u3068\u3064\u3084\u306b\u5f15\u8fd4\u3057\u3066\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01188.wav",
+   "human_seconds": 4.829833333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01188__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01188__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01189",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304a\u3093\u306a\u3068\u3044\u3063\u3057\u3087\u306b\u3057\u3087\u3046\u304c\u3044\u3092\u9001\u308d\u3046\u3068\u601d\u3063\u3066\u3044\u305f\u3068\u3053\u308d\u3067\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01189.wav",
+   "human_seconds": 3.622333333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01189__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01189__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01191",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u306e\u4e8b\u3070\u304b\u308a\u8003\u3048\u308b\u3001\u86c7\u306e\u6a4b\u3082\u3055\u3044\u308f\u3044\u306b\u306a\u3057\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01191.wav",
+   "human_seconds": 4.1215,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01191__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01191__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01192",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3072\u308b\u306e\u6797\u3082\u306a\u304b\u3063\u305f\u304c\u3001\u9053\u304c\u306a\u3093\u3058\u3085\u3046\u306a\u306b\u3064\u3051\u3066\u3082\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01192.wav",
+   "human_seconds": 4.191208333333333,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01192__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01192__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01241",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u300c\u305f\u3060\u3072\u3068\u3059\u3058\u3067\u3082\u5dcc\u3092\u8d8a\u3057\u3066\u304a\u3060\u304d\u306b\u3059\u304c\u308a\u3064\u3053\u3046\u3068\u3059\u308b\u5f62\u3001\u305d\u308c\u3067\u3082\u4e2d\u3092\u3078\u3060\u3066\u3089\u308c\u3066",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01241.wav",
+   "human_seconds": 7.453625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01241__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01241__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01242",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u672b\u307e\u3067\u306f\u3057\u305a\u304f\u3082\u901a\u308f\u306c\u306e\u3067\u3001\u3082\u307e\u308c\u3001\u63fa\u3089\u308c\u3066\u3064\u3076\u3055\u306b\u3057\u3093\u304f\u3092\u306a\u3081\u308b\u3068\u3044\u3046\u3075\u305c\u3044\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01242.wav",
+   "human_seconds": 6.733791666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01242__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01242__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01244",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u6d41\u308b\u308b\u97f3\u3055\u3048\u5225\u69d8\u306b\u3001\u6ce3\u304f\u304b\u3001\u3046\u3089\u3080\u304b\u3068\u3082\u601d\u308f\u308c\u308b\u304c\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01244.wav",
+   "human_seconds": 4.702,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01244__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01244__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01245",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3042\u308f\u308c\u306b\u3082\u512a\u3057\u3044\u3081\u3060\u304d\u3058\u3083\u3002\u7537\u6edd\u306e\u65b9\u306f\u3046\u3089\u306f\u3089\u3067\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01245.wav",
+   "human_seconds": 4.969125,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01245__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01245__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01246",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u77f3\u3092\u7815\u304d\u3001\u5730\u3092\u3064\u3089\u306c\u304f\u3044\u304d\u304a\u3044\u3001\u5802\u3005\u305f\u308b\u3042\u308a\u3055\u307e\u3058\u3083\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01246.wav",
+   "human_seconds": 4.644,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01246__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01246__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01292",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3046\u306a\u305a\u304d\u306a\u304c\u3089\u3064\u3076\u3084\u3044\u3066\u3001\u300c\u3044\u3084\u3001\u307e\u305a\u805e\u304b\u3063\u3057\u3083\u3044\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01292.wav",
+   "human_seconds": 4.945916666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01292__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01292__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01293",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u304b\u306e\u3072\u3068\u3064\u3084\u306e\u304a\u3093\u306a\u3068\u3044\u3046\u306f\u3001\u3082\u3068\u306a\u3001",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01293.wav",
+   "human_seconds": 3.7849166666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01293__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01293__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01294",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u3053\u308c\u3082\u308f\u3057\u306b\u306f\u4f55\u304b\u306e\u3048\u3093\u304c\u3042\u3063\u305f\u3001\u3042\u306e\u6050\u3057\u3044\u307e\u3057\u3087\u3078\u5165\u308d\u3046\u3068\u3044\u3046",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01294.wav",
+   "human_seconds": 5.851416666666666,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01294__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01294__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01295",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u3070\u307f\u3061\u306e\u6c34\u304c\u3042\u3075\u308c\u305f\u5f80\u6765\u3067\u3001\u767e\u59d3\u304c\u6559\u3048\u3066\u3001\u3042\u3059\u3053\u306f",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01295.wav",
+   "human_seconds": 5.166416666666667,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01295__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01295__clone.wav"
+  },
+  {
+   "id": "kouyahijiri-by-kyoka-izumi-01296",
+   "book": "kouyahijiri-by-kyoka-izumi",
+   "text": "\u305d\u306e\u4ee5\u524d\u533b\u8005\u306e\u5bb6\u3067\u3042\u3063\u305f\u3068\u3044\u3046\u305f\u304c\u3001\u305d\u306e\u5bb6\u306e\u5b22\u69d8\u3058\u3083\u3002",
+   "human_wav": "ab_test_runtime/kokoro_eval/human/kouyahijiri-by-kyoka-izumi-01296.wav",
+   "human_seconds": 4.597625,
+   "lora_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01296__lora.wav",
+   "clone_wav": "ab_test_runtime/kokoro_eval/generated_lr1e6/kouyahijiri-by-kyoka-izumi-01296__clone.wav"
+  }
+ ],
+ "failures": [],
+ "provenance": {
+  "script": "ljspeech_generate.py",
+  "written": "2026-08-06T05:40:30",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+   "branch": "agent/voice-assignment-and-adapter",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
+  },
+  "args": {
+   "build": "ab_test_runtime/kokoro_eval/build.json",
+   "adapter": "ab_test_runtime/kokoro_eval/adapter_lr1e6",
+   "config": "app/config.json",
+   "out_dir": "ab_test_runtime/kokoro_eval/generated_lr1e6",
+   "seed": 1234,
+   "limit": 0,
+   "arms": [
+    "lora",
+    "clone"
+   ],
+   "out": "ab_test_runtime/experiments/kokoro_generate.json"
+  },
+  "seed": 1234
+ }
+}

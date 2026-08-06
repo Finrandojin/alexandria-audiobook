@@ -1,5 +1,9 @@
 artifact,evidence_status,experiment,book,model,env_tag,host,backend,ctx,parallel,kv,arm,n,correct,accuracy_pct,validation,dirty,commit,elapsed_s,finished,endpoint,note
+adapter_stop_check_aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+adapter_stop_check_kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 adapter_stop_check_ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+aishell3_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+aishell3_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 audible_errors.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,aligned,385,273,70.9,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,fixed,385,275,71.4,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
@@ -366,7 +370,11 @@ joint_scene__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json,exploratory
 joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,joint_scene,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,independent,162,79,48.8,ok,False,04a69e4c,538.3,07-29 04:37,http://127.0.0.1:8090/v1,
 joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,joint_scene,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,joint-chrono,162,74,45.7,ok,False,04a69e4c,538.3,07-29 04:37,http://127.0.0.1:8090/v1,
 joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,joint_scene,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,joint-shuffled,162,74,45.7,ok,False,04a69e4c,538.3,07-29 04:37,http://127.0.0.1:8090/v1,
+kokoro_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+kokoro_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 listener_impact.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+ljspeech_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+ljspeech_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 lora_serving_eval__cloud-alldata.json,exploratory,lora_serving_eval,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-kwami7f2-main,llama.cpp-cuda,32768,1,f16?,base,385,248,64.4,ok,False,,6206.6,08-03 06:14,http://127.0.0.1:8090/v1,
 lora_serving_eval__cloud-alldata.json,exploratory,lora_serving_eval,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-kwami7f2-main,llama.cpp-cuda,32768,1,f16?,lora,385,292,75.8,ok,False,,6206.6,08-03 06:14,http://127.0.0.1:8090/v1,
 lora_serving_eval__cloud-alldata.json,exploratory,lora_serving_eval,index18,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-kwami7f2-main,llama.cpp-cuda,32768,1,f16?,base,92,65,70.7,ok,False,,6206.6,08-03 06:14,http://127.0.0.1:8090/v1,
