@@ -229,6 +229,17 @@
     "test_character_traits.TestValidEvidenceStillWorks.test_persona_description_is_medium_confidence",
     "test_character_traits.TestValidEvidenceStillWorks.test_persona_survives_misleading_dialogue"
   ],
+  "test_character_voice_seed": [
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_neither_site_seeds_from_a_literal",
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_persona_generation_sets_a_stable_seed",
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_voice_suggestion_apply_sets_a_stable_seed",
+    "test_character_voice_seed.TestSeedDerivation.test_an_empty_name_does_not_crash",
+    "test_character_voice_seed.TestSeedDerivation.test_different_characters_get_different_seeds",
+    "test_character_voice_seed.TestSeedDerivation.test_spelling_case_does_not_change_the_voice",
+    "test_character_voice_seed.TestSeedDerivation.test_the_same_character_always_gets_the_same_seed",
+    "test_character_voice_seed.TestSeedDerivation.test_the_seed_fits_what_torch_accepts",
+    "test_character_voice_seed.TestSeedDerivation.test_the_seed_is_never_negative"
+  ],
   "test_chinese_attribution": [
     "test_chinese_attribution.TestNormalise.test_extracts_tag_index",
     "test_chinese_attribution.TestNormalise.test_unparseable_is_none",
