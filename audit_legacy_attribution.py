@@ -111,11 +111,26 @@ def inspect_artifact(name):
     core = bool(problems)
     score_stale = bool(gold.get("correctness_changed_rows") or
                        gold.get("missing_rows"))
+    # WHAT MAKES A MEASUREMENT PROVISIONAL IS THE ANSWERS MOVING, NOT THE BYTES.
+    # This used to key on hash_changed, a sha256 of the whole gold file, so
+    # correcting a description field downgraded every measurement scored against
+    # that book. On 2026-08-06 fixing one false sentence - the gold said
+    # "Hand-labelled" when its own status field said no human read the passages -
+    # took supported_measurement from 39 to 1 without a single label changing.
+    #
+    # That is an incentive to leave documentation wrong, so the check now asks
+    # whether the ANSWERS moved: a changed expected_speaker, or a different
+    # number of rows. Alias edits are not missed by this - they change scoring,
+    # which correctness_changed_rows already catches above as historical_only.
+    # hash_changed is still recorded, because "these bytes differ" is true and
+    # worth knowing; it just no longer decides the classification alone.
+    answers_changed = bool(gold.get("expected_changed_rows") or
+                           gold.get("line_count_changed"))
     if core:
         classification = "exploratory"
     elif score_stale:
         classification = "historical_only"
-    elif (meta.get("git") or {}).get("dirty") or gold.get("hash_changed"):
+    elif (meta.get("git") or {}).get("dirty") or answers_changed:
         classification = "provisional"
     else:
         classification = "supported_measurement"

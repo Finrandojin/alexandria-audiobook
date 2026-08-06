@@ -6,8 +6,8 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 
 - `exploratory`: 9
 - `historical_only`: 38
-- `provisional`: 26
-- `supported_measurement`: 39
+- `provisional`: 19
+- `supported_measurement`: 46
 
 `historical_only` means current-gold rescoring changes at least one judgment or cannot map at least one row. Original files remain preserved; their saved summaries were not rewritten.
 
@@ -22,12 +22,12 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | batch_size | historical_only | 1600 | 27 | 16 | False |  |
 | `batch_size__index18__qwen__qwen3-14b__local-llamacpp.json` | batch_size | supported_measurement | 396 | 0 | 0 | False |  |
 | `batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json` | batch_size | provisional | 417 | 0 | 0 | True |  |
-| `batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | batch_size | provisional | 556 | 0 | 0 | False |  |
+| `batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | batch_size | supported_measurement | 556 | 0 | 0 | False |  |
 | `batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep1.json` | batch_size | provisional | 486 | 0 | 0 | True |  |
 | `batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-rep2.json` | batch_size | provisional | 486 | 0 | 0 | True |  |
 | `batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | batch_size | supported_measurement | 648 | 0 | 0 | False |  |
 | `because_production__grimgar03__qwen__qwen3-14b__local.json` | because_production | historical_only | 800 | 33 | 8 | False |  |
-| `because_production__mushoku16__qwen__qwen3-14b__local.json` | because_production | provisional | 278 | 0 | 0 | False |  |
+| `because_production__mushoku16__qwen__qwen3-14b__local.json` | because_production | supported_measurement | 278 | 0 | 0 | False |  |
 | `because_production__qwen__qwen3-14b.json` | because_production | provisional | 417 | 0 | 0 | True |  |
 | `candidate_id__qwen__qwen3-14b.json` | candidate_id | historical_only | 294 | 1 | 0 | False |  |
 | `closed_set.json` | closed_set | exploratory | 441 | 2 | 0 | True | artifact validation is not ok; environment is missing context_length; environment is missing parallel; no LM Studio load state recorded; no harness fingerprint: the code that ran is unidentified |
@@ -73,12 +73,12 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep3.json` | context_width_production | historical_only | 800 | 23 | 8 | False |  |
 | `context_width_production__grimgar03__qwen__qwen3-14b__local.json` | context_width_production | historical_only | 800 | 26 | 8 | False |  |
 | `context_width_production__index18__qwen__qwen3-14b__local-llamacpp.json` | context_width_production | supported_measurement | 198 | 0 | 0 | False |  |
-| `context_width_production__mushoku16__qwen__qwen3-14b__local.json` | context_width_production | provisional | 278 | 0 | 0 | False |  |
+| `context_width_production__mushoku16__qwen__qwen3-14b__local.json` | context_width_production | supported_measurement | 278 | 0 | 0 | False |  |
 | `context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | context_width_production | supported_measurement | 324 | 0 | 0 | False |  |
 | `crossover__grimgar03__local.json` | segmentation_crossover | historical_only | 7980 | 320 | 60 | False |  |
 | `grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | grammar_constraint | supported_measurement | 1584 | 0 | 0 | False |  |
 | `grammar_constraint__index18__qwen__qwen3-14b__local-llamacpp.json` | grammar_constraint | supported_measurement | 396 | 0 | 0 | False |  |
-| `grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json` | grammar_constraint | provisional | 556 | 0 | 0 | False |  |
+| `grammar_constraint__mushoku16__mistralai__magistral-small__local-llamacpp.json` | grammar_constraint | supported_measurement | 556 | 0 | 0 | False |  |
 | `grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | grammar_constraint | supported_measurement | 648 | 0 | 0 | False |  |
 | `joint_scene__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | joint_scene | historical_only | 1200 | 30 | 12 | False |  |
 | `joint_scene__index18__qwen__qwen3-14b__local-llamacpp.json` | joint_scene | supported_measurement | 297 | 0 | 0 | False |  |
@@ -88,7 +88,7 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `lora_serving_eval__local-rocm-lora.json` | lora_serving_eval | historical_only | 1094 | 0 | 324 | True |  |
 | `narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | historical_only | 800 | 29 | 8 | False |  |
 | `narrator_prior__index18__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 198 | 0 | 0 | False |  |
-| `narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | provisional | 278 | 0 | 0 | False |  |
+| `narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 278 | 0 | 0 | False |  |
 | `narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 324 | 0 | 0 | False |  |
 | `reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json` | reasoning_arms | historical_only | 2000 | 111 | 20 | False |  |
 | `reasoning_arms__grimgar03__qwen__qwen3-14b.json` | reasoning_arms | historical_only | 2000 | 79 | 20 | True |  |
@@ -105,7 +105,7 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `roster_quality__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | roster_quality | provisional | 532 | 0 | 0 | True |  |
 | `roster_quality__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | roster_quality | provisional | 648 | 0 | 0 | True |  |
 | `roster_warmup.json` | roster_warmup | exploratory | 417 | 0 | 0 | False | recorded commit is unavailable from current history |
-| `roster_warmup__ministral-3-14b-instruct-2512.json` | roster_warmup | provisional | 417 | 0 | 0 | False |  |
+| `roster_warmup__ministral-3-14b-instruct-2512.json` | roster_warmup | supported_measurement | 417 | 0 | 0 | False |  |
 | `scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look1.json` | scene_cast | provisional | 1155 | 0 | 0 | True |  |
 | `scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp-look6.json` | scene_cast | provisional | 1155 | 0 | 0 | True |  |
 | `scene_cast__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | scene_cast | provisional | 1155 | 0 | 0 | True |  |
@@ -125,7 +125,7 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `two_by_two.json` | two_by_two | exploratory | 556 | 0 | 556 | True | artifact validation is not ok; environment is missing context_length; environment is missing parallel; no LM Studio load state recorded; no harness fingerprint: the code that ran is unidentified |
 | `voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json` | voting | historical_only | 1200 | 30 | 12 | False |  |
 | `voting__index18__qwen__qwen3-14b__local-llamacpp.json` | voting | supported_measurement | 198 | 0 | 0 | False |  |
-| `voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | voting | provisional | 417 | 0 | 0 | False |  |
+| `voting__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | voting | supported_measurement | 417 | 0 | 0 | False |  |
 | `voting__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | voting | supported_measurement | 324 | 0 | 0 | False |  |
 
 ## Family-level interpretation limits
