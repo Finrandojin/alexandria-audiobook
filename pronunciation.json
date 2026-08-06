@@ -1,25 +1,87 @@
 {
- "_comment": "Respellings applied at generation time only. EMPTY VALUES ARE IGNORED - add one only when a candidate has been measured to help, using app/experiments/proper_noun_pronunciation.py. Judge by listening, not by WER: validation scores the transcript against the ORIGINAL text, so a respelling that makes the audio right can make WER worse.",
- "_lines_containing": {
-  "Subaru": 811,
-  "Felt": 221,
-  "Satella": 190,
-  "Rom": 145,
-  "Elsa": 145,
-  "Reinhard": 100,
-  "Emilia": 45,
-  "Puck": 36,
-  "Natsuki Subaru": 7
+ "_comment": "Respellings applied at generation time only. EMPTY VALUES ARE IGNORED - add one only when a candidate has been MEASURED to help, using app/experiments/proper_noun_pronunciation.py. Judge by listening, not by WER: validation scores the transcript against the ORIGINAL text, so a respelling that makes the audio right can make WER worse.",
+ "_derived": "Name list derived from character_aliases.json + voice_config.json + the script, then filtered to forms that ACTUALLY occur. Aliases are used for DISCOVERY only: 'BETTY' and 'BEATRICE' are one character but different sounds, so each written form gets its own entry.",
+ "_warning": "Forms marked collides_with_common_word share a spelling with an ordinary word in this book. Matching is case-sensitive so the lowercase word is safe, but think before giving these a respelling.",
+ "_forms": {
+  "Subaru": {
+   "occurrences": 898,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Felt": {
+   "occurrences": 242,
+   "collides_with_common_word": true,
+   "lowercase_occurrences": 65
+  },
+  "Satella": {
+   "occurrences": 199,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Elsa": {
+   "occurrences": 154,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Rom": {
+   "occurrences": 153,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Reinhard": {
+   "occurrences": 105,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Not-Satella": {
+   "occurrences": 74,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Emilia": {
+   "occurrences": 47,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Puck": {
+   "occurrences": 38,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Man": {
+   "occurrences": 11,
+   "collides_with_common_word": true,
+   "lowercase_occurrences": 95
+  },
+  "Natsuki Subaru": {
+   "occurrences": 7,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Roswaal": {
+   "occurrences": 2,
+   "collides_with_common_word": false,
+   "lowercase_occurrences": 0
+  },
+  "Cat": {
+   "occurrences": 1,
+   "collides_with_common_word": true,
+   "lowercase_occurrences": 22
+  }
  },
  "names": {
   "Subaru": "",
   "Felt": "",
   "Satella": "",
-  "Rom": "",
   "Elsa": "",
+  "Rom": "",
   "Reinhard": "",
+  "Not-Satella": "",
   "Emilia": "",
   "Puck": "",
-  "Natsuki Subaru": ""
+  "Man": "",
+  "Natsuki Subaru": "",
+  "Roswaal": "",
+  "Cat": ""
  }
 }

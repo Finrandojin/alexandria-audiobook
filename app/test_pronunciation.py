@@ -143,6 +143,54 @@ class ShippedLexiconTest(unittest.TestCase):
         self.assertIsInstance(doc["names"], dict)
 
 
+class RosterDerivationTest(unittest.TestCase):
+    """The name list comes from the roster, and aliases inform it WITHOUT
+    leaking one character's pronunciation onto another's spelling."""
+
+    def test_a_nickname_does_not_inherit_the_canonical_pronunciation(self):
+        """THE TRAP. character_aliases maps 'BETTY' -> 'BEATRICE' because they
+        are one character. They are NOT one sound. Substituting across the
+        alias would put a word in the audio that is not in the book, which is
+        worse than mispronouncing it."""
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        p = os.path.join(tmp.name, "pron.json")
+        with open(p, "w", encoding="utf-8") as fh:
+            json.dump({"names": {"Beatrice": "Bee-ah-tree-chay"}}, fh)
+        out, applied = apply_pronunciation("Betty smiled at Beatrice", p)
+        self.assertEqual(out, "Betty smiled at Bee-ah-tree-chay")
+        self.assertEqual([a["name"] for a in applied], ["Beatrice"])
+
+    def test_forms_are_derived_from_the_roster_and_the_text(self):
+        from pronunciation import character_forms
+        forms = character_forms()
+        if not forms:
+            self.skipTest("no script in this checkout")
+        for name, info in forms.items():
+            self.assertGreater(info["occurrences"], 0,
+                               f"{name} listed but never occurs")
+
+    def test_a_name_colliding_with_a_common_word_is_flagged(self):
+        """`Felt` is a character and `felt` is a verb in the same book, 242
+        against 65. Case-sensitivity protects the verb; the flag warns whoever
+        fills the file in."""
+        from pronunciation import character_forms
+        forms = character_forms()
+        if "Felt" not in forms:
+            self.skipTest("this book has no Felt")
+        self.assertTrue(forms["Felt"]["collides_with_common_word"])
+        self.assertGreater(forms["Felt"]["lowercase_occurrences"], 0)
+
+    def test_a_respelled_name_does_not_touch_its_lowercase_word(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        p = os.path.join(tmp.name, "pron.json")
+        with open(p, "w", encoding="utf-8") as fh:
+            json.dump({"names": {"Felt": "Fehlt"}}, fh)
+        out, _ = apply_pronunciation("Felt felt the cold", p)
+        self.assertEqual(out, "Fehlt felt the cold")
+
+
 class NormalizationIntegrationTest(unittest.TestCase):
     """The lexicon has to reach the text the model actually receives."""
 

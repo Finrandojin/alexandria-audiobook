@@ -940,6 +940,10 @@
     "test_pronunciation.LexiconTest.test_longest_key_wins",
     "test_pronunciation.LexiconTest.test_non_string_entries_are_skipped",
     "test_pronunciation.NormalizationIntegrationTest.test_normalization_reports_the_substitution",
+    "test_pronunciation.RosterDerivationTest.test_a_name_colliding_with_a_common_word_is_flagged",
+    "test_pronunciation.RosterDerivationTest.test_a_nickname_does_not_inherit_the_canonical_pronunciation",
+    "test_pronunciation.RosterDerivationTest.test_a_respelled_name_does_not_touch_its_lowercase_word",
+    "test_pronunciation.RosterDerivationTest.test_forms_are_derived_from_the_roster_and_the_text",
     "test_pronunciation.ShippedLexiconTest.test_it_ships_inert",
     "test_pronunciation.ShippedLexiconTest.test_the_shipped_file_parses"
   ],

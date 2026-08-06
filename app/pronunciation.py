@@ -109,3 +109,90 @@ def apply_pronunciation(text, path=None):
 def lexicon_names(path=None):
     """The names the lexicon knows, for reporting and tests."""
     return sorted(load_lexicon(path))
+
+
+# ── keeping the name list honest ─────────────────────────────────────────
+
+def character_forms(script_path=None, aliases_path=None, voice_config_path=None):
+    """Every written form of every character that ACTUALLY OCCURS in the text.
+
+    WHY DERIVED RATHER THAN LISTED. The first version of this file carried a
+    hardcoded list of thirteen names typed from memory. It included Ram and
+    Rem, who do not appear in this book at all, and it would silently have no
+    entry for a character it forgot or for any other book. The roster already
+    exists in character_aliases.json and voice_config.json; a second list
+    beside them is the parallel-maintenance problem this repo has been bitten
+    by before.
+
+    ALIASES ARE USED FOR DISCOVERY, NEVER FOR SUBSTITUTION. The alias map
+    records IDENTITY - 'BETTY' -> 'BEATRICE' is one character - while a
+    lexicon records SOUND, and those come apart. Speaking "Betty" as
+    "Beatrice" would put a word in the audio that is not in the book, which is
+    worse than mispronouncing it. So every written form gets its own entry and
+    the canonical name confers nothing on its variants.
+
+    CASE IS LOAD-BEARING. `Felt` is a character here and `felt` is a verb:
+    242 and 65 occurrences in the same book. Matching case-insensitively would
+    rewrite the verb. Only forms that occur with their own capitalisation are
+    returned.
+    """
+    import json as _json
+    root = REPO
+    script_path = script_path or os.path.join(root, "chunks.json")
+    aliases_path = aliases_path or os.path.join(root, "character_aliases.json")
+    voice_config_path = voice_config_path or os.path.join(root,
+                                                          "voice_config.json")
+
+    def _read(path):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                return _json.load(fh)
+        except (OSError, ValueError):
+            return None
+
+    candidates = set()
+    aliases = _read(aliases_path)
+    if isinstance(aliases, dict):
+        for variant, canonical in aliases.items():
+            candidates.add(str(variant))
+            candidates.add(str(canonical))
+    vc = _read(voice_config_path)
+    if isinstance(vc, dict):
+        chars = vc.get("characters") if isinstance(vc.get("characters"), dict) else vc
+        candidates.update(str(k) for k in chars)
+
+    chunks = _read(script_path)
+    if not isinstance(chunks, list):
+        return {}
+    text = "\n".join(str(c.get("text") or "") for c in chunks
+                      if isinstance(c, dict))
+    if isinstance(chunks, list):
+        candidates.update(str(c.get("speaker")) for c in chunks
+                          if isinstance(c, dict) and c.get("speaker"))
+
+    # A speaker label is usually upper case while prose uses natural case, so
+    # try the label AND its title-cased form - but count each spelling
+    # separately, because that is what the substitution will match.
+    forms = {}
+    for name in candidates:
+        name = name.strip()
+        if len(name) < 2:
+            continue
+        for form in {name, name.title()}:
+            n = len(re.findall(r"(?<![\w'])" + re.escape(form) + r"(?![\w'])",
+                               text))
+            if not n:
+                continue
+            # A form whose LOWERCASE also occurs is a name that collides with
+            # an ordinary word: Felt/felt (242/65), Man/man (11/95), Cat/cat
+            # (1/22). Case-sensitive matching already protects the verb, but
+            # an editor filling this file in deserves to be warned before
+            # giving "Man" a respelling.
+            lower = len(re.findall(
+                r"(?<![\w'])" + re.escape(form.lower()) + r"(?![\w'])", text))
+            forms[form] = {"occurrences": n,
+                           "collides_with_common_word": bool(lower and
+                                                             form != form.lower()),
+                           "lowercase_occurrences": lower}
+    return dict(sorted(forms.items(),
+                       key=lambda kv: -kv[1]["occurrences"]))
