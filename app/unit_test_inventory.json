@@ -928,6 +928,21 @@
     "test_project_chunks.UnspeakablePassthroughTest.test_leading_scene_break_makes_no_orphan_pause",
     "test_project_chunks.UnspeakablePassthroughTest.test_symbol_is_verbalized"
   ],
+  "test_pronunciation": [
+    "test_pronunciation.LexiconTest.test_a_malformed_lexicon_degrades_to_no_substitution",
+    "test_pronunciation.LexiconTest.test_a_missing_lexicon_is_not_an_error",
+    "test_pronunciation.LexiconTest.test_a_name_is_respelled",
+    "test_pronunciation.LexiconTest.test_an_edit_takes_effect",
+    "test_pronunciation.LexiconTest.test_an_empty_respelling_is_ignored",
+    "test_pronunciation.LexiconTest.test_every_substitution_is_reported",
+    "test_pronunciation.LexiconTest.test_it_does_not_fire_across_an_apostrophe",
+    "test_pronunciation.LexiconTest.test_it_does_not_fire_inside_a_longer_word",
+    "test_pronunciation.LexiconTest.test_longest_key_wins",
+    "test_pronunciation.LexiconTest.test_non_string_entries_are_skipped",
+    "test_pronunciation.NormalizationIntegrationTest.test_normalization_reports_the_substitution",
+    "test_pronunciation.ShippedLexiconTest.test_it_ships_inert",
+    "test_pronunciation.ShippedLexiconTest.test_the_shipped_file_parses"
+  ],
   "test_publisher_matter": [
     "test_publisher_matter.StripPublisherMatterTest.test_a_book_that_is_all_colophon_is_left_alone",
     "test_publisher_matter.StripPublisherMatterTest.test_back_matter_is_removed",
