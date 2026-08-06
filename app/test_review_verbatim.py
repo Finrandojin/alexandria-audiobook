@@ -41,6 +41,8 @@ from review_script import (  # noqa: E402
     REVIEW_PROMPT_SCHEMA_MARKER,
     REVIEW_SYSTEM_PROMPT,
     REVIEW_USER_PROMPT,
+    normalize_text,
+    check_text_loss,
 )
 
 
@@ -388,6 +390,68 @@ def test_shipped_review_prompts_pass_their_own_guard():
     )
 
 
+def test_normalize_text_no_fusion_at_punctuation_quote_boundary():
+    """F10: normalize_text() used to delete punctuation outright
+    (`re.sub(r'[^\\w\\s]', '', text)`), so a quote/dash mark that directly
+    abuts a word with no space of its own fused the two words together
+    (`he said:--"Sicut` -> `saidsicut`). That fusion happened differently
+    depending on whether the text was normalized as one long string or as
+    separately-normalized entries split at a span/quote boundary, producing
+    false-alarm coverage-ratio mismatches with zero actual text loss.
+    Replacing punctuation with a space (then collapsing whitespace) fixes
+    this: a punctuation mark always leaves a token separator behind."""
+    check(
+        'normalize_text: \'he said:--"Sicut quercus"\' does not fuse into "saidsicut"',
+        normalize_text('he said:--"Sicut quercus"') == "he said sicut quercus",
+        detail=repr(normalize_text('he said:--"Sicut quercus"')),
+    )
+    check(
+        'normalize_text: \'ex-"spahi"\' does not fuse into "exspahi"',
+        normalize_text('ex-"spahi"') == "ex spahi",
+        detail=repr(normalize_text('ex-"spahi"')),
+    )
+    check(
+        "normalize_text: apostrophe contractions now split into two tokens "
+        "(don't -> 'don t', was 'dont' before -- fine as long as both sides "
+        "of every comparison go through the same function)",
+        normalize_text("don't") == "don t",
+        detail=repr(normalize_text("don't")),
+    )
+
+
+def test_check_text_loss_whole_vs_entry_split_agree_on_fused_quote_fixture():
+    """Regression for the false-alarm coverage-ratio bug: a source whose
+    span/entry boundary falls exactly at a quote mark used to normalize
+    differently depending on whether it went through normalize_text() as
+    one long string vs. as separately-normalized entries whose words are
+    then concatenated by check_text_loss. Both paths must now agree
+    exactly, with zero actual characters gained or lost."""
+    source = 'He said:--"Sicut quercus" and left, then said ex-"spahi" once more.'
+    # Mimic a span/entry split landing exactly at the quote boundaries --
+    # concatenating these pieces reproduces `source` exactly (byte-verbatim
+    # by construction, same as the real pipeline).
+    entry_pieces = [
+        'He said:--',
+        '"Sicut quercus" and left, then said ex-',
+        '"spahi" once more.',
+    ]
+    check(
+        "fixture: entry pieces concatenate back to the source exactly (sanity check)",
+        "".join(entry_pieces) == source,
+        detail=repr("".join(entry_pieces)),
+    )
+
+    entries = [{"text": p} for p in entry_pieces]
+    passed, orig_joined, corr_joined, ratio = check_text_loss(
+        [{"text": source}], entries, threshold=1.0, upper_bound=1.0
+    )
+    check(
+        "check_text_loss: whole-source vs per-entry-split normalization now agree exactly (ratio == 1.0)",
+        passed and ratio == 1.0 and orig_joined == corr_joined,
+        detail=f"ratio={ratio!r} orig={orig_joined!r} corr={corr_joined!r}",
+    )
+
+
 def main():
     tests = [
         test_overlay_preserves_text_applies_speaker_and_instruct,
@@ -406,6 +470,8 @@ def main():
         test_select_review_prompt_marker_bearing_custom_used_as_is,
         test_select_review_prompt_absent_or_blank_uses_default_silently,
         test_shipped_review_prompts_pass_their_own_guard,
+        test_normalize_text_no_fusion_at_punctuation_quote_boundary,
+        test_check_text_loss_whole_vs_entry_split_agree_on_fused_quote_fixture,
     ]
     for t in tests:
         try:

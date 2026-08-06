@@ -88,8 +88,49 @@ def test_empty_and_whitespace_input():
     check_equal(canonicalize(None), "", "None input")
 
 
+def test_wrapping_quotes_stripped():
+    # F11: LLM-emitted labels wrapped in quotes must unwrap to the same
+    # canonical form as the unquoted name, or the roster fragments.
+    check_equal(canonicalize("'Mother of Monsters'"), "MOTHER OF MONSTERS",
+                "straight single quotes wrapping a multi-word name")
+    check_equal(canonicalize('"BLACK SCOUT"'), "BLACK SCOUT",
+                "straight double quotes wrapping a name")
+    check_equal(canonicalize("‘Mother of Monsters’"), "MOTHER OF MONSTERS",
+                "curly single quotes (‘...’) wrapping a name")
+    check_equal(canonicalize("“Black Scout”"), "BLACK SCOUT",
+                "curly double quotes (“...”) wrapping a name")
+    check_equal(canonicalize("'\"BLACK SCOUT\"'"), "BLACK SCOUT",
+                "nested single-then-double wrapping quotes")
+    check_equal(canonicalize("''X''"), "X",
+                "double-wrapped straight single quotes unwind fully")
+
+
+def test_unmatched_apostrophes_survive_wrapping_fix():
+    # These must be UNCHANGED by the F11 wrapping-quote fix: only a matched
+    # pair at both ends is a "wrapper"; a lone leading/trailing apostrophe
+    # is possessive or elision, not a wrapper.
+    check_equal(canonicalize("O'Brien"), "O'BRIEN", "internal apostrophe untouched")
+    check_equal(canonicalize("Jones'"), "JONES'", "unmatched trailing possessive apostrophe kept")
+    check_equal(canonicalize("'tis"), "'TIS", "unmatched leading elision apostrophe kept")
+
+
+def test_wrapping_quotes_and_roster_fragmentation():
+    # The concrete production bug: a quoted and unquoted form of the same
+    # name must canonicalize identically so the roster doesn't fragment.
+    check_equal(
+        canonicalize("'MOTHER OF MONSTERS'"),
+        canonicalize("MOTHER OF MONSTERS"),
+        "quoted and unquoted forms must converge to the same canonical name",
+    )
+
+
 def test_idempotency():
-    samples = ["MARK (shouting)", "Mr. Mark", "Dr.", "José", "narrator", "O'Brien"]
+    samples = [
+        "MARK (shouting)", "Mr. Mark", "Dr.", "José", "narrator", "O'Brien",
+        "'Mother of Monsters'", '"BLACK SCOUT"',
+        "‘Mother of Monsters’", "“Black Scout”",
+        "'\"BLACK SCOUT\"'", "''X''", "Jones'", "'tis",
+    ]
     for s in samples:
         once = canonicalize(s)
         twice = canonicalize(once)
@@ -158,6 +199,9 @@ def main():
         test_hyphens_preserved,
         test_stray_punctuation_stripped,
         test_empty_and_whitespace_input,
+        test_wrapping_quotes_stripped,
+        test_unmatched_apostrophes_survive_wrapping_fix,
+        test_wrapping_quotes_and_roster_fragmentation,
         test_idempotency,
         test_suggest_aliases_expected_pairs,
         test_suggest_aliases_excludes_narrator,

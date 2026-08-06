@@ -59,8 +59,30 @@ _PARENS_RE = re.compile(r"\s*\([^)]*\)\s*")
 # letters have already been folded down to plain ASCII letters by this point.
 _ALLOWED_CHARS_RE = re.compile(r"[^A-Za-z0-9'\-\s]")
 
+# Same as _ALLOWED_CHARS_RE, but additionally keeps straight/curly quote
+# characters alive through the first punctuation pass, so a name like
+# '"BLACK SCOUT"' still has both of its wrapping quote characters present
+# when _strip_wrapping_quotes() runs. Anything it lets through that isn't
+# consumed as part of a matched wrapping pair is cleaned up afterward by a
+# second pass through the strict _ALLOWED_CHARS_RE above.
+_ALLOWED_CHARS_WITH_QUOTES_RE = re.compile(
+    "[^A-Za-z0-9'\\-\\s\"‘’“”]"
+)
+
 # Collapse any run of whitespace to a single space.
 _WHITESPACE_RE = re.compile(r"\s+")
+
+# Wrapping quote pairs recognized by _strip_wrapping_quotes(): straight
+# single quote/apostrophe, straight double quote, and the curly ("smart")
+# single and double quote pairs. The straight apostrophe intentionally maps
+# to itself (') since ASCII text uses the same glyph for both open and
+# close; the curly variants use their proper distinct open/close characters.
+_QUOTE_PAIRS = {
+    "'": "'",
+    '"': '"',
+    "‘": "’",  # ‘ ... ’
+    "“": "”",  # “ ... ”
+}
 
 
 def _strip_accents(text: str) -> str:
@@ -72,6 +94,42 @@ def _strip_accents(text: str) -> str:
     return "".join(ch for ch in normalized if not unicodedata.combining(ch))
 
 
+def _strip_wrapping_quotes(text: str) -> str:
+    """Iteratively strip MATCHED wrapping quote pairs from `text`.
+
+    Handles the case where an LLM emits a speaker label wrapped in quotes,
+    e.g. 'MOTHER OF MONSTERS' or "BLACK SCOUT" or nested combinations like
+    '"BLACK SCOUT"' or curly ‘Mother of Monsters’ / “Black Scout”. Each pass
+    strips one matched outer pair (straight/curly single or double quote,
+    per _QUOTE_PAIRS) and re-trims whitespace, so nested wraps ("''X''")
+    unwind one layer at a time.
+
+    Deliberately conservative: only strips when the FIRST and LAST character
+    of the (whitespace-trimmed) string form a matching open/close pair AND
+    the string is longer than 2 characters (so a bare "'" or a 2-char
+    wrapper isn't hollowed out to nothing). This means an UNMATCHED leading
+    or trailing apostrophe -- possessive "JONES'" or elision "'TIS" -- is
+    left untouched, since in both cases only one end is a quote character
+    and the other is a letter, so first/last never form a pair.
+
+    Bounded by len(text) iterations, which is far more than any realistic
+    nesting depth, to guarantee termination on pathological input.
+    """
+    for _ in range(len(text)):
+        stripped = text.strip()
+        if len(stripped) <= 2:
+            break
+        first, last = stripped[0], stripped[-1]
+        if _QUOTE_PAIRS.get(first) == last:
+            candidate = stripped[1:-1].strip()
+            if not candidate:
+                break
+            text = candidate
+        else:
+            break
+    return text.strip()
+
+
 def canonicalize(raw: str) -> str:
     """Canonicalize a raw speaker label into its canonical UPPERCASE form.
 
@@ -79,15 +137,24 @@ def canonicalize(raw: str) -> str:
       1. Bail out to "" for empty/whitespace-only input.
       2. Strip accents (NFKD decompose + drop combining marks).
       3. Remove parenthetical asides, e.g. "MARK (shouting)" -> "MARK".
-      4. Strip stray punctuation, keeping apostrophes and hyphens (so
-         "O'Brien" and "Jean-Luc" survive intact).
+      4. Strip stray punctuation EXCEPT apostrophes/hyphens/quote marks, so
+         "O'Brien" and "Jean-Luc" survive intact and quote characters are
+         still around for the wrapping-quote check in the next step.
       5. Collapse internal whitespace runs and strip leading/trailing space.
-      6. Strip a single leading honorific (Mr, Mrs, Dr, Professor, ...) --
+      6. Strip MATCHED wrapping quote pairs iteratively (straight or curly,
+         single or double), e.g. "'Mother of Monsters'" -> "Mother of
+         Monsters", '"BLACK SCOUT"' -> "BLACK SCOUT". Unmatched leading/
+         trailing apostrophes (possessive "JONES'", elision "'TIS") are left
+         alone -- see _strip_wrapping_quotes for the exact rule.
+      7. Strip any remaining stray punctuation (incl. leftover unmatched
+         quote characters), keeping apostrophes and hyphens, then re-collapse
+         whitespace.
+      8. Strip a single leading honorific (Mr, Mrs, Dr, Professor, ...) --
          but never let this reduce a non-empty input to emptiness; if
          stripping the honorific would leave nothing, keep the honorific
          itself as the name (e.g. "Dr." alone -> "DR").
-      7. Uppercase the result.
-      8. Map any casing of "narrator" to exactly "NARRATOR".
+      9. Uppercase the result.
+      10. Map any casing of "narrator" to exactly "NARRATOR".
 
     Canonicalization is idempotent: canonicalize(canonicalize(x)) ==
     canonicalize(x).
@@ -101,6 +168,13 @@ def canonicalize(raw: str) -> str:
 
     text = _strip_accents(text)
     text = _PARENS_RE.sub(" ", text)
+    text = _ALLOWED_CHARS_WITH_QUOTES_RE.sub(" ", text)
+    text = _WHITESPACE_RE.sub(" ", text).strip()
+
+    if not text:
+        return ""
+
+    text = _strip_wrapping_quotes(text)
     text = _ALLOWED_CHARS_RE.sub(" ", text)
     text = _WHITESPACE_RE.sub(" ", text).strip()
 

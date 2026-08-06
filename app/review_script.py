@@ -306,9 +306,24 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
 
 
 def normalize_text(text):
-    """Normalize text for comparison: lowercase, collapse whitespace, strip punctuation."""
+    """Normalize text for comparison: lowercase, collapse whitespace, strip punctuation.
+
+    Punctuation is replaced with a SPACE (not deleted outright) before the
+    whitespace collapse. Deleting it outright used to fuse words across a
+    punctuation boundary that abuts two words with no space of its own
+    (e.g. `he said:--"Sicut` -> `saidsicut`). That fusion happens
+    differently depending on whether the text was normalized as one long
+    string (whole source) or as separately-normalized, then word-joined,
+    entries (per span) -- because entry/span boundaries often fall exactly
+    at a quote mark. The mismatch is a false alarm: no characters are
+    actually gained or lost, only whether two words end up glued together
+    by this normalization. Replacing with a space first means both sides of
+    every comparison tokenize identically regardless of where the
+    normalization boundary falls, since a punctuation mark that used to
+    silently disappear now always leaves a token separator behind.
+    """
     text = text.lower()
-    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'[^\w\s]', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
