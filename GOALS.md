@@ -194,9 +194,26 @@ experiment on PDNC. It is not blocked by missing data:
   the base model and varies only the roster at inference. Nothing is fitted, so
   held-out status is irrelevant to this particular experiment.
 
-What blocks it is a hardcoded book list in `roster_quality.py`
-(`for other in ("grimgar03", "mushoku16", "index18", "owarimonogatari3")`),
-used to draw decoys for the `inflated` arm. That is an afternoon, not a project.
+**What it actually costs** — corrected after reading the script's data
+dependencies rather than guessing at them, having first written "an afternoon"
+here without checking:
+
+1. **A three-pass checkpoint per book. This is the real cost.**
+   `roster_quality` reads `segmented` and `named` from a prior pipeline run
+   (`matrix_20260725-115148/<model>/<book>/result.json.threepass_checkpoint.json`).
+   Only six light novels have one. The PDNC books have never been through the
+   pipeline, so each needs a **GPU segmentation run first** — mushoku16's single
+   pass took 80 minutes at 45 chunks, and Pride and Prejudice is a longer book.
+   Budget hours per novel, not minutes.
+2. **Source text** must be placed where the script expects it; the matrix
+   `inputs/` directory holds only the eight light novels.
+3. **`roster_additions` does not exist in PDNC gold.** The light novels carry a
+   hand-curated list of names the judges found missing; PDNC instead carries a
+   `roster` of 74 curated names. So `additions` becomes `roster - generated`,
+   which is arguably a cleaner definition — derived from a published corpus
+   rather than from this project's own judging.
+4. The hardcoded four-book decoy pool needs widening. This part *is* trivial;
+   it was the only part visible without reading the data flow.
 
 Chinese (WP/JY) would need more work: those sets use a different structure
 (`dataset`/`results` rather than `entries`). No Japanese-language attribution
