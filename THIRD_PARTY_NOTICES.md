@@ -145,3 +145,55 @@ times, and more alveolar /l/. One study reports sibilant variation as socially
 rather than anatomically determined. Nothing here is representable by an
 `_f_`/`_m_` tag, which is further evidence that the sex tag is the wrong
 primary key for casting.
+
+---
+
+## Speech corpora for ground-truth voice evaluation
+
+Added 2026-08-05, before use rather than after. These provide something no
+measurement in this repo previously had: a human reading the *same line* a
+model was asked to generate, so voice similarity can be scored against ground
+truth instead of against the reference clip that was also the prompt.
+
+### LJSpeech (The LJ Speech Dataset)
+
+- <https://keithito.com/LJ-Speech-Dataset/>
+- 13,100 clips, ~24 hours, a single speaker, 22.05 kHz.
+- **Public domain.** The recordings come from LibriVox and the texts from
+  seven non-fiction works in the public domain via Project Gutenberg.
+- Used as the primary single-narrator corpus: one speaker across many hours is
+  exactly the shape a voice LoRA is trained for.
+- Note for anyone reusing our numbers: at 22.05 kHz it needs resampling to the
+  24 kHz this project generates at. We resample the HUMAN audio once, up
+  front, so both sides of every comparison share a rate.
+
+### LibriTTS-R
+
+- <https://www.openslr.org/141/> — Koizumi et al., 2023.
+- 585 hours, 2,456 speakers, natively 24 kHz; a speech-restored version of
+  LibriTTS with identical content.
+- **CC BY 4.0.**
+- Used for multi-speaker work and for the "different narrator" floor anchor.
+  Native 24 kHz matches what `tts.py` writes, so no resampling confound.
+
+### LibriTTS
+
+- <https://www.openslr.org/60/> — Zen et al., Interspeech 2019.
+- **CC BY 4.0.** Derived from LibriSpeech's original LibriVox mp3 audio and
+  Project Gutenberg texts.
+- Superseded by LibriTTS-R for audio quality; recorded here because -R is
+  derived from it and the alignment work is theirs.
+
+### LibriVox
+
+- <https://librivox.org> — **public domain.**
+- The upstream source of all of the above, and the fallback if a specific
+  narrator, book or language is wanted that the derived corpora do not cover.
+
+### Project Gutenberg
+
+- <https://www.gutenberg.org> — the text side of every corpus above.
+
+None of this audio is redistributed by us. The corpora are downloaded to
+`ab_test_runtime/corpora/`, which is gitignored; `PROVENANCE.md` there records
+what to fetch and from where.
