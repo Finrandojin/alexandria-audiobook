@@ -1,11 +1,37 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 18,
+    "supported_structure": 26,
     "exploratory": 122,
     "provisional": 112
   },
   "artifacts": [
+    {
+      "artifact": "adapter_stop_check_aishell3.json",
+      "bytes": 1551,
+      "sha256": "5981c5db1d6577750f3be815c6ce0188aefc83879a191e93d9fe8d6e34cc7179",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "adapter_stop_check_kokoro.json",
+      "bytes": 1650,
+      "sha256": "f45cc13171916a3093627b4a57e2e4477797517a2a2867d794c5acee63e86197",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
     {
       "artifact": "adapter_stop_check_ljspeech.json",
       "bytes": 2001,
@@ -16,6 +42,32 @@
       "identity_contract": "tts_provenance",
       "commit": "6b2eb79c5f1e9f929c2a11bc930b895fd45a8dbe",
       "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "aishell3_generate.json",
+      "bytes": 66025,
+      "sha256": "85d00d8496d0361d91c63a28aae125462f13176d75023c90cc0685179c3bdbbf",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "aishell3_score.json",
+      "bytes": 84994,
+      "sha256": "37255d8eca7237ef84ad9abe75e76bebc7a150514393e408c940d73eb58a6a17",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
     },
@@ -1816,6 +1868,32 @@
       "reason": "older metadata contract; semantic/manual review required"
     },
     {
+      "artifact": "kokoro_generate.json",
+      "bytes": 91784,
+      "sha256": "17a12a85b2bd1f7c556576ab096614f23f6204beba4de47a5ce4a3549f0fb22c",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "kokoro_score.json",
+      "bytes": 91179,
+      "sha256": "d6c134a66353c3d6eaff39f9d380f346e2a28dabf09cd7c52d469c0c56b64ec2",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
       "artifact": "listener_impact.json",
       "bytes": 2837,
       "sha256": "2f2bf820024a86d3b36911ca8d7cac14f569ed7eae507e909b17c9ac6d070a43",
@@ -1825,6 +1903,32 @@
       "identity_contract": "none",
       "classification": "exploratory",
       "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "ljspeech_generate.json",
+      "bytes": 68026,
+      "sha256": "fc4e7c04bf6ce3e53677cdc2c5a660386c74aaf913df8d60bb4b17b64c3c26b2",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "f5e69719fbc564c26415a717d76a64b59adc9fc1",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "ljspeech_score.json",
+      "bytes": 84722,
+      "sha256": "d81206c52944b3a85cf2048c2f06150064aac59512da6bc799a9a619c81f1a15",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "f5e69719fbc564c26415a717d76a64b59adc9fc1",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
     },
     {
       "artifact": "lora_serving_eval__cloud-alldata.json",
@@ -2937,14 +3041,14 @@
     },
     {
       "artifact": "three_pass_vs_single.json",
-      "bytes": 1313,
-      "sha256": "f21f4b94ebde2d2dee734fec2f51cd87abe9215548a7d9910e8da1e10470fc91",
+      "bytes": 1121,
+      "sha256": "c3ddba2a65de2b2d5fce4a0daa290586870d0d6ea6f450884c3e8aa390588fb2",
       "seed": null,
       "status": null,
       "has_rows": false,
       "identity_contract": "tts_provenance",
-      "commit": "1578a1cbf10c3e88aeba1af30c739cf7e1ed3eda",
-      "dirty": true,
+      "commit": "9cbf8e6c4bb269d18da438bb9a5137744f5210e4",
+      "dirty": false,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
     },

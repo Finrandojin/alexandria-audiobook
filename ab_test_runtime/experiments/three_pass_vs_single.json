@@ -30,20 +30,15 @@
  ],
  "provenance": {
   "script": "three_pass_vs_single.py",
-  "written": "2026-08-06T03:09:13",
+  "written": "2026-08-06T06:29:40",
   "host": "mitch-linux",
   "git": {
-   "commit": "1578a1cbf10c3e88aeba1af30c739cf7e1ed3eda",
-   "branch": "agent/simd-evidence",
-   "dirty": true,
-   "modified_tracked_files": [
-    "M ab_test_runtime/experiments/cluster_vs_name.json",
-    " M ab_test_runtime/experiments/listener_impact.json",
-    " M app/experiments/ljspeech_build.py",
-    " M app/experiments/lora_voice_sweep.py"
-   ],
+   "commit": "9cbf8e6c4bb269d18da438bb9a5137744f5210e4",
+   "branch": "agent/voice-assignment-and-adapter",
+   "dirty": false,
+   "modified_tracked_files": null,
    "untracked_harness_files": null,
-   "harness_sha256": "6f8e28d5632793a0e6eedc9e0fd31c8453bddc6c547823ccddd875e2e970bb51"
+   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
   },
   "args": {
    "books": [

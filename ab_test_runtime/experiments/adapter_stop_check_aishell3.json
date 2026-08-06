@@ -1,0 +1,65 @@
+{
+ "adapter": "ab_test_runtime/aishell3_eval/adapter_lr1e6",
+ "seed": 1234,
+ "max_ratio": 3.0,
+ "median_ratio": 0.941190888340814,
+ "worst_ratio": 0.9876543209876544,
+ "passed": true,
+ "verdict": "PASS - the adapter stops. Median 0.9x the human duration.",
+ "lines": [
+  {
+   "id": "SSB15850002",
+   "human_seconds": 3.59,
+   "generated_seconds": 2.96,
+   "ratio": 0.83
+  },
+  {
+   "id": "SSB15850003",
+   "human_seconds": 2.75,
+   "generated_seconds": 2.72,
+   "ratio": 0.99
+  },
+  {
+   "id": "SSB15850004",
+   "human_seconds": 5.09,
+   "generated_seconds": 4.8,
+   "ratio": 0.94
+  },
+  {
+   "id": "SSB15850005",
+   "human_seconds": 2.92,
+   "generated_seconds": 2.48,
+   "ratio": 0.85
+  },
+  {
+   "id": "SSB15850007",
+   "human_seconds": 2.72,
+   "generated_seconds": 2.56,
+   "ratio": 0.94
+  }
+ ],
+ "provenance": {
+  "script": "verify_adapter_stops.py",
+  "written": "2026-08-06T05:45:31",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
+   "branch": "agent/voice-assignment-and-adapter",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
+  },
+  "args": {
+   "build": "ab_test_runtime/aishell3_eval/build.json",
+   "adapter": "ab_test_runtime/aishell3_eval/adapter_lr1e6",
+   "config": "app/config.json",
+   "lines": 5,
+   "seed": 1234,
+   "max_ratio": 3.0,
+   "out_dir": null,
+   "out": "ab_test_runtime/experiments/adapter_stop_check_aishell3.json"
+  },
+  "seed": 1234
+ }
+}

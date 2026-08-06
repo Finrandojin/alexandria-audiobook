@@ -1127,7 +1127,7 @@
             "type": "integer"
           },
           "lr": {
-            "default": 5e-06,
+            "default": 1e-06,
             "exclusiveMinimum": 0.0,
             "maximum": 1.0,
             "title": "Lr",

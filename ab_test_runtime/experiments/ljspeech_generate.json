@@ -1,0 +1,1392 @@
+{
+ "seed": 1234,
+ "arms": [
+  "lora",
+  "clone"
+ ],
+ "reference_id": "LJ025-0006",
+ "test_books": [
+  "LJ020",
+  "LJ023"
+ ],
+ "rows": [
+  {
+   "id": "LJ020-0001",
+   "book": "LJ020",
+   "text": "Marion Harland's Cookery for Beginners. Bread Sponge and Breakfast Breads.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0001.wav",
+   "human_seconds": 5.370958333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0001__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0001__clone.wav"
+  },
+  {
+   "id": "LJ020-0002",
+   "book": "LJ020",
+   "text": "Bread raised with what is known to bakers as a \u201csponge,\u201d requires more time and a trifle more work than the simpler form for which I have just already given directions.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0002.wav",
+   "human_seconds": 10.096208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0002__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0002__clone.wav"
+  },
+  {
+   "id": "LJ020-0003",
+   "book": "LJ020",
+   "text": "But it keeps fresh longer, is softer and more nutritious, and a second-rate brand of flour thus treated produces a better loaf",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0003.wav",
+   "human_seconds": 8.946833333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0003__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0003__clone.wav"
+  },
+  {
+   "id": "LJ020-0005",
+   "book": "LJ020",
+   "text": "Sponge-making is, therefore, an important if not an essential accomplishment in a cook, be she novice or veteran.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0005.wav",
+   "human_seconds": 7.344666666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0005__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0005__clone.wav"
+  },
+  {
+   "id": "LJ020-0007",
+   "book": "LJ020",
+   "text": "Five tablespoonfuls of yeast. One tablespoonful of white sugar.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0007.wav",
+   "human_seconds": 5.069083333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0007__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0007__clone.wav"
+  },
+  {
+   "id": "LJ020-0009",
+   "book": "LJ020",
+   "text": "Three cups of lukewarm water in which the potatoes were boiled, strained through a coarse cloth.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0009.wav",
+   "human_seconds": 6.032708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0009__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0009__clone.wav"
+  },
+  {
+   "id": "LJ020-0011",
+   "book": "LJ020",
+   "text": "Put the potatoes into a large bowl or tray and mash them to powder with a potato beetle, or a wooden spoon.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0011.wav",
+   "human_seconds": 7.483958333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0011__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0011__clone.wav"
+  },
+  {
+   "id": "LJ020-0012",
+   "book": "LJ020",
+   "text": "While still hot, mix in the sugar and butter, beating all to a lumpless cream.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0012.wav",
+   "human_seconds": 5.150375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0012__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0012__clone.wav"
+  },
+  {
+   "id": "LJ020-0013",
+   "book": "LJ020",
+   "text": "Add a few spoonfuls at a time, the potato-water alternately with the flour by the handful,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0013.wav",
+   "human_seconds": 6.601625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0013__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0013__clone.wav"
+  },
+  {
+   "id": "LJ020-0014",
+   "book": "LJ020",
+   "text": "beating the batter smooth as you go on until all of the liquid and flour has gone in.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0014.wav",
+   "human_seconds": 5.289666666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0014__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0014__clone.wav"
+  },
+  {
+   "id": "LJ020-0016",
+   "book": "LJ020",
+   "text": "it is well to stir into the yeast a bit of soda no larger than a grain of corn already wet up in a teaspoonful of boiling water.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0016.wav",
+   "human_seconds": 9.190625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0016__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0016__clone.wav"
+  },
+  {
+   "id": "LJ020-0017",
+   "book": "LJ020",
+   "text": "Now whip up the batter with a wooden spoon for another minute, and the sponge is made.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0017.wav",
+   "human_seconds": 4.697583333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0017__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0017__clone.wav"
+  },
+  {
+   "id": "LJ020-0018",
+   "book": "LJ020",
+   "text": "Throw a cloth over the bowl and set by for five or six hours to rise.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0018.wav",
+   "human_seconds": 4.7904583333333335,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0018__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0018__clone.wav"
+  },
+  {
+   "id": "LJ020-0019",
+   "book": "LJ020",
+   "text": "If you intend to bake in the forenoon, make the sponge at bedtime. If in the afternoon, early in the morning.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0019.wav",
+   "human_seconds": 7.216916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0019__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0019__clone.wav"
+  },
+  {
+   "id": "LJ020-0020",
+   "book": "LJ020",
+   "text": "When the sponge is light sift a quart and a cup of flour into a bowl or tray with two teaspoonfuls of salt.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0020.wav",
+   "human_seconds": 8.168958333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0020__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0020__clone.wav"
+  },
+  {
+   "id": "LJ020-0021",
+   "book": "LJ020",
+   "text": "Into a hollow, like a crater in the middle of the flour, empty your sponge-bowl, and work the flour down into it.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0021.wav",
+   "human_seconds": 7.716166666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0021__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0021__clone.wav"
+  },
+  {
+   "id": "LJ020-0022",
+   "book": "LJ020",
+   "text": "Wash out the bowl with a little lukewarm water and add this to the dough. If it should prove too soft, work in, cautiously, a little more flour.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0022.wav",
+   "human_seconds": 9.538916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0022__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0022__clone.wav"
+  },
+  {
+   "id": "LJ020-0023",
+   "book": "LJ020",
+   "text": "If too stiff, warm water, a spoonful at a time until you can handle the paste easily. The danger is in getting it too stiff. Now.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0023.wav",
+   "human_seconds": 9.88725,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0023__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0023__clone.wav"
+  },
+  {
+   "id": "LJ020-0024",
+   "book": "LJ020",
+   "text": "knead and set for risings first and second, as you have already been instructed. This sponge will be found especially useful in making Graham Bread.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0024.wav",
+   "human_seconds": 9.318333333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0024__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0024__clone.wav"
+  },
+  {
+   "id": "LJ020-0026",
+   "book": "LJ020",
+   "text": "One half cup of Indian meal. One half cup of molasses. Two teaspoonfuls of salt. Soda, the size of a pea.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0026.wav",
+   "human_seconds": 9.57375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0026__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0026__clone.wav"
+  },
+  {
+   "id": "LJ020-0030",
+   "book": "LJ020",
+   "text": "Sift into it white flour, meal and salt, and stir up well while dry.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0030.wav",
+   "human_seconds": 5.812125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0030__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0030__clone.wav"
+  },
+  {
+   "id": "LJ020-0031",
+   "book": "LJ020",
+   "text": "Into the \u201ccrater\u201d dug out in the middle, pour the sponge, warm water, the molasses, and soda dissolved in hot water.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0031.wav",
+   "human_seconds": 8.180583333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0031__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0031__clone.wav"
+  },
+  {
+   "id": "LJ020-0032",
+   "book": "LJ020",
+   "text": "Knead as you would white bread, and set aside for the rising.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0032.wav",
+   "human_seconds": 3.9429166666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0032__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0032__clone.wav"
+  },
+  {
+   "id": "LJ020-0033",
+   "book": "LJ020",
+   "text": "It will not swell so fast as the white, so give yourself more time for making it.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0033.wav",
+   "human_seconds": 5.092291666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0033__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0033__clone.wav"
+  },
+  {
+   "id": "LJ020-0035",
+   "book": "LJ020",
+   "text": "make into two loaves, then put into well-greased pans and leave for an hour, or until it becomes more than twice the original size of the dough.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0035.wav",
+   "human_seconds": 9.144208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0035__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0035__clone.wav"
+  },
+  {
+   "id": "LJ020-0036",
+   "book": "LJ020",
+   "text": "Take care that it does not burn in baking. The molasses renders it liable to scorching.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0036.wav",
+   "human_seconds": 5.5335,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0036__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0036__clone.wav"
+  },
+  {
+   "id": "LJ020-0037",
+   "book": "LJ020",
+   "text": "The oven must be steady, but not so hot as for white bread, nor will the Graham bread be done quite so soon as that made of bolted flour.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0037.wav",
+   "human_seconds": 8.586916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0037__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0037__clone.wav"
+  },
+  {
+   "id": "LJ020-0038",
+   "book": "LJ020",
+   "text": "Turn the pans once while baking, moving them as gently as possible.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0038.wav",
+   "human_seconds": 4.465375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0038__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0038__clone.wav"
+  },
+  {
+   "id": "LJ020-0039",
+   "book": "LJ020",
+   "text": "If rudely shaken or jarred, there will be heavy streaks in loaves.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0039.wav",
+   "human_seconds": 4.66275,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0039__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0039__clone.wav"
+  },
+  {
+   "id": "LJ020-0040",
+   "book": "LJ020",
+   "text": "Graham bread is wholesome and sweet, and ought to be eaten frequently in every family, particularly by young people whose bones and teeth are in forming.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0040.wav",
+   "human_seconds": 9.388,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0040__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0040__clone.wav"
+  },
+  {
+   "id": "LJ020-0041",
+   "book": "LJ020",
+   "text": "The phosphates which the process of \u201cbolting\u201d removes to a large extent from white flour, go directly to the manufacture of bone,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0041.wav",
+   "human_seconds": 8.099291666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0041__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0041__clone.wav"
+  },
+  {
+   "id": "LJ020-0043",
+   "book": "LJ020",
+   "text": "After mixing your bread in the morning either with sponge or with yeast, divide the kneaded dough into two portions.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0043.wav",
+   "human_seconds": 7.309833333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0043__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0043__clone.wav"
+  },
+  {
+   "id": "LJ020-0044",
+   "book": "LJ020",
+   "text": "Mould one into a round ball, and set aside for a loaf as already directed.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0044.wav",
+   "human_seconds": 5.521875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0044__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0044__clone.wav"
+  },
+  {
+   "id": "LJ020-0045",
+   "book": "LJ020",
+   "text": "Make a hole in the middle of the other batch and pour into it a tablespoonful of butter, just melted, but not hot.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0045.wav",
+   "human_seconds": 7.367875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0045__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0045__clone.wav"
+  },
+  {
+   "id": "LJ020-0046",
+   "book": "LJ020",
+   "text": "Close the dough over it, dust your hands and kneading-board with flour and work in the shortening until the dough is elastic and ceases to be sticky.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0046.wav",
+   "human_seconds": 9.608583333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0046__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0046__clone.wav"
+  },
+  {
+   "id": "LJ020-0047",
+   "book": "LJ020",
+   "text": "Put it into a floured bowl, cover with a cloth and set away out of draught and undue heat, for three hours.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0047.wav",
+   "human_seconds": 7.867083333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0047__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0047__clone.wav"
+  },
+  {
+   "id": "LJ020-0048",
+   "book": "LJ020",
+   "text": "Knead it again, then, and wait upon its rising for another three hours. The dough should be as soft as can be handled.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0048.wav",
+   "human_seconds": 8.354708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0048__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0048__clone.wav"
+  },
+  {
+   "id": "LJ020-0049",
+   "book": "LJ020",
+   "text": "When it is light for the second time flour your board, rubbing in the flour and blowing lightly away what does not adhere to the surface.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0049.wav",
+   "human_seconds": 7.542,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0049__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0049__clone.wav"
+  },
+  {
+   "id": "LJ020-0050",
+   "book": "LJ020",
+   "text": "Toss the lump dough upon it and knead thoroughly for five minutes.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0050.wav",
+   "human_seconds": 4.395708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0050__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0050__clone.wav"
+  },
+  {
+   "id": "LJ020-0051",
+   "book": "LJ020",
+   "text": "Flour a rolling-pin and roll the dough into a sheet not more than half an inch thick.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0051.wav",
+   "human_seconds": 5.220041666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0051__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0051__clone.wav"
+  },
+  {
+   "id": "LJ020-0052",
+   "book": "LJ020",
+   "text": "Cut this into round cakes with a biscuit-cutter or a sharp-edged tumbler and fold, not quite in the middle,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0052.wav",
+   "human_seconds": 7.193708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0052__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0052__clone.wav"
+  },
+  {
+   "id": "LJ020-0053",
+   "book": "LJ020",
+   "text": "in the form of turnovers, pinching the corners of the fold pretty hard to hinder the flap of dough from flying up as the rising proceeds.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0053.wav",
+   "human_seconds": 8.436,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0053__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0053__clone.wav"
+  },
+  {
+   "id": "LJ020-0054",
+   "book": "LJ020",
+   "text": "Rub the bottom and sides of a baking-pan with sweet lard or butter. Do this with a bit of clean soft rag or tissue-paper,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0054.wav",
+   "human_seconds": 8.644958333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0054__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0054__clone.wav"
+  },
+  {
+   "id": "LJ020-0055",
+   "book": "LJ020",
+   "text": "visiting every corner of the pan, but not leaving thick layers and streaks of grease after it.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0055.wav",
+   "human_seconds": 5.974666666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0055__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0055__clone.wav"
+  },
+  {
+   "id": "LJ020-0056",
+   "book": "LJ020",
+   "text": "Arrange the rolls in regular rows in the pan about a quarter of an inch apart.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0056.wav",
+   "human_seconds": 4.999416666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0056__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0056__clone.wav"
+  },
+  {
+   "id": "LJ020-0057",
+   "book": "LJ020",
+   "text": "Cover with a cloth and set nearer the fire than you dared trust the dough, and let them rise for an hour.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0057.wav",
+   "human_seconds": 7.193708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0057__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0057__clone.wav"
+  },
+  {
+   "id": "LJ020-0058",
+   "book": "LJ020",
+   "text": "Peep under the cloth two or three times to see whether they rise evenly, and turn the pan around once that all may be equally exposed to the heat.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0058.wav",
+   "human_seconds": 9.411208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0058__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0058__clone.wav"
+  },
+  {
+   "id": "LJ020-0059",
+   "book": "LJ020",
+   "text": "When the time is up and the rolls are puffy and promising, set them in a pretty quick oven and bake half an hour,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0059.wav",
+   "human_seconds": 6.903458333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0059__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0059__clone.wav"
+  },
+  {
+   "id": "LJ020-0060",
+   "book": "LJ020",
+   "text": "turning the pan once in this time, and covering with clean -- never printed -- paper, should they brown too fast.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0060.wav",
+   "human_seconds": 7.704541666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0060__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0060__clone.wav"
+  },
+  {
+   "id": "LJ020-0061",
+   "book": "LJ020",
+   "text": "Break the rolls apart from one another and eat warm. They are also good cold, and if the directions be followed implicitly, very good always.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0061.wav",
+   "human_seconds": 9.620208333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0061__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0061__clone.wav"
+  },
+  {
+   "id": "LJ020-0062",
+   "book": "LJ020",
+   "text": "Graham Rolls are made by treating the dough mixed for Graham bread as above and following the foregoing receipt in every section, but allowing more time for rising and baking.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0062.wav",
+   "human_seconds": 9.724708333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0062__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0062__clone.wav"
+  },
+  {
+   "id": "LJ020-0074",
+   "book": "LJ020",
+   "text": "hollow the heap in the center and pour in the milk, working down the flour into the liquid with a spoon or your hands until it is thoroughly melted.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0074.wav",
+   "human_seconds": 8.586916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0074__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0074__clone.wav"
+  },
+  {
+   "id": "LJ020-0075",
+   "book": "LJ020",
+   "text": "Into a second hollow pour the yeast and knead thoroughly for fifteen minutes.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0075.wav",
+   "human_seconds": 5.278083333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0075__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0075__clone.wav"
+  },
+  {
+   "id": "LJ020-0076",
+   "book": "LJ020",
+   "text": "Wrap bowl and biscuit in a thick cloth and set to rise where it will neither become chilled nor sour over night.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0076.wav",
+   "human_seconds": 6.682875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0076__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0076__clone.wav"
+  },
+  {
+   "id": "LJ020-0077",
+   "book": "LJ020",
+   "text": "Study the temperature in different parts of the kitchen and kitchen closets to the end of finding the best places for raising dough and sponge.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0077.wav",
+   "human_seconds": 7.263375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0077__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0077__clone.wav"
+  },
+  {
+   "id": "LJ020-0078",
+   "book": "LJ020",
+   "text": "Do all this at bedtime. Early in the morning turn out the dough upon a floured board, work it for a minute into manageable shape;",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0078.wav",
+   "human_seconds": 8.238625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0078__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0078__clone.wav"
+  },
+  {
+   "id": "LJ020-0079",
+   "book": "LJ020",
+   "text": "drill several finger-holes in it and fill them with the melted butter, the dissolved soda and the beaten yolk of egg.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0079.wav",
+   "human_seconds": 7.727791666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0079__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0079__clone.wav"
+  },
+  {
+   "id": "LJ020-0081",
+   "book": "LJ020",
+   "text": "and knead for ten minutes, carefully at first, lest the liquids should be wasted, and more boldly when they are absorbed by the paste.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0081.wav",
+   "human_seconds": 8.41275,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0081__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0081__clone.wav"
+  },
+  {
+   "id": "LJ020-0082",
+   "book": "LJ020",
+   "text": "Roll out into a sheet half an inch thick with a floured rolling-pin; cut into round cakes, set these closely together in a well-greased pan;",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0082.wav",
+   "human_seconds": 9.956875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0082__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0082__clone.wav"
+  },
+  {
+   "id": "LJ020-0083",
+   "book": "LJ020",
+   "text": "prick each with a fork and let them rise near the fire for half an hour, covered with a light cloth.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0083.wav",
+   "human_seconds": 6.079166666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0083__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0083__clone.wav"
+  },
+  {
+   "id": "LJ020-0084",
+   "book": "LJ020",
+   "text": "Bake from twenty to twenty-five minutes in a quick oven, turning the pan around once, quickly and lightly.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0084.wav",
+   "human_seconds": 6.996333333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0084__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0084__clone.wav"
+  },
+  {
+   "id": "LJ020-0085",
+   "book": "LJ020",
+   "text": "Break apart from one another and pile on a plate, throwing a clean doily or a small napkin over them. Break open at table.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0085.wav",
+   "human_seconds": 8.076083333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0085__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0085__clone.wav"
+  },
+  {
+   "id": "LJ020-0087",
+   "book": "LJ020",
+   "text": "One word with regard to getting up early in order to give dough a chance for the second rising.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0087.wav",
+   "human_seconds": 5.0575,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0087__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0087__clone.wav"
+  },
+  {
+   "id": "LJ020-0088",
+   "book": "LJ020",
+   "text": "It is not a wholesome practice for any woman -- least of all a young girl to be out of bed two hours before she eats her breakfast.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0088.wav",
+   "human_seconds": 8.389541666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0088__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0088__clone.wav"
+  },
+  {
+   "id": "LJ020-0089",
+   "book": "LJ020",
+   "text": "Studying upon an empty stomach provokes dyspepsia and injures the eyes.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0089.wav",
+   "human_seconds": 5.2664583333333335,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0089__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0089__clone.wav"
+  },
+  {
+   "id": "LJ020-0090",
+   "book": "LJ020",
+   "text": "Active exercise in like circumstances tempts debility and disease.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0090.wav",
+   "human_seconds": 4.964583333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0090__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0090__clone.wav"
+  },
+  {
+   "id": "LJ020-0091",
+   "book": "LJ020",
+   "text": "Yet our bread and rolls must be looked after at the proper time.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0091.wav",
+   "human_seconds": 3.699125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0091__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0091__clone.wav"
+  },
+  {
+   "id": "LJ020-0092",
+   "book": "LJ020",
+   "text": "Have yourself called on biscuit mornings an hour earlier than usual.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0092.wav",
+   "human_seconds": 4.093833333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0092__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0092__clone.wav"
+  },
+  {
+   "id": "LJ020-0093",
+   "book": "LJ020",
+   "text": "Rise, wash face and hands, rinse the mouth out and brush back the hair.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0093.wav",
+   "human_seconds": 5.011041666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0093__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0093__clone.wav"
+  },
+  {
+   "id": "LJ020-0094",
+   "book": "LJ020",
+   "text": "Put on stockings and slippers, such underclothing as may be needed to prevent cold, a wrapper and the kitchen apron.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0094.wav",
+   "human_seconds": 7.797416666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0094__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0094__clone.wav"
+  },
+  {
+   "id": "LJ020-0095",
+   "book": "LJ020",
+   "text": "Cover your hair entirely with a handkerchief or sweeping cap.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0095.wav",
+   "human_seconds": 3.4669166666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0095__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0095__clone.wav"
+  },
+  {
+   "id": "LJ020-0096",
+   "book": "LJ020",
+   "text": "Before beginning operations downstairs eat a half-slice of dry bread or a biscuit.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0096.wav",
+   "human_seconds": 6.114,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0096__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0096__clone.wav"
+  },
+  {
+   "id": "LJ020-0097",
+   "book": "LJ020",
+   "text": "You will not relish it, but take it all the same to appease the empty, discontented stomach.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0097.wav",
+   "human_seconds": 5.812125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0097__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0097__clone.wav"
+  },
+  {
+   "id": "LJ020-0098",
+   "book": "LJ020",
+   "text": "Having made out your rolls and tucked them up snugly for the final rise, return to your chamber for a comfortable bath and toilet.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0098.wav",
+   "human_seconds": 7.797416666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0098__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0098__clone.wav"
+  },
+  {
+   "id": "LJ020-0099",
+   "book": "LJ020",
+   "text": "When habited for the day in all except the outer gown, collar, etc., slip on the wrapper again and run down to put the biscuits in the oven.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ020-0099.wav",
+   "human_seconds": 9.190625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0099__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ020-0099__clone.wav"
+  },
+  {
+   "id": "LJ023-0001",
+   "book": "LJ023",
+   "text": "The Fireside Chats of Franklin Delano Roosevelt, by Franklin D Roosevelt, Section nine.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0001.wav",
+   "human_seconds": 7.182125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0001__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0001__clone.wav"
+  },
+  {
+   "id": "LJ023-0003",
+   "book": "LJ023",
+   "text": "Last Thursday I described in detail certain economic problems which everyone admits now face the nation.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0003.wav",
+   "human_seconds": 8.644958333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0003__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0003__clone.wav"
+  },
+  {
+   "id": "LJ023-0004",
+   "book": "LJ023",
+   "text": "For the many messages which have come to me after that speech, and which it is physically impossible to answer individually,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0004.wav",
+   "human_seconds": 8.389541666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0004__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0004__clone.wav"
+  },
+  {
+   "id": "LJ023-0006",
+   "book": "LJ023",
+   "text": "Tonight, sitting at my desk in the White House, I make my first radio report to the people in my second term of office.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0006.wav",
+   "human_seconds": 10.084583333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0006__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0006__clone.wav"
+  },
+  {
+   "id": "LJ023-0007",
+   "book": "LJ023",
+   "text": "I am reminded of that evening in March, four years ago, when I made my first radio report to you.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0007.wav",
+   "human_seconds": 7.344666666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0007__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0007__clone.wav"
+  },
+  {
+   "id": "LJ023-0010",
+   "book": "LJ023",
+   "text": "we asked the nation to turn over all of its privately held gold, dollar for dollar, to the government of the United States.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0010.wav",
+   "human_seconds": 8.586916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0010__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0010__clone.wav"
+  },
+  {
+   "id": "LJ023-0012",
+   "book": "LJ023",
+   "text": "But when, almost two years later, it came before the Supreme Court its constitutionality was upheld only by a five-to-four vote.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0012.wav",
+   "human_seconds": 10.003333333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0012__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0012__clone.wav"
+  },
+  {
+   "id": "LJ023-0013",
+   "book": "LJ023",
+   "text": "The change of one vote would have thrown all the affairs of this great Nation back into hopeless chaos.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0013.wav",
+   "human_seconds": 7.878708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0013__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0013__clone.wav"
+  },
+  {
+   "id": "LJ023-0014",
+   "book": "LJ023",
+   "text": "In effect, four Justices ruled that the right under a private contract",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0014.wav",
+   "human_seconds": 6.520333333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0014__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0014__clone.wav"
+  },
+  {
+   "id": "LJ023-0015",
+   "book": "LJ023",
+   "text": "to exact a pound of flesh was more sacred than the main objectives of the Constitution to establish an enduring Nation.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0015.wav",
+   "human_seconds": 9.167416666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0015__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0015__clone.wav"
+  },
+  {
+   "id": "LJ023-0016",
+   "book": "LJ023",
+   "text": "In nineteen thirty-three you and I knew that we must never let our economic system get completely out of joint again",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0016.wav",
+   "human_seconds": 8.714625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0016__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0016__clone.wav"
+  },
+  {
+   "id": "LJ023-0017",
+   "book": "LJ023",
+   "text": "that we could not afford to take the risk of another great depression.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0017.wav",
+   "human_seconds": 4.000958333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0017__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0017__clone.wav"
+  },
+  {
+   "id": "LJ023-0018",
+   "book": "LJ023",
+   "text": "We also became convinced that the only way to avoid a repetition of those dark days was to have a government with power to prevent",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0018.wav",
+   "human_seconds": 10.084583333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0018__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0018__clone.wav"
+  },
+  {
+   "id": "LJ023-0019",
+   "book": "LJ023",
+   "text": "and to cure the abuses and the inequalities which had thrown that system out of joint.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0019.wav",
+   "human_seconds": 6.346208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0019__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0019__clone.wav"
+  },
+  {
+   "id": "LJ023-0020",
+   "book": "LJ023",
+   "text": "We then began a program of remedying those abuses and inequalities -- to give balance and stability to our economic system",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0020.wav",
+   "human_seconds": 9.225458333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0020__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0020__clone.wav"
+  },
+  {
+   "id": "LJ023-0021",
+   "book": "LJ023",
+   "text": "to make it bomb-proof against the causes of nineteen twenty-nine.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0021.wav",
+   "human_seconds": 5.4057916666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0021__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0021__clone.wav"
+  },
+  {
+   "id": "LJ023-0023",
+   "book": "LJ023",
+   "text": "and recovery is speeding up to a point where the dangers of nineteen twenty-nine are again becoming possible,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0023.wav",
+   "human_seconds": 7.809041666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0023__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0023__clone.wav"
+  },
+  {
+   "id": "LJ023-0026",
+   "book": "LJ023",
+   "text": "Individual or local or state effort alone cannot protect us in nineteen thirty-seven any better than ten years ago.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0026.wav",
+   "human_seconds": 9.736291666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0026__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0026__clone.wav"
+  },
+  {
+   "id": "LJ023-0027",
+   "book": "LJ023",
+   "text": "It will take time -- and plenty of time -- to work out our remedies administratively even after legislation is passed.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0027.wav",
+   "human_seconds": 9.260291666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0027__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0027__clone.wav"
+  },
+  {
+   "id": "LJ023-0029",
+   "book": "LJ023",
+   "text": "we cannot delay one moment in making certain that our national government has power to carry through.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0029.wav",
+   "human_seconds": 7.483958333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0029__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0029__clone.wav"
+  },
+  {
+   "id": "LJ023-0033",
+   "book": "LJ023",
+   "text": "we will not allow ourselves to run around in new circles of futile discussion and debate, always postponing the day of decision.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0033.wav",
+   "human_seconds": 9.898833333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0033__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0033__clone.wav"
+  },
+  {
+   "id": "LJ023-0036",
+   "book": "LJ023",
+   "text": "an overwhelming majority of them voted a mandate that the Congress and the President begin the task of providing that protection",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0036.wav",
+   "human_seconds": 8.459208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0036__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0036__clone.wav"
+  },
+  {
+   "id": "LJ023-0038",
+   "book": "LJ023",
+   "text": "The courts, however, have cast doubts on the ability of the elected Congress to protect us against catastrophe",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0038.wav",
+   "human_seconds": 7.692958333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0038__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0038__clone.wav"
+  },
+  {
+   "id": "LJ023-0039",
+   "book": "LJ023",
+   "text": "by meeting squarely our modern social and economic conditions.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0039.wav",
+   "human_seconds": 4.546625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0039__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0039__clone.wav"
+  },
+  {
+   "id": "LJ023-0040",
+   "book": "LJ023",
+   "text": "We are at a crisis in our ability to proceed with that protection.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0040.wav",
+   "human_seconds": 4.836875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0040__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0040__clone.wav"
+  },
+  {
+   "id": "LJ023-0041",
+   "book": "LJ023",
+   "text": "It is a quiet crisis. There are no lines of depositors outside closed banks.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0041.wav",
+   "human_seconds": 6.810583333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0041__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0041__clone.wav"
+  },
+  {
+   "id": "LJ023-0042",
+   "book": "LJ023",
+   "text": "But to the far-sighted it is far-reaching in its possibilities of injury to America.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0042.wav",
+   "human_seconds": 7.5304166666666665,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0042__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0042__clone.wav"
+  },
+  {
+   "id": "LJ023-0043",
+   "book": "LJ023",
+   "text": "I want to talk with you very simply about the need for present action in this crisis",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0043.wav",
+   "human_seconds": 5.661208333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0043__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0043__clone.wav"
+  },
+  {
+   "id": "LJ023-0044",
+   "book": "LJ023",
+   "text": "the need to meet the unanswered challenge of one-third of a Nation ill-nourished, ill-clad, ill-housed.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0044.wav",
+   "human_seconds": 8.99325,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0044__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0044__clone.wav"
+  },
+  {
+   "id": "LJ023-0045",
+   "book": "LJ023",
+   "text": "Last Thursday I described the American form of government as a three horse team provided by the Constitution to the American people",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0045.wav",
+   "human_seconds": 9.980125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0045__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0045__clone.wav"
+  },
+  {
+   "id": "LJ023-0047",
+   "book": "LJ023",
+   "text": "The three horses are, of course, the three branches of government -- the Congress, the Executive and the courts.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0047.wav",
+   "human_seconds": 8.3315,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0047__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0047__clone.wav"
+  },
+  {
+   "id": "LJ023-0048",
+   "book": "LJ023",
+   "text": "Two of the horses are pulling in unison today; the third is not.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0048.wav",
+   "human_seconds": 5.103916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0048__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0048__clone.wav"
+  },
+  {
+   "id": "LJ023-0049",
+   "book": "LJ023",
+   "text": "Those who have intimated that the President of the United States is trying to drive that team",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0049.wav",
+   "human_seconds": 6.4158333333333335,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0049__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0049__clone.wav"
+  },
+  {
+   "id": "LJ023-0050",
+   "book": "LJ023",
+   "text": "overlook the simple fact that the President, as Chief Executive, is himself one of the three horses.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0050.wav",
+   "human_seconds": 7.878708333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0050__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0050__clone.wav"
+  },
+  {
+   "id": "LJ023-0051",
+   "book": "LJ023",
+   "text": "It is the American people themselves who are in the driver's seat.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0051.wav",
+   "human_seconds": 4.488583333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0051__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0051__clone.wav"
+  },
+  {
+   "id": "LJ023-0052",
+   "book": "LJ023",
+   "text": "It is the American people themselves who want the furrow plowed.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0052.wav",
+   "human_seconds": 5.161958333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0052__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0052__clone.wav"
+  },
+  {
+   "id": "LJ023-0053",
+   "book": "LJ023",
+   "text": "It is the American people themselves who expect the third horse to pull in unison with the other two.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0053.wav",
+   "human_seconds": 7.983208333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0053__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0053__clone.wav"
+  },
+  {
+   "id": "LJ023-0054",
+   "book": "LJ023",
+   "text": "I hope that you have re-read the Constitution of the United States in these past few weeks.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0054.wav",
+   "human_seconds": 6.230083333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0054__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0054__clone.wav"
+  },
+  {
+   "id": "LJ023-0056",
+   "book": "LJ023",
+   "text": "It is an easy document to understand when you remember that it was called into being",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0056.wav",
+   "human_seconds": 5.672791666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0056__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0056__clone.wav"
+  },
+  {
+   "id": "LJ023-0057",
+   "book": "LJ023",
+   "text": "because the Articles of Confederation under which the original thirteen States tried to operate after the Revolution",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0057.wav",
+   "human_seconds": 7.890333333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0057__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0057__clone.wav"
+  },
+  {
+   "id": "LJ023-0058",
+   "book": "LJ023",
+   "text": "showed the need of a national government with power enough to handle national problems.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0058.wav",
+   "human_seconds": 6.3577916666666665,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0058__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0058__clone.wav"
+  },
+  {
+   "id": "LJ023-0059",
+   "book": "LJ023",
+   "text": "In its Preamble, the Constitution states that it was intended to form a more perfect Union and promote the general welfare;",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0059.wav",
+   "human_seconds": 9.631791666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0059__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0059__clone.wav"
+  },
+  {
+   "id": "LJ023-0060",
+   "book": "LJ023",
+   "text": "and the powers given to the Congress to carry out those purposes can be best described by saying",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0060.wav",
+   "human_seconds": 7.263375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0060__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0060__clone.wav"
+  },
+  {
+   "id": "LJ023-0061",
+   "book": "LJ023",
+   "text": "that they were all the powers needed to meet each and every problem which then had a national character",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0061.wav",
+   "human_seconds": 7.25175,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0061__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0061__clone.wav"
+  },
+  {
+   "id": "LJ023-0064",
+   "book": "LJ023",
+   "text": "Having in mind that in succeeding generations many other problems then undreamed of would become national problems",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0064.wav",
+   "human_seconds": 8.62175,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0064__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0064__clone.wav"
+  },
+  {
+   "id": "LJ023-0065",
+   "book": "LJ023",
+   "text": "they gave to the Congress the ample broad powers \"to levy taxes",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0065.wav",
+   "human_seconds": 5.591541666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0065__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0065__clone.wav"
+  },
+  {
+   "id": "LJ023-0066",
+   "book": "LJ023",
+   "text": "and provide for the common defense and general welfare of the United States.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0066.wav",
+   "human_seconds": 5.220041666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0066__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0066__clone.wav"
+  },
+  {
+   "id": "LJ023-0068",
+   "book": "LJ023",
+   "text": "to have been the clear and underlying purpose of the patriots who wrote a federal constitution to create a national government",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0068.wav",
+   "human_seconds": 8.958416666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0068__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0068__clone.wav"
+  },
+  {
+   "id": "LJ023-0069",
+   "book": "LJ023",
+   "text": "with national power, intended as they said, \"to form a more perfect union",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0069.wav",
+   "human_seconds": 6.381,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0069__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0069__clone.wav"
+  },
+  {
+   "id": "LJ023-0071",
+   "book": "LJ023",
+   "text": "For nearly twenty years there was no conflict between the Congress and the Court.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0071.wav",
+   "human_seconds": 5.649583333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0071__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0071__clone.wav"
+  },
+  {
+   "id": "LJ023-0072",
+   "book": "LJ023",
+   "text": "Congress passed a statute which, in eighteen oh three, the Court said violated an express provision of the Constitution.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0072.wav",
+   "human_seconds": 9.225458333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0072__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0072__clone.wav"
+  },
+  {
+   "id": "LJ023-0073",
+   "book": "LJ023",
+   "text": "The Court claimed the power to declare it unconstitutional and did so declare it.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0073.wav",
+   "human_seconds": 6.29975,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0073__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0073__clone.wav"
+  },
+  {
+   "id": "LJ023-0075",
+   "book": "LJ023",
+   "text": "that it was an extraordinary power to exercise and through Mr. Justice Washington laid down this limitation upon it:",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0075.wav",
+   "human_seconds": 9.585375,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0075__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0075__clone.wav"
+  },
+  {
+   "id": "LJ023-0076",
+   "book": "LJ023",
+   "text": "It is but a decent respect due to the wisdom, the integrity and the patriotism of the legislative body,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0076.wav",
+   "human_seconds": 7.762625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0076__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0076__clone.wav"
+  },
+  {
+   "id": "LJ023-0078",
+   "book": "LJ023",
+   "text": "to presume in favor of its validity until its violation of the Constitution is proved beyond all reasonable doubt.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0078.wav",
+   "human_seconds": 8.459208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0078__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0078__clone.wav"
+  },
+  {
+   "id": "LJ023-0079",
+   "book": "LJ023",
+   "text": "But since the rise of the modern movement for social and economic progress through legislation,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0079.wav",
+   "human_seconds": 6.938291666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0079__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0079__clone.wav"
+  },
+  {
+   "id": "LJ023-0081",
+   "book": "LJ023",
+   "text": "asserted a power to veto laws passed by the Congress and state legislatures in complete disregard of this original limitation.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0081.wav",
+   "human_seconds": 10.038166666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0081__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0081__clone.wav"
+  },
+  {
+   "id": "LJ023-0082",
+   "book": "LJ023",
+   "text": "In the last four years the sound rule of giving statutes the benefit of all reasonable doubt has been cast aside.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0082.wav",
+   "human_seconds": 9.446041666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0082__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0082__clone.wav"
+  },
+  {
+   "id": "LJ023-0083",
+   "book": "LJ023",
+   "text": "The Court has been acting not as a judicial body, but as a policy-making body.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0083.wav",
+   "human_seconds": 5.730875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0083__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0083__clone.wav"
+  },
+  {
+   "id": "LJ023-0084",
+   "book": "LJ023",
+   "text": "When the Congress has sought to stabilize national agriculture, to improve the conditions of labor,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0084.wav",
+   "human_seconds": 6.938291666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0084__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0084__clone.wav"
+  },
+  {
+   "id": "LJ023-0086",
+   "book": "LJ023",
+   "text": "to protect our national resources, and in many other ways, to serve our clearly national needs,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0086.wav",
+   "human_seconds": 7.25175,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0086__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0086__clone.wav"
+  },
+  {
+   "id": "LJ023-0087",
+   "book": "LJ023",
+   "text": "the majority of the Court has been assuming the power to pass on the wisdom of these acts of the Congress",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0087.wav",
+   "human_seconds": 7.298208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0087__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0087__clone.wav"
+  },
+  {
+   "id": "LJ023-0088",
+   "book": "LJ023",
+   "text": "and to approve or disapprove the public policy written into these laws.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0088.wav",
+   "human_seconds": 5.452208333333333,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0088__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0088__clone.wav"
+  },
+  {
+   "id": "LJ023-0090",
+   "book": "LJ023",
+   "text": "It is the accusation of most distinguished justices of the present Supreme Court.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0090.wav",
+   "human_seconds": 5.986291666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0090__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0090__clone.wav"
+  },
+  {
+   "id": "LJ023-0091",
+   "book": "LJ023",
+   "text": "I have not the time to quote to you all the language used by dissenting justices in many of these cases.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0091.wav",
+   "human_seconds": 7.309833333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0091__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0091__clone.wav"
+  },
+  {
+   "id": "LJ023-0092",
+   "book": "LJ023",
+   "text": "But in the case holding the Railroad Retirement Act unconstitutional, for instance,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0092.wav",
+   "human_seconds": 6.288125,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0092__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0092__clone.wav"
+  },
+  {
+   "id": "LJ023-0093",
+   "book": "LJ023",
+   "text": "Chief Justice Hughes said in a dissenting opinion that the majority opinion was \"a departure from sound principles,\"",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0093.wav",
+   "human_seconds": 8.981666666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0093__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0093__clone.wav"
+  },
+  {
+   "id": "LJ023-0094",
+   "book": "LJ023",
+   "text": "and placed \"an unwarranted limitation upon the commerce clause.\"",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0094.wav",
+   "human_seconds": 5.8005,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0094__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0094__clone.wav"
+  },
+  {
+   "id": "LJ023-0097",
+   "book": "LJ023",
+   "text": "Justice Stone said of the majority opinion that it was a \"tortured construction of the Constitution.\"",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0097.wav",
+   "human_seconds": 7.147291666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0097__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0097__clone.wav"
+  },
+  {
+   "id": "LJ023-0099",
+   "book": "LJ023",
+   "text": "In the case holding the New York Minimum Wage Law unconstitutional, Justice Stone said",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0099.wav",
+   "human_seconds": 7.35625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0099__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0099__clone.wav"
+  },
+  {
+   "id": "LJ023-0100",
+   "book": "LJ023",
+   "text": "that the majority were actually reading into the Constitution their own \"personal economic predilections,\" and that",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0100.wav",
+   "human_seconds": 8.761083333333334,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0100__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0100__clone.wav"
+  },
+  {
+   "id": "LJ023-0101",
+   "book": "LJ023",
+   "text": "if the legislative power is not left free to choose the methods of solving the problems of poverty,",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0101.wav",
+   "human_seconds": 6.868625,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0101__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0101__clone.wav"
+  },
+  {
+   "id": "LJ023-0102",
+   "book": "LJ023",
+   "text": "subsistence, and health of large numbers in the community, then",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0102.wav",
+   "human_seconds": 5.579916666666667,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0102__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0102__clone.wav"
+  },
+  {
+   "id": "LJ023-0105",
+   "book": "LJ023",
+   "text": "In the face of these dissenting opinions, there is no basis for the claim made by some members of the Court",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0105.wav",
+   "human_seconds": 7.611666666666666,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0105__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0105__clone.wav"
+  },
+  {
+   "id": "LJ023-0106",
+   "book": "LJ023",
+   "text": "that something in the Constitution has compelled them regretfully to thwart the will of the people.",
+   "human_wav": "ab_test_runtime/ljspeech_eval/human/LJ023-0106.wav",
+   "human_seconds": 5.997875,
+   "lora_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0106__lora.wav",
+   "clone_wav": "ab_test_runtime/ljspeech_eval/generated_lr1e6/LJ023-0106__clone.wav"
+  }
+ ],
+ "failures": [],
+ "provenance": {
+  "script": "ljspeech_generate.py",
+  "written": "2026-08-06T05:12:23",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "f5e69719fbc564c26415a717d76a64b59adc9fc1",
+   "branch": "agent/voice-assignment-and-adapter",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
+  },
+  "args": {
+   "build": "ab_test_runtime/ljspeech_eval/build.json",
+   "adapter": "ab_test_runtime/ljspeech_eval/adapter_lr1e6",
+   "config": "app/config.json",
+   "out_dir": "ab_test_runtime/ljspeech_eval/generated_lr1e6",
+   "seed": 1234,
+   "limit": 0,
+   "arms": [
+    "lora",
+    "clone"
+   ],
+   "out": "ab_test_runtime/experiments/ljspeech_generate.json"
+  },
+  "seed": 1234
+ }
+}
