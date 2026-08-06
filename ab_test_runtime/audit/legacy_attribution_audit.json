@@ -1,13 +1,55 @@
 {
   "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
-  "source_structural_sha256": "115e85a319965312b1c5d929bbdd1b08b2744f5154d0a98a5e5861be9221a7a5",
+  "source_structural_sha256": "df41b4d2300e2eae9cdda3c57fb7790936585bcc6a653e0976a6481685b2d788",
   "summary": {
     "exploratory": 9,
     "historical_only": 38,
     "provisional": 26,
-    "supported_measurement": 37
+    "supported_measurement": 39
   },
   "artifacts": [
+    {
+      "artifact": "batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json",
+      "family": "batch_contiguity",
+      "rows": 184,
+      "arms": [
+        "contiguous",
+        "scattered"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Isolates companion ordering, not end-to-end production quality."
+    },
+    {
+      "artifact": "batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json",
+      "family": "batch_contiguity",
+      "rows": 266,
+      "arms": [
+        "contiguous",
+        "scattered"
+      ],
+      "classification": "supported_measurement",
+      "dirty": false,
+      "problems": [],
+      "current_gold": {
+        "available": true,
+        "hash_changed": false,
+        "missing_rows": 0,
+        "expected_changed_rows": 0,
+        "correctness_changed_rows": 0,
+        "line_count_changed": false
+      },
+      "semantic_limit": "Isolates companion ordering, not end-to-end production quality."
+    },
     {
       "artifact": "batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json",
       "family": "batch_contiguity",

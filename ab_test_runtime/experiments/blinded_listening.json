@@ -1,0 +1,225 @@
+{
+  "status": "complete",
+  "provenance": {
+    "script": "blinded_listening.py",
+    "written": "2026-08-04T21:27:20",
+    "host": "mitch-linux",
+    "git": {
+      "commit": "a30421404c28aaf2d83092581a465eff304e2813",
+      "branch": "agent/overnight-costcurve",
+      "dirty": true,
+      "modified_tracked_files": [
+        "M ab_test_runtime/experiments/cluster_vs_name.json",
+        " M ab_test_runtime/experiments/listener_impact.json"
+      ],
+      "untracked_harness_files": null,
+      "harness_sha256": "9a268cbea2ddbaea35475911a8f91919eb1ec4331e5116f9d0c53850b95e87d1"
+    },
+    "source_artifacts": {
+      "ab_test_runtime/experiments/stage6_instruction_source.json": "33ceccb51439526a06d055af207566b93c42f28594a12e710d01cbd806ef2541",
+      "ab_test_runtime/stage6_casting/manifest.json": "26b36a7754317280cf6d494e61a845ed0d320d96398131e520ae4f35f3027ab6",
+      "ab_test_runtime/experiments/seed_instruction_controls.json": "0ff8789bf814b7a403643a7f79f0b415c9506d5137427a6160edf81bef443259"
+    },
+    "randomization_seed": 20260804
+  },
+  "package_dir": "ab_test_runtime/blinded_listening",
+  "sets": [
+    {
+      "id": "set_00",
+      "kind": "instruction_delivery",
+      "samples": [
+        {
+          "file": "set_00_A.wav",
+          "sha256": "d0afec956be13e0a8d28222ef3b4e43cee899e54c9af134068fc64f07e9e9276"
+        },
+        {
+          "file": "set_00_B.wav",
+          "sha256": "9ca814ae5b5b225ba37eb0b54929b8dbf9fc075136d0514452cedca16fbeade0"
+        },
+        {
+          "file": "set_00_C.wav",
+          "sha256": "d0afec956be13e0a8d28222ef3b4e43cee899e54c9af134068fc64f07e9e9276"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_01",
+      "kind": "instruction_delivery",
+      "samples": [
+        {
+          "file": "set_01_A.wav",
+          "sha256": "5a0737ecd9b87f272280ca8b7c4a25d521f5e2b6519b0571e362a1759e82c452"
+        },
+        {
+          "file": "set_01_B.wav",
+          "sha256": "5a0737ecd9b87f272280ca8b7c4a25d521f5e2b6519b0571e362a1759e82c452"
+        },
+        {
+          "file": "set_01_C.wav",
+          "sha256": "c4a5c1d76a04b056b8d16d7c3923bc4b3fabb42d5ff1b5d912e7a80984957e37"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_02",
+      "kind": "instruction_delivery",
+      "samples": [
+        {
+          "file": "set_02_A.wav",
+          "sha256": "a08b43be148c8ee461e83226d525aaa5bfe5ecb79728dfeb48c86c8433813f3e"
+        },
+        {
+          "file": "set_02_B.wav",
+          "sha256": "205a8b9eef69e7c5ed51aa85bbc5dc4766a6b4190b4efada5b5d42b7083902f6"
+        },
+        {
+          "file": "set_02_C.wav",
+          "sha256": "a08b43be148c8ee461e83226d525aaa5bfe5ecb79728dfeb48c86c8433813f3e"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_03",
+      "kind": "instruction_delivery",
+      "samples": [
+        {
+          "file": "set_03_A.wav",
+          "sha256": "4553c92479bbf4b8a00557447e14d492f442dad5719a2eb47919dce36755c447"
+        },
+        {
+          "file": "set_03_B.wav",
+          "sha256": "c3fb3b25517037b96de91c29243c4e92e94e26bfc573a242e4fd5f20fbd70221"
+        },
+        {
+          "file": "set_03_C.wav",
+          "sha256": "c3fb3b25517037b96de91c29243c4e92e94e26bfc573a242e4fd5f20fbd70221"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_04",
+      "kind": "casting",
+      "samples": [
+        {
+          "file": "set_04_A.wav",
+          "sha256": "545f9538044b5341563bfca585076ac4e6b569dc592a607a841ccaa09feae44c"
+        },
+        {
+          "file": "set_04_B.wav",
+          "sha256": "a9b5781eb6b450ce3d5b5f87af72f5925a83f65603ec69d5243f0d2be29d162b"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_05",
+      "kind": "positive_control",
+      "samples": [
+        {
+          "file": "set_05_A.wav",
+          "sha256": "35d214c5f9605c56ffb284f2f568e7082093467857086dff60f1c280a1ee4940"
+        },
+        {
+          "file": "set_05_B.wav",
+          "sha256": "fda7f0a1fc058f2dc8a82692815e9f05d5c16dcc98bb93a361778174aa23d0a6"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_06",
+      "kind": "positive_control",
+      "samples": [
+        {
+          "file": "set_06_A.wav",
+          "sha256": "6caaffe497fc0adbb205416e89bccbfdee09516d2022828eca57ae52404d4175"
+        },
+        {
+          "file": "set_06_B.wav",
+          "sha256": "50a325c3a9f7f41927292aec260c0cb9ea6c579e9fade0ddf482f3f406a6da11"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    },
+    {
+      "id": "set_07",
+      "kind": "positive_control",
+      "samples": [
+        {
+          "file": "set_07_A.wav",
+          "sha256": "095a2773806187ce8fcd8851cf7a1826054d127e2833ad747e2e024e071afbbd"
+        },
+        {
+          "file": "set_07_B.wav",
+          "sha256": "caa41e206de26ee59151dca370966d6b66014d61909d26478e6de720f557dc89"
+        }
+      ],
+      "rating_fields": [
+        "delivery",
+        "emotional_fit",
+        "voice_distinction",
+        "intelligibility",
+        "defects",
+        "preference"
+      ]
+    }
+  ],
+  "concealed_key_sha256": "2395f6a093ef22b5b6866d89d66b63ab88c5b5b19f07102ac7cdba2c3f164d3a",
+  "limitations": [
+    "No human ratings are included; this artifact only prepares it.",
+    "Non-prose remedies are absent because Stage 5 stopped at its gate."
+  ]
+}

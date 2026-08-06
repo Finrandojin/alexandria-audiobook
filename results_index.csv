@@ -1,13 +1,14 @@
 artifact,evidence_status,experiment,book,model,env_tag,host,backend,ctx,parallel,kv,arm,n,correct,accuracy_pct,validation,dirty,commit,elapsed_s,finished,endpoint,note
+adapter_stop_check_ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 audible_errors.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,aligned,385,273,70.9,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,fixed,385,275,71.4,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
 batch_contiguity__grimgar03__qwen__qwen3-14b__thunder-a6000-cuda.json,exploratory,batch_contiguity,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,contiguous,385,287,74.5,ok,False,,5518.1,08-01 07:29,http://127.0.0.1:8090/v1,
 batch_contiguity__grimgar03__qwen__qwen3-14b__thunder-a6000-cuda.json,exploratory,batch_contiguity,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,scattered,385,223,57.9,ok,False,,5518.1,08-01 07:29,http://127.0.0.1:8090/v1,
-batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json,not_audited,batch_contiguity,index18,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,contiguous,92,69,75.0,ok,False,bd0a696a,10801.7,08-03 05:50,http://127.0.0.1:8090/v1,
-batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json,not_audited,batch_contiguity,index18,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,scattered,92,62,67.4,ok,False,bd0a696a,10801.7,08-03 05:50,http://127.0.0.1:8090/v1,
-batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json,not_audited,batch_contiguity,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,contiguous,133,91,68.4,ok,False,05e4c8d2,15992.9,08-03 10:17,http://127.0.0.1:8090/v1,
-batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json,not_audited,batch_contiguity,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,scattered,133,42,31.6,ok,False,05e4c8d2,15992.9,08-03 10:17,http://127.0.0.1:8090/v1,
+batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,index18,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,contiguous,92,69,75.0,ok,False,bd0a696a,10801.7,08-03 05:50,http://127.0.0.1:8090/v1,
+batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,index18,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,scattered,92,62,67.4,ok,False,bd0a696a,10801.7,08-03 05:50,http://127.0.0.1:8090/v1,
+batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,contiguous,133,91,68.4,ok,False,05e4c8d2,15992.9,08-03 10:17,http://127.0.0.1:8090/v1,
+batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,scattered,133,42,31.6,ok,False,05e4c8d2,15992.9,08-03 10:17,http://127.0.0.1:8090/v1,
 batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,contiguous,162,87,53.7,ok,False,1ce18fdd,19624.4,08-02 09:52,http://127.0.0.1:8090/v1,
 batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json,supported_measurement,batch_contiguity,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,scattered,162,57,35.2,ok,False,1ce18fdd,19624.4,08-02 09:52,http://127.0.0.1:8090/v1,
 batch_size__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,batch_size,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,b1,400,242,60.5,ok,False,,3853.3,07-28 17:32,http://127.0.0.1:8090/v1,
@@ -56,7 +57,7 @@ because_production__mushoku16__qwen__qwen3-14b__local.json,provisional,because_p
 because_production__qwen__qwen3-14b.json,provisional,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,baseline,139,69,49.6,ok,True,2ce90a96,4564.3,07-27 11:04,http://localhost:1234/v1,
 because_production__qwen__qwen3-14b.json,provisional,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,because,139,59,42.4,ok,True,2ce90a96,4564.3,07-27 11:04,http://localhost:1234/v1,
 because_production__qwen__qwen3-14b.json,provisional,because_production,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,scaffold_thinking,139,60,43.2,ok,True,2ce90a96,4564.3,07-27 11:04,http://localhost:1234/v1,
-blinded_listening.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+blinded_listening.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 booknlp_baseline__pdnc_prideandprejudice.json,exploratory,booknlp_baseline,?,booknlp-big,local-lmstudio,,lmstudio,,,f16?,booknlp,1226,665,54.2,None,,,,,,
 candidate_id__qwen__qwen3-14b.json,historical_only,candidate_id,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,id,147,52,35.4,ok,False,53299de7,68.3,07-26 20:39,http://localhost:1234/v1,
 candidate_id__qwen__qwen3-14b.json,historical_only,candidate_id,mushoku16,qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,name,147,72,49.0,ok,False,53299de7,68.3,07-26 20:39,http://localhost:1234/v1,
@@ -112,11 +113,11 @@ cascade_state__owarimonogatari3__local-batchtrig.json,exploratory,,,,,,,,,,,,,,,
 cascade_state__owarimonogatari3__tuned-cheap-arm.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chapter_manifest.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: not a result object (list)
 chapter_validation.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-chinese_attribution_jy.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+chinese_attribution_jy.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_jy_fixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-chinese_attribution_wp.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+chinese_attribution_wp.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_wp_fixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-clone_vs_lora_seeded.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+clone_vs_lora_seeded.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 closed_set.json,exploratory,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-6,147,51,34.7,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 16:00,http://localhost:1234/v1,
 closed_set.json,exploratory,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-oracle,147,72,49.0,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 16:00,http://localhost:1234/v1,
 closed_set.json,exploratory,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,open,147,52,35.4,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 16:00,http://localhost:1234/v1,
@@ -270,7 +271,7 @@ context_width_production__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.jso
 context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,context_width_production,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,w1,162,65,40.1,ok,False,04a69e4c,2955.3,07-29 03:46,http://127.0.0.1:8090/v1,
 context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,context_width_production,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,w4,162,65,40.1,ok,False,04a69e4c,2955.3,07-29 03:46,http://127.0.0.1:8090/v1,
 crossbook_normalization.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-crossbook_normalization_pilot.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+crossbook_normalization_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=gemma,attr=gemma,t=0.0,rep=1",399,234,58.6,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=gemma,attr=gemma,t=0.0,rep=2",399,234,58.6,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=gemma,attr=gemma,t=0.6,rep=1",399,228,57.1,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
@@ -291,22 +292,22 @@ crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar0
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=1",399,234,58.6,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=2",399,231,57.9,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=3",399,232,58.1,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
-distill_eval__mixed_register.json,not_audited,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,385,325,84.4,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,92,66,71.7,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,92,69,75.0,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,133,67,50.4,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,133,97,72.9,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__mixed_register.json,not_audited,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,162,112,69.1,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
-distill_eval__pdnc_only.json,not_audited,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,385,303,78.7,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,92,66,71.7,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,92,69,75.0,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,133,67,50.4,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,133,83,62.4,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
-distill_eval__pdnc_only.json,not_audited,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,162,84,51.9,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__mixed_register.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,385,325,84.4,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,92,66,71.7,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,92,69,75.0,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,133,67,50.4,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,133,97,72.9,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__mixed_register.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,162,112,69.1,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
+distill_eval__pdnc_only.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,385,303,78.7,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,92,66,71.7,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,92,69,75.0,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,133,67,50.4,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,133,83,62.4,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
+distill_eval__pdnc_only.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,162,84,51.9,ok,False,,40991.3,08-05 11:36,peft:ab_test_runtime/distill/adapter_pdnc_only,
 distill_eval__thunder-a6000-cheapa.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,23636.2,08-01 22:23,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter_cheap,
 distill_eval__thunder-a6000-cheapa.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,tuned,385,263,68.3,ok,False,,23636.2,08-01 22:23,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter_cheap,
 distill_eval__thunder-a6000-cheapa.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,23636.2,08-01 22:23,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter_cheap,
@@ -337,9 +338,9 @@ grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,suppo
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,open-grammar,162,75,46.3,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-free,162,84,51.9,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-grammar,162,83,51.2,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
-instruct_listening.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+instruct_listening.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 instruct_value.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-instruct_value_seeded.json,not_audited,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+instruct_value_seeded.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 japanese_quote_robustness.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 joint_scene__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,joint_scene,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,independent,400,286,71.5,ok,False,,2149.6,07-28 21:25,http://127.0.0.1:8090/v1,
 joint_scene__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,joint_scene,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,joint-chrono,400,253,63.2,ok,False,,2149.6,07-28 21:25,http://127.0.0.1:8090/v1,
@@ -388,10 +389,10 @@ lora_serving_eval__local-rocm-lora.json,historical_only,lora_serving_eval,grimga
 lora_serving_eval__local-rocm-lora.json,historical_only,lora_serving_eval,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,lora,385,323,83.9,ok,True,05f0d306,28194.5,08-02 21:23,http://127.0.0.1:8090/v1,
 lora_serving_eval__local-rocm-lora.json,historical_only,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,base,162,87,53.7,ok,True,05f0d306,28194.5,08-02 21:23,http://127.0.0.1:8090/v1,
 lora_serving_eval__local-rocm-lora.json,historical_only,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,f16?,lora,162,94,58.0,ok,True,05f0d306,28194.5,08-02 21:23,http://127.0.0.1:8090/v1,
-lora_serving_eval__mixed-shippable.json,not_audited,lora_serving_eval,grimgar03,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,248,64.4,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
-lora_serving_eval__mixed-shippable.json,not_audited,lora_serving_eval,grimgar03,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,lora,385,309,80.3,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
-lora_serving_eval__mixed-shippable.json,not_audited,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,74,45.7,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
-lora_serving_eval__mixed-shippable.json,not_audited,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,lora,162,93,57.4,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
+lora_serving_eval__mixed-shippable.json,exploratory,lora_serving_eval,grimgar03,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,248,64.4,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
+lora_serving_eval__mixed-shippable.json,exploratory,lora_serving_eval,grimgar03,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,lora,385,309,80.3,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
+lora_serving_eval__mixed-shippable.json,exploratory,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,162,74,45.7,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
+lora_serving_eval__mixed-shippable.json,exploratory,lora_serving_eval,owarimonogatari3,qwen/qwen3-14b,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,lora,162,93,57.4,ok,False,,3920.5,08-05 12:41,http://127.0.0.1:8090/v1,
 narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json,historical_only,narrator_prior,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,baseline,400,229,57.2,ok,False,25429468,2180.7,07-28 17:59,http://127.0.0.1:8090/v1,
 narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json,historical_only,narrator_prior,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,narrator,400,241,60.2,ok,False,25429468,2180.7,07-28 17:59,http://127.0.0.1:8090/v1,
 narrator_prior__index18__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,narrator_prior,index18,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,baseline,99,64,64.6,ok,False,04a69e4c,1021.5,07-29 06:24,http://127.0.0.1:8090/v1,
@@ -400,27 +401,27 @@ narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json,provisional,narr
 narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json,provisional,narrator_prior,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,narrator,139,78,56.1,ok,False,2ca9413c,842.4,07-28 17:22,http://127.0.0.1:8090/v1,
 narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,narrator_prior,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,baseline,162,62,38.3,ok,False,04a69e4c,1783.8,07-29 04:24,http://127.0.0.1:8090/v1,
 narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,narrator_prior,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,narrator,162,63,38.9,ok,False,04a69e4c,1783.8,07-29 04:24,http://127.0.0.1:8090/v1,
-nonprose_category_expansion.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-nonprose_category_expansion_pilot.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+nonprose_category_expansion.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+nonprose_category_expansion_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 nonprose_gate.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-nonprose_mechanism.json,not_audited,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-nonprose_replication.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-nonprose_replication_pilot.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+nonprose_mechanism.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+nonprose_replication.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+nonprose_replication_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 nonprose_split.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-nonprose_split_v2.json,not_audited,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+nonprose_split_v2.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 offbyone_turns.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-pdnc_eval.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-pdnc_eval_full.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pdnc_eval.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pdnc_eval_full.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pdnc_eval_full_summary.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-pdnc_eval_mixed.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-pitch_profile_matrix.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-pitch_profile_matrix_pilot.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-pitch_separation.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-pitch_stability.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-proper_noun_pronunciation.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+pdnc_eval_mixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pitch_profile_matrix.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+pitch_profile_matrix_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+pitch_separation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pitch_stability.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+proper_noun_pronunciation.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 prose_vs_nonprose.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 prose_vs_nonprose_v2.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-prose_vs_nonprose_v3.json,not_audited,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
+prose_vs_nonprose_v3.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 realizable_router.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json,historical_only,reasoning_arms,grimgar03,google/gemma-3-27b,cloud-a6000-lmstudio,mitch-linux,lmstudio,16384,1,f16?,baseline,400,286,71.5,ok,False,13e9a77a,9454.9,07-27 19:33,https://lho3lk5l-1234.thundercompute.net/v1,
 reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json,historical_only,reasoning_arms,grimgar03,google/gemma-3-27b,cloud-a6000-lmstudio,mitch-linux,lmstudio,16384,1,f16?,because,400,289,72.2,ok,False,13e9a77a,9454.9,07-27 19:33,https://lho3lk5l-1234.thundercompute.net/v1,
@@ -506,7 +507,7 @@ roster_warmup__ministral-3-14b-instruct-2512.json,provisional,roster_warmup,mush
 roster_warmup__ministral-3-14b-instruct-2512.json,provisional,roster_warmup,mushoku16,ministral-3-14b-instruct-2512,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,oracle,139,65,46.8,ok,False,beb2400a,8408.8,07-26 23:01,http://localhost:1234/v1,
 roster_warmup__ministral-3-14b-instruct-2512.json,provisional,roster_warmup,mushoku16,ministral-3-14b-instruct-2512,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,warm,139,62,44.6,ok,False,beb2400a,8408.8,07-26 23:01,http://localhost:1234/v1,
 run_lengths.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-scale_vs_register.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+scale_vs_register.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 scene_aware_casting.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 scene_cast__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,scene_cast,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,full,385,330,85.7,ok,False,,6197.0,07-30 10:35,http://127.0.0.1:8090/v1,
 scene_cast__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,scene_cast,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,scene,385,327,84.9,ok,False,,6197.0,07-30 10:35,http://127.0.0.1:8090/v1,
@@ -541,15 +542,15 @@ scene_cast__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json,exploratory,
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,full,162,73,45.1,ok,True,fe025a5f,3728.1,07-30 02:00,http://127.0.0.1:8090/v1,
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene,162,63,38.9,ok,True,fe025a5f,3728.1,07-30 02:00,http://127.0.0.1:8090/v1,
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene+2,162,66,40.7,ok,True,fe025a5f,3728.1,07-30 02:00,http://127.0.0.1:8090/v1,
-seed_instruction_controls.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+seed_instruction_controls.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 segmentation_classifier.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 shipping_readiness.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-simd_benchmark.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+simd_benchmark.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 stack_overlap.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-stage6_instruction_source.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-stage6_scene_aware_casting.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
-symbolization.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-symbolization_owari.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+stage6_instruction_source.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+stage6_scene_aware_casting.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+symbolization.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+symbolization_owari.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 tag_priority__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,tag_priority,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,baseline,396,327,82.6,ok,False,,4007.5,07-30 00:40,http://127.0.0.1:8090/v1,
 tag_priority__grimgar03__llama-3.3-70b__thunder-a6000-70b.json,exploratory,tag_priority,grimgar03,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,tagfirst,396,328,82.8,ok,False,,4007.5,07-30 00:40,http://127.0.0.1:8090/v1,
 tag_priority__grimgar03__mistralai__magistral-small__local-llamacpp.json,provisional,tag_priority,grimgar03,mistralai/magistral-small,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,baseline,396,280,70.7,ok,True,eff60648,2667.2,07-29 16:51,http://127.0.0.1:8090/v1,
@@ -572,7 +573,7 @@ tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json,provisional,tag_pr
 tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json,provisional,tag_priority,mushoku16,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,tagfirst,139,63,45.3,ok,True,1d5078f7,1073.2,07-28 21:52,http://127.0.0.1:8090/v1,
 tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,tag_priority,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,baseline,162,66,40.7,ok,False,064c9c4c,1891.9,07-29 01:19,http://127.0.0.1:8090/v1,
 tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,tag_priority,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,tagfirst,162,70,43.2,ok,False,064c9c4c,1891.9,07-29 01:19,http://127.0.0.1:8090/v1,
-three_pass_vs_single.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+three_pass_vs_single.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 training_composition.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 trivial_baselines.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 tuned_disagreement.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -581,12 +582,12 @@ two_by_two.json,exploratory,two_by_two,mushoku16,qwen3.5-9b-uncensored-hauhaucs-
 two_by_two.json,exploratory,two_by_two,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,C,139,48,34.5,"['no LM Studio load state recorded', 'en",True,8e457d6a,698.2,07-26 17:00,http://localhost:1234/v1,
 two_by_two.json,exploratory,two_by_two,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,D,139,26,18.7,"['no LM Studio load state recorded', 'en",True,8e457d6a,698.2,07-26 17:00,http://localhost:1234/v1,
 validation_baseline.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
-validation_manifest.json,not_audited,,,,,,,,,,,,,,,,,,,,SKIPPED: not a result object (list)
+validation_manifest.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: not a result object (list)
 validation_smoke.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 voice_adapter_health.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 voice_blending.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-voice_data_saturation.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
-voice_data_saturation_seeded.json,not_audited,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+voice_data_saturation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+voice_data_saturation_seeded.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,historical_only,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,greedy,400,223,55.8,ok,False,6cb37edd,6517.4,07-28 13:45,http://127.0.0.1:8090/v1,
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,historical_only,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,vote3,400,232,58.0,ok,False,6cb37edd,6517.4,07-28 13:45,http://127.0.0.1:8090/v1,
 voting__grimgar03__qwen__qwen3-14b__local-llamacpp.json,historical_only,voting,grimgar03,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,vote5,400,231,57.8,ok,False,6cb37edd,6517.4,07-28 13:45,http://127.0.0.1:8090/v1,

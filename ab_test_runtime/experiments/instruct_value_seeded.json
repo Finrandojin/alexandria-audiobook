@@ -1,0 +1,439 @@
+{
+ "summary": {
+  "per_line": {
+   "n": 18,
+   "wer": 0.006109979633401222,
+   "failed": 0,
+   "non_speech": 0
+  },
+  "per_char": {
+   "n": 18,
+   "wer": 0.0,
+   "failed": 0,
+   "non_speech": 0
+  },
+  "none": {
+   "n": 18,
+   "wer": 0.0,
+   "failed": 0,
+   "non_speech": 0
+  }
+ },
+ "rows": [
+  {
+   "uid": "40760bf80f4a",
+   "speaker": "NARRATOR",
+   "chars": 137,
+   "per_line": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "db4e0f4a20a0",
+   "speaker": "NARRATOR",
+   "chars": 120,
+   "per_line": {
+    "errors": 1,
+    "words": 20,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "1ab7e31984df",
+   "speaker": "NARRATOR",
+   "chars": 107,
+   "per_line": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "a8789a829961",
+   "speaker": "Subaru",
+   "chars": 135,
+   "per_line": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "20d08f5236e2",
+   "speaker": "Subaru",
+   "chars": 373,
+   "per_line": {
+    "errors": 1,
+    "words": 75,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 75,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 75,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "33a1233dcb4a",
+   "speaker": "Subaru",
+   "chars": 110,
+   "per_line": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "85d8df7454af",
+   "speaker": "NATSUKI SUBARU",
+   "chars": 78,
+   "per_line": {
+    "errors": 0,
+    "words": 15,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 15,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 15,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "165aef6a850d",
+   "speaker": "NATSUKI SUBARU",
+   "chars": 177,
+   "per_line": {
+    "errors": 0,
+    "words": 36,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 36,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 36,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "83805459eb58",
+   "speaker": "NATSUKI SUBARU",
+   "chars": 130,
+   "per_line": {
+    "errors": 1,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "7486036443cc",
+   "speaker": "FELT",
+   "chars": 134,
+   "per_line": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "67758eba8b12",
+   "speaker": "FELT",
+   "chars": 129,
+   "per_line": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "d7bcafa6bcdf",
+   "speaker": "FELT",
+   "chars": 136,
+   "per_line": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 26,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "c7a20a0410d8",
+   "speaker": "ROM",
+   "chars": 172,
+   "per_line": {
+    "errors": 0,
+    "words": 38,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 38,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 38,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "f55ad12861bd",
+   "speaker": "ROM",
+   "chars": 120,
+   "per_line": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "301495b92d28",
+   "speaker": "ROM",
+   "chars": 116,
+   "per_line": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "6eb8a76ecb93",
+   "speaker": "LITTLE GIRL",
+   "chars": 157,
+   "per_line": {
+    "errors": 0,
+    "words": 30,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 30,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 30,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "e736c1ab745d",
+   "speaker": "LITTLE GIRL",
+   "chars": 110,
+   "per_line": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   }
+  },
+  {
+   "uid": "0ada8f115ab1",
+   "speaker": "LITTLE GIRL",
+   "chars": 99,
+   "per_line": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "per_char": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   },
+   "none": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "non_speech": false
+   }
+  }
+ ],
+ "caveat": "WER measures content, not delivery. A flat result moves the question to a listening test rather than settling it."
+}

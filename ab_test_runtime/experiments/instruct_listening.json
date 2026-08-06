@@ -1,0 +1,63 @@
+{
+ "seed": 1234,
+ "arms": [
+  "none",
+  "per_char",
+  "per_line"
+ ],
+ "all_arms_rendered": true,
+ "comparisons": [
+  {
+   "line": 0,
+   "speaker": "NARRATOR",
+   "text": "Feeling the hard texture of the ground against his face, he realized that he had fallen facedown on the ground. He couldn\u2019t move, even when he tried, and he already couldn\u2019t feel his fingers.",
+   "per_line_instruct": "Slow, sensory narration; building tension as the feeling is described.",
+   "per_char_instruct": "",
+   "arms": [
+    "none",
+    "per_char",
+    "per_line"
+   ],
+   "file": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/instruct_listening/compare_line0.wav"
+  },
+  {
+   "line": 1,
+   "speaker": "NARRATOR",
+   "text": "What he did feel was a certain heat, and it overwhelmed his entire body.",
+   "per_line_instruct": "Slow, sensory narration; building tension as the heat is described.",
+   "per_char_instruct": "",
+   "arms": [
+    "none",
+    "per_char",
+    "per_line"
+   ],
+   "file": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/instruct_listening/compare_line1.wav"
+  },
+  {
+   "line": 2,
+   "speaker": "Kenji",
+   "text": "\u2014It\u2019s hot, it\u2019s hot, it\u2019s hot, it\u2019s hot, it\u2019s hot, it\u2019s hot, it\u2019s hot.",
+   "per_line_instruct": "Strained, rapid-fire repetition; voice cracking with discomfort and panic.",
+   "per_char_instruct": "",
+   "arms": [
+    "none",
+    "per_char",
+    "per_line"
+   ],
+   "file": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/instruct_listening/compare_line2.wav"
+  },
+  {
+   "line": 3,
+   "speaker": "NARRATOR",
+   "text": "Feeling as though all of the blood in his body had spilled out of him, he reached a shaking hand to try to find the source of the heat that was burning through his body.",
+   "per_line_instruct": "Desperate, strained narration; conveying overwhelming physical sensation.",
+   "per_char_instruct": "",
+   "arms": [
+    "none",
+    "per_char",
+    "per_line"
+   ],
+   "file": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/instruct_listening/compare_line3.wav"
+  }
+ ]
+}

@@ -1,0 +1,203 @@
+{
+ "status": "complete",
+ "provenance": {
+  "script": "nonprose_replication.py",
+  "written": "2026-08-04T17:54:30",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "8321f16e409acd33df0913af97c8ac941e3d563d",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M LOCAL_TEST_PLAN_2026-08-04.md",
+    " M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "72890029289ea4694e7100bafe5bbf2423e1b6ded6aa759cf969f6319f17118e"
+  },
+  "args": {
+   "source": "ab_test_runtime/experiments/prose_vs_nonprose_v3.json",
+   "config": "app/config.json",
+   "adapters": [
+    "husky_tenor_30s_m_fantasy"
+   ],
+   "seeds": [
+    1234
+   ],
+   "limit": 2,
+   "out_dir": "../ab_test_runtime/nonprose_replication_pilot",
+   "out": "../ab_test_runtime/experiments/nonprose_replication_pilot.json"
+  }
+ },
+ "selection": {
+  "rule": "first failing non-prose rows used by the mechanism source; paired through prose_vs_nonprose.match_pairs",
+  "pairs": [
+   {
+    "nonprose_uid": "8ed66ea374e5",
+    "prose_uid": "5d2fecba9d53",
+    "nonprose_sha256": "5ae82f29960c1b516aad6d5a3a98426585e36b0e79552fc734826c8960ca24c1",
+    "prose_sha256": "5815a483f94d0284210a868b9ebc5d17ce3fda40338c568261a69deddf505d14",
+    "nonprose_features": {
+     "chars": 417,
+     "words": 42,
+     "digit_fraction": 0.33573141486810554,
+     "uppercase_word_fraction": 0.2619047619047619,
+     "punctuation_fraction": 0.07434052757793765
+    },
+    "prose_features": {
+     "chars": 417,
+     "words": 81,
+     "digit_fraction": 0.0,
+     "uppercase_word_fraction": 0.0,
+     "punctuation_fraction": 0.016786570743405275
+    },
+    "absolute_feature_gap": {
+     "chars": 0,
+     "words": 39,
+     "digit_fraction": 0.33573141486810554,
+     "uppercase_word_fraction": 0.2619047619047619,
+     "punctuation_fraction": 0.05755395683453237
+    }
+   },
+   {
+    "nonprose_uid": "faaa1962eb7d",
+    "prose_uid": "62ec350ed53e",
+    "nonprose_sha256": "4f6c36f0093f565afdb5e0f8813758c84300e75d0eb643b94f3b311430a1999d",
+    "prose_sha256": "c4839101826d76d5e9b3b720b6106d7913f5ce827ca8e8da8a04f1586870dbe3",
+    "nonprose_features": {
+     "chars": 222,
+     "words": 22,
+     "digit_fraction": 0.33783783783783783,
+     "uppercase_word_fraction": 0.2727272727272727,
+     "punctuation_fraction": 0.07207207207207207
+    },
+    "prose_features": {
+     "chars": 222,
+     "words": 47,
+     "digit_fraction": 0.0,
+     "uppercase_word_fraction": 0.0,
+     "punctuation_fraction": 0.04954954954954955
+    },
+    "absolute_feature_gap": {
+     "chars": 0,
+     "words": 25,
+     "digit_fraction": 0.33783783783783783,
+     "uppercase_word_fraction": 0.2727272727272727,
+     "punctuation_fraction": 0.02252252252252252
+    }
+   }
+  ]
+ },
+ "summary": [
+  {
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "class": "nonprose",
+   "n": 2,
+   "wer": 0.3870967741935484,
+   "failed": 2,
+   "substitutions": 28,
+   "deletions": 40,
+   "insertions": 40
+  },
+  {
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "class": "prose",
+   "n": 2,
+   "wer": 0.0,
+   "failed": 0,
+   "substitutions": 0,
+   "deletions": 0,
+   "insertions": 0
+  }
+ ],
+ "rows": [
+  {
+   "errors": 79,
+   "words": 182,
+   "heard_words": 187,
+   "substitutions": 20,
+   "deletions": 27,
+   "insertions": 32,
+   "threshold": 19,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "pair": 0,
+   "class": "nonprose",
+   "uid": "8ed66ea374e5",
+   "source_sha256": "5ae82f29960c1b516aad6d5a3a98426585e36b0e79552fc734826c8960ca24c1",
+   "wav": "ab_test_runtime/nonprose_replication_pilot/husky_tenor_30s_m_fantasy__s1234__p0__nonprose.wav",
+   "transcript": "Identifiers LCCN 216031562 ISBN 978-0316315302 V1 Paperback ISBN 978-0316398374 V2 Paperback ISBN 978-0316398404 V3 Paperback ISBN 978-0316398428 V4 Paperback ISBN 978-0316398459\n V5 Paperback ISBN 978-031639847398 473 V6 Paperback ISBN 978-0316398 473 V6 Paperback ISBN 978-0316398497 V7 Paperback ISBN 978-197531934 V8 Paperback ISBN 978-975356293 V9 Paperback\n back."
+  },
+  {
+   "errors": 0,
+   "words": 79,
+   "heard_words": 79,
+   "substitutions": 0,
+   "deletions": 0,
+   "insertions": 0,
+   "threshold": 8,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "pair": 0,
+   "class": "prose",
+   "uid": "5d2fecba9d53",
+   "source_sha256": "5815a483f94d0284210a868b9ebc5d17ce3fda40338c568261a69deddf505d14",
+   "wav": "ab_test_runtime/nonprose_replication_pilot/husky_tenor_30s_m_fantasy__s1234__p0__prose.wav",
+   "transcript": "Subaru was anxious about relying on his return by death power when he didn't know how or why it worked. Say Subaru decided to throw away this fourth time around by watching things unfold, with the intention of dying afterward so he could reset everything. What if, when he did that, his return by death didn't activate because he had run out of the number of times he could use it? No one would be laughing at that end."
+  },
+  {
+   "errors": 29,
+   "words": 97,
+   "heard_words": 92,
+   "substitutions": 8,
+   "deletions": 13,
+   "insertions": 8,
+   "threshold": 10,
+   "failed": true,
+   "non_speech": false,
+   "possible_truncation": false,
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "pair": 1,
+   "class": "nonprose",
+   "uid": "faaa1962eb7d",
+   "source_sha256": "4f6c36f0093f565afdb5e0f8813758c84300e75d0eb643b94f3b311430a1999d",
+   "wav": "ab_test_runtime/nonprose_replication_pilot/husky_tenor_30s_m_fantasy__s1234__p1__nonprose.wav",
+   "transcript": "Identifiers, LCCN, 2016031562, ISBN 978-0316315302, V1 Paperback, ISBN 978-0316398374, V2 Paperback, ISBN 978-0316398404, V3 Paperback, ISBN 978-0316398404,\n 6-3-9-8-4-5-9-8-4-5-9-V-5 Paperback!"
+  },
+  {
+   "errors": 0,
+   "words": 44,
+   "heard_words": 44,
+   "substitutions": 0,
+   "deletions": 0,
+   "insertions": 0,
+   "threshold": 5,
+   "failed": false,
+   "non_speech": false,
+   "possible_truncation": false,
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "seed": 1234,
+   "pair": 1,
+   "class": "prose",
+   "uid": "62ec350ed53e",
+   "source_sha256": "c4839101826d76d5e9b3b720b6106d7913f5ce827ca8e8da8a04f1586870dbe3",
+   "wav": "ab_test_runtime/nonprose_replication_pilot/husky_tenor_30s_m_fantasy__s1234__p1__prose.wav",
+   "transcript": "All right, so I've decided I'm going, but... The people who live here are probably used to getting into fights, so I want you to be careful even more than before. If you're scared, you can just wait here for me to come back."
+  }
+ ],
+ "limits": [
+  "Selected passages begin from earlier observed failures.",
+  "Feature matching is measured and reported, not assumed perfect.",
+  "WER measures content, not delivery quality."
+ ]
+}
