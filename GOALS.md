@@ -87,6 +87,45 @@ to 84.4 on the same method) is larger than the spread between most methods.
 Book identity dominates — some novels are simply harder than others, and a
 result from one book does not transfer to the next.
 
+#### These numbers are measured on the HARD SUBSET, and understate real accuracy
+
+The light-novel gold says how it was drawn: *"Sampled uniformly from spoken,
+**non-deterministic**, textually unique segments."* Lines the deterministic
+namer already resolves — the ordinary `"…," said Haruhiro` case — were
+**excluded before sampling**. Every light-novel accuracy in this document is
+therefore conditional on *the line being hard enough that the cheap path
+failed*, not on a representative page of the book.
+
+The PDNC evaluation does not filter that way: it takes `entries[:limit]`
+straight off the fixture. Which is why the same base model, on human-annotated
+gold, scores far higher there:
+
+| set | gold labelled by | sampling | base model |
+|---|---|---|---|
+| PDNC Pride and Prejudice | humans (published corpus) | first N, unfiltered | **80.5%** |
+| PDNC The Awakening | humans | first N, unfiltered | **86.0%** |
+| PDNC The Sign of the Four | humans | first N, unfiltered | **80.5%** |
+| four light novels | two frontier models | hard subset only | 46–67% median |
+
+**Do not read that gap as genre difficulty, and do not read it as the
+LLM-judged gold being wrong.** It is mostly the sampling. Comparing a
+hard-subset score against a whole-population score and concluding anything
+about the books, the judges, or the language is the exact error this table
+exists to prevent.
+
+Two consequences worth keeping straight:
+
+- **Real-world accuracy on a whole book is higher than goal 1.1's numbers**,
+  because most lines never reach the LLM at all. What 1.1 measures is the part
+  that does.
+- The one comparison that *is* clean: BookNLP, the field-standard tool, scores
+  **54.2%** on PDNC Pride and Prejudice (n=1226) under this harness. That is a
+  ruler from outside this project, on human gold.
+
+**Before any cross-set comparison, harmonise the sampling.** Running every
+method on every book — which is worth doing — will produce nonsense if a hard
+subset is scored against a full set.
+
 ### 1.2 Close the selection gap
 
 > **What this is.** Before deciding who spoke, the app assembles a shortlist of
