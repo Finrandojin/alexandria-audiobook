@@ -197,3 +197,48 @@ truth instead of against the reference clip that was also the prompt.
 None of this audio is redistributed by us. The corpora are downloaded to
 `ab_test_runtime/corpora/`, which is gitignored; `PROVENANCE.md` there records
 what to fetch and from where.
+
+### Non-English speech corpora (candidates, not yet used)
+
+Recorded 2026-08-05 while answering "is there anything open source, not
+necessarily English". Listed with licences so the choice is auditable before
+any of it is downloaded.
+
+**[Kokoro Speech Dataset](https://mozilladatacollective.com/datasets/cmmknsho4014wmf087kvq5rc6)**
+— the closest match to what this project actually generates.
+
+- 43,253 clips, a single speaker, reading 14 novels.
+- **Public domain**: Aozora Bunko texts + LibriVox recordings, both PD.
+- Japanese, single-speaker, audiobook register - the same shape as LJSpeech,
+  so `ljspeech_prepare.py` / `ljspeech_build.py` apply with a different root.
+- **We already hold the text side.** `ab_test_runtime/corpora/aozora/kokoro.txt`
+  is Natsume Sōseki's こころ, downloaded for the Japanese quote-robustness work.
+  This corpus is LibriVox audio of that same text.
+
+**[Multilingual LibriSpeech (MLS)](https://arxiv.org/pdf/2012.03411)** — **CC0**,
+public domain. English, German, Dutch, French, Spanish, Italian, Portuguese,
+Polish, from LibriVox + Gutenberg. The multi-language equivalent of the
+English work.
+
+**[CSS10](https://github.com/Kyubyong/css10)** — single speaker in ten
+languages including **Japanese**, Chinese, Russian, Greek, Finnish, Hungarian,
+from LibriVox. Single-speaker-per-language is exactly the voice-LoRA shape.
+
+**[Common Voice](https://commonvoice.mozilla.org)** — **CC0**, ~9,283 hours
+across 60 languages. Read Wikipedia sentences rather than audiobook
+performance, so useful for speaker variety and a floor anchor, less so for
+narration register.
+
+**[CML-TTS](https://github.com/freds0/CML-TTS-Dataset)** — **CC BY 4.0**,
+MLS adapted for TTS: Dutch, French, German, Italian, Polish, Portuguese,
+Spanish.
+
+**[JSUT / JVS](https://www.jstage.jst.go.jp/article/ast/41/5/41_E1950/_pdf)** —
+Japanese, 10 h single speaker and 30 h across 100 speakers. Check the current
+licence terms before use; they are free for research but not obviously the same
+blanket public domain as the LibriVox-derived sets.
+
+**J-MAC** — Japanese multi-speaker audiobook corpus, ~150 audiobooks. Built
+from commercial Audiobook.jp recordings with Aozora reference text, so the
+AUDIO is not redistributable the way the above are. Noted for completeness and
+deliberately not a candidate.
