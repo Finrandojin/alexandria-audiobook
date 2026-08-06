@@ -129,6 +129,29 @@ def ecapa_scores(pairs):
         return None, f"unparsable ecapa output: {exc}"
 
 
+def find_invalid_anchors(summary, arms):
+    """Arms that beat the ceiling meant to bound them.
+
+    The same narrator on different material should match herself more closely
+    than any synthetic voice matches her. When she does not, the anchor is not
+    measuring speaker identity on this eval set and the comparison built on it
+    cannot be read - see the 2026-08-06 Chinese arm, where human_vs_human came
+    in at 0.691 against lora 0.720 and clone 0.765.
+
+    Returns a list, empty when the anchor holds.
+    """
+    ceiling = (summary.get("human_vs_human") or {}).get("ecapa")
+    if ceiling is None:
+        return []
+    invalid = []
+    for arm in arms:
+        arm_ecapa = (summary.get(arm) or {}).get("ecapa")
+        if arm_ecapa is not None and arm_ecapa > ceiling:
+            invalid.append({"arm": arm, "arm_ecapa": round(arm_ecapa, 4),
+                            "ceiling_ecapa": round(ceiling, 4)})
+    return invalid
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--generated", default=os.path.join(
@@ -204,7 +227,35 @@ def main():
     print("  material. A generated arm is only readable against it - an ecapa")
     print("  of 0.66 says nothing until you know what one person scores.")
 
+    # A CEILING BELOW THE THINGS IT BOUNDS IS NOT A CEILING. On 2026-08-06 the
+    # Chinese arm scored human_vs_human 0.691 while its own lora and clone arms
+    # reached 0.720 and 0.765 - the same narrator matched herself WORSE than a
+    # synthetic voice matched her. English and Japanese anchored at 0.809 and
+    # 0.796 the same day, so this is a property of that eval set, not of ECAPA.
+    # Nothing in the output said so; the three sets were read side by side as
+    # though all three anchors were sound.
+    #
+    # It is reported, not raised: the arm numbers are still real, and which of
+    # the short-clip explanations is right is an open question. What must not
+    # happen again is reading the comparison without knowing.
+    invalid = find_invalid_anchors(summary, arms)
+    if invalid:
+        print("\n  ANCHOR INVALID - the ceiling is below an arm it bounds:")
+        for item in invalid:
+            print(f"    {item['arm']} {item['arm_ecapa']:.3f} > "
+                  f"human_vs_human {item['ceiling_ecapa']:.3f}")
+        print("  The same narrator should match herself more closely than any")
+        print("  synthetic voice matches her. Treat this eval set's ECAPA")
+        print("  comparison as uninformative until the anchor is explained.")
+        durations = [r["human_seconds"] for r in scored
+                     if isinstance(r.get("human_seconds"), (int, float))]
+        if durations:
+            print(f"  Test clips here: median {statistics.median(durations):.2f}s, "
+                  f"shortest {min(durations):.2f}s. ECAPA embeddings degrade on")
+            print("  short audio - a candidate explanation, not a measured one.")
+
     out = {"arms": arms, "summary": summary, "rows": scored,
+           "anchor_invalid": invalid,
            "ecapa_error": err, "source": os.path.relpath(args.generated, REPO)}
     try:
         from experiments.provenance import provenance

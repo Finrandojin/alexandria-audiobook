@@ -15,7 +15,7 @@ Usage:
     python train_lora.py \
         --data_dir /path/to/dataset \
         --output_dir /path/to/output \
-        --epochs 50 --lr 5e-6 --lora_r 64 --lora_alpha 128
+        --epochs 50 --lr 1e-6 --lora_r 64 --lora_alpha 128
 """
 
 import argparse
@@ -32,6 +32,21 @@ import traceback
 from device_utils import (enable_rocm_optimizations, is_oom_failure,
                           normalize_device, resolve_device)
 from utils import is_path_inside
+
+# THE ONE PLACE THE TRAINING RATE IS DECIDED. It was four places that
+# disagreed: this CLI, the API request model, the UI input, and
+# batch_train_lora.py - the last saying 1e-6 and the other three 5e-6.
+#
+# Measured on 2026-08-06, five adapters, two conditions:
+#   5e-6  2 of 2 ran away - 163.8s of audio for a 7.3s line, every render,
+#         hitting the token ceiling, never emitting an end of speech.
+#   1e-6  3 of 3 stopped correctly - median duration 1.01x, 0.87x and 0.94x
+#         the human reading, in English, Japanese and Chinese.
+#
+# Training loss does not reveal this (the runaway adapters reached 2.9 and
+# 3.4, which look ordinary), so a wrong default costs a full training run and
+# the generation run after it before anything looks amiss.
+DEFAULT_LEARNING_RATE = 1e-6
 
 
 def get_checkpoint_sha256(checkpoint_dir):
@@ -81,7 +96,8 @@ def parse_args():
     parser.add_argument("--model_name", default="Qwen/Qwen3-TTS-12Hz-1.7B-Base",
                         help="Base model name or path")
     parser.add_argument("--epochs", type=int, default=50, help="Number of training epochs")
-    parser.add_argument("--lr", type=float, default=5e-6, help="Learning rate")
+    parser.add_argument("--lr", type=float, default=DEFAULT_LEARNING_RATE,
+                        help="Learning rate")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size (samples per step)")
     parser.add_argument("--lora_r", type=int, default=32, help="LoRA rank")
     parser.add_argument("--lora_alpha", type=int, default=128, help="LoRA alpha scaling")

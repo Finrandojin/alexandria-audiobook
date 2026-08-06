@@ -1180,6 +1180,15 @@
     "test_runtime_regressions.RuntimeTests.test_voicelab_start_rejects_stale_preflight_before_gpu_claim",
     "test_runtime_regressions.RuntimeTests.test_voicelab_start_reports_unconfigured_rocm_python"
   ],
+  "test_score_anchor": [
+    "test_score_anchor.AnchorValidationTest.test_a_missing_anchor_is_not_reported_as_invalid",
+    "test_score_anchor.AnchorValidationTest.test_an_arm_without_a_score_is_skipped",
+    "test_score_anchor.AnchorValidationTest.test_equal_to_the_ceiling_is_not_a_violation",
+    "test_score_anchor.AnchorValidationTest.test_only_the_offending_arm_is_named",
+    "test_score_anchor.AnchorValidationTest.test_real_artifacts_agree_with_the_check",
+    "test_score_anchor.AnchorValidationTest.test_the_chinese_case_is_flagged",
+    "test_score_anchor.AnchorValidationTest.test_the_english_and_japanese_cases_are_not"
+  ],
   "test_script_preflight": [
     "test_script_preflight.ScriptPreflightTests.test_apply_requires_current_preview_and_creates_backup",
     "test_script_preflight.ScriptPreflightTests.test_audit_script_surfaces_near_duplicate_alongside_other_manual_review_findings",
@@ -1442,6 +1451,15 @@
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_dataset_builder_is_not_silently_equated_to_voice_design",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_guide_links_canonical_summary_and_preserves_scope_limits",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_summary_covers_every_registered_stage"
+  ],
+  "test_training_defaults": [
+    "test_training_defaults.LearningRateIsSingleSourced.test_batch_train_lora_matches",
+    "test_training_defaults.LearningRateIsSingleSourced.test_no_bare_five_e_minus_six_default_remains",
+    "test_training_defaults.LearningRateIsSingleSourced.test_the_api_request_model_uses_the_constant",
+    "test_training_defaults.LearningRateIsSingleSourced.test_the_api_still_permits_an_explicit_override",
+    "test_training_defaults.LearningRateIsSingleSourced.test_the_cli_uses_the_constant",
+    "test_training_defaults.LearningRateIsSingleSourced.test_the_constant_is_the_rate_that_produced_working_adapters",
+    "test_training_defaults.LearningRateIsSingleSourced.test_the_ui_input_matches"
   ],
   "test_tts_audio_validation": [
     "test_tts_audio_validation.TestSaveWavIsTheOnlyFunnel.test_every_generation_path_writes_through_save_wav",

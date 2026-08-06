@@ -43,6 +43,7 @@ from hf_utils import (
     is_adapter_downloaded,
 )
 from lora_evidence import get_evidence_error
+from train_lora import DEFAULT_LEARNING_RATE
 from utils import atomic_json_write, file_lock, get_unique_id, is_path_inside, secure_filename
 from runtime_info import get_runtime_info
 import evaluation_reviews
@@ -66,7 +67,7 @@ class LoraTrainingRequest(BaseModel):
     name: str
     dataset_id: str
     epochs: int = Field(default=5, ge=1, le=1000)
-    lr: float = Field(default=5e-6, gt=0, le=1)
+    lr: float = Field(default=DEFAULT_LEARNING_RATE, gt=0, le=1)
     batch_size: int = Field(default=1, ge=1, le=64)
     lora_r: int = Field(default=32, ge=1, le=1024)
     lora_alpha: int = Field(default=128, ge=1, le=4096)
