@@ -9,7 +9,7 @@ from openai import OpenAI
 from config_settings import load_app_config
 
 from tts import TTSEngine, sanitize_filename
-from utils import atomic_json_write as _atomic_json_write, safe_load_json, extract_json_object, get_runtime_data_dir, get_app_config_path
+from utils import atomic_json_write as _atomic_json_write, safe_load_json, extract_json_object, get_runtime_data_dir, get_app_config_path, character_voice_seed
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 from lmstudio_settings import ensure_ideal_settings, get_effective_max_tokens
 
@@ -426,7 +426,8 @@ def _save_generated_preview(root, engine, voice_config, speaker, description, re
             "ref_text": ref_text,
             "description": description,
             "character_style": description,
-            "seed": -1
+            # Stable per character: see utils.character_voice_seed.
+            "seed": character_voice_seed(speaker),
         })
         voice_config[speaker] = voice_entry
 

@@ -451,3 +451,40 @@ def check_basic_auth(header_value, username, password):
     user_ok = hmac.compare_digest(supplied_user, username)
     pw_ok = hmac.compare_digest(supplied_pw, password)
     return user_ok and pw_ok
+
+
+# ── Voice seeding ────────────────────────────────────────────────────────
+
+def character_voice_seed(character):
+    """A stable, per-character generation seed derived from the name.
+
+    WHY THIS EXISTS. `generate_lora_voice` ignored the seed field entirely
+    until 2026-08-04, so every line of every LoRA voice was an independent
+    draw. The user identified it by ear as "multiple narrators" before any
+    metric did. Fixing the plumbing made the field WORK; it did not make
+    anything SET one, and 70 of 71 characters in the shipped voice_config
+    still carried "-1" - meaning a character's voice was still redrawn per
+    line, just now on purpose rather than by accident.
+
+    Measured: seeded generation is byte-identical across fresh processes;
+    unseeded, one adapter's pitch moves across a 32.4 Hz median band, which is
+    larger than the separation between many pairs of distinct voices in the
+    pool.
+
+    DERIVED FROM THE NAME rather than allocated, for three reasons: the same
+    character sounds the same across regenerations and across books; nothing
+    has to be stored or migrated; and two characters cannot collide onto one
+    draw the way a single global seed would make everybody collide.
+
+    Returns a positive int; callers store it as a string, matching the
+    existing config shape. Seeds are compared as `int(...) >= 0`, so this must
+    stay non-negative - -1 is the sentinel meaning "draw randomly".
+    """
+    import hashlib
+    name = str(character or "").strip().casefold()
+    if not name:
+        return 0
+    digest = hashlib.sha256(name.encode("utf-8")).digest()
+    # 31 bits: comfortably inside torch.manual_seed's accepted range and
+    # never negative, so it cannot be mistaken for the -1 sentinel.
+    return int.from_bytes(digest[:4], "big") & 0x7FFFFFFF

@@ -1373,6 +1373,15 @@
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_guide_links_canonical_summary_and_preserves_scope_limits",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_summary_covers_every_registered_stage"
   ],
+  "test_tts_audio_validation": [
+    "test_tts_audio_validation.TestSaveWavIsTheOnlyFunnel.test_every_generation_path_writes_through_save_wav",
+    "test_tts_audio_validation.TestSaveWavIsTheOnlyFunnel.test_save_wav_validates",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_missing_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_non_audio_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_truncated_wav_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_an_empty_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_real_audio_passes"
+  ],
   "test_tts_benchmark": [
     "test_tts_benchmark.TTSBenchmarkTests.test_clone_case_separates_prompt_and_generation",
     "test_tts_benchmark.TTSBenchmarkTests.test_custom_voice_case_reports_mean_utilization",

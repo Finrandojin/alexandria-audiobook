@@ -45,6 +45,7 @@ from tts import voice_category
 from utils import (
     atomic_json_write,
     atomic_json_write_pair,
+    character_voice_seed,
     extract_json_object,
     file_lock,
     safe_load_json,
@@ -812,7 +813,10 @@ def _apply_voice_suggestions(suggestions: Dict[str, dict], cast_name: Optional[s
                 "type": candidate["type"], "adapter_id": adapter_id,
                 "adapter_path": (f"builtin_lora/{adapter_id}" if candidate["type"] == "builtin_lora"
                                  else f"lora_models/{adapter_id}"),
-                "character_style": style, "seed": "-1",
+                "character_style": style,
+                # Stable per character, so a voice is one draw for the
+                # whole book rather than a fresh draw per line.
+                "seed": str(character_voice_seed(character)),
                 **get_trait_assignment_metadata(suggestion),
             })
             voice_config[character] = cfg
