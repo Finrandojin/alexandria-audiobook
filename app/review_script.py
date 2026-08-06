@@ -194,6 +194,107 @@ def merge_consecutive_narrators(entries, max_merged_length=800):
     return merged, merges
 
 
+def _rendered_len(entries_list):
+    """Length (chars) of the JSON that would actually be sent to the LLM for
+    this list of entries -- i.e. exactly what review_batch() renders via
+    `json.dumps(entries_list, indent=2, ensure_ascii=False)`."""
+    return len(json.dumps(entries_list, indent=2, ensure_ascii=False))
+
+
+def build_review_batches(entries, batch_size, char_budget):
+    """Split entries into review batches bounded by BOTH entry count and
+    rendered JSON size.
+
+    A fixed entry-count batch (the old behavior) can silently overflow a
+    small LLM serving context window when individual entries are unusually
+    large (e.g. huge Gutenberg front-matter blocks) -- the server then
+    truncates the prompt instead of erroring, the model never sees its
+    instructions or most of its entries, and review silently becomes a
+    no-op on exactly the batches with the longest entries.
+
+    Entries accumulate into the current batch until EITHER:
+      - the batch already has `batch_size` entries, or
+      - adding the next entry would push the batch's rendered
+        `json.dumps(batch, indent=2, ensure_ascii=False)` length past
+        `char_budget`,
+    whichever comes first. A single entry never gets split across batches
+    -- if one entry's own rendered size alone exceeds `char_budget`, it
+    becomes a singleton batch by itself (the positional-overlay review
+    contract requires each entry to survive review as one unit; splitting
+    an entry is not an option).
+    """
+    if not entries:
+        return []
+
+    batches = []
+    current = []
+    for entry in entries:
+        candidate = current + [entry]
+        if current and (len(candidate) > batch_size or _rendered_len(candidate) > char_budget):
+            batches.append(current)
+            current = [entry]
+        else:
+            current = candidate
+    if current:
+        batches.append(current)
+    return batches
+
+
+def _truncate_context_entry(entry, max_text_chars=300):
+    """Return a copy of `entry` for CONTEXT-ONLY display, with "text" capped
+    to `max_text_chars` (plus an ellipsis) so a single giant neighbor entry
+    (e.g. a huge front-matter block sitting just outside the target batch)
+    can't blow the prompt's char budget from the context side.
+
+    NEVER apply this to the target batch itself -- only to the +/-N
+    neighbor entries shown for context in contextual review mode. The
+    reviewer never edits context entries anyway (only the TARGET BATCH is
+    returned), so truncating their display text has no effect on output
+    correctness, only on prompt size.
+    """
+    text = entry.get("text", "")
+    if isinstance(text, str) and len(text) > max_text_chars:
+        truncated = dict(entry)
+        truncated["text"] = text[:max_text_chars] + "..."
+        return truncated
+    return entry
+
+
+# Best-effort truncation-tripwire heuristic (see _maybe_print_truncation_hint):
+# English text averages roughly this many characters per token. If the
+# actual rendered prompt is more than _TRUNCATION_HINT_MULTIPLIER times this
+# baseline ratio away from what the reported prompt_tokens would imply, the
+# server is probably silently truncating its context window rather than
+# processing the whole prompt.
+_CHARS_PER_TOKEN_BASELINE = 4.0
+_TRUNCATION_HINT_MULTIPLIER = 3.5
+
+
+def _maybe_print_truncation_hint(prompt_chars, prompt_tokens):
+    """Print a one-line, best-effort hint when a response looks unusable
+    because the LLM server silently truncated its context window.
+
+    Symptom (observed in production on a 494k-word script): a locally
+    served model (e.g. Ollama) with a serving context window smaller than
+    the actual prompt truncates the prompt instead of erroring. The model
+    never sees its instructions/entries and returns garbage (wrong format,
+    wrong entry count) -- the overlay keeps annotated_script.json safe
+    either way, but review silently becomes a no-op on exactly the batches
+    containing the longest entries. The signature: reported prompt_tokens
+    stays roughly flat across wildly different batch sizes, because the
+    server only counts what it kept after truncating.
+
+    This is purely a diagnostic print -- it never changes control flow or
+    what gets returned/written.
+    """
+    if not prompt_tokens:
+        return
+    if prompt_chars > _TRUNCATION_HINT_MULTIPLIER * _CHARS_PER_TOKEN_BASELINE * prompt_tokens:
+        print(f"  HINT: response unusable and prompt_tokens ({prompt_tokens}) far below prompt "
+              f"size ({prompt_chars} chars) -- the LLM server may be truncating its context "
+              f"window; reduce review_batch_char_budget or raise the server's context length.")
+
+
 def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                  previous_tail=None, source_context=None, max_retries=2,
                  system_prompt=None, user_prompt_template=None,
@@ -219,7 +320,9 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
     context = "\n".join(context_parts)
     batch_json = json.dumps(batch_entries, indent=2, ensure_ascii=False)
     user_prompt = usr_template.format(context=context, batch=batch_json)
+    prompt_chars = len(sys_prompt) + len(user_prompt)
 
+    usage = None
     for attempt in range(max_retries + 1):
         try:
             response = client.chat.completions.create(
@@ -276,17 +379,22 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
         # Clean and parse JSON response
         json_text = clean_json_string(text)
 
+        prompt_tokens = getattr(usage, 'prompt_tokens', None) if usage else None
+
         if not json_text:
             print(f"Warning: Could not find JSON array in batch {batch_num} response (attempt {attempt + 1})")
             if attempt < max_retries:
                 print("Retrying...")
                 continue
             print(f"Response preview: {text[:300]}...")
+            _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
             return None
 
         entries = repair_json_array(json_text)
 
         if entries and len(entries) > 0:
+            if len(entries) != len(batch_entries):
+                _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
             if attempt > 0:
                 print(f"  Succeeded on retry {attempt + 1}")
             return entries
@@ -300,8 +408,11 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
         salvaged = salvage_json_entries(json_text)
         if salvaged:
             print(f"Regex-salvaged {len(salvaged)} entries from malformed response")
+            if len(salvaged) != len(batch_entries):
+                _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
             return salvaged
 
+    _maybe_print_truncation_hint(prompt_chars, getattr(usage, 'prompt_tokens', None) if usage else None)
     return None
 
 
@@ -439,6 +550,13 @@ def main():
 
     generation_config = config.get("generation", {})
     batch_size = generation_config.get("review_batch_size", 25)
+    # Dual-budget batching: a fixed entry count alone can silently overflow
+    # a small LLM serving context window when individual entries are huge
+    # (e.g. Gutenberg front-matter). 12000 chars (~3k tokens) is
+    # conservative -- it leaves room for the system prompt plus contextual
+    # neighbor windows even inside a 4096-token serving window. See
+    # build_review_batches().
+    batch_char_budget = generation_config.get("review_batch_char_budget", 12000)
     max_tokens = generation_config.get("max_tokens", 8000)
     temperature = generation_config.get("temperature", 0.4)
     top_p = generation_config.get("top_p", 0.8)
@@ -449,7 +567,7 @@ def main():
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
-    print(f"Batch size: {batch_size} entries, Max tokens: {max_tokens}")
+    print(f"Batch size: up to {batch_size} entries or {batch_char_budget:,} chars per batch, Max tokens: {max_tokens}")
     if banned_tokens:
         print(f"Banned tokens: {banned_tokens}")
 
@@ -470,29 +588,36 @@ def main():
 
     if args.context_window and args.context_window > 0:
         window = max(1, args.context_window)
-        total_batches = max(1, (len(entries) + batch_size - 1) // batch_size)
-        print(f"Contextual review mode enabled: batching ~{batch_size} entries per LLM call with +/-{window} neighbors")
+        batches = build_review_batches(entries, batch_size, batch_char_budget)
+        total_batches = len(batches)
+        print(f"Contextual review mode enabled: batching up to {batch_size} entries or "
+              f"{batch_char_budget:,} chars per LLM call, with +/-{window} neighbors "
+              f"({total_batches} batches)")
 
         previous_tail = None
-        for batch_index, start in enumerate(range(0, len(entries), batch_size), 1):
-            end = min(len(entries), start + batch_size)
-            batch = entries[start:end]
+        pos = 0
+        for batch_index, batch in enumerate(batches, 1):
+            start = pos
+            end = start + len(batch)
+            pos = end
             before = entries[max(0, start - window):start]
             after = entries[end:min(len(entries), end + window)]
 
-            print(f"\nReviewing batch {batch_index}/{total_batches} ({len(batch)} entries)...")
+            batch_chars = _rendered_len(batch)
+            print(f"\nReviewing batch {batch_index}/{total_batches} ({len(batch)} entries, {batch_chars:,} chars)...")
 
             contextual_lines = [
                 "Contextual batch review mode.",
                 "The 'SCRIPT ENTRIES TO REVIEW' below is your TARGET BATCH.",
                 "Use the following PREVIOUS and NEXT entries for context, but DO NOT include them in your output. Only return the corrected TARGET BATCH.",
+                "Context entries' \"text\" may be truncated with '...' for brevity -- that truncation applies ONLY to this context section, never to your TARGET BATCH.",
             ]
             if before:
                 contextual_lines.append("\n--- PREVIOUS ENTRIES (Context Only) ---")
-                contextual_lines.extend(json.dumps(e, ensure_ascii=False) for e in before)
+                contextual_lines.extend(json.dumps(_truncate_context_entry(e), ensure_ascii=False) for e in before)
             if after:
                 contextual_lines.append("\n--- NEXT ENTRIES (Context Only) ---")
-                contextual_lines.extend(json.dumps(e, ensure_ascii=False) for e in after)
+                contextual_lines.extend(json.dumps(_truncate_context_entry(e), ensure_ascii=False) for e in after)
 
             corrected = review_batch(
                 client, model_name, batch, batch_index, total_batches,
@@ -552,18 +677,18 @@ def main():
             all_corrected.extend(accepted)
             previous_tail = accepted[-2:] if len(accepted) >= 2 else accepted
     else:
-        # Split entries into batches
-        batches = []
-        for i in range(0, len(entries), batch_size):
-            batches.append(entries[i:i + batch_size])
+        # Split entries into batches, bounded by both count and rendered
+        # JSON size (see build_review_batches).
+        batches = build_review_batches(entries, batch_size, batch_char_budget)
 
         total_batches = len(batches)
-        print(f"Split into {total_batches} batches of ~{batch_size} entries")
+        print(f"Split into {total_batches} batches (up to {batch_size} entries or {batch_char_budget:,} chars each)")
 
         previous_tail = None
 
         for i, batch in enumerate(batches, 1):
-            print(f"\nReviewing batch {i}/{total_batches} ({len(batch)} entries)...")
+            batch_chars = _rendered_len(batch)
+            print(f"\nReviewing batch {i}/{total_batches} ({len(batch)} entries, {batch_chars:,} chars)...")
 
             corrected = review_batch(
                 client, model_name, batch, i, total_batches,

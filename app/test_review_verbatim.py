@@ -25,6 +25,7 @@ Run directly:
     python app/test_review_verbatim.py
 Exits 0 if all tests pass, non-zero otherwise.
 """
+import inspect
 import io
 import os
 import sys
@@ -33,6 +34,7 @@ from contextlib import redirect_stdout
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+import review_script as review_script_module  # noqa: E402
 from review_script import (  # noqa: E402
     apply_positional_overlay,
     merge_consecutive_narrators,
@@ -43,6 +45,10 @@ from review_script import (  # noqa: E402
     REVIEW_USER_PROMPT,
     normalize_text,
     check_text_loss,
+    build_review_batches,
+    _rendered_len,
+    _truncate_context_entry,
+    _maybe_print_truncation_hint,
 )
 
 
@@ -452,6 +458,201 @@ def test_check_text_loss_whole_vs_entry_split_agree_on_fused_quote_fixture():
     )
 
 
+# --- F12: dual-budget batching (count + rendered-JSON-size) --------------
+#
+# Production evidence: a fixed entry-count batch (25 entries) rendered to
+# 26,001 chars (~6.5k tokens) when a batch happened to contain huge
+# Gutenberg front-matter entries. The Ollama server was configured with a
+# small serving context window and silently truncated the prompt instead
+# of erroring -- the model never saw its instructions/entries and returned
+# garbage (screenplay-format prose, or a 15-for-25 entry-count mismatch).
+# The overlay kept annotated_script.json safe either way, but review
+# silently became a no-op on exactly the batches with the longest entries.
+# build_review_batches() bounds batches by BOTH count and rendered size so
+# this can't happen regardless of the serving window in use.
+
+def test_build_review_batches_splits_on_char_budget():
+    entry = {"speaker": "NARRATOR", "text": "word " * 40, "instruct": "Neutral, even narration."}
+    entries = [dict(entry) for _ in range(5)]
+
+    size_2 = _rendered_len(entries[:2])
+    size_3 = _rendered_len(entries[:3])
+    check(
+        "fixture sanity: rendered size strictly grows as entries are added",
+        size_2 < size_3,
+        detail=f"size_2={size_2} size_3={size_3}",
+    )
+    # Budget that fits exactly 2 of these identical entries but not a 3rd.
+    budget = size_2
+
+    batches = build_review_batches(entries, batch_size=100, char_budget=budget)
+
+    check(
+        "build_review_batches: no batch's rendered size exceeds the char budget "
+        "(except an unavoidable singleton, not applicable here since entries are small)",
+        all(_rendered_len(b) <= budget for b in batches),
+        detail=repr([len(b) for b in batches]),
+    )
+    check(
+        "build_review_batches: all entries preserved across batches, in order",
+        [e for b in batches for e in b] == entries,
+        detail=repr([len(b) for b in batches]),
+    )
+    check(
+        "build_review_batches: char budget actually constrained batch sizes (more than 1 batch)",
+        len(batches) > 1,
+        detail=repr([len(b) for b in batches]),
+    )
+
+
+def test_build_review_batches_singleton_oversized_entry():
+    huge_entry = {"speaker": "NARRATOR", "text": "Z" * 5000, "instruct": "Neutral, even narration."}
+    small_entry = {"speaker": "NARRATOR", "text": "Short.", "instruct": "Neutral, even narration."}
+    entries = [small_entry, huge_entry, small_entry]
+
+    # Budget far too small for huge_entry alone -- it must still become its
+    # own batch (never split, never silently dropped or merged away).
+    tiny_budget = _rendered_len([small_entry]) + 50
+    batches = build_review_batches(entries, batch_size=100, char_budget=tiny_budget)
+
+    check(
+        "build_review_batches: oversized entry becomes its own singleton batch (not split)",
+        any(len(b) == 1 and b[0] is huge_entry for b in batches),
+        detail=repr([len(b) for b in batches]),
+    )
+    check(
+        "build_review_batches: all entries preserved, in order, none dropped",
+        [e for b in batches for e in b] == entries,
+        detail=repr(batches),
+    )
+
+
+def test_build_review_batches_count_budget_still_respected():
+    """Even when the rendered size is well under the char budget, the
+    entry-COUNT cap (review_batch_size) must still apply."""
+    entries = [{"speaker": "NARRATOR", "text": "Hi.", "instruct": "Neutral, even narration."} for _ in range(10)]
+    batches = build_review_batches(entries, batch_size=3, char_budget=1_000_000)
+    check(
+        "build_review_batches: count cap respected when char budget is not the constraint",
+        [len(b) for b in batches] == [3, 3, 3, 1],
+        detail=repr([len(b) for b in batches]),
+    )
+
+
+def test_build_review_batches_empty_and_single_entry():
+    check(
+        "build_review_batches: empty input -> empty list",
+        build_review_batches([], 25, 12000) == [],
+    )
+    one = [{"speaker": "NARRATOR", "text": "Hi.", "instruct": "Neutral, even narration."}]
+    check(
+        "build_review_batches: single small entry -> one singleton batch",
+        build_review_batches(one, 25, 12000) == [one],
+    )
+
+
+def test_truncate_context_entry_only_affects_context_copy():
+    long_text = "X" * 500
+    entry = {"speaker": "NARRATOR", "text": long_text, "instruct": "Neutral, even narration."}
+    truncated = _truncate_context_entry(entry, max_text_chars=300)
+
+    check(
+        "_truncate_context_entry: long text truncated to 300 chars + ellipsis",
+        truncated["text"] == ("X" * 300) + "...",
+        detail=repr(truncated["text"][:40] + "..."),
+    )
+    check(
+        "_truncate_context_entry: original entry dict is NOT mutated",
+        entry["text"] == long_text,
+        detail=repr(entry["text"][:40]),
+    )
+    check(
+        "_truncate_context_entry: returns a different object than the original when truncating",
+        truncated is not entry,
+    )
+
+    short_entry = {"speaker": "NARRATOR", "text": "Short.", "instruct": "Neutral, even narration."}
+    unchanged = _truncate_context_entry(short_entry, max_text_chars=300)
+    check(
+        "_truncate_context_entry: text under the cap is left untouched",
+        unchanged["text"] == "Short.",
+    )
+
+
+def test_overlay_target_batch_text_unaffected_by_context_truncation():
+    """Extends the existing overlay tests: even for an entry long enough
+    that _truncate_context_entry WOULD truncate it if used as neighbor
+    context, apply_positional_overlay (which only ever sees TARGET BATCH
+    entries, never context) must still produce byte-identical full-length
+    text. These are two entirely separate code paths -- context truncation
+    is applied in main() only to the +/-N neighbor windows passed via
+    source_context, never to the batch passed to review_batch()/
+    apply_positional_overlay -- this test pins that the overlay never
+    routes through the context-truncation helper."""
+    long_text = "Y" * 500
+    batch = [{"speaker": "NARRATOR", "text": long_text, "instruct": "Neutral, even narration."}]
+    corrected = [{"speaker": "NARRATOR", "text": "irrelevant, discarded", "instruct": "Tense, clipped narration."}]
+    accepted = apply_positional_overlay(batch, corrected)
+    check(
+        "overlay: target batch text stays full-length/byte-identical (never context-truncated)",
+        accepted[0]["text"] == long_text and len(accepted[0]["text"]) == 500,
+        detail=f"len={len(accepted[0]['text'])}",
+    )
+
+
+def test_maybe_print_truncation_hint_fires_when_ratio_far_above_baseline():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        _maybe_print_truncation_hint(prompt_chars=32000, prompt_tokens=2050)  # ratio ~15.6, far above ~4
+    output = buffer.getvalue()
+    check(
+        "truncation hint: fires when chars/tokens ratio is far above the ~4 baseline",
+        "HINT" in output and "2050" in output and "32000" in output,
+        detail=repr(output),
+    )
+
+
+def test_maybe_print_truncation_hint_silent_for_normal_ratio():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        _maybe_print_truncation_hint(prompt_chars=8000, prompt_tokens=2000)  # ratio 4.0, normal
+    check(
+        "truncation hint: silent for a normal chars/tokens ratio (no false positive)",
+        buffer.getvalue() == "",
+        detail=repr(buffer.getvalue()),
+    )
+
+
+def test_maybe_print_truncation_hint_silent_when_tokens_unknown():
+    buffer = io.StringIO()
+    with redirect_stdout(buffer):
+        _maybe_print_truncation_hint(prompt_chars=32000, prompt_tokens=None)
+        _maybe_print_truncation_hint(prompt_chars=32000, prompt_tokens=0)
+    check(
+        "truncation hint: silent when prompt_tokens is unknown/zero (no false positives, best-effort only)",
+        buffer.getvalue() == "",
+        detail=repr(buffer.getvalue()),
+    )
+
+
+def test_review_batch_char_budget_config_key_and_default():
+    """F12: `generation.review_batch_char_budget` config key must be read
+    with a default of 12000. Inspect main()'s actual source (rather than
+    reimplementing the lookup separately) so this test tracks the real
+    shipped default and config key name, not a copy that could drift."""
+    source = inspect.getsource(review_script_module.main)
+    check(
+        'main(): reads generation_config.get("review_batch_char_budget", 12000)',
+        'generation_config.get("review_batch_char_budget", 12000)' in source,
+        detail=source[:600],
+    )
+    check(
+        "main(): uses build_review_batches() (not raw fixed-count slicing) in both modes",
+        source.count("build_review_batches(entries, batch_size, batch_char_budget)") == 2,
+        detail=str(source.count("build_review_batches(entries, batch_size, batch_char_budget)")),
+    )
+
+
 def main():
     tests = [
         test_overlay_preserves_text_applies_speaker_and_instruct,
@@ -472,6 +673,16 @@ def main():
         test_shipped_review_prompts_pass_their_own_guard,
         test_normalize_text_no_fusion_at_punctuation_quote_boundary,
         test_check_text_loss_whole_vs_entry_split_agree_on_fused_quote_fixture,
+        test_build_review_batches_splits_on_char_budget,
+        test_build_review_batches_singleton_oversized_entry,
+        test_build_review_batches_count_budget_still_respected,
+        test_build_review_batches_empty_and_single_entry,
+        test_truncate_context_entry_only_affects_context_copy,
+        test_overlay_target_batch_text_unaffected_by_context_truncation,
+        test_maybe_print_truncation_hint_fires_when_ratio_far_above_baseline,
+        test_maybe_print_truncation_hint_silent_for_normal_ratio,
+        test_maybe_print_truncation_hint_silent_when_tokens_unknown,
+        test_review_batch_char_budget_config_key_and_default,
     ]
     for t in tests:
         try:
