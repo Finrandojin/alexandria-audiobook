@@ -86,9 +86,23 @@ for path in files:
         continue
     env = m.get("lmstudio") or {}
     git = m.get("git") or {}
+    # Aggregate by (BOOK, arm), not arm alone. gold_path names only the FIRST
+    # fixture, so a multi-book artifact was reported as one book: on
+    # 2026-08-06 distill_eval__pdnc_only covered four books and
+    # lora_serving_eval covered two, and both were labelled grimgar03. The
+    # numbers were right and the scope was understated, which is the kind of
+    # error that survives a review because nothing looks wrong.
+    #
+    # Row ids carry the book where the harness wrote one ("grimgar03:
+    # grimgar03-00001"). Where they do not, everything falls into one bucket
+    # and the metadata book is used, exactly as before.
+    def _row_book(r):
+        rid = str(r.get("id") or "")
+        return rid.split(":")[0] if ":" in rid else None
+
     by = collections.defaultdict(lambda: [0, 0])
     for r in rr:
-        b = by[r["arm"]]
+        b = by[(_row_book(r), r["arm"])]
         b[0] += 1
         b[1] += bool(r.get("correct"))
     # Derive book and environment from METADATA, not the filename. Filename
@@ -125,12 +139,15 @@ for path in files:
     else:
         stack = "lmstudio"
     env_tag = f"{machine}-{stack}"
-    for arm, (n, ok) in by.items():
+    for (row_book, arm), (n, ok) in sorted(
+            by.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1]))):
         rows.append({
             "artifact": name,
             "evidence_status": get_evidence_status(name),
             "experiment": m.get("experiment", ""),
-            "book": book,
+            # The book the ROWS say, when they say one. gold_path names only
+            # the first fixture and understated multi-book runs.
+            "book": row_book or book,
             "model": m.get("model", ""),
             "env_tag": env_tag,
             "host": m.get("host", ""),
