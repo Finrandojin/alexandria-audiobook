@@ -5,7 +5,42 @@
   "mushoku16",
   "owarimonogatari3"
  ],
- "results": [],
+ "results": [
+  {
+   "book": "mushoku16",
+   "gold_lines": 136,
+   "comparable": 136,
+   "single_entries": 3167,
+   "three_entries": 2052,
+   "single_minutes": 103.4,
+   "three_minutes": 38.3,
+   "single": {
+    "correct": 0,
+    "accuracy": 0.0
+   },
+   "three_pass": {
+    "correct": 1,
+    "accuracy": 0.007352941176470588
+   }
+  },
+  {
+   "book": "owarimonogatari3",
+   "gold_lines": 162,
+   "comparable": 162,
+   "single_entries": 3784,
+   "three_entries": 3929,
+   "single_minutes": 176.9,
+   "three_minutes": 80.0,
+   "single": {
+    "correct": 0,
+    "accuracy": 0.0
+   },
+   "three_pass": {
+    "correct": 7,
+    "accuracy": 0.043209876543209874
+   }
+  }
+ ],
  "failures": [
   {
    "book": "grimgar03",
@@ -16,29 +51,19 @@
    "book": "index18",
    "arm": "single",
    "rc": 1
-  },
-  {
-   "book": "mushoku16",
-   "arm": "single",
-   "rc": 1
-  },
-  {
-   "book": "owarimonogatari3",
-   "arm": "single",
-   "rc": 1
   }
  ],
  "provenance": {
   "script": "three_pass_vs_single.py",
-  "written": "2026-08-06T06:29:40",
+  "written": "2026-08-06T13:22:48",
   "host": "mitch-linux",
   "git": {
-   "commit": "9cbf8e6c4bb269d18da438bb9a5137744f5210e4",
-   "branch": "agent/voice-assignment-and-adapter",
+   "commit": "ac1d2faee5c1013aa840ed204c6cec727078220f",
+   "branch": "agent/fix-tpvs-alignment",
    "dirty": false,
    "modified_tracked_files": null,
    "untracked_harness_files": null,
-   "harness_sha256": "77b5c3b84128aec5b16be657e59990797fe4bb1056726379cce2385a45376a27"
+   "harness_sha256": "db80364883c7e68ae1f16fbee879d6c3673112f24ca1288a580da7a2cb80cb44"
   },
   "args": {
    "books": [

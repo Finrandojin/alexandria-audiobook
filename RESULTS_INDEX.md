@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-06 07:50 from `ab_test_runtime/experiments/` — 260 artifacts, 521 arms.
+Generated 2026-08-06 14:14 from `ab_test_runtime/experiments/` — 263 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -680,6 +680,9 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `adapter_stop_check_ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `aishell3_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `aishell3_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_backends__aishell3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_backends__kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_backends__ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `blinded_listening.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

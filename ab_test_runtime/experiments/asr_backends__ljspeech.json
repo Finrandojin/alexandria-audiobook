@@ -1,0 +1,107 @@
+{
+ "build": "ab_test_runtime/ljspeech_eval/build.json",
+ "limit": 50,
+ "language": "en",
+ "whisper_cpp_model": "ggml-base.en.bin",
+ "backends": [
+  "whisper_cpp",
+  "transformers_whisper",
+  "sensevoice"
+ ],
+ "results": {
+  "whisper_cpp": {
+   "n": 50,
+   "failures": [],
+   "failed": 0,
+   "clips_without_timestamps": 0,
+   "wer_mean": 0.0303,
+   "wer_median": 0.0,
+   "rtf": 0.049,
+   "seconds_total": 17.7
+  },
+  "transformers_whisper": {
+   "n": 50,
+   "failures": [],
+   "failed": 0,
+   "clips_without_timestamps": 0,
+   "wer_mean": 0.0278,
+   "wer_median": 0.0,
+   "rtf": 0.05,
+   "seconds_total": 18.1
+  },
+  "sensevoice": {
+   "n": 50,
+   "failures": [],
+   "failed": 0,
+   "clips_without_timestamps": 0,
+   "wer_mean": 0.0384,
+   "wer_median": 0.0,
+   "rtf": 0.03,
+   "seconds_total": 10.7
+  }
+ },
+ "alignment": {
+  "whisper_cpp": {
+   "scored": 10,
+   "predicted_segments": 15,
+   "expected_segments": 10,
+   "median_error_s": 0.08,
+   "p90_error_s": 0.189,
+   "worst_error_s": 0.386,
+   "within_tolerance_pct": 90.0,
+   "tolerance_s": 0.3
+  },
+  "transformers_whisper": {
+   "scored": 10,
+   "predicted_segments": 13,
+   "expected_segments": 10,
+   "median_error_s": 0.254,
+   "p90_error_s": 1.2,
+   "worst_error_s": 1.292,
+   "within_tolerance_pct": 60.0,
+   "tolerance_s": 0.3
+  },
+  "sensevoice": {
+   "scored": 10,
+   "predicted_segments": 6,
+   "expected_segments": 10,
+   "median_error_s": 10.158,
+   "p90_error_s": 25.914,
+   "worst_error_s": 26.251,
+   "within_tolerance_pct": 20.0,
+   "tolerance_s": 0.3
+  }
+ },
+ "alignment_truth_clips": 10,
+ "provenance": {
+  "script": "asr_backends.py",
+  "written": "2026-08-06T14:11:13",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "ac1d2faee5c1013aa840ed204c6cec727078220f",
+   "branch": "agent/fix-tpvs-alignment",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/three_pass_vs_single.json"
+   ],
+   "untracked_harness_files": [
+    "app/experiments/asr_backends.py"
+   ],
+   "harness_sha256": "f9d153864884b040ddc8ae05ba8ab73a73ee0683e6b1c2051cab95df8a7b3af6"
+  },
+  "args": {
+   "build": "../ab_test_runtime/ljspeech_eval/build.json",
+   "backends": [
+    "whisper_cpp",
+    "transformers_whisper",
+    "sensevoice"
+   ],
+   "limit": 50,
+   "align_clips": 10,
+   "whisper_cpp_bin": "whisper.cpp/build/bin/whisper-cli",
+   "whisper_cpp_model": "whisper.cpp/models/ggml-base.en.bin",
+   "lang": "en",
+   "out": "../ab_test_runtime/experiments/asr_backends__ljspeech.json"
+  }
+ }
+}
