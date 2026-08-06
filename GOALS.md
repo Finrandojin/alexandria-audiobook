@@ -118,6 +118,69 @@ picks it **29.9%** of the time. **OPEN.**
 not the constraint. Feeding the model more of the book is treating the wrong
 problem, and has been tried.
 
+#### What has already been tried, with numbers
+
+Recorded here because this knowledge lived in ~30 scattered artifacts, and on
+2026-08-06 that cost a session in which three already-rejected ideas were
+proposed as if new. **Read this before proposing a fix for the selection gap.**
+
+| approach | result | verdict |
+|---|---|---|
+| widen attribution context (w1→w4) | +10.0 grimgar03 (4 repeats), +3.0 index18, **−5.0 mushoku16**, 0.0 owari | book-dependent, not a fix |
+| route per book | leave-one-out router **56.5%** vs fixed **57.2%** | **worse than picking one setting** |
+| constrain decoding to the roster (GBNF) | open arm: 0.0, −1.0, −1.4, −1.2 | no gain where it matters |
+| shrink candidate set to 6 | +1.8 grimgar03, **−6.1 index18, −12.5 mushoku16, −4.9 owari** | loses the right name |
+| oracle candidate set | +10 to +18 everywhere | not achievable; it needs the answer |
+
+The shape of it: **`closed-oracle` wins big and `closed-6` loses**, and the only
+difference is whether the shortlist contains the right name. Constraining the
+model is not the lever. Whether the answer is *in the list* is.
+
+**Routing deserves its own warning.** Every routing gain quoted before
+`realizable_router` was fitted — the best arm per book read off the results
+afterwards. When the choice must be made without seeing the held-out book, the
+router wins 4 families, loses 5, ties 6, and lands **below** a fixed setting.
+An oracle-routed number is not an achievable number.
+
+#### The one lever that is positive on every book
+
+`roster_quality` varied the roster instead of the model. Adding the names
+`build_roster` missed beats the generated roster on all four books, and beats a
+*perfect* roster too:
+
+| book | generated | augmented | gold |
+|---|---|---|---|
+| grimgar03 | 59.7 | **63.6** | 61.6 |
+| index18 | 67.4 | **71.7** | 69.6 |
+| mushoku16 | 48.9 | **51.9** | 48.9 |
+| owarimonogatari3 | 40.7 | **45.1** | 42.6 |
+
+**+3.0 to +4.4, same direction every time** — the only intervention measured so
+far with no book that it hurts. The experiment pre-registered this reading:
+*"augmented >> generated → roster extraction is worth fixing, and the size of
+the effect is the prize."*
+
+The misses are not walk-on parts: ten characters across four books that
+`build_roster` never found, including HITOGAMI with 9 lines in mushoku16 and
+OUGI with 10 in owarimonogatari3.
+
+The `inflated` arm — a gold roster plus twenty decoys — is the guard rail:
+30.9% on owarimonogatari3 against 40.7% generated. **Adding names is only safe
+when they are real.** A recall fix that pads the list will lose more than it
+gains.
+
+**So the next move on 1.2 is `build_roster` in `three_pass_generate.py`, not a
+prompt, a constraint, or a router.**
+
+#### Still open
+
+`candidates.py` exists, states its own plan — *"an upper bound on recall;
+ablate afterwards to find the smallest reliable set"* — and has no artifact.
+The size-versus-recall curve it proposed was never run. Given `closed-6` fails
+by losing the right name and `closed-oracle` wins by keeping it, that curve is
+the one measurement that would say whether a small, honest candidate set is
+reachable at all.
+
 ### 1.3 Generalisation beyond the four books
 
 > **What this is.** Checking the app works on novels it has never encountered,
