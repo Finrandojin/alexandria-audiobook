@@ -59,21 +59,56 @@ def load_metadata(novel):
 
 
 def fetch_novel_audio(entry, dest):
-    """Download and unpack one novel's LibriVox MP3s."""
-    url = entry.get("archive_url")
-    if not url:
-        return False, "no archive_url"
+    """Download one novel's LibriVox MP3s, file by file.
+
+    NOT the `archive_url` zip from index.json. That endpoint is generated on
+    demand by archive.org and returned 503 on the first attempt here - it is a
+    convenience wrapper, not stored content, so it fails under load and
+    retrying the whole archive is expensive.
+
+    The metadata API lists the individual mp3s, which ARE stored files. One
+    that fails can be retried alone, and a partial download resumes instead of
+    restarting a 60 MB archive.
+    """
+    url = entry.get("archive_url") or ""
+    item = None
+    for part in url.split("/"):
+        if part.endswith("_librivox"):
+            item = part
+            break
+    if not item:
+        return False, f"cannot find an archive.org item id in {url!r}"
+
+    meta = subprocess.run(
+        ["curl", "-fsSL", "--max-time", "120",
+         f"https://archive.org/metadata/{item}"],
+        capture_output=True, text=True, timeout=180)
+    if meta.returncode != 0:
+        return False, f"metadata fetch failed: {meta.stderr[-200:]}"
+    try:
+        files = json.loads(meta.stdout).get("files", [])
+    except Exception as exc:                            # noqa: BLE001
+        return False, f"unparsable metadata: {exc}"
+    mp3s = sorted(f["name"] for f in files
+                  if f.get("name", "").endswith("_64kb.mp3"))
+    if not mp3s:
+        return False, f"no 64kb mp3s listed for {item}"
+
     os.makedirs(dest, exist_ok=True)
-    zip_path = os.path.join(dest, os.path.basename(url))
-    if not os.path.exists(zip_path):
-        r = subprocess.run(["curl", "-fsSL", "--retry", "3", "-o", zip_path, url],
-                           capture_output=True, text=True, timeout=7200)
+    for name in mp3s:
+        out = os.path.join(dest, name)
+        if os.path.exists(out) and os.path.getsize(out) > 0:
+            continue
+        r = subprocess.run(
+            ["curl", "-fsSL", "--retry", "5", "--retry-delay", "5",
+             "--retry-all-errors", "--max-time", "1800", "-o", out,
+             f"https://archive.org/download/{item}/{name}"],
+            capture_output=True, text=True, timeout=2000)
         if r.returncode != 0:
-            return False, f"download failed: {r.stderr[-200:]}"
-    r = subprocess.run(["unzip", "-o", "-q", zip_path, "-d", dest],
-                       capture_output=True, text=True, timeout=1800)
-    if r.returncode != 0:
-        return False, f"unzip failed: {r.stderr[-200:]}"
+            # Leave no truncated file behind to be cut from later.
+            if os.path.exists(out):
+                os.remove(out)
+            return False, f"{name}: {r.stderr[-160:]}"
     return True, None
 
 
