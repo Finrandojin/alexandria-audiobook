@@ -139,24 +139,37 @@ class RefTextTest(unittest.TestCase):
         self.assertIsInstance(pick_ref_text([]), str)
 
 
-class RealRosterTest(unittest.TestCase):
-    """Against the book that is actually loaded."""
+class RealRosterShapeTest(unittest.TestCase):
+    """Rosters shaped like the ones this app actually loads.
 
-    def test_the_live_config_has_no_honorific_ambiguity(self):
-        import json
-        path = os.path.join(os.path.dirname(os.path.dirname(
-            os.path.abspath(__file__))), "voice_config.json")
-        if not os.path.exists(path):
-            self.skipTest("no voice_config.json")
-        with open(path, encoding="utf-8") as fh:
-            raw = json.load(fh)
-        chars = raw.get("characters") if isinstance(raw.get("characters"), dict) \
-            else raw
-        names = [n for n, v in chars.items() if isinstance(v, dict)]
-        # This book's collisions are all case variants, which SHOULD merge.
-        # If a couple ever appears, resolution keeps honorifics automatically -
-        # this asserts the current state rather than requiring it.
-        self.assertIsInstance(honorifics_are_distinguishing(names), bool)
+    This was a test against whatever voice_config.json happened to be on disk,
+    asserting only isinstance(..., bool). It skipped in CI - where no config is
+    committed, and the release verifier counts a skip as a failure - and when
+    it did run it could not fail, since every return value is a bool. These
+    cases state the invariant instead.
+    """
+
+    LIVE_SHAPE = ["EMILIA", "Emilia", "NOT-SATELLA", "Not-Satella", "SUBARU",
+                  "FELT", "Narrator"]
+
+    def test_a_case_variant_roster_is_not_treated_as_ambiguous(self):
+        """The live book's collisions are all case variants, which SHOULD
+        merge. Stripping honorifics is safe there."""
+        self.assertFalse(honorifics_are_distinguishing(self.LIVE_SHAPE))
+
+    def test_one_couple_anywhere_in_a_large_roster_is_enough(self):
+        """The check must not be diluted by roster size - a single couple
+        among many singletons is exactly the production case."""
+        self.assertTrue(honorifics_are_distinguishing(
+            self.LIVE_SHAPE + ["MR. HALL", "MRS. HALL"]))
+
+    def test_a_roster_loaded_from_a_config_shaped_dict(self):
+        """voice_config.json nests under 'characters'; the roster passed in is
+        its keys. Asserted so the call site's shape stays covered."""
+        raw = {"characters": {n: {"voice": "x"} for n in self.LIVE_SHAPE}}
+        names = [n for n, v in raw["characters"].items() if isinstance(v, dict)]
+        self.assertEqual(len(names), len(self.LIVE_SHAPE))
+        self.assertFalse(honorifics_are_distinguishing(names))
 
 
 if __name__ == "__main__":

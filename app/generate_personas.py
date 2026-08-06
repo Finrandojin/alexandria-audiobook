@@ -53,16 +53,26 @@ def honorifics_are_distinguishing(allowed):
     Checked against the ACTUAL roster rather than assumed, because the answer
     differs per book: Pride and Prejudice has both Bennets, most books have
     neither.
+
+    A collision only counts when KEEPING the honorific resolves it. The first
+    version returned True on any post-normalization duplicate, which included
+    pure case variants - the live config's EMILIA/Emilia and
+    NOT-SATELLA/Not-Satella. Those collide with honorifics kept too, since case
+    folding always applies, so honorifics buy nothing there; the book just paid
+    stricter matching for every one of its characters.
     """
-    seen = set()
+    stripped_seen, intact_seen = set(), set()
+    collided = set()
     for name in allowed or ():
         stripped = normalize_speaker_name(name, strip_honorifics=True)
+        intact = normalize_speaker_name(name, strip_honorifics=False)
         if not stripped:
             continue
-        if stripped in seen:
-            return True
-        seen.add(stripped)
-    return False
+        if stripped in stripped_seen and intact not in intact_seen:
+            collided.add(stripped)
+        stripped_seen.add(stripped)
+        intact_seen.add(intact)
+    return bool(collided)
 
 
 def _token_jaccard(a: str, b: str, strip_honorifics=True) -> float:

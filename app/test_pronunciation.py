@@ -161,25 +161,61 @@ class RosterDerivationTest(unittest.TestCase):
         self.assertEqual(out, "Betty smiled at Bee-ah-tree-chay")
         self.assertEqual([a["name"] for a in applied], ["Beatrice"])
 
-    def test_forms_are_derived_from_the_roster_and_the_text(self):
+    def _fixture(self, chunks, aliases=None, voice_config=None):
+        """Drive character_forms from files this test owns.
+
+        These two tests used to call character_forms() bare, against whatever
+        book happened to be checked out. That made them skip in CI - where no
+        script is committed - and the release verifier counts a skip as a
+        failure. It also meant the Felt assertion only ran when the loaded
+        book contained Felt, so the collision logic went unexercised exactly
+        when someone changed books.
+        """
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        paths = {}
+        for key, data in (("script_path", chunks),
+                          ("aliases_path", aliases or {}),
+                          ("voice_config_path", voice_config or {})):
+            p = os.path.join(tmp.name, key + ".json")
+            with open(p, "w", encoding="utf-8") as fh:
+                json.dump(data, fh)
+            paths[key] = p
         from pronunciation import character_forms
-        forms = character_forms()
-        if not forms:
-            self.skipTest("no script in this checkout")
+        return character_forms(**paths)
+
+    def test_forms_are_derived_from_the_roster_and_the_text(self):
+        """A roster name that never appears in the text gets no entry: the
+        lexicon describes what will be spoken, not who was cast."""
+        forms = self._fixture(
+            [{"speaker": "BEATRICE", "text": "Beatrice waited by the door."},
+             {"speaker": "SUBARU", "text": "Subaru said nothing."}],
+            voice_config={"characters": {"BEATRICE": {}, "SUBARU": {},
+                                         "NEVER_SPOKEN": {}}})
+        self.assertIn("Beatrice", forms)
+        self.assertNotIn("NEVER_SPOKEN", forms)
+        self.assertNotIn("Never_Spoken", forms)
         for name, info in forms.items():
             self.assertGreater(info["occurrences"], 0,
                                f"{name} listed but never occurs")
 
     def test_a_name_colliding_with_a_common_word_is_flagged(self):
-        """`Felt` is a character and `felt` is a verb in the same book, 242
-        against 65. Case-sensitivity protects the verb; the flag warns whoever
-        fills the file in."""
-        from pronunciation import character_forms
-        forms = character_forms()
-        if "Felt" not in forms:
-            self.skipTest("this book has no Felt")
+        """`Felt` is a character and `felt` is a verb. Case-sensitivity
+        protects the verb; the flag warns whoever fills the file in."""
+        forms = self._fixture(
+            [{"speaker": "FELT", "text": "Felt felt the cold, and Felt ran."}],
+            voice_config={"characters": {"FELT": {}}})
+        self.assertIn("Felt", forms)
         self.assertTrue(forms["Felt"]["collides_with_common_word"])
-        self.assertGreater(forms["Felt"]["lowercase_occurrences"], 0)
+        self.assertEqual(forms["Felt"]["occurrences"], 2)
+        self.assertEqual(forms["Felt"]["lowercase_occurrences"], 1)
+
+    def test_a_name_with_no_lowercase_twin_is_not_flagged(self):
+        """The counterpart: flagging every name would make the flag useless."""
+        forms = self._fixture(
+            [{"speaker": "SUBARU", "text": "Subaru felt the cold."}],
+            voice_config={"characters": {"SUBARU": {}}})
+        self.assertFalse(forms["Subaru"]["collides_with_common_word"])
 
     def test_a_respelled_name_does_not_touch_its_lowercase_word(self):
         tmp = tempfile.TemporaryDirectory()
