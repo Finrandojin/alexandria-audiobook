@@ -1235,6 +1235,19 @@ def main():
     model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
     llm_mode = config.get("llm_mode", "local")
 
+    # The attribution adapter measured +9.8 cross-book and +14.6 through the
+    # served path, but a server started WITHOUT it answers happily at base
+    # quality and nothing fails. Say so at startup rather than discovering it
+    # in the numbers weeks later - the seed bug was exactly this shape.
+    try:
+        from attribution_adapter import check_adapter, describe
+        ok, detail = check_adapter(config, base_url)
+        print(f"LLM adapter: {describe(config)}")
+        if not ok:
+            print(f"WARNING: {detail}", flush=True)
+    except Exception as exc:                            # noqa: BLE001
+        print(f"WARNING: adapter check failed: {str(exc)[:160]}", flush=True)
+
     # Load custom prompts or use defaults
     prompts_config = config.get("prompts") or {}
     system_prompt = prompts_config.get("system_prompt") or DEFAULT_SYSTEM_PROMPT
