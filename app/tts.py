@@ -109,7 +109,12 @@ def mix_to_unison(wav_paths, output_path, max_stretch=1.35):
     if peak > 0 and loudest > 0:
         mixed = mixed * (loudest / peak)
 
+    # The ensemble path writes directly rather than through _save_wav, so it
+    # needs the same check - a mixed file can be truncated exactly as a
+    # generated one can.
+    from audio_validation import validate_generated_audio
     sf.write(output_path, mixed, sample_rate)
+    validate_generated_audio(output_path, "ensemble mix")
     return True
 
 
@@ -2030,7 +2035,35 @@ class TTSEngine:
 
     @staticmethod
     def _save_wav(audio_array, sample_rate, output_path):
-        """Save a numpy audio array as a WAV file."""
+        """Save a numpy audio array as a WAV file, and verify it is one.
+
+        EVERY generation path funnels through here - lora, clone, custom,
+        design, and all three batch variants - which is why the check belongs
+        at this single point rather than in seven callers that would drift.
+
+        WHY VALIDATE AT ALL. `project.py` already validates when assembling
+        chunks into an export, while this layer, which CREATES the audio, only
+        called sf.write and returned. That asymmetry is worse than no checking:
+        a guard in the assembly layer makes the pipeline look protected while
+        the layer that can actually produce a bad file does not look at it.
+
+        The failure this catches is not hypothetical. Truncating a real
+        195,884-byte render to 5,000 bytes still DECODES - libsndfile returns
+        whatever frames are present rather than raising - so a run killed
+        mid-write, or a disk that fills, yields a short, valid, wrong file.
+        Existence and size both pass on it.
+
+        Raises GeneratedAudioError rather than returning False. The callers
+        already treat exceptions as failure, and a returned flag is what six
+        experiment harnesses ignored.
+        """
+        from audio_validation import (remove_stale_audio,
+                                      validate_generated_audio)
+
+        # Delete first, so a leftover file from an earlier run cannot survive a
+        # failed write and be mistaken for this one's output.
+        remove_stale_audio(output_path)
+
         # Ensure numpy array
         if not isinstance(audio_array, np.ndarray):
             audio_array = np.array(audio_array)
@@ -2038,3 +2071,5 @@ class TTSEngine:
         if audio_array.ndim > 1:
             audio_array = audio_array.flatten()
         sf.write(output_path, audio_array, sample_rate)
+        return validate_generated_audio(
+            output_path, f"TTS generation to {os.path.basename(output_path)}")

@@ -1,0 +1,116 @@
+{
+  "status": "complete",
+  "provenance": {
+    "script": "instruct_listening.py",
+    "written": "2026-08-04T21:22:18",
+    "host": "mitch-linux",
+    "git": {
+      "commit": "a30421404c28aaf2d83092581a465eff304e2813",
+      "branch": "agent/overnight-costcurve",
+      "dirty": true,
+      "modified_tracked_files": [
+        "M ab_test_runtime/experiments/cluster_vs_name.json",
+        " M ab_test_runtime/experiments/listener_impact.json"
+      ],
+      "untracked_harness_files": null,
+      "harness_sha256": "9a268cbea2ddbaea35475911a8f91919eb1ec4331e5116f9d0c53850b95e87d1"
+    },
+    "args": {
+      "script": "chunks.json",
+      "voice_config": "voice_config.json",
+      "config": "app/config.json",
+      "speaker": "",
+      "lines": 4,
+      "seed": 1234,
+      "out_dir": "ab_test_runtime/stage6_instruction",
+      "out": "ab_test_runtime/experiments/stage6_instruction_source.json"
+    },
+    "seed": 1234,
+    "input_sha256": {
+      "chunks.json": "0b0a9fbb3c601489ce997fc2ed574d663da8820b1f3e35435ceaddad99542584",
+      "voice_config.json": "711aaead85ebdec2e9e094db7d9a8799c72a4a3e097f309780ddf94a40976e75",
+      "app/config.json": "7220c6793168c7484f15ef4f257d3291ac06f5e8eb38e5caa47c8ac9671c6579"
+    }
+  },
+  "seed": 1234,
+  "arms": [
+    "none",
+    "per_char",
+    "per_line"
+  ],
+  "all_arms_rendered": true,
+  "comparisons": [
+    {
+      "line": 0,
+      "speaker": "NARRATOR",
+      "text": "Feeling the hard texture of the ground against his face, he realized that he had fallen facedown on the ground. He couldn’t move, even when he tried, and he already couldn’t feel his fingers.",
+      "per_line_instruct": "Slow, sensory narration; building tension as the feeling is described.",
+      "per_char_instruct": "",
+      "arms": [
+        "none",
+        "per_char",
+        "per_line"
+      ],
+      "arm_files": {
+        "none": "ab_test_runtime/stage6_instruction/line0_none.wav",
+        "per_char": "ab_test_runtime/stage6_instruction/line0_per_char.wav",
+        "per_line": "ab_test_runtime/stage6_instruction/line0_per_line.wav"
+      },
+      "file": "ab_test_runtime/stage6_instruction/compare_line0.wav"
+    },
+    {
+      "line": 1,
+      "speaker": "NARRATOR",
+      "text": "What he did feel was a certain heat, and it overwhelmed his entire body.",
+      "per_line_instruct": "Slow, sensory narration; building tension as the heat is described.",
+      "per_char_instruct": "",
+      "arms": [
+        "none",
+        "per_char",
+        "per_line"
+      ],
+      "arm_files": {
+        "none": "ab_test_runtime/stage6_instruction/line1_none.wav",
+        "per_char": "ab_test_runtime/stage6_instruction/line1_per_char.wav",
+        "per_line": "ab_test_runtime/stage6_instruction/line1_per_line.wav"
+      },
+      "file": "ab_test_runtime/stage6_instruction/compare_line1.wav"
+    },
+    {
+      "line": 2,
+      "speaker": "Kenji",
+      "text": "—It’s hot, it’s hot, it’s hot, it’s hot, it’s hot, it’s hot, it’s hot.",
+      "per_line_instruct": "Strained, rapid-fire repetition; voice cracking with discomfort and panic.",
+      "per_char_instruct": "",
+      "arms": [
+        "none",
+        "per_char",
+        "per_line"
+      ],
+      "arm_files": {
+        "none": "ab_test_runtime/stage6_instruction/line2_none.wav",
+        "per_char": "ab_test_runtime/stage6_instruction/line2_per_char.wav",
+        "per_line": "ab_test_runtime/stage6_instruction/line2_per_line.wav"
+      },
+      "file": "ab_test_runtime/stage6_instruction/compare_line2.wav"
+    },
+    {
+      "line": 3,
+      "speaker": "NARRATOR",
+      "text": "Feeling as though all of the blood in his body had spilled out of him, he reached a shaking hand to try to find the source of the heat that was burning through his body.",
+      "per_line_instruct": "Desperate, strained narration; conveying overwhelming physical sensation.",
+      "per_char_instruct": "",
+      "arms": [
+        "none",
+        "per_char",
+        "per_line"
+      ],
+      "arm_files": {
+        "none": "ab_test_runtime/stage6_instruction/line3_none.wav",
+        "per_char": "ab_test_runtime/stage6_instruction/line3_per_char.wav",
+        "per_line": "ab_test_runtime/stage6_instruction/line3_per_line.wav"
+      },
+      "file": "ab_test_runtime/stage6_instruction/compare_line3.wav"
+    }
+  ]
+}

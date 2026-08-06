@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-05 04:25 from `ab_test_runtime/experiments/` — 213 artifacts, 471 arms.
+Generated 2026-08-06 05:11 from `ab_test_runtime/experiments/` — 252 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -26,6 +26,10 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 |---|---|---|---|---:|---|---:|---:|---|---|---|---:|
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | contiguous | 385 | 74.5% | exploratory | ok | False | 5518.1s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | scattered | 385 | 57.9% | exploratory | ok | False | 5518.1s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 92 | 75.0% | supported_measurement | ok | False | 10801.7s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 92 | 67.4% | supported_measurement | ok | False | 10801.7s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 133 | 68.4% | supported_measurement | ok | False | 15992.9s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 133 | 31.6% | supported_measurement | ok | False | 15992.9s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | contiguous | 162 | 53.7% | supported_measurement | ok | False | 19624.4s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | scattered | 162 | 35.2% | supported_measurement | ok | False | 19624.4s |
 
@@ -308,10 +312,34 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 | book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---|---:|
-| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 547 | 60.3% | exploratory | ok | False | 23636.2s |
-| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 772 | 60.0% | exploratory | ok | False | 50138.1s |
-| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 547 | 61.6% | exploratory | ok | False | 23636.2s |
-| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 772 | 71.6% | exploratory | ok | False | 50138.1s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 385 | 68.8% | exploratory | ok | False | 40304.5s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 385 | 68.8% | exploratory | ok | False | 40991.3s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 385 | 68.8% | exploratory | ok | False | 23636.2s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 385 | 68.8% | exploratory | ok | False | 50138.1s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 385 | 84.4% | exploratory | ok | False | 40304.5s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 385 | 78.7% | exploratory | ok | False | 40991.3s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 385 | 68.3% | exploratory | ok | False | 23636.2s |
+| grimgar03 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 385 | 78.4% | exploratory | ok | False | 50138.1s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 92 | 71.7% | exploratory | ok | False | 40304.5s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 92 | 71.7% | exploratory | ok | False | 40991.3s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 92 | 71.7% | exploratory | ok | False | 50138.1s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 92 | 75.0% | exploratory | ok | False | 40304.5s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 92 | 75.0% | exploratory | ok | False | 40991.3s |
+| index18 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 92 | 75.0% | exploratory | ok | False | 50138.1s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 133 | 50.4% | exploratory | ok | False | 40304.5s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 133 | 50.4% | exploratory | ok | False | 40991.3s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 133 | 50.4% | exploratory | ok | False | 50138.1s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 133 | 72.9% | exploratory | ok | False | 40304.5s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 133 | 62.4% | exploratory | ok | False | 40991.3s |
+| mushoku16 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 133 | 62.4% | exploratory | ok | False | 50138.1s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 162 | 40.1% | exploratory | ok | False | 40304.5s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 162 | 40.1% | exploratory | ok | False | 40991.3s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 162 | 40.1% | exploratory | ok | False | 23636.2s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | base | 162 | 40.1% | exploratory | ok | False | 50138.1s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 162 | 69.1% | exploratory | ok | False | 40304.5s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 162 | 51.9% | exploratory | ok | False | 40991.3s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 162 | 45.7% | exploratory | ok | False | 23636.2s |
+| owarimonogatari3 | Qwen3-14B | local-lmstudio | lmstudio | 32768 | tuned | 162 | 61.1% | exploratory | ok | False | 50138.1s |
 
 ## grammar_constraint
 
@@ -367,18 +395,32 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 | book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---|---:|
-| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 772 | 58.7% | exploratory | ok | False | 6206.6s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | exploratory | ok | False | 6206.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | exploratory | ok | False | 2253.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | exploratory | ok | False | 1984.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 385 | 64.4% | exploratory | ok | False | 1929.7s |
-| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 547 | 72.0% | historical_only | ok | True | 28194.5s |
-| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 772 | 68.5% | exploratory | ok | False | 6206.6s |
+| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 385 | 79.7% | historical_only | ok | True | 28194.5s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 32768 | base | 385 | 64.4% | exploratory | ok | False | 3920.5s |
+| grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 75.8% | exploratory | ok | False | 6206.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 68.1% | exploratory | ok | False | 2253.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 72.7% | exploratory | ok | False | 1984.6s |
 | grimgar03 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 385 | 76.6% | exploratory | ok | False | 1929.7s |
-| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 547 | 76.2% | historical_only | ok | True | 28194.5s |
-| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 225 | 60.9% | historical_only | ok | False | 19529.9s |
-| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 225 | 69.3% | historical_only | ok | False | 19529.9s |
+| grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 385 | 83.9% | historical_only | ok | True | 28194.5s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 32768 | lora | 385 | 80.3% | exploratory | ok | False | 3920.5s |
+| index18 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 92 | 70.7% | exploratory | ok | False | 6206.6s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 92 | 73.9% | historical_only | ok | False | 19529.9s |
+| index18 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 92 | 67.4% | exploratory | ok | False | 6206.6s |
+| index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 92 | 81.5% | historical_only | ok | False | 19529.9s |
+| mushoku16 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 133 | 49.6% | exploratory | ok | False | 6206.6s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 133 | 51.9% | historical_only | ok | False | 19529.9s |
+| mushoku16 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 133 | 64.7% | exploratory | ok | False | 6206.6s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 133 | 60.9% | historical_only | ok | False | 19529.9s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | base | 162 | 45.7% | exploratory | ok | False | 6206.6s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | base | 162 | 53.7% | historical_only | ok | True | 28194.5s |
+| owarimonogatari3 | qwen3-14b | local-lmstudio | lmstudio | 32768 | base | 162 | 45.7% | exploratory | ok | False | 3920.5s |
+| owarimonogatari3 | qwen3-14b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda | 32768 | lora | 162 | 54.9% | exploratory | ok | False | 6206.6s |
+| owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | lora | 162 | 58.0% | historical_only | ok | True | 28194.5s |
+| owarimonogatari3 | qwen3-14b | local-lmstudio | lmstudio | 32768 | lora | 162 | 57.4% | exploratory | ok | False | 3920.5s |
 
 ## narrator_prior
 
@@ -392,6 +434,19 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 139 | 56.1% | provisional | ok | False | 842.4s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | baseline | 162 | 38.3% | supported_measurement | ok | False | 1783.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | narrator | 162 | 38.9% | supported_measurement | ok | False | 1783.8s |
+
+## pipeline_repeat
+
+| book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---|---:|
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run1 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run2 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run3 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run4 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run5 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run6 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run7 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
+| grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | run8 | 396 | 56.1% | not_audited | n/a (pipeline output, not an ExperimentRecord) |  | s |
 
 ## reasoning_arms
 
@@ -620,7 +675,9 @@ These artifacts exist and hold real results; this table only represents per-arm 
 
 | artifact | why |
 |---|---|
+| `adapter_stop_check_ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `blinded_listening.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cascade_state__grimgar03__a6000-contig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `cascade_state__grimgar03__local-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -643,33 +700,65 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `cascade_state__owarimonogatari3__tuned-cheap-arm.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chapter_manifest.json` | SKIPPED: not a result object (list) |
 | `chapter_validation.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `chinese_attribution_jy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_jy_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chinese_attribution_wp.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_wp_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `clone_vs_lora_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `crossbook_normalization.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `crossbook_normalization_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fix_verification.json` | SKIPPED: not a result object (list) |
+| `instruct_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `japanese_quote_robustness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `listener_impact.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `nonprose_category_expansion.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `nonprose_category_expansion_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_gate.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `nonprose_mechanism.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `nonprose_replication.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `nonprose_replication_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_split.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `nonprose_split_v2.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `offbyone_turns.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pdnc_eval.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pdnc_eval_full.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pdnc_eval_full_summary.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pdnc_eval_mixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pitch_profile_matrix.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `pitch_profile_matrix_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `pitch_separation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `pitch_stability.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `proper_noun_pronunciation.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `prose_vs_nonprose.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `prose_vs_nonprose_v2.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `prose_vs_nonprose_v3.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `realizable_router.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `residual_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `run_lengths.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `scale_vs_register.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `seed_instruction_controls.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `segmentation_classifier.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `shipping_readiness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `simd_benchmark.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `stack_overlap.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `stage6_instruction_source.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `stage6_scene_aware_casting.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `symbolization.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `symbolization_owari.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `three_pass_vs_single.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `trivial_baselines.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `tuned_disagreement.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `validation_baseline.json` | SKIPPED: 'rows' is not a list of scored arms |
+| `validation_manifest.json` | SKIPPED: not a result object (list) |
 | `validation_smoke.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `voice_adapter_health.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `voice_blending.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `voice_data_saturation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `voice_data_saturation_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `weak_supervision.json` | SKIPPED: 'rows' is not a list of scored arms |

@@ -1,0 +1,32 @@
+{
+ "PrideAndPrejudice": {
+  "base": {
+   "n": 200,
+   "correct": 161
+  },
+  "lora": {
+   "n": 200,
+   "correct": 181
+  }
+ },
+ "TheAwakening": {
+  "base": {
+   "n": 200,
+   "correct": 172
+  },
+  "lora": {
+   "n": 200,
+   "correct": 175
+  }
+ },
+ "TheSignOfTheFour": {
+  "base": {
+   "n": 200,
+   "correct": 161
+  },
+  "lora": {
+   "n": 200,
+   "correct": 136
+  }
+ }
+}

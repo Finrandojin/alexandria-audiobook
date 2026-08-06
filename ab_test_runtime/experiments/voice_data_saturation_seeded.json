@@ -1,0 +1,155 @@
+{
+ "status": "scored",
+ "metric": "speechbrain/spkrec-ecapa-voxceleb cosine similarity",
+ "sentence": "The road bent away between the hills, and neither of them spoke again until the lights of the town came into view.",
+ "provenance": {
+  "script": "voice_data_saturation.py",
+  "written": "2026-08-04T17:28:29",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "ac99417f515e001ef9b162f963124831acbac310",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "f66cd5a7b9c3dc25795842ee6303e29c9aacaa96ec5ae28679d113897988b30c"
+  },
+  "args": {
+   "phase": "generate",
+   "out_dir": "ab_test_runtime/voice_saturation_seeded",
+   "json": "ab_test_runtime/experiments/voice_data_saturation_seeded.json",
+   "config": "app/config.json",
+   "ecapa_cache": "ab_test_runtime/ecapa",
+   "seed": 1234
+  },
+  "seed": 1234
+ },
+ "results": [
+  {
+   "voice": "warm_baritone_40s_m_gothic",
+   "samples": 2,
+   "reference": "lora_models/warm_baritone_40s_m_gothic/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/warm_baritone_40s_m_gothic.wav",
+   "similarity": 0.7443556785583496
+  },
+  {
+   "voice": "breathy_baritone_30s_m_fantasy",
+   "samples": 24,
+   "reference": "lora_models/breathy_baritone_30s_m_fantasy/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_baritone_30s_m_fantasy.wav",
+   "similarity": 0.6341094970703125
+  },
+  {
+   "voice": "warm_baritone_20s_m_postapoc",
+   "samples": 81,
+   "reference": "lora_models/warm_baritone_20s_m_postapoc/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/warm_baritone_20s_m_postapoc.wav",
+   "similarity": 0.6620403528213501
+  },
+  {
+   "voice": "silky_mezzo_30s_f",
+   "samples": 88,
+   "reference": "lora_models/silky_mezzo_30s_f/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/silky_mezzo_30s_f.wav",
+   "similarity": 0.8181299567222595
+  },
+  {
+   "voice": "warm_alto_40s_f_3",
+   "samples": 116,
+   "reference": "lora_models/warm_alto_40s_f_3/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/warm_alto_40s_f_3.wav",
+   "similarity": 0.6737452149391174
+  },
+  {
+   "voice": "warm_baritone_40s_m_3",
+   "samples": 130,
+   "reference": "lora_models/warm_baritone_40s_m_3/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/warm_baritone_40s_m_3.wav",
+   "similarity": 0.6835907697677612
+  },
+  {
+   "voice": "bright_tenor_30s_m",
+   "samples": 170,
+   "reference": "lora_models/bright_tenor_30s_m/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/bright_tenor_30s_m.wav",
+   "similarity": 0.5342836380004883
+  },
+  {
+   "voice": "silky_alto_40s_f_literary_2",
+   "samples": 188,
+   "reference": "lora_models/silky_alto_40s_f_literary_2/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/silky_alto_40s_f_literary_2.wav",
+   "similarity": 0.7409087419509888
+  },
+  {
+   "voice": "breathy_alto_50s_f_fantasy",
+   "samples": 200,
+   "reference": "lora_models/breathy_alto_50s_f_fantasy/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_alto_50s_f_fantasy.wav",
+   "similarity": 0.4119987189769745
+  },
+  {
+   "voice": "breathy_baritone_40s_m_literary",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_literary/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_baritone_40s_m_literary.wav",
+   "similarity": 0.6683392524719238
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_1",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_military_1/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_baritone_40s_m_military_1.wav",
+   "similarity": 0.7120278477668762
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_2",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_military_2/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_baritone_40s_m_military_2.wav",
+   "similarity": 0.607033371925354
+  },
+  {
+   "voice": "breathy_mezzo_20s_f_scifi",
+   "samples": 200,
+   "reference": "lora_models/breathy_mezzo_20s_f_scifi/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_mezzo_20s_f_scifi.wav",
+   "similarity": 0.4916718006134033
+  },
+  {
+   "voice": "breathy_tenor_18s_m_supernatural",
+   "samples": 200,
+   "reference": "lora_models/breathy_tenor_18s_m_supernatural/ref_sample.wav",
+   "generated_file": "ab_test_runtime/voice_saturation_seeded/breathy_tenor_18s_m_supernatural.wav",
+   "similarity": 0.5901024341583252
+  }
+ ],
+ "scoring_provenance": {
+  "script": "voice_data_saturation.py",
+  "written": "2026-08-04T17:40:57",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "ac99417f515e001ef9b162f963124831acbac310",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "f66cd5a7b9c3dc25795842ee6303e29c9aacaa96ec5ae28679d113897988b30c"
+  },
+  "args": {
+   "phase": "score",
+   "out_dir": "ab_test_runtime/voice_saturation_seeded",
+   "json": "ab_test_runtime/experiments/voice_data_saturation_seeded.json",
+   "config": "app/config.json",
+   "ecapa_cache": "ab_test_runtime/ecapa",
+   "seed": 1234
+  },
+  "seed": 1234
+ }
+}

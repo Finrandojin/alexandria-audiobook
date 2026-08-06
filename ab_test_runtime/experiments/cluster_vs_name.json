@@ -211,6 +211,20 @@
    "gold_clusters": 20
   },
   {
+   "artifact": "batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "mushoku16",
+   "arm": "scattered",
+   "model": "qwen/qwen3-14b",
+   "n": 133,
+   "n_clustered": 103,
+   "accuracy": 0.3157894736842105,
+   "renamed": 0.5048543689320388,
+   "ari": 0.08838137009839782,
+   "pred_clusters": 15,
+   "gold_clusters": 17
+  },
+  {
    "artifact": "reasoning_arms__grimgar03__mistralai__magistral-small__thunder-a6000-loopback.json",
    "experiment": "reasoning_arms",
    "book": "grimgar03",
@@ -813,6 +827,20 @@
    "gold_clusters": 11
   },
   {
+   "artifact": "batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "owarimonogatari3",
+   "arm": "scattered",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 144,
+   "accuracy": 0.35185185185185186,
+   "renamed": 0.5069444444444444,
+   "ari": 0.10766724832303826,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
    "artifact": "joint_scene__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
    "experiment": "joint_scene",
    "book": "mushoku16",
@@ -1345,6 +1373,20 @@
    "gold_clusters": 19
   },
   {
+   "artifact": "booknlp_baseline__pdnc_prideandprejudice.json",
+   "experiment": "booknlp_baseline",
+   "book": "pdnc_prideandprejudice",
+   "arm": "booknlp",
+   "model": "booknlp-big",
+   "n": 1226,
+   "n_clustered": 1226,
+   "accuracy": 0.5424143556280587,
+   "renamed": 0.6729200652528549,
+   "ari": 0.35217682958355156,
+   "pred_clusters": 51,
+   "gold_clusters": 27
+  },
+  {
    "artifact": "batch_size__mushoku16__qwen__qwen3-14b__local-llamacpp-wide.json",
    "experiment": "batch_size",
    "book": "mushoku16",
@@ -1639,6 +1681,20 @@
    "gold_clusters": 22
   },
   {
+   "artifact": "batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "index18",
+   "arm": "contiguous",
+   "model": "qwen/qwen3-14b",
+   "n": 92,
+   "n_clustered": 83,
+   "accuracy": 0.75,
+   "renamed": 0.8674698795180723,
+   "ari": 0.7734811533293322,
+   "pred_clusters": 21,
+   "gold_clusters": 20
+  },
+  {
    "artifact": "batch_size__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
    "experiment": "batch_size",
    "book": "owarimonogatari3",
@@ -1737,6 +1793,20 @@
    "gold_clusters": 16
   },
   {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "mushoku16",
+   "arm": "cheap-w1",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 136,
+   "n_clustered": 123,
+   "accuracy": 0.5514705882352942,
+   "renamed": 0.6666666666666666,
+   "ari": 0.3100120298218039,
+   "pred_clusters": 14,
+   "gold_clusters": 15
+  },
+  {
    "artifact": "because_production__mushoku16__qwen__qwen3-14b__local.json",
    "experiment": "because_production",
    "book": "mushoku16",
@@ -1819,6 +1889,20 @@
    "ari": 0.42071361778680705,
    "pred_clusters": 16,
    "gold_clusters": 15
+  },
+  {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "owarimonogatari3",
+   "arm": "cascade",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 162,
+   "n_clustered": 145,
+   "accuracy": 0.5987654320987654,
+   "renamed": 0.7103448275862069,
+   "ari": 0.42651164716145956,
+   "pred_clusters": 13,
+   "gold_clusters": 11
   },
   {
    "artifact": "roster_quality__index18__qwen__qwen3-14b__local-llamacpp.json",
@@ -1916,6 +2000,20 @@
    "renamed": 0.8053691275167785,
    "ari": 0.561368707266495,
    "pred_clusters": 15,
+   "gold_clusters": 11
+  },
+  {
+   "artifact": "batch_contiguity__owarimonogatari3__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "owarimonogatari3",
+   "arm": "contiguous",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 146,
+   "accuracy": 0.5370370370370371,
+   "renamed": 0.6438356164383562,
+   "ari": 0.2704123003971755,
+   "pred_clusters": 13,
    "gold_clusters": 11
   },
   {
@@ -2269,6 +2367,20 @@
    "gold_clusters": 21
   },
   {
+   "artifact": "cascade__owarimonogatari3__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "owarimonogatari3",
+   "arm": "cheap-w1",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 162,
+   "n_clustered": 147,
+   "accuracy": 0.5432098765432098,
+   "renamed": 0.6394557823129252,
+   "ari": 0.34578455715588163,
+   "pred_clusters": 11,
+   "gold_clusters": 11
+  },
+  {
    "artifact": "roster_quality__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
    "experiment": "roster_quality",
    "book": "grimgar03",
@@ -2477,6 +2589,20 @@
    "ari": 0.5367556660333839,
    "pred_clusters": 19,
    "gold_clusters": 23
+  },
+  {
+   "artifact": "batch_contiguity__grimgar03__qwen__qwen3-14b__thunder-a6000-cuda.json",
+   "experiment": "batch_contiguity",
+   "book": "grimgar03",
+   "arm": "scattered",
+   "model": "qwen/qwen3-14b",
+   "n": 385,
+   "n_clustered": 349,
+   "accuracy": 0.5792207792207792,
+   "renamed": 0.670487106017192,
+   "ari": 0.4028571300953464,
+   "pred_clusters": 21,
+   "gold_clusters": 19
   },
   {
    "artifact": "closed_set__index18__mistralai__magistral-small__local-llamacpp.json",
@@ -3585,6 +3711,20 @@
    "gold_clusters": 11
   },
   {
+   "artifact": "batch_contiguity__index18__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "index18",
+   "arm": "scattered",
+   "model": "qwen/qwen3-14b",
+   "n": 92,
+   "n_clustered": 86,
+   "accuracy": 0.6739130434782609,
+   "renamed": 0.7441860465116279,
+   "ari": 0.5417851621905977,
+   "pred_clusters": 17,
+   "gold_clusters": 21
+  },
+  {
    "artifact": "crossover__grimgar03__local.json",
    "experiment": "segmentation_crossover",
    "book": "grimgar03",
@@ -4047,6 +4187,20 @@
    "gold_clusters": 25
   },
   {
+   "artifact": "cascade__mushoku16__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "mushoku16",
+   "arm": "cascade",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 136,
+   "n_clustered": 127,
+   "accuracy": 0.6176470588235294,
+   "renamed": 0.6771653543307087,
+   "ari": 0.368617641862735,
+   "pred_clusters": 16,
+   "gold_clusters": 17
+  },
+  {
    "artifact": "crossover__grimgar03__local.json",
    "experiment": "segmentation_crossover",
    "book": "grimgar03",
@@ -4115,6 +4269,34 @@
    "ari": 0.3818130802563804,
    "pred_clusters": 17,
    "gold_clusters": 16
+  },
+  {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "grimgar03",
+   "arm": "cascade",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 396,
+   "n_clustered": 373,
+   "accuracy": 0.8459595959595959,
+   "renamed": 0.903485254691689,
+   "ari": 0.7902094957899212,
+   "pred_clusters": 15,
+   "gold_clusters": 16
+  },
+  {
+   "artifact": "batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json",
+   "experiment": "batch_alignment",
+   "book": "grimgar03",
+   "arm": "fixed",
+   "model": "qwen/qwen3-14b",
+   "n": 385,
+   "n_clustered": 368,
+   "accuracy": 0.7142857142857143,
+   "renamed": 0.7717391304347826,
+   "ari": 0.5542616647323421,
+   "pred_clusters": 17,
+   "gold_clusters": 18
   },
   {
    "artifact": "batch_size__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
@@ -4397,6 +4579,20 @@
    "gold_clusters": 18
   },
   {
+   "artifact": "cascade__grimgar03__llama-3.3-70b__tuned-cheap-arm.json",
+   "experiment": "cascade",
+   "book": "grimgar03",
+   "arm": "cheap-w1",
+   "model": "qwen/qwen3-14b + llama-3.3-70b",
+   "n": 396,
+   "n_clustered": 379,
+   "accuracy": 0.8232323232323232,
+   "renamed": 0.8733509234828496,
+   "ari": 0.7252007010763241,
+   "pred_clusters": 18,
+   "gold_clusters": 16
+  },
+  {
    "artifact": "reasoning_arms__grimgar03__qwen__qwen3-32b__thunder-a6000-loopback.json",
    "experiment": "reasoning_arms",
    "book": "grimgar03",
@@ -4451,6 +4647,20 @@
    "ari": 0.6310148697552086,
    "pred_clusters": 31,
    "gold_clusters": 26
+  },
+  {
+   "artifact": "batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json",
+   "experiment": "batch_alignment",
+   "book": "grimgar03",
+   "arm": "aligned",
+   "model": "qwen/qwen3-14b",
+   "n": 385,
+   "n_clustered": 370,
+   "accuracy": 0.7090909090909091,
+   "renamed": 0.7567567567567568,
+   "ari": 0.4872424307639663,
+   "pred_clusters": 16,
+   "gold_clusters": 16
   },
   {
    "artifact": "context_width_production__grimgar03__qwen__qwen3-14b__local-llamacpp-rep1.json",
@@ -4521,6 +4731,20 @@
    "ari": 0.14095695065743555,
    "pred_clusters": 12,
    "gold_clusters": 11
+  },
+  {
+   "artifact": "batch_contiguity__grimgar03__qwen__qwen3-14b__thunder-a6000-cuda.json",
+   "experiment": "batch_contiguity",
+   "book": "grimgar03",
+   "arm": "contiguous",
+   "model": "qwen/qwen3-14b",
+   "n": 385,
+   "n_clustered": 374,
+   "accuracy": 0.7454545454545455,
+   "renamed": 0.7914438502673797,
+   "ari": 0.559966180374815,
+   "pred_clusters": 19,
+   "gold_clusters": 18
   },
   {
    "artifact": "closed_set__mushoku16__llama-3.3-70b__thunder-a6000-loopback.json",
@@ -4761,6 +4985,20 @@
    "gold_clusters": 25
   },
   {
+   "artifact": "batch_contiguity__mushoku16__qwen__qwen3-14b__local-rocm-contig.json",
+   "experiment": "batch_contiguity",
+   "book": "mushoku16",
+   "arm": "contiguous",
+   "model": "qwen/qwen3-14b",
+   "n": 133,
+   "n_clustered": 126,
+   "accuracy": 0.6842105263157895,
+   "renamed": 0.7222222222222222,
+   "ari": 0.49129676931887795,
+   "pred_clusters": 14,
+   "gold_clusters": 18
+  },
+  {
    "artifact": "closed_set__grimgar03__mistralai__magistral-small__local-llamacpp.json",
    "experiment": "closed_set",
    "book": "grimgar03",
@@ -4915,6 +5153,34 @@
    "gold_clusters": 11
   },
   {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "none",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 161,
+   "accuracy": 0.5,
+   "renamed": 0.5341614906832298,
+   "ari": 0.17486534042897306,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated2.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "none",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 161,
+   "accuracy": 0.5,
+   "renamed": 0.5341614906832298,
+   "ari": 0.17486534042897306,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
    "artifact": "scene_cast__mushoku16__llama-3.3-70b__thunder-a6000-70b.json",
    "experiment": "scene_cast",
    "book": "mushoku16",
@@ -4997,6 +5263,34 @@
    "ari": 0.3900648218253284,
    "pred_clusters": 22,
    "gold_clusters": 26
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "predicted",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.48148148148148145,
+   "renamed": 0.5123456790123457,
+   "ari": 0.15950878015063596,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated2.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "predicted",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.48148148148148145,
+   "renamed": 0.5123456790123457,
+   "ari": 0.15950878015063596,
+   "pred_clusters": 13,
+   "gold_clusters": 11
   },
   {
    "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
@@ -5111,6 +5405,34 @@
    "gold_clusters": 16
   },
   {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "gated",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.4876543209876543,
+   "renamed": 0.5123456790123457,
+   "ari": 0.15405389125044566,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated2.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "gated",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.4876543209876543,
+   "renamed": 0.5123456790123457,
+   "ari": 0.15405389125044566,
+   "pred_clusters": 13,
+   "gold_clusters": 11
+  },
+  {
    "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json",
    "experiment": "committed_history",
    "book": "owarimonogatari3",
@@ -5207,9 +5529,37 @@
    "ari": 0.23346022453605983,
    "pred_clusters": 9,
    "gold_clusters": 11
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "oracle",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.5925925925925926,
+   "renamed": 0.5987654320987654,
+   "ari": 0.24684013777239092,
+   "pred_clusters": 9,
+   "gold_clusters": 11
+  },
+  {
+   "artifact": "committed_history__owarimonogatari3__qwen__qwen3-14b__thunder-a6000-gated2.json",
+   "experiment": "committed_history",
+   "book": "owarimonogatari3",
+   "arm": "oracle",
+   "model": "qwen/qwen3-14b",
+   "n": 162,
+   "n_clustered": 162,
+   "accuracy": 0.5925925925925926,
+   "renamed": 0.5987654320987654,
+   "ari": 0.24684013777239092,
+   "pred_clusters": 9,
+   "gold_clusters": 11
   }
  ],
- "mean_gain": 0.0994127777424517,
- "mean_ari": 0.415545487311358,
+ "mean_gain": 0.09751412664133213,
+ "mean_ari": 0.41221491660228093,
  "caveat": "renamed is an oracle relabelling fitted on gold; it is an upper bound on name-binding fixes, not an achievable accuracy."
 }

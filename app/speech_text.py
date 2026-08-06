@@ -67,6 +67,20 @@ def get_speech_normalization(text):
     if deduplicated != normalized:
         transformations.append({"type": "duplicate_spoken_word"})
     normalized = deduplicated
+    # Proper-noun respellings, applied LAST so a lexicon entry is never
+    # mangled by symbol or break handling. Recorded as a transformation like
+    # everything else: a silent respelling would be untraceable, with the
+    # listener hearing one thing and the script saying another.
+    try:
+        from pronunciation import apply_pronunciation
+        spoken, applied = apply_pronunciation(normalized)
+        if applied:
+            normalized = spoken
+            transformations.append({"type": "pronunciation_lexicon",
+                                    "substitutions": applied})
+    except Exception:                                   # noqa: BLE001
+        # A broken lexicon must never stop a book generating.
+        pass
     stripped = normalized.strip(" .\t\n")
     normalized = stripped + "." if stripped else ""
     return {"text": normalized, "changed": normalized != original,

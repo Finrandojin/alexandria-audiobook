@@ -1,0 +1,236 @@
+{
+ "provenance": {
+  "script": "seed_instruction_controls.py",
+  "written": "2026-08-04T16:51:08",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "2c652ff858c8313d1f997c1528ed2f1a134617e6",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "a04c6af6c05abb76da2cc1ba1c1827b9d4d2ad309608e19d9e622ca0c1828da6"
+  },
+  "args": {
+   "worker": false,
+   "speakers": [
+    "NARRATOR",
+    "EMILIA",
+    "NATSUKI SUBARU"
+   ],
+   "speaker": "",
+   "seed": 1234,
+   "other_seed": 5678,
+   "text": "The lantern trembled in her hand as the footsteps approached the door.",
+   "instruct": "",
+   "wav": "",
+   "voice_config": "voice_config.json",
+   "config": "app/config.json",
+   "out_dir": "ab_test_runtime/assumption_controls",
+   "out": "ab_test_runtime/experiments/seed_instruction_controls.json"
+  },
+  "seed": 1234
+ },
+ "text": "The lantern trembled in her hand as the footsteps approached the door.",
+ "rows": [
+  {
+   "speaker": "NARRATOR",
+   "deterministic": true,
+   "different_seed_varies": true,
+   "duration_order_control_passes": true,
+   "renders": {
+    "same_seed_a": {
+     "sha256": "4d0d24fc61202ccf0a13f8b63ed5b5bc0c60d065376a1dfa2121c803e53891bd",
+     "frames": 97920,
+     "rate": 24000,
+     "duration_s": 4.08,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_same_seed_a.wav"
+    },
+    "same_seed_b": {
+     "sha256": "4d0d24fc61202ccf0a13f8b63ed5b5bc0c60d065376a1dfa2121c803e53891bd",
+     "frames": 97920,
+     "rate": 24000,
+     "duration_s": 4.08,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_same_seed_b.wav"
+    },
+    "different_seed": {
+     "sha256": "bcccf9e87f885434c0a819a3fbf1e9962c010c58785b0d32d04f83435f969468",
+     "frames": 86400,
+     "rate": 24000,
+     "duration_s": 3.6,
+     "seed": 5678,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_different_seed.wav"
+    }
+   },
+   "instruction_controls": {
+    "neutral": {
+     "sha256": "4d0d24fc61202ccf0a13f8b63ed5b5bc0c60d065376a1dfa2121c803e53891bd",
+     "frames": 97920,
+     "rate": 24000,
+     "duration_s": 4.08,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_instruction_neutral.wav"
+    },
+    "very_slow": {
+     "sha256": "fda7f0a1fc058f2dc8a82692815e9f05d5c16dcc98bb93a361778174aa23d0a6",
+     "frames": 115200,
+     "rate": 24000,
+     "duration_s": 4.8,
+     "seed": 1234,
+     "instruction": "Speak extremely slowly, with long deliberate pauses between phrases.",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_instruction_very_slow.wav"
+    },
+    "very_fast": {
+     "sha256": "35d214c5f9605c56ffb284f2f568e7082093467857086dff60f1c280a1ee4940",
+     "frames": 80640,
+     "rate": 24000,
+     "duration_s": 3.36,
+     "seed": 1234,
+     "instruction": "Speak extremely quickly, with urgent rapid delivery and no long pauses.",
+     "file": "ab_test_runtime/assumption_controls/NARRATOR_instruction_very_fast.wav"
+    }
+   }
+  },
+  {
+   "speaker": "EMILIA",
+   "deterministic": true,
+   "different_seed_varies": true,
+   "duration_order_control_passes": true,
+   "renders": {
+    "same_seed_a": {
+     "sha256": "9c4e0f519c909617a057adfdfd7082dad134c43e8b0ccad29080ffcf3f3f4f62",
+     "frames": 92160,
+     "rate": 24000,
+     "duration_s": 3.84,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_same_seed_a.wav"
+    },
+    "same_seed_b": {
+     "sha256": "9c4e0f519c909617a057adfdfd7082dad134c43e8b0ccad29080ffcf3f3f4f62",
+     "frames": 92160,
+     "rate": 24000,
+     "duration_s": 3.84,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_same_seed_b.wav"
+    },
+    "different_seed": {
+     "sha256": "3131255acbf5e3d1e4c6024b4fc3a8aae6d83911b9a37bb93097d69f76a94238",
+     "frames": 88320,
+     "rate": 24000,
+     "duration_s": 3.68,
+     "seed": 5678,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_different_seed.wav"
+    }
+   },
+   "instruction_controls": {
+    "neutral": {
+     "sha256": "9c4e0f519c909617a057adfdfd7082dad134c43e8b0ccad29080ffcf3f3f4f62",
+     "frames": 92160,
+     "rate": 24000,
+     "duration_s": 3.84,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_instruction_neutral.wav"
+    },
+    "very_slow": {
+     "sha256": "50a325c3a9f7f41927292aec260c0cb9ea6c579e9fade0ddf482f3f406a6da11",
+     "frames": 109440,
+     "rate": 24000,
+     "duration_s": 4.56,
+     "seed": 1234,
+     "instruction": "Speak extremely slowly, with long deliberate pauses between phrases.",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_instruction_very_slow.wav"
+    },
+    "very_fast": {
+     "sha256": "6caaffe497fc0adbb205416e89bccbfdee09516d2022828eca57ae52404d4175",
+     "frames": 80640,
+     "rate": 24000,
+     "duration_s": 3.36,
+     "seed": 1234,
+     "instruction": "Speak extremely quickly, with urgent rapid delivery and no long pauses.",
+     "file": "ab_test_runtime/assumption_controls/EMILIA_instruction_very_fast.wav"
+    }
+   }
+  },
+  {
+   "speaker": "NATSUKI SUBARU",
+   "deterministic": true,
+   "different_seed_varies": true,
+   "duration_order_control_passes": true,
+   "renders": {
+    "same_seed_a": {
+     "sha256": "d88603a06ac562e5636063f2440fef199c82c28972bf9fd7a031bbe109055e39",
+     "frames": 107520,
+     "rate": 24000,
+     "duration_s": 4.48,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_same_seed_a.wav"
+    },
+    "same_seed_b": {
+     "sha256": "d88603a06ac562e5636063f2440fef199c82c28972bf9fd7a031bbe109055e39",
+     "frames": 107520,
+     "rate": 24000,
+     "duration_s": 4.48,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_same_seed_b.wav"
+    },
+    "different_seed": {
+     "sha256": "b8f2cf50577c3fead9723124a90d24ab478f491f577604febd00e5bf4164cfbb",
+     "frames": 97920,
+     "rate": 24000,
+     "duration_s": 4.08,
+     "seed": 5678,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_different_seed.wav"
+    }
+   },
+   "instruction_controls": {
+    "neutral": {
+     "sha256": "d88603a06ac562e5636063f2440fef199c82c28972bf9fd7a031bbe109055e39",
+     "frames": 107520,
+     "rate": 24000,
+     "duration_s": 4.48,
+     "seed": 1234,
+     "instruction": "",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_instruction_neutral.wav"
+    },
+    "very_slow": {
+     "sha256": "caa41e206de26ee59151dca370966d6b66014d61909d26478e6de720f557dc89",
+     "frames": 122880,
+     "rate": 24000,
+     "duration_s": 5.12,
+     "seed": 1234,
+     "instruction": "Speak extremely slowly, with long deliberate pauses between phrases.",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_instruction_very_slow.wav"
+    },
+    "very_fast": {
+     "sha256": "095a2773806187ce8fcd8851cf7a1826054d127e2833ad747e2e024e071afbbd",
+     "frames": 86400,
+     "rate": 24000,
+     "duration_s": 3.6,
+     "seed": 1234,
+     "instruction": "Speak extremely quickly, with urgent rapid delivery and no long pauses.",
+     "file": "ab_test_runtime/assumption_controls/NATSUKI SUBARU_instruction_very_fast.wav"
+    }
+   }
+  }
+ ],
+ "interpretation": {
+  "determinism": "SHA-256 equality across fresh processes",
+  "instruction_positive_control": "Slow duration greater than fast is only a plumbing positive control; delivery quality still requires blinded listening."
+ }
+}

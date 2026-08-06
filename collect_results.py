@@ -17,6 +17,9 @@ E = os.path.join(REPO, "ab_test_runtime", "experiments")
 AUDIT = os.path.join(REPO, "ab_test_runtime", "audit")
 parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
 parser.add_argument("--check", action="store_true")
+parser.add_argument("--rescore-repeats", action="store_true",
+                    help="recompute pipeline-repeat scores from the gitignored "
+                         "checkpoints into repeat_scores.json; needs them present")
 args = parser.parse_args()
 
 def _load_audit(name):
@@ -86,9 +89,23 @@ for path in files:
         continue
     env = m.get("lmstudio") or {}
     git = m.get("git") or {}
+    # Aggregate by (BOOK, arm), not arm alone. gold_path names only the FIRST
+    # fixture, so a multi-book artifact was reported as one book: on
+    # 2026-08-06 distill_eval__pdnc_only covered four books and
+    # lora_serving_eval covered two, and both were labelled grimgar03. The
+    # numbers were right and the scope was understated, which is the kind of
+    # error that survives a review because nothing looks wrong.
+    #
+    # Row ids carry the book where the harness wrote one ("grimgar03:
+    # grimgar03-00001"). Where they do not, everything falls into one bucket
+    # and the metadata book is used, exactly as before.
+    def _row_book(r):
+        rid = str(r.get("id") or "")
+        return rid.split(":")[0] if ":" in rid else None
+
     by = collections.defaultdict(lambda: [0, 0])
     for r in rr:
-        b = by[r["arm"]]
+        b = by[(_row_book(r), r["arm"])]
         b[0] += 1
         b[1] += bool(r.get("correct"))
     # Derive book and environment from METADATA, not the filename. Filename
@@ -125,12 +142,15 @@ for path in files:
     else:
         stack = "lmstudio"
     env_tag = f"{machine}-{stack}"
-    for arm, (n, ok) in by.items():
+    for (row_book, arm), (n, ok) in sorted(
+            by.items(), key=lambda kv: (str(kv[0][0]), str(kv[0][1]))):
         rows.append({
             "artifact": name,
             "evidence_status": get_evidence_status(name),
             "experiment": m.get("experiment", ""),
-            "book": book,
+            # The book the ROWS say, when they say one. gold_path names only
+            # the first fixture and understated multi-book runs.
+            "book": row_book or book,
             "model": m.get("model", ""),
             "env_tag": env_tag,
             "host": m.get("host", ""),
@@ -157,8 +177,18 @@ for path in files:
 # artifacts, so the scan above cannot see them - and the determinism finding
 # they produced (SD 0.00 across eight runs) lived only in a log file. Score them
 # here so the consolidated index actually holds all the data.
+#
+# THE CHECKPOINTS THEMSELVES ARE GITIGNORED (.gitignore:190) and are ~1.5 MB
+# each, so scoring them directly made this index a function of files CI does
+# not have: it passed locally and was permanently stale in CI. The mtime-based
+# `finished` field made it irreproducible even on this machine.
+#
+# So the eight scores are computed once, with --rescore-repeats, into a small
+# committed file, and the index reads only that. The evidence survives, the
+# large inputs stay ignored, and the index depends only on committed state.
 _reps = os.path.join(REPO, "ab_test_runtime", "pipeline_repeats")
-if os.path.isdir(_reps):
+_repeat_scores = os.path.join(_reps, "repeat_scores.json")
+if args.rescore_repeats:
     import re as _re
     _gold = json.load(open(os.path.join(
         REPO, "app", "fixtures", "attribution_gold_grimgar03_provisional.json")))
@@ -168,6 +198,7 @@ if os.path.isdir(_reps):
         return a == b or any(a in g and b in g for g in _AL)
     def _norm(t):
         return _re.sub(r"\W+", "", t or "").lower()
+    _scored = []
     for f in sorted(glob.glob(os.path.join(_reps, "run*.threepass_checkpoint.json"))):
         try:
             d = json.load(open(f))
@@ -186,7 +217,7 @@ if os.path.isdir(_reps):
                 ok += _same(idx[k], g["expected_speaker"])
         if not n:
             continue
-        rows.append({
+        _scored.append({
             "artifact": os.path.basename(f), "experiment": "pipeline_repeat",
             "evidence_status": "not_audited",
             "book": "grimgar03", "model": "qwen/qwen3-14b",
@@ -198,6 +229,19 @@ if os.path.isdir(_reps):
             "dirty": "", "commit": "", "elapsed_s": "",
             "finished": time.strftime("%m-%d %H:%M",
                                       time.gmtime(os.path.getmtime(f)))})
+
+    with open(_repeat_scores, "w", encoding="utf-8") as handle:
+        json.dump({"source": "run*.threepass_checkpoint.json (gitignored)",
+                   "rows": _scored}, handle, indent=1)
+    print(f"rescored {len(_scored)} pipeline repeats -> {_repeat_scores}")
+
+# Read only the committed scores, so the index is identical with or without
+# the ignored checkpoints present.
+try:
+    with open(_repeat_scores, encoding="utf-8") as handle:
+        rows.extend(json.load(handle).get("rows") or [])
+except (OSError, ValueError):
+    pass
 
 out_csv = os.path.join(REPO, "results_index.csv")
 # `note` is last but it is NOT optional: three code paths write it and it was

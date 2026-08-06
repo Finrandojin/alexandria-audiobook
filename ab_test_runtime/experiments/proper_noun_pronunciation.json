@@ -1,0 +1,584 @@
+{
+ "seed": 1234,
+ "speaker": "NARRATOR",
+ "substitutes": {
+  "Subaru": "Marcus",
+  "Emilia": "Amelia",
+  "Satella": "Isabel",
+  "Reinhard": "Reginald",
+  "Batenkaitos": "Bartholomew",
+  "Natsuki": "Nathan",
+  "Kenji": "Kevin",
+  "Elsa": "Ella",
+  "Felt": "Faith",
+  "Rom": "Ron",
+  "Puck": "Pike",
+  "Ram": "Rae",
+  "Rem": "Ruth"
+ },
+ "summary": {
+  "with_name": {
+   "failed": 0,
+   "n": 24,
+   "wer": 0.0
+  },
+  "substituted": {
+   "failed": 0,
+   "n": 24,
+   "wer": 0.0
+  }
+ },
+ "fails_only_with_name": 0,
+ "fails_only_with_substitute": 0,
+ "verdict": "Names are NOT the differentiator - both arms fail and pass together. The earlier name-shaped errors were most likely the ASR failing on unusual words rather than the TTS mispronouncing them, and a lexicon would not help.",
+ "rows": [
+  {
+   "line": 1,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru sighed. He had drifted away from where he was, getting all sorts of curious looks, and was now sitting against a wall in an alley just off the main road.",
+   "substituted_text": "Marcus sighed. He had drifted away from where he was, getting all sorts of curious looks, and was now sitting against a wall in an alley just off the main road.",
+   "with_name": {
+    "errors": 0,
+    "words": 31,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 31,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 2,
+   "names": [
+    "Subaru"
+   ],
+   "text": "As for whether he could communicate with the people here, and regarding the value of goods, those were things that Subaru checked immediately upon realizing he had been summoned to a different world.",
+   "substituted_text": "As for whether he could communicate with the people here, and regarding the value of goods, those were things that Marcus checked immediately upon realizing he had been summoned to a different world.",
+   "with_name": {
+    "errors": 0,
+    "words": 33,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 33,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 3,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Now that Subaru had finished establishing the state of his surroundings, he really couldn’t think of anything better to do than return to his default state of escaping from reality.",
+   "substituted_text": "Now that Marcus had finished establishing the state of his surroundings, he really couldn’t think of anything better to do than return to his default state of escaping from reality.",
+   "with_name": {
+    "errors": 0,
+    "words": 30,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 30,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 4,
+   "names": [
+    "Subaru"
+   ],
+   "text": "As he looked at the men smirking, Subaru tried to hold the status quo with a fake smile and considered his options.",
+   "substituted_text": "As he looked at the men smirking, Marcus tried to hold the status quo with a fake smile and considered his options.",
+   "with_name": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 22,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 5,
+   "names": [
+    "Subaru"
+   ],
+   "text": "If Subaru had been summoned to this world under the same conditions as the stories he was familiar with, it was very likely that he had been given some sort of power.",
+   "substituted_text": "If Marcus had been summoned to this world under the same conditions as the stories he was familiar with, it was very likely that he had been given some sort of power.",
+   "with_name": {
+    "errors": 0,
+    "words": 32,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 32,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 6,
+   "names": [
+    "Subaru"
+   ],
+   "text": "With that thought, Subaru felt that his body was a little lighter than usual.",
+   "substituted_text": "With that thought, Marcus felt that his body was a little lighter than usual.",
+   "with_name": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 7,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru returned before flying forward with a straight jab from his right hand, aiming for the big man in front.",
+   "substituted_text": "Marcus returned before flying forward with a straight jab from his right hand, aiming for the big man in front.",
+   "with_name": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 8,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru’s fist collided with the man’s nose, but he also cut his fist on one of the man’s front teeth and started bleeding.",
+   "substituted_text": "Marcus’s fist collided with the man’s nose, but he also cut his fist on one of the man’s front teeth and started bleeding.",
+   "with_name": {
+    "errors": 0,
+    "words": 23,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 23,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 9,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru was confident in his fighting form, but he had never been in a real fight before.",
+   "substituted_text": "Marcus was confident in his fighting form, but he had never been in a real fight before.",
+   "with_name": {
+    "errors": 0,
+    "words": 17,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 17,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 10,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Without taking a moment to pause, Subaru leapt at another of the men, caught off guard, as his next target.",
+   "substituted_text": "Without taking a moment to pause, Marcus leapt at another of the men, caught off guard, as his next target.",
+   "with_name": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 20,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 11,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Turning back around, Subaru bent forward to beat down the last man standing, when his eyes centered on what that man was holding in his hand a glinting knife.",
+   "substituted_text": "Turning back around, Marcus bent forward to beat down the last man standing, when his eyes centered on what that man was holding in his hand a glinting knife.",
+   "with_name": {
+    "errors": 0,
+    "words": 29,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 29,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 12,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Immediately Subaru dropped to his knees, bent over forward, and with a spectacular single motion prostrated himself, pressing his forehead against the ground.",
+   "substituted_text": "Immediately Marcus dropped to his knees, bent over forward, and with a spectacular single motion prostrated himself, pressing his forehead against the ground.",
+   "with_name": {
+    "errors": 0,
+    "words": 23,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 23,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 13,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru felt as if he could hear the blood drain from his body.",
+   "substituted_text": "Marcus felt as if he could hear the blood drain from his body.",
+   "with_name": {
+    "errors": 0,
+    "words": 13,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 13,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 14,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Before he knew it, the two that Subaru thought he had defeated were back on their feet.",
+   "substituted_text": "Before he knew it, the two that Marcus thought he had defeated were back on their feet.",
+   "with_name": {
+    "errors": 0,
+    "words": 17,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 17,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 15,
+   "names": [
+    "Subaru"
+   ],
+   "text": "What would surely happen next, was that with an overflowing sense of justice this girl would save Subaru’s life, right from the clutches of death…",
+   "substituted_text": "What would surely happen next, was that with an overflowing sense of justice this girl would save Marcus’s life, right from the clutches of death…",
+   "with_name": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 16,
+   "names": [
+    "Subaru"
+   ],
+   "text": "The girl was about one head shorter than Subaru, which made her around five feet, three inches tall.",
+   "substituted_text": "The girl was about one head shorter than Marcus, which made her around five feet, three inches tall.",
+   "with_name": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 18,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 17,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Her voice, like silver bells, rang beautifully in Subaru’s ears, and for a moment he forgot the situation he was in.",
+   "substituted_text": "Her voice, like silver bells, rang beautifully in Marcus’s ears, and for a moment he forgot the situation he was in.",
+   "with_name": {
+    "errors": 0,
+    "words": 21,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 21,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 18,
+   "names": [
+    "Subaru"
+   ],
+   "text": "As the men continued to plead their innocence, the girl turned her eyes to Subaru, as if asking whether these men were telling the truth.",
+   "substituted_text": "As the men continued to plead their innocence, the girl turned her eyes to Marcus, as if asking whether these men were telling the truth.",
+   "with_name": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 25,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 19,
+   "names": [
+    "Subaru"
+   ],
+   "text": "The girl turned away from Subaru and the men and toward the main road.",
+   "substituted_text": "The girl turned away from Marcus and the men and toward the main road.",
+   "with_name": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 20,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru, faced with the reality of his abandonment, started to enter a state of shock, when…",
+   "substituted_text": "Marcus, faced with the reality of his abandonment, started to enter a state of shock, when…",
+   "with_name": {
+    "errors": 0,
+    "words": 16,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 16,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 21,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Then, there was a high-pitched sound as a fist-size clump of ice fell to the ground right beside Subaru.",
+   "substituted_text": "Then, there was a high-pitched sound as a fist-size clump of ice fell to the ground right beside Marcus.",
+   "with_name": {
+    "errors": 0,
+    "words": 21,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 21,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 22,
+   "names": [
+    "Subaru"
+   ],
+   "text": "The best word to describe what just happened immediately tumbled out of Subaru’s mouth.",
+   "substituted_text": "The best word to describe what just happened immediately tumbled out of Marcus’s mouth.",
+   "with_name": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 14,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 23,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Magic—having seen it with his very own eyes for the first time, Subaru realized something.",
+   "substituted_text": "Magic—having seen it with his very own eyes for the first time, Marcus realized something.",
+   "with_name": {
+    "errors": 0,
+    "words": 16,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 16,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  },
+  {
+   "line": 24,
+   "names": [
+    "Subaru"
+   ],
+   "text": "Subaru’s feelings on magic aside, the other men, who had taken a real hit from those clumps of ice, got back to their feet.",
+   "substituted_text": "Marcus’s feelings on magic aside, the other men, who had taken a real hit from those clumps of ice, got back to their feet.",
+   "with_name": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "wer": 0.0
+   },
+   "substituted": {
+    "errors": 0,
+    "words": 24,
+    "failed": false,
+    "wer": 0.0
+   },
+   "name_heard": false
+  }
+ ],
+ "skipped": [],
+ "consistency": {
+  "name": "Subaru",
+  "lines": 6,
+  "files": [
+   "ab_test_runtime/proper_noun_audio/consistency_00.wav",
+   "ab_test_runtime/proper_noun_audio/consistency_01.wav",
+   "ab_test_runtime/proper_noun_audio/consistency_02.wav",
+   "ab_test_runtime/proper_noun_audio/consistency_03.wav",
+   "ab_test_runtime/proper_noun_audio/consistency_04.wav",
+   "ab_test_runtime/proper_noun_audio/consistency_05.wav"
+  ]
+ },
+ "provenance": {
+  "script": "proper_noun_pronunciation.py",
+  "written": "2026-08-06T03:18:15",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "1578a1cbf10c3e88aeba1af30c739cf7e1ed3eda",
+   "branch": "agent/simd-evidence",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json",
+    " M app/experiments/ljspeech_build.py",
+    " M app/experiments/lora_voice_sweep.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "6f8e28d5632793a0e6eedc9e0fd31c8453bddc6c547823ccddd875e2e970bb51"
+  },
+  "args": {
+   "script": "chunks.json",
+   "voice_config": "voice_config.json",
+   "config": "app/config.json",
+   "speaker": "NARRATOR",
+   "lines": 24,
+   "consistency_name": "Subaru",
+   "consistency_lines": 6,
+   "seed": 1234,
+   "out_dir": "ab_test_runtime/proper_noun_audio",
+   "out": "ab_test_runtime/experiments/proper_noun_pronunciation.json"
+  },
+  "seed": 1234
+ }
+}

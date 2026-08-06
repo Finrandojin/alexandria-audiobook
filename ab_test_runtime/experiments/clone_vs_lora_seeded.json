@@ -1,0 +1,149 @@
+{
+ "status": "scored",
+ "metric": "speechbrain/spkrec-ecapa-voxceleb cosine similarity",
+ "sentence": "The road bent away between the hills, and neither of them spoke again until the lights of the town came into view.",
+ "provenance": {
+  "script": "clone_vs_lora.py",
+  "written": "2026-08-04T17:12:53",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "fb5d55a8297ce9001d10aa132ff569e2c5c90e10",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "cea441c48b935836936bd0d2305a6fda54b4b3e7321c3b692d177868a2e0fced"
+  },
+  "args": {
+   "phase": "generate",
+   "out_dir": "ab_test_runtime/clone_vs_lora_seeded",
+   "full": 5,
+   "json": "ab_test_runtime/experiments/clone_vs_lora_seeded.json",
+   "config": "app/config.json",
+   "ecapa_cache": "ab_test_runtime/ecapa",
+   "seed": 1234
+  },
+  "seed": 1234
+ },
+ "results": [
+  {
+   "voice": "breathy_baritone_30s_m_fantasy",
+   "samples": 24,
+   "reference": "lora_models/breathy_baritone_30s_m_fantasy/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_30s_m_fantasy__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_30s_m_fantasy__lora.wav",
+   "clone_similarity": 0.6636796593666077,
+   "lora_similarity": 0.6341094970703125,
+   "lora_minus_clone": -0.029570162296295166
+  },
+  {
+   "voice": "silky_mezzo_30s_f",
+   "samples": 88,
+   "reference": "lora_models/silky_mezzo_30s_f/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/silky_mezzo_30s_f__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/silky_mezzo_30s_f__lora.wav",
+   "clone_similarity": 0.7721302509307861,
+   "lora_similarity": 0.8181299567222595,
+   "lora_minus_clone": 0.04599970579147339
+  },
+  {
+   "voice": "warm_baritone_20s_m_postapoc",
+   "samples": 81,
+   "reference": "lora_models/warm_baritone_20s_m_postapoc/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/warm_baritone_20s_m_postapoc__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/warm_baritone_20s_m_postapoc__lora.wav",
+   "clone_similarity": 0.6584756970405579,
+   "lora_similarity": 0.6620403528213501,
+   "lora_minus_clone": 0.0035646557807922363
+  },
+  {
+   "voice": "warm_baritone_40s_m_gothic",
+   "samples": 2,
+   "reference": "lora_models/warm_baritone_40s_m_gothic/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/warm_baritone_40s_m_gothic__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/warm_baritone_40s_m_gothic__lora.wav",
+   "clone_similarity": 0.7367119789123535,
+   "lora_similarity": 0.7443556785583496,
+   "lora_minus_clone": 0.007643699645996094
+  },
+  {
+   "voice": "breathy_alto_50s_f_fantasy",
+   "samples": 200,
+   "reference": "lora_models/breathy_alto_50s_f_fantasy/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_alto_50s_f_fantasy__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_alto_50s_f_fantasy__lora.wav",
+   "clone_similarity": 0.31131088733673096,
+   "lora_similarity": 0.4119987189769745,
+   "lora_minus_clone": 0.10068783164024353
+  },
+  {
+   "voice": "breathy_baritone_40s_m_literary",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_literary/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_literary__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_literary__lora.wav",
+   "clone_similarity": 0.7370563745498657,
+   "lora_similarity": 0.6683392524719238,
+   "lora_minus_clone": -0.0687171220779419
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_1",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_military_1/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_military_1__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_military_1__lora.wav",
+   "clone_similarity": 0.7621828317642212,
+   "lora_similarity": 0.7120278477668762,
+   "lora_minus_clone": -0.05015498399734497
+  },
+  {
+   "voice": "breathy_baritone_40s_m_military_2",
+   "samples": 200,
+   "reference": "lora_models/breathy_baritone_40s_m_military_2/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_military_2__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_baritone_40s_m_military_2__lora.wav",
+   "clone_similarity": 0.6382088661193848,
+   "lora_similarity": 0.607033371925354,
+   "lora_minus_clone": -0.03117549419403076
+  },
+  {
+   "voice": "breathy_mezzo_20s_f_scifi",
+   "samples": 200,
+   "reference": "lora_models/breathy_mezzo_20s_f_scifi/ref_sample.wav",
+   "clone_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_mezzo_20s_f_scifi__clone.wav",
+   "lora_file": "ab_test_runtime/clone_vs_lora_seeded/breathy_mezzo_20s_f_scifi__lora.wav",
+   "clone_similarity": 0.6819571852684021,
+   "lora_similarity": 0.4916718006134033,
+   "lora_minus_clone": -0.19028538465499878
+  }
+ ],
+ "scoring_provenance": {
+  "script": "clone_vs_lora.py",
+  "written": "2026-08-04T17:24:25",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "ac99417f515e001ef9b162f963124831acbac310",
+   "branch": "agent/overnight-costcurve",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/cluster_vs_name.json",
+    " M ab_test_runtime/experiments/listener_impact.json"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "f66cd5a7b9c3dc25795842ee6303e29c9aacaa96ec5ae28679d113897988b30c"
+  },
+  "args": {
+   "phase": "score",
+   "out_dir": "ab_test_runtime/clone_vs_lora_seeded",
+   "full": 5,
+   "json": "ab_test_runtime/experiments/clone_vs_lora_seeded.json",
+   "config": "app/config.json",
+   "ecapa_cache": "ab_test_runtime/ecapa",
+   "seed": 1234
+  },
+  "seed": 1234
+ }
+}

@@ -51,6 +51,22 @@
     "test_attribution_accuracy.ScoringTest.test_missing_entry_is_not_a_crash",
     "test_attribution_accuracy.ScoringTest.test_normalize"
   ],
+  "test_attribution_adapter": [
+    "test_attribution_adapter.ConfigTest.test_it_reads_from_the_active_mode_block",
+    "test_attribution_adapter.ConfigTest.test_no_adapter_configured_is_valid",
+    "test_attribution_adapter.ConfigTest.test_remote_mode_reads_the_remote_block",
+    "test_attribution_adapter.DescribeTest.test_it_records_what_was_expected",
+    "test_attribution_adapter.RequireTest.test_require_can_be_set_in_config",
+    "test_attribution_adapter.RequireTest.test_require_raises",
+    "test_attribution_adapter.RequireTest.test_the_default_warns_rather_than_dying",
+    "test_attribution_adapter.ServingTest.test_a_missing_adapter_is_reported",
+    "test_attribution_adapter.ServingTest.test_an_endpoint_that_cannot_be_asked_is_UNKNOWN_not_absent",
+    "test_attribution_adapter.ServingTest.test_it_matches_on_basename_not_full_path",
+    "test_attribution_adapter.ServingTest.test_no_adapters_at_all_is_reported",
+    "test_attribution_adapter.ServingTest.test_scale_zero_is_reported",
+    "test_attribution_adapter.ServingTest.test_the_configured_adapter_serving_is_ok",
+    "test_attribution_adapter.WiringTest.test_generate_script_performs_the_check"
+  ],
   "test_attribution_voting": [
     "test_attribution_voting.MajorityVoteTest.test_empty_votes_are_handled",
     "test_attribution_voting.MajorityVoteTest.test_majority_wins_over_minority",
@@ -228,6 +244,17 @@
     "test_character_traits.TestValidEvidenceStillWorks.test_label_outranks_persona",
     "test_character_traits.TestValidEvidenceStillWorks.test_persona_description_is_medium_confidence",
     "test_character_traits.TestValidEvidenceStillWorks.test_persona_survives_misleading_dialogue"
+  ],
+  "test_character_voice_seed": [
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_neither_site_seeds_from_a_literal",
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_persona_generation_sets_a_stable_seed",
+    "test_character_voice_seed.TestAssignmentSitesUseIt.test_voice_suggestion_apply_sets_a_stable_seed",
+    "test_character_voice_seed.TestSeedDerivation.test_an_empty_name_does_not_crash",
+    "test_character_voice_seed.TestSeedDerivation.test_different_characters_get_different_seeds",
+    "test_character_voice_seed.TestSeedDerivation.test_spelling_case_does_not_change_the_voice",
+    "test_character_voice_seed.TestSeedDerivation.test_the_same_character_always_gets_the_same_seed",
+    "test_character_voice_seed.TestSeedDerivation.test_the_seed_fits_what_torch_accepts",
+    "test_character_voice_seed.TestSeedDerivation.test_the_seed_is_never_negative"
   ],
   "test_chinese_attribution": [
     "test_chinese_attribution.TestNormalise.test_extracts_tag_index",
@@ -491,6 +518,29 @@
     "test_frontend_regressions.FrontendTests.test_voicelab_diagnostics_actions_are_present_and_sanitized",
     "test_frontend_regressions.FrontendTests.test_voicelab_health_dashboard_is_rendered_and_wired",
     "test_frontend_regressions.FrontendTests.test_voicelab_requires_visible_preflight_before_start"
+  ],
+  "test_generate_personas": [
+    "test_generate_personas.JaccardTest.test_empty_names_score_zero",
+    "test_generate_personas.JaccardTest.test_it_takes_the_same_honorific_decision_as_its_caller",
+    "test_generate_personas.NormalizationTest.test_case_and_punctuation_always_fold",
+    "test_generate_personas.NormalizationTest.test_honorific_stripping_is_optional",
+    "test_generate_personas.NormalizationTest.test_non_string_input_is_empty",
+    "test_generate_personas.RealRosterShapeTest.test_a_case_variant_roster_is_not_treated_as_ambiguous",
+    "test_generate_personas.RealRosterShapeTest.test_a_roster_loaded_from_a_config_shaped_dict",
+    "test_generate_personas.RealRosterShapeTest.test_one_couple_anywhere_in_a_large_roster_is_enough",
+    "test_generate_personas.RefTextTest.test_it_picks_something_from_real_lines",
+    "test_generate_personas.RefTextTest.test_no_lines_does_not_crash",
+    "test_generate_personas.ResolutionTest.test_a_bare_surname_still_resolves_on_an_ambiguous_roster",
+    "test_generate_personas.ResolutionTest.test_a_couple_resolves_to_two_distinct_voices",
+    "test_generate_personas.ResolutionTest.test_a_third_honorific_is_refused_rather_than_guessed",
+    "test_generate_personas.ResolutionTest.test_case_variants_still_resolve",
+    "test_generate_personas.ResolutionTest.test_empty_input_is_none",
+    "test_generate_personas.ResolutionTest.test_loose_matching_survives_where_it_is_safe",
+    "test_generate_personas.ResolutionTest.test_short_names_do_not_match_longer_ones",
+    "test_generate_personas.ResolutionTest.test_unrelated_names_do_not_match",
+    "test_generate_personas.RosterAmbiguityTest.test_a_married_couple_is_detected",
+    "test_generate_personas.RosterAmbiguityTest.test_an_ordinary_roster_is_not",
+    "test_generate_personas.RosterAmbiguityTest.test_empty_and_none_are_safe"
   ],
   "test_generation_guard": [
     "test_generation_guard.TestDispatch.test_clone_routes_to_clone",
@@ -916,6 +966,26 @@
     "test_project_chunks.UnspeakablePassthroughTest.test_embedded_scene_break_becomes_a_pause",
     "test_project_chunks.UnspeakablePassthroughTest.test_leading_scene_break_makes_no_orphan_pause",
     "test_project_chunks.UnspeakablePassthroughTest.test_symbol_is_verbalized"
+  ],
+  "test_pronunciation": [
+    "test_pronunciation.LexiconTest.test_a_malformed_lexicon_degrades_to_no_substitution",
+    "test_pronunciation.LexiconTest.test_a_missing_lexicon_is_not_an_error",
+    "test_pronunciation.LexiconTest.test_a_name_is_respelled",
+    "test_pronunciation.LexiconTest.test_an_edit_takes_effect",
+    "test_pronunciation.LexiconTest.test_an_empty_respelling_is_ignored",
+    "test_pronunciation.LexiconTest.test_every_substitution_is_reported",
+    "test_pronunciation.LexiconTest.test_it_does_not_fire_across_an_apostrophe",
+    "test_pronunciation.LexiconTest.test_it_does_not_fire_inside_a_longer_word",
+    "test_pronunciation.LexiconTest.test_longest_key_wins",
+    "test_pronunciation.LexiconTest.test_non_string_entries_are_skipped",
+    "test_pronunciation.NormalizationIntegrationTest.test_normalization_reports_the_substitution",
+    "test_pronunciation.RosterDerivationTest.test_a_name_colliding_with_a_common_word_is_flagged",
+    "test_pronunciation.RosterDerivationTest.test_a_name_with_no_lowercase_twin_is_not_flagged",
+    "test_pronunciation.RosterDerivationTest.test_a_nickname_does_not_inherit_the_canonical_pronunciation",
+    "test_pronunciation.RosterDerivationTest.test_a_respelled_name_does_not_touch_its_lowercase_word",
+    "test_pronunciation.RosterDerivationTest.test_forms_are_derived_from_the_roster_and_the_text",
+    "test_pronunciation.ShippedLexiconTest.test_it_ships_inert",
+    "test_pronunciation.ShippedLexiconTest.test_the_shipped_file_parses"
   ],
   "test_publisher_matter": [
     "test_publisher_matter.StripPublisherMatterTest.test_a_book_that_is_all_colophon_is_left_alone",
@@ -1372,6 +1442,15 @@
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_dataset_builder_is_not_silently_equated_to_voice_design",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_guide_links_canonical_summary_and_preserves_scope_limits",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_summary_covers_every_registered_stage"
+  ],
+  "test_tts_audio_validation": [
+    "test_tts_audio_validation.TestSaveWavIsTheOnlyFunnel.test_every_generation_path_writes_through_save_wav",
+    "test_tts_audio_validation.TestSaveWavIsTheOnlyFunnel.test_save_wav_validates",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_missing_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_non_audio_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_a_truncated_wav_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_an_empty_file_is_rejected",
+    "test_tts_audio_validation.TestValidationRejectsBadAudio.test_real_audio_passes"
   ],
   "test_tts_benchmark": [
     "test_tts_benchmark.TTSBenchmarkTests.test_clone_case_separates_prompt_and_generation",

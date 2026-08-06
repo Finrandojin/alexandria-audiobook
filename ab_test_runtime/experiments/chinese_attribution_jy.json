@@ -1,0 +1,15 @@
+{
+ "dataset": "jy_test.json",
+ "results": {
+  "0.0": {
+   "correct": 0,
+   "n": 150,
+   "unparsed": 150
+  },
+  "1.0": {
+   "correct": 0,
+   "n": 150,
+   "unparsed": 150
+  }
+ }
+}

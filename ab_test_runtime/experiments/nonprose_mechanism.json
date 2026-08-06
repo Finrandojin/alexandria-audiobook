@@ -1,0 +1,266 @@
+{
+ "seed": 1234,
+ "summary": {
+  "none": {
+   "failed": 7,
+   "n": 8,
+   "wer": 0.5451066098338976
+  },
+  "digits": {
+   "failed": 7,
+   "n": 8,
+   "wer": 0.43229880389963193
+  },
+  "caps": {
+   "failed": 7,
+   "n": 8,
+   "wer": 0.5824965262351731
+  },
+  "punct": {
+   "failed": 7,
+   "n": 8,
+   "wer": 0.569957952295646
+  },
+  "syntax": {
+   "failed": 7,
+   "n": 8,
+   "wer": 0.493474241929186
+  }
+ },
+ "rows": [
+  {
+   "uid": "8ed66ea374e5",
+   "chars": 417,
+   "none": {
+    "errors": 79,
+    "failed": true,
+    "wer": 0.4340659340659341
+   },
+   "digits": {
+    "errors": 47,
+    "failed": true,
+    "wer": 0.25824175824175827
+   },
+   "caps": {
+    "errors": 147,
+    "failed": true,
+    "wer": 0.8076923076923077
+   },
+   "punct": {
+    "errors": 63,
+    "failed": true,
+    "wer": 0.34615384615384615
+   },
+   "syntax": {
+    "errors": 153,
+    "failed": true,
+    "wer": 0.8225806451612904
+   }
+  },
+  {
+   "uid": "faaa1962eb7d",
+   "chars": 222,
+   "none": {
+    "errors": 29,
+    "failed": true,
+    "wer": 0.29896907216494845
+   },
+   "digits": {
+    "errors": 24,
+    "failed": true,
+    "wer": 0.24742268041237114
+   },
+   "caps": {
+    "errors": 15,
+    "failed": true,
+    "wer": 0.15463917525773196
+   },
+   "punct": {
+    "errors": 28,
+    "failed": true,
+    "wer": 0.28865979381443296
+   },
+   "syntax": {
+    "errors": 71,
+    "failed": true,
+    "wer": 0.7029702970297029
+   }
+  },
+  {
+   "uid": "c144a7ede990",
+   "chars": 213,
+   "none": {
+    "errors": 49,
+    "failed": true,
+    "wer": 0.4298245614035088
+   },
+   "digits": {
+    "errors": 18,
+    "failed": true,
+    "wer": 0.15789473684210525
+   },
+   "caps": {
+    "errors": 103,
+    "failed": true,
+    "wer": 0.9035087719298246
+   },
+   "punct": {
+    "errors": 93,
+    "failed": true,
+    "wer": 0.8157894736842105
+   },
+   "syntax": {
+    "errors": 47,
+    "failed": true,
+    "wer": 0.3983050847457627
+   }
+  },
+  {
+   "uid": "82814596e7a5",
+   "chars": 131,
+   "none": {
+    "errors": 14,
+    "failed": true,
+    "wer": 0.3181818181818182
+   },
+   "digits": {
+    "errors": 10,
+    "failed": true,
+    "wer": 0.22727272727272727
+   },
+   "caps": {
+    "errors": 12,
+    "failed": true,
+    "wer": 0.2727272727272727
+   },
+   "punct": {
+    "errors": 12,
+    "failed": true,
+    "wer": 0.2727272727272727
+   },
+   "syntax": {
+    "errors": 11,
+    "failed": true,
+    "wer": 0.22916666666666666
+   }
+  },
+  {
+   "uid": "9beda76f00d7",
+   "chars": 90,
+   "none": {
+    "errors": 13,
+    "failed": true,
+    "wer": 0.2826086956521739
+   },
+   "digits": {
+    "errors": 7,
+    "failed": true,
+    "wer": 0.15217391304347827
+   },
+   "caps": {
+    "errors": 7,
+    "failed": true,
+    "wer": 0.15217391304347827
+   },
+   "punct": {
+    "errors": 11,
+    "failed": true,
+    "wer": 0.2391304347826087
+   },
+   "syntax": {
+    "errors": 10,
+    "failed": true,
+    "wer": 0.2
+   }
+  },
+  {
+   "uid": "56a2ac1ede3a",
+   "chars": 78,
+   "none": {
+    "errors": 8,
+    "failed": true,
+    "wer": 0.6153846153846154
+   },
+   "digits": {
+    "errors": 8,
+    "failed": true,
+    "wer": 0.6153846153846154
+   },
+   "caps": {
+    "errors": 10,
+    "failed": true,
+    "wer": 0.7692307692307693
+   },
+   "punct": {
+    "errors": 8,
+    "failed": true,
+    "wer": 0.6153846153846154
+   },
+   "syntax": {
+    "errors": 12,
+    "failed": true,
+    "wer": 0.7058823529411765
+   }
+  },
+  {
+   "uid": "5ada0174eae8",
+   "chars": 65,
+   "none": {
+    "errors": 9,
+    "failed": true,
+    "wer": 1.8
+   },
+   "digits": {
+    "errors": 9,
+    "failed": true,
+    "wer": 1.8
+   },
+   "caps": {
+    "errors": 8,
+    "failed": true,
+    "wer": 1.6
+   },
+   "punct": {
+    "errors": 9,
+    "failed": true,
+    "wer": 1.8
+   },
+   "syntax": {
+    "errors": 8,
+    "failed": true,
+    "wer": 0.8888888888888888
+   }
+  },
+  {
+   "uid": "71b4afc41287",
+   "chars": 64,
+   "none": {
+    "errors": 2,
+    "failed": false,
+    "wer": 0.18181818181818182
+   },
+   "digits": {
+    "errors": 0,
+    "failed": false,
+    "wer": 0.0
+   },
+   "caps": {
+    "errors": 0,
+    "failed": false,
+    "wer": 0.0
+   },
+   "punct": {
+    "errors": 2,
+    "failed": false,
+    "wer": 0.18181818181818182
+   },
+   "syntax": {
+    "errors": 0,
+    "failed": false,
+    "wer": 0.0
+   }
+  }
+ ],
+ "skipped": [],
+ "verdict": "No ablation reduces failures (7/8 baseline). The model is out of distribution on this register as a whole. Route non-prose away from TTS rather than repairing it - the gate is the answer, not a stopgap."
+}

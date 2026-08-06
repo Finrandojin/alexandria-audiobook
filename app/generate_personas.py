@@ -9,26 +9,82 @@ from openai import OpenAI
 from config_settings import load_app_config
 
 from tts import TTSEngine, sanitize_filename
-from utils import atomic_json_write as _atomic_json_write, safe_load_json, extract_json_object, get_runtime_data_dir, get_app_config_path
+from utils import atomic_json_write as _atomic_json_write, safe_load_json, extract_json_object, get_runtime_data_dir, get_app_config_path, character_voice_seed
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 from lmstudio_settings import ensure_ideal_settings, get_effective_max_tokens
 
 
-def normalize_speaker_name(name):
+HONORIFIC_RE = re.compile(r'^(mr|mrs|ms|miss|dr|prof|sir|lady|lord)\.?\s+')
+
+
+def normalize_speaker_name(name, strip_honorifics=True):
+    """Fold a speaker label for comparison.
+
+    TWO KINDS OF FOLDING, AND THEY ARE NOT EQUALLY SAFE. Case and punctuation
+    can always be folded: no two characters are distinguished by capitalisation
+    alone, and the live config relies on this - EMILIA/Emilia, REINHARD/
+    Reinhard and nine other pairs are one character each.
+
+    An HONORIFIC is different. For a married couple it is the only
+    distinguishing token, and stripping it merged MR. BENNET with MRS. BENNET
+    in Pride and Prejudice - along with the Hilberys, the Allens, the Halls and
+    the Van der Luydens, six of twenty-eight books. Three characters resolved
+    to one voice and nothing failed.
+
+    `scoring.normalize` reached this conclusion for the evaluation path and
+    folds punctuation only, commenting "this must not merge distinct
+    characters". This is the production path catching up. The default is kept
+    for callers doing loose alias heuristics; `_resolve_to_canonical` decides
+    per roster whether stripping is safe.
+    """
     if not isinstance(name, str):
         return ""
     s = name.strip().lower()
-    # Remove common honorifics and punctuation for alias heuristics
-    s = re.sub(r'^(mr|mrs|ms|miss|dr|prof|sir|lady|lord)\.?\s+', '', s)
+    if strip_honorifics:
+        s = HONORIFIC_RE.sub('', s)
     s = re.sub(r'[^a-z0-9\s]', '', s)
     s = re.sub(r'\s+', ' ', s).strip()
     return s
 
 
-def _token_jaccard(a: str, b: str) -> float:
-    """Jaccard similarity on normalized name tokens."""
-    norm_a = normalize_speaker_name(a)
-    norm_b = normalize_speaker_name(b)
+def honorifics_are_distinguishing(allowed):
+    """True when stripping honorifics would merge two entries of this roster.
+
+    Checked against the ACTUAL roster rather than assumed, because the answer
+    differs per book: Pride and Prejudice has both Bennets, most books have
+    neither.
+
+    A collision only counts when KEEPING the honorific resolves it. The first
+    version returned True on any post-normalization duplicate, which included
+    pure case variants - the live config's EMILIA/Emilia and
+    NOT-SATELLA/Not-Satella. Those collide with honorifics kept too, since case
+    folding always applies, so honorifics buy nothing there; the book just paid
+    stricter matching for every one of its characters.
+    """
+    stripped_seen, intact_seen = set(), set()
+    collided = set()
+    for name in allowed or ():
+        stripped = normalize_speaker_name(name, strip_honorifics=True)
+        intact = normalize_speaker_name(name, strip_honorifics=False)
+        if not stripped:
+            continue
+        if stripped in stripped_seen and intact not in intact_seen:
+            collided.add(stripped)
+        stripped_seen.add(stripped)
+        intact_seen.add(intact)
+    return bool(collided)
+
+
+def _token_jaccard(a: str, b: str, strip_honorifics=True) -> float:
+    """Jaccard similarity on normalized name tokens.
+
+    Takes the same honorific decision as its caller. With it stripped,
+    'Miss Darcy' and 'MR DARCY' both reduce to {darcy} and score 1.0 - which
+    is how a third character resolved onto the first Darcy in the roster even
+    after step 1 was fixed.
+    """
+    norm_a = normalize_speaker_name(a, strip_honorifics=strip_honorifics)
+    norm_b = normalize_speaker_name(b, strip_honorifics=strip_honorifics)
     if not norm_a or not norm_b:
         return 0.0
     tokens_a = set(norm_a.split())
@@ -51,19 +107,26 @@ def _resolve_to_canonical(raw_name: str, allowed: list, threshold=0.4) -> str | 
     if not raw_name:
         return None
 
-    norm_raw = normalize_speaker_name(raw_name)
+    # If two roster entries differ ONLY by honorific, stripping it would merge
+    # them - so for that roster, keep the honorific everywhere in this call.
+    # Deciding per roster rather than globally keeps loose matching for the
+    # books that need it, which is most of them.
+    keep = honorifics_are_distinguishing(allowed)
+    norm = lambda n: normalize_speaker_name(n, strip_honorifics=not keep)
+
+    norm_raw = norm(raw_name)
     if not norm_raw:
         return None
 
     # Step 1: Exact match after normalization
     for name in allowed:
-        if normalize_speaker_name(name) == norm_raw:
+        if norm(name) == norm_raw:
             return name
 
     # Step 2: Substring match with word boundaries (avoid 'john' matching 'johnson')
     pattern_raw_in_name = re.compile(r'\b' + re.escape(norm_raw) + r'\b')
     for name in allowed:
-        norm_name = normalize_speaker_name(name)
+        norm_name = norm(name)
         if not norm_name:
             continue
         # Only match if one is a complete word within the other
@@ -83,7 +146,7 @@ def _resolve_to_canonical(raw_name: str, allowed: list, threshold=0.4) -> str | 
     best_name = None
     best_score = 0.0
     for name in allowed:
-        score = _token_jaccard(raw_name, name)
+        score = _token_jaccard(raw_name, name, strip_honorifics=not keep)
         if score > best_score:
             best_score = score
             best_name = name
@@ -426,7 +489,8 @@ def _save_generated_preview(root, engine, voice_config, speaker, description, re
             "ref_text": ref_text,
             "description": description,
             "character_style": description,
-            "seed": -1
+            # Stable per character: see utils.character_voice_seed.
+            "seed": character_voice_seed(speaker),
         })
         voice_config[speaker] = voice_entry
 

@@ -1,0 +1,216 @@
+{
+  "status": "complete",
+  "provenance": {
+    "script": "pitch_profile_matrix.py",
+    "written": "2026-08-04T21:48:08",
+    "host": "mitch-linux",
+    "git": {
+      "commit": "7e9cfd80707f97e028bdbd90bcadba91ccdcb990",
+      "branch": "agent/overnight-costcurve",
+      "dirty": true,
+      "modified_tracked_files": [
+        "M ab_test_runtime/experiments/cluster_vs_name.json",
+        " M ab_test_runtime/experiments/listener_impact.json"
+      ],
+      "untracked_harness_files": null,
+      "harness_sha256": "fbaa72c9eb2fb4aca1e0850c5625076889752cd942752e6c8012caf55d3fb7c4"
+    },
+    "args": {
+      "source": "app/experiments/pitch_profile_passages.json",
+      "config": "app/config.json",
+      "manifest": "lora_models/manifest.json",
+      "adapters": [
+        "silky_baritone_30s_m_fantasy"
+      ],
+      "seeds": [
+        1234,
+        5678
+      ],
+      "categories": [
+        "narration",
+        "plain_dialogue"
+      ],
+      "out_dir": "ab_test_runtime/pitch_profile_matrix_pilot",
+      "out": "ab_test_runtime/experiments/pitch_profile_matrix_pilot.json",
+      "checkpoint": null
+    },
+    "input_sha256": {
+      "app/experiments/pitch_profile_passages.json": "5e195d0380843b577e41751ac1589a289b942af41181c167afa645ac06572503",
+      "chunks.json": "0b0a9fbb3c601489ce997fc2ed574d663da8820b1f3e35435ceaddad99542584",
+      "app/config.json": "7220c6793168c7484f15ef4f257d3291ac06f5e8eb38e5caa47c8ac9671c6579",
+      "lora_models/manifest.json": "fdccf31cd5fe88e1003aef92ffe5bfbd32cad572d513fae8bae44ac4a43a6e0b"
+    },
+    "adapter_sha256": {
+      "silky_baritone_30s_m_fantasy": {
+        "adapter_config.json": "c2dbb1a754e39190186d2c2e2629e314fcdf6925b13f4defeafcecf2c9dc25e8",
+        "adapter_model.safetensors": "01044a8bf2f19bce032623f8e71bae9760fc4139723b3965fd33fe237e52ebf8"
+      }
+    }
+  },
+  "selection": {
+    "rule": "Six ordinary-prose passages selected before Stage 7 generation to span narration, plain dialogue, questions, exclamations, and short/long dialogue; no pitch result was observed during selection.",
+    "passages": [
+      {
+        "category": "narration",
+        "source_path": "chunks.json",
+        "source_index": 60,
+        "speaker": "NARRATOR",
+        "text": "They had blond hair, red hair, and brown hair…some even had blue or green hair, among others, and they were wearing armor, or black robes, or the kind of costume a dancer might wear…that sort of thing.",
+        "source_sha256": "72cd59af8eca44d6e866c414011f52e5c079ac7127cb743d9a67fb01adc3b462",
+        "uid": "72cd59af8eca"
+      },
+      {
+        "category": "plain_dialogue",
+        "source_path": "chunks.json",
+        "source_index": 189,
+        "speaker": "MAN 1",
+        "text": "I’m going to remember your face, you bitch. The next time we see you it won’t go this well for you.",
+        "source_sha256": "1e0da240eb37f890c789aed9168ba3667adde0290093c08b8516e90463e66afb",
+        "uid": "1e0da240eb37"
+      }
+    ]
+  },
+  "adapters": [
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "declared_mean_f0": 123.1
+    }
+  ],
+  "adapter_summary": [
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "declared_mean_f0": 123.1,
+      "rows": 4,
+      "measured_rows": 4,
+      "tracker_failures": 0,
+      "median_pitch_hz": 141.90196717018574,
+      "across_clip_p10_hz": 127.89795465016348,
+      "across_clip_p90_hz": 150.3300465201844,
+      "across_clip_p90_p10_hz": 22.432091870020912,
+      "across_clip_range_hz": 28.183043450563986,
+      "median_clip_iqr_hz": 60.890632484315354,
+      "median_voiced_coverage": 0.8026646556058321,
+      "minimum_voiced_coverage": 0.7642487046632125,
+      "likely_octave_rows": 2
+    }
+  ],
+  "summary": {
+    "adapters_requested": 1,
+    "adapters_measured": 1,
+    "tracker_failure_rows": 0,
+    "likely_octave_rows": 2,
+    "typical_within_adapter_p90_p10_hz": 22.432091870020912,
+    "voice_pairs": 0,
+    "pairs_beyond_typical_dispersion": 0,
+    "separable_pair_fraction": null,
+    "declared_vs_measured_165hz_side_disagreements": 0,
+    "production_threshold_hz": 165
+  },
+  "rows": [
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "seed": 1234,
+      "passage": 0,
+      "category": "narration",
+      "uid": "72cd59af8eca",
+      "source_sha256": "72cd59af8eca44d6e866c414011f52e5c079ac7127cb743d9a67fb01adc3b462",
+      "wav": "ab_test_runtime/pitch_profile_matrix_pilot/silky_baritone_30s_m_fantasy__s1234__p0.wav",
+      "declared_mean_f0": 123.1,
+      "pitch_status": "measured",
+      "pitch_error": null,
+      "pitch_frames": 356,
+      "voiced_frames": 315,
+      "voiced_coverage": 0.8848314606741573,
+      "median_pitch_hz": 123.82763603774404,
+      "pitch_q10_hz": 85.55950256826021,
+      "pitch_q25_hz": 108.42268703014184,
+      "pitch_q75_hz": 136.21063502908584,
+      "pitch_q90_hz": 177.76924770502958,
+      "pitch_iqr_hz": 27.78794799894399,
+      "frame_octave_fraction": 0.0380952380952381,
+      "likely_octave_error": false,
+      "likely_octave_reasons": []
+    },
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "seed": 1234,
+      "passage": 1,
+      "category": "plain_dialogue",
+      "uid": "1e0da240eb37",
+      "source_sha256": "1e0da240eb37f890c789aed9168ba3667adde0290093c08b8516e90463e66afb",
+      "wav": "ab_test_runtime/pitch_profile_matrix_pilot/silky_baritone_30s_m_fantasy__s1234__p1.wav",
+      "declared_mean_f0": 123.1,
+      "pitch_status": "measured",
+      "pitch_error": null,
+      "pitch_frames": 156,
+      "voiced_frames": 124,
+      "voiced_coverage": 0.7948717948717948,
+      "median_pitch_hz": 152.01067948830803,
+      "pitch_q10_hz": 115.7360563897943,
+      "pitch_q25_hz": 125.08607345578017,
+      "pitch_q75_hz": 171.36682571460682,
+      "pitch_q90_hz": 181.29427068562208,
+      "pitch_iqr_hz": 46.28075225882665,
+      "frame_octave_fraction": 0.024193548387096774,
+      "likely_octave_error": false,
+      "likely_octave_reasons": []
+    },
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "seed": 5678,
+      "passage": 0,
+      "category": "narration",
+      "uid": "72cd59af8eca",
+      "source_sha256": "72cd59af8eca44d6e866c414011f52e5c079ac7127cb743d9a67fb01adc3b462",
+      "wav": "ab_test_runtime/pitch_profile_matrix_pilot/silky_baritone_30s_m_fantasy__s5678__p0.wav",
+      "declared_mean_f0": 123.1,
+      "pitch_status": "measured",
+      "pitch_error": null,
+      "pitch_frames": 386,
+      "voiced_frames": 295,
+      "voiced_coverage": 0.7642487046632125,
+      "median_pitch_hz": 137.3953647458089,
+      "pitch_q10_hz": 87.76225162819905,
+      "pitch_q25_hz": 101.74796921026864,
+      "pitch_q75_hz": 177.66662372426998,
+      "pitch_q90_hz": 201.857768121659,
+      "pitch_iqr_hz": 75.91865451400135,
+      "frame_octave_fraction": 0.05084745762711865,
+      "likely_octave_error": true,
+      "likely_octave_reasons": [
+        "within_clip_frame_modes"
+      ]
+    },
+    {
+      "adapter": "silky_baritone_30s_m_fantasy",
+      "seed": 5678,
+      "passage": 1,
+      "category": "plain_dialogue",
+      "uid": "1e0da240eb37",
+      "source_sha256": "1e0da240eb37f890c789aed9168ba3667adde0290093c08b8516e90463e66afb",
+      "wav": "ab_test_runtime/pitch_profile_matrix_pilot/silky_baritone_30s_m_fantasy__s5678__p1.wav",
+      "declared_mean_f0": 123.1,
+      "pitch_status": "measured",
+      "pitch_error": null,
+      "pitch_frames": 153,
+      "voiced_frames": 124,
+      "voiced_coverage": 0.8104575163398693,
+      "median_pitch_hz": 146.40856959456255,
+      "pitch_q10_hz": 86.05514372443301,
+      "pitch_q25_hz": 105.79375797581802,
+      "pitch_q75_hz": 181.29427068562208,
+      "pitch_q90_hz": 197.82325744051138,
+      "pitch_iqr_hz": 75.50051270980406,
+      "frame_octave_fraction": 0.06451612903225806,
+      "likely_octave_error": true,
+      "likely_octave_reasons": [
+        "within_clip_frame_modes"
+      ]
+    }
+  ],
+  "limitations": [
+    "pYIN flags likely octave errors; it does not establish ground truth pitch.",
+    "The 165 Hz comparison reports threshold instability, not gender truth.",
+    "No numerical pitch threshold is adopted without blinded listening."
+  ]
+}

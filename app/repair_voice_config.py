@@ -166,6 +166,67 @@ def apply_merges(config, splits, force_ambiguous=False):
     return merged
 
 
+
+def seed_characters(args):
+    """Replace random per-line voice draws with one stable draw per character.
+
+    A "-1" seed means the generator draws a new voice for every line. That was
+    invisible until 2026-08-04 because `generate_lora_voice` ignored the field
+    entirely, so every voice behaved that way regardless of what was stored.
+    Now the field is honoured, "-1" means it literally - and 70 of 71
+    characters carried it.
+
+    Deliberately separate from the split repair and off by default. This
+    changes how a book SOUNDS on its next generation, which is the user's call
+    rather than a defect fix, and existing rendered audio will not match
+    audio generated after it.
+    """
+    from utils import atomic_json_write, character_voice_seed
+
+    raw = json.load(open(args.config, encoding="utf-8"))
+    nested = isinstance(raw.get("characters"), dict)
+    config = raw["characters"] if nested else raw
+
+    changes = []
+    for name, entry in config.items():
+        if not isinstance(entry, dict):
+            continue
+        current = str(entry.get("seed", "-1")).strip()
+        # Only unseeded entries. An explicit seed is somebody's decision and
+        # is not overwritten.
+        if current and current != "-1":
+            continue
+        changes.append((name, current or "(none)", character_voice_seed(name)))
+
+    if not changes:
+        print("Every character already has a stable seed. Nothing to do.")
+        return
+
+    print(f"{len(changes)} of {len(config)} characters are redrawn per line:\n")
+    for name, was, now in changes[:40]:
+        print(f"  {name[:34]:36} {was:>6} -> {now}")
+    if len(changes) > 40:
+        print(f"  ... and {len(changes) - 40} more")
+    print("\n  A '-1' seed draws a new voice for EVERY LINE. Seeding makes each"
+          "\n  character one consistent voice for the whole book.")
+    print("  Audio already rendered will NOT match audio generated after this.")
+
+    if not args.apply:
+        print("\nReport only. Re-run with --apply to write.")
+        return
+
+    backup = args.config + ".bak"
+    shutil.copy2(args.config, backup)
+    for name, _, seed in changes:
+        config[name]["seed"] = str(seed)
+    if nested:
+        raw["characters"] = config
+    # (data, path) - not (path, data). Verified against utils.py:231
+    # after the reversed form failed on the write path only.
+    atomic_json_write(raw if nested else config, args.config)
+    print(f"\nSeeded {len(changes)} characters. Backup at {backup}")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--config", default=DEFAULT_CONFIG)
@@ -179,7 +240,16 @@ def main():
                          "intended")
     ap.add_argument("--apply", action="store_true",
                     help="write the merge (backs up first); default is report only")
+    ap.add_argument("--seed-characters", action="store_true",
+                    dest="seed_characters",
+                    help="give every character a stable per-name seed. Voices "
+                         "written before 2026-08-04 carry -1, meaning the voice "
+                         "is redrawn on EVERY LINE - the 'multiple narrators' "
+                         "effect. Reports by default; needs --apply to write.")
     args = ap.parse_args()
+
+    if args.seed_characters:
+        return seed_characters(args)
 
     raw = json.load(open(args.config, encoding="utf-8"))
     config = raw.get("characters") if isinstance(raw.get("characters"), dict) else raw

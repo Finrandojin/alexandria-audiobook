@@ -1,0 +1,100 @@
+{
+  "status": "complete",
+  "provenance": {
+    "script": "scene_aware_casting.py",
+    "written": "2026-08-04T21:19:52",
+    "host": "mitch-linux",
+    "git": {
+      "commit": "a30421404c28aaf2d83092581a465eff304e2813",
+      "branch": "agent/overnight-costcurve",
+      "dirty": true,
+      "modified_tracked_files": [
+        "M ab_test_runtime/experiments/cluster_vs_name.json",
+        " M ab_test_runtime/experiments/listener_impact.json"
+      ],
+      "untracked_harness_files": null,
+      "harness_sha256": "9a268cbea2ddbaea35475911a8f91919eb1ec4331e5116f9d0c53850b95e87d1"
+    },
+    "args": {
+      "script": "chunks.json",
+      "voice_config": "voice_config.json",
+      "manifest": "lora_models/manifest.json",
+      "window": 20,
+      "aliases": "character_aliases.json",
+      "out": "ab_test_runtime/experiments/stage6_scene_aware_casting.json"
+    },
+    "input_sha256": {
+      "chunks.json": "0b0a9fbb3c601489ce997fc2ed574d663da8820b1f3e35435ceaddad99542584",
+      "voice_config.json": "711aaead85ebdec2e9e094db7d9a8799c72a4a3e097f309780ddf94a40976e75",
+      "lora_models/manifest.json": "fdccf31cd5fe88e1003aef92ffe5bfbd32cad572d513fae8bae44ac4a43a6e0b",
+      "character_aliases.json": "4f963bb679c6d4548c281e2598d1c75c8c2e71f6a00de17676e0a24e4c13d683"
+    }
+  },
+  "window": 20,
+  "characters": 23,
+  "current": {
+    "adapters": 6,
+    "conflicts": 7,
+    "conflict_pairs": [
+      [
+        "ANASTASIA",
+        "MIZELDA"
+      ],
+      [
+        "ANASTASIA",
+        "ROM"
+      ],
+      [
+        "CROWD",
+        "FELT"
+      ],
+      [
+        "CROWD",
+        "REINHARD"
+      ],
+      [
+        "FELT",
+        "REINHARD"
+      ],
+      [
+        "LITTLE GIRL",
+        "SATELLA"
+      ],
+      [
+        "MIZELDA",
+        "ROM"
+      ]
+    ],
+    "min_pitch_gap": 0.0
+  },
+  "scene_aware": {
+    "adapters": 8,
+    "conflicts": 0,
+    "min_pitch_gap": 17.099999999999994,
+    "assignment": {
+      "KENJI": "warm_baritone_40s_m_scifi",
+      "NATSUKI SUBARU": "warm_bass_50s_m_fantasy",
+      "MAN 1": "husky_soprano_20s_f",
+      "MAN 2": "warm_baritone_40s_m_gothic",
+      "LITTLE GIRL": "breathy_alto_50s_f_fantasy",
+      "MAN": "warm_tenor_30s_m_2",
+      "MAN WITH KNIFE": "silky_mezzo_30s_f",
+      "NEW VOICE": "warm_baritone_40s_m_scifi",
+      "PUCK": "warm_baritone_40s_m_scifi",
+      "VOICE (CAT)": "silky_mezzo_30s_f",
+      "SATELLA": "warm_baritone_40s_m_scifi",
+      "LITTLE GIRL'S MOTHER": "warm_baritone_40s_m_gothic",
+      "SHOP OWNER": "warm_baritone_40s_m_gothic",
+      "MIZELDA": "warm_mezzo_30s_f_fantasy_2",
+      "MAN 3": "breathy_alto_50s_f_fantasy",
+      "ROM": "warm_baritone_40s_m_gothic",
+      "FELT": "warm_baritone_40s_m_scifi",
+      "ANASTASIA": "warm_tenor_30s_m_2",
+      "THUG (DUMBEST)": "warm_baritone_40s_m_scifi",
+      "CROWD": "warm_mezzo_30s_f_fantasy_2",
+      "REINHARD": "breathy_alto_50s_f_fantasy",
+      "NOT-SATELLA": "silky_mezzo_30s_f",
+      "EMILIA": "warm_baritone_40s_m_gothic"
+    }
+  }
+}

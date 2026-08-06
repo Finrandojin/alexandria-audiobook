@@ -1,0 +1,95 @@
+{
+ "rows": [
+  {
+   "uid": "8ed66ea374e5",
+   "chars": 417,
+   "items": 11,
+   "whole_errors": 70,
+   "whole_failed": true,
+   "whole_wer": 0.38461538461538464,
+   "split_errors": 80,
+   "split_failed": true,
+   "split_wer": 0.43956043956043955
+  },
+  {
+   "uid": "faaa1962eb7d",
+   "chars": 222,
+   "items": 6,
+   "whole_errors": 27,
+   "whole_failed": true,
+   "whole_wer": 0.27835051546391754,
+   "split_errors": 36,
+   "split_failed": true,
+   "split_wer": 0.3711340206185567
+  },
+  {
+   "uid": "c144a7ede990",
+   "chars": 213,
+   "items": 7,
+   "whole_errors": 52,
+   "whole_failed": true,
+   "whole_wer": 0.45614035087719296,
+   "split_errors": 31,
+   "split_failed": true,
+   "split_wer": 0.2719298245614035
+  },
+  {
+   "uid": "82814596e7a5",
+   "chars": 131,
+   "items": 3,
+   "whole_errors": 12,
+   "whole_failed": true,
+   "whole_wer": 0.2727272727272727,
+   "split_errors": 12,
+   "split_failed": true,
+   "split_wer": 0.2727272727272727
+  },
+  {
+   "uid": "9beda76f00d7",
+   "chars": 90,
+   "items": 3,
+   "whole_errors": 11,
+   "whole_failed": true,
+   "whole_wer": 0.2391304347826087,
+   "split_errors": 10,
+   "split_failed": true,
+   "split_wer": 0.21739130434782608
+  },
+  {
+   "uid": "56a2ac1ede3a",
+   "chars": 78,
+   "items": 5,
+   "whole_errors": 4,
+   "whole_failed": true,
+   "whole_wer": 0.3076923076923077,
+   "split_errors": 8,
+   "split_failed": true,
+   "split_wer": 0.6153846153846154
+  },
+  {
+   "uid": "5ada0174eae8",
+   "chars": 65,
+   "items": 1,
+   "whole_errors": 10,
+   "whole_failed": true,
+   "whole_wer": 2.0,
+   "split_errors": 10,
+   "split_failed": true,
+   "split_wer": 2.0
+  },
+  {
+   "uid": "71b4afc41287",
+   "chars": 64,
+   "items": 1,
+   "whole_errors": 9,
+   "whole_failed": true,
+   "whole_wer": 0.8181818181818182,
+   "split_errors": 9,
+   "split_failed": true,
+   "split_wer": 0.8181818181818182
+  }
+ ],
+ "whole_failed": 8,
+ "split_failed": 8,
+ "skipped": []
+}

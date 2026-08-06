@@ -18,5 +18,125 @@
    "minor_line": 40,
    "unanswered": 31
   }
+ },
+ "lora_serving_eval__local-rocm-lora-b2.json": {
+  "base": {
+   "n": 225,
+   "acc": 0.6088888888888889,
+   "lead_acc": 0.6518987341772152,
+   "lead_n": 158,
+   "lead_line": 52,
+   "minor_line": 28,
+   "unanswered": 8
+  },
+  "lora": {
+   "n": 225,
+   "acc": 0.6933333333333334,
+   "lead_acc": 0.7151898734177216,
+   "lead_n": 158,
+   "lead_line": 37,
+   "minor_line": 22,
+   "unanswered": 10
+  }
+ },
+ "lora_serving_eval__local-rocm-lora.json": {
+  "base": {
+   "n": 547,
+   "acc": 0.720292504570384,
+   "lead_acc": 0.7195652173913043,
+   "lead_n": 460,
+   "lead_line": 126,
+   "minor_line": 22,
+   "unanswered": 5
+  },
+  "lora": {
+   "n": 547,
+   "acc": 0.7623400365630713,
+   "lead_acc": 0.7565217391304347,
+   "lead_n": 460,
+   "lead_line": 104,
+   "minor_line": 16,
+   "unanswered": 10
+  }
+ },
+ "cascade__grimgar03__llama-3.3-70b__tuned-cheap-arm.json": {
+  "cascade": {
+   "n": 396,
+   "acc": 0.8459595959595959,
+   "lead_acc": 0.8875,
+   "lead_n": 320,
+   "minor_line": 19,
+   "lead_line": 35,
+   "unanswered": 7
+  },
+  "cheap-w1": {
+   "n": 396,
+   "acc": 0.8232323232323232,
+   "lead_acc": 0.86875,
+   "lead_n": 320,
+   "minor_line": 22,
+   "lead_line": 41,
+   "unanswered": 7
+  }
+ },
+ "cascade__index18__llama-3.3-70b__tuned-cheap-arm.json": {
+  "cascade": {
+   "n": 99,
+   "acc": 0.6363636363636364,
+   "lead_acc": 0.7377049180327869,
+   "lead_n": 61,
+   "lead_line": 13,
+   "unanswered": 8,
+   "minor_line": 15
+  },
+  "cheap-w1": {
+   "n": 99,
+   "acc": 0.5757575757575758,
+   "lead_acc": 0.639344262295082,
+   "lead_n": 61,
+   "lead_line": 20,
+   "minor_line": 20,
+   "unanswered": 2
+  }
+ },
+ "cascade__mushoku16__llama-3.3-70b__tuned-cheap-arm.json": {
+  "cascade": {
+   "n": 136,
+   "acc": 0.6176470588235294,
+   "lead_acc": 0.6288659793814433,
+   "lead_n": 97,
+   "lead_line": 34,
+   "unanswered": 4,
+   "minor_line": 14
+  },
+  "cheap-w1": {
+   "n": 136,
+   "acc": 0.5514705882352942,
+   "lead_acc": 0.5773195876288659,
+   "lead_n": 97,
+   "lead_line": 38,
+   "unanswered": 9,
+   "minor_line": 14
+  }
+ },
+ "cascade__owarimonogatari3__llama-3.3-70b__tuned-cheap-arm.json": {
+  "cascade": {
+   "n": 162,
+   "acc": 0.5987654320987654,
+   "lead_acc": 0.6285714285714286,
+   "lead_n": 140,
+   "lead_line": 50,
+   "minor_line": 10,
+   "unanswered": 5
+  },
+  "cheap-w1": {
+   "n": 162,
+   "acc": 0.5432098765432098,
+   "lead_acc": 0.5714285714285714,
+   "lead_n": 140,
+   "lead_line": 58,
+   "minor_line": 13,
+   "unanswered": 3
+  }
  }
 }
