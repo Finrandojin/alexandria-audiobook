@@ -1,0 +1,117 @@
+{
+  "description": "Adjudication of every row where 8+ independent runs agreed on a speaker the gold disagrees with. Rows found by pooling per-line predictions from 167 experiment artifacts and applying the gold's own alias sets; 9 of 793 gold rows were in dispute (1.1%).",
+  "adjudicated_by": "claude-opus-5 2026-08-06 (third judge, full passage read from source text)",
+  "method": "For each row the surrounding ~2200 characters of source text were read and the dialogue attribution traced. No model output was consulted beyond the vote counts.",
+  "verdict": "The gold is correct on 8 of 8 adjudicable rows. The ninth has no entry in any current gold file and cannot be judged.",
+  "standing_limitation": "This is a third frontier model adjudicating labels made by frontier models. Where all of them share a blind spot the agreement measures correlation, not truth. The rulings below are quoted against explicit dialogue tags in the source wherever one exists, which is the part a shared blind spot cannot manufacture.",
+  "model_error_modes": [
+    {
+      "mode": "POV/protagonist default",
+      "rows": [
+        "mushoku16-01609",
+        "mushoku16-01614",
+        "grimgar03-02476"
+      ],
+      "means": "Attributing a line to the viewpoint character or the most recently active character rather than to the tagged speaker."
+    },
+    {
+      "mode": "turn-taking off-by-one",
+      "rows": [
+        "mushoku16-00509"
+      ],
+      "means": "In an untagged alternating exchange, assigning the reply to the questioner. This is the exact blind spot the gold's own known_limit predicted."
+    },
+    {
+      "mode": "salient-name capture",
+      "rows": [
+        "index18-01505"
+      ],
+      "means": "Taking the name that dominates the surrounding prose rather than the one the attribution tag gives. Matches the 2026-07-28 grimgar03 scene adjudication finding."
+    },
+    {
+      "mode": "convention not taught",
+      "rows": [
+        "grimgar03-02573",
+        "index18-02183",
+        "index18-02185"
+      ],
+      "means": "UNNAMED vs UNKNOWN. The gold distinguishes them by a documented rule the models were never given, so these are scoring artifacts and mean measured accuracy UNDERSTATES true accuracy."
+    }
+  ],
+  "corrections": [],
+  "rows": [
+    {
+      "id": "mushoku16-01609",
+      "gold": "GARU FARION",
+      "consensus": "ERIS",
+      "runs": 153,
+      "favours": "gold",
+      "reasoning": "'Seeing that, Eris remembered the final words of the Sword God.' introduces the quote. The Sword God is named in the same passage: 'the one who trained Eris to the brink of death was Garu Farion' and 'Sword God Garu Farion's palm'. Eris recalls; Garu Farion speaks. Same shape as the gold's letter_and_diary_text convention."
+    },
+    {
+      "id": "mushoku16-01614",
+      "gold": "GARU FARION",
+      "consensus": "ERIS",
+      "runs": 153,
+      "favours": "gold",
+      "reasoning": "Continuation of the same remembered speech begun at 01609, inside the same quotation."
+    },
+    {
+      "id": "mushoku16-00509",
+      "gold": "RUDEUS",
+      "consensus": "NANAHOSHI",
+      "runs": 152,
+      "favours": "gold",
+      "reasoning": "Strictly alternating exchange. Rudeus is fixed by 'my true name from my previous life' and 'our entire conversation in my dream'. The disputed line answers Nanahoshi's question 'But you're listening to what he says?' and is immediately followed by 'Nanahoshi sighed', confirming she was the listener."
+    },
+    {
+      "id": "grimgar03-02573",
+      "gold": "UNNAMED",
+      "consensus": "UNKNOWN",
+      "runs": 141,
+      "favours": "gold",
+      "reasoning": "Tagged '\"Woooooo!\" someone cheered.' The text identifies a speaker but never names one, which is UNNAMED by the gold's stated convention. Convention artifact, not an error."
+    },
+    {
+      "id": "grimgar03-02476",
+      "gold": "ABAEL",
+      "consensus": "RANTA",
+      "runs": 117,
+      "favours": "gold",
+      "reasoning": "Explicit tag: '\"Ubogeh?!\" Abael exclaimed.' Runs gave the cry to Ranta, who shouted 'Exhaust Plus!' immediately before - the attacker rather than the victim."
+    },
+    {
+      "id": "index18-01505",
+      "gold": "UNNAMED",
+      "consensus": "SMARTVERI",
+      "runs": 52,
+      "favours": "gold",
+      "reasoning": "Explicit tag: 'Another witch, her colleague, interrupted her via a different communication line.' The speaker is identified as a different witch from Smartveri and is never named. Smartveri dominates the surrounding prose, which is what the runs captured."
+    },
+    {
+      "id": "index18-02183",
+      "gold": "UNNAMED",
+      "consensus": "UNKNOWN",
+      "runs": 52,
+      "favours": "gold",
+      "reasoning": "Speaker set up as 'a young girl of about twelve' beside 'the boss of a certain UK sorcerer's society'. Identified, never named - UNNAMED by convention."
+    },
+    {
+      "id": "index18-02185",
+      "gold": "UNNAMED",
+      "consensus": "UNKNOWN",
+      "runs": 52,
+      "favours": "gold",
+      "reasoning": "Same unnamed girl, next question in the same alternating exchange with the boss."
+    },
+    {
+      "id": "grimgar03-01674",
+      "gold": "NARRATOR",
+      "consensus": "ANTHONY",
+      "runs": 113,
+      "favours": "unjudgeable",
+      "reasoning": "Not present in any current gold file and no line text survives. Its expected value reaches the scorers from an experiment artifact only, so a stale row from a superseded gold is being scored. Should be removed from scoring rather than ruled on."
+    }
+  ],
+  "implication": "The consensus of many runs is not evidence against this gold. On every row where an explicit dialogue tag exists, the tag agrees with the gold and the runs disagree with the tag. Maximum exposure from gold error is therefore far below the 1.1% upper bound computed before adjudication."
+}

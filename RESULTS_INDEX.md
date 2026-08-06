@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-06 06:49 from `ab_test_runtime/experiments/` — 260 artifacts, 521 arms.
+Generated 2026-08-06 07:50 from `ab_test_runtime/experiments/` — 260 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -55,15 +55,15 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b25 | 99 | 66.7% | supported_measurement | ok | False | 1851.3s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b5 | 99 | 54.5% | supported_measurement | ok | False | 1851.3s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b50 | 99 | 54.5% | supported_measurement | ok | False | 1851.3s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b1 | 139 | 30.2% | provisional | ok | False | 952.5s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b1 | 139 | 30.2% | supported_measurement | ok | False | 952.5s |
 | mushoku16 | qwen3-14b | cloud-a6000-LM | LM Studio loopback | 16384 | b1 | 139 | 28.8% | exploratory | ok | False | 1396.6s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b10 | 139 | 46.0% | provisional | ok | False | 952.5s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b10 | 139 | 46.0% | supported_measurement | ok | False | 952.5s |
 | mushoku16 | qwen3-14b | cloud-a6000-LM | LM Studio loopback | 16384 | b10 | 139 | 38.1% | exploratory | ok | False | 1396.6s |
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b100 | 139 | 49.6% | provisional | ok | True | 3425.6s |
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b25 | 139 | 51.8% | provisional | ok | True | 3425.6s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b25 | 139 | 49.6% | provisional | ok | False | 952.5s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b25 | 139 | 49.6% | supported_measurement | ok | False | 952.5s |
 | mushoku16 | qwen3-14b | cloud-a6000-LM | LM Studio loopback | 16384 | b25 | 139 | 46.8% | exploratory | ok | False | 1396.6s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b5 | 139 | 40.3% | provisional | ok | False | 952.5s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | b5 | 139 | 40.3% | supported_measurement | ok | False | 952.5s |
 | mushoku16 | qwen3-14b | cloud-a6000-LM | LM Studio loopback | 16384 | b5 | 139 | 37.4% | exploratory | ok | False | 1396.6s |
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b50 | 139 | 48.9% | provisional | ok | True | 3425.6s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | b10 | 162 | 36.4% | supported_measurement | ok | False | 2716.3s |
@@ -83,11 +83,11 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 |---|---|---|---|---:|---|---:|---:|---|---|---|---:|
 | grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | baseline | 400 | 55.5% | historical_only | ok | False | 4766.2s |
 | grimgar03 | qwen3-14b | local-lmstudio | lmstudio | 16384 | thinking | 400 | 63.7% | historical_only | ok | False | 4766.2s |
-| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | baseline | 139 | 49.6% | provisional | ok | False | 2668.6s |
+| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | baseline | 139 | 49.6% | supported_measurement | ok | False | 2668.6s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | baseline | 139 | 49.6% | provisional | ok | True | 4564.3s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | because | 139 | 42.4% | provisional | ok | True | 4564.3s |
 | mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | scaffold_thinking | 139 | 43.2% | provisional | ok | True | 4564.3s |
-| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | thinking | 139 | 52.5% | provisional | ok | False | 2668.6s |
+| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | thinking | 139 | 52.5% | supported_measurement | ok | False | 2668.6s |
 
 ## booknlp_baseline
 
@@ -301,8 +301,8 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w4 | 99 | 68.7% | supported_measurement | ok | False | 1317.4s |
 | mushoku16 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w1 | 139 | 66.9% | exploratory | ok | False | 2904.1s |
 | mushoku16 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w4 | 139 | 59.0% | exploratory | ok | False | 2904.1s |
-| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | w1 | 139 | 49.6% | provisional | ok | False | 826.8s |
-| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | w4 | 139 | 44.6% | provisional | ok | False | 826.8s |
+| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | w1 | 139 | 49.6% | supported_measurement | ok | False | 826.8s |
+| mushoku16 | qwen3-14b | local-lmstudio | lmstudio | 16384 | w4 | 139 | 44.6% | supported_measurement | ok | False | 826.8s |
 | owarimonogatari3 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w1 | 162 | 59.3% | exploratory | ok | False | 5596.8s |
 | owarimonogatari3 | llama-3.3-70b | cloud-a6000-llamacpp-cuda | llama.cpp-cuda on- | 16384 | w4 | 162 | 62.3% | exploratory | ok | False | 5596.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | w1 | 162 | 40.1% | supported_measurement | ok | False | 2955.3s |
@@ -353,10 +353,10 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | open-grammar | 99 | 65.7% | supported_measurement | ok | False | 71.3s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | oracle-free | 99 | 73.7% | supported_measurement | ok | False | 71.3s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | oracle-grammar | 99 | 74.7% | supported_measurement | ok | False | 71.3s |
-| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | open-free | 139 | 53.2% | provisional | ok | False | 114.0s |
-| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | open-grammar | 139 | 51.8% | provisional | ok | False | 114.0s |
-| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | oracle-free | 139 | 58.3% | provisional | ok | False | 114.0s |
-| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | oracle-grammar | 139 | 66.2% | provisional | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | open-free | 139 | 53.2% | supported_measurement | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | open-grammar | 139 | 51.8% | supported_measurement | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | oracle-free | 139 | 58.3% | supported_measurement | ok | False | 114.0s |
+| mushoku16 | magistral-small | local-llamacpp-hip | llama.cpp-hip b101 | 8192 | oracle-grammar | 139 | 66.2% | supported_measurement | ok | False | 114.0s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | open-free | 162 | 47.5% | supported_measurement | ok | False | 135.1s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | open-grammar | 162 | 46.3% | supported_measurement | ok | False | 135.1s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | oracle-free | 162 | 51.9% | supported_measurement | ok | False | 135.1s |
@@ -430,8 +430,8 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 400 | 60.2% | historical_only | ok | False | 2180.7s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | baseline | 99 | 64.6% | supported_measurement | ok | False | 1021.5s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 99 | 65.7% | supported_measurement | ok | False | 1021.5s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | baseline | 139 | 51.8% | provisional | ok | False | 842.4s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 139 | 56.1% | provisional | ok | False | 842.4s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | baseline | 139 | 51.8% | supported_measurement | ok | False | 842.4s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 139 | 56.1% | supported_measurement | ok | False | 842.4s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | baseline | 162 | 38.3% | supported_measurement | ok | False | 1783.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | narrator | 162 | 38.9% | supported_measurement | ok | False | 1783.8s |
 
@@ -548,9 +548,9 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 
 | book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |
 |---|---|---|---|---:|---|---:|---:|---|---|---|---:|
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | incremental | 139 | 41.0% | provisional | ok | False | 8408.8s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | oracle | 139 | 46.8% | provisional | ok | False | 8408.8s |
-| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | warm | 139 | 44.6% | provisional | ok | False | 8408.8s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | incremental | 139 | 41.0% | supported_measurement | ok | False | 8408.8s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | oracle | 139 | 46.8% | supported_measurement | ok | False | 8408.8s |
+| mushoku16 | ministral-3-14b-instruct-2 | local-lmstudio | lmstudio | 16384 | warm | 139 | 44.6% | supported_measurement | ok | False | 8408.8s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | incremental | 139 | 27.3% | exploratory | ok | False | 1039.6s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | oracle | 139 | 35.3% | exploratory | ok | False | 1039.6s |
 | mushoku16 | qwen3.5-9b-uncensored-hauh | local-lmstudio | lmstudio | 32768 | warm | 139 | 32.4% | exploratory | ok | False | 1039.6s |
@@ -663,9 +663,9 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | grimgar03 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote5 | 400 | 57.8% | historical_only | ok | False | 6517.4s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | greedy | 99 | 64.6% | supported_measurement | ok | False | 1607.3s |
 | index18 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote3 | 99 | 63.6% | supported_measurement | ok | False | 1607.3s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | greedy | 139 | 47.5% | provisional | ok | False | 3221.3s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote3 | 139 | 48.9% | provisional | ok | False | 3221.3s |
-| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote5 | 139 | 48.9% | provisional | ok | False | 3221.3s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | greedy | 139 | 47.5% | supported_measurement | ok | False | 3221.3s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote3 | 139 | 48.9% | supported_measurement | ok | False | 3221.3s |
+| mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote5 | 139 | 48.9% | supported_measurement | ok | False | 3221.3s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | greedy | 162 | 40.7% | supported_measurement | ok | False | 2872.6s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | vote3 | 162 | 38.3% | supported_measurement | ok | False | 2872.6s |
 
