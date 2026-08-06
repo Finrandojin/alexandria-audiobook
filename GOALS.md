@@ -142,10 +142,17 @@ afterwards. When the choice must be made without seeing the held-out book, the
 router wins 4 families, loses 5, ties 6, and lands **below** a fixed setting.
 An oracle-routed number is not an achievable number.
 
-#### The one lever that is positive on every book
+#### The one lever positive on all four tested books — and only four
+
+**Scope first, because the result is easy to overstate and was.** This ran on
+grimgar03, index18, mushoku16 and owarimonogatari3. All four are Japanese light
+novels **in English translation** — one genre, one language, one translation
+pipeline. It has never run on the three PDNC public-domain English novels, on
+the Chinese WP/JY sets, or on any Japanese-language text. Read every number
+below as "four books of one kind", not "every book".
 
 `roster_quality` varied the roster instead of the model. Adding the names
-`build_roster` missed beats the generated roster on all four books, and beats a
+`build_roster` missed beats the generated roster on all four, and beats a
 *perfect* roster too:
 
 | book | generated | augmented | gold |
@@ -170,7 +177,35 @@ when they are real.** A recall fix that pads the list will lose more than it
 gains.
 
 **So the next move on 1.2 is `build_roster` in `three_pass_generate.py`, not a
-prompt, a constraint, or a router.**
+prompt, a constraint, or a router — but see the scope note first.**
+
+#### Before acting on it: widen the book set
+
+The cheapest way to find out whether this generalises is to run the same
+experiment on PDNC. It is not blocked by missing data:
+
+- PDNC ships its own curated roster (74 names for Pride and Prejudice), which
+  is what the `gold` arm needs, and from a published annotated corpus rather
+  than this project's own judging.
+- Its gold sets are LARGER than the light novels': 1270 / 640 / 584 rows
+  against 396 / 162 / 136 / 99.
+- **PDNC contamination does not apply here.** That contamination concerns the
+  distilled adapter's training set. `roster_quality` trains nothing; it runs
+  the base model and varies only the roster at inference. Nothing is fitted, so
+  held-out status is irrelevant to this particular experiment.
+
+What blocks it is a hardcoded book list in `roster_quality.py`
+(`for other in ("grimgar03", "mushoku16", "index18", "owarimonogatari3")`),
+used to draw decoys for the `inflated` arm. That is an afternoon, not a project.
+
+Chinese (WP/JY) would need more work: those sets use a different structure
+(`dataset`/`results` rather than `entries`). No Japanese-language attribution
+gold exists at all — the light novels are Japanese-origin but English text.
+
+If roster augmentation holds on three English public-domain novels of a
+different century and genre, it is a real finding and goal 1.3 gains evidence
+at the same time. If it does not, then it was a property of translated light
+novels and the whole recommendation changes.
 
 #### Still open
 
