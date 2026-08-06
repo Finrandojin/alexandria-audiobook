@@ -159,6 +159,11 @@ def main():
 
     if not results:
         print("\nno book produced both arms; nothing to compare")
+        for f in failures[:4]:
+            print(f"    {f}")
+        if any("Connection" in str(f) for f in failures) or failures:
+            print("\n  If every arm failed, check the LLM server first:")
+            print("    ./start_llama_server.sh")
     else:
         print(f"\n  {'book':20}{'n':>6}{'single':>9}{'three':>9}{'delta':>8}")
         for r in results:
@@ -186,6 +191,13 @@ def main():
     with open(args.out, "w", encoding="utf-8") as fh:
         json.dump(doc, fh, indent=1, ensure_ascii=False)
     print(f"\nwrote {args.out}")
+
+    # WRITING AN ARTIFACT IS NOT SUCCEEDING. On 2026-08-06 this exited 0 having
+    # compared nothing - no LLM server was running, all four books failed, and
+    # the artifact faithfully recorded that. The chain read rc=0 and logged OK.
+    # A run that compared no books must be a failure to its caller.
+    if not results:
+        sys.exit(3)
 
 
 if __name__ == "__main__":
