@@ -1,0 +1,631 @@
+{
+ "clips_per_adapter": 10,
+ "seed": 5,
+ "results": [
+  {
+   "adapter": "breathy_alto_50s_f_fantasy",
+   "dataset": "narrator_mare_trevathan_the_godking_s_legacy_char1_vol01",
+   "ref_vs_training": 0.4285,
+   "adapter_ecapa": 0.2136,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_30s_m_fantasy",
+   "dataset": "narrator_robert_west_damsels_of_jormia_char2_vol01",
+   "ref_vs_training": 0.3622,
+   "adapter_ecapa": 0.7048,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_literary",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char5_vol01",
+   "ref_vs_training": 0.8259,
+   "adapter_ecapa": 0.6678,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_military_1",
+   "dataset": "narrator_michael_page_house_of_chains_char1_vol01",
+   "ref_vs_training": 0.797,
+   "adapter_ecapa": 0.4803,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_military_2",
+   "dataset": "narrator_qarie_marshall_wolverine_road_of_bones_1662042051_char1_vol01",
+   "ref_vs_training": 0.7453,
+   "adapter_ecapa": 0.6995,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_mezzo_20s_f_scifi",
+   "dataset": "narrator_luci_christian_full_metal_panic_char2_vol01",
+   "ref_vs_training": 0.6889,
+   "adapter_ecapa": 0.477,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_18s_m_supernatural",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01",
+   "ref_vs_training": 0.6966,
+   "adapter_ecapa": 0.3973,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_20s_m_fantasy",
+   "dataset": "narrator_liam_price_the_archer_of_beast_woods_char1_vol01",
+   "ref_vs_training": 0.827,
+   "adapter_ecapa": 0.5748,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_50s_m_fantasy",
+   "dataset": "narrator_ralph_lister_gardens_of_the_moon_char1_vol01",
+   "ref_vs_training": 0.6707,
+   "adapter_ecapa": 0.6646,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "bright_tenor_30s_m",
+   "dataset": "narrator_mallorie_rodak_frieren_beyond_journey_s_end_prelude_vol_1_b0gx9t26cv_char1_vol01",
+   "ref_vs_training": 0.7698,
+   "adapter_ecapa": 0.6845,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "crisp_mezzo_30s_f",
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol_1_char2_vol01",
+   "ref_vs_training": 0.7569,
+   "adapter_ecapa": 0.5373,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "crisp_tenor_20s_m",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char1_vol01",
+   "ref_vs_training": 0.8315,
+   "adapter_ecapa": 0.6396,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "crisp_tenor_30s_m_fantasy",
+   "dataset": "narrator_shiromi_arserio_the_jasmine_throne_154910487x_char1_vol01",
+   "ref_vs_training": 0.6817,
+   "adapter_ecapa": 0.4706,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "gravelly_baritone_50s_m_scifi",
+   "dataset": "narrator_scott_brick_foundation_s_edge_b005wl4r7e_char1_vol01",
+   "ref_vs_training": 0.7219,
+   "adapter_ecapa": 0.6272,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_alto_40s_f",
+   "dataset": "narrator_amy_landon_a_memory_called_empire_teixcalaan_book_1_1250318955_char1_vol01",
+   "ref_vs_training": 0.7986,
+   "adapter_ecapa": 0.6756,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_20s_m_anime",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+   "ref_vs_training": -0.0256,
+   "adapter_ecapa": 0.0274,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_20s_m_supernatural",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char1_vol01",
+   "ref_vs_training": 0.3919,
+   "adapter_ecapa": 0.0526,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_35s_m",
+   "dataset": "narrator_peter_kenny_sword_of_destiny_char1_vol01",
+   "ref_vs_training": 0.6614,
+   "adapter_ecapa": 0.6401,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_1",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char2_vol01",
+   "ref_vs_training": 0.7674,
+   "adapter_ecapa": 0.573,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_2",
+   "dataset": "narrator_scott_brick_foundation_s_edge_b005wl4r7e_char2_vol01",
+   "ref_vs_training": 0.7687,
+   "adapter_ecapa": 0.5298,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_military",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char2_vol01",
+   "ref_vs_training": 0.1326,
+   "adapter_ecapa": 0.6247,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_scifi",
+   "dataset": "narrator_jon_lindstrom_nightfall_and_other_stories_059341635x_char1_vol01",
+   "ref_vs_training": 0.8014,
+   "adapter_ecapa": 0.5595,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_50s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char1_vol01",
+   "ref_vs_training": 0.7218,
+   "adapter_ecapa": 0.6621,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_50s_m_military",
+   "dataset": "narrator_tim_gerard_reynolds_age_of_war_char1_vol01",
+   "ref_vs_training": 0.7263,
+   "adapter_ecapa": 0.5312,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_soprano_20s_f",
+   "dataset": "narrator_brittney_karbowski_reincarnated_slime_char1_vol01",
+   "ref_vs_training": 0.8165,
+   "adapter_ecapa": 0.6054,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m",
+   "dataset": "narrator_various_waking_gods_b01ngublbw_char1_vol01",
+   "ref_vs_training": 0.5642,
+   "adapter_ecapa": 0.469,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "dataset": "narrator_steven_pacey_the_blade_itself_char1_vol01",
+   "ref_vs_training": 0.7564,
+   "adapter_ecapa": 0.5722,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m_literary",
+   "dataset": "narrator_cindy_kay_water_moon_a_novel_b0d26l1r1d_char1_vol01",
+   "ref_vs_training": 0.8094,
+   "adapter_ecapa": 0.7369,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char3_vol01",
+   "ref_vs_training": 0.4815,
+   "adapter_ecapa": 0.5519,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_cyberpunk",
+   "dataset": "narrator_cherami_leigh_cyberpunk_2077_char1_vol01",
+   "ref_vs_training": 0.731,
+   "adapter_ecapa": 0.5304,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_literary_1",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char2_vol01",
+   "ref_vs_training": 0.7969,
+   "adapter_ecapa": 0.6827,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_literary_2",
+   "dataset": "narrator_traci_kato_kiriyama_the_phone_booth_at_the_edge_of_the_world_a_novel_059345894x_char1_vol01",
+   "ref_vs_training": 0.8255,
+   "adapter_ecapa": 0.6896,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_30s_m",
+   "dataset": "narrator_nick_podehl_super_sales_on_super_heroes_book_2_super_sales_on_super_heroes_book_2_b07cj4c449_char1_vol01",
+   "ref_vs_training": 0.4641,
+   "adapter_ecapa": 0.274,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_30s_m_fantasy",
+   "dataset": "narrator_alyssa_poon_robert_bradvica_rise_of_the_weakest_summoner_volume_i_b09nzklscb_char1_vol01",
+   "ref_vs_training": 0.7933,
+   "adapter_ecapa": 0.6253,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_40s_m_scifi",
+   "dataset": "narrator_todd_mclaren_altered_carbon_b002v1o6x8_char1_vol01",
+   "ref_vs_training": 0.7725,
+   "adapter_ecapa": 0.6625,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_45s_m",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char4_vol01",
+   "ref_vs_training": 0.0579,
+   "adapter_ecapa": 0.2236,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_10s_f_fantasy",
+   "dataset": "narrator_reba_buhr_ascendance_of_a_bookworm_1_char1_vol01",
+   "ref_vs_training": 0.7022,
+   "adapter_ecapa": 0.501,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f",
+   "dataset": "narrator_suzy_jackson_skyward_char1_vol01",
+   "ref_vs_training": 0.8298,
+   "adapter_ecapa": 0.7027,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f_fantasy",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char2_vol01",
+   "ref_vs_training": 0.6428,
+   "adapter_ecapa": 0.5643,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f_supernatural",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char6_vol01",
+   "ref_vs_training": 0.7589,
+   "adapter_ecapa": 0.7077,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "velvety_mezzo_30s_f_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char9_vol01",
+   "ref_vs_training": 0.05,
+   "adapter_ecapa": 0.0614,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_1",
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol_1_char1_vol01",
+   "ref_vs_training": 0.7583,
+   "adapter_ecapa": 0.5039,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_2",
+   "dataset": "narrator_suzy_jackson_skyward_char2_vol01",
+   "ref_vs_training": 0.7257,
+   "adapter_ecapa": 0.6447,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_3",
+   "dataset": "narrator_tara_sands_shorefall_a_novel_0593148053_char1_vol01",
+   "ref_vs_training": 0.7719,
+   "adapter_ecapa": 0.5691,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_50s_f_anime",
+   "dataset": "narrator_hollie_jackson_seize_the_day_a_world_conquest_isekai_empress_book_1_b0cxrzxtr9_char1_vol01",
+   "ref_vs_training": 0.8166,
+   "adapter_ecapa": 0.6431,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_50s_f_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char3_vol01",
+   "ref_vs_training": 0.6875,
+   "adapter_ecapa": 0.0338,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_20s_m_postapoc",
+   "dataset": "narrator_jay_snyder_ex_heroes_char2_vol01",
+   "ref_vs_training": 0.6319,
+   "adapter_ecapa": 0.587,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_1",
+   "dataset": "narrator_brian_nishii_alita_battle_angel_the_official_movie_novelization_b07hhjpkmj_char1_vol01",
+   "ref_vs_training": 0.7325,
+   "adapter_ecapa": 0.565,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_2",
+   "dataset": "narrator_christian_j_gilliland_hazel_cohen_elemental_summoner_1_b09bxyjxyt_char1_vol01",
+   "ref_vs_training": 0.8358,
+   "adapter_ecapa": 0.4839,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_3",
+   "dataset": "narrator_jay_snyder_ex_heroes_char3_vol01",
+   "ref_vs_training": 0.4334,
+   "adapter_ecapa": 0.4829,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_fantasy_1",
+   "dataset": "narrator_cliff_kurt_mushoku_tensei_char1_vol01",
+   "ref_vs_training": 0.7408,
+   "adapter_ecapa": 0.5664,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_fantasy_2",
+   "dataset": "narrator_robert_west_damsels_of_jormia_char1_vol01",
+   "ref_vs_training": 0.6931,
+   "adapter_ecapa": 0.5686,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_scifi",
+   "dataset": "narrator_jay_snyder_ex_heroes_char1_vol01",
+   "ref_vs_training": 0.7973,
+   "adapter_ecapa": 0.6423,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_1",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char8_vol01",
+   "ref_vs_training": 0.5303,
+   "adapter_ecapa": 0.5846,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_2",
+   "dataset": "narrator_gareth_armstrong_the_devastation_of_baal_space_marine_conquests_warhammer_40000_book_1_b07ctt3bgq_char1_vol01",
+   "ref_vs_training": 0.8594,
+   "adapter_ecapa": 0.7302,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_3",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char1_vol01",
+   "ref_vs_training": 0.8002,
+   "adapter_ecapa": 0.5832,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_4",
+   "dataset": "narrator_paul_boehmer_vampire_hunter_d_char1_vol01",
+   "ref_vs_training": 0.8459,
+   "adapter_ecapa": 0.5665,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_5",
+   "dataset": "narrator_rc_bray_lost_gods_char1_vol01",
+   "ref_vs_training": 0.7862,
+   "adapter_ecapa": 0.5639,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_fantasy",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char3_vol01",
+   "ref_vs_training": 0.0368,
+   "adapter_ecapa": 0.099,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char2_vol01",
+   "ref_vs_training": 0.7687,
+   "adapter_ecapa": null,
+   "clips": 2,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_military",
+   "dataset": "narrator_simon_vance_the_blinding_knife_b0096gj7g2_char1_vol01",
+   "ref_vs_training": 0.7737,
+   "adapter_ecapa": 0.5626,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_scifi",
+   "dataset": "narrator_c_j_mission_monster_core_2_1774241641_char1_vol01",
+   "ref_vs_training": 0.7224,
+   "adapter_ecapa": 0.6678,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_50s_m",
+   "dataset": "narrator_jot_davies_the_vagrant_b00vus19w4_char1_vol01",
+   "ref_vs_training": 0.7886,
+   "adapter_ecapa": 0.68,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_50s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char5_vol01",
+   "ref_vs_training": 0.1271,
+   "adapter_ecapa": 0.4741,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_bass_50s_m_fantasy",
+   "dataset": "narrator_michael_kramer_the_hero_of_ages_char1_vol01",
+   "ref_vs_training": 0.7991,
+   "adapter_ecapa": 0.6282,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_20s_f_anime",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char1_vol01",
+   "ref_vs_training": 0.8219,
+   "adapter_ecapa": 0.6655,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f",
+   "dataset": "narrator_kate_reading_a_natural_history_of_dragons_char1_vol01",
+   "ref_vs_training": 0.7147,
+   "adapter_ecapa": 0.5195,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f_fantasy_1",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char1_vol01",
+   "ref_vs_training": 0.7136,
+   "adapter_ecapa": 0.6074,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f_fantasy_2",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char3_vol01",
+   "ref_vs_training": 0.5375,
+   "adapter_ecapa": 0.482,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char4_vol01",
+   "ref_vs_training": 0.0955,
+   "adapter_ecapa": 0.7248,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m_scifi",
+   "dataset": "narrator_luci_christian_full_metal_panic_char1_vol01",
+   "ref_vs_training": 0.6458,
+   "adapter_ecapa": 0.5114,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_25s_m_military",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char1_vol01",
+   "ref_vs_training": 0.5873,
+   "adapter_ecapa": 0.4039,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_1",
+   "dataset": "narrator_john_lee_spellmonger_spellmonger_book_1_b01n264eek_char1_vol01",
+   "ref_vs_training": 0.8471,
+   "adapter_ecapa": 0.5494,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_2",
+   "dataset": "narrator_kirby_heyborne_out_of_house_and_home_fred_the_vampire_accountant_series_book_7_b09d1hqbvy_char1_vol01",
+   "ref_vs_training": 0.8086,
+   "adapter_ecapa": 0.5892,
+   "clips": 10,
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char7_vol01",
+   "ref_vs_training": 0.8154,
+   "adapter_ecapa": 0.4572,
+   "clips": 10,
+   "error": null
+  }
+ ],
+ "correlation": 0.5883,
+ "mismatched_refs": 7,
+ "mismatched_ref_and_failed_adapter": 4,
+ "provenance": {
+  "script": "ref_clip_match.py",
+  "written": "2026-08-07T05:39:32",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "382582f8c430ce51e2592a23b6d694ed2eca86e4",
+   "branch": "main",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "7edca6d4a25b526f5d446b282a9b07f8d41991907301e4c5de52b276201ae205"
+  },
+  "args": {
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "fidelity": "ab_test_runtime/experiments/library_voice_fidelity.json",
+   "clips": 10,
+   "seed": 5,
+   "out": "ab_test_runtime/experiments/ref_clip_match.json"
+  },
+  "seed": 5
+ }
+}

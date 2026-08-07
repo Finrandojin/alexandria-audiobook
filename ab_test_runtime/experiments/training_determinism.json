@@ -1,0 +1,69 @@
+{
+ "adapter": "husky_baritone_20s_m_anime",
+ "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+ "runs": 3,
+ "seed": 1234,
+ "identical_weights": false,
+ "distinct_hashes": 3,
+ "ecapa_spread": 0.054300000000000015,
+ "verdict": "varies slightly - deterministic in effect; ordinary numerical noise",
+ "results": [
+  {
+   "run": 0,
+   "rc": 0,
+   "dir": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/training_determinism/run0",
+   "weight_sha256": "4c7efb3c67840fa2ddd78f7c020b1d5973c6a4e08635be58bdfcb43c99a69bd0",
+   "final_loss": "4.2436",
+   "ecapa": 0.739,
+   "ecapa_error": null
+  },
+  {
+   "run": 1,
+   "rc": 0,
+   "dir": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/training_determinism/run1",
+   "weight_sha256": "9d8c5f60873138aeb5bfb4cd8857af8416fd18e286772f5244d279962ff8965e",
+   "final_loss": "4.2455",
+   "ecapa": 0.7362,
+   "ecapa_error": null
+  },
+  {
+   "run": 2,
+   "rc": 0,
+   "dir": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/training_determinism/run2",
+   "weight_sha256": "6392b8947136ade7a071028bcc81efba32b5c8f2da809db921a7129847b368b0",
+   "final_loss": "4.2444",
+   "ecapa": 0.6847,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "training_determinism.py",
+  "written": "2026-08-07T11:22:26",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d015e1eeef750ffa40fd34f689e1af97e0cbea45",
+   "branch": "agent/fix-extract-val",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/training_determinism.py",
+    "app/experiments/verify_adapter_identity.py"
+   ],
+   "harness_sha256": "fafe63ab1deb1dede2b7e6ade05241b36ca1e77fa463c806f1541bc65a74114f"
+  },
+  "args": {
+   "adapter": "husky_baritone_20s_m_anime",
+   "runs": 3,
+   "seed": 1234,
+   "epochs": 6,
+   "lora_r": 64,
+   "lora_alpha": 128,
+   "eval_lines": 6,
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "work": "ab_test_runtime/training_determinism",
+   "out": "ab_test_runtime/experiments/training_determinism.json"
+  },
+  "seed": 1234
+ }
+}

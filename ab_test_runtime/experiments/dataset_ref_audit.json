@@ -1,0 +1,739 @@
+{
+ "clips": 16,
+ "seed": 11,
+ "improved_over_threshold": 0,
+ "results": [
+  {
+   "dataset": "narrator_alyssa_poon_robert_bradvica_rise_of_the_weakest_summoner:_volume_i_[b09nzklscb]_char1_vol01_youthful_energetic_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.7816,
+   "medoid_clip": "sample_1251.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_amy_landon_a_memory_called_empire:_teixcalaan_book_1_[1250318955]_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8463,
+   "medoid_clip": "sample_1692.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_brian_nishii_alita:_battle_angel:_the_official_movie_novelization_[b07hhjpkmj]_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8264,
+   "medoid_clip": "sample_1780.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_brittney_karbowski_reincarnated_slime_char1_vol01_authoritative_deep_high_voice_very_animated_moderate_volume",
+   "current_ref_score": null,
+   "medoid_score": 0.8624,
+   "medoid_clip": "sample_2730.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_brittney_karbowski_reincarnated_slime_char1_vol01_bright_expressive_high_voice_very_animated_moderate_volume",
+   "current_ref_score": null,
+   "medoid_score": 0.8588,
+   "medoid_clip": "sample_2636.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_c.j._mission_monster_core_2_[1774241641]_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8037,
+   "medoid_clip": "sample_0318.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cherami_leigh_cyberpunk_2077_char1_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7774,
+   "medoid_clip": "sample_0298.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cherami_leigh_cyberpunk_2077_char1_vol01_intimate_dramatic_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7564,
+   "medoid_clip": "sample_0228.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_christian_j._gilliland_hazel_cohen_elemental_summoner_1_[b09bxyjxyt]_char1_vol01_intimate_dramatic_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.794,
+   "medoid_clip": "sample_0269.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cindy_kay_water_moon:_a_novel_[b0d26l1r1d]_char1_vol01_authoritative_deep_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.825,
+   "medoid_clip": "sample_2475.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cliff_kurt_mushoku_tensei_char1_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7831,
+   "medoid_clip": "sample_2382.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cliff_kurt_mushoku_tensei_char1_vol01_intimate_dramatic_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.768,
+   "medoid_clip": "sample_2230.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cristina_vee_nekomonogatari_char1_vol01_authoritative_deep_bright_voice_animated_moderate_volume_dy",
+   "current_ref_score": null,
+   "medoid_score": 0.8702,
+   "medoid_clip": "sample_2105.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cristina_vee_nekomonogatari_char1_vol01_bright_expressive_bright_voice_animated_moderate_volume_dy",
+   "current_ref_score": null,
+   "medoid_score": 0.8547,
+   "medoid_clip": "sample_2163.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8816,
+   "medoid_clip": "sample_2297.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7773,
+   "medoid_clip": "sample_2276.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.7525,
+   "medoid_clip": "sample_0201.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char2_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": null,
+   "medoid_clip": null,
+   "error": "too few clips"
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char3_vol01_authoritative_deep_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.2267,
+   "medoid_clip": "sample_4166.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char4_vol01_authoritative_deep_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7435,
+   "medoid_clip": "sample_0884.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char5_vol01_authoritative_deep_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.1775,
+   "medoid_clip": "sample_5891.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char6_vol01_authoritative_deep_bright_voice_animated_moderate_volume_dy",
+   "current_ref_score": null,
+   "medoid_score": 0.8353,
+   "medoid_clip": "sample_1476.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char7_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8366,
+   "medoid_clip": "sample_3341.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char8_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.7326,
+   "medoid_clip": "sample_4681.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_dracula_[audible_edition]_[b0078pa1oa]_char9_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8166,
+   "medoid_clip": "sample_2279.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_emily_woo_zeller_red_winter:_the_complete_trilogy_[b0d1z63lzd]_char1_vol01_intimate_dramatic_high_voice_very_animated_moderate_volume",
+   "current_ref_score": null,
+   "medoid_score": 0.8051,
+   "medoid_clip": "sample_0892.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_emily_woo_zeller_red_winter:_the_complete_trilogy_[b0d1z63lzd]_char2_vol01_authoritative_deep_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7482,
+   "medoid_clip": "sample_8842.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_emily_woo_zeller_red_winter:_the_complete_trilogy_[b0d1z63lzd]_char3_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7169,
+   "medoid_clip": "sample_9694.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_gareth_armstrong_the_devastation_of_baal:_space_marine_conquests:_warhammer_40000_book_1_[b07ctt3bgq]_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8718,
+   "medoid_clip": "sample_3864.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_hollie_jackson_seize_the_day:_a_world_conquest_isekai:_empress_book_1_[b0cxrzxtr9]_char1_vol01_authoritative_deep_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.8377,
+   "medoid_clip": "sample_0851.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char1_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.838,
+   "medoid_clip": "sample_2684.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char1_vol01_intimate_dramatic_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8123,
+   "medoid_clip": "sample_2676.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char2_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7733,
+   "medoid_clip": "sample_1417.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char2_vol01_intimate_dramatic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7285,
+   "medoid_clip": "sample_1443.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char3_vol01_bright_expressive_mid_voice_even_keeled_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7048,
+   "medoid_clip": "sample_1682.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol._10_char3_vol01_intimate_dramatic_mid_voice_even_keeled_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7308,
+   "medoid_clip": "sample_1625.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jay_snyder_ex_heroes_char1_vol01_authoritative_deep_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8403,
+   "medoid_clip": "sample_2846.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jay_snyder_ex_heroes_char1_vol01_youthful_energetic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8296,
+   "medoid_clip": "sample_2899.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jay_snyder_ex_heroes_char2_vol01_authoritative_deep_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.6858,
+   "medoid_clip": "sample_3254.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jay_snyder_ex_heroes_char2_vol01_youthful_energetic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8061,
+   "medoid_clip": "sample_3215.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jay_snyder_ex_heroes_char3_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7634,
+   "medoid_clip": "sample_1117.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_john_lee_spellmonger:_spellmonger_book_1_[b01n264eek]_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8723,
+   "medoid_clip": "sample_0673.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jon_lindstrom_nightfall_and_other_stories_[059341635x]_char1_vol01_youthful_energetic_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8069,
+   "medoid_clip": "sample_3149.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_jot_davies_the_vagrant_[b00vus19w4]_char1_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8606,
+   "medoid_clip": "sample_1557.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_kate_reading_a_natural_history_of_dragons_char1_vol01_authoritative_deep_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.8554,
+   "medoid_clip": "sample_2768.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_kate_reading_a_natural_history_of_dragons_char1_vol01_youthful_energetic_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.8468,
+   "medoid_clip": "sample_2766.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char1_vol01_authoritative_deep_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.4645,
+   "medoid_clip": "sample_3211.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char1_vol01_youthful_energetic_mid_voice_varied_mid_moderate_volume_dyn",
+   "current_ref_score": null,
+   "medoid_score": 0.6653,
+   "medoid_clip": "sample_3395.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7914,
+   "medoid_clip": "sample_0354.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01_intimate_dramatic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7773,
+   "medoid_clip": "sample_0322.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_kirby_heyborne_out_of_house_and_home:_fred_the_vampire_accountant_series_book_7_[b09d1hqbvy]_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8121,
+   "medoid_clip": "sample_1758.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_liam_price_the_archer_of_beast_woods_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8266,
+   "medoid_clip": "sample_0644.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_liam_price_the_archer_of_beast_woods_char1_vol01_intimate_dramatic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8268,
+   "medoid_clip": "sample_0716.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_luci_christian_full_metal_panic_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7568,
+   "medoid_clip": "sample_0089.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_luci_christian_full_metal_panic_char1_vol01_youthful_energetic_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7371,
+   "medoid_clip": "sample_0106.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_luci_christian_full_metal_panic_char2_vol01_authoritative_deep_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7722,
+   "medoid_clip": "sample_2267.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_luci_christian_full_metal_panic_char2_vol01_youthful_energetic_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.787,
+   "medoid_clip": "sample_2262.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_mallorie_rodak_frieren:_beyond_journey's_end__prelude__vol._1_[b0gx9t26cv]_char1_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7961,
+   "medoid_clip": "sample_1843.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_mare_trevathan_the_godking's_legacy_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7271,
+   "medoid_clip": "sample_3072.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_mare_trevathan_the_godking's_legacy_char1_vol01_youthful_energetic_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.6884,
+   "medoid_clip": "sample_3071.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_michael_kramer_the_hero_of_ages_char1_vol01_authoritative_deep_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8281,
+   "medoid_clip": "sample_0375.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_michael_kramer_the_hero_of_ages_char1_vol01_youthful_energetic_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8328,
+   "medoid_clip": "sample_0365.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_michael_page_house_of_chains_char1_vol01_authoritative_deep_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8679,
+   "medoid_clip": "sample_1213.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_michael_page_house_of_chains_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8866,
+   "medoid_clip": "sample_1346.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol._1_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7397,
+   "medoid_clip": "sample_0043.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol._1_char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7653,
+   "medoid_clip": "sample_0244.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_nick_podehl_super_sales_on_super_heroes_book_2:_super_sales_on_super_heroes_book_2_[b07cj4c449]_char1_vol01_bright_expressive_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.7508,
+   "medoid_clip": "sample_2025.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_paul_boehmer_vampire_hunter_d_char1_vol01_authoritative_deep_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7979,
+   "medoid_clip": "sample_0307.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_paul_boehmer_vampire_hunter_d_char1_vol01_youthful_energetic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8127,
+   "medoid_clip": "sample_0216.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_peter_kenny_sword_of_destiny_char1_vol01_authoritative_deep_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8165,
+   "medoid_clip": "sample_2440.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_peter_kenny_sword_of_destiny_char1_vol01_intimate_dramatic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8086,
+   "medoid_clip": "sample_2493.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_qarie_marshall_wolverine:_road_of_bones_[1662042051]_char1_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8627,
+   "medoid_clip": "sample_0083.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_ralph_lister_gardens_of_the_moon_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7934,
+   "medoid_clip": "sample_2818.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_ralph_lister_gardens_of_the_moon_char1_vol01_intimate_dramatic_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.7977,
+   "medoid_clip": "sample_2923.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_rc_bray_lost_gods_char1_vol01_authoritative_deep_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.7931,
+   "medoid_clip": "sample_3812.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_rc_bray_lost_gods_char1_vol01_youthful_energetic_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8446,
+   "medoid_clip": "sample_3897.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_reba_buhr_ascendance_of_a_bookworm___1_char1_vol01_authoritative_deep_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.789,
+   "medoid_clip": "sample_1159.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_reba_buhr_ascendance_of_a_bookworm___1_char1_vol01_youthful_energetic_bright_voice_animated_quiet_dynamic_rang",
+   "current_ref_score": null,
+   "medoid_score": 0.7925,
+   "medoid_clip": "sample_1133.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_robert_west_damsels_of_jormia_char1_vol01_authoritative_deep_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8133,
+   "medoid_clip": "sample_3076.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_robert_west_damsels_of_jormia_char1_vol01_bright_expressive_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.805,
+   "medoid_clip": "sample_3091.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_robert_west_damsels_of_jormia_char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.621,
+   "medoid_clip": "sample_3602.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_robert_west_damsels_of_jormia_char2_vol01_youthful_energetic_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.5312,
+   "medoid_clip": "sample_3615.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_scott_brick_foundation's_edge_[b005wl4r7e]_char1_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.8108,
+   "medoid_clip": "sample_1249.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_scott_brick_foundation's_edge_[b005wl4r7e]_char2_vol01_youthful_energetic_deep_voice_expressive_low_moderate_volum",
+   "current_ref_score": null,
+   "medoid_score": 0.7678,
+   "medoid_clip": "sample_4931.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_shiromi_arserio_the_jasmine_throne_[154910487x]_char1_vol01_bright_expressive_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7669,
+   "medoid_clip": "sample_3758.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_simon_vance_the_blinding_knife_[b0096gj7g2]_char1_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8346,
+   "medoid_clip": "sample_9028.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_steven_pacey_the_blade_itself_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8317,
+   "medoid_clip": "sample_6617.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8394,
+   "medoid_clip": "sample_1278.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8262,
+   "medoid_clip": "sample_0697.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char3_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7908,
+   "medoid_clip": "sample_0847.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char4_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.2286,
+   "medoid_clip": "sample_0218.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char5_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.8143,
+   "medoid_clip": "sample_1876.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_stephen_fu_86__char1_vol01_bright_expressive_deep_voice_monotone_quiet_dynamic_range_",
+   "current_ref_score": null,
+   "medoid_score": 0.7883,
+   "medoid_clip": "sample_0323.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzie_yeung_stephen_fu_86__char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8318,
+   "medoid_clip": "sample_2336.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzy_jackson_skyward_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.8264,
+   "medoid_clip": "sample_6425.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_suzy_jackson_skyward_char2_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.7852,
+   "medoid_clip": "sample_1639.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_tara_sands_shorefall:_a_novel_[0593148053]_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.848,
+   "medoid_clip": "sample_8031.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_tim_gerard_reynolds_age_of_war_char1_vol01_bright_expressive_deep_voice_expressive_low_quiet_dynamic_",
+   "current_ref_score": null,
+   "medoid_score": 0.8159,
+   "medoid_clip": "sample_4386.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_todd_mclaren_altered_carbon_[b002v1o6x8]_char1_vol01_youthful_energetic_deep_voice_monotone_moderate_volume_dyna",
+   "current_ref_score": null,
+   "medoid_score": 0.8372,
+   "medoid_clip": "sample_6042.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_traci_kato_kiriyama_the_phone_booth_at_the_edge_of_the_world:_a_novel_[059345894x]_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.9015,
+   "medoid_clip": "sample_2038.wav",
+   "error": null
+  },
+  {
+   "dataset": "narrator_various_waking_gods_[b01ngublbw]_char1_vol01_authoritative_deep_mid_voice_varied_mid_quiet_dynamic_range",
+   "current_ref_score": null,
+   "medoid_score": 0.5289,
+   "medoid_clip": "sample_2144.wav",
+   "error": null
+  }
+ ],
+ "provenance": {
+  "script": "repair_dataset_ref.py",
+  "written": "2026-08-07T12:05:51",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d015e1eeef750ffa40fd34f689e1af97e0cbea45",
+   "branch": "agent/fix-extract-val",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/repair_dataset_ref.py",
+    "app/experiments/training_determinism.py",
+    "app/experiments/verify_adapter_identity.py"
+   ],
+   "harness_sha256": "67bd4f28866a493d33ff45b4618e0d118d0323870602df757c0a529d11b05c88"
+  },
+  "args": {
+   "zips": "_deduped_labeled",
+   "clips": 16,
+   "limit": 0,
+   "seed": 11,
+   "out": "ab_test_runtime/experiments/dataset_ref_audit.json"
+  },
+  "seed": 11
+ }
+}

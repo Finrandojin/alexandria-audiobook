@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-07 03:13 from `ab_test_runtime/experiments/` — 269 artifacts, 521 arms.
+Generated 2026-08-07 15:50 from `ab_test_runtime/experiments/` — 284 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -719,9 +719,13 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `crossbook_normalization.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `crossbook_normalization_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `dataset_ref_audit.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `dataset_speaker_consistency.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `dataset_speaker_consistency_n10.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fix_verification.json` | SKIPPED: not a result object (list) |
+| `gate_known_bad.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_known_good.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
@@ -729,6 +733,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `kokoro_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `kokoro_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `library_voice_fidelity.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `library_voice_fidelity_n10.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `listener_impact.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `ljspeech_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `ljspeech_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
@@ -754,7 +759,13 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `prose_vs_nonprose_v2.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `prose_vs_nonprose_v3.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `realizable_router.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `ref_clip_match.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `reference_intervention__husky_baritone_20s_m_anime.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `reference_intervention_sharp.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `residual_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `retrain_bad_refs.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `retrain_honest.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `retrain_rebuild_group.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `run_lengths.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `scale_vs_register.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -769,6 +780,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `symbolization_owari.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `three_pass_vs_single.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `training_determinism.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `trivial_baselines.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `tuned_disagreement.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `validation_baseline.json` | SKIPPED: 'rows' is not a list of scored arms |
@@ -778,4 +790,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `voice_blending.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `voice_data_saturation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `voice_data_saturation_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift__husky_baritone_20s_m_anime.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift__husky_tenor_30s_m_literary.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift__warm_mezzo_30s_f_fantasy_2.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `weak_supervision.json` | SKIPPED: 'rows' is not a list of scored arms |

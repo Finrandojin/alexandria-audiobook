@@ -571,7 +571,52 @@ bound**: it is measured on material the model has heard. It can still rank
 adapters, because all are contaminated identically — a voice that scores badly
 on its own training data is genuinely bad.
 
-#### The reference clip is a real cause, and not the only one
+#### The reference clip is CAUSAL — established by intervention, not correlation
+
+> **What this is.** Before training a voice, the pipeline picks one recording
+> to define "who this speaker is". Every one of the 200 training samples is
+> anchored to that single file. This measures what happens when it is the
+> wrong person.
+>
+> **Why it matters.** It was chosen as "whatever clip happens to be first",
+> with no check. When that clip belonged to someone else — which happens when
+> the automatic speaker-splitting misfires — the whole voice was built on the
+> wrong identity, and nothing reported a problem.
+
+**Metric** — adapter speaker-similarity when only the reference clip changes.
+**Probe** — `app/experiments/reference_intervention.py`.
+**Current** — 2026-08-07. Same 180 training clips, same seed, same epochs;
+**only the reference file differs**:
+
+| reference | adapter |
+|---|---|
+| medoid (most representative clip) | **0.695** |
+| least-typical clip of the same narrator | 0.634 |
+| **a different narrator entirely** | **0.154** |
+
+**A wrong-speaker reference costs 0.541.** That drops a working voice into
+exactly the range the broken library adapters occupied (0.004–0.14), which is
+enough to explain all of them.
+
+The fine-grained contrast transfers almost perfectly: a **0.058** change in
+reference quality produced a **0.061** change in the adapter — **transfer ratio
+1.06**. Small reference differences matter proportionally; large ones are
+catastrophic.
+
+**This supersedes the correlational finding below.** The +0.76 correlation was
+consistent with a third cause — a messy dataset yielding both a bad reference
+and a hard learning problem. The intervention rules that out: nothing varied
+except one file.
+
+**It also explains the "training lottery" that never existed.** Retrained
+adapters recovered from 0.027 to 0.685 on apparently identical settings. The
+extracted dataset zips carry no `ref.wav`, so `train_lora.py` fell back to its
+*first training clip* — a different, usually better reference. The recovery was
+a reference change all along. Three runs at a fixed seed give 0.739 / 0.736 /
+0.685, so training itself is deterministic and **a retry loop would be
+useless**.
+
+#### The correlational evidence that led here
 
 `train_lora.py` extracts the speaker embedding from ONE reference clip and uses
 it for all 200 training samples, so a single wrong file sets the voice identity
@@ -592,6 +637,22 @@ adapter, and a good adapter does not prove a good reference.
 **What this changes:** for those 4, "retrain" is the wrong prescription. The
 *reference clip* needs fixing first, which is cheaper than either retraining or
 rebuilding the dataset.
+
+**Retraining the seven with a corrected reference**, measured on held-out clips:
+
+| adapter | shipped | retrained |
+|---|---|---|
+| husky_baritone_20s_m_anime | 0.004 | **0.691** |
+| warm_baritone_40s_m_fantasy | 0.062 | **0.694** |
+| warm_tenor_20s_m | 0.090 | 0.411 |
+| velvety_mezzo_30s_f_gothic | 0.084 | 0.187 |
+| silky_baritone_45s_m | 0.079 | 0.088 |
+| husky_baritone_40s_m_military | 0.141 | 0.149 |
+| warm_baritone_50s_m_gothic | 0.544 | 0.468 |
+
+Two dead voices became good ones. The three that barely moved are the ones
+whose DATASETS are mixed-speaker (2.7 above): there the reference was never the
+binding constraint, and rebuilding is still required.
 
 ### 2.8 A voice must still be the same voice at the end of the book
 

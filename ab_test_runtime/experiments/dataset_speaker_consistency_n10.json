@@ -1,0 +1,717 @@
+{
+ "clean_threshold": 0.6,
+ "adapter_threshold": 0.45,
+ "clips_per_dataset": 16,
+ "seed": 3,
+ "summary": {
+  "RETRAIN - data is clean, training failed": 7,
+  "REBUILD DATASET - clips are not one speaker": 8,
+  "check - mixed data but adapter scores": 8,
+  "working": 51,
+  "unknown": 1
+ },
+ "results": [
+  {
+   "adapter": "husky_baritone_20s_m_anime",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+   "adapter_ecapa": 0.0037,
+   "dataset_consistency": 0.8133,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_20s_m_supernatural",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char1_vol01",
+   "adapter_ecapa": 0.0526,
+   "dataset_consistency": 0.1518,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_fantasy",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char3_vol01",
+   "adapter_ecapa": 0.0624,
+   "dataset_consistency": 0.6178,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_45s_m",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char4_vol01",
+   "adapter_ecapa": 0.0786,
+   "dataset_consistency": 0.1344,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "velvety_mezzo_30s_f_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char9_vol01",
+   "adapter_ecapa": 0.0844,
+   "dataset_consistency": 0.4344,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char4_vol01",
+   "adapter_ecapa": 0.09,
+   "dataset_consistency": 0.7177,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_50s_f_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char3_vol01",
+   "adapter_ecapa": 0.0983,
+   "dataset_consistency": 0.1825,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_military",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char2_vol01",
+   "adapter_ecapa": 0.1405,
+   "dataset_consistency": 0.7718,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_30s_m",
+   "dataset": "narrator_nick_podehl_super_sales_on_super_heroes_book_2_super_sales_on_super_heroes_book_2_b07cj4c449_char1_vol01",
+   "adapter_ecapa": 0.274,
+   "dataset_consistency": 0.6699,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "breathy_alto_50s_f_fantasy",
+   "dataset": "narrator_mare_trevathan_the_godking_s_legacy_char1_vol01",
+   "adapter_ecapa": 0.2913,
+   "dataset_consistency": 0.5823,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_1",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char2_vol01",
+   "adapter_ecapa": 0.2962,
+   "dataset_consistency": 0.3711,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f_fantasy_2",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char3_vol01",
+   "adapter_ecapa": 0.3941,
+   "dataset_consistency": 0.6432,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_18s_m_supernatural",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01",
+   "adapter_ecapa": 0.3973,
+   "dataset_consistency": 0.599,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_25s_m_military",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char1_vol01",
+   "adapter_ecapa": 0.4057,
+   "dataset_consistency": 0.7079,
+   "pairs": 8,
+   "verdict": "RETRAIN - data is clean, training failed",
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m",
+   "dataset": "narrator_various_waking_gods_b01ngublbw_char1_vol01",
+   "adapter_ecapa": 0.4363,
+   "dataset_consistency": 0.39,
+   "pairs": 8,
+   "verdict": "REBUILD DATASET - clips are not one speaker",
+   "error": null
+  },
+  {
+   "adapter": "crisp_mezzo_30s_f",
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol_1_char2_vol01",
+   "adapter_ecapa": 0.4581,
+   "dataset_consistency": 0.101,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_3",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char1_vol01",
+   "adapter_ecapa": 0.4747,
+   "dataset_consistency": 0.7852,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "crisp_tenor_30s_m_fantasy",
+   "dataset": "narrator_shiromi_arserio_the_jasmine_throne_154910487x_char1_vol01",
+   "adapter_ecapa": 0.4795,
+   "dataset_consistency": 0.6736,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_mezzo_20s_f_scifi",
+   "dataset": "narrator_luci_christian_full_metal_panic_char2_vol01",
+   "adapter_ecapa": 0.4861,
+   "dataset_consistency": 0.5522,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_3",
+   "dataset": "narrator_jay_snyder_ex_heroes_char3_vol01",
+   "adapter_ecapa": 0.5005,
+   "dataset_consistency": 0.183,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_1",
+   "dataset": "narrator_miranda_parkin_my_happy_marriage_vol_1_char1_vol01",
+   "adapter_ecapa": 0.5052,
+   "dataset_consistency": 0.7489,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_5",
+   "dataset": "narrator_rc_bray_lost_gods_char1_vol01",
+   "adapter_ecapa": 0.5066,
+   "dataset_consistency": 0.8004,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char7_vol01",
+   "adapter_ecapa": 0.5117,
+   "dataset_consistency": 0.8219,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_10s_f_fantasy",
+   "dataset": "narrator_reba_buhr_ascendance_of_a_bookworm_1_char1_vol01",
+   "adapter_ecapa": 0.5149,
+   "dataset_consistency": 0.7431,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_50s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char5_vol01",
+   "adapter_ecapa": 0.544,
+   "dataset_consistency": 0.3874,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f",
+   "dataset": "narrator_kate_reading_a_natural_history_of_dragons_char1_vol01",
+   "adapter_ecapa": 0.544,
+   "dataset_consistency": 0.8076,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_50s_m_military",
+   "dataset": "narrator_tim_gerard_reynolds_age_of_war_char1_vol01",
+   "adapter_ecapa": 0.5536,
+   "dataset_consistency": 0.7356,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_scifi",
+   "dataset": "narrator_jon_lindstrom_nightfall_and_other_stories_059341635x_char1_vol01",
+   "adapter_ecapa": 0.5553,
+   "dataset_consistency": 0.7462,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_2",
+   "dataset": "narrator_christian_j_gilliland_hazel_cohen_elemental_summoner_1_b09bxyjxyt_char1_vol01",
+   "adapter_ecapa": 0.5644,
+   "dataset_consistency": 0.6976,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_cyberpunk",
+   "dataset": "narrator_cherami_leigh_cyberpunk_2077_char1_vol01",
+   "adapter_ecapa": 0.5666,
+   "dataset_consistency": 0.7193,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f_fantasy",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char2_vol01",
+   "adapter_ecapa": 0.5689,
+   "dataset_consistency": 0.6963,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_2",
+   "dataset": "narrator_kirby_heyborne_out_of_house_and_home_fred_the_vampire_accountant_series_book_7_b09d1hqbvy_char1_vol01",
+   "adapter_ecapa": 0.5701,
+   "dataset_consistency": 0.7694,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_4",
+   "dataset": "narrator_paul_boehmer_vampire_hunter_d_char1_vol01",
+   "adapter_ecapa": 0.5718,
+   "dataset_consistency": 0.7908,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_40s_m_2",
+   "dataset": "narrator_scott_brick_foundation_s_edge_b005wl4r7e_char2_vol01",
+   "adapter_ecapa": 0.5768,
+   "dataset_consistency": 0.7493,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char3_vol01",
+   "adapter_ecapa": 0.579,
+   "dataset_consistency": 0.2851,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_1",
+   "dataset": "narrator_brian_nishii_alita_battle_angel_the_official_movie_novelization_b07hhjpkmj_char1_vol01",
+   "adapter_ecapa": 0.5819,
+   "dataset_consistency": 0.7985,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_fantasy_1",
+   "dataset": "narrator_cliff_kurt_mushoku_tensei_char1_vol01",
+   "adapter_ecapa": 0.5823,
+   "dataset_consistency": 0.7694,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_30s_m_1",
+   "dataset": "narrator_john_lee_spellmonger_spellmonger_book_1_b01n264eek_char1_vol01",
+   "adapter_ecapa": 0.5827,
+   "dataset_consistency": 0.8414,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_fantasy_2",
+   "dataset": "narrator_robert_west_damsels_of_jormia_char1_vol01",
+   "adapter_ecapa": 0.5859,
+   "dataset_consistency": 0.7317,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_35s_m",
+   "dataset": "narrator_peter_kenny_sword_of_destiny_char1_vol01",
+   "adapter_ecapa": 0.5864,
+   "dataset_consistency": 0.628,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_3",
+   "dataset": "narrator_tara_sands_shorefall_a_novel_0593148053_char1_vol01",
+   "adapter_ecapa": 0.5865,
+   "dataset_consistency": 0.735,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_20s_m_postapoc",
+   "dataset": "narrator_jay_snyder_ex_heroes_char2_vol01",
+   "adapter_ecapa": 0.587,
+   "dataset_consistency": 0.6051,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m_fantasy",
+   "dataset": "narrator_steven_pacey_the_blade_itself_char1_vol01",
+   "adapter_ecapa": 0.5921,
+   "dataset_consistency": 0.7079,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m_scifi",
+   "dataset": "narrator_luci_christian_full_metal_panic_char1_vol01",
+   "adapter_ecapa": 0.5964,
+   "dataset_consistency": 0.6158,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f_fantasy_1",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char1_vol01",
+   "adapter_ecapa": 0.5967,
+   "dataset_consistency": 0.7597,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_1",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char8_vol01",
+   "adapter_ecapa": 0.6055,
+   "dataset_consistency": 0.2266,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_20s_m_fantasy",
+   "dataset": "narrator_liam_price_the_archer_of_beast_woods_char1_vol01",
+   "adapter_ecapa": 0.6062,
+   "dataset_consistency": 0.7936,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_military_1",
+   "dataset": "narrator_michael_page_house_of_chains_char1_vol01",
+   "adapter_ecapa": 0.6064,
+   "dataset_consistency": 0.8567,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_40s_f_2",
+   "dataset": "narrator_suzy_jackson_skyward_char2_vol01",
+   "adapter_ecapa": 0.6117,
+   "dataset_consistency": 0.7937,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_baritone_50s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char1_vol01",
+   "adapter_ecapa": 0.6146,
+   "dataset_consistency": 0.765,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_alto_50s_f_anime",
+   "dataset": "narrator_hollie_jackson_seize_the_day_a_world_conquest_isekai_empress_book_1_b0cxrzxtr9_char1_vol01",
+   "adapter_ecapa": 0.6157,
+   "dataset_consistency": 0.7782,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_soprano_20s_f",
+   "dataset": "narrator_brittney_karbowski_reincarnated_slime_char1_vol01",
+   "adapter_ecapa": 0.6229,
+   "dataset_consistency": 0.8335,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_tenor_50s_m_fantasy",
+   "dataset": "narrator_ralph_lister_gardens_of_the_moon_char1_vol01",
+   "adapter_ecapa": 0.63,
+   "dataset_consistency": 0.764,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "gravelly_baritone_50s_m_scifi",
+   "dataset": "narrator_scott_brick_foundation_s_edge_b005wl4r7e_char1_vol01",
+   "adapter_ecapa": 0.6336,
+   "dataset_consistency": 0.7089,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "crisp_tenor_20s_m",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char1_vol01",
+   "adapter_ecapa": 0.6396,
+   "dataset_consistency": 0.8567,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_30s_m_fantasy",
+   "dataset": "narrator_alyssa_poon_robert_bradvica_rise_of_the_weakest_summoner_volume_i_b09nzklscb_char1_vol01",
+   "adapter_ecapa": 0.6523,
+   "dataset_consistency": 0.7433,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "bright_tenor_30s_m",
+   "dataset": "narrator_mallorie_rodak_frieren_beyond_journey_s_end_prelude_vol_1_b0gx9t26cv_char1_vol01",
+   "adapter_ecapa": 0.6554,
+   "dataset_consistency": 0.7924,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_military",
+   "dataset": "narrator_simon_vance_the_blinding_knife_b0096gj7g2_char1_vol01",
+   "adapter_ecapa": 0.6623,
+   "dataset_consistency": 0.795,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_mezzo_20s_f_anime",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char1_vol01",
+   "adapter_ecapa": 0.6655,
+   "dataset_consistency": 0.8211,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_military_2",
+   "dataset": "narrator_qarie_marshall_wolverine_road_of_bones_1662042051_char1_vol01",
+   "adapter_ecapa": 0.6743,
+   "dataset_consistency": 0.796,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_40s_m_literary",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char5_vol01",
+   "adapter_ecapa": 0.675,
+   "dataset_consistency": 0.7481,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_2",
+   "dataset": "narrator_gareth_armstrong_the_devastation_of_baal_space_marine_conquests_warhammer_40000_book_1_b07ctt3bgq_char1_vol01",
+   "adapter_ecapa": 0.6754,
+   "dataset_consistency": 0.8314,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_50s_m",
+   "dataset": "narrator_jot_davies_the_vagrant_b00vus19w4_char1_vol01",
+   "adapter_ecapa": 0.6755,
+   "dataset_consistency": 0.8184,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_alto_40s_f",
+   "dataset": "narrator_amy_landon_a_memory_called_empire_teixcalaan_book_1_1250318955_char1_vol01",
+   "adapter_ecapa": 0.6756,
+   "dataset_consistency": 0.8169,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_scifi",
+   "dataset": "narrator_c_j_mission_monster_core_2_1774241641_char1_vol01",
+   "adapter_ecapa": 0.6786,
+   "dataset_consistency": 0.7778,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_bass_50s_m_fantasy",
+   "dataset": "narrator_michael_kramer_the_hero_of_ages_char1_vol01",
+   "adapter_ecapa": 0.6804,
+   "dataset_consistency": 0.7316,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_baritone_40s_m_scifi",
+   "dataset": "narrator_todd_mclaren_altered_carbon_b002v1o6x8_char1_vol01",
+   "adapter_ecapa": 0.6863,
+   "dataset_consistency": 0.7623,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_scifi",
+   "dataset": "narrator_jay_snyder_ex_heroes_char1_vol01",
+   "adapter_ecapa": 0.6878,
+   "dataset_consistency": 0.7653,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_literary_1",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char2_vol01",
+   "adapter_ecapa": 0.6961,
+   "dataset_consistency": 0.8023,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "breathy_baritone_30s_m_fantasy",
+   "dataset": "narrator_robert_west_damsels_of_jormia_char2_vol01",
+   "adapter_ecapa": 0.7048,
+   "dataset_consistency": 0.3574,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f_supernatural",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char6_vol01",
+   "adapter_ecapa": 0.7176,
+   "dataset_consistency": 0.11,
+   "pairs": 8,
+   "verdict": "check - mixed data but adapter scores",
+   "error": null
+  },
+  {
+   "adapter": "silky_mezzo_30s_f",
+   "dataset": "narrator_suzy_jackson_skyward_char1_vol01",
+   "adapter_ecapa": 0.7285,
+   "dataset_consistency": 0.7646,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m_literary",
+   "dataset": "narrator_cindy_kay_water_moon_a_novel_b0d26l1r1d_char1_vol01",
+   "adapter_ecapa": 0.7313,
+   "dataset_consistency": 0.8272,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "silky_alto_40s_f_literary_2",
+   "dataset": "narrator_traci_kato_kiriyama_the_phone_booth_at_the_edge_of_the_world_a_novel_059345894x_char1_vol01",
+   "adapter_ecapa": 0.7375,
+   "dataset_consistency": 0.8605,
+   "pairs": 8,
+   "verdict": "working",
+   "error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_gothic",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char2_vol01",
+   "adapter_ecapa": null,
+   "dataset_consistency": 0.5374,
+   "pairs": 1,
+   "verdict": "unknown",
+   "error": null
+  }
+ ],
+ "provenance": {
+  "script": "dataset_speaker_consistency.py",
+  "written": "2026-08-07T12:20:12",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d015e1eeef750ffa40fd34f689e1af97e0cbea45",
+   "branch": "agent/fix-extract-val",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/repair_dataset_ref.py",
+    "app/experiments/training_determinism.py",
+    "app/experiments/verify_adapter_identity.py"
+   ],
+   "harness_sha256": "67bd4f28866a493d33ff45b4618e0d118d0323870602df757c0a529d11b05c88"
+  },
+  "args": {
+   "fidelity": "ab_test_runtime/experiments/library_voice_fidelity_n10.json",
+   "zips": "_deduped_labeled",
+   "clips": 16,
+   "seed": 3,
+   "clean_threshold": 0.6,
+   "adapter_threshold": 0.45,
+   "out": "ab_test_runtime/experiments/dataset_speaker_consistency_n10.json"
+  },
+  "seed": 3
+ }
+}
