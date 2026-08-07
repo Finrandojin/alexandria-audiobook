@@ -40,8 +40,14 @@ REPO = os.path.dirname(os.path.dirname(os.path.dirname(
 APP = os.path.join(REPO, "app")
 sys.path.insert(0, APP)
 
-SIBLING_PY = ("/home/fakemitch/pinokio/api/alexandria-audiobook.git/"
-              "app/env/bin/python")
+# Derived, not hardcoded: the sibling repo sits beside this one, and "the
+# interpreter that has speechbrain" is a machine fact rather than a repository
+# fact. Same form ljspeech_score.py uses. The machine-path guard exists to
+# catch exactly the literal this replaced, and did.
+SIBLING_PY = os.environ.get(
+    "ALEXANDRIA_SIBLING_PYTHON",
+    os.path.join(os.path.dirname(REPO), "alexandria-audiobook.git",
+                 "app", "env", "bin", "python"))
 
 
 def truncate(src, dest, seconds):
