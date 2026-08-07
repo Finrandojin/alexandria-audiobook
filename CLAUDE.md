@@ -157,6 +157,36 @@ blocked on hand-labelling for two days when PDNC had 28 annotated public-domain
 novels; and non-English testing was called a dead end shortly before Chinese
 WP/JY turned up, Apache-2.0, with the correct task shape.
 
+### Rule 20 — A Local Ref Is a Cache, Not Evidence
+
+`git checkout -b <name> origin/main` uses whatever your **local**
+`origin/main` happens to be. It does not consult the network. Branch from a
+ref last fetched hours ago and everything downstream is wrong in ways that
+look like other problems.
+
+**Always `git fetch origin main` immediately before branching** — immediately,
+not at the start of the session.
+
+Cost twice on 2026-08-07: one branch came out stacked on unmerged work (10
+commits instead of 1, the thing Rule "no stacked PRs" exists to prevent), and
+another lacked a fix already on main, so the same bug was hit and "fixed"
+again — shipping a duplicate of an upstream change.
+
+The same reflex applies to every claim about remote state:
+
+- **PR merged?** `gh pr view N --json state,mergedAt`. Never infer it from
+  what you remember doing, from a local branch still existing, or from the
+  absence of a notification. Asserting "#265 isn't merged" when it had merged
+  four hours earlier took one command to disprove.
+- **Push landed?** `git ls-remote`, not a `git push` whose output was piped
+  away.
+- **Branch base sane?** `git log --oneline origin/main..HEAD` — more commits
+  than you wrote means the base was stale.
+
+Same family as Rule 19: check the artifact, not the process that was supposed
+to produce it. The committed blob, not the command's exit code. The output
+file, not `pgrep`.
+
 ## This project: Alexandria Audiobook2
 
 A FastAPI app (`app/app.py`, title "Alexandria Audiobook") for multi-voice AI
