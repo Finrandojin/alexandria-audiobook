@@ -1,0 +1,76 @@
+adapter,dataset,character,zips2_folder,match_confidence,num_samples,language,final_loss
+breathy_alto_50s_f_fantasy,narrator_mare_trevathan_the_godking_s_legacy_char1_vol01,char1,Mare Trevathan The Godking's Legacy-converted,0.88,200,english,4.095
+breathy_baritone_30s_m_fantasy,narrator_robert_west_damsels_of_jormia_char2_vol01,char2,Robert West Damsels of Jormia-converted,0.85,24,english,5.095
+breathy_baritone_40s_m_literary,narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char5_vol01,char5,Suzie Yeung Even If These Tears Disappear Tonight-converted,0.91,200,english,4.127
+breathy_baritone_40s_m_military_1,narrator_michael_page_house_of_chains_char1_vol01,char1,Michael Page House of Chains-converted,0.85,200,english,4.083
+breathy_baritone_40s_m_military_2,narrator_qarie_marshall_wolverine_road_of_bones_1662042051_char1_vol01,char1,Qarie Marshall Wolverine: Road of Bones [1662042051],1.0,200,english,4.14
+breathy_mezzo_20s_f_scifi,narrator_luci_christian_full_metal_panic_char2_vol01,char2,Luci Christian Full Metal Panic-converted,0.86,200,english,4.016
+breathy_tenor_18s_m_supernatural,narrator_keith_silverstein_kizumonogatari_char2_vol01,char2,Keith Silverstein KIZUMONOGATARI-converted,0.86,200,english,4.055
+breathy_tenor_20s_m_fantasy,narrator_liam_price_the_archer_of_beast_woods_char1_vol01,char1,Liam Price The Archer of Beast Woods-converted,0.88,200,english,4.068
+breathy_tenor_50s_m_fantasy,narrator_ralph_lister_gardens_of_the_moon_char1_vol01,char1,Ralph Lister Gardens of the Moon-converted,0.86,200,english,4.04
+bright_tenor_30s_m,narrator_mallorie_rodak_frieren_beyond_journey_s_end_prelude_vol_1_b0gx9t26cv_char1_vol01,char1,"Mallorie Rodak Frieren: Beyond Journey's End -Prelude-, Vol. 1 [B0GX9T26CV]",1.0,170,english,4.1
+crisp_mezzo_30s_f,narrator_miranda_parkin_my_happy_marriage_vol_1_char2_vol01,char2,"Miranda Parkin My Happy Marriage, Vol. 1-converted",0.88,200,english,4.008
+crisp_tenor_20s_m,narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char1_vol01,char1,Suzie Yeung Even If These Tears Disappear Tonight-converted,0.91,200,english,4.01
+crisp_tenor_30s_m_fantasy,narrator_shiromi_arserio_the_jasmine_throne_154910487x_char1_vol01,char1,Shiromi Arserio The Jasmine Throne [154910487X],1.0,200,english,4.129
+gravelly_baritone_50s_m_scifi,narrator_scott_brick_foundation_s_edge_b005wl4r7e_char1_vol01,char1,Scott Brick Foundation's Edge [B005WL4R7E],1.0,200,english,4.018
+husky_alto_40s_f,narrator_amy_landon_a_memory_called_empire_teixcalaan_book_1_1250318955_char1_vol01,char1,"Amy Landon A Memory Called Empire: Teixcalaan, Book 1 [1250318955]",1.0,200,english,4.035
+husky_baritone_20s_m_anime,narrator_cristina_vee_nekomonogatari_char2_vol01,char2,Cristina Vee Nekomonogatari-converted,0.84,200,english,4.068
+husky_baritone_20s_m_supernatural,narrator_keith_silverstein_kizumonogatari_char1_vol01,char1,Keith Silverstein KIZUMONOGATARI-converted,0.86,200,english,4.131
+husky_baritone_35s_m,narrator_peter_kenny_sword_of_destiny_char1_vol01,char1,Peter Kenny Sword of Destiny-converted,0.85,200,english,4.043
+husky_baritone_40s_m_1,narrator_j_michael_tatum_spice_and_wolf_vol_10_char2_vol01,char2,"J Michael Tatum Spice and Wolf, Vol. 10-converted",0.88,200,english,3.993
+husky_baritone_40s_m_2,narrator_scott_brick_foundation_s_edge_b005wl4r7e_char2_vol01,char2,Scott Brick Foundation's Edge [B005WL4R7E],1.0,200,english,4.036
+husky_baritone_40s_m_military,narrator_suzie_yeung_stephen_fu_86_char2_vol01,char2,Suzie Yeung Stephen Fu 86--converted,0.83,200,english,4.019
+husky_baritone_40s_m_scifi,narrator_jon_lindstrom_nightfall_and_other_stories_059341635x_char1_vol01,char1,Jon Lindstrom Nightfall and Other Stories [059341635X],1.0,200,english,3.979
+husky_baritone_50s_m_gothic,narrator_dracula_audible_edition_b0078pa1oa_char1_vol01,char1,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.002
+husky_baritone_50s_m_military,narrator_tim_gerard_reynolds_age_of_war_char1_vol01,char1,Tim Gerard Reynolds Age of War-converted,0.86,200,english,4.112
+husky_soprano_20s_f,narrator_brittney_karbowski_reincarnated_slime_char1_vol01,char1,Brittney Karbowski Reincarnated Slime-converted,0.88,200,english,4.094
+husky_tenor_30s_m,narrator_various_waking_gods_b01ngublbw_char1_vol01,char1,Various Waking Gods [B01NGUBLBW],1.0,200,english,4.073
+husky_tenor_30s_m_fantasy,narrator_steven_pacey_the_blade_itself_char1_vol01,char1,Steven Pacey The Blade Itself-converted,0.85,200,english,4.043
+husky_tenor_30s_m_literary,narrator_cindy_kay_water_moon_a_novel_b0d26l1r1d_char1_vol01,char1,Cindy Kay Water Moon: A Novel [B0D26L1R1D],1.0,200,english,4.071
+silky_alto_40s_f,narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char3_vol01,char3,Suzie Yeung Even If These Tears Disappear Tonight-converted,0.91,200,english,4.124
+silky_alto_40s_f_cyberpunk,narrator_cherami_leigh_cyberpunk_2077_char1_vol01,char1,Cherami Leigh Cyberpunk 2077-converted,0.85,200,english,4.073
+silky_alto_40s_f_literary_1,narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char2_vol01,char2,Suzie Yeung Even If These Tears Disappear Tonight-converted,0.91,200,english,4.13
+silky_alto_40s_f_literary_2,narrator_traci_kato_kiriyama_the_phone_booth_at_the_edge_of_the_world_a_novel_059345894x_char1_vol01,char1,Traci Kato-Kiriyama The Phone Booth at the Edge of the World: A Novel [059345894X],1.0,188,english,4.142
+silky_baritone_30s_m,narrator_nick_podehl_super_sales_on_super_heroes_book_2_super_sales_on_super_heroes_book_2_b07cj4c449_char1_vol01,char1,"Nick Podehl Super Sales on Super Heroes, Book 2: Super Sales on Super Heroes, Book 2 [B07CJ4C449]",1.0,200,english,4.022
+silky_baritone_30s_m_fantasy,narrator_alyssa_poon_robert_bradvica_rise_of_the_weakest_summoner_volume_i_b09nzklscb_char1_vol01,char1,"Alyssa Poon, Robert Bradvica Rise of the Weakest Summoner: Volume I [B09NZKLSCB]",1.0,200,english,4.095
+silky_baritone_40s_m_scifi,narrator_todd_mclaren_altered_carbon_b002v1o6x8_char1_vol01,char1,Todd McLaren Altered Carbon [B002V1O6X8],1.0,200,english,4.127
+silky_baritone_45s_m,narrator_dracula_audible_edition_b0078pa1oa_char4_vol01,char4,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.059
+silky_mezzo_10s_f_fantasy,narrator_reba_buhr_ascendance_of_a_bookworm_1_char1_vol01,char1,Reba Buhr Ascendance of a Bookworm - 1-converted,0.88,200,english,3.94
+silky_mezzo_30s_f,narrator_suzy_jackson_skyward_char1_vol01,char1,Suzy Jackson Skyward-converted,0.8,88,english,4.169
+silky_mezzo_30s_f_fantasy,narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char2_vol01,char2,Emily Woo Zeller Red Winter: The Complete Trilogy [B0D1Z63LZD],1.0,200,english,4.021
+silky_mezzo_30s_f_supernatural,narrator_dracula_audible_edition_b0078pa1oa_char6_vol01,char6,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.123
+velvety_mezzo_30s_f_gothic,narrator_dracula_audible_edition_b0078pa1oa_char9_vol01,char9,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.115
+warm_alto_40s_f_1,narrator_miranda_parkin_my_happy_marriage_vol_1_char1_vol01,char1,"Miranda Parkin My Happy Marriage, Vol. 1-converted",0.88,200,english,3.992
+warm_alto_40s_f_2,narrator_suzy_jackson_skyward_char2_vol01,char2,Suzy Jackson Skyward-converted,0.8,200,english,4.126
+warm_alto_40s_f_3,narrator_tara_sands_shorefall_a_novel_0593148053_char1_vol01,char1,Tara Sands Shorefall: A Novel [0593148053],1.0,116,english,4.099
+warm_alto_50s_f_anime,narrator_hollie_jackson_seize_the_day_a_world_conquest_isekai_empress_book_1_b0cxrzxtr9_char1_vol01,char1,"Hollie Jackson Seize the Day: A World Conquest Isekai: Empress, Book 1 [B0CXRZXTR9]",1.0,200,english,4.04
+warm_alto_50s_f_gothic,narrator_dracula_audible_edition_b0078pa1oa_char3_vol01,char3,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.104
+warm_baritone_20s_m_postapoc,narrator_jay_snyder_ex_heroes_char2_vol01,char2,Jay Snyder Ex-Heroes-converted,0.8,81,english,4.138
+warm_baritone_30s_m_1,narrator_brian_nishii_alita_battle_angel_the_official_movie_novelization_b07hhjpkmj_char1_vol01,char1,Brian Nishii Alita: Battle Angel: The Official Movie Novelization [B07HHJPKMJ],1.0,200,english,4.121
+warm_baritone_30s_m_2,narrator_christian_j_gilliland_hazel_cohen_elemental_summoner_1_b09bxyjxyt_char1_vol01,char1,"Christian J. Gilliland, Hazel Cohen Elemental Summoner 1 [B09BXYJXYT]",1.0,200,english,4.025
+warm_baritone_30s_m_3,narrator_jay_snyder_ex_heroes_char3_vol01,char3,Jay Snyder Ex-Heroes-converted,0.8,200,english,4.108
+warm_baritone_30s_m_fantasy_1,narrator_cliff_kurt_mushoku_tensei_char1_vol01,char1,Cliff Kurt Mushoku Tensei-converted,0.83,200,english,4.066
+warm_baritone_30s_m_fantasy_2,narrator_robert_west_damsels_of_jormia_char1_vol01,char1,Robert West Damsels of Jormia-converted,0.85,200,english,3.965
+warm_baritone_30s_m_scifi,narrator_jay_snyder_ex_heroes_char1_vol01,char1,Jay Snyder Ex-Heroes-converted,0.8,200,english,4.127
+warm_baritone_40s_m_1,narrator_dracula_audible_edition_b0078pa1oa_char8_vol01,char8,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,3.997
+warm_baritone_40s_m_2,narrator_gareth_armstrong_the_devastation_of_baal_space_marine_conquests_warhammer_40000_book_1_b07ctt3bgq_char1_vol01,char1,"Gareth Armstrong The Devastation of Baal: Space Marine Conquests: Warhammer 40,000, Book 1 [B07CTT3BGQ]",0.99,200,english,4.107
+warm_baritone_40s_m_3,narrator_j_michael_tatum_spice_and_wolf_vol_10_char1_vol01,char1,"J Michael Tatum Spice and Wolf, Vol. 10-converted",0.88,130,english,4.007
+warm_baritone_40s_m_4,narrator_paul_boehmer_vampire_hunter_d_char1_vol01,char1,Paul Boehmer Vampire Hunter D-converted,0.85,200,english,3.993
+warm_baritone_40s_m_5,narrator_rc_bray_lost_gods_char1_vol01,char1,RC Bray Lost Gods-converted,0.77,200,english,4.142
+warm_baritone_40s_m_fantasy,narrator_j_michael_tatum_spice_and_wolf_vol_10_char3_vol01,char3,"J Michael Tatum Spice and Wolf, Vol. 10-converted",0.88,200,english,3.998
+warm_baritone_40s_m_gothic,narrator_dracula_audible_edition_b0078pa1oa_char2_vol01,char2,Dracula [Audible Edition] [B0078PA1OA],1.0,2,english,4.532
+warm_baritone_40s_m_military,narrator_simon_vance_the_blinding_knife_b0096gj7g2_char1_vol01,char1,Simon Vance The Blinding Knife [B0096GJ7G2],1.0,200,english,4.053
+warm_baritone_40s_m_scifi,narrator_c_j_mission_monster_core_2_1774241641_char1_vol01,char1,C.J. Mission Monster Core 2 [1774241641],1.0,200,english,3.952
+warm_baritone_50s_m,narrator_jot_davies_the_vagrant_b00vus19w4_char1_vol01,char1,Jot Davies The Vagrant [B00VUS19W4],1.0,200,english,4.097
+warm_baritone_50s_m_gothic,narrator_dracula_audible_edition_b0078pa1oa_char5_vol01,char5,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.086
+warm_bass_50s_m_fantasy,narrator_michael_kramer_the_hero_of_ages_char1_vol01,char1,Michael Kramer The Hero of Ages-converted,0.86,200,english,4.13
+warm_mezzo_20s_f_anime,narrator_cristina_vee_nekomonogatari_char1_vol01,char1,Cristina Vee Nekomonogatari-converted,0.84,200,english,4.141
+warm_mezzo_30s_f,narrator_kate_reading_a_natural_history_of_dragons_char1_vol01,char1,Kate Reading A Natural History of Dragons-converted,0.89,200,english,4.083
+warm_mezzo_30s_f_fantasy_1,narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char1_vol01,char1,Emily Woo Zeller Red Winter: The Complete Trilogy [B0D1Z63LZD],1.0,200,english,4.111
+warm_mezzo_30s_f_fantasy_2,narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char3_vol01,char3,Emily Woo Zeller Red Winter: The Complete Trilogy [B0D1Z63LZD],1.0,200,english,4.136
+warm_tenor_20s_m,narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char4_vol01,char4,Suzie Yeung Even If These Tears Disappear Tonight-converted,0.91,200,english,4.144
+warm_tenor_20s_m_scifi,narrator_luci_christian_full_metal_panic_char1_vol01,char1,Luci Christian Full Metal Panic-converted,0.86,200,english,4.132
+warm_tenor_25s_m_military,narrator_suzie_yeung_stephen_fu_86_char1_vol01,char1,Suzie Yeung Stephen Fu 86--converted,0.83,200,english,3.952
+warm_tenor_30s_m_1,narrator_john_lee_spellmonger_spellmonger_book_1_b01n264eek_char1_vol01,char1,"John Lee Spellmonger: Spellmonger, Book 1 [B01N264EEK]",1.0,200,english,4.012
+warm_tenor_30s_m_2,narrator_kirby_heyborne_out_of_house_and_home_fred_the_vampire_accountant_series_book_7_b09d1hqbvy_char1_vol01,char1,"Kirby Heyborne Out of House and Home: Fred, the Vampire Accountant Series, Book 7 [B09D1HQBVY]",1.0,200,english,4.071
+warm_tenor_30s_m_gothic,narrator_dracula_audible_edition_b0078pa1oa_char7_vol01,char7,Dracula [Audible Edition] [B0078PA1OA],1.0,200,english,4.053
