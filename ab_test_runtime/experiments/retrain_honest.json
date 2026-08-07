@@ -1,0 +1,133 @@
+{
+ "epochs": 6,
+ "lora_r": 64,
+ "seed": 1234,
+ "eval_lines": 8,
+ "results": [
+  {
+   "adapter": "husky_baritone_20s_m_anime",
+   "role": "failure",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.0274,
+   "new_ecapa_heldout": 0.6851,
+   "dur_ratio": 1.116,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "velvety_mezzo_30s_f_gothic",
+   "role": "failure",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char9_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.0614,
+   "new_ecapa_heldout": 0.1961,
+   "dur_ratio": 0.929,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_fantasy",
+   "role": "failure",
+   "dataset": "narrator_j_michael_tatum_spice_and_wolf_vol_10_char3_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.099,
+   "new_ecapa_heldout": 0.6691,
+   "dur_ratio": 0.964,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "breathy_tenor_18s_m_supernatural",
+   "role": "failure",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.3973,
+   "new_ecapa_heldout": 0.537,
+   "dur_ratio": 1.018,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_tenor_25s_m_military",
+   "role": "failure",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.4039,
+   "new_ecapa_heldout": 0.6492,
+   "dur_ratio": 1.171,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m_literary",
+   "role": "control",
+   "dataset": "narrator_cindy_kay_water_moon_a_novel_b0d26l1r1d_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.7369,
+   "new_ecapa_heldout": 0.7252,
+   "dur_ratio": 1.055,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_2",
+   "role": "control",
+   "dataset": "narrator_gareth_armstrong_the_devastation_of_baal_space_marine_conquests_warhammer_40000_book_1_b07ctt3bgq_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.7302,
+   "new_ecapa_heldout": 0.713,
+   "dur_ratio": 1.069,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m",
+   "role": "control",
+   "dataset": "narrator_suzie_yeung_even_if_these_tears_disappear_tonight_char4_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "old_ecapa_contaminated": 0.7248,
+   "new_ecapa_heldout": 0.3818,
+   "dur_ratio": 1.068,
+   "n": 8,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "retrain_honest.py",
+  "written": "2026-08-07T10:05:08",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d015e1eeef750ffa40fd34f689e1af97e0cbea45",
+   "branch": "agent/fix-extract-val",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "c5fe6af5524aac8a2cf6dd12081b7a2bcb4d4f5545a0d0bd8b868cd116e5bb56"
+  },
+  "args": {
+   "adapters": [
+    "husky_baritone_20s_m_anime",
+    "velvety_mezzo_30s_f_gothic",
+    "warm_baritone_40s_m_fantasy",
+    "breathy_tenor_18s_m_supernatural",
+    "warm_tenor_25s_m_military"
+   ],
+   "controls": [
+    "husky_tenor_30s_m_literary",
+    "warm_baritone_40s_m_2",
+    "warm_tenor_20s_m"
+   ],
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "work": "ab_test_runtime/retrain_honest",
+   "epochs": 6,
+   "lora_r": 64,
+   "lora_alpha": 128,
+   "seed": 1234,
+   "eval_lines": 8,
+   "out": "ab_test_runtime/experiments/retrain_honest.json"
+  },
+  "seed": 1234
+ }
+}

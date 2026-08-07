@@ -1,0 +1,64 @@
+{
+ "adapter": "husky_baritone_20s_m_anime",
+ "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+ "seed": 1234,
+ "epochs": 6,
+ "verdict": "CAUSAL: +0.061 adapter change from a 0.058 reference change - transfer ratio 1.06. The reference moves the adapter roughly proportionally, so the builder fix is real. Note the absolute gap is small only because the contrast was. | foreign-reference arm: +0.541, the condition the library actually exhibited",
+ "results": [
+  {
+   "arm": "medoid",
+   "ref_clip": "sample_2212.wav",
+   "ref_similarity": 0.873,
+   "rc": 0,
+   "ecapa": 0.6952,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "arm": "worst",
+   "ref_clip": "sample_2213.wav",
+   "ref_similarity": 0.8148,
+   "rc": 0,
+   "ecapa": 0.6338,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "arm": "foreign",
+   "ref_clip": "foreign_ref.wav",
+   "ref_similarity": null,
+   "rc": 0,
+   "ecapa": 0.1541,
+   "n": 8,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "reference_intervention.py",
+  "written": "2026-08-07T15:43:59",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "992cf050ae7d6d7f1898a74c50fb0cf1bba6aa4f",
+   "branch": "agent/medoid-reference",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/reference_intervention.py"
+   ],
+   "harness_sha256": "aaca56f86b9f973146418a2076a793c239cd4bcf4b9ea7d316a36a0e810e110e"
+  },
+  "args": {
+   "adapter": "husky_baritone_20s_m_anime",
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "foreign_from": "crisp_mezzo_30s_f",
+   "rank_clips": 14,
+   "eval_lines": 8,
+   "epochs": 6,
+   "seed": 1234,
+   "work": "ab_test_runtime/reference_intervention",
+   "out": "ab_test_runtime/experiments/reference_intervention_sharp.json"
+  },
+  "seed": 1234
+ }
+}

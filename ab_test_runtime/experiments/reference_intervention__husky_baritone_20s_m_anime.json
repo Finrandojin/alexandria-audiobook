@@ -1,0 +1,54 @@
+{
+ "adapter": "husky_baritone_20s_m_anime",
+ "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+ "seed": 1234,
+ "epochs": 6,
+ "verdict": "NOT CAUSAL: +0.046 between best and worst reference on identical data. The +0.76 correlation is a symptom of dataset quality, not a lever. Revert the builder change.",
+ "results": [
+  {
+   "arm": "medoid",
+   "ref_clip": "sample_2212.wav",
+   "ref_similarity": 0.873,
+   "rc": 0,
+   "ecapa": 0.7075,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "arm": "worst",
+   "ref_clip": "sample_2213.wav",
+   "ref_similarity": 0.8148,
+   "rc": 0,
+   "ecapa": 0.6614,
+   "n": 8,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "reference_intervention.py",
+  "written": "2026-08-07T14:40:08",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "10df24667cfec5c711265c7a6c26caa4dc09858f",
+   "branch": "agent/rule-20",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/reference_intervention.py"
+   ],
+   "harness_sha256": "06dcf0252a6296aab2ce1c3161c67ea078418bae507070d9d1532000aabe9c30"
+  },
+  "args": {
+   "adapter": "husky_baritone_20s_m_anime",
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "rank_clips": 14,
+   "eval_lines": 8,
+   "epochs": 6,
+   "seed": 1234,
+   "work": "ab_test_runtime/reference_intervention",
+   "out": "ab_test_runtime/experiments/reference_intervention__husky_baritone_20s_m_anime.json"
+  },
+  "seed": 1234
+ }
+}
