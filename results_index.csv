@@ -4,9 +4,13 @@ adapter_stop_check_kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXE
 adapter_stop_check_ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 aishell3_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 aishell3_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+anchor_length_probe.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_backends_large__aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_backends_large__kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_backends_large__ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 audible_errors.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,aligned,385,273,70.9,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,fixed,385,275,71.4,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
@@ -299,6 +303,7 @@ crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar0
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=1",399,234,58.6,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=2",399,231,57.9,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=qwen,attr=qwen,t=0.6,rep=3",399,232,58.1,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
+dataset_speaker_consistency.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 distill_eval__mixed_register.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,385,265,68.8,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
 distill_eval__mixed_register.json,exploratory,distill_eval,grimgar03,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,tuned,385,325,84.4,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
 distill_eval__mixed_register.json,exploratory,distill_eval,index18,Qwen/Qwen3-14B,local-lmstudio,instance-ycl36zlz-main,lmstudio,32768,1,f16?,base,92,66,71.7,ok,False,,40304.5,08-04 13:44,peft:ab_test_runtime/distill/adapter_mixed,
@@ -375,6 +380,7 @@ joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_me
 joint_scene__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,joint_scene,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,joint-shuffled,162,74,45.7,ok,False,04a69e4c,538.3,07-29 04:37,http://127.0.0.1:8090/v1,
 kokoro_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 kokoro_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+library_voice_fidelity.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 listener_impact.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 ljspeech_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 ljspeech_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly

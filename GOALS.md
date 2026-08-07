@@ -364,16 +364,38 @@ closed.
 
 **Metric** — `human_vs_human` must exceed every arm it bounds.
 **Probe** — `find_invalid_anchors` in `ljspeech_score.py`, tested in
-`app/test_score_anchor.py`.
-**Current** — Chinese ceiling 0.691 sits **below** both its arms (0.720, 0.765).
-**OPEN.**
+`app/test_score_anchor.py`. Anchor construction: `build_anchor_side`.
+**Current** — **CAUSE FOUND AND FIXED 2026-08-06.**
 
-**Target — a valid Chinese anchor, or a documented reason the eval set cannot
-produce one.**
+**Clip length was the whole cause**, established in both directions:
 
-Clip length is a **hypothesis, not a measurement** — Chinese medians 3.17 s
-against English 7.33 s and Japanese 4.71 s. Until the truncation test runs, no
-Chinese voice conclusion should be quoted.
+| direction | result |
+|---|---|
+| truncate ENGLISH clips to the Chinese median (3.17 s) | anchor **0.783 → 0.632**, below its own clone arm |
+| join same-speaker CHINESE clips to 6.9 s | anchor **0.670 → 0.837**, clears both arms |
+| join to 10.2 s / 13.6 s | 0.867 / 0.901 |
+
+Shorten a good anchor and it breaks; lengthen a broken one and it repairs. Not
+the corpus, not the narrator, not the language, and not ECAPA being unsuited to
+Chinese — the clips were too short for a speaker embedding to be stable.
+
+**The fix needed no new data.** All 150 Chinese clips are one speaker, and a
+speaker embedding does not care about sentence continuity, only about quantity
+of voiced material. `build_anchor_side` now joins consecutive same-speaker
+clips until each side of the anchor carries `ANCHOR_MIN_SECONDS = 7.0`, chosen
+from the knee of that curve.
+
+**Target — every eval set's anchor above all of its arms.** Re-scoring of all
+three sets is what confirms it; until those artifacts are regenerated this is
+**fixed in code, unconfirmed in evidence**.
+
+**What this retroactively rescues.** The Chinese ARM numbers were always fine —
+clone 0.765, LoRA 0.720. Only the yardstick was broken, so those measurements
+become readable rather than being discarded.
+
+**A note for other eval sets.** Any future set whose clips are short inherits
+this. The guard is `find_invalid_anchors`, which now has a known cause to point
+at rather than only a symptom.
 
 ### 2.3 Adapters that stop talking
 

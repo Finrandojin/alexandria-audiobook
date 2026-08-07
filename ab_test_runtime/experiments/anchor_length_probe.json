@@ -1,0 +1,66 @@
+{
+ "truncate_to": 3.17,
+ "pairs": 30,
+ "seed": 1234,
+ "results": {
+  "ljspeech": {
+   "pairs": 30,
+   "full_anchor": 0.7834,
+   "truncated_pairs": 30,
+   "truncated_anchor": 0.632,
+   "skipped_already_short": 0,
+   "full_error": null,
+   "truncated_error": null,
+   "drop": 0.1514
+  },
+  "kokoro": {
+   "pairs": 30,
+   "full_anchor": 0.7673,
+   "truncated_pairs": 27,
+   "truncated_anchor": 0.6895,
+   "skipped_already_short": 3,
+   "full_error": null,
+   "truncated_error": null,
+   "drop": 0.0778
+  },
+  "aishell3": {
+   "pairs": 30,
+   "full_anchor": 0.6988,
+   "truncated_pairs": 10,
+   "truncated_anchor": 0.698,
+   "skipped_already_short": 20,
+   "full_error": null,
+   "truncated_error": null,
+   "drop": 0.0008
+  }
+ },
+ "provenance": {
+  "script": "anchor_length_probe.py",
+  "written": "2026-08-06T15:33:56",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "f8e6db78c385e078788af86ab0d0306010d93cfa",
+   "branch": "agent/train-val-split",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/anchor_length_probe.py",
+    "app/experiments/library_voice_fidelity.py",
+    "app/experiments/voice_compare_view.py"
+   ],
+   "harness_sha256": "ee4a65d523b0328e146283e0b21f1b6304e9da85e8dcf28e00755923ca805837"
+  },
+  "args": {
+   "sets": [
+    "ljspeech",
+    "kokoro",
+    "aishell3"
+   ],
+   "truncate_to": 3.17,
+   "pairs": 30,
+   "seed": 1234,
+   "out": "ab_test_runtime/experiments/anchor_length_probe.json"
+  },
+  "seed": 1234
+ }
+}

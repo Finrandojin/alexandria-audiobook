@@ -83,10 +83,17 @@ class AnchorValidationTest(unittest.TestCase):
 
     def test_real_artifacts_agree_with_the_check(self):
         """Run against the artifacts on disk, so the thresholds stay tied to
-        measured data rather than to numbers retyped into a test."""
+        measured data rather than to numbers retyped into a test.
+
+        aishell3 expected True until 2026-08-07 and now expects False. That is
+        not a loosened test - it is the anchor being FIXED. Clip length was the
+        cause: joining same-speaker clips to 7s moved the Chinese ceiling from
+        0.691 to 0.765, above both its arms. This test caught the change, which
+        is what it is for.
+        """
         import json
         root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        expected = {"ljspeech": False, "kokoro": False, "aishell3": True}
+        expected = {"ljspeech": False, "kokoro": False, "aishell3": False}
         checked = 0
         for tag, should_flag in expected.items():
             path = os.path.join(root, "ab_test_runtime", "experiments",
