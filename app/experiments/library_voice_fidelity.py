@@ -87,7 +87,14 @@ def find_zip(dataset, zip_dir, _cache={}):
 
 
 def extract_val(zip_path, out_dir, limit):
-    """Pull val clips + text. Returns [(wav_path, text)]."""
+    """Pull val clips + text. Returns [(wav_path, text)].
+
+    Creates out_dir itself. It did not, and worked only because its first
+    caller happened to makedirs the same path beforehand - so the second
+    caller (retrain_honest) died on FileNotFoundError after paying for a full
+    training run. A function that writes to a directory owns creating it.
+    """
+    os.makedirs(out_dir, exist_ok=True)
     rows = []
     with zipfile.ZipFile(zip_path) as z:
         names = set(z.namelist())
