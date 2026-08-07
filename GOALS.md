@@ -426,6 +426,105 @@ The existing safety check catches runaway voices at 3.0x. It cannot see 0.76.
 
 ---
 
+### 2.5 Pitch range, not just pitch shape
+
+> **What this is.** Whether the generated voice uses as much of its pitch range
+> as the human did — how far it moves between its lowest and highest notes in a
+> line.
+>
+> **Why it matters.** This is the difference between a reading and a recital. A
+> voice can follow every rise and fall of the original and still deliver them
+> all within a narrow band, and the result sounds flat — the thing people mean
+> when they say synthetic speech is monotone. A listener notices immediately.
+>
+> **Why nothing caught it until now.** `f0_corr` measures the *correlation* of
+> the pitch contour, which stays high when the whole shape is squashed: the ups
+> and downs happen in the right places, just smaller. Correlation is deliberately
+> blind to scale. So the app measured pitch and missed the flatness.
+
+**Metric** — generated f0 spread (p90 − p10) ÷ human f0 spread, on the same line.
+**Probe** — `pitch_stats` in `app/experiments/voice_compare_view.py`.
+**Current** — 12 clips per language, 2026-08-06. **OPEN.**
+
+| set | clone | LoRA |
+|---|---|---|
+| English | **0.83x** | 1.25x |
+| Japanese | 0.96x | 1.13x |
+| Chinese | 1.24x | **0.81x** |
+
+**Target — f0 spread within 0.90–1.15x of the human, and f0 median within
+0.95–1.05x.**
+
+English cloning also drops median pitch to **0.81x** — a voice pitched a fifth
+of an octave low for the whole book. ECAPA rates that same clone *higher* than
+the LoRA, because embedding similarity is a timbre measure and this is a pitch
+failure.
+
+**A caution, since this section could invite the wrong fix.** The app
+deliberately refuses to classify gender from pitch
+(`test_pitch_is_not_used_as_a_gender_classifier`), and that decision is right —
+male and female f0 distributions overlap heavily. Nothing here labels a
+speaker. This asks only whether an arm preserved *that speaker's own* range,
+which is a comparison between two clips of one person.
+
+### 2.6 Voice quality, the measures the field says matter most
+
+> **What this is.** Three standard measures of how a voice actually behaves:
+> **jitter** (cycle-to-cycle wobble in pitch), **shimmer** (wobble in
+> loudness), and **HNR** (how much of the sound is clean tone versus noise).
+>
+> **Why it matters.** They catch a failure nothing else here can: a synthetic
+> voice being *too clean*. Human phonation wobbles slightly on every cycle; a
+> vocoder often does not. A voice with near-zero jitter sounds subtly
+> unnatural even when every other measure looks good.
+>
+> **Why these three.** A study comparing speakers ranked what actually
+> separates voices: jitter first, then F2, then shimmer, then HNR — and
+> *duration* among the least discriminative. This project measured ECAPA, f0
+> contour, MCD and duration, so it had none of the top four and one of the
+> bottom.
+
+**Metric** — jitter, shimmer and HNR of the generated line ÷ the human's, plus
+vocal tract length from formant dispersion.
+**Probe** — `voice_quality`, `vocal_tract_length` (Praat via parselmouth).
+**Current** — 12 clips per language. **MET on tract length, OPEN on quality.**
+
+Vocal tract length is preserved everywhere, **0.98–1.08x** — neither method
+shifts the speaker's apparent vocal size, which is the reassuring answer to
+"does it still sound like the same kind of person".
+
+The outlier is the Chinese LoRA: jitter **0.81x** and HNR **1.20x** — cleaner
+and more periodic than the human it copies. That is the "too clean" signature,
+on the one eval set whose anchor is already invalid (2.2).
+
+**Target — jitter, shimmer and HNR within 0.85–1.15x; tract length within
+0.95–1.05x.**
+
+### 2.7 Adapters must not be trained on their own test data
+
+> **What this is.** Keeping some of a narrator's recordings away from training,
+> so there is honest material to test the finished voice on.
+>
+> **Why it matters.** Otherwise there is no way to know whether a voice
+> genuinely learned to sound like someone, or simply memorised the specific
+> lines it was shown. A student who sees the exam paper in advance tells you
+> nothing about what they know.
+>
+> **Why this is cheap to fix.** The split already exists and is already
+> correct — the trainer just doesn't use it.
+
+**Metric** — adapters whose training set includes their validation split.
+**Current** — every dataset zip splits **180 train / 20 val with zero
+overlap**, but `train_lora.py` loads the *root* `metadata.jsonl`, which is all
+200. **67 of 75 adapters record `num_samples: 200`.** **OPEN.**
+
+**Target — train on `train/` only; 0 adapters trained on their own val split.**
+
+Until then, every per-adapter fidelity number in the library is an **upper
+bound**: it is measured on material the model has heard. It can still rank
+adapters, because all are contaminated identically — a voice that scores badly
+on its own training data is genuinely bad.
+
 ## 3. Reliability — does a run finish and produce the right thing
 
 ### 3.1 Chunk completion on script generation
@@ -655,6 +754,53 @@ pass, paired on line id.
 
 ---
 
+### 5.4 Transcription and clip boundaries in the preparer
+
+> **What this is.** Before any voice can be trained, an audiobook has to be
+> transcribed and cut into clips. This measures how well that first step works.
+>
+> **Why it matters.** It is upstream of everything in section 2. A clip cut
+> 30 ms early loses a consonant off *every* training sample; one cut 300 ms
+> late drags in a word from the next line. Neither shows up as an error — it
+> shows up later as a voice that never quite sounds right, with no way to trace
+> the cause. Getting the words wrong is the more obvious failure and the less
+> damaging one.
+>
+> **Why boundaries decide the choice.** Word accuracy is easy to compare and
+> tempting to rank on. But the preparer needs the audio *sliced*, so a backend
+> that hears perfectly and cannot place a boundary is useless to it.
+
+**Metric** — WER (CER for CJK) against human transcripts, plus alignment error
+against known boundaries.
+**Probe** — `app/experiments/asr_backends.py`. The alignment probe concatenates
+clips with 0.5 s gaps, so boundary truth is *arithmetic* — the only answer key
+in this project that cannot itself be wrong.
+**Current** — 50 clips per language, 2026-08-06:
+
+| lang | backend | WER/CER | align median | within 300 ms |
+|---|---|---|---|---|
+| EN | whisper.cpp base | 3.0% | **80 ms** | **90%** |
+| EN | whisper.cpp large-v3 | **1.8%** | 45 ms | 80% |
+| EN | SenseVoice | 3.8% | 10158 ms | 20% |
+| ZH | whisper.cpp base | 44.3% | **84 ms** | **100%** |
+| ZH | whisper.cpp large-v3 | 14.1% | 826 ms | 20% |
+| ZH | SenseVoice | **11.3%** | 17957 ms | 10% |
+
+**MET for English. OPEN for CJK.**
+
+**Target — CER ≤ 20% in every language, with alignment median ≤ 150 ms and
+≥ 80% of boundaries within 300 ms.**
+
+**The finding that shapes the choice: no single configuration wins both.**
+`base` is the better aligner (84 ms, 100% in Chinese); `large-v3` is the better
+transcriber (44.3% → 14.1% CER) and **ten times worse at boundaries**.
+SenseVoice is the best Chinese transcriber of all and effectively cannot
+segment — 1 of 10 boundaries, a 17-second median error.
+
+So the reachable path is probably not to pick one. Words and boundaries can
+come from different passes, and the failure modes are exactly complementary.
+That hybrid is untested; nothing measured rules it out.
+
 ## 6. Measurement integrity
 
 Goals about the instruments themselves. These earned their place by failing.
@@ -731,10 +877,16 @@ If only three things get worked on:
 
 1. **Selection (1.2)** — the right answer is on the shortlist 85% of the time
    and gets chosen 29.9% of the time. The largest known headroom in the app.
+   Read the "already tried" table there before proposing a fix; four
+   approaches are measured and rejected.
 2. **Chinese anchor (2.2)** — until the ruler is fixed, one third of the voice
    evidence cannot be read at all.
-3. **Three-pass baseline (5.3)** — decide the fate of an entire subsystem that
-   has never been measured.
+3. **Train/val contamination (2.7)** — a one-line trainer change. Until it
+   lands, no per-adapter voice number in the library is honest, and 67 of 75
+   adapters are affected.
+
+Then: the three-pass baseline (5.3), and the CJK transcription gap (5.4) if
+Voice Lab is ever pointed at a non-English audiobook.
 
 ## Rules for changing this file
 

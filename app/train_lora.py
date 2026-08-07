@@ -136,7 +136,25 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
     import torch
     from qwen_tts.core.models.modeling_qwen3_tts import mel_spectrogram
 
-    metadata_path = os.path.join(data_dir, "metadata.jsonl")
+    # HONOUR THE TRAIN SPLIT WHEN THE DATASET HAS ONE.
+    #
+    # This loaded the ROOT metadata.jsonl unconditionally. The dataset builder
+    # writes 180 train / 20 val with zero overlap AND a root file containing all
+    # 200, so every adapter trained on its own validation set: 67 of 75 in the
+    # library record num_samples=200. The split existed and was ignored, which
+    # meant no adapter could be honestly evaluated - any test line had already
+    # been seen.
+    #
+    # Paths inside all three files are relative to the DATASET ROOT
+    # ("train/sample_1200.wav", "val/sample_1210.wav"), so data_dir stays the
+    # root and only the choice of metadata file changes. Datasets without a
+    # train/ subdirectory fall back to the old behaviour untouched.
+    split_path = os.path.join(data_dir, "train", "metadata.jsonl")
+    root_path = os.path.join(data_dir, "metadata.jsonl")
+    if os.path.exists(split_path):
+        metadata_path, used_split = split_path, True
+    else:
+        metadata_path, used_split = root_path, False
     if not os.path.exists(metadata_path):
         print(f"[ERROR] metadata.jsonl not found in {data_dir}", flush=True)
         sys.exit(1)
@@ -148,7 +166,18 @@ def load_dataset(data_dir, hf_model, processor, device, dtype, max_audio_seconds
         print("[ERROR] metadata.jsonl is empty", flush=True)
         sys.exit(1)
 
-    print(f"[DATA] Found {len(entries)} entries in metadata.jsonl", flush=True)
+    if used_split:
+        held = os.path.join(data_dir, "val", "metadata.jsonl")
+        n_held = 0
+        if os.path.exists(held):
+            with open(held, encoding="utf-8") as f:
+                n_held = sum(1 for line in f if line.strip())
+        print(f"[DATA] Found {len(entries)} entries in train/metadata.jsonl "
+              f"({n_held} held out in val/ and NOT trained on)", flush=True)
+    else:
+        print(f"[DATA] Found {len(entries)} entries in metadata.jsonl "
+              f"(no train/ split in this dataset; nothing is held out)",
+              flush=True)
 
     # ── Extract speaker embedding from ref_audio (consistent across all samples) ──
     # Check for ref_audio field in entries, or fall back to ref.wav in dataset dir,

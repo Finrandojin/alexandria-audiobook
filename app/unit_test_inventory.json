@@ -1452,6 +1452,15 @@
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_guide_links_canonical_summary_and_preserves_scope_limits",
     "test_thunder_benchmark_documentation.ThunderBenchmarkDocumentationTests.test_summary_covers_every_registered_stage"
   ],
+  "test_train_split": [
+    "test_train_split.LibraryContaminationTest.test_the_contamination_signature_is_detectable",
+    "test_train_split.LibraryContaminationTest.test_the_real_library_when_one_is_present",
+    "test_train_split.LibraryContaminationTest.test_unreadable_metadata_is_not_counted_either_way",
+    "test_train_split.TrainSplitTest.test_a_dataset_without_a_split_still_trains",
+    "test_train_split.TrainSplitTest.test_paths_stay_relative_to_the_dataset_root",
+    "test_train_split.TrainSplitTest.test_the_val_split_is_not_trained_on",
+    "test_train_split.TrainSplitTest.test_train_lora_reads_the_split_not_the_root"
+  ],
   "test_training_defaults": [
     "test_training_defaults.LearningRateIsSingleSourced.test_batch_train_lora_matches",
     "test_training_defaults.LearningRateIsSingleSourced.test_no_bare_five_e_minus_six_default_remains",
