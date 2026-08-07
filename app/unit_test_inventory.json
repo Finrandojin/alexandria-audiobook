@@ -1551,6 +1551,16 @@
     "test_voice_feature_benchmark.VoiceFeatureBenchmarkTests.test_operation_timing_covers_every_profiler_acoustic_operation",
     "test_voice_feature_benchmark.VoiceFeatureBenchmarkTests.test_torch_features_match_librosa_on_voiced_and_noisy_audio"
   ],
+  "test_voice_reference": [
+    "test_voice_reference.MedoidSelectionTest.test_a_clean_dataset_yields_a_high_score",
+    "test_voice_reference.MedoidSelectionTest.test_a_truncated_result_is_refused",
+    "test_voice_reference.MedoidSelectionTest.test_it_picks_the_majority_speaker_not_the_first_clip",
+    "test_voice_reference.MedoidSelectionTest.test_missing_files_are_skipped_not_compared",
+    "test_voice_reference.MedoidSelectionTest.test_no_model_means_no_opinion_not_a_guess",
+    "test_voice_reference.MedoidSelectionTest.test_the_comparison_count_is_bounded",
+    "test_voice_reference.MedoidSelectionTest.test_the_returned_index_addresses_the_original_list",
+    "test_voice_reference.MedoidSelectionTest.test_too_few_clips_is_refused"
+  ],
   "test_voicelab_diagnostics": [
     "test_voicelab_diagnostics.BundleTests.test_bundle_is_versioned_and_wraps_sections",
     "test_voicelab_diagnostics.BundleTests.test_bundle_redacts_secrets_in_sections",

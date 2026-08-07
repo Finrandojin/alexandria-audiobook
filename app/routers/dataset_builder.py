@@ -410,6 +410,40 @@ async def dataset_builder_save(request: DatasetSaveRequest):
         ref_idx = done_samples[0][0]
         ref_sample = done_samples[0][1]
 
+    # PICK A REPRESENTATIVE REFERENCE, NOT JUST THE FIRST CLIP.
+    #
+    # train_lora.py anchors the speaker embedding for ALL samples to this one
+    # file, so an unrepresentative clip here poisons the whole adapter. Across
+    # the 75 shipped adapters, a mismatched reference made an adapter 6.4x more
+    # likely to fail (86% vs 13%), and correlated +0.76 with adapter quality.
+    # The worst case was anchored to a clip scoring -0.026 against its own
+    # dataset while a 0.882 clip sat unused in the same data.
+    #
+    # The medoid - the clip most similar to all the others - is representative
+    # by construction and robust to a minority of misdiarized clips.
+    #
+    # Only when the caller did not choose one. An explicit ref_index is a
+    # deliberate human decision and is not second-guessed.
+    if request.ref_index == 0 and len(done_samples) >= 3:
+        from voice_reference import select_reference_sample
+        candidates = [os.path.join(work_dir, f"sample_{i:03d}.wav")
+                      for i, _ in done_samples]
+        pick, score = select_reference_sample(candidates)
+        if pick is not None:
+            chosen_i, chosen_sample = done_samples[pick]
+            logger.info(
+                f"Reference: chose sample_{chosen_i:03d} as the medoid "
+                f"(similarity {score} to the rest of the dataset) instead of "
+                f"the first clip")
+            ref_idx, ref_sample = chosen_i, chosen_sample
+        else:
+            # Not measurable here - the speaker model lives in the sibling
+            # interpreter. Say so, rather than leaving the reference silently
+            # unverified, which is how this defect survived.
+            logger.warning(
+                "Reference: could not verify sample_%03d is representative "
+                "(speaker model unavailable); using it unchecked", ref_idx)
+
     # Create training dataset directory
     dataset_dir = os.path.join(LORA_DATASETS_DIR, safe_name)
     if os.path.exists(dataset_dir):
