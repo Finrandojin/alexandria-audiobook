@@ -1,0 +1,73 @@
+{
+ "epochs": 6,
+ "lora_r": 64,
+ "seed": 1234,
+ "eval_lines": 8,
+ "results": [
+  {
+   "adapter": "husky_baritone_40s_m_military",
+   "role": "failure",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char2_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_2216.wav",
+    "similarity": 0.8341
+   },
+   "old_ecapa_contaminated": 0.6247,
+   "new_ecapa_heldout": 0.6518,
+   "dur_ratio": 0.959,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "husky_baritone_20s_m_anime",
+   "role": "control",
+   "dataset": "narrator_cristina_vee_nekomonogatari_char2_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_2212.wav",
+    "similarity": 0.873
+   },
+   "old_ecapa_contaminated": 0.0274,
+   "new_ecapa_heldout": 0.7128,
+   "dur_ratio": 1.165,
+   "n": 8,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "retrain_honest.py",
+  "written": "2026-08-07T17:33:53",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "9e6c5be388e76504163dfa019fa27a00220bec6c",
+   "branch": "agent/causal-reference-result",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M app/experiments/retrain_honest.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "a67748f123179ded98beba7a8c2ba7037d320e8f74fdfc89816f47d86292a0f2"
+  },
+  "args": {
+   "adapters": [
+    "husky_baritone_40s_m_military"
+   ],
+   "controls": [
+    "husky_baritone_20s_m_anime"
+   ],
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "work": "ab_test_runtime/retrain_honest",
+   "epochs": 6,
+   "lora_r": 64,
+   "lora_alpha": 128,
+   "seed": 1234,
+   "use_medoid": true,
+   "medoid_clips": 14,
+   "eval_lines": 8,
+   "out": "ab_test_runtime/experiments/medoid_counterexample.json"
+  },
+  "seed": 1234
+ }
+}

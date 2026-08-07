@@ -86,6 +86,15 @@ def main():
     ap.add_argument("--lora-r", type=int, default=64)
     ap.add_argument("--lora-alpha", type=int, default=128)
     ap.add_argument("--seed", type=int, default=1234)
+    ap.add_argument("--use-medoid", action="store_true",
+                    help="write a medoid ref.wav before training instead of "
+                         "letting train_lora fall back to the first training "
+                         "clip. The fallback is a LOTTERY - it recovered "
+                         "husky_baritone_20s_m_anime (0.004 -> 0.691) and did "
+                         "nothing for husky_baritone_40s_m_military "
+                         "(0.141 -> 0.149), which is the difference this flag "
+                         "removes.")
+    ap.add_argument("--medoid-clips", type=int, default=14)
     ap.add_argument("--eval-lines", type=int, default=8)
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "retrain_honest.json"))
@@ -119,6 +128,35 @@ def main():
         odir = os.path.join(args.work, adapter, "adapter")
         if not os.path.exists(os.path.join(ddir, "metadata.jsonl")):
             extract(zp, ddir)
+
+        # CHOOSE THE REFERENCE DELIBERATELY when asked. Without this,
+        # train_lora falls back to the first training clip - which is how the
+        # earlier retrains "recovered": the fallback happened to be a better
+        # reference than the shipped one. That makes recovery a property of
+        # clip ordering rather than of anything chosen, and it explains why one
+        # adapter jumped 0.687 and another moved 0.009 under identical
+        # treatment.
+        ref_note = None
+        if args.use_medoid:
+            from voice_reference import select_reference_sample
+            meta_rel = os.path.join(ddir, "train", "metadata.jsonl")
+            if not os.path.exists(meta_rel):
+                meta_rel = os.path.join(ddir, "metadata.jsonl")
+            drows = [json.loads(l) for l in open(meta_rel, encoding="utf-8")
+                     if l.strip()][:args.medoid_clips]
+            cand = [os.path.join(ddir, r["audio_filepath"]) for r in drows
+                    if os.path.exists(os.path.join(ddir, r["audio_filepath"]))]
+            pick, score = select_reference_sample(cand, max_clips=args.medoid_clips)
+            if pick is not None:
+                import shutil as _sh
+                _sh.copy2(cand[pick], os.path.join(ddir, "ref.wav"))
+                ref_note = {"clip": os.path.basename(cand[pick]),
+                            "similarity": score}
+                print(f"    reference: {ref_note['clip']} "
+                      f"(similarity {score})")
+            else:
+                print("    reference: could not choose a medoid; "
+                      "train_lora will fall back to the first clip")
 
         # The trainer now prefers train/metadata.jsonl when it exists, so the
         # 20 val clips stay unseen. That is the whole point of this run.
@@ -173,7 +211,7 @@ def main():
                          "app", "env", "bin", "python")))
         vals = [c for c in (cos or []) if c is not None]
         rec = {"adapter": adapter, "role": role, "dataset": dataset,
-               "trained_on": trained_on,
+               "trained_on": trained_on, "medoid_reference": ref_note,
                "old_ecapa_contaminated": None,
                "new_ecapa_heldout": round(statistics.median(vals), 4)
                if vals else None,

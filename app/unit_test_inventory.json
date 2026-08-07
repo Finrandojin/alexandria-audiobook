@@ -1559,7 +1559,10 @@
     "test_voice_reference.MedoidSelectionTest.test_no_model_means_no_opinion_not_a_guess",
     "test_voice_reference.MedoidSelectionTest.test_the_comparison_count_is_bounded",
     "test_voice_reference.MedoidSelectionTest.test_the_returned_index_addresses_the_original_list",
-    "test_voice_reference.MedoidSelectionTest.test_too_few_clips_is_refused"
+    "test_voice_reference.MedoidSelectionTest.test_too_few_clips_is_refused",
+    "test_voice_reference.WeakMedoidTest.test_a_strong_medoid_is_still_recommended",
+    "test_voice_reference.WeakMedoidTest.test_a_weak_medoid_is_reported_but_not_recommended",
+    "test_voice_reference.WeakMedoidTest.test_the_threshold_sits_between_the_measured_cases"
   ],
   "test_voicelab_diagnostics": [
     "test_voicelab_diagnostics.BundleTests.test_bundle_is_versioned_and_wraps_sections",

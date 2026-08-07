@@ -149,3 +149,39 @@ class MedoidSelectionTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class WeakMedoidTest(unittest.TestCase):
+    """The best of a bad lot is not a recommendation.
+
+    Retraining ten adapters with an explicit medoid recovered nine. The tenth,
+    `breathy_baritone_30s_m_fantasy`, went 0.705 -> 0.597 - and its medoid
+    scored 0.49, the lowest in the batch. On a dataset where even the most
+    representative clip is mediocre, replacing a reference that happened to be
+    good makes things worse.
+    """
+
+    def test_a_weak_medoid_is_reported_but_not_recommended(self):
+        tmp, paths = make_clips(5)
+        self.addCleanup(tmp.cleanup)
+        with patch.object(voice_reference, "_speaker_similarities",
+                          lambda pairs, timeout=600: [0.30] * len(pairs)):
+            pick, score = select_reference_sample(paths)
+        self.assertIsNone(pick, "recommended the best of a bad lot")
+        self.assertAlmostEqual(score, 0.30, places=2,
+                               msg="the score must still be reported so the "
+                                   "caller can log why it declined")
+
+    def test_a_strong_medoid_is_still_recommended(self):
+        tmp, paths = make_clips(5)
+        self.addCleanup(tmp.cleanup)
+        with patch.object(voice_reference, "_speaker_similarities",
+                          lambda pairs, timeout=600: [0.85] * len(pairs)):
+            pick, score = select_reference_sample(paths)
+        self.assertIsNotNone(pick)
+        self.assertGreaterEqual(score, voice_reference.MIN_USABLE_SIMILARITY)
+
+    def test_the_threshold_sits_between_the_measured_cases(self):
+        """0.49 regressed an adapter; 0.71-0.85 recovered nine of them."""
+        self.assertGreater(voice_reference.MIN_USABLE_SIMILARITY, 0.49)
+        self.assertLess(voice_reference.MIN_USABLE_SIMILARITY, 0.71)

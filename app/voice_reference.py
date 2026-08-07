@@ -71,6 +71,22 @@ def _speaker_similarities(pairs, timeout=600):
         return None
 
 
+MIN_USABLE_SIMILARITY = 0.60
+"""Below this, the best available clip is not a good reference either.
+
+Measured 2026-08-07 retraining ten adapters with an explicit medoid. The
+pattern held everywhere except one: `breathy_baritone_30s_m_fantasy` went
+0.705 -> 0.597, and its medoid scored only 0.49 - the lowest in the batch. On a
+dataset where even the most representative clip is mediocre, replacing an
+existing reference that happened to be good makes things worse.
+
+So a medoid this weak is reported but not recommended: the caller keeps what it
+had. Distinguishing "I found a good reference" from "the best of a bad lot" is
+the point - returning the latter as though it were the former is how a fix
+becomes a regression.
+"""
+
+
 def select_reference_sample(wav_paths, max_clips=MAX_CLIPS):
     """-> (index into wav_paths, median similarity) or (None, None).
 
@@ -102,4 +118,11 @@ def select_reference_sample(wav_paths, max_clips=MAX_CLIPS):
     if not medians:
         return None, None
     best = max(medians, key=medians.get)
-    return sample[best][0], round(medians[best], 4)
+    score = round(medians[best], 4)
+    if score < MIN_USABLE_SIMILARITY:
+        # Found one, but it is the best of a bad lot. Report the score so the
+        # caller can log it, and decline to recommend - overriding a reference
+        # that happened to be fine with a mediocre medoid cost 0.108 on
+        # breathy_baritone_30s_m_fantasy.
+        return None, score
+    return sample[best][0], score
