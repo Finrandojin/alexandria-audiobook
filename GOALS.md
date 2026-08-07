@@ -153,6 +153,30 @@ picks it **29.9%** of the time. **OPEN.**
 
 **Target — selection ≥ 50% with roster recall held at ≥ 85%.**
 
+> **CAUTION: these figures were measured on a model that is not the one that
+> ships.** The 147-line random gold set behind them has `source_run`
+> **qwen3.5-9b**, and a six-model comparison on the same frozen harness later
+> showed that model to be the *weakest selector tested*:
+>
+> | model | open | closed-6 | oracle |
+> |---|---|---|---|
+> | **qwen/qwen3-14b** (production) | 48.3% | 36.7% | **66.0%** |
+> | ministral-3-14b | 47.6% | 41.5% | 61.2% |
+> | phi-4 | 45.6% | 32.7% | 59.2% |
+> | **qwen3.5-9b** (source of 29.9%) | 35.4% | 34.7% | **49.0%** |
+>
+> The 49% "conditional ceiling" this goal was written against is a property of
+> **qwen3.5-9b, not of the task**. The production model reaches 66.0% on the
+> same measurement.
+>
+> To be exact: 29.9% is end-to-end pipeline selection and 66.0% is conditional
+> selection given an oracle set, so they are not the same number and one does
+> not replace the other. But the *framing* — "the answer is present and the
+> model looks past it" — was calibrated on a model 17 points worse at exactly
+> that, and the size of this gap on the shipped model has never been measured.
+>
+> **Re-measure 29.9% on qwen3-14b before spending anything on this goal.**
+
 **Why this and not more context.** Two independent measurements say supply is
 not the constraint. Feeding the model more of the book is treating the wrong
 problem, and has been tried.
@@ -546,6 +570,74 @@ Until then, every per-adapter fidelity number in the library is an **upper
 bound**: it is measured on material the model has heard. It can still rank
 adapters, because all are contaminated identically — a voice that scores badly
 on its own training data is genuinely bad.
+
+#### The reference clip is a real cause, and not the only one
+
+`train_lora.py` extracts the speaker embedding from ONE reference clip and uses
+it for all 200 training samples, so a single wrong file sets the voice identity
+regardless of how clean the training audio is.
+
+Swept across all 75 adapters on 2026-08-07 (`ref_clip_match.py`):
+
+- **correlation(reference matches its narrator, adapter quality) = +0.59**
+- **7 adapters have a reference that is not their own narrator** (<0.3)
+- **4 of those 7 also failed** as adapters
+
++0.59 is a real effect and not a complete explanation. The clearest cases are
+stark — `husky_baritone_20s_m_anime` has a reference scoring **−0.026** against
+its own training data and an adapter at 0.027 — but `warm_tenor_20s_m` reaches
+0.725 with a reference at 0.096. A mismatched reference does not doom an
+adapter, and a good adapter does not prove a good reference.
+
+**What this changes:** for those 4, "retrain" is the wrong prescription. The
+*reference clip* needs fixing first, which is cheaper than either retraining or
+rebuilding the dataset.
+
+### 2.8 A voice must still be the same voice at the end of the book
+
+> **What this is.** Whether a voice stays consistent across a book-length run,
+> rather than slowly wandering into someone else.
+>
+> **Why it matters.** Every other voice measurement in this project is a
+> SINGLE LINE. The longest generation on record before this was 150 lines; a
+> real audiobook is five to twenty thousand. The product is ten hours of one
+> consistent voice, and that property had never been measured at the length it
+> ships at. A slow drift is invisible to per-line metrics, because each line is
+> scored against its own reference and a voice that wanders steadily scores the
+> same at the start and the end.
+>
+> **Why the target is reachable.** Because the measured drift is small. This
+> could have come back catastrophic; it did not.
+
+**Metric** — speaker similarity to an anchor built from the opening lines, as a
+function of position through the run.
+**Probe** — `app/experiments/voice_drift.py`, 400 consecutive lines of real
+book prose per adapter.
+**Current** — 2026-08-07, three adapters, 400 lines each, zero failures:
+
+| adapter | first third | last third | fitted change |
+|---|---|---|---|
+| husky_baritone_20s_m_anime | 0.825 | 0.808 | −0.017 |
+| husky_tenor_30s_m_literary | 0.784 | 0.779 | −0.018 |
+| warm_mezzo_30s_f_fantasy_2 | 0.762 | 0.723 | **−0.050** |
+
+**Target — drift ≤ 0.03 across a 400-line run.** Two of three clear it.
+
+**Drift is real but small.** All three move in the same direction — downward —
+which argues it is a property of long generation rather than of one adapter.
+The worst, at −0.050, is roughly two thirds of the gap between a good adapter
+and a mediocre one, so it matters without being ruinous.
+
+**The attribution is consistent across all three: pitch rises.** f0 median
+climbs +1.9%, +5.0% and +6.6% from the first third to the last, while vocal
+tract length stays put (+1.2% to +2.7%) and HNR is flat. The voice is not
+becoming a different person — it is drifting *upward in pitch*. That is a
+narrower and more tractable defect than "the voice degrades", and no per-line
+metric could have shown it.
+
+**Note the sample.** Three adapters, one book's prose, 400 lines against a real
+book's thousands. A 400-line drift of −0.05 does not license a claim about
+5,000 lines; whether it is linear, plateaus, or accelerates is unmeasured.
 
 ## 3. Reliability — does a run finish and produce the right thing
 
