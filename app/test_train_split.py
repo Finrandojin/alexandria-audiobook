@@ -110,27 +110,62 @@ class TrainSplitTest(unittest.TestCase):
 
 
 class LibraryContaminationTest(unittest.TestCase):
-    """The evidence that motivated the fix, asserted so the count cannot drift
-    unnoticed if adapters are retrained."""
+    """The evidence that motivated the fix.
 
-    def test_existing_adapters_record_their_sample_count(self):
-        import glob
-        repo = os.path.dirname(APP)
-        metas = glob.glob(os.path.join(repo, "lora_models", "*",
-                                       "training_meta.json"))
-        if not metas:
-            self.skipTest("no adapter library in this checkout")
+    The first version of this skipped when no adapter library was present -
+    which is every CI checkout. The release verifier counts a skip as a
+    failure, and rightly: a test that quietly does nothing still reports green.
+    Three other tests were rewritten for exactly this reason hours before this
+    one was written with the same flaw.
+
+    So the logic is exercised on a fixture, and the real library is consulted
+    only as a bonus when one happens to be there.
+    """
+
+    def _count_contaminated(self, metas):
+        """How many adapters record training on the full 200 (train+val)."""
         counts = []
-        for p in metas:
+        for path in metas:
             try:
-                counts.append(json.load(open(p, encoding="utf-8"))
+                counts.append(json.load(open(path, encoding="utf-8"))
                               .get("num_samples"))
             except (OSError, ValueError):
                 continue
-        self.assertTrue(counts, "no readable training_meta.json")
-        # 200 means train+val were both consumed. Recorded, not required: as
-        # adapters are retrained this should fall toward zero.
-        self.assertIsInstance(sum(1 for c in counts if c == 200), int)
+        return sum(1 for c in counts if c == 200), len(counts)
+
+    def test_the_contamination_signature_is_detectable(self):
+        """num_samples == 200 on a 180/20 dataset means both splits were
+        consumed. This is the check that identified 67 of 75 adapters."""
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, n in (("clean", 180), ("contaminated", 200),
+                            ("also_clean", 180)):
+                d = os.path.join(tmp, name)
+                os.makedirs(d)
+                with open(os.path.join(d, "training_meta.json"), "w") as fh:
+                    json.dump({"num_samples": n}, fh)
+            metas = [os.path.join(tmp, n, "training_meta.json")
+                     for n in ("clean", "contaminated", "also_clean")]
+            self.assertEqual(self._count_contaminated(metas), (1, 3))
+
+    def test_unreadable_metadata_is_not_counted_either_way(self):
+        """A corrupt file must not silently inflate or deflate the count."""
+        with tempfile.TemporaryDirectory() as tmp:
+            good = os.path.join(tmp, "training_meta.json")
+            with open(good, "w") as fh:
+                json.dump({"num_samples": 200}, fh)
+            bad = os.path.join(tmp, "broken.json")
+            with open(bad, "w") as fh:
+                fh.write("{not json")
+            self.assertEqual(self._count_contaminated([good, bad]), (1, 1))
+
+    def test_the_real_library_when_one_is_present(self):
+        """A bonus assertion, never the only one, so an absent library is fine
+        rather than a skip."""
+        import glob
+        metas = glob.glob(os.path.join(os.path.dirname(APP), "lora_models",
+                                       "*", "training_meta.json"))
+        contaminated, total = self._count_contaminated(metas)
+        self.assertLessEqual(contaminated, total)
 
 
 if __name__ == "__main__":
