@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 18:18 from `ab_test_runtime/experiments/` — 302 artifacts, 521 arms.
+Generated 2026-08-08 18:22 from `ab_test_runtime/experiments/` — 303 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -786,6 +786,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `scene_aware_casting.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `seed_instruction_controls.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `segmentation_classifier.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `selection_gap_recheck.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `shipping_readiness.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `simd_benchmark.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `stack_overlap.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

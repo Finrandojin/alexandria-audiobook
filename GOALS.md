@@ -153,10 +153,41 @@ subset is scored against a full set.
 **Metric** — of lines where the correct speaker is present in the candidate
 roster, the percent where the model picks it.
 **Probe** — see memory `attribution_selection_not_recall`.
-**Current** — roster contains the right name **85%** of the time; the model
-picks it **29.9%** of the time. **OPEN.**
+**Current** — re-measured 2026-08-08 on the shipped **qwen3-14b**
+(`selection_gap_recheck.py`, closed_set OPEN arm, 793 rows across four books).
+**MET.**
 
-**Target — selection ≥ 50% with roster recall held at ≥ 85%.**
+| | qwen3.5-9b (this goal's original basis) | qwen3-14b (shipped) |
+|---|---|---|
+| roster recall | 85.0% | **91.6%** |
+| selection | **29.9%** | **62.9%** |
+
+| book | recall | selection | n |
+|---|---|---|---|
+| grimgar03 | 95.2% | 65.3% | 396 |
+| index18 | 89.9% | 73.0% | 99 |
+| mushoku16 | 84.6% | 60.9% | 136 |
+| owarimonogatari3 | 89.5% | 52.4% | 162 |
+
+**Target — selection ≥ 50% with roster recall held at ≥ 85%. MET: 62.9% at
+91.6% recall, and every individual book clears 50% as well.**
+
+**The gap was the model, not the method.** 29.9% was measured on qwen3.5-9b,
+which a later six-model comparison put ~17 points behind the shipped model on
+this task; the true difference here is 33 points. Selection is stable across
+backends — the same book varies by 3.1 points (grimgar03) and 5.0 (mushoku16)
+across four and five runs — so this is not one lucky artifact.
+
+Nothing was built to close this. The goal was written around a number from a
+model that does not ship, and the warning to re-measure before spending
+anything on it was correct: the entire 55-point gap it described was 29
+points of weaker model.
+
+The four rejected approaches in the table below were therefore tested against
+a deficit that mostly was not there on the shipped model. That does not
+resurrect them — they were measured and they failed — but it does mean the
+premise they were attacking has changed, and owarimonogatari3 at 52.4% is now
+the only book near the line.
 
 > **CAUTION: these figures were measured on a model that is not the one that
 > ships.** The 147-line random gold set behind them has `source_run`
@@ -1213,15 +1244,20 @@ files.**
 
 If only three things get worked on:
 
-1. **Selection (1.2)** — the right answer is on the shortlist 85% of the time
-   and gets chosen 29.9% of the time. The largest known headroom in the app.
-   Read the "already tried" table there before proposing a fix; four
-   approaches are measured and rejected.
-2. **Chinese anchor (2.2)** — until the ruler is fixed, one third of the voice
-   evidence cannot be read at all.
-3. **Train/val contamination (2.7)** — a one-line trainer change. Until it
-   lands, no per-adapter voice number in the library is honest, and 67 of 75
-   adapters are affected.
+1. **Generalisation (1.3)** — the app scores 71.0% on 25 PDNC novels it has
+   never seen against 83.6% on the three it quotes, a −12.6 point gap against
+   a target of 5. The three quoted books rank #2, #8 and #9 of 28. This is now
+   the largest known overstatement in the document.
+2. **Duration fidelity (2.4)** — the Japanese clone arm runs at 0.758 with 94%
+   of clips outside the band, confirmed at n=100. The one twelve-clip finding
+   that survived re-measurement.
+3. **Train/val contamination (2.7)** — 60 of 75 shipped adapters trained on
+   their own val split. The trainer is fixed; the library is not, and every
+   held-out score from a contaminated adapter is an upper bound.
+
+**Selection (1.2) was #1 on this list until 2026-08-08 and is now MET** — the
+29.9% it was built on came from a model that does not ship. Re-measuring goals
+before working on them has now twice been worth more than working on them.
 
 Then: the three-pass baseline (5.3), and the CJK transcription gap (5.4) if
 Voice Lab is ever pointed at a non-English audiobook.

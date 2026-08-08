@@ -587,6 +587,7 @@ scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,s
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene+2,162,66,40.7,ok,True,fe025a5f,3728.1,07-30 02:00,http://127.0.0.1:8090/v1,
 seed_instruction_controls.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 segmentation_classifier.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+selection_gap_recheck.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 shipping_readiness.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 simd_benchmark.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 stack_overlap.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results

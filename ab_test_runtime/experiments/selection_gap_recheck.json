@@ -1,0 +1,70 @@
+{
+  "scope": "qwen3-14b, closed_set OPEN arm only; selection is conditional on the true speaker being in the roster",
+  "legacy": {
+    "model": "qwen3.5-9b",
+    "roster_recall_pct": 85.0,
+    "selection_pct": 29.9
+  },
+  "pooled": {
+    "n": 793,
+    "n_in_roster": 726,
+    "roster_recall_pct": 91.6,
+    "selection_pct": 62.9,
+    "overall_accuracy_pct": 58.4
+  },
+  "per_book": {
+    "grimgar03": {
+      "n": 396,
+      "n_in_roster": 377,
+      "roster_recall_pct": 95.2,
+      "selection_pct": 65.3,
+      "overall_accuracy_pct": 62.6,
+      "artifact": "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json"
+    },
+    "index18": {
+      "n": 99,
+      "n_in_roster": 89,
+      "roster_recall_pct": 89.9,
+      "selection_pct": 73.0,
+      "overall_accuracy_pct": 66.7,
+      "artifact": "closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json"
+    },
+    "mushoku16": {
+      "n": 136,
+      "n_in_roster": 115,
+      "roster_recall_pct": 84.6,
+      "selection_pct": 60.9,
+      "overall_accuracy_pct": 52.9,
+      "artifact": "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json"
+    },
+    "owarimonogatari3": {
+      "n": 162,
+      "n_in_roster": 145,
+      "roster_recall_pct": 89.5,
+      "selection_pct": 52.4,
+      "overall_accuracy_pct": 47.5,
+      "artifact": "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json"
+    }
+  },
+  "selection_by_artifact": {
+    "grimgar03": {
+      "closed_set__grimgar03__qwen__qwen3-14b.CLOUD-a6000.json": 68.4,
+      "closed_set__grimgar03__qwen__qwen3-14b.LOCAL-9070xt.json": 67.8,
+      "closed_set__grimgar03__qwen__qwen3-14b.json": 68.4,
+      "closed_set__grimgar03__qwen__qwen3-14b__local-llamacpp-regold.json": 65.3
+    },
+    "index18": {
+      "closed_set__index18__qwen__qwen3-14b__local-llamacpp-regold.json": 73.0
+    },
+    "mushoku16": {
+      "closed_set__mushoku16__qwen__qwen3-14b.json": 58.5,
+      "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp-regold.json": 60.9,
+      "closed_set__mushoku16__qwen__qwen3-14b__local-llamacpp.json": 55.9,
+      "closed_set__mushoku16__qwen__qwen3-14b__local-lmstudio.json": 57.6,
+      "closed_set__mushoku16__qwen__qwen3-14b__local-vulkan.json": 57.6
+    },
+    "owarimonogatari3": {
+      "closed_set__owarimonogatari3__qwen__qwen3-14b__local-llamacpp-regold.json": 52.4
+    }
+  }
+}

@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 136,
+    "exploratory": 137,
     "provisional": 112
   },
   "artifacts": [
@@ -3233,6 +3233,17 @@
       "artifact": "segmentation_classifier.json",
       "bytes": 786,
       "sha256": "8fc80c628bf88317b318468297ec7e19ec43cd6bf06fc34ca2a9cedad79416df",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "selection_gap_recheck.json",
+      "bytes": 2364,
+      "sha256": "29d5fe5d9c36c795fb4722e2074a1c8e399318f7c393fef338dd3d69992c21b3",
       "seed": null,
       "status": null,
       "has_rows": false,
