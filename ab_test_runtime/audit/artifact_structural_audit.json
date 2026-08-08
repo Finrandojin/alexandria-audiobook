@@ -1,7 +1,7 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 52,
+    "supported_structure": 54,
     "exploratory": 124,
     "provisional": 112
   },
@@ -2211,6 +2211,32 @@
       "dirty": false,
       "classification": "exploratory",
       "reason": "metadata present without commit identity"
+    },
+    {
+      "artifact": "medoid_counterexample.json",
+      "bytes": 1920,
+      "sha256": "e71677aad4c453b6575d59a57f3ace2f7c0dc6c8da0050e38453528c5e2bca1d",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "9e6c5be388e76504163dfa019fa27a00220bec6c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "medoid_library_retrain.json",
+      "bytes": 5954,
+      "sha256": "52a89ba0041678c37533341a22aa327161a1822075057b6f0068c1ac64421a29",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "9e6c5be388e76504163dfa019fa27a00220bec6c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
     },
     {
       "artifact": "narrator_prior__grimgar03__qwen__qwen3-14b__local-llamacpp.json",

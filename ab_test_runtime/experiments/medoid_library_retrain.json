@@ -1,0 +1,200 @@
+{
+ "epochs": 6,
+ "lora_r": 64,
+ "seed": 1234,
+ "eval_lines": 8,
+ "results": [
+  {
+   "adapter": "silky_baritone_30s_m",
+   "role": "failure",
+   "dataset": "narrator_nick_podehl_super_sales_on_super_heroes_book_2_super_sales_on_super_heroes_book_2_b07cj4c449_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_2009.wav",
+    "similarity": 0.7119
+   },
+   "old_ecapa_contaminated": 0.274,
+   "new_ecapa_heldout": 0.5555,
+   "dur_ratio": 1.046,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "breathy_tenor_18s_m_supernatural",
+   "role": "failure",
+   "dataset": "narrator_keith_silverstein_kizumonogatari_char2_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_0200.wav",
+    "similarity": 0.7651
+   },
+   "old_ecapa_contaminated": 0.3973,
+   "new_ecapa_heldout": 0.5271,
+   "dur_ratio": 1.007,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_tenor_25s_m_military",
+   "role": "failure",
+   "dataset": "narrator_suzie_yeung_stephen_fu_86_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_0204.wav",
+    "similarity": 0.85
+   },
+   "old_ecapa_contaminated": 0.4039,
+   "new_ecapa_heldout": 0.6919,
+   "dur_ratio": 1.176,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "husky_tenor_30s_m",
+   "role": "failure",
+   "dataset": "narrator_various_waking_gods_b01ngublbw_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_2014.wav",
+    "similarity": 0.7579
+   },
+   "old_ecapa_contaminated": 0.469,
+   "new_ecapa_heldout": 0.4785,
+   "dur_ratio": 0.911,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_baritone_30s_m_3",
+   "role": "failure",
+   "dataset": "narrator_jay_snyder_ex_heroes_char3_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_1008.wav",
+    "similarity": 0.5911
+   },
+   "old_ecapa_contaminated": 0.4829,
+   "new_ecapa_heldout": 0.3747,
+   "dur_ratio": 1.222,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_tenor_20s_m_scifi",
+   "role": "failure",
+   "dataset": "narrator_luci_christian_full_metal_panic_char1_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_0014.wav",
+    "similarity": 0.7828
+   },
+   "old_ecapa_contaminated": 0.5114,
+   "new_ecapa_heldout": 0.5874,
+   "dur_ratio": 0.884,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_baritone_40s_m_1",
+   "role": "failure",
+   "dataset": "narrator_dracula_audible_edition_b0078pa1oa_char8_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_4611.wav",
+    "similarity": 0.8101
+   },
+   "old_ecapa_contaminated": 0.5846,
+   "new_ecapa_heldout": 0.6368,
+   "dur_ratio": 1.18,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_baritone_20s_m_postapoc",
+   "role": "failure",
+   "dataset": "narrator_jay_snyder_ex_heroes_char2_vol01",
+   "trained_on": "[DATA] Found 73 entries in train/metadata.jsonl (8 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_3213.wav",
+    "similarity": 0.7979
+   },
+   "old_ecapa_contaminated": 0.587,
+   "new_ecapa_heldout": 0.6368,
+   "dur_ratio": 0.949,
+   "n": 8,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "breathy_baritone_30s_m_fantasy",
+   "role": "failure",
+   "dataset": "narrator_robert_west_damsels_of_jormia_char2_vol01",
+   "trained_on": "[DATA] Found 22 entries in train/metadata.jsonl (2 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_3606.wav",
+    "similarity": 0.4947
+   },
+   "old_ecapa_contaminated": 0.7048,
+   "new_ecapa_heldout": 0.5967,
+   "dur_ratio": 1.006,
+   "n": 2,
+   "ecapa_error": null
+  },
+  {
+   "adapter": "warm_mezzo_30s_f_fantasy_2",
+   "role": "failure",
+   "dataset": "narrator_emily_woo_zeller_red_winter_the_complete_trilogy_b0d1z63lzd_char3_vol01",
+   "trained_on": "[DATA] Found 180 entries in train/metadata.jsonl (20 held out in val/ and NOT trained on)",
+   "medoid_reference": {
+    "clip": "sample_9613.wav",
+    "similarity": 0.8018
+   },
+   "old_ecapa_contaminated": 0.482,
+   "new_ecapa_heldout": 0.5187,
+   "dur_ratio": 0.759,
+   "n": 8,
+   "ecapa_error": null
+  }
+ ],
+ "provenance": {
+  "script": "retrain_honest.py",
+  "written": "2026-08-07T18:19:31",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "9e6c5be388e76504163dfa019fa27a00220bec6c",
+   "branch": "agent/causal-reference-result",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M app/experiments/retrain_honest.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "a67748f123179ded98beba7a8c2ba7037d320e8f74fdfc89816f47d86292a0f2"
+  },
+  "args": {
+   "adapters": [
+    "silky_baritone_30s_m",
+    "breathy_tenor_18s_m_supernatural",
+    "warm_tenor_25s_m_military",
+    "husky_tenor_30s_m",
+    "warm_baritone_30s_m_3",
+    "warm_tenor_20s_m_scifi",
+    "warm_baritone_40s_m_1",
+    "warm_baritone_20s_m_postapoc",
+    "breathy_baritone_30s_m_fantasy",
+    "warm_mezzo_30s_f_fantasy_2"
+   ],
+   "controls": [],
+   "models": "lora_models",
+   "zips": "_deduped_labeled",
+   "work": "ab_test_runtime/retrain_honest",
+   "epochs": 6,
+   "lora_r": 64,
+   "lora_alpha": 128,
+   "seed": 1234,
+   "use_medoid": true,
+   "medoid_clips": 14,
+   "eval_lines": 8,
+   "out": "ab_test_runtime/experiments/medoid_library_retrain.json"
+  },
+  "seed": 1234
+ }
+}
