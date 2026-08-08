@@ -1123,7 +1123,16 @@ Goals about the instruments themselves. These earned their place by failing.
 Covered at 2.2. Enforced by `find_invalid_anchors`, reported in every score
 artifact as `anchor_invalid`.
 
-**Target — 0 comparisons published from an eval set with an invalid anchor.**
+**Target — 0 comparisons published from an eval set with an invalid anchor.
+MET 2026-08-08**, now asserted rather than observed.
+
+`test_score_anchor.py` pins the *detector* against constructed inputs.
+`test_published_anchors.py` pins the *artifacts*: it walks every
+`*_score.json` in the evidence tree and asserts each records
+`anchor_invalid`, that it is empty, and — re-derived from the summary rather
+than trusting the recorded flag — that every arm scores below its ceiling. A
+correct detector nobody reads is exactly the 2026-08-06 failure, so the goal
+needed a check over real files, not fixtures.
 
 ### 6.2 One source per decision
 
