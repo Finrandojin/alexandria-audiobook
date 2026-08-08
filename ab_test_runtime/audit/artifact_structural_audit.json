@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 133,
+    "exploratory": 134,
     "provisional": 112
   },
   "artifacts": [
@@ -1648,6 +1648,17 @@
       "dirty": false,
       "classification": "provisional",
       "reason": "older metadata contract; semantic/manual review required"
+    },
+    {
+      "artifact": "corpus_hnr_baseline.json",
+      "bytes": 1339,
+      "sha256": "6269cb1331cc75b0b715a1d2d0ebb1d3efc24d18ea367e0d47cf74da872b02a2",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "crossbook_normalization.json",

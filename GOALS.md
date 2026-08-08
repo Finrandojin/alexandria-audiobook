@@ -584,10 +584,34 @@ the opposite direction to the one a length artifact predicts. Short clips
 destroyed the ECAPA anchor and do nothing to HNR, so the two are not the same
 defect and 2.2 does not explain this.
 
-What that leaves: the Chinese LoRA really does produce more periodic, less
-noisy phonation than the narrator it copies. **OPEN, and now for a supported
-reason rather than an unexamined one.** The next candidate explanations are the
-adapter itself and the AISHELL-3 recording conditions; neither has been tested.
+**The corpus has been ruled out and the eval speaker has not**
+(`corpus_hnr_baseline.py`, 2026-08-08; 40 AISHELL-3 speakers the adapter never
+saw, 15 clips each, human recordings only):
+
+| | median HNR |
+|---|---|
+| AISHELL-3, 40 unseen speakers | **12.02 dB** |
+| LJSpeech (English) | 10.83 dB |
+| Kokoro (Japanese) | 16.28 dB |
+| SSB1585, the Chinese eval speaker | **9.39 dB** |
+
+AISHELL-3 is *cleaner* than LJSpeech, which the English cell passes on, so
+"recorded on consumer hardware" explains nothing. SSB1585 herself sits 2.63 dB
+below her own corpus median at the **8th percentile** — 3 of 40 sampled
+speakers are noisier than she is.
+
+So the denominator is depressed, by the choice of eval speaker rather than by
+the corpus. The generated side measures 11.17 dB against AISHELL-3's own 12.02
+median: the adapter produces roughly corpus-typical phonation and looks too
+clean only because it is divided by an atypically noisy narrator. Against a
+median speaker the same audio would land near 0.93x — that number is
+arithmetic on two medians, not a measurement.
+
+**Status: OPEN, but reclassified.** This is a property of the eval set's
+speaker selection, not evidence that the model synthesises unnaturally clean
+Chinese. Closing it means re-running the Chinese arm against a speaker nearer
+her corpus median, which is a new generation run and has not been done. Until
+then the Chinese HNR figure should not be cited as a model result.
 
 Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
 probe here does not compute it, so that row rests on the same thin evidence
