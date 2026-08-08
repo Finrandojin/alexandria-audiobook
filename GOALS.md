@@ -474,7 +474,30 @@ this. Protected by the gate plus `app/test_training_defaults.py`.
 > specific case to investigate, not a broad weakness.
 
 **Metric** — mean `dur_ratio` across held-out lines (1.00 = matches the human).
-**Current** — LoRA 0.92 / 0.95 / 0.95; clone 0.97 / **0.76** / 0.90. **OPEN.**
+**Current** — 100 clips per language, both arms, 2026-08-08
+(`duration_probe.py`). **OPEN, confirmed.**
+
+| arm | median ratio | p10–p90 | clips outside band |
+|---|---|---|---|
+| English LoRA | 0.959 | 0.83–1.09 | 35% |
+| English clone | 1.018 | 0.85–1.17 | 35% |
+| Japanese LoRA | 0.929 | 0.78–1.15 | 57% |
+| Japanese clone | **0.758** | 0.65–0.86 | **94%** |
+| Chinese LoRA | 0.935 | 0.83–1.10 | 45% |
+| Chinese clone | **0.896** | 0.78–1.03 | 57% |
+
+**This is the twelve-clip finding that survived.** The Japanese clone arm was
+0.76 at n=12 and is 0.7584 at n=100 — the same number to three decimals. Three
+other twelve-clip findings dissolved under proper sampling on the same day
+(2.5's two cells, 2.6's jitter), so the lesson is that sample size has to be
+checked, not that small samples are always wrong.
+
+The per-clip column is new and was hidden by the medians. Every arm, including
+the four whose medians pass, puts a third to a half of its individual clips
+outside 0.90–1.10. A median near 1.0 built from clips scattered on both sides
+is a different defect from a uniformly rushed arm, and only the Japanese clone
+is uniform: at 94% outside with a p90 of 0.86, nearly every clip is short, not
+merely the average.
 
 **Target — every arm within 0.90–1.10.**
 
@@ -637,7 +660,24 @@ goal has otherwise stopped trusting.
 **Metric** — adapters whose training set includes their validation split.
 **Current** — every dataset zip splits **180 train / 20 val with zero
 overlap**, but `train_lora.py` loads the *root* `metadata.jsonl`, which is all
-200. **67 of 75 adapters record `num_samples: 200`.** **OPEN.**
+200. **OPEN — 60 of 75 shipped adapters are contaminated**, audited
+2026-08-08 from each adapter's own `training_meta.json`.
+
+| trained on | adapters |
+|---|---|
+| all 200 clips, including its own val split | **60** |
+| 180, the train split only | 7 |
+| some other count (24, 81, 88, 116, 130, 170, 188) | 8 |
+
+The clean 7 are exactly the seven retrained and promoted on 2026-08-08; every
+adapter predating that fix is contaminated. Their held-out scores are therefore
+measured partly on clips they were trained on, and should be read as an upper
+bound rather than a held-out result.
+
+One trap for anyone re-running this audit: the retrained adapters record
+`num_samples` while the older ones record `sample_count`. Two field names for
+one concept - checking only one of them silently reports the wrong count, which
+happened on the first pass of this audit.
 
 **Target — train on `train/` only; 0 adapters trained on their own val split.**
 

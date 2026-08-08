@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 17:57 from `ab_test_runtime/experiments/` — 300 artifacts, 521 arms.
+Generated 2026-08-08 18:03 from `ab_test_runtime/experiments/` — 301 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -723,6 +723,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `dataset_ref_audit.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `dataset_speaker_consistency.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `dataset_speaker_consistency_n10.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `duration_probe.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fallback_policy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `fix_verification.json` | SKIPPED: not a result object (list) |
 | `gate_known_bad.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

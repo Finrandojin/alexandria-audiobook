@@ -335,6 +335,7 @@ distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,mushoku16,Qwen
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,tuned,133,83,62.4,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,tuned,162,99,61.1,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
+duration_probe.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 fallback_policy.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 fix_verification.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: not a result object (list)
 gate_known_bad.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results

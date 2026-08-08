@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 134,
+    "exploratory": 135,
     "provisional": 112
   },
   "artifacts": [
@@ -1789,6 +1789,17 @@
       "dirty": false,
       "classification": "exploratory",
       "reason": "metadata present without commit identity"
+    },
+    {
+      "artifact": "duration_probe.json",
+      "bytes": 1640,
+      "sha256": "2f534a24b4bdce43f33ca97666bc93b26a180a2ccc90079119c9a057265f8b44",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "fallback_policy.json",
