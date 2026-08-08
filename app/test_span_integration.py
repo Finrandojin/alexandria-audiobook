@@ -14,6 +14,7 @@ never prose.
 """
 
 import atexit
+import inspect
 import io
 import json
 import os
@@ -68,6 +69,9 @@ from generate_script import (  # noqa: E402
     select_prompt,
     build_context,
     MAX_CONTEXT_ROSTER_NAMES,
+    MOJIBAKE_REPLACEMENTS,
+    clean_json_string,
+    fix_mojibake,
     detect_flatlined_prompt_tokens,
     estimate_prompt_tokens,
     is_placeholder_speaker,
@@ -1606,6 +1610,106 @@ class TestPlaceholderLabelRejection(unittest.TestCase):
             labels_for(chunk, speaker_of=lambda span, text: "SPEAKER 2"))))
         run_chunk(client, chunk, roster=roster)
         self.assertEqual(roster, {})
+
+
+
+
+class TestBracketedPreambleRecovery(unittest.TestCase):
+    """A ``[`` in prose must not cost the chunk its labels.
+
+    clean_json_string() used to take the FIRST ``[`` anywhere in the response.
+    A model prefacing its array with prose containing brackets handed back a
+    truthy-but-wrong slice, which then displaced the raw text in
+    extract_labels' salvage step -- total label loss for the chunk, with the
+    real array sitting intact a few characters later.
+    """
+
+    REAL_ARRAY = '[{"id": 1, "speaker": "NARRATOR", "role": "narration", "instruct": "Neutral."}]'
+
+    def test_prose_preamble_with_brackets(self):
+        resp = "Sure! Here are the labels [see list below]:\n" + self.REAL_ARRAY
+        self.assertEqual(clean_json_string(resp), self.REAL_ARRAY)
+        labels, mode = extract_labels(resp)
+        self.assertEqual(mode, LABEL_MODE_ARRAY)
+        self.assertEqual([label["id"] for label in labels], [1])
+
+    def test_markdown_preamble_with_bracketed_span_ids(self):
+        resp = ("- span [1] is narration\n"
+                "- span [2] is dialogue\n\n" + self.REAL_ARRAY)
+        labels, _ = extract_labels(resp)
+        self.assertEqual([label["id"] for label in labels], [1])
+
+    def test_nested_array_inside_an_object_is_not_truncated(self):
+        resp = ('[{"id": 1, "speaker": "A", "role": "dialogue", "instruct": "x", '
+                '"tags": [1, 2]}, '
+                '{"id": 2, "speaker": "NARRATOR", "role": "narration", "instruct": "y"}]')
+        labels, mode = extract_labels(resp)
+        self.assertEqual(mode, LABEL_MODE_ARRAY)
+        self.assertEqual([label["id"] for label in labels], [1, 2])
+
+    def test_truncated_array_after_a_prose_bracket_still_salvages(self):
+        resp = ('Here goes [note] :\n[{"id": 1, "speaker": "A", "role": "dialogue", '
+                '"instruct": "x"}, {"id": 2, "speaker": "B", "role": "dialogue"')
+        labels, _ = extract_labels(resp)
+        self.assertEqual([label["id"] for label in labels], [1, 2])
+
+    def test_response_with_no_array_at_all_is_unchanged(self):
+        self.assertIsNone(clean_json_string("Sure! Here is the script."))
+        self.assertEqual(extract_labels("Sure! Here is the script."), (None, None))
+
+    def test_bracketed_preamble_through_process_chunk_keeps_the_speaker(self):
+        chunk = STRAIGHT_QUOTES
+        resp = ("Certainly [as requested]:\n" +
+                json.dumps(labels_for(chunk, speaker_of=lambda span, text: "MARCUS")))
+        entries, stats, _ = run_chunk(chunk=chunk, client=FakeClient(FakeResponse(resp)))
+        self.assertEqual(joined(entries), chunk)
+        self.assertIn("MARCUS", [e["speaker"] for e in entries])
+        self.assertFalse(stats["degraded"])
+
+
+class TestMojibakeTable(unittest.TestCase):
+    """The repair table's literals are themselves mojibake and had decayed.
+
+    Two entries were lost: the right-single-quote VALUE became three ASCII
+    apostrophes (a triple-quote that swallowed the next entry), and the em-
+    and en-dash KEYS collapsed to the same byte, so 7 literals became 6 dict
+    entries and em-dash mojibake was never repaired.
+    """
+
+    @staticmethod
+    def _literal_count():
+        """Count key literals in the dict's SOURCE, independent of the dict."""
+        source = inspect.getsource(generate_script)
+        body = source.split("MOJIBAKE_REPLACEMENTS = {", 1)[1].split("}", 1)[0]
+        return len([line for line in body.splitlines() if ":" in line])
+
+    def test_no_duplicate_keys_collapsed(self):
+        self.assertEqual(len(MOJIBAKE_REPLACEMENTS), self._literal_count())
+
+    def test_all_keys_and_values_are_distinct_where_expected(self):
+        self.assertEqual(len(set(MOJIBAKE_REPLACEMENTS)), len(MOJIBAKE_REPLACEMENTS))
+
+    def test_both_dashes_are_repaired(self):
+        em_mojibake = "\u00e2\u20ac\u201d"
+        en_mojibake = "\u00e2\u20ac\u201c"
+        self.assertEqual(fix_mojibake(em_mojibake), "\u2014")
+        self.assertEqual(fix_mojibake(en_mojibake), "\u2013")
+
+    def test_quotes_and_ellipsis_are_repaired(self):
+        cases = {
+            "\u00e2\u20ac\u2122": "\u2019",
+            "\u00e2\u20ac\u02dc": "\u2018",
+            "\u00e2\u20ac\u0153": "\u201c",
+            "\u00e2\u20ac\u009d": "\u201d",
+            "\u00e2\u20ac\u00a6": "\u2026",
+        }
+        for bad, good in cases.items():
+            with self.subTest(bad=bad):
+                self.assertEqual(fix_mojibake(bad), good)
+
+    def test_clean_text_is_untouched(self):
+        clean = 'She said, "it\u2019s fine" \u2014 and left\u2026'
+        self.assertEqual(fix_mojibake(clean), clean)
 
 
 

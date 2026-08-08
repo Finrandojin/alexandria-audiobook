@@ -217,25 +217,13 @@ def strip_thinking_tags(text):
     return text
 
 
-def clean_json_string(text):
-    """Clean and extract valid JSON array from LLM response."""
-    text = strip_thinking_tags(text)
+def _balanced_array_end(text, start):
+    """Index just past the ``]`` closing the array opened at ``start``.
 
-    # Remove markdown code blocks
-    if "```" in text:
-        # Find content between ```json and ``` or just ``` and ```
-        match = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
-        if match:
-            text = match.group(1).strip()
-
-    # Find the JSON array - match from first [ to its closing ]
-    # Use a bracket counter to find the correct closing bracket
-    start = text.find('[')
-    if start == -1:
-        return None
-
+    String-aware (brackets inside JSON strings do not count). Returns -1 when
+    no balanced close exists, i.e. the array was truncated.
+    """
     bracket_count = 0
-    end = -1
     in_string = False
     escape_next = False
 
@@ -246,7 +234,7 @@ def clean_json_string(text):
         if char == '\\':
             escape_next = True
             continue
-        if char == '"' and not escape_next:
+        if char == '"':
             in_string = not in_string
             continue
         if in_string:
@@ -256,43 +244,88 @@ def clean_json_string(text):
         elif char == ']':
             bracket_count -= 1
             if bracket_count == 0:
-                end = i + 1
-                break
+                return i + 1
+    return -1
 
-    if end == -1:
-        # No closing bracket found, try to salvage
-        last_complete = text.rfind('},')
-        if last_complete > start:
-            return text[start:last_complete+1] + ']'
-        return None
 
-    json_text = text[start:end]
-
-    # Clean control characters inside strings (common LLM issue)
-    # Replace literal newlines/tabs inside JSON strings with escaped versions
+def _escape_control_chars(json_text):
+    """Escape literal newlines/tabs inside JSON string values (common LLM bug)."""
     def fix_control_chars(match):
         s = match.group(0)
-        # Replace unescaped control characters
         s = s.replace('\n', '\\n')
         s = s.replace('\r', '\\r')
         s = s.replace('\t', '\\t')
         return s
 
-    # Fix control characters inside string values
-    json_text = re.sub(r'"[^"\\]*(?:\\.[^"\\]*)*"', fix_control_chars, json_text)
-
-    return json_text
+    return re.sub(r'"[^"\\]*(?:\\.[^"\\]*)*"', fix_control_chars, json_text)
 
 
-def repair_json_array(json_text):
-    """Attempt to repair common JSON array issues from LLM output."""
+def clean_json_string(text):
+    """Extract the JSON array from an LLM response.
+
+    Tries EVERY ``[`` in the response, in order, and returns the first whose
+    balanced slice actually parses as a list -- not merely the first ``[``
+    character. A model that prefaces its array with prose containing brackets
+    ("Sure! Here are the labels [see list below]:") used to hand back
+    ``'[see list below]'``, a truthy string that then displaced the raw text
+    in extract_labels' salvage step and cost the chunk EVERY label, even
+    though the real array sat intact a few characters later.
+
+    Falls back to the first syntactically-balanced candidate (or a truncated
+    tail repaired with a closing bracket) when none of them parse, so callers
+    that do their own repair -- review_script.py drives this same function --
+    still receive what they used to.
+    """
+    text = strip_thinking_tags(text)
+
+    # Remove markdown code blocks
+    if "```" in text:
+        # Find content between ```json and ``` or just ``` and ```
+        match = re.search(r'```(?:json)?\s*([\s\S]*?)```', text)
+        if match:
+            text = match.group(1).strip()
+
+    fallback = None
+    search_from = 0
+
+    while True:
+        start = text.find('[', search_from)
+        if start == -1:
+            break
+        search_from = start + 1
+
+        end = _balanced_array_end(text, start)
+        if end == -1:
+            # Truncated: repair by closing after the last complete object.
+            last_complete = text.rfind('},')
+            if last_complete > start and fallback is None:
+                fallback = text[start:last_complete + 1] + ']'
+            continue
+
+        candidate = _escape_control_chars(text[start:end])
+        if repair_json_array(candidate, quiet=True):
+            return candidate
+        if fallback is None:
+            fallback = candidate
+
+    return fallback
+
+
+def repair_json_array(json_text, quiet=False):
+    """Attempt to repair common JSON array issues from LLM output.
+
+    ``quiet`` suppresses the dropped-entry warning. clean_json_string() uses
+    this function to PROBE candidate slices, and a probe that rejects a
+    bracketed fragment of prose must not report it as damage to the model's
+    real array.
+    """
     if not json_text:
         return None
 
     def _filter_entries(lst):
         """Keep only dict entries; LLMs sometimes emit bare strings in the array."""
         filtered = [e for e in lst if isinstance(e, dict)]
-        if len(filtered) < len(lst):
+        if len(filtered) < len(lst) and not quiet:
             print(f"  Warning: Dropped {len(lst) - len(filtered)} non-object entries from LLM JSON array")
         return filtered if filtered else None
 
@@ -645,10 +678,14 @@ def extract_labels(text):
     if labels:
         return labels, LABEL_MODE_OBJECT
 
-    # Salvage the cleaned array text when we have it, else the raw response:
-    # clean_json_string() returns None for a hard truncation with no closing
-    # bracket, which is exactly when salvage matters most.
-    labels = salvage_label_entries(json_text or text)
+    # Salvage the cleaned array text first, then ALWAYS retry against the raw
+    # response if that yielded nothing. Falling back only when json_text was
+    # None was too narrow: a wrong-but-truthy cleaned slice (prose brackets --
+    # see clean_json_string) displaced the raw text and cost the chunk every
+    # label, even though salvaging the raw text would have recovered them all.
+    labels = salvage_label_entries(json_text) if json_text else None
+    if not labels:
+        labels = salvage_label_entries(text)
     if labels:
         return labels, LABEL_MODE_SALVAGE
 
@@ -1044,23 +1081,51 @@ def _assert_chunk_verbatim(entries, chunk, chunk_num):
     )
 
 
-def fix_mojibake(text):
-    """Fix common mojibake characters resulting from CP1252-as-UTF8."""
-    replacements = {
-        'â€™': ''',  # Right single quote
-        'â€˜': ''',  # Left single quote
-        'â€œ': '"',  # Left double quote
-        'â€\x9d': '"', # Right double quote
-        'â€?': '"', # Sometimes ? if undefined
-        'â€"': '—',  # Em dash
-        'â€"': '–',  # En dash
-        'â€¦': '…',  # Ellipsis
-    }
+# CP1252-as-UTF8 mojibake repair table; see fix_mojibake() for why every
+# literal is written as an escape. Each key is 3 characters: "\u00e2\u20ac"
+# (UTF-8 bytes E2 80 read as CP1252) plus whatever CP1252 maps the third
+# byte to.
+MOJIBAKE_REPLACEMENTS = {
+    "\u00e2\u20ac\u2122": "\u2019",   # 0x99 -> right single quote
+    "\u00e2\u20ac\u02dc": "\u2018",   # 0x98 -> left single quote
+    "\u00e2\u20ac\u0153": "\u201c",   # 0x9c -> left double quote
+    "\u00e2\u20ac\u009d": "\u201d",   # 0x9d is undefined in CP1252
+    "\u00e2\u20ac?": "\u201d",         # ...and is sometimes rendered "?"
+    "\u00e2\u20ac\u201d": "\u2014",   # 0x94 -> em dash
+    "\u00e2\u20ac\u201c": "\u2013",   # 0x93 -> en dash
+    "\u00e2\u20ac\u00a6": "\u2026",   # 0xa6 -> ellipsis
+}
 
-    for bad, good in replacements.items():
+
+def fix_mojibake(text):
+    """Fix common mojibake characters resulting from CP1252-as-UTF8.
+
+    Every key and value in MOJIBAKE_REPLACEMENTS is written as an explicit
+    \\u escape. That is not stylistic: the literals are themselves mojibake,
+    so any editor, terminal or copy-paste that re-encodes this file silently
+    rewrites them -- which had already happened twice here:
+
+      * the right-single-quote entry's VALUE had decayed to three ASCII
+        apostrophes, which Python read as the start of a triple-quoted
+        string. It swallowed its own comment AND the whole next entry, so
+        the left-single-quote mapping did not exist at all; and
+      * the em-dash and en-dash KEYS had both decayed to the same ASCII
+        double-quote byte, making them duplicate dict keys -- 7 literal
+        entries collapsed to 6, and the en-dash mapping shadowed the em-dash
+        one, so em-dash mojibake was never repaired.
+
+    Escapes cannot decay this way, and a test asserts the dict holds exactly
+    one entry per literal.
+
+    Each key is what a UTF-8 byte sequence looks like decoded as CP1252:
+    U+2014 EM DASH is E2 80 94, and CP1252 maps 0x94 to U+201D, hence
+    "\\u00e2\\u20ac\\u201d".
+    """
+    for bad, good in MOJIBAKE_REPLACEMENTS.items():
         text = text.replace(bad, good)
 
     return text
+
 
 def split_into_chunks(text, max_size=3000):
     """Split text into chunks at paragraph/sentence boundaries."""

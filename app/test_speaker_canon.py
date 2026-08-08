@@ -133,6 +133,12 @@ def test_wrapping_quotes_and_roster_fragmentation():
 def test_idempotency():
     samples = [
         "MARK (shouting)", "Mr. Mark", "Dr.", "José", "narrator", "O'Brien",
+        # Stacked honorifics: a single-pass strip made these NON-idempotent,
+        # and the pipeline canonicalizes twice (entry, then roster), so the
+        # script and the voices roster disagreed and the character was split
+        # across two voices.
+        "Mr. St. Clair", "Sir Lt. Col. Blimp", "Mrs. Dr. Watson",
+        "Dr. Dr.", "Mr Mr Mr Smith", "St. John", "ST JOHN RIVERS",
         "'Mother of Monsters'", '"BLACK SCOUT"',
         "‘Mother of Monsters’", "“Black Scout”",
         "'\"BLACK SCOUT\"'", "''X''", "Jones'", "'tis",
@@ -141,6 +147,38 @@ def test_idempotency():
         once = canonicalize(s)
         twice = canonicalize(once)
         check_equal(twice, once, f"idempotency for {s!r}")
+
+
+
+def test_stacked_honorifics_strip_to_a_fixpoint():
+    check_equal(canonicalize("Sir Lt. Col. Blimp"), "BLIMP", "three stacked honorifics")
+    check_equal(canonicalize("Mrs. Dr. Watson"), "WATSON", "two stacked honorifics")
+    check_equal(canonicalize("Mr Mr Mr Smith"), "SMITH", "repeated honorific")
+    # The never-empty guard survives the loop.
+    check_equal(canonicalize("Dr."), "DR", "bare honorific keeps itself")
+    check_equal(canonicalize("Dr. Dr."), "DR", "all-honorific name keeps the last one")
+    check_equal(canonicalize("Mr. Mrs."), "MRS", "all-honorific name is never emptied")
+
+
+def test_double_canonicalization_matches_single():
+    # The live failure mode: generate_script.py canonicalizes for the script
+    # entry and remember_in_roster canonicalizes again for the roster. Any
+    # name where those two disagree is a character split across two voices.
+    for name in ["Mr. St. Clair", "Sir Lt. Col. Blimp", "Mrs. Dr. Watson",
+                 "St. John Rivers", "Dr. Watson", "Captain Hook"]:
+        once = canonicalize(name)
+        check_equal(canonicalize(once), once, f"double canonicalization of {name!r}")
+
+
+def test_saint_names_are_not_honorifics():
+    # "ST" is a name constituent, not a title. While it was in _HONORIFICS,
+    # "ST JOHN RIVERS" became "JOHN RIVERS" -- a different character.
+    check_equal(canonicalize("St. John Rivers"), "ST JOHN RIVERS", "St. John Rivers")
+    check_equal(canonicalize("ST JOHN RIVERS"), "ST JOHN RIVERS", "already-canonical form")
+    check_equal(canonicalize("Mr. St. Clair"), "ST CLAIR", "honorific stripped, saint kept")
+    check_equal(canonicalize("St. Laurent"), "ST LAURENT", "St. Laurent")
+    # The two spellings of the same character still unify via the roster key.
+    check_equal(roster_key("ST. JOHN"), roster_key("ST JOHN"), "punctuated saint name keys alike")
 
 
 def test_suggest_aliases_expected_pairs():
@@ -523,6 +561,9 @@ def main():
         test_unmatched_apostrophes_survive_wrapping_fix,
         test_wrapping_quotes_and_roster_fragmentation,
         test_idempotency,
+        test_stacked_honorifics_strip_to_a_fixpoint,
+        test_double_canonicalization_matches_single,
+        test_saint_names_are_not_honorifics,
         test_roster_key_strips_whitespace_only,
         test_most_boundary_marks_wins_in_both_arrival_orders,
         test_punctuation_variants_unify,

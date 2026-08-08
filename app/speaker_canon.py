@@ -45,10 +45,19 @@ from rapidfuzz import fuzz
 # honorifics (e.g. "Professor") aren't shadowed by a shorter prefix match.
 # Matched case-insensitively, with an optional trailing period, followed by
 # whitespace (so "Drake" is never mistaken for "Dr" + "ake").
+#
+# INCLUSION CRITERION: strip a word only when it is a TITLE whose abbreviation
+# varies between mentions of the same person -- "Dr." / "Doctor", "Capt." /
+# "Captain" -- which is exactly the drift that fragments a roster. Never strip
+# a word that can be part of the name itself.
+#
+# "ST" was removed under that criterion: it is a name constituent, not a title
+# (St. Clair, St. John, St. Laurent), and saint-derived surnames are common in
+# the French literature this pipeline processes. While it was listed,
+# "ST JOHN RIVERS" canonicalized to "JOHN RIVERS" -- a different character.
 _HONORIFICS = [
     "professor", "captain", "prof", "capt", "mrs", "miss", "lady", "lord",
     "dame", "col", "rev", "sgt", "mr", "ms", "mx", "dr", "sir", "lt", "fr",
-    "st",
 ]
 
 _HONORIFIC_RE = re.compile(
@@ -189,13 +198,24 @@ def canonicalize(raw: str) -> str:
     if not text:
         return ""
 
-    honorific_match = _HONORIFIC_RE.match(text)
-    if honorific_match:
+    # Strip honorifics to a FIXPOINT. A single pass is not idempotent, and the
+    # damage was silent: "Mr. St. Clair" canonicalized to "ST CLAIR", which
+    # canonicalized AGAIN (as it does -- generate_script.py canonicalizes for
+    # the entry and remember_in_roster canonicalizes for the roster) to
+    # "CLAIR". The script said one name, the roster and voice_config another,
+    # and the character was split across two voices. Stacked honorifics are
+    # real: "Sir Lt. Col. Blimp", "Mrs. Dr. Watson".
+    while True:
+        honorific_match = _HONORIFIC_RE.match(text)
+        if not honorific_match:
+            break
         remainder = text[honorific_match.end():].strip()
-        if remainder:
-            text = remainder
-        # else: stripping would empty the name out -- keep original text
-        # (the honorific itself becomes the canonical name).
+        if not remainder:
+            # Stripping would empty the name out -- keep what we have (the
+            # honorific itself becomes the canonical name, so a bare "Dr."
+            # stays "DR" rather than vanishing).
+            break
+        text = remainder
 
     text = _WHITESPACE_RE.sub(" ", text).strip()
     canonical = text.upper()
