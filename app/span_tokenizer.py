@@ -32,17 +32,61 @@ WHAT IT DOES *NOT* DO
 
 STATE MACHINE
 -------------
-Three states: ``NARRATION``, ``IN_DOUBLE``, ``IN_SINGLE``. Only the *outer*
+Three states: ``NARRATION``, ``IN_PAIRED``, ``IN_SINGLE``. Only the *outer*
 quote level delimits, so nested quotes stay inside their enclosing span
 (``"She told me 'go away' yesterday," he said.`` is ONE quoted span plus one
 unquoted span). A quotation left open at end of input becomes a quoted span
 running to ``len(source)`` -- no crash, no lost text.
 
-DOUBLE QUOTES
--------------
-``"`` (U+0022) opens and closes; ``“`` opens; ``”`` closes. A ``"``
-seen in NARRATION always opens -- double quotes are effectively never
-apostrophes in prose.
+PAIRED (UNAMBIGUOUS) QUOTE DELIMITERS
+-------------------------------------
+``PAIRED_QUOTES`` maps every unambiguous OPENER character to the set of
+characters that may close *that* opener. Adding a language's convention is a
+one-line data change; the FSM never grows a branch for it. In ``IN_PAIRED``
+only the closers of the opener that started the span end it, so a quotation
+opened with one convention cannot be closed by another convention's mark and
+inner quotes of a different convention stay inside the outer span.
+
+Supported today:
+
+===========  ================  =========================================
+Opener       Closers           Convention
+===========  ================  =========================================
+``"``        ``"`` ``”``       English straight (also closes on curly)
+``“``        ``"`` ``”``       English curly
+``„``        ``“`` ``”``       German / Polish / Czech low-high
+``«``        ``»``             French / Russian / Spanish guillemets
+``‹``        ``›``             single guillemets
+``「``       ``」``            CJK corner brackets
+``『``       ``』``            CJK white corner brackets
+``＂``       ``＂``            full-width straight (U+FF02)
+===========  ================  =========================================
+
+A ``"`` seen in NARRATION always opens -- double quotes are effectively never
+apostrophes in prose. The same holds for every other character in the table:
+none of them is ever an apostrophe, so none is routed through the ambiguous
+single-quote machinery below, and none is subject to its length or paragraph
+bounds.
+
+``“`` IS BOTH AN OPENER AND A CLOSER -- how that is disambiguated
+-----------------------------------------------------------------
+``“`` opens an English curly quotation but closes a German ``„`` one. State,
+not the character, decides: in NARRATION ``“`` opens (unchanged English
+behaviour); inside a span opened by ``„`` it closes, because ``„``'s closer
+set is the only one consulted there. An English document never contains ``„``
+and so can never reach that state -- adding German cannot regress English.
+The mirror case ``‚ ... ‘`` works the same way, and leaves ``‘``'s role as the
+unambiguous single opener in NARRATION untouched.
+
+Whitespace *inside* the marks is part of the quoted span and is never touched,
+so French typography's inner spaces -- U+0020, U+00A0 or U+202F, as in
+``« bonjour »`` -- survive byte-exactly.
+
+WHAT IS DELIBERATELY NOT A DELIMITER
+------------------------------------
+``《 》`` and ``〈 〉`` mark work titles rather than speech in Chinese, and
+``〝 〞`` is vanishingly rare in book text; treating them as dialogue would
+quote non-dialogue, which is the unsafe direction. They stay narration.
 
 SINGLE-QUOTE DISAMBIGUATION RULE (the ambiguous case, documented exactly)
 ------------------------------------------------------------------------
@@ -121,6 +165,7 @@ __all__ = [
     "QUOTED",
     "UNQUOTED",
     "MAX_AMBIGUOUS_SINGLE_SPAN",
+    "PAIRED_QUOTES",
 ]
 
 QUOTED = "quoted"
@@ -128,15 +173,31 @@ UNQUOTED = "unquoted"
 
 # --- quote character classes -------------------------------------------------
 
-DOUBLE_OPENERS = '"“'            # "  and  “
+DOUBLE_OPENERS = '"“'            # "  and  “   (English; kept for reference)
 DOUBLE_CLOSERS = '"”'            # "  and  ”
+
+# Every unambiguous paired delimiter: OPENER -> the closers valid for IT.
+# Adding a language's convention is a data change here, not a logic change.
+# See the table in the module docstring for the rationale of each row, and in
+# particular for why “ may appear as both a key and a value without ambiguity.
+PAIRED_QUOTES = {
+    '"': '"”',      # English straight double
+    "“": '"”',      # English curly double
+    "„": "“”",      # German / Polish / Czech low-high double
+    "«": "»",       # French / Russian / Spanish guillemets
+    "‹": "›",       # single guillemets
+    "「": "」",     # CJK corner brackets
+    "『": "』",     # CJK white corner brackets
+    "＂": "＂",     # full-width straight double (U+FF02)
+    "‚": "‘’",      # German / Polish low-high single
+}
 
 SINGLE_UNAMBIGUOUS_OPENER = "‘"  # ‘  (never an apostrophe)
 SINGLE_AMBIGUOUS = "'’"          # '  and  ’  (also the apostrophe glyph)
 SINGLE_CLOSERS = "'’"            # '  and  ’
 
 # Characters that may legitimately sit immediately before an opening quote.
-OPEN_CONTEXT_CHARS = "([{<\"“”«—–-*_~"
+OPEN_CONTEXT_CHARS = "([{<\"“”«—–-*_~" + "".join(PAIRED_QUOTES)
 
 # Longest span an AMBIGUOUS single quote (' or ’) may open. Matches
 # MAX_CHUNK_CHARS in project.py: a quotation longer than the pipeline's own
@@ -302,7 +363,7 @@ def _is_single_opener(source, index, closers=None, breaks=None):
 # --- the finite state machine ------------------------------------------------
 
 _NARRATION = 0
-_IN_DOUBLE = 1
+_IN_PAIRED = 1
 _IN_SINGLE = 2
 
 
@@ -324,17 +385,19 @@ def tokenize(source):
             spans.append(Span(id=len(spans) + 1, start=start, end=end, kind=kind))
 
     state = _NARRATION
-    segment_start = 0   # start of the current unquoted run
-    quote_start = -1    # start of the currently open quotation
+    segment_start = 0     # start of the current unquoted run
+    quote_start = -1      # start of the currently open quotation
+    pending_closers = ""  # closers valid for the currently open paired quote
     i = 0
 
     while i < n:
         ch = source[i]
 
         if state == _NARRATION:
-            if ch in DOUBLE_OPENERS:
+            if ch in PAIRED_QUOTES:
                 emit(segment_start, i, UNQUOTED)
-                state = _IN_DOUBLE
+                state = _IN_PAIRED
+                pending_closers = PAIRED_QUOTES[ch]
                 quote_start = i
             elif ch == SINGLE_UNAMBIGUOUS_OPENER or (
                 ch in SINGLE_AMBIGUOUS
@@ -344,8 +407,10 @@ def tokenize(source):
                 state = _IN_SINGLE
                 quote_start = i
 
-        elif state == _IN_DOUBLE:
-            if ch in DOUBLE_CLOSERS:
+        elif state == _IN_PAIRED:
+            # Only THIS opener's closers end the span, so a differently
+            # punctuated inner quotation stays inside it.
+            if ch in pending_closers:
                 emit(quote_start, i + 1, QUOTED)
                 segment_start = i + 1
                 state = _NARRATION

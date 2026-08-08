@@ -80,6 +80,25 @@ CLOSER_IN_LATER_PARAGRAPH = (
     "The dogs' tails wagged when he reached the gate.\n"
 )
 
+# --- non-English conventions ------------------------------------------------
+# French typography puts a space INSIDE the guillemets. Real books use U+00A0
+# (no-break) or U+202F (narrow no-break) as often as U+0020; all three are part
+# of the quoted span and must survive byte-exactly.
+NBSP = " "
+NNBSP = " "
+
+FRENCH_NBSP = "«" + NBSP + "Je pars." + NBSP + "»"
+FRENCH_NNBSP = "«" + NNBSP + "Je pars." + NNBSP + "»"
+
+FRENCH_INNER = "«" + NBSP + "Bonjour," + NBSP + "»"
+
+MULTILINGUAL_DOC = (
+    FRENCH_INNER + " dit-il. "
+    "「こんにちは」と彼は言った。"
+    "„Guten Tag,“ sagte sie. "
+    '"Hello," he said.\n'
+)
+
 CORPUS = [
     # 1-4: the item-3 splitting rule, straight and curly, double and single
     '"I am leaving," he said.',
@@ -117,6 +136,30 @@ CORPUS = [
     # 24-25: the runaway-opener probe and its paragraph-crossing sibling
     RUNAWAY_PROBE,
     CLOSER_IN_LATER_PARAGRAPH,
+    # 26-31: guillemets, plain and with French inner spacing
+    "« Je pars. »",
+    "« Je pars, » dit-il.",
+    FRENCH_NBSP,
+    FRENCH_NNBSP,
+    "Il a dit « Je pars » et il est parti.",
+    "Il a dit « Je pars et il n'est jamais revenu.",
+    # 32-35: single guillemets
+    "‹ Oui ›, dit-elle.",
+    "« Elle a dit ‹ va-t'en › hier, » dit-il.",
+    "‹ Oui",
+    # 35-39: CJK corner brackets
+    "「こんにちは」と彼は言った。",
+    "「彼は『さようなら』と言った」と彼女は言った。",
+    "『白い箱』を開けた。",
+    "「終わりだ",
+    # 40-43: German / Polish low-high
+    "„Ich gehe,“ sagte er.",
+    "„Sie sagte ‚geh weg‘ gestern,“ sagte er.",
+    "‚Ja‘, sagte sie.",
+    "„Ich gehe",
+    # 44-45: full-width and a mixed-convention document
+    "＂やあ＂と彼は言った。",
+    MULTILINGUAL_DOC,
 ]
 
 
@@ -519,6 +562,224 @@ class TestStructuralEdges(unittest.TestCase):
         # The em-dash line must remain narration.
         tail = tokenize(PROSE_CURLY)[-1].text(PROSE_CURLY)
         self.assertIn("— Then go again", tail)
+
+
+class TestGuillemets(unittest.TestCase):
+    """French / Russian / Spanish « » and the single ‹ ›."""
+
+    def test_simple_guillemets(self):
+        self.assertEqual(segments("« Je pars. »"), [(QUOTED, "« Je pars. »")])
+
+    def test_attribution_tag_after_guillemets(self):
+        self.assertEqual(
+            segments("« Je pars, » dit-il."),
+            [(QUOTED, "« Je pars, »"), (UNQUOTED, " dit-il.")],
+        )
+
+    def test_leading_narration_before_guillemets(self):
+        self.assertEqual(
+            segments("Il a dit « Je pars » et il est parti."),
+            [
+                (UNQUOTED, "Il a dit "),
+                (QUOTED, "« Je pars »"),
+                (UNQUOTED, " et il est parti."),
+            ],
+        )
+
+    def test_french_inner_nbsp_is_preserved_byte_exactly(self):
+        for source in (FRENCH_NBSP, FRENCH_NNBSP):
+            spans = tokenize(source)
+            self.assertEqual(len(spans), 1)
+            self.assertEqual(spans[0].kind, QUOTED)
+            # byte-exact, including the no-break space glyphs themselves
+            self.assertEqual(spans[0].text(source), source)
+            self.assertEqual(
+                spans[0].text(source).encode("utf-8"), source.encode("utf-8")
+            )
+
+    def test_nbsp_variants_are_distinct_and_not_normalized(self):
+        self.assertNotEqual(FRENCH_NBSP, FRENCH_NNBSP)
+        self.assertIn(" ", tokenize(FRENCH_NBSP)[0].text(FRENCH_NBSP))
+        self.assertIn(" ", tokenize(FRENCH_NNBSP)[0].text(FRENCH_NNBSP))
+
+    def test_unterminated_guillemet_runs_to_end(self):
+        source = "Il a dit « Je pars et il n'est jamais revenu."
+        self.assertEqual(
+            segments(source),
+            [(UNQUOTED, "Il a dit "), (QUOTED, "« Je pars et il n'est jamais revenu.")],
+        )
+
+    def test_single_guillemets(self):
+        self.assertEqual(
+            segments("‹ Oui ›, dit-elle."),
+            [(QUOTED, "‹ Oui ›"), (UNQUOTED, ", dit-elle.")],
+        )
+
+    def test_single_guillemets_nested_in_double(self):
+        source = "« Elle a dit ‹ va-t'en › hier, » dit-il."
+        self.assertEqual(
+            segments(source),
+            [
+                (QUOTED, "« Elle a dit ‹ va-t'en › hier, »"),
+                (UNQUOTED, " dit-il."),
+            ],
+        )
+
+    def test_unterminated_single_guillemet_runs_to_end(self):
+        self.assertEqual(segments("‹ Oui"), [(QUOTED, "‹ Oui")])
+
+    def test_russian_guillemets_with_nested_low_high(self):
+        source = "Он сказал: «Она сказала „уходи“ вчера», и ушёл."
+        self.assertEqual(
+            segments(source),
+            [
+                (UNQUOTED, "Он сказал: "),
+                (QUOTED, "«Она сказала „уходи“ вчера»"),
+                (UNQUOTED, ", и ушёл."),
+            ],
+        )
+
+
+class TestCornerBrackets(unittest.TestCase):
+    """Japanese / Chinese 「」 and 『』."""
+
+    def test_simple_corner_brackets(self):
+        self.assertEqual(
+            segments("「こんにちは」と彼は言った。"),
+            [(QUOTED, "「こんにちは」"), (UNQUOTED, "と彼は言った。")],
+        )
+
+    def test_white_corner_brackets(self):
+        self.assertEqual(
+            segments("彼は『さようなら』と言った。"),
+            [
+                (UNQUOTED, "彼は"),
+                (QUOTED, "『さようなら』"),
+                (UNQUOTED, "と言った。"),
+            ],
+        )
+
+    def test_white_nested_in_plain_corner_brackets(self):
+        source = "「彼は『さようなら』と言った」と彼女は言った。"
+        self.assertEqual(
+            segments(source),
+            [
+                (QUOTED, "「彼は『さようなら』と言った」"),
+                (UNQUOTED, "と彼女は言った。"),
+            ],
+        )
+
+    def test_unterminated_corner_bracket_runs_to_end(self):
+        self.assertEqual(segments("「終わりだ"), [(QUOTED, "「終わりだ")])
+
+    def test_full_width_double_quote(self):
+        self.assertEqual(
+            segments("＂やあ＂と彼は言った。"),
+            [(QUOTED, "＂やあ＂"), (UNQUOTED, "と彼は言った。")],
+        )
+
+
+class TestLowHighQuotes(unittest.TestCase):
+    """German / Polish „ … “ and ‚ … ‘.
+
+    ``“`` is an OPENER in English and a CLOSER here. State decides: in
+    NARRATION it opens; inside a ``„`` span only ``„``'s closers are consulted.
+    """
+
+    def test_simple_low_high(self):
+        self.assertEqual(
+            segments("„Ich gehe,“ sagte er."),
+            [(QUOTED, "„Ich gehe,“"), (UNQUOTED, " sagte er.")],
+        )
+
+    def test_low_high_single(self):
+        self.assertEqual(
+            segments("‚Ja‘, sagte sie."),
+            [(QUOTED, "‚Ja‘"), (UNQUOTED, ", sagte sie.")],
+        )
+
+    def test_single_nested_in_double_low_high(self):
+        source = "„Sie sagte ‚geh weg‘ gestern,“ sagte er."
+        self.assertEqual(
+            segments(source),
+            [
+                (QUOTED, "„Sie sagte ‚geh weg‘ gestern,“"),
+                (UNQUOTED, " sagte er."),
+            ],
+        )
+
+    def test_low_high_also_closes_on_right_curly(self):
+        # Some typesetters close „ with ” rather than “.
+        self.assertEqual(
+            segments("„Ich gehe,” sagte er."),
+            [(QUOTED, "„Ich gehe,”"), (UNQUOTED, " sagte er.")],
+        )
+
+    def test_unterminated_low_high_runs_to_end(self):
+        self.assertEqual(segments("„Ich gehe"), [(QUOTED, "„Ich gehe")])
+
+
+class TestEnglishUnchangedByNewConventions(unittest.TestCase):
+    """Regression guard: adding „ and ‚ must not disturb “ ” ‘ ’ or " '."""
+
+    def test_curly_double_still_opens_in_narration(self):
+        self.assertEqual(
+            segments("“I am leaving,” he said."),
+            [(QUOTED, "“I am leaving,”"), (UNQUOTED, " he said.")],
+        )
+
+    def test_straight_double_still_closes_on_curly_and_vice_versa(self):
+        self.assertEqual(segments('"Mixed,” he said.')[0][1], '"Mixed,”')
+        self.assertEqual(segments('“Mixed," he said.')[0][1], '“Mixed,"')
+
+    def test_curly_single_still_opens_in_narration(self):
+        self.assertEqual(
+            segments("‘Hello,’ she said."),
+            [(QUOTED, "‘Hello,’"), (UNQUOTED, " she said.")],
+        )
+
+    def test_ambiguous_single_machinery_untouched(self):
+        self.assertEqual(
+            segments("Don't touch Jones' hat; 'tis his."),
+            [(UNQUOTED, "Don't touch Jones' hat; 'tis his.")],
+        )
+        self.assertEqual(
+            segments("'Hello,' she said."),
+            [(QUOTED, "'Hello,'"), (UNQUOTED, " she said.")],
+        )
+        self.assertEqual(segments(RUNAWAY_PROBE), [(UNQUOTED, RUNAWAY_PROBE)])
+
+    def test_english_prose_fixtures_are_byte_identical_to_before(self):
+        for source in (PROSE_MIXED, PROSE_CURLY):
+            self.assertEqual(reassemble(tokenize(source), source), source)
+
+
+class TestMixedConventionDocument(unittest.TestCase):
+    def test_four_conventions_in_one_document(self):
+        source = MULTILINGUAL_DOC
+        quoted = [s.text(source) for s in tokenize(source) if s.kind == QUOTED]
+        self.assertEqual(
+            quoted,
+            [
+                FRENCH_INNER,
+                "「こんにちは」",
+                "„Guten Tag,“",
+                '"Hello,"',
+            ],
+        )
+        self.assertTrue(validate_spans(tokenize(source), source))
+
+    def test_opener_of_one_convention_is_not_closed_by_another(self):
+        # A stray » inside an English quotation must not close it, and a stray
+        # " inside a guillemet quotation must not close that.
+        self.assertEqual(
+            segments('"a » b" c'),
+            [(QUOTED, '"a » b"'), (UNQUOTED, " c")],
+        )
+        self.assertEqual(
+            segments('« a " b » c'),
+            [(QUOTED, '« a " b »'), (UNQUOTED, " c")],
+        )
 
 
 if __name__ == "__main__":

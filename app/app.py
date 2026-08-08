@@ -8,7 +8,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Dict
 import re
 import time
@@ -201,6 +201,8 @@ class LLMConfig(BaseModel):
     model_name: str
 
 class TTSConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     mode: str = "local"  # "local" or "external"
     url: str = "http://127.0.0.1:7860"  # external mode only
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
@@ -215,8 +217,11 @@ class TTSConfig(BaseModel):
     batch_group_by_type: bool = False  # group chunks by voice type for efficient batching
     pause_between_speakers_ms: int = 500  # silence (ms) between different speakers during merge
     pause_same_speaker_ms: int = 250  # silence (ms) when same speaker continues during merge
+    enable_nemo_normalization: bool = False  # run NeMo text normalization before TTS
 
 class GenerationConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     chunk_size: int = 3000
     max_tokens: int = 4096
     temperature: float = 0.6
@@ -226,6 +231,15 @@ class GenerationConfig(BaseModel):
     presence_penalty: float = 0.0
     banned_tokens: List[str] = []
     merge_narrators: bool = False
+    max_context_roster_names: int = 50  # cap on named characters included in LLM context
+    review_batch_size: int = 25  # entries per review batch
+    review_batch_char_budget: int = 12000  # char budget per review batch
+    # Server context window (Ollama num_ctx) to request. None/unset = do not
+    # send an options.num_ctx override; the server's own default is used.
+    # Declaring a concrete default here would start forcing a context window
+    # on every user the moment they save the config, so keep it Optional and
+    # excluded from output when None (see save_config).
+    num_ctx: Optional[int] = None
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -237,6 +251,8 @@ class PromptConfig(BaseModel):
     persona_advanced_prompt: Optional[str] = None
 
 class AppConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     llm: LLMConfig
     tts: TTSConfig
     prompts: Optional[PromptConfig] = None
@@ -619,7 +635,7 @@ async def get_default_prompts():
 async def save_config(config: AppConfig):
     os.makedirs(os.path.dirname(CONFIG_PATH) or ".", exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(config.model_dump(), f, indent=2, ensure_ascii=False)
+        json.dump(config.model_dump(exclude_none=True), f, indent=2, ensure_ascii=False)
     # Reset engine so it picks up new TTS settings on next use
     project_manager.engine = None
     return {"status": "saved"}
