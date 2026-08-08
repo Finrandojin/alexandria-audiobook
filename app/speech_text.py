@@ -1,5 +1,6 @@
 """Conservative speech preparation and non-prose risk classification."""
 import re
+import unicodedata
 
 
 SPEECH_BREAKS = "•·▪◦‣∙■□◆●▲─━―*_~"
@@ -8,6 +9,32 @@ SPEECH_WORDS = {
     "&": "and", "@": "at", "%": "percent", "°": "degrees",
     "№": "number", "§": "section", "†": "", "‡": "",
 }
+
+# Symbols with a genuine spoken form. Kept apart from SPEECH_WORDS because
+# these are swept up by the catch-all below if they are not named here, and
+# the distinction matters: a named symbol is spoken, an unnamed one is
+# dropped. Goal 5.1.
+VERBALIZED_SYMBOLS = {
+    "∞": "infinity", "→": "to", "←": "from", "≈": "approximately",
+    "≠": "not equal to", "≤": "at most", "≥": "at least",
+    "±": "plus or minus", "×": "times", "÷": "divided by",
+    "√": "the square root of", "∑": "the sum of", "µ": "micro",
+}
+
+# Unicode categories with no spoken form at all: symbols, private use,
+# unassigned and surrogates. Currency (Sc) is deliberately excluded - "$" and
+# "£" are speakable and belong in a table, not in a silent drop.
+#
+# WHY A CATCH-ALL AND NOT A LIST. The named tables above can only cover
+# symbols someone thought of. An audiobook meets whatever the source file
+# contains, and the failure is silent: the engine receives a character with no
+# pronunciation and its behaviour is undefined - it may skip it, or emit noise,
+# or mispronounce the surrounding words. Dropping the unknown is the
+# conservative choice, because a dropped symbol is a symbol the listener was
+# never going to hear correctly anyway.
+_UNSPEAKABLE_CATEGORIES = frozenset({"So", "Sm", "Sk", "Co", "Cn", "Cs"})
+REPLACEMENT_CHARACTER = "�"
+
 _BREAK_RE = re.compile(f"\\s*[{re.escape(SPEECH_BREAKS)}]+\\s*")
 _SPACE_RE = re.compile(r"[ \t]{2,}")
 _ORPHAN_PUNCT_RE = re.compile(r"(?:\.\s*){2,}")
@@ -45,6 +72,40 @@ def get_speech_risks(text):
     return risks
 
 
+def verbalize_symbols(text):
+    """-> (text, transformations). Named symbols spoken, unknown ones dropped.
+
+    Runs after SPEECH_WORDS and the structural-break pass so anything those
+    already handle keeps its existing behaviour - `■` stays a sentence break
+    rather than becoming a silent drop.
+    """
+    spoken, dropped, out = [], [], []
+    for ch in text:
+        word = VERBALIZED_SYMBOLS.get(ch)
+        if word:
+            out.append(f" {word} ")
+            spoken.append(ch)
+        elif ch == REPLACEMENT_CHARACTER or (
+                not ch.isspace()
+                and unicodedata.category(ch) in _UNSPEAKABLE_CATEGORIES):
+            out.append(" ")
+            dropped.append(ch)
+        else:
+            out.append(ch)
+    transformations = []
+    if spoken:
+        transformations.append({"type": "verbalized_symbol",
+                                "symbols": sorted(set(spoken))})
+    if dropped:
+        # Recorded, not silent: a character removed without a trace is
+        # indistinguishable from one that was never in the source, and this
+        # list is the evidence for goal 5.1's count.
+        transformations.append({"type": "dropped_unspeakable",
+                                "symbols": sorted(set(dropped)),
+                                "count": len(dropped)})
+    return "".join(out), transformations
+
+
 def get_speech_normalization(text):
     """Return normalized text and every applied transformation as new data."""
     if not text:
@@ -61,6 +122,8 @@ def get_speech_normalization(text):
     if _BREAK_RE.search(normalized):
         normalized = _BREAK_RE.sub(". ", normalized)
         transformations.append({"type": "structural_break"})
+    normalized, symbol_transformations = verbalize_symbols(normalized)
+    transformations.extend(symbol_transformations)
     normalized = _ORPHAN_PUNCT_RE.sub(". ", normalized)
     normalized = _SPACE_RE.sub(" ", normalized)
     deduplicated = _DUPE_WORD_RE.sub(r"\1", normalized)

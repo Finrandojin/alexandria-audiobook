@@ -1054,15 +1054,39 @@ language, RX 9070 XT). **MET, barely.**
 **Metric** — characters passed to TTS with no spoken form.
 **Probe** — source-level count is a script over the input `.txt` files; the
 TTS-level count does not exist yet.
-**Current** — **PARTIAL BASELINE.** Sources: CJK inside non-CJK text in 5 of 8
-books (23–779 occurrences); index18 carries 6,662 U+FFFD and is refused by the
-existing source gate. **At the TTS boundary: still NO BASELINE.**
+**Current** — **measured at the TTS boundary 2026-08-08**
+(`tts_boundary_audit.py`, over `normalize_for_speech`'s output for all 48
+saved books, 98,134 lines):
+
+| | |
+|---|---|
+| unspeakable characters in raw script text | 56 |
+| removed by normalization | 56 |
+| **reaching the TTS engine** | **0** |
 
 **Target — count what reaches the engine, then drive it to 0 with a
-verbalization pass.**
+verbalization pass. MET, with one exclusion stated below.**
 
-The source gate proves the app can refuse bad input. It does not prove nothing
-unspeakable survives the journey to the speaker.
+**The zero was not proof the code was sound.** Measured the same day, these
+passed through `normalize_for_speech` unchanged: `♪` `∞` `★` `→` `♥` and
+`U+FFFD`. Only `■` was handled, and only because it sits in `SPEECH_BREAKS`.
+The audit read 0 because the 48 saved books do not happen to contain the
+others — index18's 6,662 U+FFFD are refused by the *source gate* before the
+book is ever saved. **The protection was the gate, not the normaliser**, and
+anything reaching `scripts/` by another route had none.
+
+`verbalize_symbols` now closes it: named symbols are spoken (`∞` → "infinity",
+`→` → "to", `×` → "times"), and anything in an unspeakable Unicode category —
+So, Sm, Sk, Co, Cn, Cs, plus U+FFFD — is dropped and **recorded** in the
+transformation list rather than removed silently. Currency is deliberately
+excluded, since `$` and `£` are speakable. 11 tests in
+`test_speech_verbalization.py`.
+
+**The exclusion: pictographic kana are not covered and cannot be, by this
+method.** `へ` used as a drawing of a mouth is category Lo — a letter — and
+identical to `へ` the particle. Any rule that dropped it would delete Japanese
+text. Catching that needs context, not character class, and is not attempted
+here.
 
 ### 5.2 Names pronounced consistently
 

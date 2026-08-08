@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 18:22 from `ab_test_runtime/experiments/` — 303 artifacts, 521 arms.
+Generated 2026-08-08 18:27 from `ab_test_runtime/experiments/` — 304 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -798,6 +798,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `training_determinism.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `trivial_baselines.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `tts_boundary_audit.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `tuned_disagreement.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `validation_baseline.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `validation_manifest.json` | SKIPPED: not a result object (list) |

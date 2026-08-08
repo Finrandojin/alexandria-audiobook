@@ -1,0 +1,12 @@
+{
+  "scope": "output of normalize_for_speech, the single call every tts.py voice path makes before synthesis",
+  "books": 48,
+  "lines": 98134,
+  "lines_reaching_tts_with_unspeakable": 0,
+  "characters_before_normalization": 56,
+  "characters_at_tts_boundary": 0,
+  "removed_by_normalization": 56,
+  "distinct_at_boundary": 0,
+  "at_boundary": [],
+  "per_book": {}
+}

@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 137,
+    "exploratory": 138,
     "provisional": 112
   },
   "artifacts": [
@@ -3518,6 +3518,17 @@
       "artifact": "trivial_baselines.json",
       "bytes": 1140,
       "sha256": "2befba496a0add80e3bb3a3419b7975f18fe781ae5bb8836dddc6cf856eabe1f",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "tts_boundary_audit.json",
+      "bytes": 366,
+      "sha256": "79e3cc9863dc4f189c905001ec42a5c9b931f71efea6a331f385336ac608bd1b",
       "seed": null,
       "status": null,
       "has_rows": false,
