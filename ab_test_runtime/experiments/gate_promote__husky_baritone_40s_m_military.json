@@ -1,0 +1,9 @@
+{
+ "adapter": "ab_test_runtime/retrain_honest/husky_baritone_40s_m_military/adapter",
+ "median_ecapa": 0.6531,
+ "lines": 10,
+ "generation_failures": 0,
+ "threshold": 0.45,
+ "passed": true,
+ "verdict": "PASS - the adapter sounds like its narrator (0.653)"
+}

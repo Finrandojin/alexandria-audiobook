@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 09:39 from `ab_test_runtime/experiments/` — 290 artifacts, 521 arms.
+Generated 2026-08-08 17:47 from `ab_test_runtime/experiments/` — 299 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -726,6 +726,14 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `fix_verification.json` | SKIPPED: not a result object (list) |
 | `gate_known_bad.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `gate_known_good.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__breathy_tenor_18s_m_supernatural.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__husky_baritone_20s_m_anime.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__husky_baritone_40s_m_military.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__silky_baritone_30s_m.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__warm_baritone_40s_m_fantasy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__warm_mezzo_30s_f_fantasy_2.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `gate_promote__warm_tenor_25s_m_military.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `hnr_length_probe.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
@@ -755,6 +763,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `pdnc_eval_mixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_profile_matrix.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `pitch_profile_matrix_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `pitch_quality_probe.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_separation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_stability.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `proper_noun_pronunciation.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |

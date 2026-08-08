@@ -409,9 +409,19 @@ of voiced material. `build_anchor_side` now joins consecutive same-speaker
 clips until each side of the anchor carries `ANCHOR_MIN_SECONDS = 7.0`, chosen
 from the knee of that curve.
 
-**Target — every eval set's anchor above all of its arms.** Re-scoring of all
-three sets is what confirms it; until those artifacts are regenerated this is
-**fixed in code, unconfirmed in evidence**.
+**Target — every eval set's anchor above all of its arms. MET, confirmed in
+evidence 2026-08-07.** All three sets re-scored, `anchor_invalid` empty in
+each:
+
+| set | anchor | clone | LoRA |
+|---|---|---|---|
+| English | 0.8328 | 0.7567 | 0.6899 |
+| Japanese | 0.8355 | 0.7789 | 0.7551 |
+| Chinese | 0.7655 | 0.7651 | 0.7197 |
+
+Chinese clears its clone arm by **0.0004**. That satisfies the target and is
+not a margin to lean on: a Chinese result that depends on the anchor sitting
+above the clone should be treated as unresolved rather than passing.
 
 **What this retroactively rescues.** The Chinese ARM numbers were always fine —
 clone 0.765, LoRA 0.720. Only the yardstick was broken, so those measurements
@@ -489,14 +499,21 @@ The existing safety check catches runaway voices at 3.0x. It cannot see 0.76.
 > blind to scale. So the app measured pitch and missed the flatness.
 
 **Metric** — generated f0 spread (p90 − p10) ÷ human f0 spread, on the same line.
-**Probe** — `pitch_stats` in `app/experiments/voice_compare_view.py`.
-**Current** — 12 clips per language, 2026-08-06. **OPEN.**
+**Probe** — `app/experiments/pitch_quality_probe.py` (calls `pitch_stats`; the
+`voice_compare_view` CLI renders a view, it does not report numbers).
+**Current** — 100 clips per language, both arms, 0 dropped, 2026-08-08. **MET.**
 
 | set | clone | LoRA |
 |---|---|---|
-| English | **0.83x** | 1.25x |
-| Japanese | 0.96x | 1.13x |
-| Chinese | 1.24x | **0.81x** |
+| English | 0.92x | 1.13x |
+| Japanese | 0.91x | 1.02x |
+| Chinese | 1.03x | 0.96x |
+
+Every cell is inside 0.90–1.15x. At 12 clips this goal read OPEN on two cells —
+English clone at 0.83x and Chinese LoRA at 0.81x — and both were sample size:
+the same arms measure 0.92x and 0.96x over 100 clips. The 12-clip run's
+artifact is not in the evidence tree, so the two runs cannot be reconciled
+directly; what is claimed here is only what the n=100 artifact shows.
 
 **Target — f0 spread within 0.90–1.15x of the human, and f0 median within
 0.95–1.05x.**
@@ -533,15 +550,49 @@ which is a comparison between two clips of one person.
 **Metric** — jitter, shimmer and HNR of the generated line ÷ the human's, plus
 vocal tract length from formant dispersion.
 **Probe** — `voice_quality`, `vocal_tract_length` (Praat via parselmouth).
-**Current** — 12 clips per language. **MET on tract length, OPEN on quality.**
+**Current** — jitter and shimmer on 100 clips per language, both arms, 0
+dropped, 2026-08-08. Tract length still 12 clips. **MET on jitter and shimmer.
+OPEN on HNR, one cell. Tract length unchanged and under-sampled.**
 
-Vocal tract length is preserved everywhere, **0.98–1.08x** — neither method
-shifts the speaker's apparent vocal size, which is the reassuring answer to
-"does it still sound like the same kind of person".
+| set | jitter | shimmer | HNR |
+|---|---|---|---|
+| English LoRA | 0.99x | 0.92x | 0.98x |
+| English clone | 0.94x | 0.88x | 1.02x |
+| Japanese LoRA | 1.11x | 1.07x | 0.97x |
+| Japanese clone | 1.09x | 1.07x | 0.96x |
+| Chinese LoRA | 0.90x | 0.88x | **1.17x** |
+| Chinese clone | 0.98x | 0.89x | 1.08x |
 
-The outlier is the Chinese LoRA: jitter **0.81x** and HNR **1.20x** — cleaner
-and more periodic than the human it copies. That is the "too clean" signature,
-on the one eval set whose anchor is already invalid (2.2).
+The Chinese LoRA was the "too clean" case at 12 clips — jitter 0.81x, HNR
+1.20x. At 100 clips its jitter is 0.90x, inside the band: that half of the
+finding was sample size. Its HNR is 1.17x, still outside 1.15 after a fivefold
+sample increase.
+
+**Clip length has been ruled out as the cause** (`hnr_length_probe.py`,
+2026-08-08), using the two-direction test that settled 2.2:
+
+| condition | clip length | HNR ratio |
+|---|---|---|
+| Chinese as-is | 3.1 s | 1.1793x |
+| Chinese, clips joined | 8.9 s | 1.1818x |
+| English as-is | 7.5 s | 0.9806x |
+| English, truncated to Chinese length | 3.2 s | 0.9519x |
+
+Nearly tripling the Chinese clip length moves the ratio by 0.0025, and
+shortening English to Chinese length does not inflate it — it drifts 0.03 in
+the opposite direction to the one a length artifact predicts. Short clips
+destroyed the ECAPA anchor and do nothing to HNR, so the two are not the same
+defect and 2.2 does not explain this.
+
+What that leaves: the Chinese LoRA really does produce more periodic, less
+noisy phonation than the narrator it copies. **OPEN, and now for a supported
+reason rather than an unexamined one.** The next candidate explanations are the
+adapter itself and the AISHELL-3 recording conditions; neither has been tested.
+
+Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
+probe here does not compute it, so that row rests on the same thin evidence
+every other 12-clip number did — it is recorded as MET on sample size this
+goal has otherwise stopped trusting.
 
 **Target — jitter, shimmer and HNR within 0.85–1.15x; tract length within
 0.95–1.05x.**
