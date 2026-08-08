@@ -121,6 +121,11 @@ Two consequences worth keeping straight:
 - The one comparison that *is* clean: BookNLP, the field-standard tool, scores
   **54.2%** on PDNC Pride and Prejudice (n=1226) under this harness. That is a
   ruler from outside this project, on human gold.
+- **The three PDNC books in the table above are the top third of the corpus**
+  (ranks #2, #8 and #9 of 28 — see 1.3). Across the 25 novels nothing here has
+  ever looked at, the same base model scores **71.0%**, not 80.5–86.0%. Quote
+  those three as evidence of what PDNC can look like, never as PDNC's typical
+  difficulty.
 
 **Before any cross-set comparison, harmonise the sampling.** Running every
 method on every book — which is worth doing — will produce nonsense if a hard
@@ -316,9 +321,30 @@ reachable at all.
 **Metric** — accuracy on held-out books never used in development.
 **Probe** — PDNC gold sets (`attribution_gold_pdnc_*.json`, 1270 / 640 / 584
 rows) plus `attribution_gold_random.json`.
-**Current** — the PDNC evaluation was **contaminated**: 25 of 28 books were in
-training. Held-out performance measured **−4.4** against the contaminated
-figure. **OPEN.**
+**Current** — measured cleanly 2026-08-08 (`pdnc_generalisation.py`) on the
+**base** arm, which has no PDNC training at all, so contamination does not
+apply to it:
+
+| group | books | rows | accuracy |
+|---|---|---|---|
+| never looked at by this project | 25 | 3000 | **71.0%** |
+| the three quoted in 1.1 | 3 | 360 | **83.6%** |
+
+**Gap −12.6 points against a target of 5. OPEN, and failing by more than
+double.**
+
+**The three books this project quotes are not typical books.** Ranked against
+all 28: The Sign of the Four **#2**, The Awakening **#8**, Pride and Prejudice
+**#9** — every one in the top third. Per-book accuracy runs from 50.0%
+(Mansfield Park, The Gambler) to 91.7%, median 73.3%, IQR 62.3–80.6. The PDNC
+figures cited in 1.1 are real measurements of favourably-placed books, and
+generalise 12.6 points worse than they appear.
+
+**Quote type does not explain it.** PDNC labels each quote Explicit, Implicit
+or Anaphoric, and the obvious hypothesis is that hard books carry more implicit
+attribution. They do not: books at ≥50% implicit quotes median **73.3%**, books
+below 50% median **73.3%** — identical. Whatever drives a 41-point spread
+between novels, it is not the quote-type mix.
 
 **Target — a clean held-out number on ≥ 3 books, within 5 points of the
 development books' figure.**

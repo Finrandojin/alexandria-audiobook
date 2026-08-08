@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 135,
+    "exploratory": 136,
     "provisional": 112
   },
   "artifacts": [
@@ -2544,6 +2544,17 @@
       "artifact": "pdnc_eval_mixed.json",
       "bytes": 1330698,
       "sha256": "da951df704f682131aa53d41750026eaf493408024a9444886b7a426976dccad",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "pdnc_generalisation.json",
+      "bytes": 5603,
+      "sha256": "79b8e52fb73a3c8d157bfa5e66a17586b827b7300291f04a465da8a0799cea7d",
       "seed": null,
       "status": null,
       "has_rows": false,
