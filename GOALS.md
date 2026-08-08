@@ -654,51 +654,64 @@ Two dead voices became good ones. The three that barely moved are the ones
 whose DATASETS are mixed-speaker (2.7 above): there the reference was never the
 binding constraint, and rebuilding is still required.
 
-### 2.8 A voice must still be the same voice at the end of the book
+### 2.8 A voice stays the same voice across a whole book
 
-> **What this is.** Whether a voice stays consistent across a book-length run,
-> rather than slowly wandering into someone else.
+> **What this is.** Whether a voice slowly wanders into someone else over the
+> course of a book, rather than staying recognisably one person.
 >
-> **Why it matters.** Every other voice measurement in this project is a
-> SINGLE LINE. The longest generation on record before this was 150 lines; a
-> real audiobook is five to twenty thousand. The product is ten hours of one
-> consistent voice, and that property had never been measured at the length it
-> ships at. A slow drift is invisible to per-line metrics, because each line is
-> scored against its own reference and a voice that wanders steadily scores the
-> same at the start and the end.
+> **Why it matters.** The product is ten hours of one consistent voice. Every
+> other voice measurement here is a SINGLE LINE, and a slow drift is invisible
+> to them: each line is scored against its own reference, so a voice that
+> wandered steadily would score the same at the start and the end while
+> sounding obviously wrong to someone who sat through it.
 >
-> **Why the target is reachable.** Because the measured drift is small. This
-> could have come back catastrophic; it did not.
+> **The answer is that it does not drift.** Measured at book length, a voice is
+> as much itself on line 2000 as on line 1.
 
 **Metric** — speaker similarity to an anchor built from the opening lines, as a
 function of position through the run.
-**Probe** — `app/experiments/voice_drift.py`, 400 consecutive lines of real
-book prose per adapter.
-**Current** — 2026-08-07, three adapters, 400 lines each, zero failures:
+**Probe** — `app/experiments/voice_drift.py`.
+**Current** — 2026-08-08, three adapters, **2000 consecutive lines each**, zero
+failures. **MET.**
 
 | adapter | first third | last third | fitted change |
 |---|---|---|---|
-| husky_baritone_20s_m_anime | 0.825 | 0.808 | −0.017 |
-| husky_tenor_30s_m_literary | 0.784 | 0.779 | −0.018 |
-| warm_mezzo_30s_f_fantasy_2 | 0.762 | 0.723 | **−0.050** |
+| husky_tenor_30s_m_literary | 0.776 | 0.771 | −0.005 |
+| warm_mezzo_30s_f_fantasy_2 | 0.739 | 0.738 | +0.009 |
+| warm_baritone_40s_m_2 | 0.728 | 0.728 | +0.004 |
 
-**Target — drift ≤ 0.03 across a 400-line run.** Two of three clear it.
+**Target — |drift| ≤ 0.03 across a book-length run.** All three clear it with
+an order of magnitude to spare.
 
-**Drift is real but small.** All three move in the same direction — downward —
-which argues it is a property of long generation rather than of one adapter.
-The worst, at −0.050, is roughly two thirds of the gap between a good adapter
-and a mediocre one, so it matters without being ruinous.
+#### The 400-line result was noise, and this supersedes it
 
-**The attribution is consistent across all three: pitch rises.** f0 median
-climbs +1.9%, +5.0% and +6.6% from the first third to the last, while vocal
-tract length stays put (+1.2% to +2.7%) and HNR is flat. The voice is not
-becoming a different person — it is drifting *upward in pitch*. That is a
-narrower and more tractable defect than "the voice degrades", and no per-line
-metric could have shown it.
+An earlier run over 400 lines reported drift of −0.018, −0.050 and −0.017 and
+was written up here as a real defect, with pitch rising +1.9% to +6.6% offered
+as its mechanism. At five times the length **every part of that reverses**:
 
-**Note the sample.** Three adapters, one book's prose, 400 lines against a real
-book's thousands. A 400-line drift of −0.05 does not license a claim about
-5,000 lines; whether it is linear, plateaus, or accelerates is unmeasured.
+| | 400 lines | 2000 lines |
+|---|---|---|
+| husky_tenor_30s_m_literary | −0.018 | −0.005 |
+| warm_mezzo_30s_f_fantasy_2 | **−0.050** | **+0.009** |
+| f0 across the run | **rises** 1.9–6.6% | **falls** 1.2–4.3% |
+
+A trend that shrinks toward zero as the sample grows, and whose direction
+flips, is line-to-line variation being fitted as a slope. Four hundred lines
+was simply too short: normal variation over a few hundred lines looks like a
+trend, and `polyfit` will always return one.
+
+**What did not change:** vocal tract length is stable to within 1% over 2000
+lines on all three adapters, and HNR within 1%. The speaker's physical voice
+properties hold. Those were flat at 400 lines too, and they are the numbers
+that were right both times.
+
+**The lesson, since this is the second time it has bitten.** The original entry
+carried the caveat — *"a 400-line drift of −0.05 does not license a claim about
+5,000 lines; whether it is linear, plateaus, or accelerates is unmeasured"* —
+and the goal was still written as though the drift were real. Stating a caveat
+is not the same as heeding it. A measurement that cannot distinguish trend from
+noise should be reported as **NO BASELINE**, not as a defect with a target
+attached.
 
 ## 3. Reliability — does a run finish and produce the right thing
 

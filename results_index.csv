@@ -386,6 +386,7 @@ kokoro_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS pro
 kokoro_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 library_voice_fidelity.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 library_voice_fidelity_n10.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+library_voice_fidelity_postfix.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 listener_impact.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 ljspeech_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 ljspeech_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
@@ -617,6 +618,9 @@ voice_adapter_health.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not 
 voice_blending.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 voice_data_saturation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 voice_data_saturation_seeded.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+voice_drift_2000__husky_tenor_30s_m_literary.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+voice_drift_2000__warm_baritone_40s_m_2.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+voice_drift_2000__warm_mezzo_30s_f_fantasy_2.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 voice_drift__husky_baritone_20s_m_anime.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 voice_drift__husky_tenor_30s_m_literary.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 voice_drift__warm_mezzo_30s_f_fantasy_2.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
