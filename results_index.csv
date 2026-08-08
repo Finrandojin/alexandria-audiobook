@@ -361,6 +361,7 @@ grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,suppo
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,open-grammar,162,75,46.3,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-free,162,84,51.9,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
 grammar_constraint__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,grammar_constraint,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,16384,1,q8_0,oracle-grammar,162,83,51.2,ok,False,04a69e4c,135.1,07-29 06:33,http://127.0.0.1:8090/v1,
+hnr_length_probe.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 instruct_listening.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 instruct_value.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms
 instruct_value_seeded.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: 'rows' is not a list of scored arms

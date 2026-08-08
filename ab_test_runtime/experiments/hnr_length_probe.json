@@ -1,0 +1,44 @@
+{
+  "scope": "HNR ratio with clip length manipulated, both directions; the test that settled goal 2.2",
+  "arm": "lora_wav",
+  "target_seconds": 7.0,
+  "short_seconds": 3.2,
+  "conditions": {
+    "zh_asis": {
+      "n": 100,
+      "dropped": 0,
+      "median_seconds": 3.15,
+      "human_hnr_db": 9.638,
+      "generated_hnr_db": 11.366,
+      "ratio": 1.1793,
+      "difference_db": 1.7279
+    },
+    "zh_join": {
+      "n": 55,
+      "dropped": 0,
+      "median_seconds": 8.86,
+      "human_hnr_db": 10.122,
+      "generated_hnr_db": 11.9622,
+      "ratio": 1.1818,
+      "difference_db": 1.8402
+    },
+    "en_asis": {
+      "n": 100,
+      "dropped": 0,
+      "median_seconds": 7.51,
+      "human_hnr_db": 11.0393,
+      "generated_hnr_db": 10.8248,
+      "ratio": 0.9806,
+      "difference_db": -0.2145
+    },
+    "en_cut": {
+      "n": 100,
+      "dropped": 0,
+      "median_seconds": 3.2,
+      "human_hnr_db": 11.4066,
+      "generated_hnr_db": 10.8575,
+      "ratio": 0.9519,
+      "difference_db": -0.5491
+    }
+  }
+}

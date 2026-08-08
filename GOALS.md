@@ -409,9 +409,19 @@ of voiced material. `build_anchor_side` now joins consecutive same-speaker
 clips until each side of the anchor carries `ANCHOR_MIN_SECONDS = 7.0`, chosen
 from the knee of that curve.
 
-**Target — every eval set's anchor above all of its arms.** Re-scoring of all
-three sets is what confirms it; until those artifacts are regenerated this is
-**fixed in code, unconfirmed in evidence**.
+**Target — every eval set's anchor above all of its arms. MET, confirmed in
+evidence 2026-08-07.** All three sets re-scored, `anchor_invalid` empty in
+each:
+
+| set | anchor | clone | LoRA |
+|---|---|---|---|
+| English | 0.8328 | 0.7567 | 0.6899 |
+| Japanese | 0.8355 | 0.7789 | 0.7551 |
+| Chinese | 0.7655 | 0.7651 | 0.7197 |
+
+Chinese clears its clone arm by **0.0004**. That satisfies the target and is
+not a margin to lean on: a Chinese result that depends on the anchor sitting
+above the clone should be treated as unresolved rather than passing.
 
 **What this retroactively rescues.** The Chinese ARM numbers were always fine —
 clone 0.765, LoRA 0.720. Only the yardstick was broken, so those measurements
@@ -555,10 +565,29 @@ OPEN on HNR, one cell. Tract length unchanged and under-sampled.**
 
 The Chinese LoRA was the "too clean" case at 12 clips — jitter 0.81x, HNR
 1.20x. At 100 clips its jitter is 0.90x, inside the band: that half of the
-finding was sample size. Its HNR is 1.17x, still outside 1.15 and still the
-worst cell in the table, so the harmonic-to-noise half survives a fivefold
-increase in sample size and should be treated as real. It remains the eval set
-whose anchor is invalid (2.2), which is the first thing to rule out.
+finding was sample size. Its HNR is 1.17x, still outside 1.15 after a fivefold
+sample increase.
+
+**Clip length has been ruled out as the cause** (`hnr_length_probe.py`,
+2026-08-08), using the two-direction test that settled 2.2:
+
+| condition | clip length | HNR ratio |
+|---|---|---|
+| Chinese as-is | 3.1 s | 1.1793x |
+| Chinese, clips joined | 8.9 s | 1.1818x |
+| English as-is | 7.5 s | 0.9806x |
+| English, truncated to Chinese length | 3.2 s | 0.9519x |
+
+Nearly tripling the Chinese clip length moves the ratio by 0.0025, and
+shortening English to Chinese length does not inflate it — it drifts 0.03 in
+the opposite direction to the one a length artifact predicts. Short clips
+destroyed the ECAPA anchor and do nothing to HNR, so the two are not the same
+defect and 2.2 does not explain this.
+
+What that leaves: the Chinese LoRA really does produce more periodic, less
+noisy phonation than the narrator it copies. **OPEN, and now for a supported
+reason rather than an unexamined one.** The next candidate explanations are the
+adapter itself and the AISHELL-3 recording conditions; neither has been tested.
 
 Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
 probe here does not compute it, so that row rests on the same thin evidence

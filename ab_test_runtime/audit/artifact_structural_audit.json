@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 132,
+    "exploratory": 133,
     "provisional": 112
   },
   "artifacts": [
@@ -1947,6 +1947,17 @@
       "dirty": false,
       "classification": "provisional",
       "reason": "older metadata contract; semantic/manual review required"
+    },
+    {
+      "artifact": "hnr_length_probe.json",
+      "bytes": 1027,
+      "sha256": "1004a01d363f6e6af6f81678c819b1386c67bb4bbbb7c85117c24126435ba27b",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "instruct_listening.json",

@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 17:27 from `ab_test_runtime/experiments/` — 298 artifacts, 521 arms.
+Generated 2026-08-08 17:47 from `ab_test_runtime/experiments/` — 299 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -733,6 +733,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `gate_promote__warm_baritone_40s_m_fantasy.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `gate_promote__warm_mezzo_30s_f_fantasy_2.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `gate_promote__warm_tenor_25s_m_military.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `hnr_length_probe.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_listening.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `instruct_value.json` | SKIPPED: 'rows' is not a list of scored arms |
 | `instruct_value_seeded.json` | SKIPPED: 'rows' is not a list of scored arms |
