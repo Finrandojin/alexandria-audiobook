@@ -1,0 +1,75 @@
+{
+  "scope": "generated duration / human duration, same line, measured from the audio not the manifest",
+  "band": [
+    0.9,
+    1.1
+  ],
+  "languages": {
+    "en": {
+      "lora_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 0.959,
+        "mean_ratio": 0.964,
+        "p10": 0.8283,
+        "p90": 1.0934,
+        "outside_band": 35,
+        "outside_band_pct": 35.0
+      },
+      "clone_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 1.0177,
+        "mean_ratio": 1.015,
+        "p10": 0.8458,
+        "p90": 1.1721,
+        "outside_band": 35,
+        "outside_band_pct": 35.0
+      }
+    },
+    "ja": {
+      "lora_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 0.929,
+        "mean_ratio": 0.9462,
+        "p10": 0.7835,
+        "p90": 1.1469,
+        "outside_band": 57,
+        "outside_band_pct": 57.0
+      },
+      "clone_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 0.7584,
+        "mean_ratio": 0.7565,
+        "p10": 0.6464,
+        "p90": 0.8563,
+        "outside_band": 94,
+        "outside_band_pct": 94.0
+      }
+    },
+    "zh": {
+      "lora_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 0.9354,
+        "mean_ratio": 0.9474,
+        "p10": 0.8293,
+        "p90": 1.1035,
+        "outside_band": 45,
+        "outside_band_pct": 45.0
+      },
+      "clone_wav": {
+        "n": 100,
+        "dropped": 0,
+        "median_ratio": 0.8963,
+        "mean_ratio": 0.9032,
+        "p10": 0.779,
+        "p90": 1.0325,
+        "outside_band": 57,
+        "outside_band_pct": 57.0
+      }
+    }
+  }
+}

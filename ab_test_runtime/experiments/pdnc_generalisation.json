@@ -1,0 +1,285 @@
+{
+  "scope": "PDNC only, base arm; every comparison is PDNC rows sampled the same way. No light-novel figure appears here.",
+  "arm": "base",
+  "development_books": [
+    "PrideAndPrejudice",
+    "TheAwakening",
+    "TheSignOfTheFour"
+  ],
+  "held_out": {
+    "books": 25,
+    "n": 3000,
+    "accuracy": 71.0
+  },
+  "development": {
+    "books": 3,
+    "n": 360,
+    "accuracy": 83.6
+  },
+  "gap_points": -12.6,
+  "per_book_spread": {
+    "min": 50.0,
+    "max": 91.7,
+    "median": 73.3,
+    "iqr": [
+      62.3,
+      80.6
+    ]
+  },
+  "per_book": {
+    "AHandfulOfDust": {
+      "accuracy": 77.5,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 83.3,
+        "Explicit": 11.7,
+        "Anaphoric": 5.0
+      }
+    },
+    "APassageToIndia": {
+      "accuracy": 64.2,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 70.8,
+        "Anaphoric": 20.0,
+        "Explicit": 9.2
+      }
+    },
+    "ARoomWithAView": {
+      "accuracy": 75.0,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 46.7,
+        "Explicit": 30.0,
+        "Anaphoric": 23.3
+      }
+    },
+    "AlicesAdventuresInWonderland": {
+      "accuracy": 91.7,
+      "n": 120,
+      "quote_mix": {
+        "Explicit": 67.5,
+        "Anaphoric": 25.8,
+        "Implicit": 6.7
+      }
+    },
+    "AnneOfGreenGables": {
+      "accuracy": 58.3,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 43.3,
+        "Explicit": 32.5,
+        "Anaphoric": 24.2
+      }
+    },
+    "DaisyMiller": {
+      "accuracy": 70.8,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 48.3,
+        "Explicit": 33.3,
+        "Implicit": 18.3
+      }
+    },
+    "Emma": {
+      "accuracy": 78.3,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 68.3,
+        "Explicit": 21.7,
+        "Anaphoric": 10.0
+      }
+    },
+    "HardTimes": {
+      "accuracy": 70.0,
+      "n": 120,
+      "quote_mix": {
+        "Explicit": 46.7,
+        "Implicit": 26.7,
+        "Anaphoric": 26.7
+      }
+    },
+    "HowardsEnd": {
+      "accuracy": 61.7,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 65.0,
+        "Anaphoric": 23.3,
+        "Explicit": 11.7
+      }
+    },
+    "MansfieldPark": {
+      "accuracy": 50.0,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 65.8,
+        "Explicit": 21.7,
+        "Anaphoric": 12.5
+      }
+    },
+    "NightAndDay": {
+      "accuracy": 89.2,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 40.8,
+        "Explicit": 33.3,
+        "Implicit": 25.8
+      }
+    },
+    "NorthangerAbbey": {
+      "accuracy": 73.3,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 67.5,
+        "Anaphoric": 16.7,
+        "Explicit": 15.8
+      }
+    },
+    "OliverTwist": {
+      "accuracy": 83.3,
+      "n": 120,
+      "quote_mix": {
+        "Explicit": 57.5,
+        "Anaphoric": 39.2,
+        "Implicit": 3.3
+      }
+    },
+    "Persuasion": {
+      "accuracy": 55.8,
+      "n": 120,
+      "quote_mix": {
+        "Explicit": 42.5,
+        "Implicit": 36.7,
+        "Anaphoric": 20.0,
+        "nan": 0.8
+      }
+    },
+    "PrideAndPrejudice": {
+      "accuracy": 79.2,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 56.7,
+        "Explicit": 23.3,
+        "Anaphoric": 20.0
+      }
+    },
+    "SenseAndSensibility": {
+      "accuracy": 60.0,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 39.2,
+        "Explicit": 37.5,
+        "Anaphoric": 23.3
+      }
+    },
+    "TheAgeOfInnocence": {
+      "accuracy": 75.0,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 49.2,
+        "Explicit": 33.3,
+        "Implicit": 17.5
+      }
+    },
+    "TheAwakening": {
+      "accuracy": 80.0,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 45.0,
+        "Anaphoric": 41.7,
+        "Explicit": 13.3
+      }
+    },
+    "TheGambler": {
+      "accuracy": 50.0,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 55.0,
+        "Implicit": 35.0,
+        "Explicit": 10.0
+      }
+    },
+    "TheInvisibleMan": {
+      "accuracy": 73.3,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 42.5,
+        "Explicit": 34.2,
+        "Implicit": 23.3
+      }
+    },
+    "TheManWhoWasThursday": {
+      "accuracy": 90.0,
+      "n": 120,
+      "quote_mix": {
+        "Explicit": 57.5,
+        "Anaphoric": 36.7,
+        "Implicit": 5.8
+      }
+    },
+    "TheMysteriousAffairAtStyles": {
+      "accuracy": 80.8,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 63.3,
+        "Anaphoric": 20.0,
+        "Explicit": 16.7
+      }
+    },
+    "ThePictureOfDorianGray": {
+      "accuracy": 82.5,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 52.5,
+        "Explicit": 24.2,
+        "Anaphoric": 23.3
+      }
+    },
+    "TheSignOfTheFour": {
+      "accuracy": 91.7,
+      "n": 120,
+      "quote_mix": {
+        "Anaphoric": 60.8,
+        "Implicit": 30.8,
+        "Explicit": 8.3
+      }
+    },
+    "TheSportOfTheGods": {
+      "accuracy": 70.8,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 71.7,
+        "Anaphoric": 16.7,
+        "Explicit": 11.7
+      }
+    },
+    "TheSunAlsoRises": {
+      "accuracy": 59.2,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 73.3,
+        "Anaphoric": 25.8,
+        "Explicit": 0.8
+      }
+    },
+    "WhereAngelsFearToTread": {
+      "accuracy": 68.3,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 49.2,
+        "Explicit": 30.0,
+        "Anaphoric": 20.8
+      }
+    },
+    "WinnieThePooh": {
+      "accuracy": 65.0,
+      "n": 120,
+      "quote_mix": {
+        "Implicit": 45.0,
+        "Anaphoric": 35.8,
+        "Explicit": 18.3,
+        "?": 0.8
+      }
+    }
+  }
+}

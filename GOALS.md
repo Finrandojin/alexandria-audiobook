@@ -121,6 +121,11 @@ Two consequences worth keeping straight:
 - The one comparison that *is* clean: BookNLP, the field-standard tool, scores
   **54.2%** on PDNC Pride and Prejudice (n=1226) under this harness. That is a
   ruler from outside this project, on human gold.
+- **The three PDNC books in the table above are the top third of the corpus**
+  (ranks #2, #8 and #9 of 28 — see 1.3). Across the 25 novels nothing here has
+  ever looked at, the same base model scores **71.0%**, not 80.5–86.0%. Quote
+  those three as evidence of what PDNC can look like, never as PDNC's typical
+  difficulty.
 
 **Before any cross-set comparison, harmonise the sampling.** Running every
 method on every book — which is worth doing — will produce nonsense if a hard
@@ -148,10 +153,41 @@ subset is scored against a full set.
 **Metric** — of lines where the correct speaker is present in the candidate
 roster, the percent where the model picks it.
 **Probe** — see memory `attribution_selection_not_recall`.
-**Current** — roster contains the right name **85%** of the time; the model
-picks it **29.9%** of the time. **OPEN.**
+**Current** — re-measured 2026-08-08 on the shipped **qwen3-14b**
+(`selection_gap_recheck.py`, closed_set OPEN arm, 793 rows across four books).
+**MET.**
 
-**Target — selection ≥ 50% with roster recall held at ≥ 85%.**
+| | qwen3.5-9b (this goal's original basis) | qwen3-14b (shipped) |
+|---|---|---|
+| roster recall | 85.0% | **91.6%** |
+| selection | **29.9%** | **62.9%** |
+
+| book | recall | selection | n |
+|---|---|---|---|
+| grimgar03 | 95.2% | 65.3% | 396 |
+| index18 | 89.9% | 73.0% | 99 |
+| mushoku16 | 84.6% | 60.9% | 136 |
+| owarimonogatari3 | 89.5% | 52.4% | 162 |
+
+**Target — selection ≥ 50% with roster recall held at ≥ 85%. MET: 62.9% at
+91.6% recall, and every individual book clears 50% as well.**
+
+**The gap was the model, not the method.** 29.9% was measured on qwen3.5-9b,
+which a later six-model comparison put ~17 points behind the shipped model on
+this task; the true difference here is 33 points. Selection is stable across
+backends — the same book varies by 3.1 points (grimgar03) and 5.0 (mushoku16)
+across four and five runs — so this is not one lucky artifact.
+
+Nothing was built to close this. The goal was written around a number from a
+model that does not ship, and the warning to re-measure before spending
+anything on it was correct: the entire 55-point gap it described was 29
+points of weaker model.
+
+The four rejected approaches in the table below were therefore tested against
+a deficit that mostly was not there on the shipped model. That does not
+resurrect them — they were measured and they failed — but it does mean the
+premise they were attacking has changed, and owarimonogatari3 at 52.4% is now
+the only book near the line.
 
 > **CAUTION: these figures were measured on a model that is not the one that
 > ships.** The 147-line random gold set behind them has `source_run`
@@ -316,9 +352,30 @@ reachable at all.
 **Metric** — accuracy on held-out books never used in development.
 **Probe** — PDNC gold sets (`attribution_gold_pdnc_*.json`, 1270 / 640 / 584
 rows) plus `attribution_gold_random.json`.
-**Current** — the PDNC evaluation was **contaminated**: 25 of 28 books were in
-training. Held-out performance measured **−4.4** against the contaminated
-figure. **OPEN.**
+**Current** — measured cleanly 2026-08-08 (`pdnc_generalisation.py`) on the
+**base** arm, which has no PDNC training at all, so contamination does not
+apply to it:
+
+| group | books | rows | accuracy |
+|---|---|---|---|
+| never looked at by this project | 25 | 3000 | **71.0%** |
+| the three quoted in 1.1 | 3 | 360 | **83.6%** |
+
+**Gap −12.6 points against a target of 5. OPEN, and failing by more than
+double.**
+
+**The three books this project quotes are not typical books.** Ranked against
+all 28: The Sign of the Four **#2**, The Awakening **#8**, Pride and Prejudice
+**#9** — every one in the top third. Per-book accuracy runs from 50.0%
+(Mansfield Park, The Gambler) to 91.7%, median 73.3%, IQR 62.3–80.6. The PDNC
+figures cited in 1.1 are real measurements of favourably-placed books, and
+generalise 12.6 points worse than they appear.
+
+**Quote type does not explain it.** PDNC labels each quote Explicit, Implicit
+or Anaphoric, and the obvious hypothesis is that hard books carry more implicit
+attribution. They do not: books at ≥50% implicit quotes median **73.3%**, books
+below 50% median **73.3%** — identical. Whatever drives a 41-point spread
+between novels, it is not the quote-type mix.
 
 **Target — a clean held-out number on ≥ 3 books, within 5 points of the
 development books' figure.**
@@ -474,7 +531,30 @@ this. Protected by the gate plus `app/test_training_defaults.py`.
 > specific case to investigate, not a broad weakness.
 
 **Metric** — mean `dur_ratio` across held-out lines (1.00 = matches the human).
-**Current** — LoRA 0.92 / 0.95 / 0.95; clone 0.97 / **0.76** / 0.90. **OPEN.**
+**Current** — 100 clips per language, both arms, 2026-08-08
+(`duration_probe.py`). **OPEN, confirmed.**
+
+| arm | median ratio | p10–p90 | clips outside band |
+|---|---|---|---|
+| English LoRA | 0.959 | 0.83–1.09 | 35% |
+| English clone | 1.018 | 0.85–1.17 | 35% |
+| Japanese LoRA | 0.929 | 0.78–1.15 | 57% |
+| Japanese clone | **0.758** | 0.65–0.86 | **94%** |
+| Chinese LoRA | 0.935 | 0.83–1.10 | 45% |
+| Chinese clone | **0.896** | 0.78–1.03 | 57% |
+
+**This is the twelve-clip finding that survived.** The Japanese clone arm was
+0.76 at n=12 and is 0.7584 at n=100 — the same number to three decimals. Three
+other twelve-clip findings dissolved under proper sampling on the same day
+(2.5's two cells, 2.6's jitter), so the lesson is that sample size has to be
+checked, not that small samples are always wrong.
+
+The per-clip column is new and was hidden by the medians. Every arm, including
+the four whose medians pass, puts a third to a half of its individual clips
+outside 0.90–1.10. A median near 1.0 built from clips scattered on both sides
+is a different defect from a uniformly rushed arm, and only the Japanese clone
+is uniform: at 94% outside with a p90 of 0.86, nearly every clip is short, not
+merely the average.
 
 **Target — every arm within 0.90–1.10.**
 
@@ -584,10 +664,34 @@ the opposite direction to the one a length artifact predicts. Short clips
 destroyed the ECAPA anchor and do nothing to HNR, so the two are not the same
 defect and 2.2 does not explain this.
 
-What that leaves: the Chinese LoRA really does produce more periodic, less
-noisy phonation than the narrator it copies. **OPEN, and now for a supported
-reason rather than an unexamined one.** The next candidate explanations are the
-adapter itself and the AISHELL-3 recording conditions; neither has been tested.
+**The corpus has been ruled out and the eval speaker has not**
+(`corpus_hnr_baseline.py`, 2026-08-08; 40 AISHELL-3 speakers the adapter never
+saw, 15 clips each, human recordings only):
+
+| | median HNR |
+|---|---|
+| AISHELL-3, 40 unseen speakers | **12.02 dB** |
+| LJSpeech (English) | 10.83 dB |
+| Kokoro (Japanese) | 16.28 dB |
+| SSB1585, the Chinese eval speaker | **9.39 dB** |
+
+AISHELL-3 is *cleaner* than LJSpeech, which the English cell passes on, so
+"recorded on consumer hardware" explains nothing. SSB1585 herself sits 2.63 dB
+below her own corpus median at the **8th percentile** — 3 of 40 sampled
+speakers are noisier than she is.
+
+So the denominator is depressed, by the choice of eval speaker rather than by
+the corpus. The generated side measures 11.17 dB against AISHELL-3's own 12.02
+median: the adapter produces roughly corpus-typical phonation and looks too
+clean only because it is divided by an atypically noisy narrator. Against a
+median speaker the same audio would land near 0.93x — that number is
+arithmetic on two medians, not a measurement.
+
+**Status: OPEN, but reclassified.** This is a property of the eval set's
+speaker selection, not evidence that the model synthesises unnaturally clean
+Chinese. Closing it means re-running the Chinese arm against a speaker nearer
+her corpus median, which is a new generation run and has not been done. Until
+then the Chinese HNR figure should not be cited as a model result.
 
 Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
 probe here does not compute it, so that row rests on the same thin evidence
@@ -613,7 +717,24 @@ goal has otherwise stopped trusting.
 **Metric** — adapters whose training set includes their validation split.
 **Current** — every dataset zip splits **180 train / 20 val with zero
 overlap**, but `train_lora.py` loads the *root* `metadata.jsonl`, which is all
-200. **67 of 75 adapters record `num_samples: 200`.** **OPEN.**
+200. **OPEN — 60 of 75 shipped adapters are contaminated**, audited
+2026-08-08 from each adapter's own `training_meta.json`.
+
+| trained on | adapters |
+|---|---|
+| all 200 clips, including its own val split | **60** |
+| 180, the train split only | 7 |
+| some other count (24, 81, 88, 116, 130, 170, 188) | 8 |
+
+The clean 7 are exactly the seven retrained and promoted on 2026-08-08; every
+adapter predating that fix is contaminated. Their held-out scores are therefore
+measured partly on clips they were trained on, and should be read as an upper
+bound rather than a held-out result.
+
+One trap for anyone re-running this audit: the retrained adapters record
+`num_samples` while the older ones record `sample_count`. Two field names for
+one concept - checking only one of them silently reports the wrong count, which
+happened on the first pass of this audit.
 
 **Target — train on `train/` only; 0 adapters trained on their own val split.**
 
@@ -933,15 +1054,39 @@ language, RX 9070 XT). **MET, barely.**
 **Metric** — characters passed to TTS with no spoken form.
 **Probe** — source-level count is a script over the input `.txt` files; the
 TTS-level count does not exist yet.
-**Current** — **PARTIAL BASELINE.** Sources: CJK inside non-CJK text in 5 of 8
-books (23–779 occurrences); index18 carries 6,662 U+FFFD and is refused by the
-existing source gate. **At the TTS boundary: still NO BASELINE.**
+**Current** — **measured at the TTS boundary 2026-08-08**
+(`tts_boundary_audit.py`, over `normalize_for_speech`'s output for all 48
+saved books, 98,134 lines):
+
+| | |
+|---|---|
+| unspeakable characters in raw script text | 56 |
+| removed by normalization | 56 |
+| **reaching the TTS engine** | **0** |
 
 **Target — count what reaches the engine, then drive it to 0 with a
-verbalization pass.**
+verbalization pass. MET, with one exclusion stated below.**
 
-The source gate proves the app can refuse bad input. It does not prove nothing
-unspeakable survives the journey to the speaker.
+**The zero was not proof the code was sound.** Measured the same day, these
+passed through `normalize_for_speech` unchanged: `♪` `∞` `★` `→` `♥` and
+`U+FFFD`. Only `■` was handled, and only because it sits in `SPEECH_BREAKS`.
+The audit read 0 because the 48 saved books do not happen to contain the
+others — index18's 6,662 U+FFFD are refused by the *source gate* before the
+book is ever saved. **The protection was the gate, not the normaliser**, and
+anything reaching `scripts/` by another route had none.
+
+`verbalize_symbols` now closes it: named symbols are spoken (`∞` → "infinity",
+`→` → "to", `×` → "times"), and anything in an unspeakable Unicode category —
+So, Sm, Sk, Co, Cn, Cs, plus U+FFFD — is dropped and **recorded** in the
+transformation list rather than removed silently. Currency is deliberately
+excluded, since `$` and `£` are speakable. 11 tests in
+`test_speech_verbalization.py`.
+
+**The exclusion: pictographic kana are not covered and cannot be, by this
+method.** `へ` used as a drawing of a mouth is category Lo — a letter — and
+identical to `へ` the particle. Any rule that dropped it would delete Japanese
+text. Catching that needs context, not character class, and is not attempted
+here.
 
 ### 5.2 Names pronounced consistently
 
@@ -1059,7 +1204,16 @@ Goals about the instruments themselves. These earned their place by failing.
 Covered at 2.2. Enforced by `find_invalid_anchors`, reported in every score
 artifact as `anchor_invalid`.
 
-**Target — 0 comparisons published from an eval set with an invalid anchor.**
+**Target — 0 comparisons published from an eval set with an invalid anchor.
+MET 2026-08-08**, now asserted rather than observed.
+
+`test_score_anchor.py` pins the *detector* against constructed inputs.
+`test_published_anchors.py` pins the *artifacts*: it walks every
+`*_score.json` in the evidence tree and asserts each records
+`anchor_invalid`, that it is empty, and — re-derived from the summary rather
+than trusting the recorded flag — that every arm scores below its ceiling. A
+correct detector nobody reads is exactly the 2026-08-06 failure, so the goal
+needed a check over real files, not fixtures.
 
 ### 6.2 One source per decision
 
@@ -1114,15 +1268,20 @@ files.**
 
 If only three things get worked on:
 
-1. **Selection (1.2)** — the right answer is on the shortlist 85% of the time
-   and gets chosen 29.9% of the time. The largest known headroom in the app.
-   Read the "already tried" table there before proposing a fix; four
-   approaches are measured and rejected.
-2. **Chinese anchor (2.2)** — until the ruler is fixed, one third of the voice
-   evidence cannot be read at all.
-3. **Train/val contamination (2.7)** — a one-line trainer change. Until it
-   lands, no per-adapter voice number in the library is honest, and 67 of 75
-   adapters are affected.
+1. **Generalisation (1.3)** — the app scores 71.0% on 25 PDNC novels it has
+   never seen against 83.6% on the three it quotes, a −12.6 point gap against
+   a target of 5. The three quoted books rank #2, #8 and #9 of 28. This is now
+   the largest known overstatement in the document.
+2. **Duration fidelity (2.4)** — the Japanese clone arm runs at 0.758 with 94%
+   of clips outside the band, confirmed at n=100. The one twelve-clip finding
+   that survived re-measurement.
+3. **Train/val contamination (2.7)** — 60 of 75 shipped adapters trained on
+   their own val split. The trainer is fixed; the library is not, and every
+   held-out score from a contaminated adapter is an upper bound.
+
+**Selection (1.2) was #1 on this list until 2026-08-08 and is now MET** — the
+29.9% it was built on came from a model that does not ship. Re-measuring goals
+before working on them has now twice been worth more than working on them.
 
 Then: the three-pass baseline (5.3), and the CJK transcription gap (5.4) if
 Voice Lab is ever pointed at a non-English audiobook.

@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 133,
+    "exploratory": 138,
     "provisional": 112
   },
   "artifacts": [
@@ -1650,6 +1650,17 @@
       "reason": "older metadata contract; semantic/manual review required"
     },
     {
+      "artifact": "corpus_hnr_baseline.json",
+      "bytes": 1339,
+      "sha256": "6269cb1331cc75b0b715a1d2d0ebb1d3efc24d18ea367e0d47cf74da872b02a2",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "crossbook_normalization.json",
       "bytes": 88674,
       "sha256": "e0b824e697b3cc3ed3c2637f702c0ed6d61ca84eef74337a49bb58731e737170",
@@ -1778,6 +1789,17 @@
       "dirty": false,
       "classification": "exploratory",
       "reason": "metadata present without commit identity"
+    },
+    {
+      "artifact": "duration_probe.json",
+      "bytes": 1640,
+      "sha256": "2f534a24b4bdce43f33ca97666bc93b26a180a2ccc90079119c9a057265f8b44",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "fallback_policy.json",
@@ -2530,6 +2552,17 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "pdnc_generalisation.json",
+      "bytes": 5603,
+      "sha256": "79b8e52fb73a3c8d157bfa5e66a17586b827b7300291f04a465da8a0799cea7d",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "pitch_profile_matrix.json",
       "bytes": 1326816,
       "sha256": "af979342eb603031ab37056bd245a89851783c2b80a86232492d8623ebcc4a23",
@@ -3208,6 +3241,17 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "selection_gap_recheck.json",
+      "bytes": 2364,
+      "sha256": "29d5fe5d9c36c795fb4722e2074a1c8e399318f7c393fef338dd3d69992c21b3",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "shipping_readiness.json",
       "bytes": 2491,
       "sha256": "25ba23a8303fa8e559223238dacc8382dcc3b2651067bfad90b6e06817d6c7a5",
@@ -3474,6 +3518,17 @@
       "artifact": "trivial_baselines.json",
       "bytes": 1140,
       "sha256": "2befba496a0add80e3bb3a3419b7975f18fe781ae5bb8836dddc6cf856eabe1f",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "tts_boundary_audit.json",
+      "bytes": 366,
+      "sha256": "79e3cc9863dc4f189c905001ec42a5c9b931f71efea6a331f385336ac608bd1b",
       "seed": null,
       "status": null,
       "has_rows": false,

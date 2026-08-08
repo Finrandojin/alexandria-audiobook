@@ -281,6 +281,7 @@ context_width_production__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.jso
 context_width_production__owarimonogatari3__llama-3.3-70b__thunder-a6000-70b.json,exploratory,context_width_production,owarimonogatari3,llama-3.3-70b,cloud-a6000-llamacpp-cuda,instance-lho3lk5l-main,llama.cpp-cuda on-instance,16384,1,q8_0,w4,162,101,62.3,ok,False,,5596.8,07-29 23:33,http://127.0.0.1:8090/v1,
 context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,context_width_production,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,w1,162,65,40.1,ok,False,04a69e4c,2955.3,07-29 03:46,http://127.0.0.1:8090/v1,
 context_width_production__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,context_width_production,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,w4,162,65,40.1,ok,False,04a69e4c,2955.3,07-29 03:46,http://127.0.0.1:8090/v1,
+corpus_hnr_baseline.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 crossbook_normalization.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 crossbook_normalization_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 crossover__grimgar03__local.json,historical_only,segmentation_crossover,grimgar03,gemma-4-e4b-uncensored-hauhaucs-aggressive|qwen/qwen3-14b,local-lmstudio,mitch-linux,lmstudio,16384,1,f16?,"seg=gemma,attr=gemma,t=0.0,rep=1",399,234,58.6,ok,False,54573393,1832.5,07-27 20:37,http://localhost:1234/v1,
@@ -334,6 +335,7 @@ distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,mushoku16,Qwen
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,mushoku16,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,tuned,133,83,62.4,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,base,162,65,40.1,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
 distill_eval__thunder-a6000-distill.json,exploratory,distill_eval,owarimonogatari3,Qwen/Qwen3-14B,local-lmstudio,instance-wa5dh8u3-main,lmstudio,32768,1,f16?,tuned,162,99,61.1,ok,False,,50138.1,08-01 02:49,peft:/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/distill/adapter,
+duration_probe.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 fallback_policy.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 fix_verification.json,exploratory,,,,,,,,,,,,,,,,,,,,SKIPPED: not a result object (list)
 gate_known_bad.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -447,6 +449,7 @@ pdnc_eval.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this
 pdnc_eval_full.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pdnc_eval_full_summary.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pdnc_eval_mixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+pdnc_generalisation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_profile_matrix.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 pitch_profile_matrix_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 pitch_quality_probe.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -584,6 +587,7 @@ scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,s
 scene_cast__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,provisional,scene_cast,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,scene+2,162,66,40.7,ok,True,fe025a5f,3728.1,07-30 02:00,http://127.0.0.1:8090/v1,
 seed_instruction_controls.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 segmentation_classifier.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+selection_gap_recheck.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 shipping_readiness.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 simd_benchmark.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 stack_overlap.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
@@ -617,6 +621,7 @@ three_pass_vs_single.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TT
 training_composition.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 training_determinism.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 trivial_baselines.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+tts_boundary_audit.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 tuned_disagreement.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 two_by_two.json,exploratory,two_by_two,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,A,139,27,19.4,"['no LM Studio load state recorded', 'en",True,8e457d6a,698.2,07-26 17:00,http://localhost:1234/v1,
 two_by_two.json,exploratory,two_by_two,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,B,139,3,2.2,"['no LM Studio load state recorded', 'en",True,8e457d6a,698.2,07-26 17:00,http://localhost:1234/v1,

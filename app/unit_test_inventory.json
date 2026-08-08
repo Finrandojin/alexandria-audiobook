@@ -987,6 +987,12 @@
     "test_pronunciation.ShippedLexiconTest.test_it_ships_inert",
     "test_pronunciation.ShippedLexiconTest.test_the_shipped_file_parses"
   ],
+  "test_published_anchors": [
+    "test_published_anchors.PublishedAnchorsTest.test_anchor_actually_exceeds_every_arm",
+    "test_published_anchors.PublishedAnchorsTest.test_every_artifact_records_anchor_validity",
+    "test_published_anchors.PublishedAnchorsTest.test_no_artifact_publishes_an_invalid_anchor",
+    "test_published_anchors.PublishedAnchorsTest.test_some_score_artifacts_exist"
+  ],
   "test_publisher_matter": [
     "test_publisher_matter.StripPublisherMatterTest.test_a_book_that_is_all_colophon_is_left_alone",
     "test_publisher_matter.StripPublisherMatterTest.test_back_matter_is_removed",
@@ -1260,6 +1266,19 @@
     "test_speaker_similarity.TestSpeakerSimilarity.test_embedding_decodes_and_resamples_without_torchaudio",
     "test_speaker_similarity.TestSpeakerSimilarity.test_empty_audio_fails_loudly",
     "test_speaker_similarity.TestSpeakerSimilarity.test_missing_speechbrain_fails_instead_of_falling_back"
+  ],
+  "test_speech_verbalization": [
+    "test_speech_verbalization.VerbalizationTest.test_box_drawing_still_becomes_a_sentence_break",
+    "test_speech_verbalization.VerbalizationTest.test_cjk_and_accented_letters_are_left_alone",
+    "test_speech_verbalization.VerbalizationTest.test_currency_is_not_treated_as_unspeakable",
+    "test_speech_verbalization.VerbalizationTest.test_drops_are_recorded_rather_than_silent",
+    "test_speech_verbalization.VerbalizationTest.test_every_verbalized_symbol_actually_maps_to_words",
+    "test_speech_verbalization.VerbalizationTest.test_named_symbols_are_spoken_as_words",
+    "test_speech_verbalization.VerbalizationTest.test_no_unspeakable_category_survives_a_mixed_line",
+    "test_speech_verbalization.VerbalizationTest.test_replacement_character_never_survives",
+    "test_speech_verbalization.VerbalizationTest.test_surrounding_words_survive_intact",
+    "test_speech_verbalization.VerbalizationTest.test_unknown_symbols_are_dropped_not_read",
+    "test_speech_verbalization.VerbalizationTest.test_verbalized_symbols_are_not_also_swept_by_the_catch_all"
   ],
   "test_stage3_harnesses": [
     "test_stage3_harnesses.TestStage3HarnessesFailLoudly.test_clone_phase_is_required",
