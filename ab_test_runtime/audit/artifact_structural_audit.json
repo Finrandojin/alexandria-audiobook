@@ -1,7 +1,7 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 48,
+    "supported_structure": 52,
     "exploratory": 124,
     "provisional": 112
   },
@@ -2072,6 +2072,19 @@
       "reason": "embedded provenance and identifiable harness"
     },
     {
+      "artifact": "library_voice_fidelity_postfix.json",
+      "bytes": 336569,
+      "sha256": "c5a7c92f7eeae9cb6583fb7cd436d39b53e1003d938813d4dba7560a3eee2ab3",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "4e30462b9124c205348ccfa481adfea7345e3b68",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
       "artifact": "listener_impact.json",
       "bytes": 2837,
       "sha256": "2f2bf820024a86d3b36911ca8d7cac14f569ed7eae507e909b17c9ac6d070a43",
@@ -3439,6 +3452,45 @@
       "identity_contract": "tts_provenance",
       "commit": "ac99417f515e001ef9b162f963124831acbac310",
       "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "voice_drift_2000__husky_tenor_30s_m_literary.json",
+      "bytes": 570022,
+      "sha256": "d91056e574f2116a91aac60bd739a910f42af371215b3fa010c71c41f9d5da5e",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "4e30462b9124c205348ccfa481adfea7345e3b68",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "voice_drift_2000__warm_baritone_40s_m_2.json",
+      "bytes": 559197,
+      "sha256": "aba012e3d73b9c4d5038c139c6adb9c291080020ac1a7d16bcc820fb0a378d68",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "4e30462b9124c205348ccfa481adfea7345e3b68",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "voice_drift_2000__warm_mezzo_30s_f_fantasy_2.json",
+      "bytes": 570738,
+      "sha256": "6ea5b7f47912fff2e0a536467481dfe584062649d7a3943b2948127a8752d007",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "4e30462b9124c205348ccfa481adfea7345e3b68",
+      "dirty": false,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
     },

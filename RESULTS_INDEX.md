@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-07 15:50 from `ab_test_runtime/experiments/` — 284 artifacts, 521 arms.
+Generated 2026-08-08 09:25 from `ab_test_runtime/experiments/` — 288 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -734,6 +734,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `kokoro_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `library_voice_fidelity.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `library_voice_fidelity_n10.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `library_voice_fidelity_postfix.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `listener_impact.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `ljspeech_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `ljspeech_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
@@ -790,6 +791,9 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `voice_blending.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `voice_data_saturation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `voice_data_saturation_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift_2000__husky_tenor_30s_m_literary.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift_2000__warm_baritone_40s_m_2.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `voice_drift_2000__warm_mezzo_30s_f_fantasy_2.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `voice_drift__husky_baritone_20s_m_anime.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `voice_drift__husky_tenor_30s_m_literary.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `voice_drift__warm_mezzo_30s_f_fantasy_2.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
