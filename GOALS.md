@@ -489,14 +489,21 @@ The existing safety check catches runaway voices at 3.0x. It cannot see 0.76.
 > blind to scale. So the app measured pitch and missed the flatness.
 
 **Metric** — generated f0 spread (p90 − p10) ÷ human f0 spread, on the same line.
-**Probe** — `pitch_stats` in `app/experiments/voice_compare_view.py`.
-**Current** — 12 clips per language, 2026-08-06. **OPEN.**
+**Probe** — `app/experiments/pitch_quality_probe.py` (calls `pitch_stats`; the
+`voice_compare_view` CLI renders a view, it does not report numbers).
+**Current** — 100 clips per language, both arms, 0 dropped, 2026-08-08. **MET.**
 
 | set | clone | LoRA |
 |---|---|---|
-| English | **0.83x** | 1.25x |
-| Japanese | 0.96x | 1.13x |
-| Chinese | 1.24x | **0.81x** |
+| English | 0.92x | 1.13x |
+| Japanese | 0.91x | 1.02x |
+| Chinese | 1.03x | 0.96x |
+
+Every cell is inside 0.90–1.15x. At 12 clips this goal read OPEN on two cells —
+English clone at 0.83x and Chinese LoRA at 0.81x — and both were sample size:
+the same arms measure 0.92x and 0.96x over 100 clips. The 12-clip run's
+artifact is not in the evidence tree, so the two runs cannot be reconciled
+directly; what is claimed here is only what the n=100 artifact shows.
 
 **Target — f0 spread within 0.90–1.15x of the human, and f0 median within
 0.95–1.05x.**
@@ -533,15 +540,30 @@ which is a comparison between two clips of one person.
 **Metric** — jitter, shimmer and HNR of the generated line ÷ the human's, plus
 vocal tract length from formant dispersion.
 **Probe** — `voice_quality`, `vocal_tract_length` (Praat via parselmouth).
-**Current** — 12 clips per language. **MET on tract length, OPEN on quality.**
+**Current** — jitter and shimmer on 100 clips per language, both arms, 0
+dropped, 2026-08-08. Tract length still 12 clips. **MET on jitter and shimmer.
+OPEN on HNR, one cell. Tract length unchanged and under-sampled.**
 
-Vocal tract length is preserved everywhere, **0.98–1.08x** — neither method
-shifts the speaker's apparent vocal size, which is the reassuring answer to
-"does it still sound like the same kind of person".
+| set | jitter | shimmer | HNR |
+|---|---|---|---|
+| English LoRA | 0.99x | 0.92x | 0.98x |
+| English clone | 0.94x | 0.88x | 1.02x |
+| Japanese LoRA | 1.11x | 1.07x | 0.97x |
+| Japanese clone | 1.09x | 1.07x | 0.96x |
+| Chinese LoRA | 0.90x | 0.88x | **1.17x** |
+| Chinese clone | 0.98x | 0.89x | 1.08x |
 
-The outlier is the Chinese LoRA: jitter **0.81x** and HNR **1.20x** — cleaner
-and more periodic than the human it copies. That is the "too clean" signature,
-on the one eval set whose anchor is already invalid (2.2).
+The Chinese LoRA was the "too clean" case at 12 clips — jitter 0.81x, HNR
+1.20x. At 100 clips its jitter is 0.90x, inside the band: that half of the
+finding was sample size. Its HNR is 1.17x, still outside 1.15 and still the
+worst cell in the table, so the harmonic-to-noise half survives a fivefold
+increase in sample size and should be treated as real. It remains the eval set
+whose anchor is invalid (2.2), which is the first thing to rule out.
+
+Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
+probe here does not compute it, so that row rests on the same thin evidence
+every other 12-clip number did — it is recorded as MET on sample size this
+goal has otherwise stopped trusting.
 
 **Target — jitter, shimmer and HNR within 0.85–1.15x; tract length within
 0.95–1.05x.**

@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 54,
-    "exploratory": 124,
+    "exploratory": 132,
     "provisional": 112
   },
   "artifacts": [
@@ -1820,6 +1820,83 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "gate_promote__breathy_tenor_18s_m_supernatural.json",
+      "bytes": 259,
+      "sha256": "dda7c9249277cc0dfeef313693547cfea8507fe9da0331aba65c140e99872e1e",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__husky_baritone_20s_m_anime.json",
+      "bytes": 253,
+      "sha256": "65854d72d9b5aa9fed2aeeaacce9cab9dd69c74156f7822a79dd0b3397f6f46c",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__husky_baritone_40s_m_military.json",
+      "bytes": 256,
+      "sha256": "9d7babd6da4947b6b92bf797d25b0619ff0bc1ff3db99d96c937c5e02e4a2ed8",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__silky_baritone_30s_m.json",
+      "bytes": 247,
+      "sha256": "db2ffe30c47f936badc3c37bb088b54da6d8646368799288b164f2eace17f0cb",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_40s_m_fantasy.json",
+      "bytes": 254,
+      "sha256": "dee42f233ecfa862f5acd3709a7eeb0fda093ac2768553c943e43016b0d46533",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_mezzo_30s_f_fantasy_2.json",
+      "bytes": 253,
+      "sha256": "0b3e0da00df79fd2349a5d46ee0632c040f8abbafdab41e185248206978d3fed",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_tenor_25s_m_military.json",
+      "bytes": 252,
+      "sha256": "27b194e8b9e6cc3609a8a9f14b1e5e92e8e4342d67e481ff932369afb8192103",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "grammar_constraint__grimgar03__qwen__qwen3-14b__local-llamacpp.json",
       "bytes": 1052089,
       "sha256": "b2435405260bd451d01f9176286ba07ec890c96cc53b23761916e9ac0bc92e4f",
@@ -2466,6 +2543,17 @@
       "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "pitch_quality_probe.json",
+      "bytes": 302582,
+      "sha256": "d4d18a6d8179b28c03dac71b87a3e1c8152f93c9e54431e4592e96307f5d9941",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "pitch_separation.json",

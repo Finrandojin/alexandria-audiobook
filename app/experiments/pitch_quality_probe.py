@@ -59,7 +59,7 @@ def measure(path):
     return out
 
 
-def run_language(manifest_path, limit):
+def run_language(manifest_path, limit, arm):
     with open(manifest_path, encoding="utf-8") as handle:
         payload = json.load(handle)
     rows = payload.get("results") or payload.get("rows") or payload
@@ -67,7 +67,7 @@ def run_language(manifest_path, limit):
     for row in rows:
         if len(pairs) >= limit:
             break
-        human, gen = row.get("human_wav"), row.get("lora_wav")
+        human, gen = row.get("human_wav"), row.get(arm)
         h, g = measure(human), measure(gen)
         # A pair survives only if BOTH sides yielded every measure. Partial
         # pairs would silently change which clips each measure is computed
@@ -100,7 +100,7 @@ def run_language(manifest_path, limit):
     if pairs == [] and dropped:
         raise SystemExit(
             f"every one of {dropped} pairs was dropped for "
-            f"{os.path.basename(manifest_path)} - check the wav paths resolve")
+            f"{os.path.basename(manifest_path)} arm={arm} - check the paths")
     return {"n_pairs": len(pairs), "dropped": dropped,
             "summary": summary, "pairs": pairs}
 
@@ -124,21 +124,24 @@ def main():
         if not os.path.exists(path):
             print(f"SKIP {lang}: no manifest at {path}", flush=True)
             continue
-        print(f"=== {lang} ===", flush=True)
-        result["languages"][lang] = run_language(path, args.lines)
+        result["languages"][lang] = {}
+        for arm in ("lora_wav", "clone_wav"):
+            print(f"=== {lang} {arm} ===", flush=True)
+            result["languages"][lang][arm] = run_language(path, args.lines, arm)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     from utils import atomic_json_write
     atomic_json_write(result, args.out)
 
     print("\n=== SUMMARY (generated vs human, same line) ===")
-    for lang, data in result["languages"].items():
-        print(f"\n{lang}  n={data['n_pairs']} (dropped {data['dropped']})")
-        for m, s in data["summary"].items():
-            rel = s.get("ratio", s.get("difference_db"))
-            unit = " dB" if m == "hnr_db" else "x"
-            print(f"  {m:15} human {s['human_median']:>9} "
-                  f"gen {s['generated_median']:>9}   {rel}{unit}")
+    for lang, arms in result["languages"].items():
+        for arm, data in arms.items():
+            print(f"\n{lang} {arm}  n={data['n_pairs']} (dropped {data['dropped']})")
+            for m, s in data["summary"].items():
+                rel = s.get("ratio", s.get("difference_db"))
+                unit = " dB" if m == "hnr_db" else "x"
+                print(f"  {m:15} human {s['human_median']:>9} "
+                      f"gen {s['generated_median']:>9}   {rel}{unit}")
     print(f"\nwrote {args.out}")
 
 

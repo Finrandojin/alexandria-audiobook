@@ -1,0 +1,9 @@
+{
+ "adapter": "ab_test_runtime/retrain_honest/silky_baritone_30s_m/adapter",
+ "median_ecapa": 0.5505,
+ "lines": 10,
+ "generation_failures": 0,
+ "threshold": 0.45,
+ "passed": true,
+ "verdict": "PASS - the adapter sounds like its narrator (0.550)"
+}
