@@ -19,12 +19,22 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 
 ### AI-Powered Pipeline
 - **Local & Cloud LLM Support** - Use any OpenAI-compatible API (LM Studio, Ollama, OpenAI, etc.)
-- **Automatic Script Annotation** - LLM parses text into JSON with speakers, dialogue, and TTS instruct directions
-- **LLM Script Review** - Optional second LLM pass that fixes common annotation errors: strips attribution tags from dialogue, splits misattributed narration/dialogue, merges over-split narrator entries, and validates instruct fields
+- **Verbatim Script Annotation** - Code splits each chunk into quoted/unquoted spans and the LLM returns only labels (`id`, `speaker`, `role`, `instruct`). The script text is reassembled from the source by offset, so the author's words are never rewritten
+- **LLM Script Review** - Optional second LLM pass that checks only two things per entry: whether `speaker` is the correct attribution and whether `instruct` is a usable voice direction. Entry text is always re-imposed from the original, so review cannot alter a single character of the book
 - **Persona Generation** - LLM analyzes the script to create voice descriptions for each character, then generates reference audio via VoiceDesign and assigns clone voices automatically — one click to go from script to fully-voiced cast
+- **Speaker Canonicalization** - Speaker labels are normalized to a canonical UPPERCASE form (accents folded, parentheticals and wrapping quotes removed, honorifics dropped). Spellings that differ only in spaces, hyphens or apostrophes ("ABBEMARIGNAN" / "ABBE MARIGNAN") are unified; similar-but-distinct names (JON/JOHN) never are
 - **Speaker Aliases** - Map multiple speaker names to the same voice (e.g. "YOUNG ELENA" → "ELENA") so variants share a single voice configuration
 - **Smart Chunking** - Groups consecutive lines by speaker (up to 500 chars) for natural flow
-- **Context Preservation** - Passes character roster and last 3 script entries between chunks for name and style continuity
+- **Context Preservation** - Passes a capped character roster (50 most recently spoken names by default) and short snippets of the last 3 script entries between chunks for name and style continuity
+
+#### Verbatim Fidelity
+
+The goal is an industry-standard audiobook, not an audio drama: the author's text is read word-for-word. Quoted dialogue gets character voices; everything else — including attribution tags like "said Marcus" — is read by the narrator. The LLM is an analytical classifier, never a generator of book text.
+
+- **Verbatim reassembly** - Each chunk is tokenized into contiguous quoted/unquoted spans that tile the source exactly. The LLM sees numbered spans and returns only labels; code rebuilds the entries from the source string by `(start, end)` offset. A truncated or malformed response costs labels, never prose
+- **Byte-identity is asserted, not hoped for** - Every chunk's entries must concatenate back to the chunk byte-for-byte; a mismatch raises rather than warns. Source → `annotated_script.json` word coverage is exactly 1.0
+- **NARRATOR fallback** - Any span the LLM failed to label keeps its text and is attributed to NARRATOR. Enumerated placeholder labels ("SPEAKER 1", "VOICE 3") are rejected the same way
+- **Loud degradation** - Script generation exits with code **3** when the script was written but some spans fell back to NARRATOR — distinct from 0 (clean) and 1 (nothing produced). The task log reports it as "completed with degradations" and the run summary names every degraded chunk
 
 ### Voice Generation
 - **Built-in TTS Engine** - Qwen3-TTS runs locally with no external server required
@@ -38,7 +48,7 @@ Transform any book or novel into a fully-voiced audiobook using AI-powered scrip
 - **Dataset Builder** - Interactive tool for creating LoRA training datasets with per-sample text, emotion, and audio preview
 - **Batch Processing** - Generate dozens of chunks simultaneously with 3-6x real-time throughput
 - **Codec Compilation** - Optional `torch.compile` optimization for 3-4x faster batch decoding
-- **Non-verbal Sounds** - LLM writes natural vocalizations ("Ahh!", "Mmm...", "Haha!") with context-aware instruct directions
+- **Non-verbal Sounds** - Vocalizations the author wrote ("Ahh!", "Mmm...", "Haha!") are spoken as-is with context-aware instruct directions — no bracket tags or special tokens. The LLM never adds sounds that aren't in the book; add your own in the Editor if you want them
 - **Natural Pauses** - Configurable silence between speakers (default 500ms) and same-speaker segments (default 250ms)
 
 ### Web UI Editor
@@ -192,7 +202,7 @@ Configure your LLM connection and TTS engine. At minimum you need:
 **Step 2 — Script**
 - Select your book file (.txt, .md, or .epub) using the file picker — it uploads automatically
 - Click **Generate Annotated Script** — this sends the book to your LLM to split it into annotated chunks with speaker labels and voice directions
-- *(Optional)* Click **Review Script** if the generated script has issues — this runs a second LLM pass to fix speaker misattributions or formatting problems
+- *(Optional)* Click **Review Script** if the generated script has issues — this runs a second LLM pass to fix speaker misattributions and weak instruct directions. It cannot change the text
 - You can save the script for later use with the Save feature below
 
 **Step 3 — Voices**
@@ -245,20 +255,37 @@ Configure connections to your LLM and TTS engine.
 - **Banned Tokens** - Comma-separated list of tokens to ban from LLM output (useful for disabling thinking mode on models like GLM4, DeepSeek-R1, etc.)
 - **Prompt Customization** - System and user prompts used for script generation. Defaults are loaded from `default_prompts.txt` and can be customized per-session in the UI. Click "Reset to Defaults" to reload the file-based defaults (picks up edits without restarting the app)
 
+**Advanced Keys (edit `app/config.json` directly):**
+
+These have no UI control and are read straight from `app/config.json` by the generation/review/TTS code. Note that clicking **Save Configuration** rewrites `config.json` from the UI's form fields and will drop them, so set them after your last save (or re-add them afterwards).
+
+| Key | Default | What it does |
+|-----|---------|--------------|
+| `generation.num_ctx` | unset | Serving context window requested from the LLM server per call, for servers that honor it (Ollama). Set this when you see the prompt-truncation warning |
+| `generation.max_context_roster_names` | 50 | Cap on how many character names the per-chunk roster block may list. Kept names are the most recently spoken; the prompt says so when the list is partial |
+| `generation.review_batch_char_budget` | 12000 | Rendered-JSON character budget per review batch, applied alongside `review_batch_size`. Keeps a few very long entries from producing a prompt that overflows a modest serving window |
+| `tts.enable_nemo_normalization` | `false` | Optional text normalization ("Dr." → "doctor") applied **only** at the TTS call boundary — never to `instruct`, never to the script file. Uses `nemo_text_processing` where installable, else `wetext` (which has prebuilt Windows wheels). Off by default because whether it helps is book- and voice-specific |
+| `pronunciation_dict.json` (repo root) | absent | Optional per-book file of flat `{"from": "to"}` literal replacements, applied after the normalizer to correct its mistakes (e.g. `{"Marlborough Dr.": "Marlborough Drive"}`). Only applied when normalization is enabled |
+
+Run `python tools/verify_tts_normalization.py` to see raw vs. normalized vs. dictionary-applied text for a test sentence before deciding, or `--synthesize` to render the sentence both ways and listen.
+
 ### Script Tab
-Upload a text file (.txt, .md, or .epub) and generate the annotated script. EPUB files are automatically converted to plain text on upload. The LLM converts your book into a structured JSON format with:
+Upload a text file (.txt, .md, or .epub) and generate the annotated script. EPUB files are automatically converted to plain text on upload, in spine (reading) order; a per-chapter character count is printed to the terminal so you can confirm nothing was lost. A spine item whose file cannot be resolved, or an `idref` with no manifest entry, aborts the extraction rather than silently dropping a chapter. Non-text spine items (e.g. an SVG cover page) and the EPUB3 navigation document are skipped with a notice.
+
+The LLM annotates your book into a structured JSON format with:
 - Speaker identification (NARRATOR vs character names)
-- Dialogue text with natural vocalizations (written as pronounceable text, not tags)
+- The author's text, reassembled verbatim from the source — the LLM only labels spans, it never emits book text
 - Style directions for TTS delivery
 
-**Review Script** - After generation, click "Review Script" to run a second LLM pass that detects and fixes common annotation errors:
-1. Attribution tags left in dialogue ("said he", "she replied") are stripped
-2. Narration mixed into character entries is split out as NARRATOR
-3. Dialogue embedded in narrator entries is extracted as the correct speaker
-4. Short consecutive narrator entries covering the same scene are merged
-5. Invalid instruct fields (physical actions instead of voice directions) are corrected
+**Review Script** - After generation, click "Review Script" to run a second LLM pass. It checks exactly two fields per entry:
+1. `speaker` — is the entry attributed to the right character?
+2. `instruct` — is it a usable voice direction (not a physical action, not empty)?
+
+Entry `text` is always re-imposed from the original entry, so a review pass cannot reword, split, merge or strip anything. A batch whose response has a different entry count than it was sent is rejected wholesale and the originals are kept. Speaker corrections are canonicalized and snapped back onto the spelling already established in the script.
 
 Review prompts are customizable in `review_prompts.txt` (same format as `default_prompts.txt`).
+
+> **Note:** `default_prompts.txt` carries a `span-labels-v1` marker and `review_prompts.txt` a `verbatim-review-v1` marker. A custom prompt saved in `config.json` before this pipeline existed asks the LLM for something it can no longer use, so a saved prompt missing its marker is rejected with a loud warning and the built-in default is used instead. If you customize a prompt, keep the marker line.
 
 ### Voices Tab
 After script generation, voices are automatically loaded from the annotated script. For each speaker:
@@ -271,11 +298,17 @@ Click **Generate Personas** to automatically assign voices to all characters. Th
 
 **Speaker Aliases:**
 Each voice card has an "Alias of" dropdown. Setting a speaker as an alias of another speaker means it will use the target's voice configuration during audio generation. Useful for:
-- Character name variants (e.g., "DR. SMITH" → "SMITH")
 - Age variants (e.g., "YOUNG ELENA" → "ELENA")
+- Nickname or spelling variants the automatic rules deliberately don't merge (e.g. "JON" / "JOHN" — the pipeline never auto-merges similar names, because they are often two different people)
 - Reducing the number of voices to configure
 
 Aliases resolve transitively (A → B → C uses C's config) with cycle detection.
+
+Honorific variants ("DR. SMITH" → "SMITH") no longer need an alias — canonicalization strips a leading honorific automatically.
+
+> **Known limitation:** because honorifics are stripped, `MR SMITH` and `MRS SMITH` both canonicalize to `SMITH`, so a husband and wife share one voice card and one voice. There is currently no way to split them back apart. If a book distinguishes two characters only by title, edit their `speaker` values in the Editor to something unambiguous before configuring voices.
+
+`GET /api/voices/alias_suggestions` returns advisory fuzzy-similarity suggestions (JON/JOHN, ELLA/BELLA) for the current roster. It is purely advisory — nothing is merged — and is not yet surfaced in the UI.
 
 **Custom Voice Mode:**
 - Select from 9 pre-trained voices: Aiden, Dylan, Eric, Ono_anna, Ryan, Serena, Sohee, Uncle_fu, Vivian
@@ -428,16 +461,19 @@ The generated script is a JSON array with `speaker`, `text`, and `instruct` fiel
 
 ```json
 [
-  {"speaker": "NARRATOR", "text": "The door creaked open slowly.", "instruct": "Calm, even narration."},
-  {"speaker": "ELENA", "text": "Ah! Who's there?", "instruct": "Startled and fearful, sharp whispered question, voice cracking with panic."},
-  {"speaker": "MARCUS", "text": "Haha... did you miss me?", "instruct": "Menacing confidence, low smug drawl with a dark chuckle, savoring the moment."}
+  {"speaker": "NARRATOR", "text": "The door creaked open slowly. ", "instruct": "Calm, even narration."},
+  {"speaker": "ELENA", "text": "\"Ah! Who's there?\"", "instruct": "Startled and fearful, sharp whispered question, voice cracking with panic."},
+  {"speaker": "NARRATOR", "text": " she whispered.\n\n", "instruct": "Neutral, even narration."},
+  {"speaker": "MARCUS", "text": "\"Haha... did you miss me?\"", "instruct": "Menacing confidence, low smug drawl with a dark chuckle, savoring the moment."}
 ]
 ```
 
+- **`speaker`** — canonical UPPERCASE character name, or `NARRATOR`. The casing is load-bearing: the pipeline compares against the literal `"NARRATOR"`
+- **`text`** — verbatim from the source book, including quotation marks and the whitespace between entries. Concatenating every entry's `text` in order reproduces the book exactly, which is why attribution tags ("she whispered") are their own NARRATOR entries rather than being dropped
 - **`instruct`** — 2-3 sentence TTS voice direction sent directly to the engine. Set tone, describe delivery, then give specific references. Example: "Devastated by grief, Sniffing between words and pausing to collect herself, end with a wracking sob."
 
 ### Non-verbal Sounds
-Vocalizations are written as real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. The LLM generates natural onomatopoeia with short instruct directions:
+Vocalizations are real pronounceable text that the TTS speaks directly — no bracket tags or special tokens. Because the script is verbatim, these come from the book itself (or from your own edits in the Editor), and the LLM gives them a short instruct direction:
 - Gasps: "Ah!", "Oh!" with instruct like "Fearful, sharp gasp."
 - Sighs: "Haah...", "Hff..."
 - Laughter: "Haha!", "Ahaha..."
@@ -526,7 +562,7 @@ curl -X POST http://127.0.0.1:4200/api/generate_script
 # Check status
 curl http://127.0.0.1:4200/api/status/script_generation
 
-# Review script (fix attribution tags, misattributed lines, etc.)
+# Review script (fix speaker attribution and instruct fields; text is never altered)
 curl -X POST http://127.0.0.1:4200/api/review_script
 
 # Check review status
@@ -540,6 +576,10 @@ curl http://127.0.0.1:4200/api/voices
 
 # Parse voices from script
 curl -X POST http://127.0.0.1:4200/api/parse_voices
+
+# Advisory alias suggestions for similar roster names (never merges anything)
+# Kept off the /api/voices hot path — it is O(n^2) in roster size
+curl http://127.0.0.1:4200/api/voices/alias_suggestions
 
 # Save voice config
 curl -X POST http://127.0.0.1:4200/api/save_voice_config \
@@ -842,6 +882,20 @@ For script generation, non-thinking models work best:
 - Verify model name matches what's loaded
 - Try a different model - some struggle with JSON output
 
+### Script generation "completed with degradations" (return code 3)
+This is not a failure: the script was written and no text was lost, but some spans could not be classified and are attributed to NARRATOR. The run summary lists every degraded chunk. Review those entries in the Editor, or re-run after fixing the cause below.
+
+### Speakers are mostly NARRATOR, or `prompt_tokens` never changes
+Your LLM server is silently truncating the prompt. A server whose context window is smaller than the prompt does not error — it drops the overflow and answers from what's left, so the model is asked to classify spans it was never shown. Symptoms in the terminal:
+- A `PROMPT LIKELY TRUNCATED BY THE SERVER` warning on individual chunks
+- A `SERVER CONTEXT WINDOW SUSPECT` line in the run summary, reporting that `prompt_tokens` was pinned to one exact value across prompts of wildly different sizes (Ollama's default `num_ctx=2048` produces exactly this)
+- Lots of retries and degraded chunks with an otherwise green run
+
+Fix it by raising the **server's** context window:
+- **Ollama:** set `OLLAMA_CONTEXT_LENGTH=8192` in the environment, bake `num_ctx` into the model's Modelfile, or set `generation.num_ctx` in `app/config.json` (forwarded per request to servers that honor it)
+- **llama.cpp / vLLM:** raise `-c` / `--max-model-len`
+- Or reduce the prompt: lower `generation.chunk_size` or `generation.max_context_roster_names`
+
 ### Model download fails or is very slow
 - TTS models (~3.5 GB each) are downloaded from Hugging Face on first use
 - If downloads are slow or fail due to network restrictions (common in mainland China), set a Hugging Face mirror before launching:
@@ -902,6 +956,27 @@ LLM prompts are stored in plain-text files at the project root, split into syste
 
 **Non-English books:** The default LLM prompts are written for English text and reference English-specific conventions (attribution tags like "said he", quotation marks, etc.). When processing books in other languages, you'll get better results by editing the prompts to match that language's dialogue conventions — for example, French guillemets (« »), Japanese brackets (「」), or language-appropriate attribution patterns. Set the TTS **Language** dropdown to match as well.
 
+> **Limitation:** the span tokenizer recognizes straight and curly double quotes (`"` `“` `”`) and single quotes (`'` `‘` `’`) as dialogue delimiters. Guillemets (« ») and CJK brackets (「」) are **not** recognized, so dialogue marked that way is currently classified as narration and read by the narrator. No text is lost — it is the safe failure direction — but such a book will not get character voices until the tokenizer learns those marks. Prompt customization cannot work around this, since the LLM only labels the spans code gives it.
+
+## Testing
+
+The test suites are standalone scripts (not pytest) and run fully offline — they use fake LLM clients and programmatically built EPUB fixtures, so no LLM server, no TTS model and no network are required. Run them from the `app/` directory:
+
+```bash
+cd app
+python test_api.py --offline        # pipeline invariants (verbatim, coverage == 1.0) — ~1 second
+python test_span_tokenizer.py       # span FSM: tiling, quote disambiguation
+python test_span_integration.py     # span classification -> verbatim entries end to end
+python test_speaker_canon.py        # canonicalization, roster keys, alias suggestions
+python test_canon_wiring.py         # canonicalization wired through generation/review/API
+python test_review_verbatim.py      # positional overlay, batch sizing, text-loss guards
+python test_epub_extract.py         # EPUB href resolution and loud-failure behavior
+python test_integration_fixes.py    # regression checks for previously shipped fixes
+python test_tts_normalization.py    # normalizer no-op-when-off and backend chain
+```
+
+`python test_api.py` without `--offline` additionally exercises the HTTP API and needs the server running.
+
 ## Project Structure
 
 ```
@@ -909,15 +984,18 @@ Alexandria/
 ├── app/
 │   ├── app.py                 # FastAPI server
 │   ├── tts.py                 # TTS engine (local + external backends)
+│   ├── tts_normalizer.py      # Optional TTS-boundary text normalization (off by default)
 │   ├── train_lora.py          # LoRA training subprocess script
-│   ├── generate_script.py     # LLM script annotation
+│   ├── generate_script.py     # LLM span classification -> verbatim script
+│   ├── span_tokenizer.py      # FSM splitting text into quoted/unquoted spans
+│   ├── speaker_canon.py       # Speaker-label canonicalization and alias suggestions
 │   ├── generate_personas.py   # LLM persona generation + VoiceDesign voice assignment
-│   ├── review_script.py       # LLM script review (second pass)
+│   ├── review_script.py       # LLM script review (second pass, speaker/instruct only)
 │   ├── utils.py               # Shared utilities (atomic JSON writes)
+│   ├── test_*.py              # Standalone offline test suites (see Testing above)
 │   ├── default_prompts.py     # Generation prompt loader (reads default_prompts.txt)
 │   ├── review_prompts.py      # Review prompt loader (reads review_prompts.txt)
 │   ├── project.py             # Chunk management & batch generation
-│   ├── parse_voices.py        # Voice extraction
 │   ├── config.json            # Runtime configuration (gitignored)
 │   ├── static/index.html      # Web UI
 │   └── requirements.txt       # Python dependencies
@@ -926,6 +1004,7 @@ Alexandria/
 ├── designed_voices/           # Saved Voice Designer outputs (gitignored)
 ├── lora_datasets/             # Uploaded/generated training datasets (gitignored)
 ├── lora_models/               # Trained LoRA adapters (gitignored)
+├── tools/                     # Standalone diagnostic tools (TTS normalization check)
 ├── default_prompts.txt        # LLM prompts for script generation
 ├── review_prompts.txt         # LLM prompts for script review
 ├── install.js                 # Pinokio installer
