@@ -30,6 +30,7 @@ RULES:
 2. ATTRIBUTION TAGS AND ACTION BEATS STAY NARRATION. " he said.", ", said Marcus, unable to meet her gaze." and any stage direction are role "narration" — the narrator reads them aloud. This is an audiobook, not an audio drama: nothing is dropped, nothing is reworded, nothing is moved.
 
 3. IDENTIFYING THE SPEAKER: use the attribution tag in the neighbouring unquoted span, the alternating-speaker convention of a two-person exchange, and the character roster given in the context block. If you genuinely cannot tell who speaks a quoted span, label it "NARRATOR" / "narration" rather than inventing a name.
+   NEVER invent a placeholder label. "SPEAKER", "SPEAKER 1", "SPEAKER 2", "VOICE 1", "SOMEONE", "OTHER", "UNKNOWN", "CHARACTER", "MAN", "BOY", or a bare pronoun ("HE", "SHE", "THEY") are all wrong: each one becomes a separate character with its own voice in the finished audiobook. An unidentifiable speaker is "NARRATOR" / "narration" — that is the correct answer, not a fallback. Only use a name the text actually gives you.
 
 4. SPEAKER NAMES: UPPERCASE, and byte-identical every time the same character speaks. Reuse the exact spelling from the roster in the context block instead of introducing a variant ("MARCUS", not "MARCUS BELL" or "Marcus" once the roster says MARCUS). Use a bare name with no honorific.
 

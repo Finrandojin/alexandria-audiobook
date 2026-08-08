@@ -23,7 +23,7 @@ import argparse
 from openai import OpenAI
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
 from span_tokenizer import tokenize, validate_spans
-from speaker_canon import canonicalize
+from speaker_canon import canonicalize, remember_in_roster, resolve_against_roster
 
 # Cap for single-speaker mode: entries at this size pass through
 # group_into_chunks (MAX_CHUNK_CHARS=500) as-is without further splitting.
@@ -50,6 +50,137 @@ PROMPT_SCHEMA_MARKER = "span-labels-v1"
 # How much of a previous entry's text to show as continuity context. Context is
 # input, not output -- a snippet is enough and keeps the prompt cheap.
 CONTEXT_SNIPPET_CHARS = 120
+
+# Cap on how many character names build_context()'s roster block may list.
+# Previously uncapped: a real 976-chunk run reached 577 names, a ~7,400-char
+# block (~2,000 tokens) growing monotonically for the whole book and crowding
+# out the span payload it exists to support.
+#
+# This is PROMPT HYGIENE, not a fix for speaker-name drift -- verified: the
+# drift observed in that run happened at chunks 379/380/430/442, while the
+# roster block was still well under any cap, so a smaller roster would not
+# have prevented it (speaker_canon's roster resolution is what handles that).
+# The justification is simply that an unbounded, monotonically growing block
+# is a defect on any long book on any server.
+#
+# Policy: keep the MOST RECENTLY SPOKEN names (a backwards pass over the
+# previous entries that stops at the cap), then present them alphabetically.
+# Recency, not frequency: the roster's job is spelling continuity for the
+# current scene's cast, and a character who last spoke 400 chunks ago is not
+# the one about to be misspelled here; frequency would instead favour
+# book-wide protagonists, the names least at risk of drift. Deterministic
+# given the same entries. Default 50: larger than any realistic single-scene
+# cast, ~650 chars. Override via generation.max_context_roster_names.
+MAX_CONTEXT_ROSTER_NAMES = 50
+
+# --- Silent prompt-truncation tripwire -------------------------------------
+#
+# A local server whose serving context window is smaller than the prompt does
+# not error: it silently drops the overflow and answers from what is left. A
+# real 976-chunk run spent its entire second half in this state (prompt_tokens
+# pinned at exactly 2050 for 640 of 1,294 records -- Ollama's default
+# num_ctx=2048), and the run summary was green throughout: the retry path
+# quietly papered over it, firing 318 extra calls. Nothing detected it.
+#
+# Detection compares the reported prompt_tokens against a chars/4 estimate of
+# the prompt actually sent. Warning only -- never a hard failure, never a
+# change in control flow -- because the estimate is a heuristic.
+PROMPT_CHARS_PER_TOKEN = 4
+
+# Warn when the estimate exceeds reported prompt_tokens by more than this
+# factor. The false-alarm direction is one-sided and understood: text with a
+# HIGH token density (CJK source text tokenizes to far more than one token per
+# 4 chars) pushes prompt_tokens UP relative to the estimate and therefore can
+# never trip this. Only unusually LOW-density text could, so the factor leaves
+# a 60% margin below the English baseline before saying anything.
+SILENT_TRUNCATION_RATIO = 1.6
+
+# Flatline detector thresholds (see detect_flatlined_prompt_tokens). The
+# per-call ratio check above only fires once the prompt is far past the cap;
+# a prompt sitting just above the window is truncated just as silently but
+# looks unremarkable per call. Across a run it does not: prompt_tokens stops
+# tracking prompt size and pins to one value. That is the production
+# signature, and it is nearly free to check.
+_FLATLINE_MIN_SAMPLES = 20
+_FLATLINE_SHARE = 0.25
+_FLATLINE_CHAR_SPREAD = 0.25
+
+
+def estimate_prompt_tokens(text):
+    """Rough token count for an assembled prompt. Deliberately crude."""
+    return len(text or "") // PROMPT_CHARS_PER_TOKEN
+
+
+def looks_silently_truncated(prompt_chars, prompt_tokens):
+    """True when reported ``prompt_tokens`` is implausibly low for a prompt of
+    ``prompt_chars`` characters, i.e. the server likely truncated it."""
+    if not prompt_tokens or prompt_tokens <= 0 or not prompt_chars:
+        return False
+    return prompt_chars // PROMPT_CHARS_PER_TOKEN > SILENT_TRUNCATION_RATIO * prompt_tokens
+
+
+def detect_flatlined_prompt_tokens(samples):
+    """Spot a prompt_tokens flatline across a run. Returns ``(value, count,
+    total)`` when one dominant value covers a large share of calls despite the
+    prompts themselves varying substantially in size, else ``None``.
+
+    ``samples`` is an iterable of ``(prompt_chars, prompt_tokens)`` pairs.
+    """
+    pairs = [(c, t) for c, t in samples if t and c]
+    if len(pairs) < _FLATLINE_MIN_SAMPLES:
+        return None
+
+    counts = {}
+    for _, tokens in pairs:
+        counts[tokens] = counts.get(tokens, 0) + 1
+    value, count = max(counts.items(), key=lambda kv: (kv[1], -kv[0]))
+    if count < _FLATLINE_SHARE * len(pairs):
+        return None
+
+    # If the prompts that produced that value were all the same size, a
+    # repeated token count is simply correct, not evidence of a cap.
+    sizes = [c for c, t in pairs if t == value]
+    if max(sizes) - min(sizes) < _FLATLINE_CHAR_SPREAD * max(sizes):
+        return None
+
+    return value, count, len(pairs)
+
+
+def _print_silent_truncation_warning(chunk_num, total_chunks, prompt_chars, prompt_tokens):
+    """Loud, actionable warning. Diagnostic only; control flow is unchanged."""
+    print(f"  {'!' * 60}")
+    print(f"  PROMPT LIKELY TRUNCATED BY THE SERVER on chunk {chunk_num}/{total_chunks}: "
+          f"sent {prompt_chars} chars (~{prompt_chars // PROMPT_CHARS_PER_TOKEN} "
+          f"est. tokens) but the server reported prompt_tokens={prompt_tokens}.")
+    print("  The model is being asked to classify spans it was never shown, so labels")
+    print("  degrade and retries fire needlessly. Raise the SERVER's context window:")
+    print("    - Ollama: OLLAMA_CONTEXT_LENGTH=8192 (env), or set generation.num_ctx")
+    print("      in config.json, or bake num_ctx into the model's Modelfile")
+    print("    - llama.cpp / vLLM: raise -c / --max-model-len")
+    print("  Alternatively lower generation.chunk_size or "
+          "generation.max_context_roster_names.")
+    print(f"  {'!' * 60}")
+
+
+# Placeholder speaker labels the model invents when it cannot identify a
+# speaker, despite the prompt telling it to use NARRATOR. A production run
+# produced 307 such entries ("SPEAKER 1", "SPEAKER 2", "VOICE 3", ...).
+#
+# The pattern is deliberately NARROW and language-neutral: one token followed
+# by a bare number, which is what an enumerated placeholder always looks like
+# in any language. It carries no word list, because this pipeline processes
+# translated text and an English stoplist would be both wrong and unbounded --
+# the lexical cases (SOMEONE, UNKNOWN, bare pronouns) are handled prompt-side
+# in default_prompts.txt instead. A real character name ending in a bare
+# number is vanishingly rare; such a label falls back to NARRATOR, which
+# preserves the prose and costs only a voice assignment.
+_PLACEHOLDER_LABEL_RE = re.compile(r'^\S+\s*\d+$')
+
+
+def is_placeholder_speaker(name):
+    """True for enumerated placeholder labels such as "SPEAKER 1"/"VOICE3"."""
+    return bool(name) and bool(_PLACEHOLDER_LABEL_RE.match(name.strip()))
+
 
 # Where raw LLM responses are logged. Production default; the test suite points
 # ALEXANDRIA_LLM_LOG_DIR at a tempdir so fixture responses never pollute the
@@ -723,7 +854,7 @@ def _label_completeness(label):
     return score
 
 
-def resolve_span_labels(spans, labels, source=None):
+def resolve_span_labels(spans, labels, source=None, roster=None):
     """Resolve each span to (span, speaker, instruct) using the LLM's labels.
 
     A span is NARRATOR unless a label exists for its id AND that label says
@@ -736,8 +867,20 @@ def resolve_span_labels(spans, labels, source=None):
     ``fallback``: the model was never shown them, so a missing label is not a
     failure. ``labelled`` stays inclusive of them so callers may continue to
     rely on ``labelled + fallback == spans``.
+
+    ``roster`` is an optional roster index (see speaker_canon.remember_in_roster)
+    of speaker names already established EARLIER in this book. When given, an
+    accepted speaker whose roster key matches an established name is normalized
+    onto that established spelling -- so the observed "ABBE MARIGNAN" ->
+    "ABBEMARIGNAN" drift cannot fork one character into two roster entries.
+    Exact-key only (spellings differing solely in whitespace/hyphens/
+    apostrophes); similar-but-distinct names (JON/JOHN) are never merged. The caller's dict is NOT mutated: a local copy is extended as
+    the chunk resolves, so a spelling first seen mid-chunk participates in the
+    same selection rule as the rest of the book.
     """
     valid_ids = {span.id for span in spans}
+    # Local copy: never mutate the caller's roster index (see docstring).
+    roster_index = dict(roster) if roster else None
     by_id = {}
     discarded = 0
 
@@ -758,6 +901,7 @@ def resolve_span_labels(spans, labels, source=None):
     labelled = 0
     role_missing = 0
     whitespace = 0
+    placeholder_rejected = 0
 
     for span in spans:
         if source is not None and is_whitespace_span(span, source):
@@ -779,7 +923,17 @@ def resolve_span_labels(spans, labels, source=None):
             raw_speaker = label.get("speaker")
             canonical = canonicalize(raw_speaker) if isinstance(raw_speaker, str) else ""
 
-            if role == "dialogue" and canonical:
+            if role == "dialogue" and canonical and is_placeholder_speaker(canonical):
+                # An invented enumerated placeholder ("SPEAKER 1") is not a
+                # character; it would fragment the roster and claim its own
+                # voice. NARRATOR is the safe direction -- prose is untouched.
+                placeholder_rejected += 1
+            elif role == "dialogue" and canonical:
+                # Roster-aware acceptance point: resolve the spelling against
+                # names already established in this book, then establish this
+                # one for the rest of the chunk.
+                if roster_index is not None:
+                    canonical = remember_in_roster(roster_index, canonical)
                 speaker = canonical
             elif role not in ("dialogue", "narration") and canonical and canonical != NARRATOR:
                 # Contract says role decides. Honour it (NARRATOR is the safe
@@ -802,6 +956,7 @@ def resolve_span_labels(spans, labels, source=None):
         "whitespace": whitespace,
         "discarded": discarded,
         "role_missing": role_missing,
+        "placeholder_rejected": placeholder_rejected,
     }
 
 
@@ -943,13 +1098,20 @@ def split_into_chunks(text, max_size=3000):
 
     return chunks
 
-def build_context(chunk_num, total_chunks, previous_entries=None):
+def build_context(chunk_num, total_chunks, previous_entries=None,
+                  max_roster_names=None):
     """Positional note + speaker roster + a short tail of previous entries.
 
     Context is INPUT, not output: a truncated snippet of each recent entry is
     enough for tone/roster continuity and keeps the prompt cheap now that
     narration entries can be long.
+
+    The roster block is capped at ``max_roster_names`` (default
+    MAX_CONTEXT_ROSTER_NAMES) most-recently-spoken names, and says so when it
+    truncates, so the model never infers the list is the book's full cast.
     """
+    if max_roster_names is None:
+        max_roster_names = MAX_CONTEXT_ROSTER_NAMES
     context_parts = []
 
     if chunk_num == 1:
@@ -960,13 +1122,35 @@ def build_context(chunk_num, total_chunks, previous_entries=None):
         context_parts.append(f"(Part {chunk_num} of {total_chunks})")
 
     if previous_entries and len(previous_entries) > 0:
-        # Build character roster for name consistency across chunks
-        characters_seen = sorted(set(
-            entry.get("speaker", "") for entry in previous_entries
-            if entry.get("speaker", "") and entry.get("speaker", "") != "NARRATOR"
-        ))
+        # Build character roster for name consistency across chunks. Walk
+        # backwards and STOP at the cap, so this stays O(cap) rather than
+        # rescanning the whole book every chunk; the names kept are therefore
+        # the most recently spoken ones (see MAX_CONTEXT_ROSTER_NAMES).
+        limit = max_roster_names if max_roster_names is not None else MAX_CONTEXT_ROSTER_NAMES
+        recent = []
+        seen = set()
+        truncated_roster = False
+        for entry in reversed(previous_entries):
+            speaker = entry.get("speaker", "")
+            if not speaker or speaker == NARRATOR or speaker in seen:
+                continue
+            if limit is not None and limit >= 0 and len(recent) >= limit:
+                # There is at least one older name we are not showing. Stopping
+                # here is why the header says "most recent N" and not
+                # "N of M" -- the total is deliberately not computed.
+                truncated_roster = True
+                break
+            seen.add(speaker)
+            recent.append(speaker)
+
+        characters_seen = sorted(recent)
+
         if characters_seen:
-            context_parts.append(f"Characters in this book: {', '.join(characters_seen)}")
+            # Say when the list is partial, so the model does not infer it is
+            # the book's complete cast.
+            header = (f"Characters in this book (most recent {len(characters_seen)})"
+                      if truncated_roster else "Characters in this book")
+            context_parts.append(f"{header}: {', '.join(characters_seen)}")
 
         # Include last few entries so the model can maintain style and tone continuity
         tail = previous_entries[-3:]
@@ -983,12 +1167,22 @@ def build_context(chunk_num, total_chunks, previous_entries=None):
     return "\n".join(context_parts)
 
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None):
     """Classify one chunk's spans and rebuild its script entries verbatim.
 
     Returns ``(entries, stats)``. ``stats`` reports span counts and whether the
     chunk degraded; ``entries`` ALWAYS reproduces the chunk byte-for-byte, even
     when the LLM failed outright (the whole chunk then becomes NARRATOR).
+
+    ``roster`` (optional, trailing keyword so existing callers/tests are
+    unaffected) is a roster index of speaker names established by previous
+    chunks; see resolve_span_labels.
+
+    ``num_ctx``, when set, asks the server for that serving context window via
+    ``extra_body={"options": {...}}`` (Ollama's documented option bag). It is
+    BEST EFFORT: a server that does not understand the key ignores it, which
+    is why the silent-truncation detection below is the part that is actually
+    guaranteed to work.
     """
     # Use provided prompts or fall back to defaults
     sys_prompt = system_prompt or DEFAULT_SYSTEM_PROMPT
@@ -999,8 +1193,10 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
     if not spans:
         return [], {"spans": 0, "labelled": 0, "fallback": 0, "whitespace": 0,
-                    "discarded": 0, "role_missing": 0, "degraded": False,
-                    "reason": None, "recovery": None}
+                    "discarded": 0, "role_missing": 0, "placeholder_rejected": 0,
+                    "degraded": False, "reason": None, "recovery": None,
+                    "prompt_chars": 0, "prompt_tokens": None,
+                    "prompt_truncation_events": 0}
 
     if not visible_spans(spans, chunk):
         # Nothing audible to classify (a chunk of pure whitespace). Resolve
@@ -1009,10 +1205,13 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
         entries = build_entries(resolved, chunk)
         _assert_chunk_verbatim(entries, chunk, chunk_num)
         stats.update({"spans": len(spans), "degraded": False,
-                      "reason": None, "recovery": None})
+                      "reason": None, "recovery": None,
+                      "prompt_chars": 0, "prompt_tokens": None,
+                      "prompt_truncation_events": 0})
         return entries, stats
 
-    context = build_context(chunk_num, total_chunks, previous_entries)
+    context = build_context(chunk_num, total_chunks, previous_entries,
+                            max_roster_names=max_context_roster_names)
     base_prompt = usr_template.format(context=context, chunk=build_span_payload(spans, chunk))
 
     # Labels accumulate ACROSS attempts, filling blanks only (see _merge_label),
@@ -1025,6 +1224,9 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     truncated = False
     reason = None
     retry_nudge = ""
+    prompt_chars = 0
+    prompt_tokens = None
+    prompt_truncation_events = 0
 
     for attempt in range(max_retries + 1):
         try:
@@ -1043,6 +1245,10 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                         "top_k": top_k if top_k else None,
                         "min_p": min_p if min_p else None,
                         "banned_tokens": banned_tokens if banned_tokens else None,
+                        # Best-effort context-window request. Omitted entirely
+                        # when unconfigured, so a request is byte-identical to
+                        # before for anyone who does not set generation.num_ctx.
+                        "options": {"num_ctx": num_ctx} if num_ctx else None,
                     }.items() if v is not None
                 }
             )
@@ -1051,6 +1257,11 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             text = choice.message.content.strip()
             finish_reason = choice.finish_reason
             usage = getattr(response, 'usage', None)
+
+            # Size of what we actually sent, for the silent-truncation
+            # tripwire and for the forensic log.
+            prompt_chars = len(sys_prompt) + len(base_prompt) + len(retry_nudge)
+            prompt_tokens = getattr(usage, 'prompt_tokens', None) if usage else None
 
             # Log raw response for debugging
             log_dir = llm_log_dir()
@@ -1069,6 +1280,11 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             if usage:
                 print(f" | tokens: prompt={getattr(usage, 'prompt_tokens', '?')} completion={getattr(usage, 'completion_tokens', '?')}", end="")
             print()
+
+            if looks_silently_truncated(prompt_chars, prompt_tokens):
+                prompt_truncation_events += 1
+                _print_silent_truncation_warning(
+                    chunk_num, total_chunks, prompt_chars, prompt_tokens)
 
             truncated = finish_reason == "length"
             if truncated:
@@ -1141,7 +1357,8 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     # Reassemble regardless of what came back. Unlabelled spans -> NARRATOR,
     # so a failure costs labels, never prose. Phantom ids stay in the merged map
     # on purpose: resolve_span_labels discards and counts them (once each).
-    resolved, stats = resolve_span_labels(spans, list(merged_labels.values()), source=chunk)
+    resolved, stats = resolve_span_labels(
+        spans, list(merged_labels.values()), source=chunk, roster=roster)
     entries = build_entries(resolved, chunk)
     _assert_chunk_verbatim(entries, chunk, chunk_num)
 
@@ -1161,6 +1378,9 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                   "role=dialogue")
 
     stats["spans"] = len(spans)
+    stats["prompt_chars"] = prompt_chars
+    stats["prompt_tokens"] = prompt_tokens
+    stats["prompt_truncation_events"] = prompt_truncation_events
     stats["recovery"] = recovery
     stats["degraded"] = reason is not None
     stats["reason"] = reason
@@ -1170,6 +1390,9 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     if stats["role_missing"]:
         print(f"  {stats['role_missing']} label(s) named a speaker without role=\"dialogue\" "
               "-- narrated instead (schema violation by the model)")
+    if stats["placeholder_rejected"]:
+        print(f"  Rejected {stats['placeholder_rejected']} invented placeholder speaker "
+              "label(s) (e.g. \"SPEAKER 1\") -- narrated instead")
 
     if stats["degraded"]:
         print(f"  {'!' * 60}")
@@ -1290,10 +1513,18 @@ def main():
     min_p = generation_config.get("min_p", 0)
     presence_penalty = generation_config.get("presence_penalty", 0.0)
     banned_tokens = generation_config.get("banned_tokens", [])
+    max_context_roster_names = generation_config.get(
+        "max_context_roster_names", MAX_CONTEXT_ROSTER_NAMES)
+    # Optional, best-effort serving-context-window request. Left as None when
+    # unset so the outgoing request is unchanged for existing users.
+    num_ctx = generation_config.get("num_ctx")
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
     print(f"Chunk size: {chunk_size} chars, Max tokens: {max_tokens}")
+    if num_ctx:
+        print(f"Requesting server context window (num_ctx): {num_ctx} "
+              "(best effort -- ignored by servers that do not support it)")
     if banned_tokens:
         print(f"Banned tokens: {banned_tokens}")
 
@@ -1310,9 +1541,17 @@ def main():
     print(f"Split into {total_chunks} chunks at paragraph/sentence boundaries")
 
     all_entries = []
+    # Roster index of speaker spellings established so far, threaded into every
+    # chunk so a later spelling variant is snapped onto the established name
+    # (speaker_canon.remember_in_roster): of two spellings that differ only in
+    # their boundary marks, the more-punctuated one wins, order-independently.
+    roster_index = {}
     degraded_chunks = []
     total_spans = 0
     total_fallback = 0
+    total_placeholders = 0
+    truncation_events = 0
+    prompt_samples = []
 
     for i, chunk in enumerate(chunks, 1):
         print(f"Processing chunk {i}/{total_chunks} ({len(chunk)} chars)...")
@@ -1329,11 +1568,22 @@ def main():
             top_k=top_k,
             min_p=min_p,
             presence_penalty=presence_penalty,
-            banned_tokens=banned_tokens
+            banned_tokens=banned_tokens,
+            roster=roster_index,
+            max_context_roster_names=max_context_roster_names,
+            num_ctx=num_ctx,
         )
         all_entries.extend(entries)
+        for entry in entries:
+            speaker = entry.get("speaker")
+            if speaker and speaker != NARRATOR:
+                remember_in_roster(roster_index, speaker)
         total_spans += stats["spans"]
         total_fallback += stats["fallback"]
+        total_placeholders += stats.get("placeholder_rejected", 0)
+        truncation_events += stats.get("prompt_truncation_events", 0)
+        if stats.get("prompt_tokens"):
+            prompt_samples.append((stats.get("prompt_chars", 0), stats["prompt_tokens"]))
         if stats["degraded"]:
             degraded_chunks.append((i, stats["reason"]))
 
@@ -1353,6 +1603,20 @@ def main():
     print(f"  Chunks degraded:         {len(degraded_chunks)}")
     print(f"  Spans total:             {total_spans}")
     print(f"  Spans fallback-labelled: {total_fallback} (read by NARRATOR)")
+    print(f"  Placeholder labels rejected: {total_placeholders}")
+    print(f"  Prompt-truncation warnings: {truncation_events}")
+    flatline = detect_flatlined_prompt_tokens(prompt_samples)
+    if flatline:
+        value, count, total = flatline
+        print(f"  {'!' * 58}")
+        print(f"  SERVER CONTEXT WINDOW SUSPECT: prompt_tokens was exactly {value} on "
+              f"{count} of {total} calls,")
+        print("  despite the prompts varying substantially in size -- the hallmark of a")
+        print("  server silently truncating prompts to a fixed window. The book was")
+        print("  classified from partial prompts. Raise the server's context length")
+        print("  (e.g. OLLAMA_CONTEXT_LENGTH, or generation.num_ctx in config.json)")
+        print("  and re-run for materially better speaker attribution.")
+        print(f"  {'!' * 58}")
     if degraded_chunks:
         print("  Degradation events:")
         for chunk_num, reason in degraded_chunks:

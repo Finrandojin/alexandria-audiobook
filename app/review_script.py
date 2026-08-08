@@ -6,7 +6,7 @@ import argparse
 from openai import OpenAI
 from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
-from speaker_canon import canonicalize
+from speaker_canon import canonicalize, remember_in_roster, resolve_against_roster
 
 # Marker embedded in both halves of review_prompts.txt (see the file itself)
 # identifying prompts written for the current positional-overlay review
@@ -64,7 +64,25 @@ def _canonicalize_speakers(entries):
     return result
 
 
-def apply_positional_overlay(batch, corrected):
+def build_script_roster(entries):
+    """Roster index of the speaker spellings already present in a script.
+
+    Spelling collisions are settled by remember_in_roster's rule (most
+    boundary marks wins, ties to the incumbent), which is
+    order-independent -- so this roster and generation's agree even though
+    they are built in different orders. Pass the result to
+    apply_positional_overlay so a reviewer's spelling variant is snapped back
+    onto the established name instead of forking the roster.
+    """
+    index = {}
+    for entry in entries or ():
+        speaker = entry.get("speaker") if isinstance(entry, dict) else None
+        if speaker:
+            remember_in_roster(index, speaker)
+    return index
+
+
+def apply_positional_overlay(batch, corrected, roster=None):
     """Overlay LLM speaker/instruct corrections onto the ORIGINAL batch text.
 
     This is the hard, structural guarantee against text damage: "text" is
@@ -95,8 +113,16 @@ def apply_positional_overlay(batch, corrected):
         # the voices roster and mute it at render time. Fall back to the
         # original (canonicalized) speaker whenever the correction is empty,
         # not only when the "speaker" key is absent entirely.
-        corrected_speaker = canonicalize(corr.get("speaker") or "")
-        new_entry["speaker"] = corrected_speaker or canonicalize(orig.get("speaker", ""))
+        #
+        # `roster` (optional, see build_script_roster) additionally snaps a
+        # correction onto an established spelling from the same script when
+        # the two differ only in their boundary marks -- whitespace, hyphens,
+        # apostrophes ("ABBEMARIGNAN" -> "ABBE MARIGNAN", "OBRIEN" ->
+        # "O'BRIEN"). Exact roster-key equality only -- similar-but-distinct
+        # names (JON/JOHN, ELLA/BELLA) are never merged.
+        corrected_speaker = resolve_against_roster(corr.get("speaker") or "", roster or {})
+        new_entry["speaker"] = corrected_speaker or resolve_against_roster(
+            orig.get("speaker", ""), roster or {})
 
         # Instruct: only accept a non-empty string from the LLM. None, a
         # list/dict, or a whitespace-only string is rejected in favor of the
@@ -512,6 +538,11 @@ def main():
 
     print(f"Loaded {len(entries)} script entries for review")
 
+    # Established speaker spellings for this script, built once. Threaded
+    # into every apply_positional_overlay() call so a reviewer's spelling
+    # variant is snapped back onto the name the script already uses.
+    script_roster = build_script_roster(entries)
+
     # Load source text if provided (mode 2 prep)
     source_text = None
     if args.source:
@@ -649,7 +680,7 @@ def main():
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            accepted = apply_positional_overlay(batch, corrected)
+            accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
 
             # Safety net only: the positional overlay always takes "text"
             # from the original batch, so this can never actually fail. If
@@ -720,7 +751,7 @@ def main():
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            accepted = apply_positional_overlay(batch, corrected)
+            accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
 
             # Safety net only: the positional overlay always takes "text"
             # from the original batch, so this can never actually fail. If

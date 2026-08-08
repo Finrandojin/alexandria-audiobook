@@ -10,6 +10,14 @@ Two tiers:
   single raw speaker label into a canonical UPPERCASE form. Safe to apply
   everywhere a speaker label is produced or compared.
 
+  Tier 1b (roster_key / remember_in_roster / resolve_against_roster):
+  roster-AWARE spelling resolution, kept strictly separate from canonicalize()
+  so the latter stays pure. It unifies two spellings ONLY when they are equal
+  after removing every boundary mark -- whitespace, hyphens, apostrophes --
+  ("ABBEMARIGNAN" -> "ABBE MARIGNAN", "OBRIEN" -> "O'BRIEN"), keeping the
+  more-punctuated form. Exact key equality, never fuzzy similarity, so names
+  that merely look alike are never merged.
+
   Tier 2 (suggest_aliases): advisory-only fuzzy matching across an already-
   canonicalized roster. It NEVER merges or mutates the roster; it only
   returns suggestion records for a human (via the Voices UI) to accept or
@@ -196,6 +204,134 @@ def canonicalize(raw: str) -> str:
         return "NARRATOR"
 
     return canonical
+
+
+# ---------------------------------------------------------------------------
+# Tier 1b: roster-aware spelling resolution
+#
+# canonicalize() is, and must remain, a PURE function of one string: it is
+# roster-free and idempotent, and suggest_aliases() depends on that for
+# comparison. Roster awareness therefore lives here, in separate functions
+# that take the roster explicitly.
+#
+# Why this exists: an LLM was observed emitting "ABBEMARIGNAN" one chunk after
+# correctly emitting "ABBE MARIGNAN", with the correct spelling right there in
+# its context. Ordinary spelling drift. canonicalize() has no space-deleting
+# path (correctly -- it must never invent or delete word boundaries), so both
+# forms otherwise survive as two roster entries, two voice assignments, and two
+# voices for one character.
+#
+# CONTRACT -- never auto-merge similar names. JON/JOHN and ELLA/BELLA are
+# different people and must stay distinct roster entries. The ONLY unification
+# permitted is EXACT equality on a derived key: no threshold, no similarity
+# score, nothing fuzzy. The key is the canonical form with every
+# non-alphanumeric character removed, so two spellings unify iff they have
+# identical letters and digits in identical order and differ ONLY in their
+# boundary marks -- spaces, hyphens and apostrophes:
+#
+#     ABBE MARIGNAN / ABBEMARIGNAN      -> ABBEMARIGNAN      (unified)
+#     O'BRIEN       / OBRIEN            -> OBRIEN            (unified)
+#     JEAN-LUC      / JEAN LUC          -> JEANLUC           (unified)
+#     JON / JOHN, ELLA / BELLA          -> different keys    (NOT unified)
+#
+# One key rather than a whitespace-tier-then-punctuation-tier lookup: the
+# two-tier version buys nothing here (a narrower whitespace-only match is
+# always also a punctuation match, so precedence never actually differs on
+# real data) and costs a second lookup plus a precedence rule to explain.
+#
+# MEASURED on the real 578-label production roster: the whitespace-only key
+# produced 2 collision families, and this wider key produces exactly the same
+# 2 -- both of them the known ABBE MARIGNAN pair ("ABBE MARIGNAN" and
+# "ABBE MARIGNAN'S NIECE"). Adding punctuation to the key introduced ZERO new
+# collisions on real data. test_real_roster_key_introduces_no_new_collisions
+# in test_speaker_canon.py pins that property so the key cannot silently widen.
+#
+# The residual risk this DOES carry: names where a boundary mark is a real
+# morpheme boundary rather than a typo -- transliterated Korean/Chinese/
+# Japanese short names such as LI NA vs LINA or O KIN vs OKIN would be unified
+# even if they are two people. Judged acceptable because the Voices UI's alias
+# mechanism is the escape hatch, though an imperfect one: aliasing can merge
+# two roster entries, it cannot split one that was wrongly merged here.
+#
+# SELECTION RULE -- MOST BOUNDARY MARKS WINS; ties go to the incumbent (the
+# first spelling seen). Two spellings sharing a key have identical letters and
+# digits, so the LONGER string is exactly the one carrying more boundary marks
+# -- that is the whole rule, and it is why the comparison below is a length
+# comparison. "ABBE MARIGNAN" beats "ABBEMARIGNAN", "O'BRIEN" beats "OBRIEN",
+# regardless of arrival order. Rationale: LLMs drop boundary marks far more
+# often than they insert them, so the more-punctuated form is the more likely
+# original. It picks correctly for both observed collision families.
+#
+# Equal-length variants are genuine ties -- "JEAN-LUC" vs "JEAN LUC",
+# "MARY-ANNE" vs "MARY ANNE" -- where neither form is more likely correct than
+# the other. The incumbent keeps the slot: deterministic, and the outcome
+# depends only on which spelling the roster met first.
+#
+# Critically, this rule is ORDER-INDEPENDENT wherever the lengths differ.
+# First-seen-wins was not: it made the canonical spelling depend on arrival
+# order, so one malformed first sighting would become canonical for the rest
+# of the book AND be fed back into the prompt's roster block, and generation
+# (chunk order) and review (entry order) could genuinely disagree about who
+# was "first".
+# ---------------------------------------------------------------------------
+
+# Everything that is not a letter or a digit. Applied to an ALREADY canonical
+# name, where the only survivors are spaces, hyphens and apostrophes.
+_KEY_STRIP_RE = re.compile(r"[^A-Z0-9]")
+
+
+def roster_key(name: str) -> str:
+    """Derived comparison key for a speaker name: the canonical form with all
+    boundary marks (whitespace, hyphens, apostrophes) removed.
+
+    Lossy, and used ONLY for exact-equality lookup -- never displayed, never
+    stored as a speaker label. Two names share a key iff they differ solely in
+    where their boundary marks fall.
+    """
+    return _KEY_STRIP_RE.sub("", canonicalize(name))
+
+
+def remember_in_roster(index: dict, name: str) -> str:
+    """Record ``name`` in a roster index and return the winning spelling.
+
+    ``index`` is a plain ``{roster_key: established_spelling}`` dict; callers
+    create it as ``{}`` and feed it back on every label, so each lookup is
+    O(1). It is mutated in place.
+
+    The winner is the spelling carrying the most boundary marks, which -- since
+    colliding spellings share every letter and digit -- is simply the longer
+    string; equal-length ties keep the incumbent. See the section comment above
+    for why this rule, and not first-seen-wins, is the safe one. Returns the
+    winning spelling, or "" for a name that canonicalizes to nothing.
+    """
+    canonical = canonicalize(name)
+    if not canonical:
+        return ""
+
+    key = _KEY_STRIP_RE.sub("", canonical)
+    established = index.get(key)
+    if established is None:
+        index[key] = canonical
+        return canonical
+
+    if len(canonical) > len(established):
+        index[key] = canonical
+        return canonical
+    return established
+
+
+def resolve_against_roster(raw: str, index: dict) -> str:
+    """Canonicalize ``raw`` and snap it onto the established spelling that
+    differs from it only in its boundary marks, if the roster has one.
+
+    Read-only counterpart to ``remember_in_roster``: ``index`` is never
+    mutated, and a name the roster has not seen simply passes through as
+    ``canonicalize(raw)``. Idempotent.
+    """
+    canonical = canonicalize(raw)
+    if not canonical:
+        return ""
+    return (index or {}).get(_KEY_STRIP_RE.sub("", canonical)) or canonical
 
 
 # ---------------------------------------------------------------------------

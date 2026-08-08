@@ -66,6 +66,12 @@ from generate_script import (  # noqa: E402
     salvage_label_entries,
     salvage_markdown_labels,
     select_prompt,
+    build_context,
+    MAX_CONTEXT_ROSTER_NAMES,
+    detect_flatlined_prompt_tokens,
+    estimate_prompt_tokens,
+    is_placeholder_speaker,
+    looks_silently_truncated,
     strip_thinking_tags,
 )
 
@@ -197,9 +203,13 @@ class _FakeChoice:
 class FakeResponse:
     """Minimal stand-in for an OpenAI ChatCompletion response."""
 
-    def __init__(self, content, finish_reason="stop"):
+    def __init__(self, content, finish_reason="stop", prompt_tokens=None):
         self.choices = [_FakeChoice(content, finish_reason)]
-        self.usage = None
+        # usage is None unless a test cares: the silent-truncation tripwire
+        # reads usage.prompt_tokens and must stay quiet when it is absent.
+        self.usage = (types.SimpleNamespace(prompt_tokens=prompt_tokens,
+                                            completion_tokens=0)
+                      if prompt_tokens is not None else None)
 
 
 class _FakeCompletions:
@@ -1332,6 +1342,271 @@ class TestVerbatimAcrossAllFixtures(unittest.TestCase):
                     entries, stats, _ = run_chunk(client, chunk)
                     self.assertEqual(joined(entries), chunk)
                     self.assertEqual(stats["labelled"] + stats["fallback"], stats["spans"])
+
+
+
+# --------------------------------------------------------------------------
+# F15: roster-aware spelling resolution + bounded roster context
+# --------------------------------------------------------------------------
+
+class TestRosterAwareSpellingAtGenerationSeam(unittest.TestCase):
+    """process_chunk/resolve_span_labels accept labels THROUGH the roster.
+
+    Exact whitespace-stripped key equality only; never fuzzy merging.
+    """
+
+    def _chunk_with_speaker(self, name):
+        chunk = '"I am leaving," he said.'
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: name))))
+        return chunk, client
+
+    def test_drifted_spelling_snaps_onto_established_name(self):
+        chunk, client = self._chunk_with_speaker("ABBEMARIGNAN")
+        roster = {"ABBEMARIGNAN": "ABBE MARIGNAN"}
+        entries, _, _ = run_chunk(client, chunk, roster=roster)
+        self.assertEqual(joined(entries), chunk)
+        self.assertIn("ABBE MARIGNAN", [e["speaker"] for e in entries])
+        # Caller's roster index must not be mutated by the chunk.
+        self.assertEqual(roster, {"ABBEMARIGNAN": "ABBE MARIGNAN"})
+
+    def test_more_segmented_spelling_wins_even_if_seen_second(self):
+        # Order-independence: the roster already holds the malformed form, and
+        # the well-formed one arriving later still wins (and is promoted).
+        chunk, client = self._chunk_with_speaker("ABBE MARIGNAN")
+        roster = {"ABBEMARIGNAN": "ABBEMARIGNAN"}
+        entries, _, _ = run_chunk(client, chunk, roster=roster)
+        self.assertIn("ABBE MARIGNAN", [e["speaker"] for e in entries])
+        # ... without mutating the caller's index.
+        self.assertEqual(roster, {"ABBEMARIGNAN": "ABBEMARIGNAN"})
+
+    def test_similar_names_are_never_merged(self):
+        for established, incoming in (("JON", "JOHN"), ("ELLA", "BELLA")):
+            with self.subTest(established=established):
+                chunk, client = self._chunk_with_speaker(incoming)
+                entries, _, _ = run_chunk(
+                    client, chunk, roster={established: established})
+                self.assertIn(incoming, [e["speaker"] for e in entries])
+
+    def test_no_roster_is_backward_compatible(self):
+        chunk, client = self._chunk_with_speaker("ABBEMARIGNAN")
+        entries, _, _ = run_chunk(client, chunk)
+        self.assertEqual(joined(entries), chunk)
+        self.assertIn("ABBEMARIGNAN", [e["speaker"] for e in entries])
+
+
+class TestBoundedRosterContext(unittest.TestCase):
+    """build_context()'s roster block is capped, configurable and honest."""
+
+    @staticmethod
+    def _entries(count):
+        return [{"speaker": f"CHAR{i:03d}", "text": "x", "instruct": "y"}
+                for i in range(count)]
+
+    @staticmethod
+    def _roster_line(context):
+        for line in context.splitlines():
+            if line.startswith("Characters in this book"):
+                return line
+        return None
+
+    def _names(self, context):
+        line = self._roster_line(context)
+        return [n.strip() for n in line.split(":", 1)[1].split(",")]
+
+    def test_small_roster_is_unchanged_and_unannotated(self):
+        context = build_context(2, 10, self._entries(3))
+        line = self._roster_line(context)
+        self.assertEqual(line, "Characters in this book: CHAR000, CHAR001, CHAR002")
+
+    def test_roster_is_capped_at_the_default_limit(self):
+        entries = self._entries(600)
+        names = self._names(build_context(2, 10, entries))
+        self.assertEqual(len(names), MAX_CONTEXT_ROSTER_NAMES)
+
+    def test_cap_keeps_the_most_recent_names(self):
+        entries = self._entries(600)
+        names = self._names(build_context(2, 10, entries))
+        # Most recently spoken = the highest-numbered CHARs.
+        self.assertEqual(sorted(names), sorted(
+            [f"CHAR{i:03d}" for i in range(600 - MAX_CONTEXT_ROSTER_NAMES, 600)]))
+
+    def test_truncation_is_announced_only_when_it_happened(self):
+        truncated = self._roster_line(build_context(2, 10, self._entries(600)))
+        self.assertIn(f"most recent {MAX_CONTEXT_ROSTER_NAMES}", truncated)
+        # No "of M": computing the total would mean scanning every entry.
+        self.assertNotIn("of 600", truncated)
+        untouched = self._roster_line(build_context(2, 10, self._entries(5)))
+        self.assertNotIn("most recent", untouched)
+
+    def test_cap_is_configurable(self):
+        entries = self._entries(600)
+        self.assertEqual(len(self._names(build_context(2, 10, entries,
+                                                       max_roster_names=5))), 5)
+        self.assertEqual(len(self._names(build_context(2, 10, entries,
+                                                       max_roster_names=200))), 200)
+
+    def test_deterministic_across_runs(self):
+        entries = self._entries(600)
+        first = build_context(2, 10, entries)
+        for _ in range(3):
+            self.assertEqual(build_context(2, 10, entries), first)
+
+    def test_narrator_excluded_and_prompt_stays_bounded(self):
+        entries = self._entries(600) + [{"speaker": NARRATOR, "text": "x", "instruct": "y"}]
+        line = self._roster_line(build_context(2, 10, entries))
+        self.assertNotIn(NARRATOR, line)
+        self.assertLess(len(line), 1500)
+
+
+
+
+class TestSilentPromptTruncationTripwire(unittest.TestCase):
+    """A server that silently truncates the prompt must not go unnoticed.
+
+    Production: prompt_tokens pinned at exactly 2050 for 640 of 1,294 records
+    (Ollama's default num_ctx=2048), with a green summary throughout.
+    """
+
+    def test_ratio_check_fires_when_tokens_are_implausibly_low(self):
+        # 40,000 chars is ~10,000 tokens of English; 2,050 reported means the
+        # server kept about a fifth of it.
+        self.assertTrue(looks_silently_truncated(40000, 2050))
+
+    def test_ratio_check_silent_for_a_normal_ratio(self):
+        self.assertFalse(looks_silently_truncated(8000, 2000))
+        self.assertFalse(looks_silently_truncated(8000, 1300))
+
+    def test_no_false_alarm_on_high_token_density_text(self):
+        # CJK source text tokenizes to far MORE tokens per char, which can only
+        # push prompt_tokens up relative to the chars/4 estimate.
+        cjk_chars = 4000
+        for prompt_tokens in (cjk_chars, cjk_chars * 2, cjk_chars // 2):
+            with self.subTest(prompt_tokens=prompt_tokens):
+                self.assertFalse(looks_silently_truncated(cjk_chars, prompt_tokens))
+
+    def test_missing_or_zero_usage_is_never_a_warning(self):
+        self.assertFalse(looks_silently_truncated(40000, None))
+        self.assertFalse(looks_silently_truncated(40000, 0))
+        self.assertFalse(looks_silently_truncated(0, 10))
+
+    def test_estimate_is_chars_over_four(self):
+        self.assertEqual(estimate_prompt_tokens("x" * 4000), 1000)
+        self.assertEqual(estimate_prompt_tokens(""), 0)
+        self.assertEqual(estimate_prompt_tokens(None), 0)
+
+    def test_warning_fires_through_process_chunk_and_is_counted(self):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(labels_for(chunk)), prompt_tokens=1))
+        entries, stats, output = run_chunk(client, chunk)
+        self.assertEqual(joined(entries), chunk)          # prose still intact
+        self.assertIn("PROMPT LIKELY TRUNCATED", output)
+        self.assertIn("OLLAMA_CONTEXT_LENGTH", output)
+        self.assertEqual(stats["prompt_truncation_events"], 1)
+        self.assertGreater(stats["prompt_chars"], 0)
+        # Diagnostic only -- it must not by itself degrade the chunk.
+        self.assertFalse(stats["degraded"])
+
+    def test_no_warning_for_a_healthy_call(self):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(labels_for(chunk)), prompt_tokens=100000))
+        _, stats, output = run_chunk(client, chunk)
+        self.assertNotIn("PROMPT LIKELY TRUNCATED", output)
+        self.assertEqual(stats["prompt_truncation_events"], 0)
+
+    def test_no_warning_when_the_server_reports_no_usage(self):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(labels_for(chunk))))
+        _, stats, output = run_chunk(client, chunk)
+        self.assertNotIn("PROMPT LIKELY TRUNCATED", output)
+        self.assertEqual(stats["prompt_truncation_events"], 0)
+        self.assertIsNone(stats["prompt_tokens"])
+
+
+class TestFlatlineDetection(unittest.TestCase):
+    """The run-level detector for the exact production signature."""
+
+    def test_flatline_detected_when_tokens_pin_despite_varying_prompts(self):
+        samples = [(5000 + 200 * i, 2050) for i in range(30)]
+        result = detect_flatlined_prompt_tokens(samples)
+        self.assertIsNotNone(result)
+        value, count, total = result
+        self.assertEqual((value, count, total), (2050, 30, 30))
+
+    def test_no_flatline_when_tokens_track_prompt_size(self):
+        samples = [(4000 + 100 * i, 1000 + 25 * i) for i in range(40)]
+        self.assertIsNone(detect_flatlined_prompt_tokens(samples))
+
+    def test_no_flatline_when_the_prompts_were_all_the_same_size(self):
+        # Identical prompts SHOULD produce identical token counts.
+        samples = [(8000, 2000) for _ in range(40)]
+        self.assertIsNone(detect_flatlined_prompt_tokens(samples))
+
+    def test_too_few_samples_is_never_a_verdict(self):
+        self.assertIsNone(detect_flatlined_prompt_tokens([(5000 + 200 * i, 2050)
+                                                          for i in range(10)]))
+        self.assertIsNone(detect_flatlined_prompt_tokens([]))
+
+
+class TestNumCtxRequest(unittest.TestCase):
+    """Best-effort serving-context-window request."""
+
+    def _extra_body(self, **kwargs):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(labels_for(chunk))))
+        run_chunk(client, chunk, **kwargs)
+        return client.completions.last_kwargs.get("extra_body", {})
+
+    def test_options_omitted_entirely_when_unconfigured(self):
+        # Users who never set generation.num_ctx must send an unchanged request.
+        self.assertNotIn("options", self._extra_body())
+
+    def test_options_present_when_configured(self):
+        self.assertEqual(self._extra_body(num_ctx=8192), {"options": {"num_ctx": 8192}})
+
+
+class TestPlaceholderLabelRejection(unittest.TestCase):
+    """Invented enumerated placeholders are narrated, not voiced.
+
+    A production run emitted 307 such entries. The pattern is deliberately
+    language-neutral (one token + a bare number) and carries no word list.
+    """
+
+    def test_pattern_matches_enumerated_placeholders_only(self):
+        for name in ("SPEAKER 1", "SPEAKER 2", "SPEAKER1", "VOICE 3", "CHARACTER 12"):
+            with self.subTest(name=name):
+                self.assertTrue(is_placeholder_speaker(name))
+        for name in ("MARCUS", "ABBE MARIGNAN", "JEAN-LUC", "O'BRIEN", "NARRATOR",
+                     "HENRY VIII", "MARY ANNE SMITH", "", None):
+            with self.subTest(name=name):
+                self.assertFalse(is_placeholder_speaker(name))
+
+    def test_placeholder_label_is_narrated_and_counted(self):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "SPEAKER 1"))))
+        entries, stats, _ = run_chunk(client, chunk)
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual({e["speaker"] for e in entries}, {NARRATOR})
+        # STRAIGHT_QUOTES has two quoted spans; both placeholders are rejected.
+        self.assertEqual(stats["placeholder_rejected"], 2)
+
+    def test_real_name_is_untouched(self):
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCUS"))))
+        entries, stats, _ = run_chunk(client, chunk)
+        self.assertIn("MARCUS", [e["speaker"] for e in entries])
+        self.assertEqual(stats["placeholder_rejected"], 0)
+
+    def test_placeholder_never_enters_the_roster(self):
+        chunk = STRAIGHT_QUOTES
+        roster = {}
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "SPEAKER 2"))))
+        run_chunk(client, chunk, roster=roster)
+        self.assertEqual(roster, {})
+
 
 
 if __name__ == "__main__":

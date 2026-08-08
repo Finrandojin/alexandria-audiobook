@@ -1,10 +1,10 @@
 """Standalone tests for the speaker_canon wiring in app.py / review_script.py.
 
 Covers:
-  - app.build_voice_roster(): canonical, deduped, fragment-free roster
+  - build_voice_roster(): canonical, deduped, fragment-free roster
     construction from raw script entries; back-compat config lookup
     against non-canonical voice_config.json keys.
-  - app._canonical_roster_names() + GET /api/voices/alias_suggestions'
+  - _canonical_roster_names() + GET /api/voices/alias_suggestions'
     underlying helpers: the on-demand, split-out alias-suggestion path.
   - review_script._canonicalize_speakers(): canonicalizes "speaker" fields
     only, leaving "text" byte-identical.
@@ -17,7 +17,7 @@ field (measured on a real 589-speaker roster: ~52ms of an ~80ms request,
 suggest_aliases() at all -- it now returns a (roster_names, config_lookup)
 2-tuple. Alias suggestions are computed only on demand, via a new
 GET /api/voices/alias_suggestions endpoint backed by
-app._canonical_roster_names() + speaker_canon.suggest_aliases().
+_canonical_roster_names() + speaker_canon.suggest_aliases().
 
 Run directly:
     python app/test_canon_wiring.py
@@ -278,8 +278,68 @@ def test_review_canonicalizes_speaker_not_text():
     )
 
 
+
+# ---------------------------------------------------------------------------
+# F15: roster-aware spelling resolution in the voices roster
+# ---------------------------------------------------------------------------
+
+def test_voices_roster_consolidates_whitespace_drift():
+    script = [
+        {"speaker": "ABBE MARIGNAN", "text": "a"},
+        {"speaker": "NARRATOR", "text": "b"},
+        {"speaker": "ABBEMARIGNAN", "text": "c"},
+    ]
+    names, _ = build_voice_roster(script, {})
+    check("voices roster consolidates ABBEMARIGNAN onto first-seen ABBE MARIGNAN",
+          names == ["ABBE MARIGNAN", "NARRATOR"], detail=repr(names))
+
+
+def test_voices_roster_selection_is_order_independent():
+    forward = _canonical_roster_names([
+        {"speaker": "ABBE MARIGNAN", "text": "a"},
+        {"speaker": "ABBEMARIGNAN", "text": "b"},
+    ])
+    backward = _canonical_roster_names([
+        {"speaker": "ABBEMARIGNAN", "text": "a"},
+        {"speaker": "ABBE MARIGNAN", "text": "b"},
+    ])
+    check("voices roster picks the more-punctuated spelling in either order",
+          forward == backward == ["ABBE MARIGNAN"],
+          detail=f"{forward!r} vs {backward!r}")
+
+
+def test_voices_roster_unifies_punctuation_drift():
+    names = _canonical_roster_names([
+        {"speaker": "OBRIEN", "text": "a"},
+        {"speaker": "O'BRIEN", "text": "b"},
+        {"speaker": "OBRIAN", "text": "c"},
+    ])
+    check("O'BRIEN/OBRIEN unify; OBRIAN stays a separate character",
+          names == ["O'BRIEN", "OBRIAN"], detail=repr(names))
+
+
+def test_voices_roster_never_merges_similar_names():
+    script = [{"speaker": n, "text": "x"} for n in ("JON", "JOHN", "ELLA", "BELLA")]
+    names = _canonical_roster_names(script)
+    check("JON/JOHN/ELLA/BELLA stay four distinct roster entries",
+          names == ["BELLA", "ELLA", "JOHN", "JON"], detail=repr(names))
+
+
+def test_voices_config_lookup_survives_whitespace_drift():
+    script = [{"speaker": "ABBE MARIGNAN", "text": "a"}]
+    names, lookup = build_voice_roster(script, {"ABBEMARIGNAN": {"voice": "v1"}})
+    check("voice_config saved under a drifted spelling still resolves",
+          lookup.get("ABBE MARIGNAN") == {"voice": "v1"}, detail=repr(lookup))
+
+
+
 def main():
     tests = [
+        test_voices_roster_consolidates_whitespace_drift,
+        test_voices_roster_selection_is_order_independent,
+        test_voices_roster_unifies_punctuation_drift,
+        test_voices_roster_never_merges_similar_names,
+        test_voices_config_lookup_survives_whitespace_drift,
         test_roster_canonicalizes_and_dedupes,
         test_roster_handles_legacy_type_field_and_empty,
         test_config_backcompat_resolution,

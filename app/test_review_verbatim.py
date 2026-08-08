@@ -49,6 +49,7 @@ from review_script import (  # noqa: E402
     _rendered_len,
     _truncate_context_entry,
     _maybe_print_truncation_hint,
+    build_script_roster,
 )
 
 
@@ -653,8 +654,94 @@ def test_review_batch_char_budget_config_key_and_default():
     )
 
 
+
+# ---------------------------------------------------------------------------
+# F15: roster-aware spelling resolution at the review seam
+# ---------------------------------------------------------------------------
+
+def _overlay_speaker(original, correction, roster=None):
+    batch = [{"speaker": original, "text": "  Verbatim text. ", "instruct": "i"}]
+    corrected = [{"speaker": correction, "instruct": "i"}]
+    accepted = apply_positional_overlay(batch, corrected, roster=roster)
+    return accepted[0]
+
+
+def test_review_roster_snaps_drifted_spelling():
+    roster = build_script_roster([
+        {"speaker": "ABBE MARIGNAN"}, {"speaker": "NARRATOR"}])
+    entry = _overlay_speaker("NARRATOR", "ABBEMARIGNAN", roster)
+    check("review overlay snaps ABBEMARIGNAN onto ABBE MARIGNAN",
+          entry["speaker"] == "ABBE MARIGNAN", detail=repr(entry["speaker"]))
+    check("review overlay leaves text byte-identical",
+          entry["text"] == "  Verbatim text. ", detail=repr(entry["text"]))
+
+
+def test_review_roster_is_built_order_independently():
+    # build_script_roster() sees the whole script, so which spelling it
+    # establishes does not depend on the order the two variants appear in.
+    forward = build_script_roster([{"speaker": "ABBE MARIGNAN"}, {"speaker": "ABBEMARIGNAN"}])
+    backward = build_script_roster([{"speaker": "ABBEMARIGNAN"}, {"speaker": "ABBE MARIGNAN"}])
+    check("review roster establishes the more-punctuated spelling either way",
+          list(forward.values()) == list(backward.values()) == ["ABBE MARIGNAN"],
+          detail=f"{forward!r} vs {backward!r}")
+
+
+def test_review_overlay_conforms_to_the_established_spelling():
+    # The overlay is read-only against the roster: a correction is snapped
+    # onto whatever the SCRIPT established, so one review pass cannot emit
+    # two spellings of one character into the same file.
+    roster = build_script_roster([{"speaker": "ABBEMARIGNAN"}])
+    entry = _overlay_speaker("NARRATOR", "ABBE MARIGNAN", roster)
+    check("review overlay conforms a correction to the script's spelling",
+          entry["speaker"] == "ABBEMARIGNAN", detail=repr(entry["speaker"]))
+
+
+def test_review_roster_unifies_punctuation_drift():
+    roster = build_script_roster([{"speaker": "O'BRIEN"}])
+    entry = _overlay_speaker("NARRATOR", "OBRIEN", roster)
+    check("review overlay snaps OBRIEN onto O'BRIEN",
+          entry["speaker"] == "O'BRIEN", detail=repr(entry["speaker"]))
+
+
+def test_review_roster_never_merges_similar_names():
+    roster = build_script_roster([{"speaker": "JON"}, {"speaker": "ELLA"}])
+    john = _overlay_speaker("NARRATOR", "JOHN", roster)
+    bella = _overlay_speaker("NARRATOR", "BELLA", roster)
+    check("JOHN stays distinct from JON in review", john["speaker"] == "JOHN",
+          detail=repr(john["speaker"]))
+    check("BELLA stays distinct from ELLA in review", bella["speaker"] == "BELLA",
+          detail=repr(bella["speaker"]))
+
+
+def test_review_roster_optional_and_fallback_intact():
+    plain = _overlay_speaker("NARRATOR", "ABBEMARIGNAN")
+    check("no roster -> plain canonicalization (back-compat)",
+          plain["speaker"] == "ABBEMARIGNAN", detail=repr(plain["speaker"]))
+    roster = build_script_roster([{"speaker": "ABBE MARIGNAN"}])
+    fallback = _overlay_speaker("abbemarignan", "", roster)
+    check("empty correction falls back to the roster-resolved original",
+          fallback["speaker"] == "ABBE MARIGNAN", detail=repr(fallback["speaker"]))
+
+
+def test_build_script_roster_shape():
+    roster = build_script_roster([
+        {"speaker": "ABBE MARIGNAN"}, {"speaker": "ABBEMARIGNAN"},
+        {"speaker": "JON"}, {"speaker": ""}, "not a dict",
+    ])
+    check("roster index collapses the whitespace variant only",
+          sorted(roster.values()) == ["ABBE MARIGNAN", "JON"], detail=repr(roster))
+
+
+
 def main():
     tests = [
+        test_review_roster_snaps_drifted_spelling,
+        test_review_roster_is_built_order_independently,
+        test_review_overlay_conforms_to_the_established_spelling,
+        test_review_roster_unifies_punctuation_drift,
+        test_review_roster_never_merges_similar_names,
+        test_review_roster_optional_and_fallback_intact,
+        test_build_script_roster_shape,
         test_overlay_preserves_text_applies_speaker_and_instruct,
         test_overlay_keeps_unspecified_fields_from_original,
         test_overlay_empty_corrected_speaker_keeps_original,

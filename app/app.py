@@ -28,7 +28,9 @@ from default_prompts import load_default_prompts
 from review_prompts import load_review_prompts
 from persona_prompts import load_persona_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
-from speaker_canon import canonicalize, suggest_aliases
+from speaker_canon import (
+    remember_in_roster, roster_key, suggest_aliases,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -951,14 +953,20 @@ def _canonical_roster_names(script_data):
     resolution) and the on-demand alias-suggestions endpoint (which adds
     fuzzy-similarity suggestions), so each caller only pays for the work
     it actually needs.
+
+    Spellings that drifted only in their boundary marks are consolidated: a
+    legacy script containing both "ABBE MARIGNAN" and the drifted
+    "ABBEMARIGNAN" (or "O'BRIEN" and "OBRIEN") displays, and assigns a voice
+    to, one name -- the more-punctuated one, regardless of which appears
+    first. Exact roster-key equality only -- names that are merely similar
+    (JON/JOHN, ELLA/BELLA) stay distinct entries and are surfaced, if at all,
+    as advisory alias suggestions.
     """
-    roster_set = set()
+    roster_index = {}
     for entry in script_data:
         raw_speaker = entry.get("speaker") or entry.get("type") or ""
-        canonical = canonicalize(raw_speaker)
-        if canonical:
-            roster_set.add(canonical)
-    return sorted(roster_set)
+        remember_in_roster(roster_index, raw_speaker)
+    return sorted(roster_index.values())
 
 
 def build_voice_roster(script_data, voice_config):
@@ -977,7 +985,7 @@ def build_voice_roster(script_data, voice_config):
           - config_lookup: dict mapping each canonical roster name to the
             voice_config entry that resolves for it (exact key match first,
             falling back to scanning voice_config keys for one whose
-            canonicalize() equals the roster name; first match wins). Names
+            roster_key() equals the roster name's; first match wins). Names
             with no resolvable config are simply absent from this dict.
 
     Deliberately does NOT compute alias suggestions. suggest_aliases() is
@@ -995,7 +1003,10 @@ def build_voice_roster(script_data, voice_config):
             config_lookup[roster_name] = voice_config[roster_name]
             continue
         for key, value in voice_config.items():
-            if canonicalize(key) == roster_name:
+            # roster_key(): canonical form with boundary marks removed, so a
+            # config entry saved under a drifted spelling of the same name
+            # still resolves. Exact key equality, never fuzzy similarity.
+            if roster_key(key) == roster_key(roster_name):
                 config_lookup[roster_name] = value
                 break
 
