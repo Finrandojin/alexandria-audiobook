@@ -1170,7 +1170,37 @@ in this project that cannot itself be wrong.
 | ZH | whisper.cpp large-v3 | 14.1% | 826 ms | 20% |
 | ZH | SenseVoice | **11.3%** | 17957 ms | 10% |
 
-**MET for English. OPEN for CJK.**
+**MET for English and Chinese. OPEN for Japanese.**
+
+**Chinese is solved by splitting the two jobs** (`whisper_cpp_hybrid`, added
+2026-08-08). base decides the boundaries, large-v3 transcribes inside each one,
+and each model is used only for the axis it wins:
+
+| ZH arm | CER | align median | within 300 ms | segments |
+|---|---|---|---|---|
+| base | 44.3% | **84 ms** | **100%** | 10/10 |
+| large-v3 | **14.1%** | 826 ms | 20% | 11/10 |
+| **hybrid** | **14.5%** | **84 ms** | **100%** | 10/10 |
+
+CER ≤20%, median ≤150 ms, ≥80% within 300 ms — all three met. The 0.4-point
+CER cost against large-v3 alone is the price of transcribing inside windows the
+model did not choose, and it is small: large-v3's advantage does *not* depend
+on picking its own boundaries, which was the stated way this idea could have
+failed.
+
+**Japanese does not benefit, and the reason is upstream of the hybrid.** Both
+checkpoints already fail to segment Japanese — base finds 5 boundaries out of
+10 (median 2833 ms), large-v3 also 5 (4463 ms). The hybrid takes base's
+segmentation, so it inherits that failure exactly: 25.2% CER, 2833 ms, 10%
+within tolerance. Better transcription cannot repair boundaries that were never
+found, and no combination of these two checkpoints will fix Japanese. That
+needs a different segmenter, not a different pairing.
+
+**A note on reproducing this.** The first run of the comparison omitted
+`--build`, silently scored a different clip set, and produced base 58.0% /
+large-v3 67.0% — which read as "the goal's table does not reproduce". It did
+reproduce, exactly, once the same build was passed. Always pass
+`--build ab_test_runtime/<corpus>_eval/build.json`.
 
 **Target — CER ≤ 20% in every language, with alignment median ≤ 150 ms and
 ≥ 80% of boundaries within 300 ms.**

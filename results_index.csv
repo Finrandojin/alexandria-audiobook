@@ -5,12 +5,19 @@ adapter_stop_check_ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDE
 aishell3_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 aishell3_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 anchor_length_probe.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr2_hybrid__kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr2_whisper_cpp__ggml-base.bin.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr2_whisper_cpp__ggml-large-v3.bin.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr2_whisper_cpp_hybrid__ggml-base.bin.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends__ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends_large__aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends_large__kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 asr_backends_large__ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_hybrid_zh.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_zh_ggml-base.bin.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+asr_zh_ggml-large-v3.bin.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 audible_errors.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,aligned,385,273,70.9,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,
 batch_alignment__grimgar03__qwen__qwen3-14b__thunder-a6000-align.json,exploratory,batch_alignment,grimgar03,qwen/qwen3-14b,cloud-a6000-llamacpp-cuda,instance-wa5dh8u3-main,llama.cpp-cuda,32768,1,f16?,fixed,385,275,71.4,ok,False,,1295.5,08-02 03:38,http://127.0.0.1:8090/v1,

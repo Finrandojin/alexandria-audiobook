@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 18:27 from `ab_test_runtime/experiments/` — 304 artifacts, 521 arms.
+Generated 2026-08-08 19:48 from `ab_test_runtime/experiments/` — 311 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -681,12 +681,19 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `aishell3_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `aishell3_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `anchor_length_probe.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr2_hybrid__kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr2_whisper_cpp__ggml-base.bin.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr2_whisper_cpp__ggml-large-v3.bin.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr2_whisper_cpp_hybrid__ggml-base.bin.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends__aishell3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends__kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends__ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends_large__aishell3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends_large__kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `asr_backends_large__ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_hybrid_zh.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_zh_ggml-base.bin.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `asr_zh_ggml-large-v3.bin.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `audible_errors.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `blinded_listening.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cascade_state__grimgar03__a6000-batchtrig.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |

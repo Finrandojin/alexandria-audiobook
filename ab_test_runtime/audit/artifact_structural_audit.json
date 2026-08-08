@@ -1,7 +1,7 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 54,
+    "supported_structure": 61,
     "exploratory": 138,
     "provisional": 112
   },
@@ -85,6 +85,58 @@
       "reason": "embedded provenance and identifiable harness"
     },
     {
+      "artifact": "asr2_hybrid__kokoro.json",
+      "bytes": 1467,
+      "sha256": "0f48644b6107755e696bc7ea6610651cfa7d13dae7004b47b3b90b0f008c6073",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr2_whisper_cpp__ggml-base.bin.json",
+      "bytes": 1457,
+      "sha256": "0f13e37032557198a0cc214c909544dadbe80aefb38e17cb33ad82a5b257fe39",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr2_whisper_cpp__ggml-large-v3.bin.json",
+      "bytes": 1468,
+      "sha256": "3ae08d21c1064aed484bccca675d729fbfe35828e3e01cb3fe76289c5211b8c4",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr2_whisper_cpp_hybrid__ggml-base.bin.json",
+      "bytes": 1492,
+      "sha256": "8dbcbbb8d60867ba41422f5ac170a046ee3f846ea4d7d86aceb7cb2c9ada316f",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
       "artifact": "asr_backends__aishell3.json",
       "bytes": 2485,
       "sha256": "c3e6f8eeeb56688d48e2b941f147e651f3a4924e4d4baa46f9e56ba0009e3177",
@@ -158,6 +210,45 @@
       "has_rows": false,
       "identity_contract": "tts_provenance",
       "commit": "f3970ed6f08489c8e17a5f77ed11a18517482657",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr_hybrid_zh.json",
+      "bytes": 1462,
+      "sha256": "3814827cd42a9044e1214807eb8c65a26ac5411548181dad898d638639a3a545",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr_zh_ggml-base.bin.json",
+      "bytes": 1440,
+      "sha256": "c116239ce7434303ce41e0f38a79124b0ae59402df63b275d209459146f2ef11",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "asr_zh_ggml-large-v3.bin.json",
+      "bytes": 1450,
+      "sha256": "1118bdda062ef7d40b8894aed9ac737f0497502e66e3dd09c8221a00f9a7575c",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
       "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"

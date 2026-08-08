@@ -37,6 +37,7 @@ import re
 import statistics
 import subprocess
 import sys
+import tempfile
 import time
 import unicodedata
 
@@ -117,6 +118,55 @@ def run_whisper_cpp(wav, model, binary, language="en", max_len=0):
     segs = [(s["offsets"]["from"] / 1000.0, s["offsets"]["to"] / 1000.0,
              s["text"]) for s in doc.get("transcription", [])]
     return " ".join(s[2] for s in segs), segs
+
+
+def run_whisper_cpp_hybrid(wav, seg_model, txt_model, binary, language="en"):
+    """Boundaries from one checkpoint, words from another. Goal 5.4.
+
+    WHY THIS EXISTS. On Chinese, measured 2026-08-06, neither checkpoint clears
+    the target alone and they fail on opposite axes:
+
+        base      CER 44.3%  align  84 ms  100% within 300 ms
+        large-v3  CER 14.1%  align 826 ms   20% within 300 ms
+
+    base is the better SEGMENTER by a factor of ten and the worse TRANSCRIBER
+    by a factor of three. Since the preparer needs both - clip boundaries to
+    cut on, and text to train against - and since the two jobs are separable,
+    nothing requires one model to do both.
+
+    So base decides where the clips are, and large-v3 is asked what was said
+    inside each one. Each model is used only for the thing it measurably wins.
+
+    WHAT WOULD FALSIFY THE IDEA. large-v3's transcription advantage might come
+    partly from choosing its own segment boundaries - a model given a window it
+    did not pick could transcribe worse than it does alone. If the hybrid's CER
+    lands near base's 44.3% rather than large-v3's 14.1%, that is the answer,
+    and the hybrid is not merely unhelpful but wrong about why large-v3 wins.
+    """
+    import soundfile as sf
+
+    _text, segments = run_whisper_cpp(wav, seg_model, binary, language=language)
+    if not segments:
+        return "", []
+    audio, rate = sf.read(wav)
+    pieces = []
+    with tempfile.TemporaryDirectory() as work:
+        for index, (start, end, _seg_text) in enumerate(segments):
+            first = max(0, int(start * rate))
+            last = min(len(audio), int(end * rate))
+            if last <= first:
+                pieces.append("")
+                continue
+            chunk = os.path.join(work, f"seg{index:04d}.wav")
+            sf.write(chunk, audio[first:last], rate)
+            spoken, _ = run_whisper_cpp(chunk, txt_model, binary,
+                                        language=language)
+            pieces.append(spoken.strip())
+    # Boundaries stay base's; only the words are replaced. Returning
+    # large-v3's own timestamps here would silently reintroduce the 826 ms
+    # error this function exists to avoid.
+    rebuilt = [(s[0], s[1], t) for s, t in zip(segments, pieces)]
+    return " ".join(p for p in pieces if p), rebuilt
 
 
 def run_transformers_whisper(wav, model_id=None, language="en", _cache={}):
@@ -264,6 +314,14 @@ def main():
                 w, wcpp_model, args.whisper_cpp_bin, language=args.lang)
         if name == "transformers_whisper":
             return lambda w: run_transformers_whisper(w, language=args.lang)
+        if name == "whisper_cpp_hybrid":
+            # Boundaries from base, words from large-v3. Both paths resolve
+            # from the same models directory the single-model arm uses.
+            models = os.path.dirname(wcpp_model)
+            seg = os.path.join(models, "ggml-base.bin")
+            txt = os.path.join(models, "ggml-large-v3.bin")
+            return lambda w: run_whisper_cpp_hybrid(
+                w, seg, txt, args.whisper_cpp_bin, language=args.lang)
         if name == "sensevoice":
             sv = {"en": "en", "ja": "ja", "zh": "zh"}.get(args.lang, "auto")
             return lambda w: run_sensevoice(w, language=sv)
