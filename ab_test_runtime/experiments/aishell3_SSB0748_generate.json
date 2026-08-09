@@ -1,0 +1,1394 @@
+{
+ "seed": 1234,
+ "arms": [
+  "lora",
+  "clone"
+ ],
+ "reference_id": "SSB07480349",
+ "test_books": [
+  "SSB0748"
+ ],
+ "rows": [
+  {
+   "id": "SSB07480001",
+   "book": "SSB0748",
+   "text": "\u56e0\u6b64\u8be5\u529e\u6cd5\u7684\u5236\u5b9a\u586b\u8865\u4e86\u8fd9\u4e00\u7a7a\u767d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480001.wav",
+   "human_seconds": 4.072041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480001__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480001__clone.wav"
+  },
+  {
+   "id": "SSB07480002",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u4e03\u4e07\u4e03\u5343\u4e00\u767e\u4e8c\u5341\u56db",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480002.wav",
+   "human_seconds": 3.8040416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480002__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480002__clone.wav"
+  },
+  {
+   "id": "SSB07480005",
+   "book": "SSB0748",
+   "text": "\u4e0a\u6d77\u65b0\u6885\u76ee\u524d\u6700\u5927\u7684\u969c\u788d\u5e76\u975e\u4e3e\u724c\u65b9",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480005.wav",
+   "human_seconds": 4.495,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480005__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480005__clone.wav"
+  },
+  {
+   "id": "SSB07480006",
+   "book": "SSB0748",
+   "text": "\u65e2\u6709\u4e49\u610f\u53c8\u53ef\u5ef6\u7eed\u751f\u547d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480006.wav",
+   "human_seconds": 3.1670416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480006__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480006__clone.wav"
+  },
+  {
+   "id": "SSB07480007",
+   "book": "SSB0748",
+   "text": "\u8981\u6c42\u4e1a\u52a1\u8f6c\u8ba9\u987b\u5f81\u5f97\u76f8\u5173\u6295\u4fdd\u4eba\u88ab\u4fdd\u9669\u4eba\u540c\u610f",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480007.wav",
+   "human_seconds": 5.666041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480007__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480007__clone.wav"
+  },
+  {
+   "id": "SSB07480008",
+   "book": "SSB0748",
+   "text": "\u4ed6\u518d\u5ea6\u8d25\u5728\u4e86\u97e9\u56fd\u8d85\u65b0\u661f\u5f20\u5b87\u9547\u7684\u62cd\u4e0b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480008.wav",
+   "human_seconds": 5.566208333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480008__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480008__clone.wav"
+  },
+  {
+   "id": "SSB07480009",
+   "book": "SSB0748",
+   "text": "\u53ef\u4ee5\u8d23\u4ee4\u505c\u6b62\u5f00\u5c55\u4e92\u8054\u7f51\u4fdd\u9669\u4e1a\u52a1\u6216\u8005\u540a\u9500\u4e1a\u52a1\u8bb8\u53ef\u8bc1",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480009.wav",
+   "human_seconds": 6.550083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480009__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480009__clone.wav"
+  },
+  {
+   "id": "SSB07480010",
+   "book": "SSB0748",
+   "text": "\u516c\u53f8\u6709\u6ca1\u6709\u60f3\u8fc7\u4e0e\u4e3e\u724c\u65b9\u548c\u89e3\u6216\u8005\u5408\u4f5c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480010.wav",
+   "human_seconds": 5.016,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480010__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480010__clone.wav"
+  },
+  {
+   "id": "SSB07480011",
+   "book": "SSB0748",
+   "text": "\u81ea\u8eab\u81f4\u529b\u4e8e\u7ee7\u7eed\u5bfb\u627e\u8f6c\u578b\u673a\u4f1a\u7684\u4e0a\u6d77\u65b0\u6885",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480011.wav",
+   "human_seconds": 5.057041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480011__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480011__clone.wav"
+  },
+  {
+   "id": "SSB07480012",
+   "book": "SSB0748",
+   "text": "\u5bb6\u5c5e\u7684\u8bc9\u8bbc\u8bf7\u6c42\u5374\u6ca1\u6709\u88ab\u6cd5\u9662\u652f\u6301",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480012.wav",
+   "human_seconds": 4.416041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480012__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480012__clone.wav"
+  },
+  {
+   "id": "SSB07480013",
+   "book": "SSB0748",
+   "text": "\u76d1\u7ba1\u5c42\u4e0d\u53ef\u80fd\u5bf9\u8fd9\u5bb6\u516c\u53f8\u7684\u8f6c\u578b\u5e76\u8d2d\u65b9\u6848\u8fdb\u884c\u5ba1\u6279",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480013.wav",
+   "human_seconds": 5.948041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480013__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480013__clone.wav"
+  },
+  {
+   "id": "SSB07480014",
+   "book": "SSB0748",
+   "text": "\u957f\u6c99\u6709\u8272\u51b6\u91d1\u8bbe\u8ba1\u7814\u7a76\u9662\u7a91\u5cad\u4f4f\u5b85\u533a\u505c\u8f66\u573a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480014.wav",
+   "human_seconds": 5.916,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480014__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480014__clone.wav"
+  },
+  {
+   "id": "SSB07480015",
+   "book": "SSB0748",
+   "text": "\u5728\u53d1\u5e03\u4e86\u591a\u5f20\u5148\u884c\u89d2\u8272\u6d77\u62a5\u4e4b\u540e",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480015.wav",
+   "human_seconds": 4.977083333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480015__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480015__clone.wav"
+  },
+  {
+   "id": "SSB07480016",
+   "book": "SSB0748",
+   "text": "\u4e0e\u5bf9\u672a\u6765\u7684\u5e02\u573a\u60c5\u51b5\u53ef\u80fd\u51fa\u73b0\u53d8\u5316\u7684\u9884\u671f\u6709\u5173",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480016.wav",
+   "human_seconds": 5.489041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480016__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480016__clone.wav"
+  },
+  {
+   "id": "SSB07480017",
+   "book": "SSB0748",
+   "text": "\u7531\u4e8e\u6536\u8d2d\u8bfa\u57fa\u4e9a\u8bbe\u5907\u548c\u670d\u52a1\u4e1a\u52a1",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480017.wav",
+   "human_seconds": 4.043,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480017__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480017__clone.wav"
+  },
+  {
+   "id": "SSB07480019",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u56db\u4e07\u4e00\u5343\u516b\u767e\u56db\u5341\u4e8c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480019.wav",
+   "human_seconds": 3.852,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480019__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480019__clone.wav"
+  },
+  {
+   "id": "SSB07480024",
+   "book": "SSB0748",
+   "text": "\u7136\u540e\u5230\u5e97\u4eab\u53d7\u670d\u52a1\u5b9e\u73b0\u4ea4\u4ed8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480024.wav",
+   "human_seconds": 4.140875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480024__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480024__clone.wav"
+  },
+  {
+   "id": "SSB07480025",
+   "book": "SSB0748",
+   "text": "\u6c5f\u57ce\u4e00\u91d1\u5e97\u521a\u5f00\u5f20\u5c31\u8d70\u5165\u4e00\u5bf9\u7537\u5973",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480025.wav",
+   "human_seconds": 4.189958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480025__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480025__clone.wav"
+  },
+  {
+   "id": "SSB07480027",
+   "book": "SSB0748",
+   "text": "\u4eca\u5929\u7684\u6bd4\u8d5b\u5f00\u5c40\u9636\u6bb5\u53cc\u65b9\u4e89\u593a\u7684\u4f9d\u65e7\u6fc0\u70c8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480027.wav",
+   "human_seconds": 5.232916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480027__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480027__clone.wav"
+  },
+  {
+   "id": "SSB07480028",
+   "book": "SSB0748",
+   "text": "\u76ee\u524d\u56f4\u7ed5\u4e0a\u6d77\u65b0\u6885\u7684\u5df2\u7ecf\u6709\u4e24\u8d77\u5b98\u53f8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480028.wav",
+   "human_seconds": 4.471,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480028__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480028__clone.wav"
+  },
+  {
+   "id": "SSB07480030",
+   "book": "SSB0748",
+   "text": "\u5973\u5acc\u7591\u4eba\u88ab\u6307\u72af\u4e0b\u591a\u8d77\u76d7\u7a83\u6848\u6bcf\u6b21\u90fd\u4e00\u8eab\u767d\u8863",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480030.wav",
+   "human_seconds": 6.777125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480030__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480030__clone.wav"
+  },
+  {
+   "id": "SSB07480031",
+   "book": "SSB0748",
+   "text": "\u53d8\u6e29\u5ba4\u6e29\u5ea6\u8c03\u81f3\u8d1f\u5341\u4e00\u6444\u6c0f\u5ea6\u6863",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480031.wav",
+   "human_seconds": 4.351,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480031__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480031__clone.wav"
+  },
+  {
+   "id": "SSB07480032",
+   "book": "SSB0748",
+   "text": "\u4e14\u8fdb\u4e00\u6b65\u7ec6\u5316\u4e86\u6295\u8d44\u578b\u4fdd\u9669\u4ea7\u54c1\u98ce\u9669\u63a7\u5236\u8981\u6c42",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480032.wav",
+   "human_seconds": 5.8620833333333335,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480032__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480032__clone.wav"
+  },
+  {
+   "id": "SSB07480033",
+   "book": "SSB0748",
+   "text": "\u636e\u4fdd\u76d1\u4f1a\u6709\u5173\u8d1f\u8d23\u4eba\u4ecb\u7ecd",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480033.wav",
+   "human_seconds": 3.6030416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480033__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480033__clone.wav"
+  },
+  {
+   "id": "SSB07480034",
+   "book": "SSB0748",
+   "text": "\u968f\u4fbf\u542c\u542c\u5bb9\u4e2d\u5c14\u7532\u7684\u6b4c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480034.wav",
+   "human_seconds": 3.171,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480034__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480034__clone.wav"
+  },
+  {
+   "id": "SSB07480035",
+   "book": "SSB0748",
+   "text": "\u9632\u8303\u7f51\u7edc\u4fdd\u9669\u6b3a\u8bc8\u98ce\u9669",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480035.wav",
+   "human_seconds": 3.8459583333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480035__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480035__clone.wav"
+  },
+  {
+   "id": "SSB07480036",
+   "book": "SSB0748",
+   "text": "\u4e00\u822c\u90fd\u662f\u5979\u8bd5\u5b8c\u4e00\u679a\u6211\u653e\u8d77\u6765\u4e00\u679a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480036.wav",
+   "human_seconds": 3.866,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480036__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480036__clone.wav"
+  },
+  {
+   "id": "SSB07480037",
+   "book": "SSB0748",
+   "text": "\u53ea\u662f\u6253\u4e86\u4e00\u9488\u4e59\u809d\u75ab\u82d7",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480037.wav",
+   "human_seconds": 3.1670416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480037__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480037__clone.wav"
+  },
+  {
+   "id": "SSB07480038",
+   "book": "SSB0748",
+   "text": "\u878d\u521b\u4ee5\u4e00\u4ebf\u5143\u4eba\u6c11\u5e01\u7684\u4ee3\u4ef7\u62ff\u5230\u878d\u7eff\u5e73\u53f0",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480038.wav",
+   "human_seconds": 5.266,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480038__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480038__clone.wav"
+  },
+  {
+   "id": "SSB07480039",
+   "book": "SSB0748",
+   "text": "\u5927\u8fde\u632f\u9e4f\u56fd\u9645\u8d27\u8fd0\u4ee3\u7406\u6709\u9650\u516c\u53f8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480039.wav",
+   "human_seconds": 4.174,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480039__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480039__clone.wav"
+  },
+  {
+   "id": "SSB07480041",
+   "book": "SSB0748",
+   "text": "\u4f5c\u4e3a\u4e8c\u53f7\u79cd\u5b50\u51fa\u6218\u7684\u6a0a\u632f\u4e1c\u8bb8\u6615\u82e6\u6218\u4e94\u5c40",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480041.wav",
+   "human_seconds": 5.105,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480041__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480041__clone.wav"
+  },
+  {
+   "id": "SSB07480043",
+   "book": "SSB0748",
+   "text": "\u6cd5\u6cbb\u5468\u672b\u89c1\u4e60\u8bb0\u8005\u848b\u8d77\u4e1c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480043.wav",
+   "human_seconds": 3.749041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480043__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480043__clone.wav"
+  },
+  {
+   "id": "SSB07480044",
+   "book": "SSB0748",
+   "text": "\u5728\u8155\u5e26\u4e24\u7aef\u8bbe\u8ba1\u6709\u4e00\u4e2a\u53ef\u8c03\u6263",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480044.wav",
+   "human_seconds": 4.278958333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480044__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480044__clone.wav"
+  },
+  {
+   "id": "SSB07480046",
+   "book": "SSB0748",
+   "text": "\u5e94\u5f53\u96c6\u4e2d\u8fd0\u8425\u96c6\u4e2d\u7ba1\u7406",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480046.wav",
+   "human_seconds": 3.551041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480046__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480046__clone.wav"
+  },
+  {
+   "id": "SSB07480048",
+   "book": "SSB0748",
+   "text": "\u738b\u67d0\u5316\u59d3\u7684\u751f\u6d3b\u672c\u6765\u5f88\u5e78\u798f",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480048.wav",
+   "human_seconds": 4.298125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480048__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480048__clone.wav"
+  },
+  {
+   "id": "SSB07480049",
+   "book": "SSB0748",
+   "text": "\u7528\u6237\u53ef\u4ee5\u975e\u5e38\u5bb9\u6613\u7684\u653e\u677e\u6216\u8005\u6536\u7d27\u8155\u5e26",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480049.wav",
+   "human_seconds": 4.867958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480049__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480049__clone.wav"
+  },
+  {
+   "id": "SSB07480051",
+   "book": "SSB0748",
+   "text": "\u4eca\u5929\u7684\u6bd4\u8d5b\u5f00\u5c40\u9636\u6bb5\u53cc\u65b9\u5404\u81ea\u62ff\u5206",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480051.wav",
+   "human_seconds": 4.603041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480051__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480051__clone.wav"
+  },
+  {
+   "id": "SSB07480052",
+   "book": "SSB0748",
+   "text": "\u65e9\u671f\u7535\u5b50\u5546\u52a1\u7684\u53d1\u5c55\u91cd\u5fc3\u4e00\u76f4\u96c6\u4e2d\u5728\u5b9e\u7269\u5546\u54c1\u4e0a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480052.wav",
+   "human_seconds": 6.029083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480052__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480052__clone.wav"
+  },
+  {
+   "id": "SSB07480054",
+   "book": "SSB0748",
+   "text": "\u5341\u5206\u949f\u5de6\u53f3\u5148\u540e\u8bd5\u6234\u4e86\u5341\u591a\u679a\u91d1\u6212\u6307",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480054.wav",
+   "human_seconds": 4.523958333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480054__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480054__clone.wav"
+  },
+  {
+   "id": "SSB07480056",
+   "book": "SSB0748",
+   "text": "\u4fdd\u76d1\u4f1a\u89c4\u8303\u6295\u8d44\u578b\u4fdd\u9669\u4e1a\u52a1",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480056.wav",
+   "human_seconds": 4.534083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480056__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480056__clone.wav"
+  },
+  {
+   "id": "SSB07480057",
+   "book": "SSB0748",
+   "text": "\u767d\u8272\u7684\u652f\u6491\u4ef6\u5360\u636e\u4e86\u5927\u534a\u4e2a\u5305\u88c5\u76d2",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480057.wav",
+   "human_seconds": 4.298,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480057__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480057__clone.wav"
+  },
+  {
+   "id": "SSB07480058",
+   "book": "SSB0748",
+   "text": "\u80cc\u7740\u5f13\u7bad\u51fa\u73b0\u5728\u753b\u9762\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480058.wav",
+   "human_seconds": 3.4919583333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480058__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480058__clone.wav"
+  },
+  {
+   "id": "SSB07480060",
+   "book": "SSB0748",
+   "text": "\u53ea\u5f85\u901a\u8fc7\u80a1\u4e1c\u7279\u522b\u5927\u4f1a\u6279\u51c6\u4fbf\u53ef\u5b8c\u6210\u4ea4\u6613",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480060.wav",
+   "human_seconds": 5.201083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480060__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480060__clone.wav"
+  },
+  {
+   "id": "SSB07480061",
+   "book": "SSB0748",
+   "text": "\u8d5b\u540e\u8fd8\u9047\u5230\u4e86\u5bf9\u624b\u7684\u6311\u8845",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480061.wav",
+   "human_seconds": 3.2549166666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480061__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480061__clone.wav"
+  },
+  {
+   "id": "SSB07480066",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e09\u5341\u516b\u4e07\u96f6\u56db\u767e\u516d\u5341\u4e94",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480066.wav",
+   "human_seconds": 3.7880416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480066__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480066__clone.wav"
+  },
+  {
+   "id": "SSB07480067",
+   "book": "SSB0748",
+   "text": "\u6a0a\u632f\u4e1c\u7ee7\u6df7\u53cc\u4e4b\u540e\u62ff\u4e0b\u4e86\u7b2c\u4e8c\u679a\u4e9a\u9526\u8d5b\u4e2a\u4eba\u9879\u76ee\u91d1\u724c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480067.wav",
+   "human_seconds": 6.561083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480067__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480067__clone.wav"
+  },
+  {
+   "id": "SSB07480068",
+   "book": "SSB0748",
+   "text": "\u5973\u5b50\u5341\u5206\u949f\u8bd5\u6234\u5341\u591a\u679a\u6212\u6307\u5fd9\u6655\u5e97\u5458\u540e\u76d7\u8d70\u4e00\u679a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480068.wav",
+   "human_seconds": 6.845,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480068__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480068__clone.wav"
+  },
+  {
+   "id": "SSB07480072",
+   "book": "SSB0748",
+   "text": "\u4e0d\u7b26\u5408\u4f9d\u6cd5\u6cbb\u5e02\u7684\u8981\u6c42\u7684",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480072.wav",
+   "human_seconds": 3.483041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480072__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480072__clone.wav"
+  },
+  {
+   "id": "SSB07480074",
+   "book": "SSB0748",
+   "text": "\u5e76\u5c06\u5973\u5a74\u9001\u81f3\u6765\u5bbe\u5e02\u5174\u5bbe\u533a\u798f\u5229\u9662",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480074.wav",
+   "human_seconds": 5.212916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480074__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480074__clone.wav"
+  },
+  {
+   "id": "SSB07480075",
+   "book": "SSB0748",
+   "text": "\u987b\u6301\u7eed\u7ecf\u8425\u4e09\u4e2a\u4ee5\u4e0a\u5b8c\u6574\u7684\u4f1a\u8ba1\u5e74\u5ea6",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480075.wav",
+   "human_seconds": 5.134041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480075__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480075__clone.wav"
+  },
+  {
+   "id": "SSB07480076",
+   "book": "SSB0748",
+   "text": "\u5341\u6708\u4e09\u65e5\u7537\u5355\u51b3\u8d5b\u6a0a\u632f\u4e1c\u63fd\u7b2c\u56db\u91d1",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480076.wav",
+   "human_seconds": 4.809833333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480076__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480076__clone.wav"
+  },
+  {
+   "id": "SSB07480078",
+   "book": "SSB0748",
+   "text": "\u8fbe\u5230\u81ea\u613f\u9000\u51fa\u4fdd\u9669\u5e02\u573a\u6216\u8005\u5265\u79bb\u90e8\u5206\u4fdd\u9669\u4e1a\u52a1\u7684\u76ee\u7684",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480078.wav",
+   "human_seconds": 6.059958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480078__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480078__clone.wav"
+  },
+  {
+   "id": "SSB07480081",
+   "book": "SSB0748",
+   "text": "\u968f\u4fbf\u542c\u542c\u4e4c\u5170\u56fe\u96c5\u7684\u6b4c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480081.wav",
+   "human_seconds": 3.1860416666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480081__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480081__clone.wav"
+  },
+  {
+   "id": "SSB07480082",
+   "book": "SSB0748",
+   "text": "\u5927\u6bd4\u5206\u4e8c\u6bd4\u4e8c\u4e4b\u540e\u6a0a\u632f\u4e1c\u53d1\u7387\u8fde\u4e0b\u4e8c\u5c40",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480082.wav",
+   "human_seconds": 6.068125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480082__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480082__clone.wav"
+  },
+  {
+   "id": "SSB07480083",
+   "book": "SSB0748",
+   "text": "\u5408\u4f5c\u548c\u8c08\u5224\u5fc5\u987b\u662f\u5728\u5408\u6cd5\u5408\u89c4\u7684\u524d\u63d0\u4e0b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480083.wav",
+   "human_seconds": 4.792,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480083__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480083__clone.wav"
+  },
+  {
+   "id": "SSB07480084",
+   "book": "SSB0748",
+   "text": "\u8be5\u5973\u5b50\u5148\u540e\u6765\u5230\u4e24\u4e2a\u67dc\u53f0",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480084.wav",
+   "human_seconds": 3.4919583333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480084__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480084__clone.wav"
+  },
+  {
+   "id": "SSB07480087",
+   "book": "SSB0748",
+   "text": "\u5f20\u7ee7\u79d1\u548c\u5f20\u5b87\u9547\u90fd\u671d\u6321\u677f\u5904\u8d70\u53bb\u51c6\u5907\u6536\u62fe\u968f\u8eab\u7269\u54c1\u79bb\u573a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480087.wav",
+   "human_seconds": 6.805916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480087__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480087__clone.wav"
+  },
+  {
+   "id": "SSB07480088",
+   "book": "SSB0748",
+   "text": "\u4e8c\u96f6\u4e00\u4e8c\u5e74\u8fd8\u642d\u6863\u90ed\u7131\u62ff\u4e0b\u8fc7\u6df7\u53cc\u91d1\u724c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480088.wav",
+   "human_seconds": 4.927,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480088__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480088__clone.wav"
+  },
+  {
+   "id": "SSB07480091",
+   "book": "SSB0748",
+   "text": "\u800c\u8bb8\u6615\u6b64\u524d\u5219\u662f\u5728\u4e8c\u96f6\u96f6\u4e5d\u5e74\u642d\u6863\u9a6c\u9f99\u62ff\u4e0b\u8fc7\u7537\u53cc\u91d1\u724c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480091.wav",
+   "human_seconds": 6.550083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480091__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480091__clone.wav"
+  },
+  {
+   "id": "SSB07480092",
+   "book": "SSB0748",
+   "text": "\u56fd\u5bb6\u961f\u7ed3\u675f\u4e9a\u9526\u8d5b\u8fd4\u4eac\u641c\u72d0\u4e13\u8bbf\u5f20\u7ee7\u79d1\u8bb8\u6615\u56fe",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480092.wav",
+   "human_seconds": 6.098166666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480092__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480092__clone.wav"
+  },
+  {
+   "id": "SSB07480093",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e09\u5341\u516b\u4e07\u4e8c\u5343\u4e09\u767e\u4e00\u5341\u516b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480093.wav",
+   "human_seconds": 4.054,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480093__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480093__clone.wav"
+  },
+  {
+   "id": "SSB07480096",
+   "book": "SSB0748",
+   "text": "\u7701\u6d88\u534f\u66dd\u5149\u7684\u6570\u8d77\u6709\u5173\u5f71\u697c\u4fb5\u72af\u6d88\u8d39\u8005\u6743\u76ca\u7684\u6295\u8bc9\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480096.wav",
+   "human_seconds": 7.120875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480096__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480096__clone.wav"
+  },
+  {
+   "id": "SSB07480097",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u4e00\u4e07\u4e03\u5343\u4e00\u767e\u4e03\u5341\u516d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480097.wav",
+   "human_seconds": 3.756,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480097__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480097__clone.wav"
+  },
+  {
+   "id": "SSB07480099",
+   "book": "SSB0748",
+   "text": "\u5973\u5a74\u8bef\u98df\u5e72\u71e5\u5242\u6253\u4e0d\u7740\u8f66\u516c\u4ea4\u8f66\u961f\u961f\u957f\u5f00\u8f66\u9001\u5230\u533b\u9662",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480099.wav",
+   "human_seconds": 6.815958333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480099__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480099__clone.wav"
+  },
+  {
+   "id": "SSB07480100",
+   "book": "SSB0748",
+   "text": "\u4e0a\u6d77\u65b0\u6885\u4e24\u8d77\u8bc9\u8bbc\u5c06\u4e8e\u4e09\u5b63\u5ea6\u5f00\u5ead",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480100.wav",
+   "human_seconds": 4.647,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480100__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480100__clone.wav"
+  },
+  {
+   "id": "SSB07480101",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u56db\u4e07\u4e5d\u5343\u4e8c\u767e\u4e8c\u5341\u4e8c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480101.wav",
+   "human_seconds": 3.8690416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480101__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480101__clone.wav"
+  },
+  {
+   "id": "SSB07480105",
+   "book": "SSB0748",
+   "text": "\u5b9e\u7269\u7535\u5546\u7531\u4e8e\u6ca1\u6709\u5e97\u9762",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480105.wav",
+   "human_seconds": 3.15825,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480105__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480105__clone.wav"
+  },
+  {
+   "id": "SSB07480106",
+   "book": "SSB0748",
+   "text": "\u53d8\u6e29\u5ba4\u6e29\u5ea6\u8c03\u81f3\u8d1f\u5341\u4e00\u5ea6\u6863",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480106.wav",
+   "human_seconds": 4.013,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480106__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480106__clone.wav"
+  },
+  {
+   "id": "SSB07480107",
+   "book": "SSB0748",
+   "text": "\u7387\u5148\u8fdb\u884c\u7684\u7537\u5355\u534a\u51b3\u8d5b\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480107.wav",
+   "human_seconds": 4.267833333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480107__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480107__clone.wav"
+  },
+  {
+   "id": "SSB07480108",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e09\u5341\u516b\u4e07\u4e03\u5343\u4e94\u767e\u96f6\u4e03",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480108.wav",
+   "human_seconds": 3.54,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480108__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480108__clone.wav"
+  },
+  {
+   "id": "SSB07480109",
+   "book": "SSB0748",
+   "text": "\u7ee7\u4e8c\u96f6\u4e00\u4e09\u5e74\u4e9a\u9526\u8d5b\u4e4b\u540e\u518d\u5ea6\u51fb\u8d25\u4e86\u5bf9\u624b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480109.wav",
+   "human_seconds": 4.957041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480109__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480109__clone.wav"
+  },
+  {
+   "id": "SSB07480110",
+   "book": "SSB0748",
+   "text": "\u540e\u7ebf\u4e0b\u4ea4\u4ed8\u7684\u5178\u578b\u7279\u5f81",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480110.wav",
+   "human_seconds": 3.678,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480110__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480110__clone.wav"
+  },
+  {
+   "id": "SSB07480111",
+   "book": "SSB0748",
+   "text": "\u4e00\u5bb6\u4e0a\u5e02\u516c\u53f8\u5b58\u5728\u80a1\u4e1c\u8fdd\u6cd5\u6301\u80a1\u7684\u60c5\u51b5\u4e0b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480111.wav",
+   "human_seconds": 5.305,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480111__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480111__clone.wav"
+  },
+  {
+   "id": "SSB07480113",
+   "book": "SSB0748",
+   "text": "\u9648\u68a6\u56db\u80dc\u4e00\u8d1f\u4fdd\u6301\u5747\u52bf",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480113.wav",
+   "human_seconds": 3.9050416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480113__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480113__clone.wav"
+  },
+  {
+   "id": "SSB07480114",
+   "book": "SSB0748",
+   "text": "\u6b64\u5219\u901a\u77e5\u660e\u786e\u4e86\u4fdd\u9669\u4e2d\u4ecb\u7684\u7f51\u9500\u51c6\u5165\u95e8\u69db",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480114.wav",
+   "human_seconds": 5.252958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480114__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480114__clone.wav"
+  },
+  {
+   "id": "SSB07480115",
+   "book": "SSB0748",
+   "text": "\u73b0\u5728\u5b59\u5973\u5df2\u7ecf\u8131\u79bb\u4e86\u5371\u9669",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480115.wav",
+   "human_seconds": 3.2058333333333335,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480115__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480115__clone.wav"
+  },
+  {
+   "id": "SSB07480116",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e09\u5341\u4e8c\u4e07\u4e00\u5343\u4e03\u767e\u4e00\u5341\u516d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480116.wav",
+   "human_seconds": 3.6039583333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480116__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480116__clone.wav"
+  },
+  {
+   "id": "SSB07480117",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u516d\u4e07\u4e03\u5343\u4e8c\u767e\u516d\u5341\u4e94",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480117.wav",
+   "human_seconds": 4.158041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480117__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480117__clone.wav"
+  },
+  {
+   "id": "SSB07480118",
+   "book": "SSB0748",
+   "text": "\u7eff\u57ce\u5f97\u5230\u4e86\u4e0a\u6d77\u7684\u660e\u661f\u9879\u76ee\u9ec4\u6d66\u6e7e",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480118.wav",
+   "human_seconds": 4.174083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480118__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480118__clone.wav"
+  },
+  {
+   "id": "SSB07480119",
+   "book": "SSB0748",
+   "text": "\u5148\u540e\u5728\u5bf9\u65b9\u8eab\u4e0a\u82b1\u4e86\u4e09\u767e\u591a\u4e07",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480119.wav",
+   "human_seconds": 3.756875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480119__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480119__clone.wav"
+  },
+  {
+   "id": "SSB07480120",
+   "book": "SSB0748",
+   "text": "\u7ecf\u8fc7\u533b\u7597\u6682\u505c\u4e4b\u540e\u9648\u68a6\u4f9d\u7136\u65e0\u6cd5\u575a\u6301\u6bd4\u8d5b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480120.wav",
+   "human_seconds": 5.035916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480120__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480120__clone.wav"
+  },
+  {
+   "id": "SSB07480122",
+   "book": "SSB0748",
+   "text": "\u5c31\u6536\u5230\u4e86\u5973\u513f\u7684\u6b7b\u4ea1\u901a\u77e5\u4e66",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480122.wav",
+   "human_seconds": 3.5500833333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480122__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480122__clone.wav"
+  },
+  {
+   "id": "SSB07480123",
+   "book": "SSB0748",
+   "text": "\u5927\u6ee1\u8d2f\u7684\u4e3b\u5f20\u7ee7\u79d1\u8fde\u7eed\u8f93\u7ed9\u4e86\u97e9\u56fd\u5c0f\u5c06\u5f20\u5b87\u9547",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480123.wav",
+   "human_seconds": 6.049083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480123__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480123__clone.wav"
+  },
+  {
+   "id": "SSB07480124",
+   "book": "SSB0748",
+   "text": "\u5148\u6210\u4ea4\u540e\u4ea4\u4ed8\u7684\u6a21\u5f0f\u5bf9\u4f20\u7edf\u7684\u670d\u52a1\u6a21\u5f0f\u63d0\u51fa\u4e86\u65b0\u7684\u8981\u6c42",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480124.wav",
+   "human_seconds": 6.412875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480124__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480124__clone.wav"
+  },
+  {
+   "id": "SSB07480125",
+   "book": "SSB0748",
+   "text": "\u4fdd\u9669\u516c\u53f8\u901a\u8fc7\u4e1a\u52a1\u8f6c\u8ba9",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480125.wav",
+   "human_seconds": 3.105958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480125__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480125__clone.wav"
+  },
+  {
+   "id": "SSB07480126",
+   "book": "SSB0748",
+   "text": "\u7ef4\u4e5f\u7eb3\u9152\u5e97\u957f\u6c99\u8299\u84c9\u5e7f\u573a\u5e97",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480126.wav",
+   "human_seconds": 4.077041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480126__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480126__clone.wav"
+  },
+  {
+   "id": "SSB07480127",
+   "book": "SSB0748",
+   "text": "\u6309\u7167\u76ee\u524d\u8d44\u672c\u5e02\u573a\u7684\u5236\u5ea6",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480127.wav",
+   "human_seconds": 3.4030416666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480127__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480127__clone.wav"
+  },
+  {
+   "id": "SSB07480128",
+   "book": "SSB0748",
+   "text": "\u6768\u4e1e\u7433\u88ab\u66dd\u73b0\u8eab\u674e\u8363\u6d69\u5bd3\u6240\u7684\u5730\u4e0b\u505c\u8f66\u573a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480128.wav",
+   "human_seconds": 5.340125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480128__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480128__clone.wav"
+  },
+  {
+   "id": "SSB07480129",
+   "book": "SSB0748",
+   "text": "\u5979\u53d1\u73b0\u5973\u5b50\u505c\u7559\u7684\u7b2c\u4e00\u4e2a\u67dc\u53f0\u91cc\u5c11\u4e86\u4e00\u679a\u6212\u6307",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480129.wav",
+   "human_seconds": 4.799083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480129__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480129__clone.wav"
+  },
+  {
+   "id": "SSB07480131",
+   "book": "SSB0748",
+   "text": "\u76d1\u7ba1\u5c42\u73b0\u5728\u63a8\u51fa\u9000\u51fa\u5236\u5ea6",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480131.wav",
+   "human_seconds": 3.875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480131__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480131__clone.wav"
+  },
+  {
+   "id": "SSB07480132",
+   "book": "SSB0748",
+   "text": "\u6a0a\u632f\u4e1c\u8bb8\u6615\u593a\u5f97\u7537\u53cc\u51a0\u519b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480132.wav",
+   "human_seconds": 4.043,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480132__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480132__clone.wav"
+  },
+  {
+   "id": "SSB07480133",
+   "book": "SSB0748",
+   "text": "\u4e00\u5973\u5a74\u56e0\u8eab\u60a3\u591a\u79cd\u75be\u75c5",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480133.wav",
+   "human_seconds": 3.373083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480133__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480133__clone.wav"
+  },
+  {
+   "id": "SSB07480134",
+   "book": "SSB0748",
+   "text": "\u7ed9\u4eba\u4e00\u79cd\u5de5\u7a0b\u673a\u7684\u611f\u53d7",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480134.wav",
+   "human_seconds": 3.0389583333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480134__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480134__clone.wav"
+  },
+  {
+   "id": "SSB07480135",
+   "book": "SSB0748",
+   "text": "\u641c\u72d0\u5a31\u4e50\u8baf\u636e\u53f0\u6e7e\u5a92\u4f53\u62a5\u9053",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480135.wav",
+   "human_seconds": 3.756875,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480135__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480135__clone.wav"
+  },
+  {
+   "id": "SSB07480136",
+   "book": "SSB0748",
+   "text": "\u76d7\u8d70\u4e00\u679a\u4ef7\u503c\u4e09\u5343\u4e09\u767e\u591a\u5143\u7684\u9ec4\u91d1\u9576\u5d4c\u739b\u7459\u6212\u6307",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480136.wav",
+   "human_seconds": 7.249041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480136__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480136__clone.wav"
+  },
+  {
+   "id": "SSB07480137",
+   "book": "SSB0748",
+   "text": "\u5728\u4e09\u5b63\u5ea6\u80fd\u591f\u987a\u5229\u7406\u6e05\u7f20\u8eab\u7684\u80a1\u6743\u5b98\u53f8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480137.wav",
+   "human_seconds": 5.506083333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480137__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480137__clone.wav"
+  },
+  {
+   "id": "SSB07480138",
+   "book": "SSB0748",
+   "text": "\u8be5\u529e\u6cd5\u89c4\u5b9a\u7684\u4fdd\u9669\u4e1a\u52a1\u8f6c\u8ba9",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480138.wav",
+   "human_seconds": 3.569958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480138__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480138__clone.wav"
+  },
+  {
+   "id": "SSB07480139",
+   "book": "SSB0748",
+   "text": "\u4e00\u5207\u90fd\u8981\u7b49\u8bc4\u5b9a\u4e4b\u540e\u624d\u80fd\u6709\u7ed3\u8bba",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480139.wav",
+   "human_seconds": 4.214,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480139__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480139__clone.wav"
+  },
+  {
+   "id": "SSB07480141",
+   "book": "SSB0748",
+   "text": "\u4fdd\u9669\u4ee3\u7406\u7ecf\u7eaa\u516c\u53f8\u5f00\u5c55\u4e92\u8054\u7f51\u4fdd\u9669\u4e1a\u52a1\u7684",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480141.wav",
+   "human_seconds": 4.700958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480141__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480141__clone.wav"
+  },
+  {
+   "id": "SSB07480142",
+   "book": "SSB0748",
+   "text": "\u8fd9\u4e2a\u65f6\u5019\u5f20\u5b87\u9547\u6602\u7740\u8138\u671d\u5f20\u7ee7\u79d1\u505a\u51fa\u4e86\u6311\u8845\u7684\u8868\u60c5",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480142.wav",
+   "human_seconds": 5.949958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480142__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480142__clone.wav"
+  },
+  {
+   "id": "SSB07480143",
+   "book": "SSB0748",
+   "text": "\u968f\u540e\u5973\u5b50\u53c8\u8bf4\u60f3\u8981\u5c06\u90a3\u679a\u65e7\u6212\u6307\u4ee5\u65e7\u6362\u65b0",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480143.wav",
+   "human_seconds": 4.938,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480143__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480143__clone.wav"
+  },
+  {
+   "id": "SSB07480144",
+   "book": "SSB0748",
+   "text": "\u4e00\u4e2a\u662f\u6700\u8fd1\u8eab\u4f53\u4e0a\u6709\u5f88\u591a\u79cd\u4f24\u75c5",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480144.wav",
+   "human_seconds": 4.337916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480144__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480144__clone.wav"
+  },
+  {
+   "id": "SSB07480146",
+   "book": "SSB0748",
+   "text": "\u591a\u4e3e\u5e76\u884c\u4e0e\u65f6\u95f4\u8d5b\u8dd1\u529b\u4e89\u4fdd\u58f3\u513f",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480146.wav",
+   "human_seconds": 4.214,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480146__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480146__clone.wav"
+  },
+  {
+   "id": "SSB07480147",
+   "book": "SSB0748",
+   "text": "\u5546\u8ba8\u4e0e\u4e3e\u724c\u65b9\u5408\u4f5c\u7684\u95ee\u9898",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480147.wav",
+   "human_seconds": 3.644041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480147__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480147__clone.wav"
+  },
+  {
+   "id": "SSB07480149",
+   "book": "SSB0748",
+   "text": "\u5973\u5b50\u4e00\u5343\u4e94\u767e\u5143\u5f71\u697c\u5a5a\u7167\u5957\u9910\u88ab\u8f6e\u756a\u6e38\u8bf4\u5230\u4e00\u70b9\u4e8c\u4e07",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480149.wav",
+   "human_seconds": 8.321083333333334,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480149__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480149__clone.wav"
+  },
+  {
+   "id": "SSB07480150",
+   "book": "SSB0748",
+   "text": "\u5f53\u7136\u914d\u5907\u7684\u662f\u4e13\u7528\u7684\u5145\u7535\u7ebf",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480150.wav",
+   "human_seconds": 3.688041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480150__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480150__clone.wav"
+  },
+  {
+   "id": "SSB07480151",
+   "book": "SSB0748",
+   "text": "\u8fd9\u5176\u4e2d\u6709\u4e94\u6b21\u90fd\u662f\u51b3\u8d5b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480151.wav",
+   "human_seconds": 3.2749166666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480151__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480151__clone.wav"
+  },
+  {
+   "id": "SSB07480152",
+   "book": "SSB0748",
+   "text": "\u516c\u53f8\u8463\u79d8\u4f55\u5a67\u5411\u5927\u667a\u6167\u901a\u8baf\u793e\u8868\u793a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480152.wav",
+   "human_seconds": 5.169041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480152__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480152__clone.wav"
+  },
+  {
+   "id": "SSB07480154",
+   "book": "SSB0748",
+   "text": "\u5341\u6708\u4e8c\u65e5\u7537\u53cc\u51b3\u8d5b\u6a0a\u632f\u4e1c\u8bb8\u6615\u593a\u51a0",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480154.wav",
+   "human_seconds": 6.01,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480154__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480154__clone.wav"
+  },
+  {
+   "id": "SSB07480155",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u516d\u4e07\u56db\u5343\u4e94\u767e\u4e03\u5341\u4e03",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480155.wav",
+   "human_seconds": 3.885,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480155__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480155__clone.wav"
+  },
+  {
+   "id": "SSB07480156",
+   "book": "SSB0748",
+   "text": "\u4e92\u8054\u7f51\u4fdd\u9669\u4e1a\u52a1\u53d1\u5c55\u8f83\u5feb",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480156.wav",
+   "human_seconds": 3.344,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480156__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480156__clone.wav"
+  },
+  {
+   "id": "SSB07480157",
+   "book": "SSB0748",
+   "text": "\u4e89\u53d6\u505a\u597d\u8f6c\u578b\u7684\u4e00\u7cfb\u5217\u524d\u671f\u5de5\u4f5c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480157.wav",
+   "human_seconds": 4.190041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480157__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480157__clone.wav"
+  },
+  {
+   "id": "SSB07480158",
+   "book": "SSB0748",
+   "text": "\u5176\u7ecf\u8425\u5fc5\u987b\u4fdd\u8bc1\u8fde\u7eed\u56db\u4e2a\u5b63\u5ea6\u507f\u4ed8\u80fd\u529b\u9ad8\u4e8e\u767e\u5206\u4e4b\u4e8c\u5341\u4e94",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480158.wav",
+   "human_seconds": 6.963041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480158__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480158__clone.wav"
+  },
+  {
+   "id": "SSB07480159",
+   "book": "SSB0748",
+   "text": "\u8fbe\u5230\u81ea\u613f\u9000\u51fa\u4fdd\u9669\u5e02\u573a\u6216\u8005\u5265\u79bb\u90e8\u5206\u4fdd\u9669\u4e1a\u52a1\u7684\u76ee\u7684",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480159.wav",
+   "human_seconds": 6.374041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480159__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480159__clone.wav"
+  },
+  {
+   "id": "SSB07480160",
+   "book": "SSB0748",
+   "text": "\u8fd9\u79cd\u81ea\u613f\u8f6c\u8ba9\u4e0d\u540c\u4e8e\u4fdd\u9669\u6cd5\u89c4\u5b9a\u7684\u5f3a\u5236\u8f6c\u8ba9",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480160.wav",
+   "human_seconds": 5.779083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480160__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480160__clone.wav"
+  },
+  {
+   "id": "SSB07480161",
+   "book": "SSB0748",
+   "text": "\u675c\u742a\u5cf0\u6307\u95ee\u9898\u592a\u79c1\u4eba\u800c\u6ca1\u900f\u9732",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480161.wav",
+   "human_seconds": 4.436041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480161__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480161__clone.wav"
+  },
+  {
+   "id": "SSB07480162",
+   "book": "SSB0748",
+   "text": "\u5373\u6d88\u8d39\u8005\u9996\u5148\u5728\u7ebf\u5b8c\u6210\u8ba2\u5355\u6210\u4ea4\u548c\u652f\u4ed8\u7684\u73af\u8282",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480162.wav",
+   "human_seconds": 6.028833333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480162__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480162__clone.wav"
+  },
+  {
+   "id": "SSB07480163",
+   "book": "SSB0748",
+   "text": "\u516d\u5c40\u6bd4\u8d5b\u6709\u4e24\u4e2a\u7403\u90fd\u6253\u5230\u4ed6\u8863\u670d\u4e0a\u4e86",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480163.wav",
+   "human_seconds": 4.464833333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480163__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480163__clone.wav"
+  },
+  {
+   "id": "SSB07480164",
+   "book": "SSB0748",
+   "text": "\u664b\u7ea7\u51b3\u8d5b\u4e4b\u540e\u5c06\u5bf9\u9635\u97e9\u56fd\u7ec4\u5408\u90d1\u8363\u690d\u674e\u5c1a\u6d19",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480164.wav",
+   "human_seconds": 5.636,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480164__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480164__clone.wav"
+  },
+  {
+   "id": "SSB07480168",
+   "book": "SSB0748",
+   "text": "\u5230\u4e86\u7403\u573a\u4e0a\u8fd9\u65b9\u9762\u5c31\u4f1a\u51fa\u73b0\u4e00\u4e9b\u95ee\u9898",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480168.wav",
+   "human_seconds": 4.465125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480168__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480168__clone.wav"
+  },
+  {
+   "id": "SSB07480169",
+   "book": "SSB0748",
+   "text": "\u51b3\u8d5b\u4e2d\u6a0a\u632f\u4e1c\u5c06\u5bf9\u9635\u4e8c\u53f7\u79cd\u5b50\u8bb8\u6615",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480169.wav",
+   "human_seconds": 4.760041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480169__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480169__clone.wav"
+  },
+  {
+   "id": "SSB07480170",
+   "book": "SSB0748",
+   "text": "\u878d\u7eff\u5e73\u53f0\u5206\u5272\u65b9\u6848\u7ec8\u4e8e\u843d\u5b9a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480170.wav",
+   "human_seconds": 4.077041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480170__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480170__clone.wav"
+  },
+  {
+   "id": "SSB07480171",
+   "book": "SSB0748",
+   "text": "\u5411\u878d\u521b\u7f6e\u5730\u51fa\u552e\u4e0a\u6d77\u68ee\u6797\u9ad8\u5c14\u592b\u767e\u5206\u4e4b\u4e94\u7684\u80a1\u6743",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480171.wav",
+   "human_seconds": 6.317041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480171__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480171__clone.wav"
+  },
+  {
+   "id": "SSB07480172",
+   "book": "SSB0748",
+   "text": "\u5145\u7535\u63a5\u5934\u4e0e\u624b\u73af\u76f4\u63a5\u901a\u8fc7\u78c1\u6027\u76f8\u8fde",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480172.wav",
+   "human_seconds": 4.819,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480172__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480172__clone.wav"
+  },
+  {
+   "id": "SSB07480173",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u4e03\u4e07\u96f6\u516b\u767e\u4e03\u5341\u4e03",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480173.wav",
+   "human_seconds": 3.604041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480173__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480173__clone.wav"
+  },
+  {
+   "id": "SSB07480174",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e09\u5341\u4e8c\u4e07\u516d\u5343\u516d\u767e\u516b\u5341\u4e94",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480174.wav",
+   "human_seconds": 3.901,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480174__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480174__clone.wav"
+  },
+  {
+   "id": "SSB07480177",
+   "book": "SSB0748",
+   "text": "\u5b8c\u5584\u4fdd\u9669\u5e02\u573a\u9000\u51fa\u673a\u5236",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480177.wav",
+   "human_seconds": 3.3789166666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480177__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480177__clone.wav"
+  },
+  {
+   "id": "SSB07480178",
+   "book": "SSB0748",
+   "text": "\u9ad8\u5174\u56fd\u544a\u8bc9\u65b0\u6587\u5316\u8bb0\u8005",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480178.wav",
+   "human_seconds": 3.944125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480178__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480178__clone.wav"
+  },
+  {
+   "id": "SSB07480179",
+   "book": "SSB0748",
+   "text": "\u4e0a\u6d77\u6700\u8d35\u8c6a\u5b85\u6613\u4e3b\u878d\u7eff\u5e73\u53f0\u7ec8\u89e3\u4f53",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480179.wav",
+   "human_seconds": 5.61,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480179__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480179__clone.wav"
+  },
+  {
+   "id": "SSB07480180",
+   "book": "SSB0748",
+   "text": "\u5973\u5a74\u51fa\u751f\u6253\u75ab\u82d7\u6b7b\u4ea1\u5bb6\u5c5e\u62d2\u4f5c\u5c38\u68c0\u7d22\u8d54\u8bc9\u6c42\u88ab\u9a73\u56de",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480180.wav",
+   "human_seconds": 7.199958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480180__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480180__clone.wav"
+  },
+  {
+   "id": "SSB07480181",
+   "book": "SSB0748",
+   "text": "\u5927\u8fde\u7530\u56ed\u8272\u5f69\u6587\u5316\u53d1\u5c55\u6709\u9650\u516c\u53f8",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480181.wav",
+   "human_seconds": 4.326,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480181__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480181__clone.wav"
+  },
+  {
+   "id": "SSB07480182",
+   "book": "SSB0748",
+   "text": "\u53c8\u53cd\u8fc7\u6765\u63a8\u52a8\u4e86\u6574\u4e2a\u7535\u5b50\u5546\u52a1\u7684\u53d1\u5c55",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480182.wav",
+   "human_seconds": 4.5339583333333335,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480182__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480182__clone.wav"
+  },
+  {
+   "id": "SSB07480183",
+   "book": "SSB0748",
+   "text": "\u56e0\u6b64\u5c0f\u516c\u53f8\u7684\u751f\u5b58\u7a7a\u95f4\u6709\u9650",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480183.wav",
+   "human_seconds": 3.5700833333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480183__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480183__clone.wav"
+  },
+  {
+   "id": "SSB07480184",
+   "book": "SSB0748",
+   "text": "\u53d8\u6e29\u5ba4\u6e29\u5ea6\u8c03\u81f3\u8d1f\u5341\u4e8c\u6444\u6c0f\u5ea6",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480184.wav",
+   "human_seconds": 3.9330416666666665,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480184__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480184__clone.wav"
+  },
+  {
+   "id": "SSB07480185",
+   "book": "SSB0748",
+   "text": "\u4f46\u4fdd\u9669\u8d44\u6e90\u9ad8\u5ea6\u96c6\u4e2d\u5728\u5927\u578b\u4f01\u4e1a\u624b\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480185.wav",
+   "human_seconds": 4.602916666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480185__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480185__clone.wav"
+  },
+  {
+   "id": "SSB07480186",
+   "book": "SSB0748",
+   "text": "\u5f20\u7ee7\u79d1\u906d\u9047\u5230\u4e86\u88c1\u5224\u7591\u4f3c\u4e0d\u516c\u6b63\u7684\u5224\u7f5a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480186.wav",
+   "human_seconds": 5.261958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480186__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480186__clone.wav"
+  },
+  {
+   "id": "SSB07480187",
+   "book": "SSB0748",
+   "text": "\u76ee\u524d\u4ed6\u7684\u8363\u8a89\u9986\u91cc\u72ec\u7f3a\u4e9a\u9526\u8d5b\u7684\u7537\u5355\u91d1\u724c",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480187.wav",
+   "human_seconds": 5.548125,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480187__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480187__clone.wav"
+  },
+  {
+   "id": "SSB07480189",
+   "book": "SSB0748",
+   "text": "\u65b0\u6587\u5316\u5409\u6797\u8baf\u8bb0\u8005\u6e29\u6708\u5341\u4e09\u65e5",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480189.wav",
+   "human_seconds": 4.377,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480189__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480189__clone.wav"
+  },
+  {
+   "id": "SSB07480190",
+   "book": "SSB0748",
+   "text": "\u5207\u5b9e\u4fdd\u62a4\u6295\u4fdd\u4eba\u88ab\u4fdd\u9669\u4eba\u548c\u53d7\u76ca\u4eba\u7684\u5408\u6cd5\u6743\u76ca",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480190.wav",
+   "human_seconds": 5.861958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480190__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480190__clone.wav"
+  },
+  {
+   "id": "SSB07480191",
+   "book": "SSB0748",
+   "text": "\u8fd9\u4e9b\u6253\u6cd5\u5728\u5b9e\u65bd\u8fc7\u7a0b\u4e2d\u90fd\u5448\u73b0\u51fa\u4e86\u5148\u7ebf\u4e0a\u6210\u4ea4",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480191.wav",
+   "human_seconds": 6.107916666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480191__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480191__clone.wav"
+  },
+  {
+   "id": "SSB07480192",
+   "book": "SSB0748",
+   "text": "\u516c\u53f8\u65b9\u9762\u5f88\u6e05\u695a\u73b0\u5728\u7684\u72b6\u51b5",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480192.wav",
+   "human_seconds": 3.636083333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480192__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480192__clone.wav"
+  },
+  {
+   "id": "SSB07480193",
+   "book": "SSB0748",
+   "text": "\u6668\u62a5\u8bb0\u8005\u738b\u4ea6\u83f2\u5b9e\u4e60\u751f\u5f20\u8bd7\u6b22",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480193.wav",
+   "human_seconds": 5.292,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480193__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480193__clone.wav"
+  },
+  {
+   "id": "SSB07480194",
+   "book": "SSB0748",
+   "text": "\u878d\u521b\u4e0e\u7eff\u57ce\u7684\u7275\u624b\u53ef\u8ffd\u6eaf\u81f3\u4e8c\u96f6\u4e00\u4e8c\u5e74",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480194.wav",
+   "human_seconds": 5.161041666666667,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480194__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480194__clone.wav"
+  },
+  {
+   "id": "SSB07480195",
+   "book": "SSB0748",
+   "text": "\u8ba9\u5927\u6218\u80cc\u540e\u7684\u5bb6\u7535\u5382\u5546\u53eb\u82e6\u4e0d\u8fed",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480195.wav",
+   "human_seconds": 4.956916666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480195__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480195__clone.wav"
+  },
+  {
+   "id": "SSB07480196",
+   "book": "SSB0748",
+   "text": "\u8fdb\u4e00\u6b65\u70b9\u71c3\u8fdb\u4e86\u7ebf\u4e0b\u7684\u95e8\u5e97\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480196.wav",
+   "human_seconds": 3.8259583333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480196__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480196__clone.wav"
+  },
+  {
+   "id": "SSB07480198",
+   "book": "SSB0748",
+   "text": "\u4f46\u5bf9\u4e8e\u8fdb\u884c\u5e02\u573a\u5316\u7684\u4fdd\u9669\u4e1a\u52a1\u8f6c\u8ba9\u5e76\u65e0\u5177\u4f53\u89c4\u5b9a",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480198.wav",
+   "human_seconds": 6.088041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480198__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480198__clone.wav"
+  },
+  {
+   "id": "SSB07480199",
+   "book": "SSB0748",
+   "text": "\u5728\u4e9a\u6d32\u9526\u6807\u8d5b\u7684\u7537\u56e2\u548c\u7537\u5355\u6bd4\u8d5b\u4e2d",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480199.wav",
+   "human_seconds": 4.690916666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480199__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480199__clone.wav"
+  },
+  {
+   "id": "SSB07480200",
+   "book": "SSB0748",
+   "text": "\u5cb3\u7236\u5cb3\u6bcd\u5bf9\u4ed6\u5de5\u4f5c\u4e0a\u5168\u529b\u652f\u6301\u751f\u6d3b\u4e0a\u6089\u5fc3\u7167\u6599",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480200.wav",
+   "human_seconds": 5.479041666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480200__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480200__clone.wav"
+  },
+  {
+   "id": "SSB07480201",
+   "book": "SSB0748",
+   "text": "\u8fd9\u4e2a\u878d\u521b\u4e2d\u56fd\u5f15\u4ee5\u4e3a\u50b2\u7684\u53f7\u79f0\u4e2d\u56fd\u6700\u8d35\u7684\u8c6a\u5b85\u9879\u76ee",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480201.wav",
+   "human_seconds": 6.091958333333333,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480201__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480201__clone.wav"
+  },
+  {
+   "id": "SSB07480202",
+   "book": "SSB0748",
+   "text": "\u4e8c\u767e\u4e03\u5341\u4e03\u4e07\u4e09\u5343\u4e03\u767e\u516b\u5341\u516b",
+   "human_wav": "ab_test_runtime/aishell3_SSB0748_eval/human/SSB07480202.wav",
+   "human_seconds": 3.8280416666666666,
+   "lora_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480202__lora.wav",
+   "clone_wav": "ab_test_runtime/aishell3_SSB0748_eval/generated/SSB07480202__clone.wav"
+  }
+ ],
+ "failures": [],
+ "provenance": {
+  "script": "ljspeech_generate.py",
+  "written": "2026-08-08T19:28:29",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d76fe0cf725b969e72e6095004afcebf289169dd",
+   "branch": "agent/asr-hybrid-cjk",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M ab_test_runtime/experiments/pitch_quality_probe.json",
+    " M app/experiments/pitch_quality_probe.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "ac34ba35ff395158a1cdfe6ee9acd2f3435bc0d907c0d67a0936c56325247c05"
+  },
+  "args": {
+   "build": "../ab_test_runtime/aishell3_SSB0748_eval/build.json",
+   "adapter": "../ab_test_runtime/aishell3_SSB0748_eval/adapter",
+   "config": "app/config.json",
+   "out_dir": "../ab_test_runtime/aishell3_SSB0748_eval/generated",
+   "seed": 1234,
+   "limit": 150,
+   "arms": [
+    "lora",
+    "clone"
+   ],
+   "out": "../ab_test_runtime/experiments/aishell3_SSB0748_generate.json"
+  },
+  "seed": 1234
+ }
+}

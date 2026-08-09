@@ -1,8 +1,8 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 61,
-    "exploratory": 138,
+    "supported_structure": 62,
+    "exploratory": 139,
     "provisional": 112
   },
   "artifacts": [
@@ -41,6 +41,19 @@
       "has_rows": false,
       "identity_contract": "tts_provenance",
       "commit": "6b2eb79c5f1e9f929c2a11bc930b895fd45a8dbe",
+      "dirty": true,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "aishell3_SSB0748_generate.json",
+      "bytes": 69181,
+      "sha256": "c383c14670ec106b97deea0e2de61ede4959eee79ebd32644f0fd999f2c5782d",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "d76fe0cf725b969e72e6095004afcebf289169dd",
       "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
@@ -2678,6 +2691,17 @@
       "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "pitch_quality_SSB0748.json",
+      "bytes": 302735,
+      "sha256": "f0ad25d1b4b06b3c2f1f76d4cbcdd0049a61cf9ddd63715a444bd39dcdd25ea0",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
     },
     {
       "artifact": "pitch_quality_probe.json",

@@ -109,6 +109,12 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--lines", type=int, default=100,
                     help="paired clips per language")
+    ap.add_argument("--manifest", action="append", default=[],
+                    metavar="LANG=FILE",
+                    help="override one language's manifest, e.g. "
+                         "zh=aishell3_SSB0748_generate.json. Repeatable. "
+                         "Exists so a re-run against a different eval speaker "
+                         "needs no source edit between pipeline stages.")
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "pitch_quality_probe.json"))
     args = ap.parse_args()
@@ -119,7 +125,26 @@ def main():
         "lines_requested": args.lines,
         "languages": {},
     }
-    for lang, name in LANGUAGES.items():
+    languages = dict(LANGUAGES)
+    for override in args.manifest:
+        if "=" not in override:
+            raise SystemExit(f"--manifest wants LANG=FILE, got {override!r}")
+        lang, _, name = override.partition("=")
+        if lang not in languages:
+            raise SystemExit(f"unknown language {lang!r}; "
+                             f"expected one of {sorted(languages)}")
+        # An override that does not resolve is fatal, not a skip. The default
+        # manifests may legitimately be absent on a fresh checkout, but a
+        # manifest named explicitly on the command line is the whole reason
+        # the run was started - skipping it would report success having
+        # measured nothing.
+        full = os.path.join(REPO, "ab_test_runtime", "experiments", name)
+        if not os.path.exists(full) and not os.path.exists(name):
+            raise SystemExit(f"--manifest {lang}={name}: no such file")
+        languages[lang] = name
+    result["manifests"] = languages
+
+    for lang, name in languages.items():
         path = os.path.join(REPO, "ab_test_runtime", "experiments", name)
         if not os.path.exists(path):
             print(f"SKIP {lang}: no manifest at {path}", flush=True)

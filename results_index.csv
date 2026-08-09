@@ -2,6 +2,7 @@ artifact,evidence_status,experiment,book,model,env_tag,host,backend,ctx,parallel
 adapter_stop_check_aishell3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 adapter_stop_check_kokoro.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 adapter_stop_check_ljspeech.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+aishell3_SSB0748_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 aishell3_generate.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 aishell3_score.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 anchor_length_probe.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
@@ -459,6 +460,7 @@ pdnc_eval_mixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list 
 pdnc_generalisation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_profile_matrix.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 pitch_profile_matrix_pilot.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+pitch_quality_SSB0748.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_quality_probe.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_separation.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 pitch_stability.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results

@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 19:48 from `ab_test_runtime/experiments/` — 311 artifacts, 521 arms.
+Generated 2026-08-08 19:48 from `ab_test_runtime/experiments/` — 313 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -678,6 +678,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `adapter_stop_check_aishell3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `adapter_stop_check_kokoro.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `adapter_stop_check_ljspeech.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `aishell3_SSB0748_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `aishell3_generate.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `aishell3_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `anchor_length_probe.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
@@ -773,6 +774,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `pdnc_generalisation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_profile_matrix.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `pitch_profile_matrix_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `pitch_quality_SSB0748.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_quality_probe.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_separation.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `pitch_stability.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
