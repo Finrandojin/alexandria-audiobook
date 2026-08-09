@@ -136,6 +136,7 @@ chinese_attribution_jy.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows
 chinese_attribution_jy_fixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_wp.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 chinese_attribution_wp_fixed.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
+chunk_completion.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 clone_vs_lora_seeded.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 closed_set.json,exploratory,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-6,147,51,34.7,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 16:00,http://localhost:1234/v1,
 closed_set.json,exploratory,closed_set,mushoku16,qwen3.5-9b-uncensored-hauhaucs-aggressive,local-lmstudio,mitch-linux,lmstudio,,,f16?,closed-oracle,147,72,49.0,"['no LM Studio load state recorded', 'en",True,8e457d6a,138.3,07-26 16:00,http://localhost:1234/v1,

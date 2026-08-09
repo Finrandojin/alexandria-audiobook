@@ -1,0 +1,360 @@
+{
+  "scope": "every saved book with a generation_quality record; completion = accepted_chunk_count / total_chunks",
+  "target_pct": 99.0,
+  "books": 34,
+  "chunks": 2899,
+  "overall_completion_pct": 59.12,
+  "per_model": {
+    "gemma-4-e4b-uncensored-hauhaucs-aggressive": {
+      "books": 19,
+      "chunks": 1313,
+      "completion_pct": 100.0,
+      "books_not_fully_complete": 0,
+      "worst_book_pct": 100.0,
+      "incomplete": []
+    },
+    "<unrecorded>": {
+      "books": 15,
+      "chunks": 1586,
+      "completion_pct": 25.28,
+      "books_not_fully_complete": 15,
+      "worst_book_pct": 1.0,
+      "incomplete": [
+        {
+          "book": "Arc 1 - Volume 1_5",
+          "status": "failed",
+          "accepted": 45,
+          "total": 70
+        },
+        {
+          "book": "Arc 2 - Volume 2_4",
+          "status": "failed",
+          "accepted": 3,
+          "total": 67
+        },
+        {
+          "book": "Arc 3 - Volume 7_3",
+          "status": "failed",
+          "accepted": 25,
+          "total": 66
+        },
+        {
+          "book": "Arc 3 - Volume 9_3",
+          "status": "failed",
+          "accepted": 53,
+          "total": 78
+        },
+        {
+          "book": "Arc 4 - Volume 10_3",
+          "status": "failed",
+          "accepted": 14,
+          "total": 80
+        },
+        {
+          "book": "Arc 4 - Volume 10wn",
+          "status": "failed",
+          "accepted": 38,
+          "total": 155
+        },
+        {
+          "book": "Arc 4 - Volume 12wn",
+          "status": "failed",
+          "accepted": 2,
+          "total": 117
+        },
+        {
+          "book": "Arc 4 - Volume 13wn",
+          "status": "failed",
+          "accepted": 71,
+          "total": 184
+        },
+        {
+          "book": "Arc 4 - Volume 14wn",
+          "status": "failed",
+          "accepted": 20,
+          "total": 47
+        },
+        {
+          "book": "Arc 4 - Volume 15wn",
+          "status": "failed",
+          "accepted": 46,
+          "total": 138
+        }
+      ]
+    }
+  },
+  "per_book": [
+    {
+      "book": "Arc 1 - Volume 1",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 70,
+      "accepted_chunks": 70,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 1 - Volume 1_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 70,
+      "accepted_chunks": 70,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 1 - Volume 1_4",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 70,
+      "accepted_chunks": 70,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 1 - Volume 1_5",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 70,
+      "accepted_chunks": 45,
+      "completion_pct": 64.3
+    },
+    {
+      "book": "Arc 2 - Volume 2",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 2 - Volume 2_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 2 - Volume 2_4",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 67,
+      "accepted_chunks": 3,
+      "completion_pct": 4.5
+    },
+    {
+      "book": "Arc 2 - Volume 3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 2 - Volume 3_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 2 - Volume 3_4",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 4",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 69,
+      "accepted_chunks": 69,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 4_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 69,
+      "accepted_chunks": 69,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 5",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 5_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 67,
+      "accepted_chunks": 67,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 6",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 66,
+      "accepted_chunks": 66,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 6_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 66,
+      "accepted_chunks": 66,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 7",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 66,
+      "accepted_chunks": 66,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 7_3",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 66,
+      "accepted_chunks": 25,
+      "completion_pct": 37.9
+    },
+    {
+      "book": "Arc 3 - Volume 8",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 70,
+      "accepted_chunks": 70,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 8_3",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 70,
+      "accepted_chunks": 70,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 9",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 78,
+      "accepted_chunks": 78,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 3 - Volume 9_3",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 78,
+      "accepted_chunks": 53,
+      "completion_pct": 67.9
+    },
+    {
+      "book": "Arc 4 - Volume 10",
+      "model": "gemma-4-e4b-uncensored-hauhaucs-aggressive",
+      "status": "complete",
+      "total_chunks": 80,
+      "accepted_chunks": 80,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "Arc 4 - Volume 10_3",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 80,
+      "accepted_chunks": 14,
+      "completion_pct": 17.5
+    },
+    {
+      "book": "Arc 4 - Volume 10wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 155,
+      "accepted_chunks": 38,
+      "completion_pct": 24.5
+    },
+    {
+      "book": "Arc 4 - Volume 12wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 117,
+      "accepted_chunks": 2,
+      "completion_pct": 1.7
+    },
+    {
+      "book": "Arc 4 - Volume 13wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 184,
+      "accepted_chunks": 71,
+      "completion_pct": 38.6
+    },
+    {
+      "book": "Arc 4 - Volume 14wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 47,
+      "accepted_chunks": 20,
+      "completion_pct": 42.6
+    },
+    {
+      "book": "Arc 4 - Volume 15wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 138,
+      "accepted_chunks": 46,
+      "completion_pct": 33.3
+    },
+    {
+      "book": "Arc 6 - Volume 21wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 116,
+      "accepted_chunks": 11,
+      "completion_pct": 9.5
+    },
+    {
+      "book": "Arc 6 - Volume 22wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 99,
+      "accepted_chunks": 1,
+      "completion_pct": 1.0
+    },
+    {
+      "book": "Arc 6 - Volume 23wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 119,
+      "accepted_chunks": 6,
+      "completion_pct": 5.0
+    },
+    {
+      "book": "Arc 6 - Volume 24wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 93,
+      "accepted_chunks": 37,
+      "completion_pct": 39.8
+    },
+    {
+      "book": "Arc 6 - Volume 25wn",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 157,
+      "accepted_chunks": 29,
+      "completion_pct": 18.5
+    }
+  ]
+}

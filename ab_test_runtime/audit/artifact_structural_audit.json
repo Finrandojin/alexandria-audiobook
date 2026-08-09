@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 62,
-    "exploratory": 139,
+    "exploratory": 140,
     "provisional": 112
   },
   "artifacts": [
@@ -1033,6 +1033,17 @@
       "artifact": "chinese_attribution_wp_fixed.json",
       "bytes": 166,
       "sha256": "643c3bff5d7eebc1974e0b91f5ef040c709dd6d33355254a150a1cfb4bc81a6c",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "chunk_completion.json",
+      "bytes": 9141,
+      "sha256": "1593a53e162c8be03cb6bc474f7424b39090b986befbd6e593ecf5a2a4dfa1c7",
       "seed": null,
       "status": null,
       "has_rows": false,

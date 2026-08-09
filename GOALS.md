@@ -906,15 +906,35 @@ attached.
 
 **Metric** — chunks completing without exhausting retries.
 **Probe** — `logs/review_responses.log`, per-run logs.
-**Current** — mixed and model-dependent. In the 2026-08-06 run: mushoku16 9/9
-clean, grimgar03 and owarimonogatari3 failed chunk 1 outright. **OPEN.**
+**Current** — every saved book carries a `<name>.json.generation_quality.json`
+recording `total_chunks`, `accepted_chunk_count` and, on newer runs,
+`model_name`. Read across all 34 of them 2026-08-08
+(`chunk_completion.py`), no inference required:
 
-**Target — ≥ 99% of chunks complete without manual intervention, on the
-shipped model.**
+| model | books | chunks | completion | worst book |
+|---|---|---|---|---|
+| gemma-4-e4b-uncensored | 19 | 1313 | **100.00%** | 100% |
+| *unrecorded* | 15 | 1586 | 25.28% | 1.0% |
 
-**Important caveat.** Those current failures are on qwen2.5-14b, which is *not*
-the model the experiments were run against (qwen3-14b). This number is not yet
-a fair measure of the shipped path.
+**MET on the only model that can be attributed** — gemma-4-e4b completes every
+chunk of every book, 1313 for 1313, against a 99% target.
+
+**The 15 failures cannot be attributed to any model, and that is the finding.**
+All 15 have `status: failed` with `failure: chunk_failed_after_retries` after 8
+to 33 attempts — genuine exhaustion, not interrupted runs. None records
+`model_name`. All 15 response logs survive in `logs/responses/`, and none of
+them names a model either: they record chunk, attempt, finish_reason and token
+counts only. So the worst generation failures this app has ever produced are
+permanently unattributable.
+
+**The goal's original question is still unanswered.** It asks for ≥99% *on the
+shipped model*, and no book in the saved record was generated with qwen3-14b at
+all. The 2026-08-06 qwen2.5-14b figures this goal previously quoted are not in
+the evidence tree.
+
+**Status: OPEN, for want of a measurement rather than a fix.** Generating one
+book end to end on qwen3-14b would answer it, and `model_name` is now recorded,
+so the next failure will be attributable even if this one never can be.
 
 ### 3.2 Every generated file is real audio
 
