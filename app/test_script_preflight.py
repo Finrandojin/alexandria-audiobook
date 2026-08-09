@@ -70,7 +70,20 @@ class ScriptPreflightTests(unittest.TestCase):
         self.assertEqual(3, len(repair["entries"]))
         self.assertEqual([], repair["unresolved"])
 
-    def test_deterministic_repair_refuses_unproven_unicode_and_source_duplicates(self):
+    def test_deterministic_repair_refuses_unproven_unicode_and_keeps_source_duplicates(self):
+        """Nothing is deleted here, and only the unicode token blocks.
+
+        The source repeats this block, so emitting it twice is faithful
+        transcription rather than a defect. It used to be reported as
+        `unresolved`, which rejects the chunk: grimgar03 opens with its title
+        eight times and could not be generated at all, failing chunk 1 of 49
+        after 17 attempts in which the model was correct every time.
+
+        The conservatism that matters is unchanged - the entries are still
+        returned untouched, because deleting text the source supports would
+        corrupt what the model was asked to reproduce. Only the BLOCKING
+        changed, from rejecting the chunk to recording the decision.
+        """
         entries = [_entry("Unknown жук token."), _entry("Repeated long first line."),
                    _entry("Repeated long second line."), _entry("Repeated long first line."),
                    _entry("Repeated long second line.")]
@@ -79,7 +92,11 @@ class ScriptPreflightTests(unittest.TestCase):
         repair = build_deterministic_repair(entries, source)
 
         self.assertEqual(entries, repair["entries"])
-        self.assertEqual(2, len(repair["unresolved"]))
+        self.assertEqual(1, len(repair["unresolved"]))
+        self.assertEqual("unsupported_cyrillic_character",
+                         repair["unresolved"][0]["reason"])
+        self.assertIn("adjacent_duplicate_block_kept",
+                      [c.get("type") for c in repair["changes"]])
 
     def test_empty_entry_becomes_explicit_pause_on_previous_spoken_entry(self):
         entries = [_entry("Spoken line."), _entry("", instruct="A beat of silence."),

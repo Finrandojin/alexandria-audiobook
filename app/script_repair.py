@@ -66,9 +66,33 @@ def build_deterministic_repair(entries, source_text, merge_empty_into_pause=True
     removals = []
     for finding in duplicate_findings:
         details = finding["details"]
-        if details.get("source_occurrences") != 1:
+        occurrences = details.get("source_occurrences")
+        # Three cases, and the old `!= 1` test collapsed two opposite ones.
+        #
+        #   0  the block is nowhere in the source: the model invented the
+        #      repetition, and nothing here can decide which copy to keep.
+        #      Genuinely unresolved.
+        #   1  the block appears once but was emitted twice: the model
+        #      duplicated it, so deleting the second copy restores the source.
+        #  >=2 the SOURCE ITSELF repeats the block, so emitting it twice is
+        #      faithful transcription. Deleting a copy would corrupt the text
+        #      the model was asked to reproduce exactly.
+        #
+        # grimgar03 opens with its title 8 times - the source carries it 49
+        # times in all - and every one of 17 attempts was rejected for
+        # correctly reproducing that. The book could not be generated at all.
+        if occurrences is None or occurrences == 0:
             unresolved.append({"entry_numbers": finding["entry_numbers"],
-                               "reason": "duplicate_not_unique_in_source"})
+                               "reason": "duplicate_not_in_source"})
+            continue
+        if occurrences >= 2:
+            changes.append({
+                "type": "adjacent_duplicate_block_kept",
+                "entry_numbers": finding["entry_numbers"],
+                "source_occurrences": occurrences,
+                "note": "source repeats this block; emitting it twice is "
+                        "faithful, so nothing is removed",
+            })
             continue
         block_size = details["block_size"]
         first = finding["entry_numbers"][0]
