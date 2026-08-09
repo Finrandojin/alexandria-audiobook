@@ -1356,7 +1356,7 @@ def main():
                 "failed", fingerprint, accepted_chunks, source_normalizations,
                 total_chunks=total_chunks, failed_chunk=i,
                 failure="chunk_failed_after_retries", response_log=response_log,
-                failed_chunk_attempts=chunk_attempts))
+                model_name=model_name, failed_chunk_attempts=chunk_attempts))
             print(f"Error: chunk {i}/{total_chunks} failed validation after retries; "
                   "preserving existing output and validated checkpoint")
             sys.exit(1)
@@ -1372,7 +1372,7 @@ def main():
                 "failed", fingerprint, accepted_chunks, source_normalizations,
                 total_chunks=total_chunks, failed_chunk=i,
                 failure="post_return_validation_failed", failed_quality=quality,
-                response_log=response_log))
+                model_name=model_name, response_log=response_log))
             print(f"Error: chunk {i}/{total_chunks} failed post-return validation; "
                   "preserving existing output and validated checkpoint")
             sys.exit(1)

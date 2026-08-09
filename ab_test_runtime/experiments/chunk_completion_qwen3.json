@@ -1,0 +1,58 @@
+{
+  "scope": "every saved book with a generation_quality record; completion = accepted_chunk_count / total_chunks",
+  "target_pct": 99.0,
+  "books": 3,
+  "chunks": 204,
+  "overall_completion_pct": 75.98,
+  "per_model": {
+    "<unrecorded>": {
+      "books": 1,
+      "chunks": 49,
+      "completion_pct": 0.0,
+      "books_not_fully_complete": 1,
+      "worst_book_pct": 0.0,
+      "incomplete": [
+        {
+          "book": "grimgar03__single",
+          "status": "failed",
+          "accepted": 0,
+          "total": 49
+        }
+      ]
+    },
+    "qwen3-14b": {
+      "books": 2,
+      "chunks": 155,
+      "completion_pct": 100.0,
+      "books_not_fully_complete": 0,
+      "worst_book_pct": 100.0,
+      "incomplete": []
+    }
+  },
+  "per_book": [
+    {
+      "book": "grimgar03__single",
+      "model": "<unrecorded>",
+      "status": "failed",
+      "total_chunks": 49,
+      "accepted_chunks": 0,
+      "completion_pct": 0.0
+    },
+    {
+      "book": "mushoku16__single",
+      "model": "qwen3-14b",
+      "status": "complete",
+      "total_chunks": 45,
+      "accepted_chunks": 45,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "owarimonogatari3__single",
+      "model": "qwen3-14b",
+      "status": "complete",
+      "total_chunks": 110,
+      "accepted_chunks": 110,
+      "completion_pct": 100.0
+    }
+  ]
+}

@@ -487,6 +487,12 @@
     "test_experiment_run_status.ExperimentRunStatusTests.test_existing_or_malformed_status_fails_loudly",
     "test_experiment_run_status.ExperimentRunStatusTests.test_status_records_checkpoint_identity_and_resume_decision"
   ],
+  "test_failure_provenance": [
+    "test_failure_provenance.FailureProvenanceTest.test_a_none_model_is_not_silently_acceptable",
+    "test_failure_provenance.FailureProvenanceTest.test_failed_manifest_keeps_the_model_name",
+    "test_failure_provenance.FailureProvenanceTest.test_post_return_failure_keeps_the_model_name",
+    "test_failure_provenance.FailureProvenanceTest.test_the_two_call_sites_pass_it"
+  ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
     "test_find_nicknames.ParseAliasResponseTests.test_exact_variant_resolves_case_insensitively",

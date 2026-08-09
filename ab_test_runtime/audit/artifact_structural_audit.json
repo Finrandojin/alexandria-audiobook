@@ -1,8 +1,8 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 62,
-    "exploratory": 141,
+    "supported_structure": 63,
+    "exploratory": 142,
     "provisional": 112
   },
   "artifacts": [
@@ -1044,6 +1044,17 @@
       "artifact": "chunk_completion.json",
       "bytes": 9141,
       "sha256": "1593a53e162c8be03cb6bc474f7424b39090b986befbd6e593ecf5a2a4dfa1c7",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "chunk_completion_qwen3.json",
+      "bytes": 1334,
+      "sha256": "4cb9bd746d9db1bbcceb217ec8092c82a38c8c8850025f13ba543ffd97d4218d",
       "seed": null,
       "status": null,
       "has_rows": false,
@@ -3623,6 +3634,19 @@
       "has_rows": false,
       "identity_contract": "tts_provenance",
       "commit": "ac1d2faee5c1013aa840ed204c6cec727078220f",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "three_pass_vs_single_qwen3.json",
+      "bytes": 1393,
+      "sha256": "acb4f45de59917e652b831102de8d149ebbc8321558ad042d1f33822a65bfa6f",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "86076099e8debdbaca3d6b7e6adcf871ef828569",
       "dirty": false,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
