@@ -364,6 +364,11 @@
     "test_deterministic_classification.ClassificationTemperatureTest.test_instruct_still_samples",
     "test_deterministic_classification.ClassificationTemperatureTest.test_segment_and_attribute_default_to_zero"
   ],
+  "test_deterministic_retry": [
+    "test_deterministic_retry.DeterministicRetryTest.test_distinct_prompts_are_not_blocked_at_temperature_zero",
+    "test_deterministic_retry.DeterministicRetryTest.test_nonzero_temperature_still_retries",
+    "test_deterministic_retry.DeterministicRetryTest.test_temperature_zero_stops_repeating_an_identical_prompt"
+  ],
   "test_distill_eval_shim": [
     "test_distill_eval_shim.DistillEvalShimTest.test_response_exposes_only_what_the_caller_reads",
     "test_distill_eval_shim.DistillEvalShimTest.test_shim_drives_attribute_batch_and_freezes_text",
