@@ -1,7 +1,7 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 63,
+    "supported_structure": 64,
     "exploratory": 142,
     "provisional": 112
   },
@@ -2738,8 +2738,8 @@
     },
     {
       "artifact": "pitch_quality_probe.json",
-      "bytes": 302582,
-      "sha256": "d4d18a6d8179b28c03dac71b87a3e1c8152f93c9e54431e4592e96307f5d9941",
+      "bytes": 340628,
+      "sha256": "72eb16e93ae365903e364117c71134d3c5866f0aacd210409e3d54276017b41e",
       "seed": null,
       "status": null,
       "has_rows": false,
@@ -3635,6 +3635,19 @@
       "identity_contract": "tts_provenance",
       "commit": "ac1d2faee5c1013aa840ed204c6cec727078220f",
       "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "three_pass_vs_single_fallback.json",
+      "bytes": 1379,
+      "sha256": "1a561d7c4926dfa18c2df9625d126e7dca7921f567680241b18935fafc71a61e",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "860fecd8190d41de1298d425bee75129240d375d",
+      "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
     },

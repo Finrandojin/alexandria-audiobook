@@ -30,11 +30,13 @@ APP = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO = os.path.dirname(APP)
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from voice_compare_view import pitch_stats, voice_quality  # noqa: E402
+from voice_compare_view import (pitch_stats, vocal_tract_length,  # noqa: E402
+                                voice_quality)
 
 # f0_spread is the 10-90 percentile band: goal 2.5's "pitch range, not just
 # pitch shape". The quality three are goal 2.6.
-MEASURES = ("f0_median", "f0_spread", "jitter_local", "shimmer_local", "hnr_db")
+MEASURES = ("f0_median", "f0_spread", "jitter_local", "shimmer_local",
+            "hnr_db", "vtl_cm")
 
 LANGUAGES = {"en": "ljspeech_generate.json",
              "ja": "kokoro_generate.json",
@@ -56,6 +58,12 @@ def measure(path):
     out = {}
     out.update(pitch_stats(path) or {})
     out.update(voice_quality(path) or {})
+    # Vocal tract length from formant dispersion. It was the one 2.6 measure
+    # left at 12 clips after the rest moved to 100, and it lives in the same
+    # module - it simply was never wired in here.
+    vtl = vocal_tract_length(path)
+    if vtl is not None:
+        out["vtl_cm"] = round(float(vtl), 4)
     return out
 
 

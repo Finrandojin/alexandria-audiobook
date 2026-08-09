@@ -209,9 +209,12 @@ the only book near the line.
 > selection given an oracle set, so they are not the same number and one does
 > not replace the other. But the *framing* — "the answer is present and the
 > model looks past it" — was calibrated on a model 17 points worse at exactly
-> that, and the size of this gap on the shipped model has never been measured.
+> that.
 >
-> **Re-measure 29.9% on qwen3-14b before spending anything on this goal.**
+> **That re-measurement was done on 2026-08-08 and closed the goal:** selection
+> is 62.9% on qwen3-14b at 91.6% roster recall. The warning is kept because it
+> was correct — the entire gap this goal was built around was a weaker model —
+> but it is no longer an instruction. Nothing here needs re-measuring.
 
 **Why this and not more context.** Two independent measurements say supply is
 not the constraint. Feeding the model more of the book is treating the wrong
@@ -630,9 +633,10 @@ which is a comparison between two clips of one person.
 **Metric** — jitter, shimmer and HNR of the generated line ÷ the human's, plus
 vocal tract length from formant dispersion.
 **Probe** — `voice_quality`, `vocal_tract_length` (Praat via parselmouth).
-**Current** — jitter and shimmer on 100 clips per language, both arms, 0
-dropped, 2026-08-08. Tract length still 12 clips. **MET on jitter and shimmer.
-OPEN on HNR, one cell. Tract length unchanged and under-sampled.**
+**Current** — all five measures on 100 clips per language, both arms, 0
+dropped (jitter/shimmer/HNR 2026-08-08, tract length 2026-08-09). **MET on
+jitter and shimmer. MET on HNR after the eval speaker was corrected. OPEN on
+tract length, one cell: the Chinese clone arm at 1.064x.**
 
 | set | jitter | shimmer | HNR |
 |---|---|---|---|
@@ -720,10 +724,23 @@ speakers the adapter never saw median 12.02 dB, and SSB1585 sat at the 8th
 percentile of them. The rerun is consistent with that, not independent proof of
 it.
 
-Vocal tract length is unchanged from the 12-clip run at **0.98–1.08x**. The
-probe here does not compute it, so that row rests on the same thin evidence
-every other 12-clip number did — it is recorded as MET on sample size this
-goal has otherwise stopped trusting.
+**Vocal tract length, now at 100 clips per language** (2026-08-09), both arms:
+
+| arm | ratio | | arm | ratio |
+|---|---|---|---|---|
+| English LoRA | 1.004 | | English clone | 1.029 |
+| Japanese LoRA | 1.016 | | Japanese clone | 1.042 |
+| Chinese LoRA | 1.032 | | Chinese clone | **1.064** |
+
+Five of six cells are inside 0.95–1.05. **The Chinese clone arm is not**, at
+1.064 — every arm shifts the speaker's apparent vocal size slightly *upward*,
+and that one shifts it past the target.
+
+**The 12-clip entry claimed 0.98–1.08x and called this MET, but 1.08 was
+already outside the 1.05 target.** It was recorded as met against its own
+failing number. That is a bookkeeping error, not a measurement one, and it is
+the reason this row is now stated per-arm rather than as a range: a range hides
+which arm failed.
 
 **Target — jitter, shimmer and HNR within 0.85–1.15x; tract length within
 0.95–1.05x.**
@@ -1201,7 +1218,32 @@ that alter a non-name word.**
 **Metric** — accuracy of `three_pass_generate.py` against the shipped single
 pass, paired on line id.
 **Probe** — `app/experiments/three_pass_vs_single.py`.
-**Current** — **NO BASELINE.**
+**Current** — **ANSWERED 2026-08-09.** Two books, both arms, qwen3-14b:
+
+| book | single | three-pass | delta | comparable lines |
+|---|---|---|---|---|
+| mushoku16 | 45.5% | 40.3% | **−5.2** | 134 |
+| owarimonogatari3 | 58.0% | 40.6% | **−17.5** | 143 |
+
+**Three-pass loses on both.** Note the shape: three-pass sits at ~40% on both
+books while single-pass ranges 45.5 to 58.0, which looks less like a method
+that trails and more like one with a ceiling near 40% regardless of the book.
+
+Three-pass is roughly **twice as fast** (40m against 76m on mushoku16, the one
+book where both arms were timed in the same run). For an audiobook, where a
+misattributed line is delivered in the wrong character's voice, 5 to 17 points
+of accuracy is not worth halving the wall time. **Do not ship three-pass for
+accuracy.**
+
+**Getting the second book required a settings change, not a code fix.**
+owarimonogatari3's three-pass arm aborted at 38m on one unattributable
+one-entry batch, because `three_pass_generate` defaults to
+`on_exhaustion='fail'` — correct for surfacing a failure rate, wrong for an
+accuracy comparison. Re-run with `fallback` (production behaviour, unresolved
+spans become UNKNOWN) it completed all 3929 entries in 63 minutes.
+
+**Scope:** two Japanese light novels in translation. Goal 1.3 established that
+this is the project's narrowest evidence base, and nothing here escapes it.
 
 **Target — one clean comparison, then wire it in or delete it.**
 

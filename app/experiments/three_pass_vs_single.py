@@ -105,6 +105,37 @@ def index_entries(path):
     return out, occurrences
 
 
+
+
+def _is_reusable(out_path, expected_model=None):
+    """True only when a previous run of this arm demonstrably finished.
+
+    A leftover file proves nothing - the failed runs in this project all left
+    output behind, which is the whole reason `accepted_chunk_count` exists. So
+    reuse requires the sibling generation_quality record to say `complete`
+    with every chunk accepted, and, when a model is named, to say it was that
+    model. Anything else re-runs.
+    """
+    if not os.path.exists(out_path):
+        return False
+    quality = out_path + ".generation_quality.json"
+    if not os.path.exists(quality):
+        return False
+    try:
+        with open(quality, encoding="utf-8") as handle:
+            record = json.load(handle)
+    except (OSError, ValueError):
+        return False
+    total = record.get("total_chunks")
+    if record.get("status") != "complete" or not total:
+        return False
+    if record.get("accepted_chunk_count") != total:
+        return False
+    if expected_model and record.get("model_name") != expected_model:
+        return False
+    return True
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     ap.add_argument("--books", nargs="+",
@@ -114,6 +145,23 @@ def main():
     ap.add_argument("--work", default=os.path.join(
         REPO, "ab_test_runtime", "three_pass_vs_single"))
     ap.add_argument("--timeout", type=int, default=14400)
+    ap.add_argument("--reuse-complete", action="store_true",
+                    help="skip an arm whose output is already on disk AND "
+                         "whose generation_quality record shows it completed "
+                         "every chunk. Existence alone is not enough: a "
+                         "partial or failed run leaves a file behind too.")
+    ap.add_argument("--model", default=None,
+                    help="with --reuse-complete, only reuse output recorded "
+                         "as produced by this model. Without it, a reused arm "
+                         "could silently come from a different model than the "
+                         "arm it is compared against.")
+    ap.add_argument("--pass2-on-exhaustion", choices=["fail", "fallback"],
+                    default=None,
+                    help="forwarded to three_pass_generate. Its own default "
+                         "is 'fail' (abort the book, surfacing the failure "
+                         "rate); 'fallback' labels unresolved spans UNKNOWN, "
+                         "which is production behaviour and what an accuracy "
+                         "comparison should measure.")
     ap.add_argument("--out", default=os.path.join(
         REPO, "ab_test_runtime", "experiments", "three_pass_vs_single.json"))
     args = ap.parse_args()
@@ -141,8 +189,22 @@ def main():
             out_path = os.path.join(args.work, f"{book}__{arm}.json")
             log = os.path.join(logs, f"tpvs_{book}_{arm}.log")
             t0 = time.time()
+            if args.reuse_complete and _is_reusable(out_path, args.model):
+                produced[arm] = (index_entries(out_path), 0.0)
+                print(f"  {book:18} {arm:11} reused, "
+                      f"{len(produced[arm][0][0])} entries (0m)")
+                continue
             cmd = [py, "-u", os.path.join(APP, script), src,
                    "--output", out_path]
+            # Only the three-pass arm has this switch, and only it needs one:
+            # three_pass_generate defaults to on_exhaustion='fail', which
+            # aborts the whole book when a single batch cannot be attributed.
+            # That is the right default for surfacing a failure rate, and the
+            # wrong one for an ACCURACY comparison - owarimonogatari3 lost a
+            # 4454-entry book to one unattributable line, so 5.3 got one
+            # scored book instead of two. 'fallback' is what production runs.
+            if arm == "three_pass" and args.pass2_on_exhaustion:
+                cmd += ["--pass2-on-exhaustion", args.pass2_on_exhaustion]
             try:
                 with open(log, "w", encoding="utf-8") as fh:
                     rc = subprocess.run(cmd, stdout=fh,
@@ -214,9 +276,19 @@ def main():
         print("  Per book, deliberately: book identity dominates method here, "
               "so a\n  pooled figure would mostly report which books were "
               "included.")
-        cost = sum(r["three_minutes"] for r in results) / max(
-            sum(r["single_minutes"] for r in results), 1e-9)
-        print(f"  three-pass costs {cost:.1f}x the single pass in wall time.")
+        # A reused arm records 0 minutes because it was not run, not because
+        # it was instant. Dividing by that produced "68900000000.0x" on the
+        # first fallback run - a fabricated number printed with the same
+        # authority as a measured one. Timing is only reported when every arm
+        # in the comparison was actually timed.
+        single_total = sum(r["single_minutes"] for r in results)
+        three_total = sum(r["three_minutes"] for r in results)
+        if single_total > 0 and three_total > 0:
+            print(f"  three-pass costs {three_total / single_total:.1f}x "
+                  "the single pass in wall time.")
+        else:
+            print("  wall-time comparison unavailable: an arm was reused "
+                  "rather than run, so it has no measured duration.")
 
     doc = {"books": args.books, "results": results, "failures": failures}
     try:

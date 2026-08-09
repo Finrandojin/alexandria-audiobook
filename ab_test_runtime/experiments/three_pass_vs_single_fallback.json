@@ -1,0 +1,55 @@
+{
+ "books": [
+  "owarimonogatari3"
+ ],
+ "results": [
+  {
+   "book": "owarimonogatari3",
+   "gold_lines": 162,
+   "comparable": 143,
+   "single_entries": 4454,
+   "three_entries": 3655,
+   "single_minutes": 0.0,
+   "three_minutes": 68.9,
+   "single": {
+    "correct": 83,
+    "accuracy": 0.5804195804195804
+   },
+   "three_pass": {
+    "correct": 58,
+    "accuracy": 0.40559440559440557
+   }
+  }
+ ],
+ "failures": [],
+ "provenance": {
+  "script": "three_pass_vs_single.py",
+  "written": "2026-08-09T10:44:22",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "860fecd8190d41de1298d425bee75129240d375d",
+   "branch": "agent/tract-length-n100",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M GOALS.md",
+    " M ab_test_runtime/experiments/pitch_quality_probe.json",
+    " M app/experiments/pitch_quality_probe.py",
+    " M app/experiments/three_pass_vs_single.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "9302301bbdae02126cf8b2c9164f1be733e9641fddbc5ddbe9a614f950878aca"
+  },
+  "args": {
+   "books": [
+    "owarimonogatari3"
+   ],
+   "inputs": "ab_test_runtime/results/collect_all_20260722-155801/inputs",
+   "work": "ab_test_runtime/three_pass_vs_single",
+   "timeout": 14400,
+   "reuse_complete": true,
+   "model": "qwen3-14b",
+   "pass2_on_exhaustion": "fallback",
+   "out": "ab_test_runtime/experiments/three_pass_vs_single_fallback.json"
+  }
+ }
+}
