@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-08 19:48 from `ab_test_runtime/experiments/` — 313 artifacts, 521 arms.
+Generated 2026-08-09 02:46 from `ab_test_runtime/experiments/` — 314 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -723,6 +723,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `chinese_attribution_jy_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_wp.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_wp_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chunk_completion.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `clone_vs_lora_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `corpus_hnr_baseline.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
