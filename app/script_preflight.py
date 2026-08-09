@@ -86,9 +86,21 @@ def find_adjacent_duplicate_blocks(texts, source_text):
                     all(len(text) >= 8 for text in left)):
                 block_text = _normalize_words(" ".join(left))
                 source_occurrences = source_normalized.count(block_text) if source_normalized else None
+                # A block the SOURCE itself repeats is faithful
+                # transcription, not a defect. grimgar03 opens with its
+                # title eight times; the whole-book gate rejected the
+                # finished book for reproducing it, after all 49 chunks had
+                # generated cleanly. script_repair.py already made this
+                # distinction for the repair path - having it in only one of
+                # the two places is how the same book failed twice for the
+                # same reason (Rule 15: one decision, one implementation).
+                faithful = source_occurrences >= 2
                 findings.append(_finding(
-                    "blocking", "adjacent_duplicate_block",
-                    f"Entries {index + 1}-{index + block_size} are repeated immediately.",
+                    "manual_review" if faithful else "blocking",
+                    "adjacent_duplicate_block",
+                    f"Entries {index + 1}-{index + block_size} are repeated "
+                    + ("immediately, and the source repeats them too."
+                       if faithful else "immediately."),
                     list(range(index + 1, index + (2 * block_size) + 1)),
                     block_size=block_size,
                     source_occurrences=source_occurrences,

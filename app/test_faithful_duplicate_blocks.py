@@ -92,3 +92,40 @@ class FaithfulDuplicateBlockTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class PreflightSeverityTest(unittest.TestCase):
+    """The same judgement, in the other place it lives.
+
+    `script_repair.build_deterministic_repair` and
+    `script_preflight.find_adjacent_duplicate_blocks` both decide what an
+    adjacent duplicate block means. Teaching only the repair path that a
+    source-repeated block is faithful left the whole-book gate still calling
+    it blocking, so grimgar03 generated all 49 chunks and was rejected at the
+    final gate for the same title repetition that had stopped it at chunk 1.
+
+    One decision in two implementations drifts. These tests pin the second.
+    """
+
+    def test_a_source_repeated_block_is_not_blocking(self):
+        from script_preflight import find_adjacent_duplicate_blocks
+        title = "Grimgar of Fantasy and Ash: Volume 3"
+        texts = [title] * 4
+        source = "\n".join([title] * 8)
+        findings = find_adjacent_duplicate_blocks(texts, source)
+        self.assertTrue(findings, "the block should still be reported")
+        self.assertEqual("manual_review", findings[0]["severity"],
+                         "a block the source repeats is faithful and must not "
+                         "block the whole-book gate")
+
+    def test_a_model_invented_repeat_is_still_blocking(self):
+        from script_preflight import find_adjacent_duplicate_blocks
+        first = "The morning air was sharp and cold today."
+        second = "Haruhiro rubbed his eyes and sat up slowly."
+        texts = [first, second, first, second]
+        source = f"{first}\n{second}\nAnd then something else happened.\n"
+        findings = find_adjacent_duplicate_blocks(texts, source)
+        self.assertTrue(findings)
+        self.assertEqual("blocking", findings[0]["severity"],
+                         "a duplicate the source does not support must still "
+                         "block")

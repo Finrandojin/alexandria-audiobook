@@ -502,7 +502,9 @@
     "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_a_block_absent_from_the_source_stays_unresolved",
     "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_a_block_duplicated_by_the_model_is_still_removed",
     "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_source_repeating_a_block_is_not_a_defect",
-    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_the_kept_case_is_recorded_as_a_change"
+    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_the_kept_case_is_recorded_as_a_change",
+    "test_faithful_duplicate_blocks.PreflightSeverityTest.test_a_model_invented_repeat_is_still_blocking",
+    "test_faithful_duplicate_blocks.PreflightSeverityTest.test_a_source_repeated_block_is_not_blocking"
   ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
