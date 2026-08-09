@@ -1,0 +1,252 @@
+{
+  "scope": "character names as written in the prose; groups differing only by capitalisation are excluded, since the engine speaks those identically",
+  "books": 48,
+  "distinct_characters": 454,
+  "characters_with_multiple_spellings": 23,
+  "inconsistency_pct": 5.07,
+  "lexicon_entries": 5,
+  "per_book": {
+    "Arc 2 - Volume 2": {
+      "distinct_characters": 10,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "subaru": {
+          "Subaru": 1068,
+          "Su-ba-ru": 1
+        }
+      }
+    },
+    "Arc 2 - Volume 2_2": {
+      "distinct_characters": 9,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "subaru": {
+          "Subaru": 663,
+          "Su-ba-ru": 1
+        }
+      }
+    },
+    "Arc 2 - Volume 2_3": {
+      "distinct_characters": 9,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "subaru": {
+          "Subaru": 1062,
+          "Su-ba-ru": 1
+        }
+      }
+    },
+    "Arc 3 - Volume 4": {
+      "distinct_characters": 26,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 59,
+          "Ferri’s": 8
+        }
+      }
+    },
+    "Arc 3 - Volume 4_2": {
+      "distinct_characters": 22,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 49,
+          "Ferri’s": 6
+        }
+      }
+    },
+    "Arc 3 - Volume 4_3": {
+      "distinct_characters": 30,
+      "inconsistent": 2,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "knights": {
+          "Knights": 33,
+          "knights": 57,
+          "knight’s": 4,
+          "KNIGHTS": 1
+        },
+        "ferris": {
+          "Ferris": 58,
+          "Ferri’s": 7
+        }
+      }
+    },
+    "Arc 3 - Volume 5": {
+      "distinct_characters": 15,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 87,
+          "Ferri’s": 7
+        }
+      }
+    },
+    "Arc 3 - Volume 5_2": {
+      "distinct_characters": 12,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 45,
+          "Ferri’s": 3
+        }
+      }
+    },
+    "Arc 3 - Volume 5_3": {
+      "distinct_characters": 12,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 88,
+          "Ferri’s": 7
+        }
+      }
+    },
+    "Arc 3 - Volume 6": {
+      "distinct_characters": 15,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "rem": {
+          "Rem": 339,
+          "R-e-m": 1
+        }
+      }
+    },
+    "Arc 3 - Volume 6_2": {
+      "distinct_characters": 15,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "rem": {
+          "Rem": 211,
+          "R-e-m": 1
+        }
+      }
+    },
+    "Arc 3 - Volume 6_3": {
+      "distinct_characters": 17,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "rem": {
+          "Rem": 340,
+          "R-e-m": 1
+        }
+      }
+    },
+    "Arc 3 - Volume 7": {
+      "distinct_characters": 17,
+      "inconsistent": 2,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 102,
+          "Ferri’s": 3
+        },
+        "knights": {
+          "knights": 29,
+          "Knights": 2,
+          "knight’s": 1
+        }
+      }
+    },
+    "Arc 3 - Volume 7_2": {
+      "distinct_characters": 14,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferri’s": 2,
+          "Ferris": 50
+        }
+      }
+    },
+    "Arc 3 - Volume 8": {
+      "distinct_characters": 15,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 161,
+          "Ferri’s": 3
+        }
+      }
+    },
+    "Arc 3 - Volume 8_2": {
+      "distinct_characters": 16,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 123,
+          "Ferri’s": 3
+        }
+      }
+    },
+    "Arc 3 - Volume 8_3": {
+      "distinct_characters": 19,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 162,
+          "Ferri’s": 3
+        }
+      }
+    },
+    "Arc 3 - Volume 9": {
+      "distinct_characters": 27,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 123,
+          "Ferri’s": 2
+        }
+      }
+    },
+    "Arc 3 - Volume 9_2": {
+      "distinct_characters": 24,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 68,
+          "Ferri’s": 1
+        }
+      }
+    },
+    "Arc 4 - Volume 10": {
+      "distinct_characters": 22,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 25,
+          "Ferri’s": 1
+        }
+      }
+    },
+    "Arc 4 - Volume 10_2": {
+      "distinct_characters": 19,
+      "inconsistent": 1,
+      "covered_by_lexicon": 0,
+      "examples": {
+        "ferris": {
+          "Ferris": 24,
+          "Ferri’s": 1
+        }
+      }
+    }
+  }
+}

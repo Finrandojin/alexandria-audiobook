@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-09 02:46 from `ab_test_runtime/experiments/` — 314 artifacts, 521 arms.
+Generated 2026-08-09 03:46 from `ab_test_runtime/experiments/` — 315 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -759,6 +759,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `ljspeech_score.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `medoid_counterexample.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `medoid_library_retrain.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `name_consistency.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `nonprose_category_expansion.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_category_expansion_pilot.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `nonprose_gate.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
