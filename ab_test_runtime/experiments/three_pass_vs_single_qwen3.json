@@ -1,0 +1,69 @@
+{
+ "books": [
+  "grimgar03",
+  "index18",
+  "mushoku16",
+  "owarimonogatari3"
+ ],
+ "results": [
+  {
+   "book": "mushoku16",
+   "gold_lines": 136,
+   "comparable": 134,
+   "single_entries": 3839,
+   "three_entries": 1896,
+   "single_minutes": 75.5,
+   "three_minutes": 39.7,
+   "single": {
+    "correct": 61,
+    "accuracy": 0.4552238805970149
+   },
+   "three_pass": {
+    "correct": 54,
+    "accuracy": 0.40298507462686567
+   }
+  }
+ ],
+ "failures": [
+  {
+   "book": "grimgar03",
+   "arm": "single",
+   "rc": 1
+  },
+  {
+   "book": "index18",
+   "arm": "single",
+   "rc": 1
+  },
+  {
+   "book": "owarimonogatari3",
+   "arm": "three_pass",
+   "rc": 1
+  }
+ ],
+ "provenance": {
+  "script": "three_pass_vs_single.py",
+  "written": "2026-08-09T08:52:02",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "86076099e8debdbaca3d6b7e6adcf871ef828569",
+   "branch": "agent/name-consistency",
+   "dirty": false,
+   "modified_tracked_files": null,
+   "untracked_harness_files": null,
+   "harness_sha256": "14727e263c2900f495be92f0a9f5c91643f332f49bcff66544b8790d6c14a302"
+  },
+  "args": {
+   "books": [
+    "grimgar03",
+    "index18",
+    "mushoku16",
+    "owarimonogatari3"
+   ],
+   "inputs": "ab_test_runtime/results/collect_all_20260722-155801/inputs",
+   "work": "ab_test_runtime/three_pass_vs_single",
+   "timeout": 14400,
+   "out": "ab_test_runtime/experiments/three_pass_vs_single_qwen3.json"
+  }
+ }
+}

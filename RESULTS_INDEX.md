@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-09 03:46 from `ab_test_runtime/experiments/` — 315 artifacts, 521 arms.
+Generated 2026-08-09 09:02 from `ab_test_runtime/experiments/` — 317 artifacts, 521 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -724,6 +724,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `chinese_attribution_wp.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chinese_attribution_wp_fixed.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `chunk_completion.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
+| `chunk_completion_qwen3.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `clone_vs_lora_seeded.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `cluster_vs_name.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `corpus_hnr_baseline.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
@@ -806,6 +807,7 @@ These artifacts exist and hold real results; this table only represents per-arm 
 | `symbolization.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `symbolization_owari.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `three_pass_vs_single.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
+| `three_pass_vs_single_qwen3.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `training_composition.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
 | `training_determinism.json` | NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly |
 | `trivial_baselines.json` | NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results |
