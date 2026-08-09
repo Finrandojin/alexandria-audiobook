@@ -498,6 +498,12 @@
     "test_failure_provenance.FailureProvenanceTest.test_post_return_failure_keeps_the_model_name",
     "test_failure_provenance.FailureProvenanceTest.test_the_two_call_sites_pass_it"
   ],
+  "test_faithful_duplicate_blocks": [
+    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_a_block_absent_from_the_source_stays_unresolved",
+    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_a_block_duplicated_by_the_model_is_still_removed",
+    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_source_repeating_a_block_is_not_a_defect",
+    "test_faithful_duplicate_blocks.FaithfulDuplicateBlockTest.test_the_kept_case_is_recorded_as_a_change"
+  ],
   "test_find_nicknames": [
     "test_find_nicknames.ParseAliasResponseTests.test_clean_miss_variant_is_dropped_silently",
     "test_find_nicknames.ParseAliasResponseTests.test_exact_variant_resolves_case_insensitively",
@@ -1212,7 +1218,7 @@
     "test_script_preflight.ScriptPreflightTests.test_content_apply_requires_expected_values_and_does_not_mutate",
     "test_script_preflight.ScriptPreflightTests.test_content_review_is_selective_and_normalization_is_lossless",
     "test_script_preflight.ScriptPreflightTests.test_deterministic_repair_is_source_backed_and_does_not_mutate_input",
-    "test_script_preflight.ScriptPreflightTests.test_deterministic_repair_refuses_unproven_unicode_and_source_duplicates",
+    "test_script_preflight.ScriptPreflightTests.test_deterministic_repair_refuses_unproven_unicode_and_keeps_source_duplicates",
     "test_script_preflight.ScriptPreflightTests.test_does_not_flag_distinct_adjacent_entries_as_near_duplicate",
     "test_script_preflight.ScriptPreflightTests.test_does_not_flag_near_duplicate_when_both_sides_are_source_backed",
     "test_script_preflight.ScriptPreflightTests.test_does_not_flag_non_adjacent_or_short_repetition_as_duplicate_block",
