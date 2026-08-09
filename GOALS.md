@@ -1154,7 +1154,29 @@ here.
 
 **Metric** — character names spoken the same way across a book.
 **Probe** — `app/pronunciation.py`, `pronunciation.json` (ships empty).
-**Current** — infrastructure exists, lexicon empty. **NO BASELINE.**
+**Current** — infrastructure exists, lexicon empty. **BASELINE TAKEN 2026-08-08** (`name_consistency.py`, 48 saved books):
+
+| | |
+|---|---|
+| character names appearing in prose | 454 |
+| spelled more than one way, beyond capitalisation | **23 (5.07%)** |
+| of those, covered by the pronunciation lexicon | **0** |
+| lexicon entries in total | 5 |
+
+The dominant pattern is deliberate authorial syllabification — `Subaru` 1068
+times against `Su-ba-ru` once, a stylistic stretch the engine will voice as
+three separate syllables. Rare per book, but each instance is audible, and the
+lexicon covers none of them.
+
+**Capitalisation is excluded and that mattered.** Counting it gave 5x more
+hits, all false: a character named Felt collides with every sentence-initial
+"Felt", and the engine pronounces those identically. Only variation surviving
+case-folding — an accent, a hyphen, a different letter — is counted.
+
+**Measured on the prose, not the speaker labels.** The first version of this
+counted variant `speaker` values and found 0 of 777, because those are
+upper-cased and canonicalised upstream and cannot vary. That was a protected
+surface, the same mistake as auditing TTS input rather than output (5.1).
 
 **Target — a populated lexicon for the shipped demo book, and 0 substitutions
 that alter a non-name word.**
