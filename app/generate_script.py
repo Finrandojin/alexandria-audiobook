@@ -637,6 +637,13 @@ def call_llm_for_entries(client, model_name, sys_prompt, user_prompt, params,
     requested_max = params.max_tokens
     consecutive_severe = 0
     response_fingerprints = {}
+    # Prompts already sent on this batch. At temperature 0 the model is
+    # deterministic, so re-sending a prompt it has already rejected must
+    # produce the same rejected answer - the retry cannot succeed and only
+    # costs wall time. Observed on owarimonogatari3's pass-2: attempts 3 and 4
+    # sent the same 764-token prompt and got the same 325-token completion,
+    # then the batch was failed anyway. Rule 10: decide the policy once.
+    attempted_prompts = set()
     # Persists across attempts: a reasoning model gets exactly one larger
     # budget before the batch is failed (Rule 10 - one retry policy).
     reasoning_escalated = False
@@ -657,6 +664,15 @@ def call_llm_for_entries(client, model_name, sys_prompt, user_prompt, params,
             messages = base_messages if not retry_feedback else [
                 base_messages[0], {"role": "user", "content": attempt_prompt}
             ]
+            # Only when the sampler is deterministic. Above 0 a repeated prompt
+            # is a legitimate second sample and must still be sent.
+            if not params.temperature:
+                if attempt_prompt in attempted_prompts:
+                    print(f"  {label}: identical prompt already rejected at "
+                          f"temperature 0; further retries cannot differ",
+                          flush=True)
+                    break
+                attempted_prompts.add(attempt_prompt)
             effective_max = get_effective_max_tokens(
                 requested_max, params.context_length, messages,
                 params.hard_max_tokens, scale_to_context=False)
