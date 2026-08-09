@@ -630,6 +630,7 @@ tag_priority__mushoku16__qwen__qwen3-14b__local-llamacpp.json,provisional,tag_pr
 tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,tag_priority,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,baseline,162,66,40.7,ok,False,064c9c4c,1891.9,07-29 01:19,http://127.0.0.1:8090/v1,
 tag_priority__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json,supported_measurement,tag_priority,owarimonogatari3,qwen/qwen3-14b,local-llamacpp-hip,mitch-linux,llama.cpp-hip,32768,1,q8_0,tagfirst,162,70,43.2,ok,False,064c9c4c,1891.9,07-29 01:19,http://127.0.0.1:8090/v1,
 three_pass_vs_single.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
+three_pass_vs_single_fallback.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 three_pass_vs_single_qwen3.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
 training_composition.json,exploratory,,,,,,,,,,,,,,,,,,,,NOT INDEXED: no 'rows' list - this table only represents per-arm attribution results
 training_determinism.json,supported_structure,,,,,,,,,,,,,,,,,,,,NOT INDEXED: TTS provenance artifact; read its per-book/category summary directly
