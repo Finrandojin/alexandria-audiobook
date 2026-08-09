@@ -1257,6 +1257,12 @@
     "test_simd_benchmark.SimdBenchmarkTests.test_summary_rejects_fake_baseline",
     "test_simd_benchmark.SimdBenchmarkTests.test_summary_requires_disabled_baseline_and_equivalent_outputs"
   ],
+  "test_source_gate_threshold": [
+    "test_source_gate_threshold.SourceGateThresholdTest.test_a_clean_file_is_far_below_the_limit",
+    "test_source_gate_threshold.SourceGateThresholdTest.test_the_limit_is_small_enough_to_stay_meaningful",
+    "test_source_gate_threshold.SourceGateThresholdTest.test_threshold_sits_between_corrupt_and_repaired",
+    "test_source_gate_threshold.SourceGateThresholdTest.test_unsafe_controls_remain_an_absolute_refusal"
+  ],
   "test_source_normalization_lossy": [
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_apostrophe_between_letters",
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_clean_text_is_untouched",

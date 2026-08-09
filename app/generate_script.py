@@ -28,6 +28,12 @@ def get_generation_checkpoint_path(output_path):
     return output_path + ".generation_checkpoint.json"
 
 
+# Share of a source file allowed to be U+FFFD before generation is refused.
+# 0.5% sits between index18 corrupt (1.40%) and index18 after deterministic
+# repair (0.26%), so the raw file is still rejected and the repaired one runs.
+MAX_REPLACEMENT_SHARE = 0.005
+
+
 def get_generation_quality_path(output_path):
     return output_path + ".generation_quality.json"
 
@@ -1229,10 +1235,39 @@ def main():
     source_unicode = audit_unicode_text(book_content)
     print(f"Source scripts: {', '.join(source_unicode['scripts']) or 'none'}; "
           f"NFC normalized: {source_unicode['is_nfc']}")
-    if source_unicode["replacement_character_count"] or source_unicode["unsafe_controls"]:
-        print("Error: source contains replacement or unsafe control characters; "
+    # Unsafe control characters stay a hard refusal: they are never legitimate
+    # prose and can break downstream parsing.
+    if source_unicode["unsafe_controls"]:
+        print("Error: source contains unsafe control characters; "
               f"details={source_unicode}")
         sys.exit(1)
+    # Replacement characters are graded rather than absolute. A file decoded
+    # with the wrong codec loses every non-ASCII character, and index18 - one
+    # of the four gold-annotated books - was excluded from every measurement
+    # because of 6,662 of them, 1.40% of the file. Deterministic repair brings
+    # that to 0.26%, and the remainder is genuinely ambiguous: accented
+    # letters, ellipses and dashes that no rule and no model resolved reliably.
+    #
+    # Refusing at any count meant a repaired book was as unusable as a corrupt
+    # one. The threshold sits between the two, so it still refuses the raw file
+    # and now accepts the repaired one. It is not a claim that stray
+    # replacement characters are harmless - `verbalize_symbols` drops them at
+    # the TTS boundary (goal 5.1), so they never reach the engine either way.
+    replacement_count = source_unicode["replacement_character_count"]
+    replacement_share = replacement_count / max(1, len(book_content))
+    if replacement_share > MAX_REPLACEMENT_SHARE:
+        print(f"Error: source is {replacement_share:.2%} replacement "
+              f"characters ({replacement_count}), above the "
+              f"{MAX_REPLACEMENT_SHARE:.2%} limit; the file needs decoding "
+              f"repair before it can be generated. details={source_unicode}")
+        sys.exit(1)
+    if replacement_count:
+        print(f"WARNING: source carries {replacement_count} replacement "
+              f"characters ({replacement_share:.3%}), under the "
+              f"{MAX_REPLACEMENT_SHARE:.2%} limit. These are positions where "
+              "the original character is unrecoverable; they are dropped "
+              "before synthesis, so affected words will be missing a letter "
+              "or mark in the audio.")
 
     print(f"Read {len(book_content)} characters")
 
