@@ -1,0 +1,61 @@
+{
+ "build": "ab_test_runtime/ljspeech_eval/build.json",
+ "limit": 50,
+ "language": "zh",
+ "whisper_cpp_model": "ggml-large-v3.bin",
+ "backends": [
+  "whisper_cpp"
+ ],
+ "results": {
+  "whisper_cpp": {
+   "n": 50,
+   "failures": [],
+   "failed": 0,
+   "clips_without_timestamps": 0,
+   "wer_mean": 0.6705,
+   "wer_median": 1.0,
+   "rtf": 0.27,
+   "seconds_total": 97.1
+  }
+ },
+ "alignment": {
+  "whisper_cpp": {
+   "scored": 10,
+   "predicted_segments": 26,
+   "expected_segments": 10,
+   "median_error_s": 0.654,
+   "p90_error_s": 0.887,
+   "worst_error_s": 1.235,
+   "within_tolerance_pct": 10.0,
+   "tolerance_s": 0.3
+  }
+ },
+ "alignment_truth_clips": 10,
+ "provenance": {
+  "script": "asr_backends.py",
+  "written": "2026-08-08T18:39:02",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "b08ba6a6cb67661473530861bae364f70784b13c",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": [
+    "M app/experiments/asr_backends.py"
+   ],
+   "untracked_harness_files": null,
+   "harness_sha256": "be4c591ee7496e7d58bede30bae5ca836d28b2084b39b6034cc628c22d90297e"
+  },
+  "args": {
+   "build": "ab_test_runtime/ljspeech_eval/build.json",
+   "backends": [
+    "whisper_cpp"
+   ],
+   "limit": 50,
+   "align_clips": 10,
+   "whisper_cpp_bin": "whisper.cpp/build/bin/whisper-cli",
+   "whisper_cpp_model": "../whisper.cpp/models/ggml-large-v3.bin",
+   "lang": "zh",
+   "out": "../ab_test_runtime/experiments/asr_zh_ggml-large-v3.bin.json"
+  }
+ }
+}
