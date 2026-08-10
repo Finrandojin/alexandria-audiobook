@@ -85,7 +85,7 @@ RULES = [
     # Opening quote mid-line: a space, the quote, then a letter, where the
     # preceding character ended a sentence. "...lacked a blade. ?I'll make..."
     ("opening_quote_mid_line",
-     re.compile(r"(?<=[.!?] )" + FFFD + r"(?=[A-Za-z])"),
+     re.compile(r"(?<=[.!?,] )" + FFFD + r"(?=[A-Za-z])"),
      OPEN_DOUBLE),
     # Trailing off at the end of a line: "but?", "then?", "away?" with nothing
     # after. Previously refused because it could be an em dash - it can, and
@@ -140,6 +140,45 @@ def apply_phrases(text):
     return text, applied
 
 
+# A repair that removes every replacement character and leaves the prose
+# structurally broken is not a repair. The first version of this file did
+# exactly that: substituting a dash for a run that was "dash + closing quote"
+# left 69 dialogue lines open, quote imbalance went to 25.1% against 0.5-3.4%
+# in undamaged books, and the model then generated until it hit its token
+# ceiling and failed the chunk 9 times over.
+#
+# So the repairer measures its own output. Anything worse than this is
+# reported as a failure of the repair, not accepted silently.
+MAX_UNBALANCED_QUOTE_SHARE = 0.05
+
+
+def quote_balance(text):
+    """-> (unbalanced_lines, lines_containing_quotes, share)."""
+    unbalanced = quoted = 0
+    for line in text.split("\n"):
+        opens, closes = line.count(OPEN_DOUBLE), line.count(CLOSE_DOUBLE)
+        if opens or closes:
+            quoted += 1
+            if opens != closes:
+                unbalanced += 1
+    share = unbalanced / quoted if quoted else 0.0
+    return unbalanced, quoted, share
+
+
+def structural_regressions(text):
+    """Specific shapes that mean a substitution destroyed sentence structure."""
+    open_ended_with_dash = 0
+    close_without_open = 0
+    for line in text.split("\n"):
+        opens, closes = line.count(OPEN_DOUBLE), line.count(CLOSE_DOUBLE)
+        if opens > closes and line.rstrip().endswith(LAST_RESORT):
+            open_ended_with_dash += 1
+        if closes > opens and line.lstrip().startswith(LAST_RESORT):
+            close_without_open += 1
+    return {"open_quote_ended_with_dash": open_ended_with_dash,
+            "close_quote_started_with_dash": close_without_open}
+
+
 def classify_remaining(text):
     """Contexts of every U+FFFD still present, for the report."""
     counts = collections.Counter()
@@ -171,6 +210,40 @@ def repair(text, last_resort=True):
             return _rep
         text = pattern.sub(_sub, text)
     if last_resort:
+        # Close the speech first. A dialogue line that opens a quote and ends
+        # in a damaged run ended with a dash AND a closing quote - cut-off
+        # speech, "...my Florice-". Replacing both with dashes leaves the
+        # quote open, and 69 lines in index18 came out that way: the model
+        # then generated until it hit the 16k token ceiling, failed coverage,
+        # and retried for 6.5 minutes a time. Structure the reader depends on
+        # has to survive a substitution that cannot recover the character.
+        lines = text.split("\n")
+        # Open the speech too, symmetrically. A line that ends with a closing
+        # quote and begins with a damaged run began with an opening quote:
+        # "--More men to die." was '"-More men to die."'. Without this the
+        # book ends up with 232 lines that close a quote never opened, which
+        # is as confusing to the model as one that never closes.
+        opened = 0
+        for index, line in enumerate(lines):
+            if (line.count(CLOSE_DOUBLE) > line.count(OPEN_DOUBLE)
+                    and line.lstrip().startswith(FFFD)):
+                pad = line[:len(line) - len(line.lstrip())]
+                stripped = line.lstrip()
+                lines[index] = pad + OPEN_DOUBLE + stripped[1:]
+                opened += 1
+        if opened:
+            applied["last_resort_opening_quote"] += opened
+        closed = 0
+        for index, line in enumerate(lines):
+            if (line.count(OPEN_DOUBLE) > line.count(CLOSE_DOUBLE)
+                    and line.rstrip().endswith(FFFD)):
+                stripped = line.rstrip()
+                pad = line[len(stripped):]
+                lines[index] = stripped[:-1] + CLOSE_DOUBLE + pad
+                closed += 1
+        if closed:
+            text = "\n".join(lines)
+            applied["last_resort_closing_quote"] += closed
         remaining = text.count(FFFD)
         if remaining:
             text = text.replace(FFFD, LAST_RESORT)
@@ -189,6 +262,8 @@ def main():
                         help="leave unresolvable sites as U+FFFD instead of "
                              "substituting a dash. Useful to see what the "
                              "rules alone achieve.")
+    parser.add_argument("--force", action="store_true",
+                        help="write even when the structural check fails")
     parser.add_argument("--apply", action="store_true",
                         help="write the repaired file. Without it this is a "
                              "dry run that only reports what would change.")
@@ -207,8 +282,34 @@ def main():
     out_path = args.out or f"{stem}.repaired{extension}"
     report_path = args.report or f"{stem}.repair_report.json"
 
+    before_unbal, _bq, before_share = quote_balance(original)
+    after_unbal, after_quoted, after_share = quote_balance(repaired)
+    regressions = structural_regressions(repaired)
+    # Two signals, and only one of them is proven harmful.
+    #
+    # The REGRESSIONS are shapes measured to break generation: a dialogue line
+    # that opens a quote and ends in a substituted dash left index18's chunk 10
+    # generating until it hit the token ceiling, nine times. Any of these
+    # refuses the write.
+    #
+    # The SHARE is a heuristic. Undamaged books run 0.5-3.4%, so a much higher
+    # figure means residual damage - but a quote spanning paragraphs is normal
+    # prose and counts as unbalanced too, so the number cannot be driven to
+    # zero and should not block on its own. It warns.
+    structurally_sound = not any(regressions.values())
+    share_elevated = after_share > MAX_UNBALANCED_QUOTE_SHARE
+
     report = {
         "source": os.path.abspath(args.source),
+        "quote_balance": {
+            "unbalanced_before": before_unbal,
+            "unbalanced_after": after_unbal,
+            "lines_with_quotes": after_quoted,
+            "share_after": round(after_share, 4),
+            "limit": MAX_UNBALANCED_QUOTE_SHARE,
+            "structural_regressions": regressions,
+            "structurally_sound": structurally_sound,
+        },
         "replacement_chars_before": before_count,
         "replacement_chars_after": after_count,
         "repaired": before_count - after_count,
@@ -229,6 +330,20 @@ def main():
     with open(report_path, "w", encoding="utf-8") as handle:
         json.dump(report, handle, indent=2, ensure_ascii=False)
 
+    if args.apply and not structurally_sound and not args.force:
+        print(f"\nREFUSING TO WRITE: {regressions}. A substitution destroyed "
+              "sentence structure - a dialogue line that opens a quote and "
+              "ends in a dash, or closes one it never opened. This exact shape "
+              "left index18 generating until it hit its token ceiling, nine "
+              "times on one chunk. Removing every replacement character while "
+              "breaking the prose is not a repair. Use --force only after "
+              "reading the report.")
+        return 1
+    if share_elevated:
+        print(f"\nWARNING: {after_share:.1%} of quoted lines are unbalanced "
+              f"(undamaged books run 0.5-3.4%). No proven-harmful shapes "
+              "remain, so this is written, but the text still carries "
+              "residual damage and may generate less reliably.")
     if args.apply:
         with open(out_path, "w", encoding="utf-8") as handle:
             handle.write(repaired)
@@ -244,9 +359,15 @@ def main():
     print("\n  most common remaining contexts:")
     for key, count in remaining.most_common(8):
         print(f"    {key:16} {count:5}   ...{samples[key][30:80]}")
+    print(f"\n  quote balance: {after_unbal}/{after_quoted} lines "
+          f"({after_share:.1%}, limit {MAX_UNBALANCED_QUOTE_SHARE:.0%})  "
+          f"{'SOUND' if structurally_sound else 'BROKEN'}")
+    if any(regressions.values()):
+        print(f"  structural regressions: {regressions}")
     print(f"\n  report: {report_path}")
     print(f"  repaired file: {out_path if args.apply else '(dry run, not written)'}")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    sys.exit(main() or 0)
