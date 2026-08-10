@@ -85,6 +85,26 @@ def _finding(severity, code, message, entry_numbers=None, **details):
 MAX_REPLACEMENT_SHARE = 0.005
 
 
+def replacement_repair_hint(source_path=None):
+    """The exact command that fixes a mis-decoded source.
+
+    A refusal that only states a percentage leaves the reader to discover that
+    a repairer exists. Both generators refuse for the same reason, so they say
+    the same thing, from here.
+    """
+    target = source_path or "<source.txt>"
+    return (
+        "This is a decoding error, not lost content: the file was read with "
+        "the wrong codec and every non-ASCII character became U+FFFD. Repair "
+        "it with\n"
+        "    cd app && env/bin/python repair_source_encoding.py "
+        f"{target} --apply\n"
+        "which writes <source>.repaired.txt beside the original, leaves the "
+        "original untouched, and reports every substitution. It refuses to "
+        "write if a substitution would break sentence structure."
+    )
+
+
 def replacement_load_is_acceptable(count, length):
     """True when a text's replacement characters are within policy.
 

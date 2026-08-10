@@ -21,7 +21,8 @@ from speaker_identity import (build_speaker_consistency_report,
                               stabilize_speaker_identities)
 from script_preflight import (MAX_REPLACEMENT_SHARE, audit_script,
                               audit_unicode_text,
-                              replacement_load_is_acceptable)
+                              replacement_load_is_acceptable,
+                              replacement_repair_hint)
 from utils import (atomic_json_write, extract_balanced, get_runtime_data_dir,
                    get_app_config_path, is_generic_speaker, safe_load_json)
 
@@ -1254,8 +1255,8 @@ def main():
     if not replacement_load_is_acceptable(replacement_count, len(book_content)):
         print(f"Error: source is {replacement_share:.2%} replacement "
               f"characters ({replacement_count}), above the "
-              f"{MAX_REPLACEMENT_SHARE:.2%} limit; the file needs decoding "
-              f"repair before it can be generated. details={source_unicode}")
+              f"{MAX_REPLACEMENT_SHARE:.2%} limit.")
+        print(replacement_repair_hint(input_file_path))
         sys.exit(1)
     if replacement_count:
         print(f"WARNING: source carries {replacement_count} replacement "

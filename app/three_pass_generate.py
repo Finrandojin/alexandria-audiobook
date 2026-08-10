@@ -25,7 +25,8 @@ from source_normalization import (neutralize_lossy_residue,
                                   strip_known_front_matter,
                                   strip_publisher_matter)
 from script_preflight import (audit_unicode_text,
-                              replacement_load_is_acceptable)
+                              replacement_load_is_acceptable,
+                              replacement_repair_hint)
 from speaker_identity import stabilize_speaker_identities
 from script_repair import build_deterministic_repair
 from default_prompts import (load_segment_prompts, load_attribute_prompts,
@@ -1348,8 +1349,8 @@ def prepare_source_text(book):
             report["replacement_character_count"], len(book)):
         raise ValueError(
             f"source is {report['replacement_character_count'] / max(1, len(book)):.2%} "
-            "replacement characters, above the shared limit; it needs decoding "
-            "repair before it can be processed")
+            "replacement characters, above the shared limit.\n"
+            + replacement_repair_hint())
     return book, {"repaired": len(repairs), "residual": residual,
                   "scripts": report["scripts"], "is_nfc": report["is_nfc"]}
 
