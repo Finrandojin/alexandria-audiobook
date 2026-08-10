@@ -580,6 +580,19 @@
     "test_generation_guard.TestUndecodableAudio.test_real_audio_still_passes",
     "test_generation_guard.TestUndecodableAudio.test_trailing_metadata_is_not_treated_as_truncation"
   ],
+  "test_generation_path_agreement": [
+    "test_generation_path_agreement.DuplicateBlockAgreementTest.test_every_caller_keys_off_source_occurrences",
+    "test_generation_path_agreement.DuplicateBlockAgreementTest.test_no_caller_blocks_a_source_repeated_block",
+    "test_generation_path_agreement.DuplicateBlockAgreementTest.test_the_detector_reports_the_source_count",
+    "test_generation_path_agreement.GateOrderingTest.test_entry_audit_does_not_re_refuse_accepted_damage",
+    "test_generation_path_agreement.GateOrderingTest.test_unsafe_controls_stay_blocking_everywhere",
+    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_a_clean_source_is_always_acceptable",
+    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_both_generators_use_the_shared_check",
+    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_generators_agree_on_the_same_input",
+    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_the_policy_lives_in_exactly_one_place",
+    "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_both_generators_strip_the_same_things",
+    "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_publisher_matter_is_not_left_to_a_flag"
+  ],
   "test_gold_set_builder": [
     "test_gold_set_builder.AdaptiveWindowTest.test_expansion_is_capped",
     "test_gold_set_builder.AdaptiveWindowTest.test_names_match_case_insensitively",
@@ -1063,6 +1076,20 @@
     "test_release_verifier.ReleaseVerifierTests.test_keyboard_interrupt_stops_child_group_before_propagating",
     "test_release_verifier.ReleaseVerifierTests.test_python_compilation_includes_nonignored_untracked_files",
     "test_release_verifier.ReleaseVerifierTests.test_unittest_summary_rejects_skips_and_missing_success"
+  ],
+  "test_repair_structural_check": [
+    "test_repair_structural_check.QuoteBalanceTest.test_balanced_prose_reports_no_imbalance",
+    "test_repair_structural_check.QuoteBalanceTest.test_lines_without_quotes_are_not_counted",
+    "test_repair_structural_check.RepairPreservesStructureTest.test_a_damaged_dialogue_line_comes_back_closed",
+    "test_repair_structural_check.RepairPreservesStructureTest.test_substitution_is_recorded_not_silent",
+    "test_repair_structural_check.RepairPreservesStructureTest.test_the_limit_stays_meaningful",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_damaged_repeated_pair_is_collapsed",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_pre_existing_repetition_is_collapsed",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_trap_is_a_reported_regression",
+    "test_repair_structural_check.RepetitionTrapTest.test_authorial_elongation_is_left_alone",
+    "test_repair_structural_check.StructuralRegressionTest.test_a_line_closing_speech_it_never_opened",
+    "test_repair_structural_check.StructuralRegressionTest.test_correctly_repaired_dialogue_has_no_regressions",
+    "test_repair_structural_check.StructuralRegressionTest.test_the_exact_shape_that_broke_chunk_10"
   ],
   "test_repair_voice_config": [
     "test_repair_voice_config.TestAdapterIdIsPartOfIdentity.test_ambiguous_splits_are_not_merged_by_default",

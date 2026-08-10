@@ -16,22 +16,20 @@ from lmstudio_settings import (ensure_ideal_settings, get_effective_max_tokens,
 from script_repair import build_deterministic_repair
 from source_normalization import (normalize_homoglyph_words,
                                   normalize_known_source_corruptions,
-                                  strip_known_front_matter)
+                                  strip_known_front_matter,
+                                  strip_publisher_matter)
 from speaker_identity import (build_speaker_consistency_report,
                               stabilize_speaker_identities)
-from script_preflight import audit_script, audit_unicode_text
+from script_preflight import (MAX_REPLACEMENT_SHARE, audit_script,
+                              audit_unicode_text,
+                              replacement_load_is_acceptable,
+                              replacement_repair_hint)
 from utils import (atomic_json_write, extract_balanced, get_runtime_data_dir,
                    get_app_config_path, is_generic_speaker, safe_load_json)
 
 
 def get_generation_checkpoint_path(output_path):
     return output_path + ".generation_checkpoint.json"
-
-
-# Share of a source file allowed to be U+FFFD before generation is refused.
-# 0.5% sits between index18 corrupt (1.40%) and index18 after deterministic
-# repair (0.26%), so the raw file is still rejected and the repaired one runs.
-MAX_REPLACEMENT_SHARE = 0.005
 
 
 def get_generation_quality_path(output_path):
@@ -1229,6 +1227,17 @@ def main():
     front_matter_removed = None
     if args.strip_front_matter:
         book_content, front_matter_removed = strip_known_front_matter(book_content)
+    # Publisher colophon: copyright page, ISBN/CIP block, imprint lines. The
+    # three-pass path has always stripped this; the single-pass path did not,
+    # so a published book's chunk 1 was its legal notice. The model has no way
+    # to turn "This book is a work of fiction. Names, characters..." into
+    # annotated dialogue, and the coverage gate then failed the chunk for not
+    # reproducing it - index18 retried chunk 1 eight times before this.
+    book_content, publisher_matter = strip_publisher_matter(book_content)
+    if publisher_matter["front_paragraphs"] or publisher_matter["back_paragraphs"]:
+        print(f"Stripped publisher matter: "
+              f"{publisher_matter['front_paragraphs']} paragraph(s) from the "
+              f"front, {publisher_matter['back_paragraphs']} from the back")
         if front_matter_removed:
             print(f"Stripped {front_matter_removed['removed_chars']} characters of known "
                   "front matter (translator's note / table of contents) before generation")
@@ -1255,11 +1264,11 @@ def main():
     # the TTS boundary (goal 5.1), so they never reach the engine either way.
     replacement_count = source_unicode["replacement_character_count"]
     replacement_share = replacement_count / max(1, len(book_content))
-    if replacement_share > MAX_REPLACEMENT_SHARE:
+    if not replacement_load_is_acceptable(replacement_count, len(book_content)):
         print(f"Error: source is {replacement_share:.2%} replacement "
               f"characters ({replacement_count}), above the "
-              f"{MAX_REPLACEMENT_SHARE:.2%} limit; the file needs decoding "
-              f"repair before it can be generated. details={source_unicode}")
+              f"{MAX_REPLACEMENT_SHARE:.2%} limit.")
+        print(replacement_repair_hint(input_file_path))
         sys.exit(1)
     if replacement_count:
         print(f"WARNING: source carries {replacement_count} replacement "

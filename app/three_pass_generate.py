@@ -24,7 +24,9 @@ from source_normalization import (neutralize_lossy_residue,
                                   repair_lossy_replacements,
                                   strip_known_front_matter,
                                   strip_publisher_matter)
-from script_preflight import audit_unicode_text
+from script_preflight import (audit_unicode_text,
+                              replacement_load_is_acceptable,
+                              replacement_repair_hint)
 from speaker_identity import stabilize_speaker_identities
 from script_repair import build_deterministic_repair
 from default_prompts import (load_segment_prompts, load_attribute_prompts,
@@ -1340,9 +1342,15 @@ def prepare_source_text(book):
     if report["unsafe_controls"]:
         raise ValueError("source contains unsafe control characters: "
                          f"{report['unsafe_controls']}")
-    if report["replacement_character_count"]:
-        raise ValueError("source still contains replacement characters after "
-                         "repair; refusing to process it")
+    # Same policy as the single-pass path, from one definition. These two
+    # used to disagree: a repaired book generated single-pass and was refused
+    # here, for the same input.
+    if not replacement_load_is_acceptable(
+            report["replacement_character_count"], len(book)):
+        raise ValueError(
+            f"source is {report['replacement_character_count'] / max(1, len(book)):.2%} "
+            "replacement characters, above the shared limit.\n"
+            + replacement_repair_hint())
     return book, {"repaired": len(repairs), "residual": residual,
                   "scripts": report["scripts"], "is_nfc": report["is_nfc"]}
 

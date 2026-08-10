@@ -963,6 +963,28 @@ recording `total_chunks`, `accepted_chunk_count` and, on newer runs,
 **MET on the only model that can be attributed** — gemma-4-e4b completes every
 chunk of every book, 1313 for 1313, against a 99% target.
 
+**MET ON THE SHIPPED MODEL, 2026-08-10.** All four development books now
+complete every chunk on qwen3-14b:
+
+| book | chunks | completion |
+|---|---|---|
+| grimgar03 (run A) | 49/49 | 100% |
+| grimgar03 (run B) | 49/49 | 100% |
+| index18 | 81/81 | 100% |
+| mushoku16 | 45/45 | 100% |
+| owarimonogatari3 | 110/110 | 100% |
+
+Two of these were ungeneratable 24 hours earlier. grimgar03 failed at chunk 1
+of 49 because the repair logic refused a book for faithfully reproducing its
+own repeated title; index18 was refused at the source gate over 6,662
+replacement characters. Both are fixed, and grimgar03 was run twice because one
+success does not distinguish a reliable book from a lucky one.
+
+**The qwen2.5-14b figures this goal used to quote are still not in the evidence
+tree**, and the 15 historical failures remain unattributable - their manifests
+record no model. That is now impossible for new runs, since both failure call
+sites record `model_name`.
+
 **The 15 failures cannot be attributed to any model, and that is the finding.**
 All 15 have `status: failed` with `failure: chunk_failed_after_retries` after 8
 to 33 attempts — genuine exhaustion, not interrupted runs. None records
