@@ -1,0 +1,84 @@
+{
+  "scope": "one chunk through the real pipeline, repeated; temperature 0.6 makes this a distribution rather than a single fact",
+  "source": "/home/fakemitch/pinokio/api/alexandria-audiobook2.git/ab_test_runtime/results/collect_all_20260722-155801/inputs/grimgar03.txt",
+  "chunk": 11,
+  "total_chunks": 49,
+  "repeats": 5,
+  "passed": 5,
+  "pass_rate_pct": 100.0,
+  "model": "qwen3-14b",
+  "temperature": 0.6,
+  "failure_codes": {},
+  "runs": [
+    {
+      "run": 1,
+      "passed": true,
+      "entries": 71,
+      "seconds": 134.6,
+      "failures": [],
+      "metrics": {
+        "source_tokens": 1074,
+        "output_tokens": 1065,
+        "source_token_recall": 0.9777,
+        "ordered_trigram_recall": 0.9608,
+        "output_source_ratio": 0.9916
+      }
+    },
+    {
+      "run": 2,
+      "passed": true,
+      "entries": 72,
+      "seconds": 192.1,
+      "failures": [],
+      "metrics": {
+        "source_tokens": 1074,
+        "output_tokens": 1051,
+        "source_token_recall": 0.9711,
+        "ordered_trigram_recall": 0.9562,
+        "output_source_ratio": 0.9786
+      }
+    },
+    {
+      "run": 3,
+      "passed": true,
+      "entries": 67,
+      "seconds": 132.3,
+      "failures": [],
+      "metrics": {
+        "source_tokens": 1074,
+        "output_tokens": 1021,
+        "source_token_recall": 0.9507,
+        "ordered_trigram_recall": 0.9272,
+        "output_source_ratio": 0.9507
+      }
+    },
+    {
+      "run": 4,
+      "passed": true,
+      "entries": 64,
+      "seconds": 130.5,
+      "failures": [],
+      "metrics": {
+        "source_tokens": 1074,
+        "output_tokens": 1033,
+        "source_token_recall": 0.9618,
+        "ordered_trigram_recall": 0.9366,
+        "output_source_ratio": 0.9618
+      }
+    },
+    {
+      "run": 5,
+      "passed": true,
+      "entries": 67,
+      "seconds": 65.7,
+      "failures": [],
+      "metrics": {
+        "source_tokens": 1074,
+        "output_tokens": 1034,
+        "source_token_recall": 0.9628,
+        "ordered_trigram_recall": 0.945,
+        "output_source_ratio": 0.9628
+      }
+    }
+  ]
+}
