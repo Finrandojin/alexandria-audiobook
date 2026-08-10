@@ -589,7 +589,9 @@
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_a_clean_source_is_always_acceptable",
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_both_generators_use_the_shared_check",
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_generators_agree_on_the_same_input",
-    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_the_policy_lives_in_exactly_one_place"
+    "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_the_policy_lives_in_exactly_one_place",
+    "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_both_generators_strip_the_same_things",
+    "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_publisher_matter_is_not_left_to_a_flag"
   ],
   "test_gold_set_builder": [
     "test_gold_set_builder.AdaptiveWindowTest.test_expansion_is_capped",

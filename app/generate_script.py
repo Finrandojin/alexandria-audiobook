@@ -16,7 +16,8 @@ from lmstudio_settings import (ensure_ideal_settings, get_effective_max_tokens,
 from script_repair import build_deterministic_repair
 from source_normalization import (normalize_homoglyph_words,
                                   normalize_known_source_corruptions,
-                                  strip_known_front_matter)
+                                  strip_known_front_matter,
+                                  strip_publisher_matter)
 from speaker_identity import (build_speaker_consistency_report,
                               stabilize_speaker_identities)
 from script_preflight import (MAX_REPLACEMENT_SHARE, audit_script,
@@ -1226,6 +1227,17 @@ def main():
     front_matter_removed = None
     if args.strip_front_matter:
         book_content, front_matter_removed = strip_known_front_matter(book_content)
+    # Publisher colophon: copyright page, ISBN/CIP block, imprint lines. The
+    # three-pass path has always stripped this; the single-pass path did not,
+    # so a published book's chunk 1 was its legal notice. The model has no way
+    # to turn "This book is a work of fiction. Names, characters..." into
+    # annotated dialogue, and the coverage gate then failed the chunk for not
+    # reproducing it - index18 retried chunk 1 eight times before this.
+    book_content, publisher_matter = strip_publisher_matter(book_content)
+    if publisher_matter["front_paragraphs"] or publisher_matter["back_paragraphs"]:
+        print(f"Stripped publisher matter: "
+              f"{publisher_matter['front_paragraphs']} paragraph(s) from the "
+              f"front, {publisher_matter['back_paragraphs']} from the back")
         if front_matter_removed:
             print(f"Stripped {front_matter_removed['removed_chars']} characters of known "
                   "front matter (translator's note / table of contents) before generation")

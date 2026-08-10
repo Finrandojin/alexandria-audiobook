@@ -153,5 +153,46 @@ class GateOrderingTest(unittest.TestCase):
         self.assertIn('"blocking"', window)
 
 
+
+
+class SourcePreprocessingAgreementTest(unittest.TestCase):
+    """Both generators must clean a source the same way before reading it.
+
+    `strip_publisher_matter` existed and was called only by
+    three_pass_generate. So a published book's chunk 1 on the single-pass path
+    was its copyright page and library cataloguing block - text the model
+    cannot turn into annotated dialogue, and which the coverage gate then
+    failed it for not reproducing. index18 retried chunk 1 eight times.
+
+    This is the same defect shape as the replacement-character policy and the
+    duplicate-block rule: a capability living on one path only.
+    """
+
+    PREPROCESSORS = ("strip_known_front_matter", "strip_publisher_matter")
+
+    def test_both_generators_strip_the_same_things(self):
+        for name in self.PREPROCESSORS:
+            for module in (generate_script, three_pass_generate):
+                with self.subTest(preprocessor=name, module=module.__name__):
+                    self.assertIn(name, inspect.getsource(module),
+                                  f"{module.__name__} must apply {name}; a "
+                                  "cleaner that runs on one path only means "
+                                  "the same book behaves differently "
+                                  "depending on how it is generated")
+
+    def test_publisher_matter_is_not_left_to_a_flag(self):
+        """The fan-compiler stripper is opt-in; this one must not be.
+
+        Every published book has a colophon, so making it optional would leave
+        the default path broken for the common case.
+        """
+        source = inspect.getsource(generate_script.main)
+        index = source.find("strip_publisher_matter(")
+        self.assertGreater(index, 0)
+        window = source[max(0, index - 200):index]
+        self.assertNotIn("if args.strip_front_matter", window.split("\n")[-1],
+                         "publisher matter must be stripped unconditionally")
+
+
 if __name__ == "__main__":
     unittest.main()
