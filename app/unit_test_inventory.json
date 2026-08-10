@@ -329,6 +329,13 @@
     "test_compare_attribution_arms.TextAlignmentTest.test_identical_arms_of_equal_length_have_no_disagreements",
     "test_compare_attribution_arms.TextAlignmentTest.test_whitespace_differences_do_not_count_as_disagreement"
   ],
+  "test_config_jsonable": [
+    "test_config_jsonable.ConfigIsJsonNativeTest.test_a_config_without_profiles_is_unaffected",
+    "test_config_jsonable.ConfigIsJsonNativeTest.test_a_loaded_config_can_be_written_back",
+    "test_config_jsonable.ConfigIsJsonNativeTest.test_profiles_come_back_as_plain_dicts",
+    "test_config_jsonable.ConfigIsJsonNativeTest.test_the_local_workaround_still_accepts_the_new_shape",
+    "test_config_jsonable.ConfigIsJsonNativeTest.test_unset_profile_fields_are_dropped_not_none"
+  ],
   "test_config_regressions": [
     "test_config_regressions.ConfigTests.test_app_config_loader_ignores_invalid_legacy_values_without_writing",
     "test_config_regressions.ConfigTests.test_app_config_loader_returns_fresh_shape_safe_data",

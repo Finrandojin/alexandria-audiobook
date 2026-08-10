@@ -196,9 +196,43 @@ def load_app_config_result(path: str) -> AppConfigLoadResult:
     return AppConfigLoadResult(config, tuple(warnings), needs_backup)
 
 
+def _to_plain(value):
+    """Recursively convert validated models back to JSON-native data.
+
+    WHY THIS EXISTS. The sanitizer validates some sections into pydantic
+    models - `generation.three_pass_model_profiles` is a
+    Dict[str, ThreePassModelProfile]. Ten modules load the config and write it
+    back (the concurrency cache in llm_bench, personas, nicknames, review,
+    project, ...), and every one of them raised
+    "Object of type ThreePassModelProfile is not JSON serializable" as soon as
+    a profile was configured. Running --dedupe-speakers on index18 hit it.
+
+    three_pass_generate already worked around this locally with
+    `as_profile_mapping`, whose docstring records the same class of crash. A
+    per-module workaround leaves the other nine broken, so the conversion
+    belongs here, where the data is produced.
+
+    None-valued fields are dropped, preserving the semantics
+    `as_profile_mapping` established: an unset profile key must fall through to
+    the caller's default rather than override it with None.
+    """
+    if hasattr(value, "model_dump"):
+        return {key: _to_plain(item)
+                for key, item in value.model_dump().items()
+                if item is not None}
+    if isinstance(value, dict):
+        return {key: _to_plain(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_to_plain(item) for item in value]
+    return value
+
+
 def load_app_config(path: str) -> dict:
-    """Return the sanitized config data from :func:`load_app_config_result`."""
-    return load_app_config_result(path).data
+    """Return the sanitized config data from :func:`load_app_config_result`.
+
+    The result is JSON-native, so a caller may write it back unchanged.
+    """
+    return _to_plain(load_app_config_result(path).data)
 
 
 def backup_damaged_app_config(path: str) -> str:

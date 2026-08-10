@@ -225,8 +225,12 @@ def get_cached_or_benchmarked_concurrency(config_path, llm_mode, base_url, model
             profile["concurrency_for"] = cache_key
             config[profile_key] = profile
             atomic_json_write(config, config_path)
-    except (OSError, TimeoutError):
-        pass  # best-effort cache write; the benchmarked value is still used this run
+    except (OSError, TimeoutError, TypeError, ValueError):
+        # Best-effort really means best-effort. This used to catch only OSError
+        # and TimeoutError, so a config the sanitizer had validated into
+        # objects raised TypeError here and killed the whole run - a cache
+        # write, which the next line says is optional, aborting a book.
+        pass
 
     return concurrency
 
