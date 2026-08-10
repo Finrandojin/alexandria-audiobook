@@ -1083,6 +1083,10 @@
     "test_repair_structural_check.RepairPreservesStructureTest.test_a_damaged_dialogue_line_comes_back_closed",
     "test_repair_structural_check.RepairPreservesStructureTest.test_substitution_is_recorded_not_silent",
     "test_repair_structural_check.RepairPreservesStructureTest.test_the_limit_stays_meaningful",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_damaged_repeated_pair_is_collapsed",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_pre_existing_repetition_is_collapsed",
+    "test_repair_structural_check.RepetitionTrapTest.test_a_trap_is_a_reported_regression",
+    "test_repair_structural_check.RepetitionTrapTest.test_authorial_elongation_is_left_alone",
     "test_repair_structural_check.StructuralRegressionTest.test_a_line_closing_speech_it_never_opened",
     "test_repair_structural_check.StructuralRegressionTest.test_correctly_repaired_dialogue_has_no_regressions",
     "test_repair_structural_check.StructuralRegressionTest.test_the_exact_shape_that_broke_chunk_10"
