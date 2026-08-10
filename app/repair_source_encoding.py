@@ -130,6 +130,48 @@ PHRASES = {
 LAST_RESORT = "\u2014"
 
 
+# A run of the same damaged pair repeated - "?!?!?!..." twenty-five times over
+# - is a stylised scream in the source. Substituting one character for another
+# preserves the repetition, and a long repeating token sequence sends the model
+# into a generation loop: index18's chunk 10 ran to the 16,384-token ceiling on
+# every attempt, three runs in a row, on a 50-character run of exactly this.
+#
+# Collapsing keeps the meaning (a drawn-out cry) and removes the trap. The
+# count is reported, because shortening the author's text is a change a reader
+# should be able to see.
+_REPEATED_PAIR = re.compile(r"(?:" + FFFD + r"([?!]))(?:" + FFFD + r"[?!]){2,}")
+_LONG_RUN = re.compile(FFFD + r"{3,}")
+
+
+def collapse_repetitions(text):
+    """Shorten repeated damaged patterns before anything is substituted."""
+    collapsed = {}
+
+    def _pair(match):
+        collapsed["repeated_pair"] = collapsed.get("repeated_pair", 0) + 1
+        return ELLIPSIS + match.group(1)
+
+    def _run(match):
+        collapsed["long_run"] = collapsed.get("long_run", 0) + 1
+        return ELLIPSIS
+
+    text = _REPEATED_PAIR.sub(_pair, text)
+    text = _LONG_RUN.sub(_run, text)
+
+    # Repetitions that were already in the file before this decode error -
+    # index18 was damaged twice, and an earlier lossy conversion turned
+    # non-ASCII characters into literal "?", leaving runs like "O?o?o?o?h?h?h".
+    # They are the same failure mode and are recorded separately, because
+    # shortening them is a change to text this tool did not damage.
+    def _existing(match):
+        collapsed["pre_existing_repetition"] = (
+            collapsed.get("pre_existing_repetition", 0) + 1)
+        unit = match.group(0)[:2]
+        return unit + unit[-1] * 2
+    text = re.sub(r"((?:[?!][A-Za-z])|(?:[A-Za-z][?!]))\1{5,}", _existing, text)
+    return text, collapsed
+
+
 def apply_phrases(text):
     applied = {}
     for damaged, restored in PHRASES.items():
@@ -165,10 +207,20 @@ def quote_balance(text):
     return unbalanced, quoted, share
 
 
+# A repeating two-character sequence this long makes the model generate until
+# it hits its token ceiling. Measured: 25 repetitions did it every time.
+# Only repetitions containing punctuation. "deeeeeeeep" is the author
+# elongating a word and is harmless; "?o?o?o?h?h?h" and "-?-?-?" are damage,
+# and a long run of either makes the model generate to its token ceiling.
+_REPETITION_TRAP = re.compile(r"((?=[^\w\s])(?:.)(?:.))\1{5,}"
+                              r"|((?:.)(?=[^\w\s])(?:.))\2{5,}")
+
+
 def structural_regressions(text):
     """Specific shapes that mean a substitution destroyed sentence structure."""
     open_ended_with_dash = 0
     close_without_open = 0
+    repetition_traps = len(_REPETITION_TRAP.findall(text))
     for line in text.split("\n"):
         opens, closes = line.count(OPEN_DOUBLE), line.count(CLOSE_DOUBLE)
         if opens > closes and line.rstrip().endswith(LAST_RESORT):
@@ -176,7 +228,8 @@ def structural_regressions(text):
         if closes > opens and line.lstrip().startswith(LAST_RESORT):
             close_without_open += 1
     return {"open_quote_ended_with_dash": open_ended_with_dash,
-            "close_quote_started_with_dash": close_without_open}
+            "close_quote_started_with_dash": close_without_open,
+            "repetition_traps": repetition_traps}
 
 
 def classify_remaining(text):
@@ -197,6 +250,9 @@ def classify_remaining(text):
 def repair(text, last_resort=True):
     applied = collections.Counter()
     examples = collections.defaultdict(list)
+    text, collapsed = collapse_repetitions(text)
+    for kind, count in collapsed.items():
+        applied[f"collapsed_{kind}"] += count
     text, phrases = apply_phrases(text)
     for restored, count in phrases.items():
         applied[f"named_phrase:{restored}"] += count

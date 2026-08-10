@@ -63,9 +63,9 @@ class StructuralRegressionTest(unittest.TestCase):
     def test_correctly_repaired_dialogue_has_no_regressions(self):
         text = (f"{OPEN}This means a life debt, my Florice{LAST_RESORT}{CLOSE}\n"
                 f"{OPEN}{LAST_RESORT}More men to die.{CLOSE}\n")
-        self.assertEqual({"open_quote_ended_with_dash": 0,
-                          "close_quote_started_with_dash": 0},
-                         structural_regressions(text))
+        found = structural_regressions(text)
+        self.assertEqual(0, found["open_quote_ended_with_dash"])
+        self.assertEqual(0, found["close_quote_started_with_dash"])
 
 
 class RepairPreservesStructureTest(unittest.TestCase):
@@ -80,9 +80,10 @@ class RepairPreservesStructureTest(unittest.TestCase):
                    f"{FFFD}Wait, what?!{FFFD}{FFFD}\n")
         repaired, applied, _examples = repair(damaged)
         self.assertNotIn(FFFD, repaired)
-        self.assertEqual({"open_quote_ended_with_dash": 0,
-                          "close_quote_started_with_dash": 0},
-                         structural_regressions(repaired),
+        found = structural_regressions(repaired)
+        self.assertEqual(0, found["open_quote_ended_with_dash"],
+                         f"repair left a harmful shape: {repaired!r}")
+        self.assertEqual(0, found["close_quote_started_with_dash"],
                          f"repair left a harmful shape: {repaired!r}")
         for line in repaired.split("\n"):
             if line.strip():
@@ -104,6 +105,48 @@ class RepairPreservesStructureTest(unittest.TestCase):
         """Undamaged books measure 0.5-3.4%; the limit must sit near them."""
         self.assertGreater(MAX_UNBALANCED_QUOTE_SHARE, 0.0)
         self.assertLessEqual(MAX_UNBALANCED_QUOTE_SHARE, 0.10)
+
+
+
+
+class RepetitionTrapTest(unittest.TestCase):
+    """A long repeating sequence makes the model generate to its token ceiling.
+
+    index18's chunk 10 carried 25 repetitions of a damaged pair. Every attempt
+    ran to 16,384 tokens and failed coverage; three runs died on it. The file
+    was damaged twice - an earlier lossy conversion left literal "?" between
+    letters ("O?o?o?o?h?h?h", a roar), and the bad decode left U+FFFD - so
+    both kinds are collapsed.
+
+    The line the tests must NOT touch is the author's own elongation:
+    "three feet deeeeeeeeeeeeeeep" is style, not damage.
+    """
+
+    def test_a_damaged_repeated_pair_is_collapsed(self):
+        damaged = "“" + (FFFD + "?") * 25 + "!!”\n"
+        repaired, applied, _examples = repair(damaged)
+        self.assertNotIn(FFFD, repaired)
+        self.assertLess(len(repaired), 30,
+                        f"25 repetitions should collapse, got {repaired!r}")
+
+    def test_a_pre_existing_repetition_is_collapsed(self):
+        text = "“O?o?o?o?o?o?o?o?h?h?h?h?h?h?h?h?h!!”\n"
+        repaired, _applied, _examples = repair(text)
+        self.assertEqual(0, structural_regressions(repaired)["repetition_traps"],
+                         f"still a trap: {repaired!r}")
+
+    def test_authorial_elongation_is_left_alone(self):
+        """A repeated LETTER is style; only punctuation runs are damage."""
+        text = "That river is only three feet deeeeeeeeeeeeeeeeeeep!!\n"
+        repaired, _applied, _examples = repair(text)
+        self.assertIn("deeeeeeeeeeeeeeeeeeep", repaired,
+                      "the author's elongated word must survive")
+
+    def test_a_trap_is_a_reported_regression(self):
+        trapped = "“" + ("—?" * 12) + "!!”\n"
+        self.assertGreater(
+            structural_regressions(trapped)["repetition_traps"], 0,
+            "a long repeating punctuation run must be reported as harmful")
 
 
 if __name__ == "__main__":
