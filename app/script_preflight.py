@@ -72,6 +72,30 @@ def _finding(severity, code, message, entry_numbers=None, **details):
     return result
 
 
+# ONE definition of how much decode damage a source may carry, used by every
+# path that generates a script. Before this existed the same question had three
+# different answers: generate_script graded it, three_pass_generate refused any
+# count, and the per-entry audit blocked at any count - so a repaired book
+# generated single-pass and was refused three-pass, for the same input.
+#
+# 0.5% sits between index18 corrupt (1.40%) and index18 after deterministic
+# repair (0.26%), so a mis-decoded file is still rejected and a repaired one
+# runs. Raising it is a decision about accepting damaged prose, and belongs
+# here where every caller sees the same number.
+MAX_REPLACEMENT_SHARE = 0.005
+
+
+def replacement_load_is_acceptable(count, length):
+    """True when a text's replacement characters are within policy.
+
+    Callers must not re-derive this. A gate that answers the same question a
+    second time is a gate that will eventually answer it differently.
+    """
+    if not count:
+        return True
+    return (count / max(1, length)) <= MAX_REPLACEMENT_SHARE
+
+
 def find_adjacent_duplicate_blocks(texts, source_text):
     findings = []
     occupied = set()
@@ -208,9 +232,18 @@ def audit_script(entries, source_text=None, is_generic_speaker_fn=None):
             findings.append(_finding("blocking", "mixed_script_word",
                                      "A word combines multiple writing systems.", [index],
                                      words=unicode_report["mixed_script_words"]))
-        if unicode_report["replacement_character_count"] or unicode_report["unsafe_controls"]:
+        if unicode_report["unsafe_controls"]:
             findings.append(_finding("blocking", "unsafe_unicode_character",
-                                     "Entry contains replacement or unsafe control characters.",
+                                     "Entry contains unsafe control characters.",
+                                     [index], unicode=unicode_report))
+        elif unicode_report["replacement_character_count"]:
+            # Non-blocking: the SOURCE gate already decided whether this book's
+            # damage is acceptable. Re-refusing here would mean a source we
+            # admitted could never produce an entry we accept - which is how
+            # index18 passed the front door and then failed at chunk 31.
+            findings.append(_finding("manual_review", "replacement_character",
+                                     "Entry contains replacement characters "
+                                     "the source gate already accepted.",
                                      [index], unicode=unicode_report))
         if index <= 30 and _FRONT_MATTER_RE.search(text):
             findings.append(_finding("manual_review", "front_matter", "Possible publication front matter.", [index]))

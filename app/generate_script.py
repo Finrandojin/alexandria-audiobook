@@ -19,19 +19,15 @@ from source_normalization import (normalize_homoglyph_words,
                                   strip_known_front_matter)
 from speaker_identity import (build_speaker_consistency_report,
                               stabilize_speaker_identities)
-from script_preflight import audit_script, audit_unicode_text
+from script_preflight import (MAX_REPLACEMENT_SHARE, audit_script,
+                              audit_unicode_text,
+                              replacement_load_is_acceptable)
 from utils import (atomic_json_write, extract_balanced, get_runtime_data_dir,
                    get_app_config_path, is_generic_speaker, safe_load_json)
 
 
 def get_generation_checkpoint_path(output_path):
     return output_path + ".generation_checkpoint.json"
-
-
-# Share of a source file allowed to be U+FFFD before generation is refused.
-# 0.5% sits between index18 corrupt (1.40%) and index18 after deterministic
-# repair (0.26%), so the raw file is still rejected and the repaired one runs.
-MAX_REPLACEMENT_SHARE = 0.005
 
 
 def get_generation_quality_path(output_path):
@@ -1255,7 +1251,7 @@ def main():
     # the TTS boundary (goal 5.1), so they never reach the engine either way.
     replacement_count = source_unicode["replacement_character_count"]
     replacement_share = replacement_count / max(1, len(book_content))
-    if replacement_share > MAX_REPLACEMENT_SHARE:
+    if not replacement_load_is_acceptable(replacement_count, len(book_content)):
         print(f"Error: source is {replacement_share:.2%} replacement "
               f"characters ({replacement_count}), above the "
               f"{MAX_REPLACEMENT_SHARE:.2%} limit; the file needs decoding "
