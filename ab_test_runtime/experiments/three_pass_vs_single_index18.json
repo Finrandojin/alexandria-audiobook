@@ -1,0 +1,52 @@
+{
+ "books": [
+  "index18"
+ ],
+ "results": [
+  {
+   "book": "index18",
+   "gold_lines": 99,
+   "comparable": 78,
+   "single_entries": 3645,
+   "three_entries": 2365,
+   "single_minutes": 0.0,
+   "three_minutes": 46.3,
+   "single": {
+    "correct": 54,
+    "accuracy": 0.6923076923076923
+   },
+   "three_pass": {
+    "correct": 39,
+    "accuracy": 0.5
+   }
+  }
+ ],
+ "failures": [],
+ "provenance": {
+  "script": "three_pass_vs_single.py",
+  "written": "2026-08-10T08:36:48",
+  "host": "mitch-linux",
+  "git": {
+   "commit": "d870a484ecfe021f4fb15d655eefa6b7ada5d290",
+   "branch": "main",
+   "dirty": true,
+   "modified_tracked_files": null,
+   "untracked_harness_files": [
+    "app/experiments/chunk_retry_probe.py"
+   ],
+   "harness_sha256": "6d641cceaa09b1b65a287aac199444af9c2211dc9a6cf8f8e571bc76de2f8626"
+  },
+  "args": {
+   "books": [
+    "index18"
+   ],
+   "inputs": "ab_test_runtime/tpvs_inputs",
+   "work": "ab_test_runtime/three_pass_vs_single",
+   "timeout": 14400,
+   "reuse_complete": true,
+   "model": "qwen3-14b",
+   "pass2_on_exhaustion": "fallback",
+   "out": "ab_test_runtime/experiments/three_pass_vs_single_index18.json"
+  }
+ }
+}

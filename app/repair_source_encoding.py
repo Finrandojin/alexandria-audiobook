@@ -214,7 +214,14 @@ def quote_balance(text):
     on the line is balanced.
     """
     unbalanced = quoted = 0
-    for line in text.split("\n"):
+    # PARAGRAPHS, NOT PHYSICAL LINES. Public-domain text is hard-wrapped at
+    # ~70 columns, so one spoken sentence spans several lines and each carries
+    # an odd quote count. Measuring physical lines scored all 28 PDNC novels
+    # 34.5-84.3% "unbalanced" with nothing wrong: Emma is 84.3% and has no
+    # defect at all. The light novels this was calibrated on happen to put one
+    # paragraph per line, which is why the error was invisible for three
+    # rounds of calibration.
+    for line in re.split(r"\n\s*\n", text):
         opens, closes = line.count(OPEN_DOUBLE), line.count(CLOSE_DOUBLE)
         straight = line.count(STRAIGHT_DOUBLE)
         if not (opens or closes or straight):

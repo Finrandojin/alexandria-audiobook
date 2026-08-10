@@ -34,11 +34,27 @@ FFFD = "�"
 class QuoteBalanceTest(unittest.TestCase):
 
     def test_balanced_prose_reports_no_imbalance(self):
-        text = f"{OPEN}Hello there.{CLOSE}\n{OPEN}And again.{CLOSE}\n"
+        """Paragraphs are blank-line separated, not physical lines.
+
+        Public-domain text is hard-wrapped, so one spoken sentence spans
+        several lines and each carries an odd quote count. Counting physical
+        lines scored all 28 PDNC novels 34.5-84.3% unbalanced with nothing
+        wrong.
+        """
+        text = f"{OPEN}Hello there.{CLOSE}\n\n{OPEN}And again.{CLOSE}\n"
         unbalanced, quoted, share = quote_balance(text)
         self.assertEqual(0, unbalanced)
         self.assertEqual(2, quoted)
         self.assertEqual(0.0, share)
+
+    def test_a_hard_wrapped_quote_is_one_paragraph(self):
+        """The exact shape that produced a false 84.3% on Emma."""
+        text = ('"Poor Miss Taylor!--I wish she were here again. What a pity\n'
+                'Mr. Weston ever thought of her!"\n')
+        unbalanced, quoted, _share = quote_balance(text)
+        self.assertEqual(1, quoted, "a wrapped sentence is one paragraph")
+        self.assertEqual(0, unbalanced,
+                         "its quotes balance across the wrap")
 
     def test_lines_without_quotes_are_not_counted(self):
         text = "Plain narration with no speech at all.\nAnother line.\n"
