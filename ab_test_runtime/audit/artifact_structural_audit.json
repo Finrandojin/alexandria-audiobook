@@ -2,7 +2,7 @@
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
     "supported_structure": 64,
-    "exploratory": 142,
+    "exploratory": 144,
     "provisional": 112
   },
   "artifacts": [
@@ -1041,9 +1041,31 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "chunk11_stability.json",
+      "bytes": 2080,
+      "sha256": "e851e34fbfdbbf4c6a2148183ac94c67935b7c098fa73957b1654b5ca781e235",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "chunk_completion.json",
       "bytes": 9141,
       "sha256": "1593a53e162c8be03cb6bc474f7424b39090b986befbd6e593ecf5a2a4dfa1c7",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "chunk_completion_goal31.json",
+      "bytes": 977,
+      "sha256": "3d7d72fbf45189d2dcbe184f7c10e1813fe7427939ab218b8148f5926751cd50",
       "seed": null,
       "status": null,
       "has_rows": false,

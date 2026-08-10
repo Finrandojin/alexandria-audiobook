@@ -1,0 +1,43 @@
+{
+  "scope": "every saved book with a generation_quality record; completion = accepted_chunk_count / total_chunks",
+  "target_pct": 99.0,
+  "books": 3,
+  "chunks": 179,
+  "overall_completion_pct": 100.0,
+  "per_model": {
+    "qwen3-14b": {
+      "books": 3,
+      "chunks": 179,
+      "completion_pct": 100.0,
+      "books_not_fully_complete": 0,
+      "worst_book_pct": 100.0,
+      "incomplete": []
+    }
+  },
+  "per_book": [
+    {
+      "book": "grimgar03_a",
+      "model": "qwen3-14b",
+      "status": "complete",
+      "total_chunks": 49,
+      "accepted_chunks": 49,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "grimgar03_b",
+      "model": "qwen3-14b",
+      "status": "complete",
+      "total_chunks": 49,
+      "accepted_chunks": 49,
+      "completion_pct": 100.0
+    },
+    {
+      "book": "index18",
+      "model": "qwen3-14b",
+      "status": "complete",
+      "total_chunks": 81,
+      "accepted_chunks": 81,
+      "completion_pct": 100.0
+    }
+  ]
+}
