@@ -102,9 +102,13 @@ class RepairPreservesStructureTest(unittest.TestCase):
                         "every substitution must appear in the applied counts")
 
     def test_the_limit_stays_meaningful(self):
-        """Undamaged books measure 0.5-3.4%; the limit must sit near them."""
+        """The limit must sit above books that demonstrably generate."""
         self.assertGreater(MAX_UNBALANCED_QUOTE_SHARE, 0.0)
-        self.assertLessEqual(MAX_UNBALANCED_QUOTE_SHARE, 0.10)
+        # Calibrated on the whole corpus: owarimonogatari3 is 11.7% and
+        # generates 110/110 chunks, so a limit at or below that would flag a
+        # working book. mushoku18 reaches 20.3%.
+        self.assertGreater(MAX_UNBALANCED_QUOTE_SHARE, 0.117)
+        self.assertLessEqual(MAX_UNBALANCED_QUOTE_SHARE, 0.40)
 
 
 
