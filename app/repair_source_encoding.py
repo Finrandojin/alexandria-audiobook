@@ -274,6 +274,25 @@ def repair(text, last_resort=True):
         # and retried for 6.5 minutes a time. Structure the reader depends on
         # has to survive a substitution that cannot recover the character.
         lines = text.split("\n")
+        # Pair an unmatched closing quote with an opener earlier in the SAME
+        # line. "dodging one or two ?cannon shots,? he couldn't" is a quoted
+        # phrase mid-sentence, not speech at a line boundary, so none of the
+        # positional rules above match it and the marker fell through to a
+        # dash - leaving "—cannon shots,”", which combines a quote delimiter
+        # with narration and is exactly what the segment gate rejects. 45
+        # lines in index18 had this shape and it failed pass 1 on chunk 98.
+        paired = 0
+        for index, line in enumerate(lines):
+            if line.count(CLOSE_DOUBLE) <= line.count(OPEN_DOUBLE):
+                continue
+            match = re.search(r"(?<=[\s(\[])" + FFFD + r"(?=[A-Za-z])", line)
+            if match:
+                lines[index] = (line[:match.start()] + OPEN_DOUBLE
+                                + line[match.end():])
+                paired += 1
+        if paired:
+            applied["last_resort_paired_opening_quote"] += paired
+
         # Open the speech too, symmetrically. A line that ends with a closing
         # quote and begins with a damaged run began with an opening quote:
         # "--More men to die." was '"-More men to die."'. Without this the
@@ -298,8 +317,14 @@ def repair(text, last_resort=True):
                 lines[index] = stripped[:-1] + CLOSE_DOUBLE + pad
                 closed += 1
         if closed:
-            text = "\n".join(lines)
             applied["last_resort_closing_quote"] += closed
+        # Join whenever ANY of the three line-level fixes ran. This used to sit
+        # under `if closed:`, so paired and opened repairs were computed,
+        # counted in `applied`, and then discarded whenever no closing quote
+        # happened to need fixing - the counter reported work that never
+        # reached the text.
+        if paired or opened or closed:
+            text = "\n".join(lines)
         remaining = text.count(FFFD)
         if remaining:
             text = text.replace(FFFD, LAST_RESORT)
