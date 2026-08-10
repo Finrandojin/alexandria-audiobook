@@ -102,9 +102,13 @@ class RepairPreservesStructureTest(unittest.TestCase):
                         "every substitution must appear in the applied counts")
 
     def test_the_limit_stays_meaningful(self):
-        """Undamaged books measure 0.5-3.4%; the limit must sit near them."""
+        """The limit must sit above books that demonstrably generate."""
         self.assertGreater(MAX_UNBALANCED_QUOTE_SHARE, 0.0)
-        self.assertLessEqual(MAX_UNBALANCED_QUOTE_SHARE, 0.10)
+        # Calibrated on the whole corpus: owarimonogatari3 is 11.7% and
+        # generates 110/110 chunks, so a limit at or below that would flag a
+        # working book. mushoku18 reaches 20.3%.
+        self.assertGreater(MAX_UNBALANCED_QUOTE_SHARE, 0.117)
+        self.assertLessEqual(MAX_UNBALANCED_QUOTE_SHARE, 0.40)
 
 
 
@@ -147,6 +151,47 @@ class RepetitionTrapTest(unittest.TestCase):
         self.assertGreater(
             structural_regressions(trapped)["repetition_traps"], 0,
             "a long repeating punctuation run must be reported as harmful")
+
+
+
+
+class InlineQuotePairingTest(unittest.TestCase):
+    """A quoted phrase mid-sentence is not speech at a line boundary.
+
+    "dodging one or two ?cannon shots,? he couldn't rest easy" is a quoted
+    phrase inside narration. None of the positional rules match it - there is
+    no sentence punctuation before the marker and no line break after it - so
+    the opener fell through to a dash, leaving
+
+        dodging one or two -cannon shots," he couldn't
+
+    which combines a quote delimiter with narration. index18's three-pass arm
+    failed pass 1 on chunk 98 of 164 for exactly that, and 45 lines had the
+    shape.
+
+    The rule pairs an unmatched closing quote with an opener earlier in the
+    same line, which is the only evidence available and is local enough to be
+    safe.
+    """
+
+    def test_a_mid_sentence_quoted_phrase_gets_its_opener(self):
+        damaged = f"dodging one or two {FFFD}cannon shots,{FFFD} he could not rest\n"
+        repaired, _applied, _examples = repair(damaged)
+        self.assertIn(f"{OPEN}cannon shots,{CLOSE}", repaired,
+                      f"expected a paired quote, got {repaired!r}")
+
+    def test_narration_without_any_closing_quote_is_left_to_other_rules(self):
+        """No unmatched closer means no evidence for an opener here."""
+        damaged = f"he ran forward{FFFD} and the ground shook\n"
+        repaired, _applied, _examples = repair(damaged)
+        self.assertNotIn(OPEN, repaired,
+                         "an opener must not be invented without a closer to "
+                         f"pair it with: {repaired!r}")
+
+    def test_balanced_speech_is_untouched(self):
+        text = f"{OPEN}Already balanced,{CLOSE} he said.\n"
+        repaired, _applied, _examples = repair(text)
+        self.assertEqual(text, repaired)
 
 
 if __name__ == "__main__":

@@ -191,18 +191,40 @@ def apply_phrases(text):
 #
 # So the repairer measures its own output. Anything worse than this is
 # reported as a failure of the repair, not accepted silently.
-MAX_UNBALANCED_QUOTE_SHARE = 0.05
+# Calibrated across the whole corpus, not two books. An earlier value of 5%
+# came from grimgar03 and mushoku16 alone and would have condemned healthy
+# files: owarimonogatari3 sits at 11.7% and generates 110/110 chunks,
+# mushoku23 at 8.8%, mushoku18 at 20.3%. Repaired index18 is 8.2% - below a
+# book that demonstrably works. 25% leaves room for that spread while still
+# catching a file whose speech structure has genuinely collapsed.
+MAX_UNBALANCED_QUOTE_SHARE = 0.25
+
+
+STRAIGHT_DOUBLE = '"'
 
 
 def quote_balance(text):
-    """-> (unbalanced_lines, lines_containing_quotes, share)."""
+    """-> (unbalanced_lines, lines_containing_quotes, share).
+
+    Counts straight quotes as well as curly ones. Several books in this corpus
+    mix them - mushoku18 opens with a straight quote and closes with a curly
+    one - and an earlier version counting only curly marks scored it 61.4%
+    unbalanced, which was the metric failing rather than the book being
+    damaged. A straight quote is its own opener and closer, so an even count
+    on the line is balanced.
+    """
     unbalanced = quoted = 0
     for line in text.split("\n"):
         opens, closes = line.count(OPEN_DOUBLE), line.count(CLOSE_DOUBLE)
-        if opens or closes:
-            quoted += 1
-            if opens != closes:
-                unbalanced += 1
+        straight = line.count(STRAIGHT_DOUBLE)
+        if not (opens or closes or straight):
+            continue
+        quoted += 1
+        # Pair curly marks against each other, then let straight quotes absorb
+        # whatever curly mark is left over on the line.
+        leftover = abs(opens - closes)
+        if (straight + leftover) % 2 != 0:
+            unbalanced += 1
     share = unbalanced / quoted if quoted else 0.0
     return unbalanced, quoted, share
 
@@ -274,6 +296,25 @@ def repair(text, last_resort=True):
         # and retried for 6.5 minutes a time. Structure the reader depends on
         # has to survive a substitution that cannot recover the character.
         lines = text.split("\n")
+        # Pair an unmatched closing quote with an opener earlier in the SAME
+        # line. "dodging one or two ?cannon shots,? he couldn't" is a quoted
+        # phrase mid-sentence, not speech at a line boundary, so none of the
+        # positional rules above match it and the marker fell through to a
+        # dash - leaving "—cannon shots,”", which combines a quote delimiter
+        # with narration and is exactly what the segment gate rejects. 45
+        # lines in index18 had this shape and it failed pass 1 on chunk 98.
+        paired = 0
+        for index, line in enumerate(lines):
+            if line.count(CLOSE_DOUBLE) <= line.count(OPEN_DOUBLE):
+                continue
+            match = re.search(r"(?<=[\s(\[])" + FFFD + r"(?=[A-Za-z])", line)
+            if match:
+                lines[index] = (line[:match.start()] + OPEN_DOUBLE
+                                + line[match.end():])
+                paired += 1
+        if paired:
+            applied["last_resort_paired_opening_quote"] += paired
+
         # Open the speech too, symmetrically. A line that ends with a closing
         # quote and begins with a damaged run began with an opening quote:
         # "--More men to die." was '"-More men to die."'. Without this the
@@ -298,8 +339,14 @@ def repair(text, last_resort=True):
                 lines[index] = stripped[:-1] + CLOSE_DOUBLE + pad
                 closed += 1
         if closed:
-            text = "\n".join(lines)
             applied["last_resort_closing_quote"] += closed
+        # Join whenever ANY of the three line-level fixes ran. This used to sit
+        # under `if closed:`, so paired and opened repairs were computed,
+        # counted in `applied`, and then discarded whenever no closing quote
+        # happened to need fixing - the counter reported work that never
+        # reached the text.
+        if paired or opened or closed:
+            text = "\n".join(lines)
         remaining = text.count(FFFD)
         if remaining:
             text = text.replace(FFFD, LAST_RESORT)
