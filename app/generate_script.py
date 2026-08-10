@@ -13,6 +13,7 @@ from chunk_quality import validate_chunk_quality, is_trigram_only_near_miss
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
 from lmstudio_settings import (ensure_ideal_settings, get_effective_max_tokens,
                                get_next_retry_max_tokens)
+from repair_source_encoding import preflight_source
 from script_repair import build_deterministic_repair
 from source_normalization import (normalize_homoglyph_words,
                                   normalize_known_source_corruptions,
@@ -1241,6 +1242,19 @@ def main():
         if front_matter_removed:
             print(f"Stripped {front_matter_removed['removed_chars']} characters of known "
                   "front matter (translator's note / table of contents) before generation")
+    # PREFLIGHT. Name every known damage class before spending GPU time.
+    #
+    # Damage in a source file otherwise surfaces as a generation failure
+    # twenty minutes in, and reads like a model problem. Daisy Miller died at
+    # chunk 2 of 22 because its apostrophes had been stripped - "She s got to
+    # give me some candy" - and 17 of the 28 public-domain novels carry the
+    # same damage. index18 needed five separate fixes before it would generate
+    # at all. None of that was visible when the user picked the file.
+    preflight = preflight_source(book_content)
+    for line in preflight["messages"]:
+        print(line)
+    book_content = preflight["text"]
+
     source_unicode = audit_unicode_text(book_content)
     print(f"Source scripts: {', '.join(source_unicode['scripts']) or 'none'}; "
           f"NFC normalized: {source_unicode['is_nfc']}")

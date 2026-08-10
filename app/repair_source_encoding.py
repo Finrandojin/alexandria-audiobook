@@ -241,8 +241,22 @@ def quote_balance(text):
 # Only repetitions containing punctuation. "deeeeeeeep" is the author
 # elongating a word and is harmless; "?o?o?o?h?h?h" and "-?-?-?" are damage,
 # and a long run of either makes the model generate to its token ceiling.
-_REPETITION_TRAP = re.compile(r"((?=[^\w\s])(?:.)(?:.))\1{5,}"
-                              r"|((?:.)(?=[^\w\s])(?:.))\2{5,}")
+# The unit must be TWO DIFFERENT characters, at least one of them punctuation.
+# A run of the SAME character is ordinary typography and appears in books that
+# generate perfectly: grimgar03 has a 22-dash scene break, mushoku16 has
+# ellipsis leader dots. Flagging those told a healthy book it was damaged.
+# What actually loops the model is an ALTERNATING pattern - index18's
+# "-?-?-?-?" repeated 25 times ran every attempt to the 16,384-token ceiling.
+# THRESHOLD FROM MEASUREMENT, not intuition. Across 36 books:
+#   runs that demonstrably broke generation (index18)  25 and 42 repetitions
+#   legitimate typography, maximum observed            13 repetitions
+#     grimgar06  "I-I-I-I-"      a stutter, 7
+#     arc4       "*  *  *  * "   Japanese scene break, 10-12
+#     Mysterious ". . . . . ."   spaced ellipsis, 6-13
+# 15 sits in the gap. Two earlier versions of this detector flagged scene
+# breaks and ellipses in books that generate 100% of their chunks, which is
+# worse than not checking: it tells a user their healthy book is damaged.
+_REPETITION_TRAP = re.compile(r"((?![\w\s]{2})(.)(?!\2)(.))\1{14,}")
 
 
 def structural_regressions(text):
@@ -259,6 +273,86 @@ def structural_regressions(text):
     return {"open_quote_ended_with_dash": open_ended_with_dash,
             "close_quote_started_with_dash": close_without_open,
             "repetition_traps": repetition_traps}
+
+
+# Contractions whose apostrophe an earlier lossy conversion removed. Seven of
+# the 28 public-domain novels have ZERO apostrophes and hundreds of broken
+# forms - "don t", "it s", "Winterbourne s" - which is why Daisy Miller failed
+# generation at chunk 2 of 22 while a clean novel finished 41 of 41.
+#
+# The stems are whitelisted rather than inferred. "word + space + s" is only
+# safely a possessive when the word is a pronoun, a known auxiliary, or a
+# capitalised name; a bare rule would rewrite ordinary prose.
+_NEGATIONS = ("can", "don", "doesn", "didn", "isn", "wasn", "won", "couldn",
+              "wouldn", "shouldn", "haven", "hasn", "hadn", "aren", "weren",
+              "mustn", "needn", "ain", "shan", "oughtn")
+_PRONOUN_S = ("it", "he", "she", "that", "there", "what", "who", "here",
+              "let", "one", "everybody", "somebody", "nobody")
+_PRONOUN_OTHER = ("i", "you", "we", "they", "he", "she", "it", "that", "who",
+                  "there")
+
+_CONTRACTION_RULES = [
+    ("negation", re.compile(r"\b(" + "|".join(_NEGATIONS) + r") t\b",
+                            re.IGNORECASE), r"\1’t"),
+    ("pronoun_is", re.compile(r"\b(" + "|".join(_PRONOUN_S) + r") s\b",
+                              re.IGNORECASE), r"\1’s"),
+    ("i_am", re.compile(r"\bI m\b"), "I’m"),
+    ("pronoun_other", re.compile(
+        r"\b(" + "|".join(_PRONOUN_OTHER) + r") (ll|ve|re|d)\b",
+        re.IGNORECASE), r"\1’\2"),
+    # A capitalised name followed by a bare "s" is a possessive: "Winterbourne
+    # s hat". Restricted to capitalised words so ordinary lowercase prose is
+    # untouched.
+    ("name_possessive", re.compile(r"\b([A-Z][a-z]{2,}) s\b"), r"\1’s"),
+]
+
+
+def restore_contractions(text):
+    """-> (text, counts). Rebuild apostrophes a lossy conversion removed."""
+    counts = {}
+    for name, pattern, replacement in _CONTRACTION_RULES:
+        text, n = pattern.subn(replacement, text)
+        if n:
+            counts[name] = n
+    return text, counts
+
+
+def check_source_health(text):
+    """Every known damage class in one report, before anything is generated.
+
+    This is what a user should see when they add a book - not a refusal after
+    twenty minutes of generation. Each entry says what is wrong, how much, and
+    whether this tool can fix it.
+    """
+    replacement = text.count(FFFD)
+    broken = sum(len(p.findall(text)) for _n, p, _r in _CONTRACTION_RULES)
+    traps = len(_REPETITION_TRAP.findall(text))
+    _unb, _q, imbalance = quote_balance(text)
+    findings = []
+    if replacement:
+        findings.append({
+            "issue": "replacement_characters", "count": replacement,
+            "share": round(replacement / max(1, len(text)), 5),
+            "repairable": True,
+            "detail": "decoded with the wrong codec; non-ASCII characters lost"})
+    if broken:
+        findings.append({
+            "issue": "stripped_apostrophes", "count": broken,
+            "repairable": True,
+            "detail": "contractions split by a lossy conversion (don t, it s)"})
+    if traps:
+        findings.append({
+            "issue": "repetition_traps", "count": traps,
+            "repairable": True,
+            "detail": "a long repeating run makes the model generate to its "
+                      "token ceiling"})
+    if imbalance > MAX_UNBALANCED_QUOTE_SHARE:
+        findings.append({
+            "issue": "unbalanced_quotes", "share": round(imbalance, 4),
+            "repairable": False,
+            "detail": "speech structure may be damaged; not auto-repairable"})
+    return {"healthy": not findings, "findings": findings,
+            "characters": len(text)}
 
 
 def classify_remaining(text):
@@ -279,6 +373,9 @@ def classify_remaining(text):
 def repair(text, last_resort=True):
     applied = collections.Counter()
     examples = collections.defaultdict(list)
+    text, contractions = restore_contractions(text)
+    for kind, count in contractions.items():
+        applied[f"contraction_{kind}"] += count
     text, collapsed = collapse_repetitions(text)
     for kind, count in collapsed.items():
         applied[f"collapsed_{kind}"] += count
@@ -481,3 +578,56 @@ def main():
 if __name__ == "__main__":
     import sys
     sys.exit(main() or 0)
+
+
+def preflight_source(text):
+    """Check a source for known damage and repair what can be repaired.
+
+    ONE definition, called by both generation paths. The single-pass and
+    three-pass gates have disagreed three times already - on the replacement
+    limit, on duplicate blocks, and on publisher matter - each time because a
+    capability lived on one path only, and each time the symptom was the same
+    book behaving differently depending on how it was generated.
+
+    Returns a new dict; the caller's text is not modified in place. The user's
+    file on disk is never rewritten - a repair is a best guess at an original
+    that cannot be recovered, and editing someone's book on a guess is not a
+    decision this function gets to make.
+
+    Damage found here is a risk signal, not proof of failure, so an
+    unrepairable finding is reported and does NOT refuse the book. The hard
+    refusals stay where they are: unsafe control characters and replacement
+    load above the shared limit.
+    """
+    before = check_source_health(text)
+    result = {"text": text, "healthy": before["healthy"],
+              "findings": before["findings"], "applied": {}, "messages": []}
+    if before["healthy"]:
+        return result
+
+    result["messages"].append(
+        f"Source health: {len(before['findings'])} issue(s) found")
+    for finding in before["findings"]:
+        suffix = "" if finding["repairable"] else "  [not auto-repairable]"
+        result["messages"].append(
+            f"  - {finding['issue']}: {finding['detail']}{suffix}")
+
+    repaired, applied, _examples = repair(text)
+    after = check_source_health(repaired)
+    result["applied"] = applied
+    if applied:
+        result["messages"].append(
+            f"  repaired in memory ({sum(applied.values())} fixes; "
+            "your file on disk is unchanged)")
+
+    if after["healthy"]:
+        result.update(text=repaired, healthy=True, findings=[])
+        result["messages"].append("  source is now clean")
+    elif len(after["findings"]) < len(before["findings"]):
+        result.update(text=repaired, findings=after["findings"])
+        result["messages"].append(
+            f"  {len(after['findings'])} issue(s) remain; continuing")
+    else:
+        result["messages"].append(
+            "  repair changed nothing; continuing with the original")
+    return result

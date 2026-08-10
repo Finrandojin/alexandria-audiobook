@@ -23,8 +23,8 @@ These tests pin both, and pin that the historical failure is refused.
 import unittest
 
 from repair_source_encoding import (LAST_RESORT, MAX_UNBALANCED_QUOTE_SHARE,
-                                    quote_balance, repair,
-                                    structural_regressions)
+                                    check_source_health, quote_balance,
+                                    repair, structural_regressions)
 
 OPEN = "“"
 CLOSE = "”"
@@ -163,7 +163,12 @@ class RepetitionTrapTest(unittest.TestCase):
                       "the author's elongated word must survive")
 
     def test_a_trap_is_a_reported_regression(self):
-        trapped = "“" + ("—?" * 12) + "!!”\n"
+        # 25, not 12. This fixture was written when the detector fired at 5
+        # repetitions, and 12 is now measured to be inside the range legitimate
+        # typography occupies - arc4's ideographic scene breaks run 10-12, and
+        # that book is not damaged. 25 is what index18's chunk 10 actually
+        # carried when it ran to the token ceiling.
+        trapped = "“" + ("—?" * 25) + "!!”\n"
         self.assertGreater(
             structural_regressions(trapped)["repetition_traps"], 0,
             "a long repeating punctuation run must be reported as harmful")
@@ -208,6 +213,58 @@ class InlineQuotePairingTest(unittest.TestCase):
         text = f"{OPEN}Already balanced,{CLOSE} he said.\n"
         repaired, _applied, _examples = repair(text)
         self.assertEqual(text, repaired)
+
+
+
+
+class SourceHealthCheckTest(unittest.TestCase):
+    """One preflight naming every known damage class, before generation.
+
+    A user should learn their file is damaged when they add it, not after
+    twenty minutes of generation. Daisy Miller failed at chunk 2 of 22 because
+    its apostrophes had been stripped - "She s got to give me some candy" -
+    and 17 of the 28 public-domain novels have the same damage.
+    """
+
+    def test_a_clean_book_is_healthy(self):
+        text = ("He walked to the door.\n\n"
+                "“It’s late,” she said.\n\n"
+                "The room was quiet.\n")
+        self.assertTrue(check_source_health(text)["healthy"])
+
+    def test_stripped_apostrophes_are_found_and_repairable(self):
+        text = "“She s got to give me some candy. I can t find any.”\n"
+        health = check_source_health(text)
+        issues = [f["issue"] for f in health["findings"]]
+        self.assertIn("stripped_apostrophes", issues)
+        repaired, _applied, _ex = repair(text)
+        self.assertIn("She’s", repaired)
+        self.assertIn("can’t", repaired)
+        self.assertTrue(check_source_health(repaired)["healthy"])
+
+    def test_legitimate_typography_is_not_flagged(self):
+        """Scene breaks, stutters and ellipses appear in books that generate
+        100% of their chunks. Two earlier detectors flagged all three."""
+        for label, text in (("scene break", "—" * 22),
+                            ("stutter", "I-I-I-I-I-I-I- I said."),
+                            ("spaced ellipsis", "Well . . . . . . perhaps."),
+                            ("ideographic break", "※　" * 12)):
+            with self.subTest(case=label):
+                self.assertTrue(check_source_health(text)["healthy"],
+                                f"{label} must not be reported as damage")
+
+    def test_a_real_repetition_trap_is_flagged(self):
+        """25 repetitions ran index18's chunk 10 to the token ceiling."""
+        text = "“" + ("—?" * 25) + "!!”\n"
+        issues = [f["issue"] for f in check_source_health(text)["findings"]]
+        self.assertIn("repetition_traps", issues)
+
+    def test_every_finding_says_whether_it_can_be_fixed(self):
+        text = "“She s late.”\n" + "�" * 5 + "\n"
+        for finding in check_source_health(text)["findings"]:
+            with self.subTest(issue=finding["issue"]):
+                self.assertIn("repairable", finding)
+                self.assertIn("detail", finding)
 
 
 if __name__ == "__main__":

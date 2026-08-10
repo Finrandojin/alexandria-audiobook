@@ -28,6 +28,7 @@ from script_preflight import (audit_unicode_text,
                               replacement_load_is_acceptable,
                               replacement_repair_hint)
 from speaker_identity import stabilize_speaker_identities
+from repair_source_encoding import preflight_source
 from script_repair import build_deterministic_repair
 from default_prompts import (load_segment_prompts, load_attribute_prompts,
                              load_instruct_prompts)
@@ -1338,6 +1339,18 @@ def prepare_source_text(book):
             f"{MAX_REPLACEMENT_DENSITY:.0%} ceiling; refusing to process it")
     book, repairs = repair_lossy_replacements(book)
     book, residual = neutralize_lossy_residue(book)
+    # Same preflight as the single-pass path, from one definition (Rule 15).
+    #
+    # AFTER the lossy repair, not before. This path already repairs U+FFFD and
+    # reports how many it fixed; running the preflight first fixed them itself
+    # and left that count at zero, which is a real regression in what the run
+    # reports about itself even though the text came out the same. The
+    # preflight's remaining value here is what this path never covered -
+    # stripped apostrophes, repetition traps, quote balance.
+    preflight = preflight_source(book)
+    for line in preflight["messages"]:
+        print(line)
+    book = preflight["text"]
     report = audit_unicode_text(book)
     if report["unsafe_controls"]:
         raise ValueError("source contains unsafe control characters: "

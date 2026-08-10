@@ -607,6 +607,11 @@
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_both_generators_use_the_shared_check",
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_generators_agree_on_the_same_input",
     "test_generation_path_agreement.ReplacementPolicyAgreementTest.test_the_policy_lives_in_exactly_one_place",
+    "test_generation_path_agreement.SourceHealthPreflightAgreementTest.test_both_generators_run_the_preflight",
+    "test_generation_path_agreement.SourceHealthPreflightAgreementTest.test_both_paths_get_the_same_verdict_on_the_same_book",
+    "test_generation_path_agreement.SourceHealthPreflightAgreementTest.test_the_preflight_is_defined_once",
+    "test_generation_path_agreement.SourceHealthPreflightAgreementTest.test_the_users_file_is_never_rewritten",
+    "test_generation_path_agreement.SourceHealthPreflightAgreementTest.test_unrepairable_damage_does_not_refuse_the_book",
     "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_both_generators_strip_the_same_things",
     "test_generation_path_agreement.SourcePreprocessingAgreementTest.test_publisher_matter_is_not_left_to_a_flag"
   ],
@@ -1108,6 +1113,11 @@
     "test_repair_structural_check.RepetitionTrapTest.test_a_pre_existing_repetition_is_collapsed",
     "test_repair_structural_check.RepetitionTrapTest.test_a_trap_is_a_reported_regression",
     "test_repair_structural_check.RepetitionTrapTest.test_authorial_elongation_is_left_alone",
+    "test_repair_structural_check.SourceHealthCheckTest.test_a_clean_book_is_healthy",
+    "test_repair_structural_check.SourceHealthCheckTest.test_a_real_repetition_trap_is_flagged",
+    "test_repair_structural_check.SourceHealthCheckTest.test_every_finding_says_whether_it_can_be_fixed",
+    "test_repair_structural_check.SourceHealthCheckTest.test_legitimate_typography_is_not_flagged",
+    "test_repair_structural_check.SourceHealthCheckTest.test_stripped_apostrophes_are_found_and_repairable",
     "test_repair_structural_check.StructuralRegressionTest.test_a_line_closing_speech_it_never_opened",
     "test_repair_structural_check.StructuralRegressionTest.test_correctly_repaired_dialogue_has_no_regressions",
     "test_repair_structural_check.StructuralRegressionTest.test_the_exact_shape_that_broke_chunk_10"
