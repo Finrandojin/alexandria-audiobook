@@ -34,6 +34,8 @@ FFFD = "�"
 APOSTROPHE = "’"     # right single quotation mark, the usual apostrophe
 OPEN_DOUBLE = "“"
 CLOSE_DOUBLE = "”"
+EMDASH = "—"
+ELLIPSIS = "…"
 
 # Each rule is (name, compiled pattern, replacement template). Order matters:
 # the first rule whose pattern matches a given position wins, so the most
@@ -43,9 +45,25 @@ RULES = [
     # don?t, it?s, he?d, O?Brien - a letter on both sides. Only an apostrophe
     # occurs between two letters in English prose; an accented letter would
     # not have a letter directly before it in these contractions.
+    # Apostrophe ONLY before a real English contraction or possessive suffix.
+    # Light novels join words with an em dash and no spaces - "that?But",
+    # "d'etat?they", "Magic?Fiction" in the library metadata - and an earlier
+    # version of this rule turned 603 of those into apostrophes because it
+    # only tested "letter on both sides".
     ("apostrophe_in_word",
-     re.compile(r"(?<=[A-Za-z])" + FFFD + r"(?=[A-Za-z])"),
+     re.compile(r"(?<=[A-Za-z])" + FFFD +
+                r"(?=(?:t|s|d|ll|re|ve|m|am|n)\b)"),
      APOSTROPHE),
+    # Anything else with letters on both sides is an em dash joining two
+    # words, which is the other thing a light novel does constantly.
+    ("emdash_between_words",
+     re.compile(r"(?<=[A-Za-z])" + FFFD + r"(?=[A-Za-z])"),
+     EMDASH),
+    # Cut-off speech: "Wha?!", "but?", right before terminal punctuation or a
+    # closing quote. An interruption, not a trailing-off.
+    ("emdash_before_terminal",
+     re.compile(FFFD + r"(?=[?!]+[”\"]|[”\"])"),
+     EMDASH),
     # Closing quote: a sentence ends, then the quote, then a line break.
     ("closing_quote_after_sentence",
      re.compile(r"(?<=[.!?,;:])" + FFFD + r"(?=\n)"),
@@ -69,9 +87,17 @@ RULES = [
     ("opening_quote_mid_line",
      re.compile(r"(?<=[.!?] )" + FFFD + r"(?=[A-Za-z])"),
      OPEN_DOUBLE),
+    # Trailing off at the end of a line: "but?", "then?", "away?" with nothing
+    # after. Previously refused because it could be an em dash - it can, and
+    # it does not matter: both render as a pause and the TTS drops the
+    # character either way. Deciding it removes a blocker; being wrong about
+    # which pause mark it was is inaudible.
+    ("ellipsis_trailing_line_end",
+     re.compile(r"(?<=[A-Za-z,])" + FFFD + r"(?=\n)"),
+     ELLIPSIS),
 ]
 
-# DELIBERATELY NOT A RULE: letter + U+FFFD + newline. It looks like a closing
+# STILL NOT A RULE: letter + U+FFFD + newline where the earlier note applies. It looks like a closing
 # quote and is not: "blew the dust away?", "beside him?", "That said?", "by
 # now?" - all sentences trailing off, with no opening quote anywhere near
 # them. These are ellipses or dashes. An earlier version of this file replaced
@@ -83,6 +109,35 @@ RULES = [
 # are ordinary English and the context does not separate them without tracking
 # quote nesting across the whole file. Roughly 57 occurrences are left for a
 # human rather than guessed at.
+
+
+# Named phrases whose damaged form is unambiguous. These are the only sites
+# where getting it wrong is AUDIBLE: an accented letter inside a word changes
+# how it is pronounced, where a dash or an ellipsis is just a pause. 37 of the
+# 41 in-word runs in index18 are this one French phrase.
+PHRASES = {
+    "d" + FFFD * 2 + "tat": "d\u2019\u00e9tat",
+    "d" + FFFD * 2 + "tats": "d\u2019\u00e9tats",
+}
+
+# Anything still marked after every rule above. These are all at word
+# boundaries - quotes, dashes, ellipses - where the original character cannot
+# be recovered and, crucially, cannot be heard: the TTS renders any of them as
+# a pause, and `verbalize_symbols` drops the replacement character outright.
+# Leaving them costs the whole book, because the per-chunk quality gate
+# refuses any chunk containing one. A recorded, uniform substitution is the
+# honest trade, and every instance is counted in the report.
+LAST_RESORT = "\u2014"
+
+
+def apply_phrases(text):
+    applied = {}
+    for damaged, restored in PHRASES.items():
+        count = text.count(damaged)
+        if count:
+            text = text.replace(damaged, restored)
+            applied[restored] = count
+    return text, applied
 
 
 def classify_remaining(text):
@@ -100,9 +155,12 @@ def classify_remaining(text):
     return counts, samples
 
 
-def repair(text):
+def repair(text, last_resort=True):
     applied = collections.Counter()
     examples = collections.defaultdict(list)
+    text, phrases = apply_phrases(text)
+    for restored, count in phrases.items():
+        applied[f"named_phrase:{restored}"] += count
     for name, pattern, replacement in RULES:
         def _sub(match, _name=name, _rep=replacement):
             start = match.start()
@@ -112,6 +170,11 @@ def repair(text):
                     text[max(0, start - 40):start + 40].replace("\n", "\\n"))
             return _rep
         text = pattern.sub(_sub, text)
+    if last_resort:
+        remaining = text.count(FFFD)
+        if remaining:
+            text = text.replace(FFFD, LAST_RESORT)
+            applied["last_resort_dash"] += remaining
     return text, applied, examples
 
 
@@ -122,6 +185,10 @@ def main():
                         help="default: <source> with .repaired before the "
                              "extension. The original is never modified.")
     parser.add_argument("--report", default=None)
+    parser.add_argument("--no-last-resort", action="store_true",
+                        help="leave unresolvable sites as U+FFFD instead of "
+                             "substituting a dash. Useful to see what the "
+                             "rules alone achieve.")
     parser.add_argument("--apply", action="store_true",
                         help="write the repaired file. Without it this is a "
                              "dry run that only reports what would change.")
@@ -131,7 +198,8 @@ def main():
         original = handle.read()
 
     before_count = original.count(FFFD)
-    repaired, applied, examples = repair(original)
+    repaired, applied, examples = repair(
+        original, last_resort=not args.no_last_resort)
     after_count = repaired.count(FFFD)
     remaining, samples = classify_remaining(repaired)
 
