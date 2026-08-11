@@ -9,7 +9,16 @@ from speech_text import get_speech_normalization
 
 
 _CYRILLIC_RE = re.compile(r"[\u0400-\u04ff]")
-_WORD_RE = re.compile(r"\w+", re.UNICODE)
+# `\w` includes UNDERSCORE, and Project Gutenberg marks italics with it:
+# the source says "explain _myself_", so the token was "_myself_" and never
+# matched the model's "myself". 23 of the 28 public-domain novels use the
+# convention, so every one of them was being measured against a source whose
+# emphasised words could not be matched.
+#
+# Alice in Wonderland was discarded over exactly this - all 919 entries, all
+# 25 chunks generated - because a duplicated pair scored "not in the source"
+# when the only difference was two underscores the model correctly dropped.
+_WORD_RE = re.compile(r"[^\W_]+", re.UNICODE)
 _FRONT_MATTER_RE = re.compile(
     r"\b(?:copyright|all rights reserved|isbn(?:-1[03])?|table of contents)\b",
     re.IGNORECASE,
@@ -116,6 +125,45 @@ def replacement_load_is_acceptable(count, length):
     return (count / max(1, length)) <= MAX_REPLACEMENT_SHARE
 
 
+def source_occurrences_for_text(source_normalized, text_normalized,
+                                minimum_tokens=5):
+    """How many times the source carries this entry's content.
+
+    WHY NOT A PLAIN `count`. Two things break exact matching, and both are
+    normal rather than defects:
+
+      * Entries are not contiguous spans - narration sits between two spoken
+        lines, so joining them finds nothing.
+      * The model modernises archaic orthography. Carroll writes "ca'n't";
+        the model emits "can't", so Alice's line matches her own book zero
+        times while being an obviously faithful rendering.
+
+    Exact matching therefore reports 0 - "the model invented this" - for text
+    that is plainly in the book. Alice in Wonderland generated all 25 chunks
+    and was discarded, all 919 entries, over two lines that differ from the
+    source by one apostrophe.
+
+    So: use the LONGEST window of the entry that the source actually
+    contains, and report how often that window occurs. Longest is the most
+    distinctive, which keeps the count meaningful - a short common phrase
+    would appear everywhere and make a duplication look faithful.
+
+    Returns 0 only when no window of `minimum_tokens` words appears anywhere,
+    which is the real "invented" case.
+    """
+    tokens = text_normalized.split()
+    if not tokens or not source_normalized:
+        return 0
+    for size in range(len(tokens), minimum_tokens - 1, -1):
+        best = 0
+        for start in range(0, len(tokens) - size + 1):
+            window = " ".join(tokens[start:start + size])
+            best = max(best, source_normalized.count(window))
+        if best:
+            return best
+    return 0
+
+
 def find_adjacent_duplicate_blocks(texts, source_text):
     findings = []
     occupied = set()
@@ -129,7 +177,35 @@ def find_adjacent_duplicate_blocks(texts, source_text):
             if (positions.isdisjoint(occupied) and left == right and
                     all(len(text) >= 8 for text in left)):
                 block_text = _normalize_words(" ".join(left))
-                source_occurrences = source_normalized.count(block_text) if source_normalized else None
+                # TWO WAYS TO ASK "does the source contain this block?", and
+                # the contiguous one alone is wrong.
+                #
+                # Entries are not contiguous spans of the source - a dialogue
+                # entry is followed in the book by narration the next entry
+                # skips. So joining two entries and searching for that string
+                # finds nothing whenever anything sits between them, and a
+                # plain duplication scores 0, which reads as "the model
+                # invented this" when it means "these two lines are not
+                # adjacent in the book".
+                #
+                # Alice in Wonderland: the Caterpillar's "Explain yourself!"
+                # and Alice's reply were emitted twice. Each line occurs once
+                # in the source; joined, they occur zero times, because "said
+                # Alice" sits between them. The book generated all 25 chunks,
+                # the repair knew how to fix it, and it was thrown away as
+                # unresolvable - 919 entries discarded over two lines.
+                #
+                # So fall back to the per-entry minimum: if every line in the
+                # block is in the source, the block is duplicated (removable).
+                # Only a line the source lacks entirely is an invention.
+                contiguous = source_normalized.count(block_text) if source_normalized else None
+                if source_normalized and not contiguous:
+                    source_occurrences = min(
+                        source_occurrences_for_text(
+                            source_normalized, _normalize_words(text))
+                        for text in left)
+                else:
+                    source_occurrences = contiguous
                 # A block the SOURCE itself repeats is faithful
                 # transcription, not a defect. grimgar03 opens with its
                 # title eight times; the whole-book gate rejected the
@@ -148,6 +224,7 @@ def find_adjacent_duplicate_blocks(texts, source_text):
                     list(range(index + 1, index + (2 * block_size) + 1)),
                     block_size=block_size,
                     source_occurrences=source_occurrences,
+                    contiguous_block_occurrences=contiguous,
                 ))
                 occupied.update(positions)
                 index += 2 * block_size
