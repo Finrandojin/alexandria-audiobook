@@ -386,6 +386,16 @@
     "test_distill_training_resume.DistillTrainingResumeTest.test_disabled_resume_starts_without_a_checkpoint",
     "test_distill_training_resume.DistillTrainingResumeTest.test_resume_preserves_training_state_rng_and_sample_order"
   ],
+  "test_duplicate_classification": [
+    "test_duplicate_classification.DuplicateRepairTest.test_a_block_the_source_repeats_is_kept",
+    "test_duplicate_classification.DuplicateRepairTest.test_a_duplicated_pair_is_removed_not_refused",
+    "test_duplicate_classification.DuplicateRepairTest.test_invented_repetition_is_still_refused",
+    "test_duplicate_classification.SourceOccurrenceTest.test_orthographic_drift_still_counts",
+    "test_duplicate_classification.SourceOccurrenceTest.test_text_absent_from_the_source_is_zero",
+    "test_duplicate_classification.SourceOccurrenceTest.test_text_present_once_is_counted_once",
+    "test_duplicate_classification.UnderscoreMarkupTest.test_a_real_underscore_word_still_tokenizes",
+    "test_duplicate_classification.UnderscoreMarkupTest.test_emphasis_markers_do_not_change_a_word"
+  ],
   "test_env_doctor": [
     "test_env_doctor.EvaluateEnvTests.test_all_required_present_is_ok",
     "test_env_doctor.EvaluateEnvTests.test_interpreter_not_found_fails_all_required",
