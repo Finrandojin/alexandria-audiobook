@@ -128,10 +128,17 @@ def test_save_config_roundtrip():
     original = r.json()
     shared["original_config"] = original
 
-    # Build test config with modified language
+    # Build test config with modified TTS provider settings
     test_config = {
         "llm": original["llm"],
-        "tts": {**original.get("tts", {}), "language": "_test_roundtrip_lang"},
+        "tts": {
+            **original.get("tts", {}),
+            "language": "_test_roundtrip_lang",
+            "provider": "minimax",
+            "api_key": "test",
+            "model": "speech-2.8-turbo",
+            "region": "cn_zh",
+        },
         "prompts": original.get("prompts"),
         "generation": original.get("generation"),
     }
@@ -149,6 +156,14 @@ def test_save_config_roundtrip():
     readback = r.json()
     if readback.get("tts", {}).get("language") != "_test_roundtrip_lang":
         raise TestFailure("Config round-trip failed: language not persisted")
+    for key, expected in {
+        "provider": "minimax",
+        "api_key": "test",
+        "model": "speech-2.8-turbo",
+        "region": "cn_zh",
+    }.items():
+        if readback.get("tts", {}).get(key) != expected:
+            raise TestFailure(f"Config round-trip failed: {key} not persisted")
 
     # Verify generation section persists
     if original.get("generation") and not readback.get("generation"):

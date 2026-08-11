@@ -1,14 +1,50 @@
 import os
 import re
 import json
+import time
 import threading
 import shutil
 import numpy as np
+import requests
 import soundfile as sf
 from pydub import AudioSegment
 
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
+
+MINIMAX_SPEECH_ENDPOINTS = {
+    "global_en": "https://api.minimax.io/v1/t2a_v2",
+    "cn_zh": "https://api.minimaxi.com/v1/t2a_v2",
+}
+MINIMAX_SPEECH_MODELS = (
+    "speech-2.8-hd",
+    "speech-2.8-turbo",
+    "speech-2.6-hd",
+    "speech-2.6-turbo",
+    "speech-02-hd",
+    "speech-02-turbo",
+    "speech-01-hd",
+    "speech-01-turbo",
+)
+MINIMAX_DEFAULT_SPEECH_MODEL = MINIMAX_SPEECH_MODELS[0]
+
+MINIMAX_EMOTION_PATTERNS = (
+    ("happy", (r"\bhapp(?:y|ily)\b", r"\bjoy\w*\b", r"\blaugh\w*\b")),
+    ("sad", (r"\bsad\w*\b", r"\bcry\w*\b", r"\bsob\w*\b")),
+    ("angry", (r"\bshout\w*\b", r"\bangr\w*\b", r"\brag(?:e|ing)\b", r"\bfuri\w*\b")),
+    ("fearful", (r"\bscared\b", r"\bafraid\b", r"\bfear\w*\b", r"\btrembl\w*\b")),
+    ("disgusted", (r"\bdisgust\w*\b", r"\brevolt\w*\b")),
+    ("surprised", (r"\bgasp\w*\b", r"\bsurpris\w*\b", r"\bshock\w*\b")),
+)
+
+
+def _instruct_to_minimax_emotion(instruct):
+    """Map free-form delivery direction to a MiniMax emotion value."""
+    normalized = (instruct or "").lower()
+    for emotion, patterns in MINIMAX_EMOTION_PATTERNS:
+        if any(re.search(pattern, normalized) for pattern in patterns):
+            return emotion
+    return "neutral"
 
 
 def sanitize_filename(name):
@@ -86,11 +122,11 @@ def compute_timeline(chunks_with_audio, pause_ms=DEFAULT_PAUSE_MS,
 
 
 class TTSEngine:
-    """TTS engine supporting local (qwen-tts) and external (Gradio) backends.
+    """TTS engine supporting local and external speech backends.
 
     Mode is determined by config["tts"]["mode"]:
       - "local": Loads Qwen3TTSModel directly. No external server needed.
-      - "external": Connects via Gradio client to a running TTS server.
+      - "external": Uses the configured provider or external server.
 
     Models and clients are lazily initialized on first use.
     """
@@ -101,6 +137,12 @@ class TTSEngine:
         self._url = tts_config.get("url", "http://127.0.0.1:7860")
         self._device = tts_config.get("device", "auto")
         self._compile_codec_enabled = tts_config.get("compile_codec", False)
+        self._provider = str(tts_config.get("provider", "server")).strip().lower()
+        self._api_key = str(tts_config.get("api_key", "")).strip()
+        self._speech_model = str(
+            tts_config.get("model", MINIMAX_DEFAULT_SPEECH_MODEL)
+        ).strip()
+        self._speech_region = str(tts_config.get("region", "global_en")).strip()
 
         # Language setting (passed to Qwen3-TTS)
         self._language = tts_config.get("language", "English")
@@ -661,6 +703,108 @@ class TTSEngine:
         print("Connected to external TTS server.")
         return self._gradio_client
 
+    def _minimax_endpoint(self):
+        """Return the configured regional MiniMax speech endpoint."""
+        endpoint = MINIMAX_SPEECH_ENDPOINTS.get(self._speech_region)
+        if not endpoint:
+            raise ValueError(f"Unsupported MiniMax speech region: {self._speech_region}")
+        return endpoint
+
+    def _build_minimax_payload(self, text, voice_id, instruct_text=""):
+        """Build a non-streaming WAV request for the MiniMax speech API."""
+        if self._speech_model not in MINIMAX_SPEECH_MODELS:
+            raise ValueError(f"Unsupported MiniMax speech model: {self._speech_model}")
+
+        language_boost = (self._language or "Auto").strip()
+        # MiniMax expects lowercase "auto" even though the UI uses "Auto".
+        if language_boost.lower() == "auto":
+            language_boost = "auto"
+
+        voice_setting = {"voice_id": voice_id}
+        emotion = _instruct_to_minimax_emotion(instruct_text)
+        if emotion != "neutral":
+            voice_setting["emotion"] = emotion
+
+        return {
+            "model": self._speech_model,
+            "text": text,
+            "stream": False,
+            "language_boost": language_boost,
+            "output_format": "hex",
+            "voice_setting": voice_setting,
+            "audio_setting": {"format": "wav"},
+        }
+
+    def _minimax_generate(self, text, instruct_text, speaker, voice_config, output_path):
+        """Generate speech through MiniMax and save the decoded WAV response."""
+        try:
+            voice_data = voice_config.get(speaker)
+            if not voice_data:
+                print(f"Warning: No voice configuration for '{speaker}'. Skipping.")
+                return False
+
+            voice_id = str(
+                voice_data.get("voice_id") or voice_data.get("voice") or ""
+            ).strip()
+            if not voice_id:
+                print(
+                    f"Warning: MiniMax voice for '{speaker}' is missing voice_id. "
+                    "Skipping."
+                )
+                return False
+            if not self._api_key:
+                print("Warning: MiniMax API key is missing. Skipping speech generation.")
+                return False
+
+            request_kwargs = {
+                "headers": {
+                    "Authorization": f"Bearer {self._api_key}",
+                    "Content-Type": "application/json",
+                },
+                "json": self._build_minimax_payload(text, voice_id, instruct_text),
+                "timeout": 120,
+            }
+            for attempt in range(2):
+                response = requests.post(self._minimax_endpoint(), **request_kwargs)
+                status_code = getattr(response, "status_code", 200)
+                if status_code != 429 and status_code < 500:
+                    break
+                if attempt == 0:
+                    time.sleep(0.5)
+            response.raise_for_status()
+            result = response.json()
+
+            base_response = result.get("base_resp") or {}
+            status_code = base_response.get("status_code")
+            if status_code not in (None, 0):
+                message = base_response.get("status_msg") or "request failed"
+                raise RuntimeError(f"MiniMax speech request failed: {message}")
+
+            data = result.get("data") or {}
+            data_status = data.get("status")
+            if data_status not in (None, 2):
+                raise RuntimeError(f"MiniMax speech response is not complete: {data_status}")
+
+            audio_hex = data.get("audio")
+            if not isinstance(audio_hex, str) or not audio_hex:
+                raise RuntimeError("MiniMax speech response did not contain audio")
+
+            try:
+                audio_bytes = bytes.fromhex(audio_hex)
+            except ValueError as exc:
+                raise RuntimeError("MiniMax speech response contained invalid audio data") from exc
+
+            if not audio_bytes:
+                raise RuntimeError("MiniMax speech response contained empty audio")
+
+            with open(output_path, "wb") as output_file:
+                output_file.write(audio_bytes)
+            return True
+
+        except Exception as e:
+            print(f"Error generating MiniMax speech for '{speaker}': {e}")
+            return False
+
     # ── Clone prompt cache (local mode) ──────────────────────────
 
     def _get_clone_prompt(self, speaker, voice_config):
@@ -708,6 +852,10 @@ class TTSEngine:
         """Generate audio using CustomVoice model. Returns True on success."""
         if self._mode == "local":
             return self._local_generate_custom(text, instruct_text, speaker, voice_config, output_path)
+        elif self._provider == "minimax":
+            return self._minimax_generate(
+                text, instruct_text, speaker, voice_config, output_path
+            )
         else:
             return self._external_generate_custom(text, instruct_text, speaker, voice_config, output_path)
 
