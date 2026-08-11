@@ -194,5 +194,59 @@ class SourcePreprocessingAgreementTest(unittest.TestCase):
                          "publisher matter must be stripped unconditionally")
 
 
+class SourceHealthPreflightAgreementTest(unittest.TestCase):
+    """The damage check must run on every path that reads a book.
+
+    Fourth instance of the same defect shape. `strip_publisher_matter` ran on
+    one path, the replacement policy had three answers, the duplicate rule had
+    four copies - each time a capability lived where it was written rather than
+    everywhere it was needed. This test exists so the preflight does not become
+    the fourth.
+    """
+
+    def test_both_generators_run_the_preflight(self):
+        for module in (generate_script, three_pass_generate):
+            with self.subTest(module=module.__name__):
+                self.assertIn("preflight_source", inspect.getsource(module),
+                              f"{module.__name__} must run the source health "
+                              "preflight; a book that is repaired on one path "
+                              "and not the other behaves differently for the "
+                              "same input")
+
+    def test_the_preflight_is_defined_once(self):
+        import repair_source_encoding
+        defining = [m.__name__ for m in
+                    (repair_source_encoding, generate_script,
+                     three_pass_generate)
+                    if "def preflight_source(" in inspect.getsource(m)]
+        self.assertEqual(["repair_source_encoding"], defining,
+                         f"found definitions in {defining}")
+
+    def test_both_paths_get_the_same_verdict_on_the_same_book(self):
+        """Behaviour, not just presence of a call."""
+        import repair_source_encoding
+        damaged = "“She s got to give me some candy. I can t find any.”\n"
+        first = repair_source_encoding.preflight_source(damaged)
+        second = repair_source_encoding.preflight_source(damaged)
+        self.assertEqual(first["text"], second["text"])
+        self.assertTrue(first["healthy"], "a repairable book must come back "
+                                          "clean for whichever path asks")
+
+    def test_the_users_file_is_never_rewritten(self):
+        """Repair is a guess at an unrecoverable original."""
+        import repair_source_encoding
+        source = inspect.getsource(repair_source_encoding.preflight_source)
+        self.assertNotIn("open(", source,
+                         "the preflight must not write to disk")
+
+    def test_unrepairable_damage_does_not_refuse_the_book(self):
+        """Damage is a risk signal; the hard refusals stay where they are."""
+        import repair_source_encoding
+        result = repair_source_encoding.preflight_source(
+            "“" + ("—?" * 25) + "!!”\n")
+        self.assertIn("text", result,
+                      "the preflight returns text rather than exiting")
+
+
 if __name__ == "__main__":
     unittest.main()
