@@ -128,6 +128,7 @@
                                     <option value="server">Existing Server</option>
                                     <option value="minimax">MiniMax</option>
                                 </select>
+                                <div class="form-text">MiniMax currently applies to Custom voices only.</div>
                             </div>
                             <div class="col-md-4" id="tts-url-group">
                                 <label class="form-label">TTS Server URL</label>
@@ -1706,7 +1707,6 @@
 
                                 <!-- Clone Options -->
                                 <div class="clone-opts" style="display: ${voiceType === 'clone' ? 'block' : 'none'}">
-                                    <input type="text" class="form-control clone-voice-id mb-2" placeholder="MiniMax voice ID" value="${escapeHtml(config.voice_id || '')}">
                                     <div class="row g-2 mb-2 align-items-center">
                                         <div class="col">
                                             <select class="form-select designed-voice-select" onchange="onDesignedVoiceSelect(this)">
@@ -1750,7 +1750,6 @@
 
                                 <!-- Voice Design Options -->
                                 <div class="design-opts" style="display: ${voiceType === 'design' ? 'block' : 'none'}">
-                                    <input type="text" class="form-control design-voice-id mb-2" placeholder="MiniMax voice ID" value="${escapeHtml(config.voice_id || '')}">
                                     <input type="text" class="form-control design-description mb-1" placeholder="Base voice description (e.g. Young strong soldier)" value="${config.description || ''}">
                                     <span class="text-muted small">Per-line instruct is appended to this description as delivery/emotion direction</span>
                                     <div class="mt-2">
@@ -1823,7 +1822,6 @@
                 } else if (type === 'clone') {
                     config[name] = {
                         type: 'clone',
-                        voice_id: card.querySelector('.clone-voice-id').value,
                         ref_text: card.querySelector('.ref-text').value,
                         ref_audio: card.querySelector('.ref-audio').value,
                         seed: "-1"
@@ -1851,7 +1849,6 @@
                 } else if (type === 'design') {
                     config[name] = {
                         type: 'design',
-                        voice_id: card.querySelector('.design-voice-id').value,
                         description: card.querySelector('.design-description').value,
                         seed: "-1"
                     };

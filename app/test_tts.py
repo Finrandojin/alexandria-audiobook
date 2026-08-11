@@ -7,15 +7,18 @@ from tts import (
     MINIMAX_DEFAULT_SPEECH_MODEL,
     MINIMAX_SPEECH_ENDPOINTS,
     TTSEngine,
+    _instruct_to_minimax_emotion,
 )
 
 
 class FakeResponse:
-    def __init__(self, payload):
+    def __init__(self, payload, status_code=200):
         self._payload = payload
+        self.status_code = status_code
 
     def raise_for_status(self):
-        return None
+        if self.status_code >= 400:
+            raise RuntimeError(f"HTTP {self.status_code}")
 
     def json(self):
         return self._payload
@@ -49,6 +52,15 @@ class MiniMaxSpeechTests(unittest.TestCase):
         self.assertEqual(payload["output_format"], "hex")
         self.assertFalse(payload["stream"])
 
+    def test_instruct_maps_to_minimax_emotion(self):
+        self.assertEqual(_instruct_to_minimax_emotion("shouted furiously"), "angry")
+
+        engine = self.make_engine()
+        payload = engine._build_minimax_payload(
+            "Stop!", "voice-1", "shouted furiously"
+        )
+        self.assertEqual(payload["voice_setting"]["emotion"], "angry")
+
     def test_generate_decodes_hex_audio(self):
         audio = b"RIFFtest-wav"
         response = FakeResponse({
@@ -61,8 +73,8 @@ class MiniMaxSpeechTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = os.path.join(tmpdir, "speech.wav")
             with patch("tts.requests.post", return_value=response) as post_request:
-                success = engine.generate_clone_voice(
-                    "Hello", "NARRATOR", voices, output_path
+                success = engine.generate_custom_voice(
+                    "Hello", "shouted furiously", "NARRATOR", voices, output_path
                 )
 
             self.assertTrue(success)
@@ -73,36 +85,65 @@ class MiniMaxSpeechTests(unittest.TestCase):
         self.assertEqual(request_args[0], MINIMAX_SPEECH_ENDPOINTS["global_en"])
         self.assertEqual(request_kwargs["headers"]["Authorization"], "Bearer test")
         self.assertEqual(
-            request_kwargs["json"]["voice_setting"], {"voice_id": "voice-1"}
+            request_kwargs["json"]["voice_setting"],
+            {"voice_id": "voice-1", "emotion": "angry"},
         )
 
-    def test_design_voice_uses_configured_voice_id(self):
-        audio = b"RIFFdesign-wav"
-        response = FakeResponse({
-            "data": {"audio": audio.hex(), "status": 2},
-            "base_resp": {"status_code": 0},
-        })
+    def test_minimax_does_not_override_clone_or_design_paths(self):
         engine = self.make_engine()
-        voices = {
-            "NARRATOR": {
-                "type": "design",
-                "voice_id": "design-1",
-                "description": "Warm narration",
-            }
-        }
+        clone_voices = {"NARRATOR": {"type": "clone"}}
 
         with tempfile.TemporaryDirectory() as tmpdir:
             output_path = os.path.join(tmpdir, "speech.wav")
-            with patch("tts.requests.post", return_value=response) as post_request:
-                success = engine.generate_voice(
-                    "Hello", "calm", "NARRATOR", voices, output_path
+            with patch.object(
+                engine, "_external_generate_clone", return_value=True
+            ) as external_clone, patch.object(engine, "_minimax_generate") as minimax:
+                success = engine.generate_clone_voice(
+                    "Hello", "NARRATOR", clone_voices, output_path
                 )
 
             self.assertTrue(success)
-            self.assertEqual(
-                post_request.call_args.kwargs["json"]["voice_setting"],
-                {"voice_id": "design-1"},
+            external_clone.assert_called_once()
+            minimax.assert_not_called()
+
+        design_voices = {
+            "NARRATOR": {"type": "design", "description": "Warm narration"}
+        }
+        with patch.object(
+            engine, "generate_design_voice", return_value=True
+        ) as design_voice, patch.object(engine, "_minimax_generate") as minimax:
+            success = engine.generate_voice(
+                "Hello", "calm", "NARRATOR", design_voices, "speech.wav"
             )
+
+        self.assertTrue(success)
+        design_voice.assert_called_once()
+        minimax.assert_not_called()
+
+    def test_generate_retries_transient_http_failure(self):
+        audio = b"RIFFretry-wav"
+        responses = [
+            FakeResponse({}, status_code=500),
+            FakeResponse({
+                "data": {"audio": audio.hex(), "status": 2},
+                "base_resp": {"status_code": 0},
+            }),
+        ]
+        engine = self.make_engine()
+        voices = {"NARRATOR": {"voice": "voice-1"}}
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "speech.wav")
+            with patch("tts.requests.post", side_effect=responses) as post_request, patch(
+                "tts.time.sleep"
+            ) as sleep:
+                success = engine.generate_custom_voice(
+                    "Hello", "", "NARRATOR", voices, output_path
+                )
+
+            self.assertTrue(success)
+            self.assertEqual(post_request.call_count, 2)
+            sleep.assert_called_once_with(0.5)
 
     def test_generate_rejects_api_error(self):
         response = FakeResponse({

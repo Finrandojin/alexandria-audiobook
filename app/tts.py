@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import time
 import threading
 import shutil
 import numpy as np
@@ -26,6 +27,24 @@ MINIMAX_SPEECH_MODELS = (
     "speech-01-turbo",
 )
 MINIMAX_DEFAULT_SPEECH_MODEL = MINIMAX_SPEECH_MODELS[0]
+
+MINIMAX_EMOTION_PATTERNS = (
+    ("happy", (r"\bhapp(?:y|ily)\b", r"\bjoy\w*\b", r"\blaugh\w*\b")),
+    ("sad", (r"\bsad\w*\b", r"\bcry\w*\b", r"\bsob\w*\b")),
+    ("angry", (r"\bshout\w*\b", r"\bangr\w*\b", r"\brag(?:e|ing)\b", r"\bfuri\w*\b")),
+    ("fearful", (r"\bscared\b", r"\bafraid\b", r"\bfear\w*\b", r"\btrembl\w*\b")),
+    ("disgusted", (r"\bdisgust\w*\b", r"\brevolt\w*\b")),
+    ("surprised", (r"\bgasp\w*\b", r"\bsurpris\w*\b", r"\bshock\w*\b")),
+)
+
+
+def _instruct_to_minimax_emotion(instruct):
+    """Map free-form delivery direction to a MiniMax emotion value."""
+    normalized = (instruct or "").lower()
+    for emotion, patterns in MINIMAX_EMOTION_PATTERNS:
+        if any(re.search(pattern, normalized) for pattern in patterns):
+            return emotion
+    return "neutral"
 
 
 def sanitize_filename(name):
@@ -691,14 +710,20 @@ class TTSEngine:
             raise ValueError(f"Unsupported MiniMax speech region: {self._speech_region}")
         return endpoint
 
-    def _build_minimax_payload(self, text, voice_id):
+    def _build_minimax_payload(self, text, voice_id, instruct_text=""):
         """Build a non-streaming WAV request for the MiniMax speech API."""
         if self._speech_model not in MINIMAX_SPEECH_MODELS:
             raise ValueError(f"Unsupported MiniMax speech model: {self._speech_model}")
 
         language_boost = (self._language or "Auto").strip()
+        # MiniMax expects lowercase "auto" even though the UI uses "Auto".
         if language_boost.lower() == "auto":
             language_boost = "auto"
+
+        voice_setting = {"voice_id": voice_id}
+        emotion = _instruct_to_minimax_emotion(instruct_text)
+        if emotion != "neutral":
+            voice_setting["emotion"] = emotion
 
         return {
             "model": self._speech_model,
@@ -706,11 +731,11 @@ class TTSEngine:
             "stream": False,
             "language_boost": language_boost,
             "output_format": "hex",
-            "voice_setting": {"voice_id": voice_id},
+            "voice_setting": voice_setting,
             "audio_setting": {"format": "wav"},
         }
 
-    def _minimax_generate(self, text, speaker, voice_config, output_path):
+    def _minimax_generate(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate speech through MiniMax and save the decoded WAV response."""
         try:
             voice_data = voice_config.get(speaker)
@@ -731,15 +756,21 @@ class TTSEngine:
                 print("Warning: MiniMax API key is missing. Skipping speech generation.")
                 return False
 
-            response = requests.post(
-                self._minimax_endpoint(),
-                headers={
+            request_kwargs = {
+                "headers": {
                     "Authorization": f"Bearer {self._api_key}",
                     "Content-Type": "application/json",
                 },
-                json=self._build_minimax_payload(text, voice_id),
-                timeout=120,
-            )
+                "json": self._build_minimax_payload(text, voice_id, instruct_text),
+                "timeout": 120,
+            }
+            for attempt in range(2):
+                response = requests.post(self._minimax_endpoint(), **request_kwargs)
+                status_code = getattr(response, "status_code", 200)
+                if status_code != 429 and status_code < 500:
+                    break
+                if attempt == 0:
+                    time.sleep(0.5)
             response.raise_for_status()
             result = response.json()
 
@@ -822,7 +853,9 @@ class TTSEngine:
         if self._mode == "local":
             return self._local_generate_custom(text, instruct_text, speaker, voice_config, output_path)
         elif self._provider == "minimax":
-            return self._minimax_generate(text, speaker, voice_config, output_path)
+            return self._minimax_generate(
+                text, instruct_text, speaker, voice_config, output_path
+            )
         else:
             return self._external_generate_custom(text, instruct_text, speaker, voice_config, output_path)
 
@@ -830,8 +863,6 @@ class TTSEngine:
         """Generate audio using voice cloning. Returns True on success."""
         if self._mode == "local":
             return self._local_generate_clone(text, speaker, voice_config, output_path)
-        elif self._provider == "minimax":
-            return self._minimax_generate(text, speaker, voice_config, output_path)
         else:
             return self._external_generate_clone(text, speaker, voice_config, output_path)
 
@@ -849,8 +880,6 @@ class TTSEngine:
         elif voice_type in ("lora", "builtin_lora"):
             return self.generate_lora_voice(text, instruct_text, voice_data, output_path)
         elif voice_type == "design":
-            if self._mode == "external" and self._provider == "minimax":
-                return self._minimax_generate(text, speaker, voice_config, output_path)
             return self.generate_design_voice(text, instruct_text, voice_data, output_path)
         else:
             return self.generate_custom_voice(text, instruct_text, speaker, voice_config, output_path)
@@ -1171,17 +1200,12 @@ class TTSEngine:
                 speaker = chunk.get("speaker")
                 voice_data = voice_config.get(speaker, {})
                 try:
-                    if self._mode == "external" and self._provider == "minimax":
-                        success = self._minimax_generate(
-                            chunk["text"], speaker, voice_config, output_path
-                        )
-                    else:
-                        success = self.generate_design_voice(
-                            text=chunk["text"],
-                            instruct_text=chunk.get("instruct", ""),
-                            voice_data=voice_data,
-                            output_path=output_path,
-                        )
+                    success = self.generate_design_voice(
+                        text=chunk["text"],
+                        instruct_text=chunk.get("instruct", ""),
+                        voice_data=voice_data,
+                        output_path=output_path,
+                    )
                     if success:
                         results["completed"].append(idx)
                     else:
