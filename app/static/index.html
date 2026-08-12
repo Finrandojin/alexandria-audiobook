@@ -266,7 +266,30 @@
                             <div class="mb-3">
                                 <label class="form-label">Banned Tokens</label>
                                 <input type="text" class="form-control" id="banned-tokens" placeholder="e.g. <think>, <reasoning>">
-                                <div class="form-text">Comma-separated tokens the LLM is forbidden from generating. Use to disable thinking mode (e.g. <code>&lt;think&gt;</code>).</div>
+                                <div class="form-text">
+                                    Comma-separated tokens the LLM is forbidden from generating.
+                                    <strong>Ignored by Ollama</strong>, which implements no token-banning
+                                    parameter and does not support <code>logit_bias</code> either, so this
+                                    cannot disable thinking mode there &mdash; use Reasoning Effort below.
+                                    Kept for backends that do honour it.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reasoning Effort</label>
+                                <select class="form-select" id="reasoning-effort">
+                                    <option value="">Server default (thinking models reason freely)</option>
+                                    <option value="none">none &mdash; disable thinking</option>
+                                    <option value="low">low</option>
+                                    <option value="medium">medium</option>
+                                    <option value="high">high</option>
+                                    <option value="max">max</option>
+                                </select>
+                                <div class="form-text">
+                                    The reliable way to disable thinking mode on Ollama's OpenAI-compatible
+                                    endpoint. A reasoning model can spend its <em>entire</em> token budget
+                                    thinking and return an empty response, which labels nothing and narrates
+                                    the whole chunk. Set <code>none</code> if your model reasons.
+                                </div>
                             </div>
                             <div class="mb-3 form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="merge-narrators">
@@ -1176,6 +1199,9 @@
                 document.getElementById('llm-url').value = config.llm.base_url;
                 document.getElementById('llm-key').value = config.llm.api_key;
                 document.getElementById('llm-model').value = config.llm.model_name;
+                // "" is a meaningful value here: it means "send nothing", which
+                // leaves the server's own thinking default in place.
+                document.getElementById('reasoning-effort').value = config.llm.reasoning_effort || '';
                 document.getElementById('tts-mode').value = config.tts.mode || 'external';
                 document.getElementById('tts-url').value = config.tts.url || 'http://127.0.0.1:7860';
                 document.getElementById('tts-device').value = config.tts.device || 'auto';
@@ -1326,6 +1352,10 @@
             document.getElementById('min-p').value = 0;
             document.getElementById('presence-penalty').value = 0;
             document.getElementById('banned-tokens').value = '';
+            // Reset to "server default", matching LLMConfig.reasoning_effort's
+            // None default -- resetting must not start sending a field that was
+            // previously absent.
+            document.getElementById('reasoning-effort').value = '';
             document.getElementById('merge-narrators').checked = false;
         };
 
@@ -1351,7 +1381,11 @@
                 llm: {
                     base_url: document.getElementById('llm-url').value,
                     api_key: document.getElementById('llm-key').value,
-                    model_name: document.getElementById('llm-model').value
+                    model_name: document.getElementById('llm-model').value,
+                    // null (not "") when unset, so the key is dropped by
+                    // save_config's exclude_none and the request keeps the
+                    // server default rather than sending an empty string.
+                    reasoning_effort: document.getElementById('reasoning-effort').value || null
                 },
                 tts: {
                     mode: document.getElementById('tts-mode').value,

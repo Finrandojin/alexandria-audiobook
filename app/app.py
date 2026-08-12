@@ -215,6 +215,17 @@ class LLMConfig(BaseModel):
     # generation.max_tokens is the better primary fix, but a machine slow
     # enough still needs the ceiling raised.
     timeout: Optional[float] = None
+    # Reasoning suppression for "thinking" models, passed through to the API as
+    # the standard OpenAI `reasoning_effort` field. None/unset = send nothing.
+    #
+    # Why this exists: a reasoning model can spend its ENTIRE completion budget
+    # thinking and return an empty message body, which yields zero labels and
+    # narrates every span in the chunk. Measured on Ollama /v1 with a 27.9B
+    # thinking model: 4096 completion tokens, empty content, three attempts in a
+    # row. reasoning_effort="none" removed reasoning entirely (498 chars -> 0,
+    # 118 completion tokens -> 63 on the same probe); Ollama's native
+    # `"think": false` was silently IGNORED on the /v1 path.
+    reasoning_effort: Optional[str] = None
 
 class TTSConfig(BaseModel):
     model_config = ConfigDict(extra="allow")

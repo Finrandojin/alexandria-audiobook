@@ -168,6 +168,12 @@ check("attestation_lookback_chars persists when set",
       saved2b["generation"].get("attestation_lookback_chars") == 1500)
 check("llm.timeout persists when set",
       saved2b["llm"].get("timeout") == 900)
+check("llm.reasoning_effort persists when set",
+      save({**copy.deepcopy(REALISTIC_CONFIG),
+            "llm": {**REALISTIC_CONFIG["llm"], "reasoning_effort": "none"}}
+           )["llm"].get("reasoning_effort") == "none")
+check("llm.reasoning_effort absent when never set (server default preserved)",
+      "reasoning_effort" not in save(copy.deepcopy(REALISTIC_CONFIG))["llm"])
 check("llm section keeps its unknown keys too (extra='allow')",
       save({**copy.deepcopy(REALISTIC_CONFIG),
             "llm": {**REALISTIC_CONFIG["llm"], "future_llm_key": "keep-me"}}

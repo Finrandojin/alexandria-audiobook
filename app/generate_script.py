@@ -1373,7 +1373,7 @@ def build_context(chunk_num, total_chunks, previous_entries=None,
     return "\n".join(context_parts)
 
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False, reasoning_effort=None):
     """Classify one chunk's spans and rebuild its script entries verbatim.
 
     Returns ``(entries, stats)``. ``stats`` reports span counts and whether the
@@ -1455,12 +1455,32 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                         # when unconfigured, so a request is byte-identical to
                         # before for anyone who does not set generation.num_ctx.
                         "options": {"num_ctx": num_ctx} if num_ctx else None,
+                        # Best-effort reasoning suppression, same omit-when-unset
+                        # rule. A "thinking" model can spend its ENTIRE
+                        # completion budget on reasoning and return empty
+                        # content -- see the empty-content check below for the
+                        # measured failure. reasoning_effort is a standard
+                        # OpenAI field, so a backend that does not implement it
+                        # ignores it rather than erroring.
+                        #
+                        # Sent via extra_body rather than as a named argument so
+                        # the value reaches the wire untouched regardless of
+                        # what the installed SDK's type hints allow.
+                        "reasoning_effort": reasoning_effort or None,
                     }.items() if v is not None
                 }
             )
 
             choice = response.choices[0]
-            text = choice.message.content.strip()
+            # `or ""`: a reasoning model returns content=None (not "") when it
+            # never leaves the reasoning phase, which would crash .strip().
+            text = (choice.message.content or "").strip()
+            # Ollama's OpenAI-compat layer puts reasoning in message.reasoning.
+            # Read for DIAGNOSTICS ONLY and never parsed for labels: the
+            # docstring at strip_thinking_tags records a live run where a
+            # <think> block salvaged 96 phantom span ids, so reasoning text is
+            # exactly the id-shaped noise that must not reach extract_labels.
+            reasoning_text = getattr(choice.message, "reasoning", None) or ""
             finish_reason = choice.finish_reason
             usage = getattr(response, 'usage', None)
 
@@ -1478,6 +1498,13 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 lf.write(f"CHUNK {chunk_num}/{total_chunks} | attempt {attempt + 1} | finish_reason={finish_reason}\n")
                 if usage:
                     lf.write(f"tokens: prompt={getattr(usage, 'prompt_tokens', '?')} completion={getattr(usage, 'completion_tokens', '?')}\n")
+                if reasoning_text:
+                    # Without this line the catastrophic case is a 166-byte log
+                    # block with no indication that 4096 tokens were spent
+                    # reasoning -- effectively undiagnosable.
+                    lf.write(f"reasoning: {len(reasoning_text)} chars "
+                             f"(not parsed; diagnostics only)\n")
+                    lf.write(f"reasoning_head: {reasoning_text[:300]!r}\n")
                 lf.write(f"{'─'*80}\n")
                 lf.write(text)
                 lf.write(f"\n{'='*80}\n")
@@ -1493,7 +1520,28 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                     chunk_num, total_chunks, prompt_chars, prompt_tokens)
 
             truncated = finish_reason == "length"
-            if truncated:
+            if truncated and not text:
+                # The whole budget went to reasoning and NOTHING was emitted, so
+                # every span on this chunk is about to be narrated. Distinct from
+                # the ordinary truncation message below, which blames max_tokens
+                # and sends the operator to raise a setting that (a) is clamped
+                # to num_ctx minus the prompt anyway and (b) makes the request
+                # slow enough to hit llm.timeout. Measured: this model spent
+                # 4096 completion tokens and returned zero labels three times.
+                print(f"  {'!' * 60}")
+                print(f"  MODEL RETURNED NO CONTENT on chunk {chunk_num}/{total_chunks}: "
+                      f"finish_reason=length with an empty message body"
+                      + (f", and {len(reasoning_text)} chars of reasoning."
+                         if reasoning_text else "."))
+                print("  The model spent its entire completion budget 'thinking' and never")
+                print("  emitted the label array. Raising generation.max_tokens does NOT fix")
+                print("  this. Suppress reasoning instead:")
+                print('    - set llm.reasoning_effort to "none" in config.json (verified to')
+                print("      remove reasoning entirely on Ollama's /v1 endpoint)")
+                print("    - or use a non-reasoning model for annotation")
+                print("  NOTE: an Ollama-native \"think\": false is silently IGNORED on /v1.")
+                print(f"  {'!' * 60}")
+            elif truncated:
                 print(f"  WARNING: Response was truncated (hit max_tokens={max_tokens}). "
                       "Unlabelled spans will fall back to NARRATOR.")
 
@@ -1741,6 +1789,10 @@ def main():
     api_key = llm_config.get("api_key", "local")
     model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
     timeout = llm_config.get("timeout")
+    # Optional reasoning suppression for "thinking" models. Unset = send
+    # nothing, so the request is unchanged for existing users. "none" is the
+    # value verified to work against Ollama's /v1 endpoint.
+    reasoning_effort = llm_config.get("reasoning_effort")
 
     # Load custom prompts or use defaults. Custom prompts are only honoured
     # when they target the current span-label schema (see select_prompt).
@@ -1860,6 +1912,7 @@ def main():
             num_ctx=num_ctx,
             attest_window=attest_window,
             require_attested=require_attested,
+            reasoning_effort=reasoning_effort,
         )
         all_entries.extend(entries)
         for entry in entries:

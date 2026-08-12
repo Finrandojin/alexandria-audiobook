@@ -325,7 +325,8 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                  previous_tail=None, source_context=None, max_retries=2,
                  system_prompt=None, user_prompt_template=None,
                  max_tokens=8000, temperature=0.4, top_p=0.8, top_k=20,
-                 min_p=0, presence_penalty=0.0, banned_tokens=None):
+                 min_p=0, presence_penalty=0.0, banned_tokens=None,
+                 reasoning_effort=None):
     """Send a batch of script entries through the LLM for review and correction."""
     sys_prompt = system_prompt or REVIEW_SYSTEM_PROMPT
     usr_template = user_prompt_template or REVIEW_USER_PROMPT
@@ -366,12 +367,17 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                         "top_k": top_k,
                         "min_p": min_p,
                         "banned_tokens": banned_tokens if banned_tokens else None,
+                        # See generate_script.process_chunk: omitted when unset,
+                        # so the request is unchanged for existing users.
+                        "reasoning_effort": reasoning_effort or None,
                     }.items() if v is not None
                 }
             )
 
             choice = response.choices[0]
-            text = choice.message.content.strip()
+            # `or ""`: a reasoning model returns content=None when it never
+            # leaves the reasoning phase, which would crash .strip().
+            text = (choice.message.content or "").strip()
             finish_reason = choice.finish_reason
             usage = getattr(response, 'usage', None)
 
@@ -610,6 +616,10 @@ def main():
     if _timeout:
         _client_kwargs["timeout"] = _timeout
     client = OpenAI(**_client_kwargs)
+    # llm.reasoning_effort: see generate_script.process_chunk. Review is the
+    # same shape of call against the same model, so it has the same exposure to
+    # a thinking model burning its budget and returning nothing.
+    reasoning_effort = llm_config.get("reasoning_effort")
 
     all_corrected = []
     # "text_changed"/"entries_added"/"entries_removed" are intentionally
@@ -669,7 +679,8 @@ def main():
                 top_k=top_k,
                 min_p=min_p,
                 presence_penalty=presence_penalty,
-                banned_tokens=banned_tokens
+                banned_tokens=banned_tokens,
+                reasoning_effort=reasoning_effort
             )
 
             if corrected is None:
@@ -740,7 +751,8 @@ def main():
                 top_k=top_k,
                 min_p=min_p,
                 presence_penalty=presence_penalty,
-                banned_tokens=banned_tokens
+                banned_tokens=banned_tokens,
+                reasoning_effort=reasoning_effort
             )
 
             if corrected is None:
