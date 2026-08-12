@@ -78,6 +78,7 @@ from generate_script import (  # noqa: E402
     looks_silently_truncated,
     strip_thinking_tags,
 )
+from speaker_canon import remember_in_roster
 
 
 # --------------------------------------------------------------------------
@@ -1710,6 +1711,138 @@ class TestMojibakeTable(unittest.TestCase):
     def test_clean_text_is_untouched(self):
         clean = 'She said, "it\u2019s fine" \u2014 and left\u2026'
         self.assertEqual(fix_mojibake(clean), clean)
+
+
+class TestAttestationGate(unittest.TestCase):
+    """A speaker name the source does not support is refused, loudly.
+
+    Properties only -- every fixture here is built in the test, and the
+    assertions hold for any text. The gate is OFF by default, so the first
+    test is the one that protects existing users.
+    """
+
+    def test_gate_is_off_by_default(self):
+        # An unattested name is accepted when the gate is not requested, so
+        # this change cannot alter any existing run.
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "ZZQXAL"))))
+        entries, stats, _ = run_chunk(client, chunk)
+        self.assertIn("ZZQXAL", [e["speaker"] for e in entries])
+        self.assertEqual(stats["unattested_rejected"], 0)
+
+    def test_unattested_speaker_is_narrated_and_counted(self):
+        chunk = STRAIGHT_QUOTES  # names "Marcus", never "ZZQXAL"
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "ZZQXAL")))] * 3)
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk)
+        # Prose is never the price of a rejected label.
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual({e["speaker"] for e in entries}, {NARRATOR})
+        self.assertEqual(stats["unattested_rejected"], 2)
+        # Contract 7: this must not pass silently.
+        self.assertTrue(stats["degraded"])
+        self.assertIn("source text does not support", stats["reason"])
+
+    def test_attested_speaker_passes_the_gate(self):
+        chunk = STRAIGHT_QUOTES  # "Marcus" appears in the narration
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCUS"))))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk)
+        self.assertIn("MARCUS", [e["speaker"] for e in entries])
+        self.assertEqual(stats["unattested_rejected"], 0)
+        self.assertFalse(stats["degraded"])
+
+    def test_established_roster_name_needs_no_local_attestation(self):
+        # THE long-range property: a character named pages ago is accepted in a
+        # chunk that never names them, at zero token cost. Without this clause
+        # every unattributed line would be narrated.
+        chunk = STRAIGHT_QUOTES
+        roster = {}
+        remember_in_roster(roster, "DAIRINE")  # established by an earlier chunk
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "DAIRINE"))))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk,
+            roster=roster)
+        self.assertIn("DAIRINE", [e["speaker"] for e in entries])
+        self.assertEqual(stats["unattested_rejected"], 0)
+
+    def test_rejected_speaker_never_enters_the_roster(self):
+        # A refused spelling must not become established -- otherwise the
+        # roster clause above would launder it into every later chunk.
+        chunk = STRAIGHT_QUOTES
+        roster = {}
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "ZZQXAL")))] * 3)
+        run_chunk(client, chunk, require_attested=True, attest_window=chunk,
+                  roster=roster)
+        self.assertEqual(roster, {})
+
+    def test_retry_nudge_names_the_offending_label(self):
+        # Rejection is the fallback; re-asking is the fix. The retry prompt has
+        # to say WHICH name failed and what to do instead, or the model just
+        # re-rolls the same judgement.
+        chunk = STRAIGHT_QUOTES
+        bad = json.dumps(labels_for(chunk, speaker_of=lambda span, text: "ZZQXAL"))
+        client = FakeClient(*[FakeResponse(bad)] * 3)
+        run_chunk(client, chunk, require_attested=True, attest_window=chunk)
+        self.assertGreater(len(client.user_prompts), 1, "a retry should have fired")
+        retry_prompt = client.user_prompts[1]
+        self.assertIn("ZZQXAL", retry_prompt)
+        self.assertIn("do not appear anywhere in the text", retry_prompt)
+
+    def test_nudge_recovers_the_correct_spelling(self):
+        # The whole point: a corrected retry keeps the voice instead of losing
+        # it to the narrator.
+        chunk = STRAIGHT_QUOTES
+        bad = json.dumps(labels_for(chunk, speaker_of=lambda span, text: "MARCVS"))
+        good = json.dumps(labels_for(chunk, speaker_of=lambda span, text: "MARCUS"))
+        client = FakeClient(FakeResponse(bad), FakeResponse(good))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk)
+        self.assertIn("MARCUS", [e["speaker"] for e in entries])
+        self.assertNotIn("MARCVS", [e["speaker"] for e in entries])
+        self.assertEqual(stats["unattested_rejected"], 0)
+        self.assertFalse(stats["degraded"])
+
+    def test_unverifiable_label_is_accepted_not_rejected(self):
+        # A title-only label yields no core tokens: nothing to confirm, so
+        # nothing to refuse. Rejecting here would destroy scripts this module
+        # cannot tokenize.
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MISTER"))))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk)
+        self.assertEqual(stats["unattested_rejected"], 0)
+        self.assertEqual(stats["unverifiable_accepted"], 2)
+        self.assertIn("MISTER", [e["speaker"] for e in entries])
+
+    def test_gate_never_touches_prose(self):
+        # Contract 2/4 under every gate outcome, including the rejecting one.
+        chunk = CURLY_QUOTES
+        for speaker in ("ZZQXAL", "MARCUS", "MISTER"):
+            with self.subTest(speaker=speaker):
+                client = FakeClient(*[FakeResponse(json.dumps(labels_for(
+                    chunk, speaker_of=lambda span, text: speaker)))] * 3)
+                entries, _, _ = run_chunk(
+                    client, chunk, require_attested=True, attest_window=chunk)
+                self.assertEqual(joined(entries), chunk)
+
+    def test_no_window_means_no_confirmation(self):
+        # Guards against a caller enabling the gate without supplying a window
+        # and silently narrating the whole book: with no window, an
+        # unestablished name cannot attest, and the run degrades loudly rather
+        # than quietly.
+        chunk = STRAIGHT_QUOTES
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCUS")))] * 3)
+        entries, stats, _ = run_chunk(client, chunk, require_attested=True)
+        self.assertEqual(joined(entries), chunk)
+        self.assertTrue(stats["degraded"])
 
 
 
