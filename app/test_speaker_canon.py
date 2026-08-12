@@ -10,11 +10,18 @@ import sys
 import copy
 
 from speaker_canon import (
+    GENDERED_TITLES,
     canonicalize,
     remember_in_roster,
     resolve_against_roster,
     roster_key,
     suggest_aliases,
+    attest_label,
+    attest_speaker,
+    ATTESTED,
+    UNATTESTED,
+    UNVERIFIABLE,
+    _core_tokens,
 )
 
 _failures = []
@@ -40,25 +47,83 @@ def test_parenthetical_removal():
     check_equal(canonicalize("MARK (angrily) enters"), "MARK ENTERS", "mid-string parenthetical")
 
 
-def test_honorific_stripping():
-    check_equal(canonicalize("Mr. Mark"), "MARK", "'Mr. Mark' honorific")
-    check_equal(canonicalize("mr mark"), "MARK", "lowercase honorific, no period")
-    check_equal(canonicalize("Dr. Smith"), "SMITH", "'Dr. Smith' honorific")
-    check_equal(canonicalize("Professor Xavier"), "XAVIER", "'Professor' honorific")
-    check_equal(canonicalize("Captain Hook"), "HOOK", "'Captain' honorific")
-    check_equal(canonicalize("Mrs. Robinson"), "ROBINSON", "'Mrs.' honorific")
+def test_rank_titles_are_dropped():
+    # Rank says nothing about identity that the surname doesn't; the same
+    # person is "Dr. Millman", "Doctor Millman" and "Millman" in one book.
+    check_equal(canonicalize("Dr. Smith"), "SMITH", "'Dr. Smith' rank title")
+    check_equal(canonicalize("Dr. Millman"), "MILLMAN", "'Dr. Millman' rank title")
+    check_equal(canonicalize("Professor Xavier"), "XAVIER", "'Professor' rank title")
+    check_equal(canonicalize("Captain Hook"), "HOOK", "'Captain' rank title")
+    check_equal(canonicalize("Lt. Col. Blimp"), "BLIMP", "stacked rank titles")
 
 
-def test_honorific_alone_never_empty():
+def test_gendered_titles_are_preserved_and_normalized():
+    # The husband/wife bug: dropping these merged two characters into one
+    # voice, irreversibly, at annotation time.
+    check_equal(canonicalize("Mr. Smith"), "MISTER SMITH", "'Mr.' preserved as MISTER")
+    check_equal(canonicalize("mr mark"), "MISTER MARK", "lowercase title, no period")
+    check_equal(canonicalize("Mrs. Robinson"), "MISSUS ROBINSON", "'Mrs.' preserved as MISSUS")
+    check_equal(canonicalize("Mister Smith"), "MISTER SMITH", "spelled-out 'Mister' unifies with 'Mr.'")
+    check_equal(canonicalize("Missus Robinson"), "MISSUS ROBINSON", "spelled-out 'Missus'")
+    check_equal(canonicalize("Ms. Doe"), "MS DOE", "'Ms.' preserved")
+    check_equal(canonicalize("Miss Doe"), "MISS DOE", "'Miss' preserved")
+    check_equal(canonicalize("Mx. Doe"), "MX DOE", "'Mx.' preserved")
+    check_equal(canonicalize("Sir John"), "SIR JOHN", "'Sir' preserved")
+    check_equal(canonicalize("Lady John"), "LADY JOHN", "'Lady' preserved")
+    check_equal(canonicalize("Lord Byron"), "LORD BYRON", "'Lord' preserved")
+    check_equal(canonicalize("Dame Edna"), "DAME EDNA", "'Dame' preserved")
+
+
+def test_gendered_titles_are_language_preserving():
+    # French abbreviations unify with their spelled-out forms (one character),
+    # but are never folded onto the English titles (a different word in the
+    # author's text, and MONSIEUR/MADAME must stay apart).
+    check_equal(canonicalize("Mme Bovary"), "MADAME BOVARY", "'Mme' -> MADAME")
+    check_equal(canonicalize("Madame Bovary"), "MADAME BOVARY", "'Madame' -> MADAME")
+    check_equal(canonicalize("M. Marambot"), "MONSIEUR MARAMBOT", "'M.' -> MONSIEUR")
+    check_equal(canonicalize("Monsieur Marambot"), "MONSIEUR MARAMBOT", "'Monsieur' -> MONSIEUR")
+    check_equal(canonicalize("Mlle Cocotte"), "MADEMOISELLE COCOTTE", "'Mlle' -> MADEMOISELLE")
+    check_equal(canonicalize("Mademoiselle Cocotte"), "MADEMOISELLE COCOTTE",
+                "'Mademoiselle' -> MADEMOISELLE")
+    check(canonicalize("Mme Dufour") != canonicalize("Monsieur Dufour"),
+          "MADAME DUFOUR and MONSIEUR DUFOUR must stay distinct")
+    check(canonicalize("Mrs. Bovary") != canonicalize("Mme Bovary"),
+          "English MISSUS is not folded onto French MADAME")
+
+
+def test_gendered_titles_keep_husband_and_wife_apart():
+    # The defect this two-class split exists to fix.
+    check(canonicalize("Mr. Smith") != canonicalize("Mrs. Smith"),
+          "Mr. Smith and Mrs. Smith must NOT canonicalize to the same name")
+    check(canonicalize("Mr. Smith") != canonicalize("Smith"),
+          "Mr. Smith and a bare Smith are distinct roster entries")
+
+
+def test_fr_is_preserved_not_dropped():
+    # FR is a name-constituent risk of the same class as the already-removed
+    # ST. Preserving it contains the risk: the worst case is a stray prefix,
+    # not a silently different character.
+    check_equal(canonicalize("Fr. Simon"), "FR SIMON", "'Fr.' preserved")
+    check_equal(canonicalize("Fraser"), "FRASER", "'Fraser' is not 'Fr' + 'aser'")
+    # FATHER was never a title and must not become one.
+    check_equal(canonicalize("Father Milon"), "FATHER MILON", "'Father' is part of the name")
+
+
+def test_title_alone_never_empty():
     check_equal(canonicalize("Dr."), "DR", "'Dr.' alone must not canonicalize to empty")
     check_equal(canonicalize("Mr."), "MR", "'Mr.' alone must not canonicalize to empty")
+    check_equal(canonicalize("Mrs."), "MRS", "'Mrs.' alone must not canonicalize to empty")
     check_equal(canonicalize("Sir"), "SIR", "'Sir' alone must not canonicalize to empty")
+    check_equal(canonicalize("M."), "M", "a bare 'M.' keeps itself rather than becoming MONSIEUR")
 
 
 def test_all_variants_converge():
-    variants = ["MARK (shouting)", "Mr. Mark", "mark", " MARK "]
+    variants = ["MARK (shouting)", "mark", " MARK "]
     canon = {canonicalize(v) for v in variants}
     check(canon == {"MARK"}, f"all MARK variants should canonicalize identically, got {canon}")
+    titled = {canonicalize(v) for v in ["Mr. Mark", "mr mark", "MISTER MARK", "Mister Mark"]}
+    check(titled == {"MISTER MARK"},
+          f"all MISTER MARK variants should canonicalize identically, got {titled}")
 
 
 def test_accent_normalization():
@@ -142,6 +207,14 @@ def test_idempotency():
         "'Mother of Monsters'", '"BLACK SCOUT"',
         "‘Mother of Monsters’", "“Black Scout”",
         "'\"BLACK SCOUT\"'", "''X''", "Jones'", "'tis",
+        # Preserved gender-marking titles re-enter canonicalize() as their
+        # normalized spellings, so those spellings must themselves be
+        # recognized titles that map to themselves.
+        "Mr. Smith", "MISTER SMITH", "Mrs. Smith", "MISSUS SMITH",
+        "Mme Bovary", "MADAME BOVARY", "M. Marambot", "MONSIEUR MARAMBOT",
+        "Mlle Cocotte", "MADEMOISELLE COCOTTE", "Ms. Doe", "Miss Doe",
+        "Mx. Doe", "Sir John", "Lady John", "Fr. Simon", "Mrs.", "M.",
+        "Mr. Mrs.", "Mrs. Dr. Watson", "Sir Lt. Col. Blimp",
     ]
     for s in samples:
         once = canonicalize(s)
@@ -150,14 +223,18 @@ def test_idempotency():
 
 
 
-def test_stacked_honorifics_strip_to_a_fixpoint():
-    check_equal(canonicalize("Sir Lt. Col. Blimp"), "BLIMP", "three stacked honorifics")
-    check_equal(canonicalize("Mrs. Dr. Watson"), "WATSON", "two stacked honorifics")
-    check_equal(canonicalize("Mr Mr Mr Smith"), "SMITH", "repeated honorific")
+def test_stacked_titles_resolve_to_a_fixpoint():
+    # The whole run of leading titles is consumed in one pass, and the FIRST
+    # gender-marking title in the run becomes the preserved prefix.
+    check_equal(canonicalize("Sir Lt. Col. Blimp"), "SIR BLIMP", "three stacked titles")
+    check_equal(canonicalize("Mrs. Dr. Watson"), "MISSUS WATSON", "two stacked titles")
+    check_equal(canonicalize("Mr Mr Mr Smith"), "MISTER SMITH", "repeated title")
+    check_equal(canonicalize("Dr. Mrs. Watson"), "MISSUS WATSON",
+                "a rank title before the gendered one does not shadow it")
     # The never-empty guard survives the loop.
-    check_equal(canonicalize("Dr."), "DR", "bare honorific keeps itself")
-    check_equal(canonicalize("Dr. Dr."), "DR", "all-honorific name keeps the last one")
-    check_equal(canonicalize("Mr. Mrs."), "MRS", "all-honorific name is never emptied")
+    check_equal(canonicalize("Dr."), "DR", "bare title keeps itself")
+    check_equal(canonicalize("Dr. Dr."), "DR", "all-title name keeps the last one")
+    check_equal(canonicalize("Mr. Mrs."), "MRS", "all-title name is never emptied")
 
 
 def test_double_canonicalization_matches_single():
@@ -175,7 +252,7 @@ def test_saint_names_are_not_honorifics():
     # "ST JOHN RIVERS" became "JOHN RIVERS" -- a different character.
     check_equal(canonicalize("St. John Rivers"), "ST JOHN RIVERS", "St. John Rivers")
     check_equal(canonicalize("ST JOHN RIVERS"), "ST JOHN RIVERS", "already-canonical form")
-    check_equal(canonicalize("Mr. St. Clair"), "ST CLAIR", "honorific stripped, saint kept")
+    check_equal(canonicalize("Mr. St. Clair"), "MISTER ST CLAIR", "title resolved, saint kept")
     check_equal(canonicalize("St. Laurent"), "ST LAURENT", "St. Laurent")
     # The two spellings of the same character still unify via the roster key.
     check_equal(roster_key("ST. JOHN"), roster_key("ST JOHN"), "punctuated saint name keys alike")
@@ -344,7 +421,7 @@ def test_resolve_never_merges_similar_names():
 
 def test_resolve_passthrough_and_narrator():
     roster = _index("ABBE MARIGNAN")
-    check_equal(resolve_against_roster("Mr. Mark", roster), "MARK",
+    check_equal(resolve_against_roster("Mr. Mark", roster), "MISTER MARK",
                 "unmatched name is just canonicalized")
     check_equal(resolve_against_roster("NARRATOR", roster), "NARRATOR", "NARRATOR untouched")
     check_equal(resolve_against_roster("narrator", _index("NARRATOR")), "NARRATOR",
@@ -506,12 +583,6 @@ REAL_PRODUCTION_ROSTER = [
     "SECRETARY", "MARINEL", "PROJECT GUTENBERG", "THE FOUNDATION",
 ]
 
-EXPECTED_COLLISION_FAMILIES = [
-    ["ABBE MARIGNAN", "ABBEMARIGNAN"],
-    ["ABBE MARIGNAN'S NIECE", "ABBEMARIGNAN'S NIECE"],
-]
-
-
 def _collision_families(names):
     families = {}
     for name in names:
@@ -520,36 +591,404 @@ def _collision_families(names):
 
 
 def test_real_roster_fixture_is_intact():
-    check_equal(len(REAL_PRODUCTION_ROSTER), 578, "fixture holds all 578 real labels")
-    check_equal(len(set(REAL_PRODUCTION_ROSTER)), 578, "fixture labels are distinct")
+    # The fixture is real corpus data used as *input*; the only property that
+    # matters here is that it hasn't been accidentally truncated or
+    # duplicated by an edit, not its exact size (which is one corpus's, and
+    # this project is upstream-bound).
+    check(len(REAL_PRODUCTION_ROSTER) > 0, "fixture is non-empty")
+    check_equal(len(set(REAL_PRODUCTION_ROSTER)), len(REAL_PRODUCTION_ROSTER),
+                "fixture labels are distinct")
+
+
+def _whitespace_only_key(name):
+    """The pre-widening roster key: canonical form with whitespace collapsed,
+    but hyphens/apostrophes left in place (unlike the current roster_key())."""
+    return "".join(canonicalize(name).split(" "))
 
 
 def test_real_roster_key_introduces_no_new_collisions():
-    # Exactly the two known ABBE MARIGNAN families -- no others. A future
-    # widening of roster_key() that merges two real characters fails here.
-    check_equal(_collision_families(REAL_PRODUCTION_ROSTER),
-                EXPECTED_COLLISION_FAMILIES,
-                "real-roster collision families")
+    # roster_key() was widened from stripping whitespace only to stripping
+    # all boundary marks (hyphens, apostrophes too). That widening must not
+    # merge any two real characters who weren't already merged under the
+    # narrower, whitespace-only key -- i.e. every collision family under the
+    # current key must also collide under the whitespace-only key. Corpus-
+    # independent: makes no assumption about which or how many families
+    # exist, only that widening didn't introduce NEW ones.
+    full_families = _collision_families(REAL_PRODUCTION_ROSTER)
+    check(len(full_families) > 0, "real roster produces at least one collision family")
+
+    whitespace_families = {}
+    for name in REAL_PRODUCTION_ROSTER:
+        whitespace_families.setdefault(_whitespace_only_key(name), []).append(name)
+    whitespace_family_sets = [frozenset(v) for v in whitespace_families.values() if len(v) > 1]
+
+    for family in full_families:
+        family_set = frozenset(family)
+        check(any(family_set <= ws_family for ws_family in whitespace_family_sets),
+              f"family {family} collides under the full key but is new under boundary-mark widening")
+
+    # Readable example from the corpus: a boundary-mark drift pair collides
+    # under both keyings.
+    check_equal(roster_key("ABBE MARIGNAN"), roster_key("ABBEMARIGNAN"),
+                "ABBE MARIGNAN / ABBEMARIGNAN collide under the full key")
+    check_equal(_whitespace_only_key("ABBE MARIGNAN"), _whitespace_only_key("ABBEMARIGNAN"),
+                "and also under the whitespace-only key")
 
 
-def test_real_roster_resolves_to_two_fewer_names():
+def _bare_name(name):
+    """The canonical name with its gender-marking prefix (if any) removed."""
+    tokens = canonicalize(name).split(" ")
+    if len(tokens) > 1 and tokens[0] in GENDERED_TITLES:
+        return " ".join(tokens[1:])
+    return " ".join(tokens)
+
+
+def test_real_roster_merges_never_mix_two_surnames():
+    # Safety property for the title tables: every merge family must be one
+    # person under two spellings, i.e. the labels in it must agree on the
+    # bare name once the title is set aside. A title table that swallowed a
+    # name constituent (the "ST JOHN RIVERS" -> "JOHN RIVERS" failure mode)
+    # would show up as a family mixing two distinct surnames.
+    families = _collision_families(REAL_PRODUCTION_ROSTER)
+    check(len(families) > 0, "real roster produces at least one collision family")
+    for family in families:
+        bare = {roster_key(_bare_name(name)) for name in family}
+        check(len(bare) == 1,
+              f"collision family {family} mixes distinct bare names {sorted(bare)}")
+
+    # Readable example: a boundary-mark drift pair and a gendered-title pair
+    # both collide, for a real character from the corpus.
+    check_equal(roster_key("ABBE MARIGNAN"), roster_key("ABBEMARIGNAN"),
+                "boundary-mark drift unifies onto the same roster key")
+    check_equal(canonicalize("Mme Tellier"), canonicalize("Madame Tellier"),
+                "abbreviated and spelled-out gendered titles unify onto the same key")
+
+
+def test_real_roster_keeps_cross_gender_pairs_distinct():
+    # The point of preserving the titles: MONSIEUR X and MADAME X are two
+    # people and must never share a roster entry. Derived programmatically
+    # (not a hardcoded surname list) from whatever cross-gender pairs the
+    # fixture happens to contain.
+    pairs = {}
+    for name in REAL_PRODUCTION_ROSTER:
+        tokens = canonicalize(name).split(" ")
+        if len(tokens) > 1 and tokens[0] in GENDERED_TITLES:
+            pairs.setdefault(" ".join(tokens[1:]), set()).add(tokens[0])
+    cross_gender = sorted(k for k, v in pairs.items() if len(v) > 1)
+    check(len(cross_gender) > 0,
+          "the real roster contains at least one cross-gender surname pair")
     index = {}
     for name in REAL_PRODUCTION_ROSTER:
         remember_in_roster(index, name)
-    check_equal(len(index), 576, "578 labels consolidate to 576 characters")
+    for surname in cross_gender:
+        for title in pairs[surname]:
+            check(resolve_against_roster(f"{title} {surname}", index) == f"{title} {surname}",
+                  f"{title} {surname} keeps its own roster entry")
+
+    # Readable example: Madame Dufour and Monsieur Dufour never merge.
+    check(canonicalize("Mme Dufour") != canonicalize("Monsieur Dufour"),
+          "Mme Dufour and Monsieur Dufour must stay distinct")
+
+
+def test_real_roster_is_idempotent_end_to_end():
+    for name in REAL_PRODUCTION_ROSTER:
+        once = canonicalize(name)
+        check_equal(canonicalize(once), once, f"idempotency for {name!r}")
+
+
+def test_real_roster_resolves_to_fewer_names_by_exactly_the_merged_collisions():
+    index = {}
+    for name in REAL_PRODUCTION_ROSTER:
+        remember_in_roster(index, name)
+    families = _collision_families(REAL_PRODUCTION_ROSTER)
+    merged_away = sum(len(family) - 1 for family in families)
+    check_equal(len(index), len(REAL_PRODUCTION_ROSTER) - merged_away,
+                "the index shrinks by exactly one entry per extra spelling "
+                "in each collision family")
+
+    # Readable examples of the resolution in action.
     check_equal(resolve_against_roster("ABBEMARIGNAN", index), "ABBE MARIGNAN",
                 "the drifted spelling resolves onto the good one")
-    check_equal(resolve_against_roster("ABBEMARIGNAN'S NIECE", index),
-                "ABBE MARIGNAN'S NIECE", "and so does the second family")
+    check_equal(resolve_against_roster("MME TELLIER", index), "MADAME TELLIER",
+                "the abbreviated French title resolves onto the spelled-out one")
+    check_equal(resolve_against_roster("M DE MEROUL", index), "MONSIEUR DE MEROUL",
+                "and so does the abbreviated MONSIEUR")
 
+
+# ---------------------------------------------------------------------------
+# Tier 3: attest_label() / _core_tokens()
+# ---------------------------------------------------------------------------
+
+def test_core_tokens_filters_stopwords_titles_possessives_accents():
+    check_equal(_core_tokens("MISTER SMITH"), ["SMITH"], "title filtered out")
+    check_equal(_core_tokens("THE DE LA CRUZ"), ["CRUZ"],
+                "stopwords THE/DE/LA filtered, surname kept")
+    check_equal(_core_tokens("DAIRINE'S"), ["DAIRINE"], "possessive stripped")
+    check_equal(_core_tokens("DAIRINE"), ["DAIRINE"], "plain token unaffected")
+    check_equal(_core_tokens("MISTER"), [], "pure title label has zero core tokens")
+    check_equal(_core_tokens(""), [], "empty label has zero core tokens")
+
+
+def test_attest_label_fully_attested_not_flagged():
+    windows = ["Alice walked into the room.", "Nobody else was around."]
+    result = attest_label("ALICE", windows)
+    check(result["attested"] is True, "ALICE attested when 'Alice' appears in a window")
+    check_equal(result["missing_tokens"], [], "no missing tokens when attested")
+
+
+def test_attest_label_missing_one_token_is_flagged():
+    windows = ["Alice walked into the room, alone."]
+    result = attest_label("ALICE SMITH", windows)
+    check(result["attested"] is False, "ALICE SMITH not attested when SMITH never appears")
+    check_equal(result["missing_tokens"], ["SMITH"], "SMITH reported missing")
+
+
+def test_attest_label_tokens_elsewhere_but_not_in_own_window_is_flagged():
+    # Synthetic "transposed name" case: TRANSFORMED and PIG both appear
+    # SOMEWHERE in the synthetic source, but never together, and never in
+    # this label's own windows -- attestation must still fail, because
+    # attest_label only looks at the windows it's given, not the whole book.
+    label = "TRANSFORMED PIG"
+    own_windows = [
+        "A stranger entered the tavern and ordered a drink quietly.",
+        "The stranger paid and left without another word.",
+    ]
+    # These sentences exist elsewhere in the (hypothetical) source, but are
+    # never passed in as this label's windows, simulating "elsewhere in the
+    # book, not near this label's lines".
+    _elsewhere_in_book = "The wizard had transformed into a pig hours earlier."
+    result = attest_label(label, own_windows)
+    check(result["attested"] is False,
+          "TRANSFORMED PIG not attested from windows that never mention either token")
+    check_equal(sorted(result["missing_tokens"]), ["PIG", "TRANSFORMED"],
+                "both core tokens reported missing")
+
+
+def test_attest_label_is_pure_and_deterministic():
+    windows = ["Bob said hello.", "Bob left quickly."]
+    windows_copy = list(windows)
+    result1 = attest_label("BOB", windows)
+    result2 = attest_label("BOB", windows)
+    check_equal(result1, result2, "same inputs produce the same output twice")
+    check_equal(windows, windows_copy, "windows list is left untouched by the call")
+
+    # Trivial/unknown case: a label with zero core tokens is conservatively
+    # flagged unattested rather than vacuously attested.
+    trivial = attest_label("MISTER", ["Mister anything goes here."])
+    check(trivial["attested"] is False, "zero-core-token label is conservatively unattested")
+    check_equal(trivial["missing_tokens"], [], "no tokens to report missing in the trivial case")
+
+
+def test_attest_label_matches_curly_apostrophe_across_the_glyph_gap():
+    # Label uses a straight apostrophe (typical LLM output); the source uses
+    # a curly one (typical of the author's own prose). The glyph difference
+    # carries no identifying information and must not cause a false flag.
+    windows = ["O'Malley walked in.", "‘No,’ said O’Malley."]
+    result = attest_label("O'MALLEY", windows)
+    check(result["attested"] is True, "curly source apostrophe matches straight label apostrophe")
+    check_equal(result["missing_tokens"], [], "no missing tokens once apostrophe glyph is normalized")
+
+
+def test_attest_label_distinct_apostrophe_names_stay_distinct():
+    # Normalizing the apostrophe GLYPH must not blur two different names
+    # that both happen to contain an apostrophe.
+    result = attest_label("O'MALLEY", ["O'Brien walked in."])
+    check(result["attested"] is False, "O'MALLEY is not attested by an O'BRIEN window")
+    check_equal(result["missing_tokens"], ["O'MALLEY"], "distinct apostrophe-bearing name reported missing")
+
+
+def test_attest_label_matches_hyphenated_token_verbatim():
+    windows = ["The sun-walker entered the hall.", "Sun-walker spoke softly."]
+    result = attest_label("SUN-WALKER", windows)
+    check(result["attested"] is True, "hyphenated label token matches hyphenated source occurrence")
+    check_equal(result["missing_tokens"], [], "no missing tokens for verbatim hyphenated match")
+
+
+def test_attest_label_matches_hyphenated_token_against_space_variant():
+    # Same name, but the source spells it with a space instead of a hyphen.
+    windows = ["The sun walker entered the hall."]
+    result = attest_label("SUN-WALKER", windows)
+    check(result["attested"] is True,
+          "hyphenated label token matches a space-separated source variant")
+    check_equal(result["missing_tokens"], [], "no missing tokens for the space-variant match")
+
+
+# ---------------------------------------------------------------------------
+# Unicode coverage of the character classes, and attest_speaker()'s three-way
+# verdict.
+#
+# These assert PROPERTIES over programmatically chosen sample scripts, not the
+# contents of any book: "a name in a non-Latin script survives
+# canonicalization", "two distinct names never share a roster key", "a label
+# our check cannot confirm is never reported as refuted". The sample strings
+# are language specimens (a Cyrillic name, a Hebrew name, ...), chosen to
+# cover cased/uncased and segmented/unsegmented writing systems; no corpus is
+# pinned and no test depends on any particular novel.
+# ---------------------------------------------------------------------------
+
+# One specimen per writing-system property that the character classes have to
+# survive. Cased-Latin is covered by the whole suite above; these are the ones
+# an ASCII class silently destroyed.
+_NON_LATIN_SPECIMENS = [
+    ("Cyrillic", "Ирина"),
+    ("Greek", "Μένων"),
+    ("Hebrew", "שרה"),
+    ("Arabic", "محمد"),
+    ("Han", "林"),
+    ("Hiragana", "さくら"),
+    ("Devanagari", "सीता"),
+]
+
+
+def test_canonicalize_preserves_non_latin_names():
+    # An ASCII _ALLOWED_CHARS_RE stripped every one of these to "", and
+    # resolve_span_labels only accepts a speaker when canonicalize() returns
+    # something truthy -- so this property is the difference between a
+    # non-Latin book having character voices and having none at all.
+    for script, name in _NON_LATIN_SPECIMENS:
+        canonical = canonicalize(name)
+        check(canonical != "", f"{script} name survives canonicalization (not emptied)")
+        check(len(canonical) == len(name),
+              f"{script} name keeps all of its characters")
+
+
+def test_canonicalize_is_idempotent_for_non_latin_names():
+    # Frozen contract 6 applies to every script, not just Latin.
+    for script, name in _NON_LATIN_SPECIMENS:
+        once = canonicalize(name)
+        check_equal(canonicalize(once), once, f"{script} canonicalization is idempotent")
+
+
+def test_non_latin_names_do_not_collide_on_one_roster_key():
+    # THE regression this pins. While _KEY_STRIP_RE was [^A-Z0-9] it removed
+    # every non-Latin letter, so once canonicalize() preserved them all these
+    # names would have keyed to "" -- one roster entry, one voice, for an
+    # entire cast, irreversibly (aliasing can merge but never split).
+    keys = {}
+    for script, name in _NON_LATIN_SPECIMENS:
+        key = roster_key(name)
+        check(key != "", f"{script} name has a non-empty roster key")
+        check(key not in keys,
+              f"{script} name does not share a roster key with {keys.get(key)}")
+        keys[key] = script
+
+    index = {}
+    for _, name in _NON_LATIN_SPECIMENS:
+        remember_in_roster(index, name)
+    check_equal(len(index), len(_NON_LATIN_SPECIMENS),
+                "every distinct non-Latin name gets its own roster entry")
+
+
+def test_non_latin_boundary_mark_unification_still_works():
+    # The Tier 1b contract is unchanged for non-Latin scripts: spellings that
+    # differ ONLY in boundary marks unify, and the more-punctuated form wins.
+    index = {}
+    remember_in_roster(index, "АННАМАРИЯ")
+    winner = remember_in_roster(index, "АННА МАРИЯ")
+    check_equal(winner, "АННА МАРИЯ",
+                "more-punctuated Cyrillic spelling wins the roster slot")
+    check_equal(len(index), 1, "the two Cyrillic spellings unified into one entry")
+
+
+def test_non_latin_distinct_names_are_never_unified():
+    # The no-fuzzy-merge contract, in a non-Latin script: one letter apart is
+    # still two different people.
+    index = {}
+    remember_in_roster(index, "ИРИНА")
+    remember_in_roster(index, "ИРИНЫ")
+    check_equal(len(index), 2, "Cyrillic names differing by a letter stay distinct")
+
+
+def test_core_tokens_extracted_from_non_latin_labels():
+    # _WORD_RE as [A-Za-z0-9'‘’] extracted ZERO tokens from these, and a
+    # zero-core-token label is reported unattested -- so the Voices UI badge
+    # was wrong for every speaker in every non-Latin book.
+    for script, name in _NON_LATIN_SPECIMENS:
+        tokens = _core_tokens(canonicalize(name))
+        check(len(tokens) > 0, f"{script} label yields at least one core token")
+
+
+def test_attest_speaker_attested_when_name_is_present():
+    for script, name in _NON_LATIN_SPECIMENS:
+        window = f"{name} — {name}."
+        verdict = attest_speaker(canonicalize(name), [window])
+        check(verdict in (ATTESTED, UNVERIFIABLE),
+              f"{script} name present in its window is not reported refuted "
+              f"(got {verdict!r})")
+
+
+def test_attest_speaker_unattested_only_on_positive_evidence():
+    # A name that appears nowhere in its windows, in any form, is the ONLY
+    # case that may be reported UNATTESTED -- this is the verdict a gate is
+    # allowed to reject on.
+    verdict = attest_speaker("ZZQXAL", ["Alice spoke to Bob about the weather."])
+    check_equal(verdict, UNATTESTED, "a name absent in every form is UNATTESTED")
+
+    verdict = attest_speaker("ALICE", ["Alice spoke to Bob about the weather."])
+    check_equal(verdict, ATTESTED, "a whole-word present name is ATTESTED")
+
+
+def test_attest_speaker_zero_core_tokens_is_unverifiable_never_unattested():
+    # attest_label reports this as attested=False (a conservative boolean).
+    # A gate must NOT treat it as refuted, or a label made only of titles is
+    # destroyed on no evidence.
+    check_equal(attest_speaker("MISTER", ["Mister anything goes here."]),
+                UNVERIFIABLE, "title-only label is UNVERIFIABLE, not UNATTESTED")
+    check_equal(attest_label("MISTER", ["Mister anything."])["attested"], False,
+                "attest_label's existing boolean contract is unchanged")
+
+
+def test_attest_speaker_substring_only_match_is_unverifiable():
+    # Unsegmented scripts (no spaces between words) put a correct name inside
+    # a longer run, where whole-word matching can never confirm it. Same shape
+    # as a too-short Latin token inside a longer word. Both are "cannot tell",
+    # and must not be rejectable.
+    check_equal(attest_speaker("林", ["林考言道，很好。"]), UNVERIFIABLE,
+                "name inside an unsegmented run is UNVERIFIABLE, not UNATTESTED")
+    check_equal(attest_speaker("AL", ["Alice waited."]), UNVERIFIABLE,
+                "short token inside a longer word is UNVERIFIABLE, not UNATTESTED")
+
+
+def test_attest_speaker_is_pure_and_idempotent():
+    label = "ALICE SMITH"
+    windows = ["Alice walked in.", "Smith followed."]
+    windows_before = copy.deepcopy(windows)
+
+    first = attest_speaker(label, windows)
+    second = attest_speaker(label, windows)
+    check_equal(first, second, "attest_speaker is idempotent on equal inputs")
+    check_equal(windows, windows_before, "attest_speaker does not mutate its windows")
+    check_equal(label, "ALICE SMITH", "attest_speaker does not mutate its label")
+
+
+def test_attest_speaker_handles_empty_and_missing_windows():
+    # A label with core tokens and no windows at all is refuted-by-absence,
+    # which is correct: nothing confirms it. Callers that cannot build windows
+    # must decide not to gate, rather than passing [] and rejecting the world.
+    check_equal(attest_speaker("ALICE", []), UNATTESTED,
+                "no windows means no confirmation")
+    check_equal(attest_speaker("", ["anything"]), UNVERIFIABLE,
+                "an empty label is UNVERIFIABLE")
+
+
+def test_attest_speaker_verdicts_are_the_exported_constants():
+    # Callers compare against the constants; pin their values so a rename
+    # cannot silently change the wire/report vocabulary.
+    check_equal(ATTESTED, "attested", "ATTESTED constant value")
+    check_equal(UNATTESTED, "unattested", "UNATTESTED constant value")
+    check_equal(UNVERIFIABLE, "unverifiable", "UNVERIFIABLE constant value")
 
 
 def main():
     tests = [
         test_basic_case_and_whitespace_normalization,
         test_parenthetical_removal,
-        test_honorific_stripping,
-        test_honorific_alone_never_empty,
+        test_rank_titles_are_dropped,
+        test_gendered_titles_are_preserved_and_normalized,
+        test_gendered_titles_are_language_preserving,
+        test_gendered_titles_keep_husband_and_wife_apart,
+        test_fr_is_preserved_not_dropped,
+        test_title_alone_never_empty,
         test_all_variants_converge,
         test_accent_normalization,
         test_narrator_canonicalization,
@@ -561,7 +1000,7 @@ def main():
         test_unmatched_apostrophes_survive_wrapping_fix,
         test_wrapping_quotes_and_roster_fragmentation,
         test_idempotency,
-        test_stacked_honorifics_strip_to_a_fixpoint,
+        test_stacked_titles_resolve_to_a_fixpoint,
         test_double_canonicalization_matches_single,
         test_saint_names_are_not_honorifics,
         test_roster_key_strips_whitespace_only,
@@ -580,11 +1019,36 @@ def main():
         test_empty_name_is_not_recorded,
         test_real_roster_fixture_is_intact,
         test_real_roster_key_introduces_no_new_collisions,
-        test_real_roster_resolves_to_two_fewer_names,
+        test_real_roster_merges_never_mix_two_surnames,
+        test_real_roster_keeps_cross_gender_pairs_distinct,
+        test_real_roster_is_idempotent_end_to_end,
+        test_real_roster_resolves_to_fewer_names_by_exactly_the_merged_collisions,
         test_suggest_aliases_expected_pairs,
         test_suggest_aliases_excludes_narrator,
         test_suggest_aliases_empty_and_single,
         test_suggest_aliases_direction_rule,
+        test_core_tokens_filters_stopwords_titles_possessives_accents,
+        test_attest_label_fully_attested_not_flagged,
+        test_attest_label_missing_one_token_is_flagged,
+        test_attest_label_tokens_elsewhere_but_not_in_own_window_is_flagged,
+        test_attest_label_is_pure_and_deterministic,
+        test_attest_label_matches_curly_apostrophe_across_the_glyph_gap,
+        test_attest_label_distinct_apostrophe_names_stay_distinct,
+        test_attest_label_matches_hyphenated_token_verbatim,
+        test_attest_label_matches_hyphenated_token_against_space_variant,
+        test_canonicalize_preserves_non_latin_names,
+        test_canonicalize_is_idempotent_for_non_latin_names,
+        test_non_latin_names_do_not_collide_on_one_roster_key,
+        test_non_latin_boundary_mark_unification_still_works,
+        test_non_latin_distinct_names_are_never_unified,
+        test_core_tokens_extracted_from_non_latin_labels,
+        test_attest_speaker_attested_when_name_is_present,
+        test_attest_speaker_unattested_only_on_positive_evidence,
+        test_attest_speaker_zero_core_tokens_is_unverifiable_never_unattested,
+        test_attest_speaker_substring_only_match_is_unverifiable,
+        test_attest_speaker_is_pure_and_idempotent,
+        test_attest_speaker_handles_empty_and_missing_windows,
+        test_attest_speaker_verdicts_are_the_exported_constants,
     ]
 
     for t in tests:

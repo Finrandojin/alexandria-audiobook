@@ -57,7 +57,7 @@ if 'project' not in sys.modules:
     sys.modules['project'] = _fake_project
 
 import app as app_module  # noqa: E402
-from app import build_voice_roster, _canonical_roster_names  # noqa: E402
+from app import build_voice_roster, _canonical_roster_names, _compute_label_flags  # noqa: E402
 from speaker_canon import suggest_aliases  # noqa: E402
 from review_script import _canonicalize_speakers  # noqa: E402
 
@@ -74,7 +74,6 @@ def check(name, condition, detail=""):
 def test_roster_canonicalizes_and_dedupes():
     script_data = [
         {"speaker": "mark", "text": "a"},
-        {"speaker": "Mr. Mark", "text": "b"},
         {"speaker": "MARK (shouting)", "text": "c"},
         {"speaker": "JON", "text": "d"},
         {"speaker": "JOHN", "text": "e"},
@@ -104,26 +103,30 @@ def test_roster_handles_legacy_type_field_and_empty():
 
 
 def test_config_backcompat_resolution():
+    # A config written under a raw, non-canonical spelling of the speaker
+    # must still resolve for the canonical roster name. Note the canonical
+    # name now KEEPS the gender-marking title ("Mr. Mark" -> "MISTER MARK"),
+    # so Mr. Mark and a bare Mark are two roster entries, not one.
     script_data = [
-        {"speaker": "mark", "text": "a"},
-        {"speaker": "MARK (shouting)", "text": "b"},
+        {"speaker": "Mr. Mark", "text": "a"},
+        {"speaker": "mister mark (shouting)", "text": "b"},
     ]
     voice_config = {"Mr. Mark": {"engine": "clone", "ref": "mark.wav"}}
     roster_names, config_lookup = build_voice_roster(script_data, voice_config)
 
     check(
-        "config back-compat: roster resolves to MARK",
-        roster_names == ["MARK"],
+        "config back-compat: roster resolves to MISTER MARK",
+        roster_names == ["MISTER MARK"],
         detail=repr(roster_names),
     )
     check(
-        "config back-compat: non-canonical 'Mr. Mark' key resolves for MARK",
-        config_lookup.get("MARK") == {"engine": "clone", "ref": "mark.wav"},
+        "config back-compat: non-canonical 'Mr. Mark' key resolves for MISTER MARK",
+        config_lookup.get("MISTER MARK") == {"engine": "clone", "ref": "mark.wav"},
         detail=repr(config_lookup),
     )
 
     # Simulate what the handler does to derive persona_pending.
-    persona_pending = "MARK" not in config_lookup
+    persona_pending = "MISTER MARK" not in config_lookup
     check(
         "config back-compat: persona_pending is False when config resolves",
         persona_pending is False,
@@ -133,16 +136,44 @@ def test_config_backcompat_resolution():
 def test_config_exact_key_wins_over_scan():
     # If BOTH an exact canonical key and a differently-cased key that would
     # canonicalize to the same name exist, the exact match must win.
-    script_data = [{"speaker": "mark", "text": "a"}]
+    script_data = [{"speaker": "Mr. Mark", "text": "a"}]
     voice_config = {
-        "MARK": {"engine": "exact"},
+        "MISTER MARK": {"engine": "exact"},
         "Mr. Mark": {"engine": "scanned"},
     }
     roster_names, config_lookup = build_voice_roster(script_data, voice_config)
     check(
         "config back-compat: exact canonical key wins over scanned fallback",
-        config_lookup.get("MARK") == {"engine": "exact"},
+        config_lookup.get("MISTER MARK") == {"engine": "exact"},
         detail=repr(config_lookup),
+    )
+
+
+def test_roster_keeps_husband_and_wife_apart():
+    # The defect: "Mr. Smith" and "Mrs. Smith" used to collapse into a single
+    # roster entry, hence a single voice, with no way back.
+    script_data = [
+        {"speaker": "Mr. Smith", "text": "a"},
+        {"speaker": "Mrs. Smith", "text": "b"},
+    ]
+    roster_names, _ = build_voice_roster(script_data, {})
+    check(
+        "roster: Mr. Smith and Mrs. Smith are two entries",
+        roster_names == ["MISSUS SMITH", "MISTER SMITH"],
+        detail=repr(roster_names),
+    )
+
+
+def test_config_metadata_keys_are_not_speakers():
+    # voice_config.json carries a "_canon_version" stamp. Underscore-prefixed
+    # keys are metadata and must never be scanned as a speaker name.
+    script_data = [{"speaker": "mark", "text": "a"}]
+    voice_config = {"_canon_version": 2, "MARK": {"engine": "exact"}}
+    roster_names, config_lookup = build_voice_roster(script_data, voice_config)
+    check(
+        "config: '_canon_version' never resolves as a voice entry",
+        roster_names == ["MARK"] and config_lookup == {"MARK": {"engine": "exact"}},
+        detail=repr((roster_names, config_lookup)),
     )
 
 
@@ -259,7 +290,7 @@ def test_review_canonicalizes_speaker_not_text():
 
     check(
         "review: speakers canonicalized",
-        [e["speaker"] for e in result] == ["NARRATOR", "ELENA", "MARK"],
+        [e["speaker"] for e in result] == ["NARRATOR", "ELENA", "MISTER MARK"],
         detail=repr([e["speaker"] for e in result]),
     )
     check(
@@ -333,8 +364,48 @@ def test_voices_config_lookup_survives_whitespace_drift():
 
 
 
+def test_label_flags_computation_never_mutates_entries_or_roster():
+    """_compute_label_flags (backing GET /api/voices/label_flags) is
+    advisory-only: running it must leave every entry's "speaker" value and
+    the derived roster list byte-identical before and after, whether or not
+    it flags anything."""
+    import copy
+
+    source_text = (
+        "Alice walked into the room. \"Hello,\" said Alice. "
+        "A stranger lurked nearby, saying nothing."
+    )
+    script_data = [
+        {"speaker": "Alice", "text": "Hello,", "instruct": "warm"},
+        # ZORBLAX never appears in source_text at all -> should be flagged.
+        {"speaker": "Zorblax", "text": "A stranger lurked nearby", "instruct": "flat"},
+    ]
+
+    before_entries = copy.deepcopy(script_data)
+    before_roster = _canonical_roster_names(script_data)
+
+    flags = _compute_label_flags(script_data, source_text)
+
+    after_entries = copy.deepcopy(script_data)
+    after_roster = _canonical_roster_names(script_data)
+
+    check("label_flags: script entries unchanged after computation",
+          before_entries == after_entries, detail=repr(after_entries))
+    check("label_flags: roster unchanged after computation",
+          before_roster == after_roster, detail=repr((before_roster, after_roster)))
+    check("label_flags: returns a flag record for each non-NARRATOR speaker",
+          {f["name"] for f in flags} == {"ALICE", "ZORBLAX"}, detail=repr(flags))
+
+    by_name = {f["name"]: f for f in flags}
+    check("label_flags: ALICE is attested (appears near its own line)",
+          by_name["ALICE"]["attested"] is True, detail=repr(by_name["ALICE"]))
+    check("label_flags: ZORBLAX is flagged unattested (name never appears in source)",
+          by_name["ZORBLAX"]["attested"] is False, detail=repr(by_name["ZORBLAX"]))
+
+
 def main():
     tests = [
+        test_label_flags_computation_never_mutates_entries_or_roster,
         test_voices_roster_consolidates_whitespace_drift,
         test_voices_roster_selection_is_order_independent,
         test_voices_roster_unifies_punctuation_drift,
@@ -344,6 +415,8 @@ def main():
         test_roster_handles_legacy_type_field_and_empty,
         test_config_backcompat_resolution,
         test_config_exact_key_wins_over_scan,
+        test_roster_keeps_husband_and_wife_apart,
+        test_config_metadata_keys_are_not_speakers,
         test_build_voice_roster_return_shape_is_two_tuple,
         test_build_voice_roster_does_not_compute_alias_suggestions,
         test_alias_suggestions_endpoint_helpers_match_old_inline_path,
