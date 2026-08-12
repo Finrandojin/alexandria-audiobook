@@ -1336,6 +1336,11 @@
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_residual_is_neutralized_to_apostrophe",
     "test_source_normalization_lossy.RepairLossyReplacementsTest.test_triple_run_is_quoted_ellipsis"
   ],
+  "test_source_span_coverage": [
+    "test_source_span_coverage.SourceSpanCoverageTests.test_complete_declarations_pass",
+    "test_source_span_coverage.SourceSpanCoverageTests.test_missing_unknown_and_malformed_declarations_fail_loudly",
+    "test_source_span_coverage.SourceSpanCoverageTests.test_spans_keep_order_and_stable_ids"
+  ],
   "test_speaker_identity": [
     "test_speaker_identity.SpeakerIdentityTests.test_consistency_report_counts_usage_and_deduplicates_suggestions",
     "test_speaker_identity.SpeakerIdentityTests.test_distinct_names_are_not_reported",
