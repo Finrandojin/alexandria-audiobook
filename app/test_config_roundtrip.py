@@ -152,6 +152,38 @@ check("review_batch_size persists when set",
 check("enable_nemo_normalization persists when set",
       saved2["tts"].get("enable_nemo_normalization") is True)
 
+# 2b. The attestation gate and the LLM timeout, same contract as above:
+#     absent unless set, preserved once set, and (for the timeout) living in
+#     the llm section, which had no extra="allow" and therefore used to drop
+#     every key it did not declare.
+cfg2b = copy.deepcopy(REALISTIC_CONFIG)
+cfg2b["generation"]["require_attested_speakers"] = True
+cfg2b["generation"]["attestation_lookback_chars"] = 1500
+cfg2b["llm"]["timeout"] = 900
+saved2b = save(cfg2b)
+
+check("require_attested_speakers persists when set",
+      saved2b["generation"].get("require_attested_speakers") is True)
+check("attestation_lookback_chars persists when set",
+      saved2b["generation"].get("attestation_lookback_chars") == 1500)
+check("llm.timeout persists when set",
+      saved2b["llm"].get("timeout") == 900)
+check("llm section keeps its unknown keys too (extra='allow')",
+      save({**copy.deepcopy(REALISTIC_CONFIG),
+            "llm": {**REALISTIC_CONFIG["llm"], "future_llm_key": "keep-me"}}
+           )["llm"].get("future_llm_key") == "keep-me")
+
+# The gate must default OFF and the timeout must stay ABSENT when unset, or
+# enabling either becomes a silent behaviour change for existing installs.
+check("require_attested_speakers defaults to False",
+      save(copy.deepcopy(REALISTIC_CONFIG))["generation"].get(
+          "require_attested_speakers") is False)
+check("llm.timeout absent when never set (SDK default preserved)",
+      "timeout" not in save(copy.deepcopy(REALISTIC_CONFIG))["llm"])
+check("attestation_lookback_chars absent when never set",
+      "attestation_lookback_chars" not in save(
+          copy.deepcopy(REALISTIC_CONFIG))["generation"])
+
 # 3. num_ctx stays absent through a second round-trip if left unset.
 cfg3 = copy.deepcopy(REALISTIC_CONFIG)
 saved3a = save(cfg3)

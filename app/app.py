@@ -196,9 +196,25 @@ async def get_system_stats():
 
 # Data Models
 class LLMConfig(BaseModel):
+    # extra="allow" to match GenerationConfig/TTSConfig/AppConfig. Without it
+    # this section silently DROPPED any key it did not declare on save, which
+    # is the bug class already fixed for the other sections.
+    model_config = ConfigDict(extra="allow")
+
     base_url: str
     api_key: str
     model_name: str
+    # Per-request timeout, in seconds, for LLM calls. None/unset = use the
+    # OpenAI SDK default (600s), so existing installs are unchanged.
+    #
+    # Why this is configurable: local inference speed varies by orders of
+    # magnitude, and the SDK default is a hard ceiling with no override. On a
+    # measured local setup (27.9B Q4 model, 8GB card, so most weights in system
+    # RAM) generation ran at 9.5 tok/s, which means a 8192-token completion
+    # needs ~861s and dies at 600s having produced nothing usable. Capping
+    # generation.max_tokens is the better primary fix, but a machine slow
+    # enough still needs the ceiling raised.
+    timeout: Optional[float] = None
 
 class TTSConfig(BaseModel):
     model_config = ConfigDict(extra="allow")

@@ -1740,6 +1740,7 @@ def main():
     base_url = llm_config.get("base_url", "http://localhost:11434/v1")
     api_key = llm_config.get("api_key", "local")
     model_name = llm_config.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
+    timeout = llm_config.get("timeout")
 
     # Load custom prompts or use defaults. Custom prompts are only honoured
     # when they target the current span-label schema (see select_prompt).
@@ -1791,10 +1792,21 @@ def main():
         print(f"Banned tokens: {banned_tokens}")
 
     # Create OpenAI client with custom base URL
-    client = OpenAI(
-        base_url=base_url,
-        api_key=api_key
-    )
+    # llm.timeout (seconds) overrides the OpenAI SDK's 600s default. Left out
+    # of the call entirely when unset, so the constructed client is identical
+    # to before for anyone who does not set it.
+    #
+    # This matters on slow local inference: a completion that needs longer than
+    # the ceiling is killed after producing nothing usable, and the run then
+    # retries it and is killed again. Measured on one local setup: 9.5 tok/s,
+    # so generation.max_tokens=8192 implies ~861s and a guaranteed timeout at
+    # the 600s default. Lowering max_tokens is the better first move -- this is
+    # for machines where even that is not enough.
+    client_kwargs = {"base_url": base_url, "api_key": api_key}
+    if timeout:
+        client_kwargs["timeout"] = timeout
+        print(f"LLM request timeout: {timeout}s (llm.timeout)")
+    client = OpenAI(**client_kwargs)
 
     # Split into chunks at natural boundaries
     chunks = split_into_chunks(book_content, max_size=chunk_size)

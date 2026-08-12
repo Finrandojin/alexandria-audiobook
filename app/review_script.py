@@ -602,7 +602,14 @@ def main():
     if banned_tokens:
         print(f"Banned tokens: {banned_tokens}")
 
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    # llm.timeout: same override as generate_script.main, for the same reason
+    # (slow local inference vs the SDK's fixed 600s ceiling). Omitted from the
+    # call when unset so the client is unchanged for existing installs.
+    _client_kwargs = {"base_url": base_url, "api_key": api_key}
+    _timeout = llm_config.get("timeout")
+    if _timeout:
+        _client_kwargs["timeout"] = _timeout
+    client = OpenAI(**_client_kwargs)
 
     all_corrected = []
     # "text_changed"/"entries_added"/"entries_removed" are intentionally

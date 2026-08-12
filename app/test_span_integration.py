@@ -1713,6 +1713,33 @@ class TestMojibakeTable(unittest.TestCase):
         self.assertEqual(fix_mojibake(clean), clean)
 
 
+class TestLLMTimeoutConfig(unittest.TestCase):
+    """main() must honour llm.timeout, and must not send it when unset.
+
+    Source assertions, because the client is constructed inside main() around a
+    network call. The property that matters is the CONDITIONAL: passing a
+    timeout unconditionally would replace the SDK default for every existing
+    install, which is the kind of silent behaviour change this repo avoids.
+    """
+
+    def setUp(self):
+        self.source = inspect.getsource(generate_script)
+
+    def test_main_reads_the_timeout_key(self):
+        self.assertIn('llm_config.get("timeout")', self.source,
+                      "main() must read llm.timeout from the llm config section")
+
+    def test_timeout_is_only_passed_when_set(self):
+        # The guard is what keeps the unset case byte-identical to before.
+        self.assertIn('if timeout:', self.source)
+        self.assertIn('client_kwargs["timeout"] = timeout', self.source)
+
+    def test_client_is_built_from_kwargs_not_a_literal_call(self):
+        # Guards against a refactor that reinstates a hardcoded OpenAI(...)
+        # call and silently drops the timeout.
+        self.assertIn("OpenAI(**client_kwargs)", self.source)
+
+
 class TestAttestationGate(unittest.TestCase):
     """A speaker name the source does not support is refused, loudly.
 

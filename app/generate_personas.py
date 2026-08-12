@@ -687,7 +687,12 @@ def main():
     api_key = llm_cfg.get("api_key", "local")
     model_name = llm_cfg.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
 
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    # llm.timeout: see generate_script.main. Omitted when unset.
+    _client_kwargs = {"base_url": base_url, "api_key": api_key}
+    _timeout = llm_cfg.get("timeout")
+    if _timeout:
+        _client_kwargs["timeout"] = _timeout
+    client = OpenAI(**_client_kwargs)
 
     # Load persona prompts from config, fall back to defaults
     prompts_cfg = config.get("prompts", {})
