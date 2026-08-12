@@ -1859,6 +1859,49 @@ class TestAttestationGate(unittest.TestCase):
                     client, chunk, require_attested=True, attest_window=chunk)
                 self.assertEqual(joined(entries), chunk)
 
+    def test_narrator_with_dialogue_role_is_never_gated(self):
+        # NARRATOR is the narrator sentinel, not a name. The word "Narrator"
+        # appears in no novel, so attesting it rejected the narrator itself and
+        # falsely degraded the chunk. The prompt explicitly tells the model to
+        # use NARRATOR for an unidentifiable speaker, so this fires constantly.
+        chunk = STRAIGHT_QUOTES
+        labels = labels_for(chunk, speaker_of=lambda span, text: "NARRATOR")
+        for label in labels:
+            label["role"] = "dialogue"  # the shape observed live
+        client = FakeClient(FakeResponse(json.dumps(labels)))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk)
+        check = self.assertEqual
+        check(stats["unattested_rejected"], 0)
+        check(stats["degraded"], False)
+        self.assertEqual(joined(entries), chunk)
+
+    def test_gate_and_retry_predicate_agree_on_every_label(self):
+        # The invariant _incomplete_span_ids' docstring states for roles, held
+        # here for speakers: whatever the gate would REJECT is exactly what the
+        # retry predicate must ASK about. If they diverge, a label is either
+        # silently rejected with no retry (what NARRATOR did) or nagged about
+        # forever without ever being refused.
+        chunk = STRAIGHT_QUOTES
+        spans = tokenize(chunk)
+        for speaker in ("NARRATOR", "MARCUS", "ZZQXAL", "MISTER", "SPEAKER 1"):
+            with self.subTest(speaker=speaker):
+                labels = labels_for(chunk, speaker_of=lambda s, t: speaker)
+                for label in labels:
+                    label["role"] = "dialogue"
+                merged = {generate_script._label_id(l): l for l in labels}
+
+                asked = generate_script._unattested_speaker_ids(
+                    spans, merged, source=chunk, roster=None, attest_window=chunk)
+                _, stats = resolve_span_labels(
+                    spans, labels, source=chunk, roster={},
+                    attest_window=chunk, require_attested=True)
+
+                self.assertEqual(
+                    bool(asked), bool(stats["unattested_rejected"]),
+                    f"retry predicate and gate disagree for {speaker!r}: "
+                    f"asked={len(asked)} rejected={stats['unattested_rejected']}")
+
     def test_no_window_means_no_confirmation(self):
         # Guards against a caller enabling the gate without supplying a window
         # and silently narrating the whole book: with no window, an

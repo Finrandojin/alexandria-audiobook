@@ -1091,7 +1091,21 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
                 # (NARRATOR, prose untouched). An established roster name
                 # skips the check entirely -- see the docstring.
                 accept = True
-                if require_attested and not _speaker_is_established(canonical, roster_index):
+                # NARRATOR is the narrator SENTINEL, not a character name, so it
+                # is never attested: the word "Narrator" does not appear in a
+                # novel, and gating it rejected the narrator itself. The outcome
+                # was unchanged (a refused speaker becomes NARRATOR, which it
+                # already was), but every chunk where the model wrote
+                # speaker=NARRATOR with role=dialogue -- which the prompt itself
+                # invites for an unidentifiable speaker -- was falsely reported
+                # DEGRADED, inflating unattested_rejected and forcing exit 3.
+                #
+                # This also restores agreement with _unattested_speaker_ids,
+                # which always skipped NARRATOR: the two must apply identical
+                # rules or the retry predicate and the degradation reason
+                # disagree, exactly as _incomplete_span_ids' docstring warns.
+                if (require_attested and canonical != NARRATOR
+                        and not _speaker_is_established(canonical, roster_index)):
                     verdict = _attestation_verdict(canonical, attest_window)
                     if verdict == UNATTESTED:
                         accept = False
