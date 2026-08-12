@@ -281,6 +281,51 @@ def test_invalid_dict_shape_warns():
         check("non-dict-shaped JSON -> warning printed", "WARNING" in buf.getvalue())
 
 
+def test_pronunciation_dict_respects_word_boundaries():
+    """A dict entry must not fire inside a longer word.
+
+    This is the user-facing counterpart of the rule CLAUDE.md states for the
+    source pipeline: blindly expanding "Dr."/"St." breaks fidelity. Before the
+    boundary rule, {"Dr": "Doctor"} rewrote *Drake* to *Doctorake*.
+    """
+    from tts_normalizer import _apply_pronunciation_dict as apply_dict
+
+    check(
+        "a key does not fire inside a longer word",
+        apply_dict("Drake walked on", {"Dr": "Doctor"}) == "Drake walked on",
+        detail=apply_dict("Drake walked on", {"Dr": "Doctor"}),
+    )
+    check(
+        "the same key still fires as a standalone word",
+        apply_dict("Elm Dr today", {"Dr": "Doctor"}) == "Elm Doctor today",
+        detail=apply_dict("Elm Dr today", {"Dr": "Doctor"}),
+    )
+    check(
+        "a key ending in punctuation keeps working",
+        apply_dict("Dr. Who", {"Dr.": "Doctor"}) == "Doctor Who",
+        detail=apply_dict("Dr. Who", {"Dr.": "Doctor"}),
+    )
+    # A letter next to a digit is a real boundary, so unit entries still work.
+    check(
+        "a letter key still fires against a digit neighbour",
+        apply_dict("5km away", {"km": "kilometers"}) == "5kilometers away",
+        detail=apply_dict("5km away", {"km": "kilometers"}),
+    )
+    # Uncased, unsegmented scripts have no word boundaries to respect, so
+    # substring replacement remains the correct behaviour there.
+    check(
+        "uncased script keeps substring semantics",
+        apply_dict("林考言道", {"林": "Lin"}) == "Lin考言道",
+        detail=apply_dict("林考言道", {"林": "Lin"}),
+    )
+    # Nothing is replaced when every occurrence is embedded.
+    check(
+        "an entry matching nothing leaves text byte-identical",
+        apply_dict("Andrew and Drake", {"Dr": "Doctor"}) == "Andrew and Drake",
+        detail=apply_dict("Andrew and Drake", {"Dr": "Doctor"}),
+    )
+
+
 def main():
     tests = [
         test_flag_off_is_noop,
@@ -291,6 +336,7 @@ def main():
         test_pronunciation_dict_applied_when_flag_on,
         test_pronunciation_dict_not_applied_when_flag_off,
         test_pronunciation_dict_longest_match_first,
+        test_pronunciation_dict_respects_word_boundaries,
         test_missing_dict_file_no_error,
         test_invalid_json_dict_warns_once_and_empty,
         test_invalid_dict_shape_warns,

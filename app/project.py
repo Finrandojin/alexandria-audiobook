@@ -22,6 +22,124 @@ from pydub import AudioSegment
 
 MAX_CHUNK_CHARS = 500
 
+# Sentence-ending punctuation, used ONLY to choose WHERE to cut an over-long
+# entry -- never to rewrite, expand or normalize text. A data table of
+# punctuation conventions, in the same spirit as span_tokenizer.PAIRED_QUOTES:
+# adding a script is a data change here, not a logic change. This is not a
+# word list and carries no language knowledge beyond "this glyph ends a
+# sentence".
+_SENTENCE_ENDERS = (
+    ".!?"            # Latin and most European scripts
+    "。！？"  # 。！？  CJK ideographic full stop / full-width ! ?
+    "؟"         # ؟  Arabic question mark
+    "۔"         # ۔  Urdu full stop
+    "।॥"   # ।॥ Devanagari danda / double danda
+    "…"         # …  ellipsis
+)
+
+
+def split_long_text(text, max_chars=MAX_CHUNK_CHARS):
+    """Split `text` into pieces of at most `max_chars` characters, cutting at
+    the most natural boundary available.
+
+    WHY THIS EXISTS: group_into_chunks() caps how much it will MERGE, but a
+    single script entry longer than the cap was previously passed through
+    whole -- nothing between annotated_script.json and the TTS call bounded
+    entry length, and tts.py has no splitter. On a real book this sent
+    entries of up to 2934 characters (measured; 271 of 7862 chunks, 3.4%,
+    exceeded the 500-char cap) to an engine the pipeline itself considers safe
+    only to 500. Long inputs are where TTS silently truncates or degrades, and
+    neither _assert_chunk_verbatim (which compares entries to their source
+    chunk, upstream of here) nor the word-coverage invariant (which reads the
+    script, not the audio) can see it.
+
+    VERBATIM: ``"".join(split_long_text(t)) == t`` for every input. This
+    function only chooses cut POINTS; it never inserts, deletes or rewrites a
+    character, so the audiobook still reads the author's text exactly.
+
+    Boundary preference, most natural first:
+      1. paragraph break (blank line)
+      2. single line break
+      3. sentence-ending punctuation followed by whitespace
+      4. any whitespace
+      5. a hard cut at max_chars -- the unavoidable fallback for scripts that
+         do not delimit words with spaces (Chinese, Japanese, Thai), where
+         there is no whitespace to find and a hard cut is the only option.
+
+    Whitespace at a cut point stays with the LEFT piece, which is what keeps
+    the join byte-exact.
+    """
+    if not text or max_chars <= 0 or len(text) <= max_chars:
+        return [text] if text else []
+
+    pieces = []
+    remaining = text
+    while len(remaining) > max_chars:
+        window = remaining[:max_chars]
+        cut = -1
+
+        # 1/2. Line structure. Search the window for the rightmost break and
+        # keep the newline(s) with the left piece.
+        for marker in ("\n\n", "\n"):
+            found = window.rfind(marker)
+            if found > 0:
+                cut = found + len(marker)
+                break
+
+        # 3. Sentence end followed by whitespace.
+        if cut <= 0:
+            for index in range(len(window) - 1, 0, -1):
+                if window[index].isspace() and window[index - 1] in _SENTENCE_ENDERS:
+                    cut = index + 1
+                    break
+
+        # 4. Any whitespace.
+        if cut <= 0:
+            for index in range(len(window) - 1, 0, -1):
+                if window[index].isspace():
+                    cut = index + 1
+                    break
+
+        # 5. Hard cut. No boundary exists inside the window.
+        if cut <= 0:
+            cut = max_chars
+
+        pieces.append(remaining[:cut])
+        remaining = remaining[cut:]
+
+    if remaining:
+        pieces.append(remaining)
+    return pieces
+
+
+def _split_oversize_chunks(chunks, max_chars=MAX_CHUNK_CHARS):
+    """Return `chunks` with any over-long chunk replaced by several pieces.
+
+    Applied AFTER grouping so the merge logic above is untouched. Each piece
+    keeps the chunk's speaker and instruct; only the LAST piece keeps the
+    original ``pause_after``, and the earlier pieces are pinned to 0 ms so
+    splitting a paragraph does not introduce a same-speaker pause in the
+    middle of a sentence (combine_audio_with_pauses treats an override of 0
+    as "no gap", so this is silence-neutral).
+    """
+    result = []
+    for chunk in chunks:
+        text = chunk.get("text") or ""
+        if len(text) <= max_chars:
+            result.append(chunk)
+            continue
+
+        pieces = split_long_text(text, max_chars)
+        last = len(pieces) - 1
+        for index, piece in enumerate(pieces):
+            result.append(_make_chunk(
+                chunk.get("speaker"),
+                piece,
+                chunk.get("instruct"),
+                chunk.get("pause_after") if index == last else 0,
+            ))
+    return result
+
 def get_speaker(entry):
     """Get speaker from entry, checking both 'speaker' and 'type' fields."""
     return entry.get("speaker") or entry.get("type") or ""
@@ -47,7 +165,14 @@ def _make_chunk(speaker, text, instruct, pause_after=None):
 
 
 def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
-    """Group consecutive entries by same speaker into chunks up to max_chars"""
+    """Group consecutive entries by same speaker into chunks up to max_chars.
+
+    `max_chars` bounds the result in BOTH directions: it caps how much this
+    merges, and (via _split_oversize_chunks) it also caps a single entry that
+    arrives longer than the limit on its own. Before that split existed, an
+    entry of any length passed straight through to the TTS engine -- see
+    split_long_text for the measured impact.
+    """
     if not script_entries:
         return []
 
@@ -94,7 +219,7 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
     # Don't forget the last chunk
     chunks.append(_make_chunk(current_speaker, current_text, current_instruct, current_pause_after))
 
-    return chunks
+    return _split_oversize_chunks(chunks, max_chars)
 
 logger = logging.getLogger(__name__)
 
@@ -184,8 +309,11 @@ class ProjectManager:
         `tts.resolve_voice`, the single shared resolver used by every
         voice_config lookup that feeds synthesis (project.py and tts.py
         alike), which tries an exact-key match, then a canonicalized-key
-        match, then a scan of voice_config keys by canonical form, then
-        follows the alias_of/alias chain (cycle-safe, max 8 hops).
+        match, then a scan of voice_config keys by canonical form, then the
+        gendered-title migration shim (so a voice_config.json written before
+        canonicalize() preserved Mr/Mrs/Mme/... still voices today's
+        "MISTER SMITH"), then follows the alias_of/alias chain (cycle-safe,
+        max 8 hops).
 
         Returns the resolved key, or `speaker` unchanged if it is falsy or
         no resolution strategy finds a match (preserves this method's

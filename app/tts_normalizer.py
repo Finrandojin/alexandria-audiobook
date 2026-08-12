@@ -170,7 +170,87 @@ def load_pronunciation_dict(path):
         return {}
 
 
+def _is_cased_letter(ch):
+    """True for a letter belonging to a script that distinguishes upper and
+    lower case (Latin, Greek, Cyrillic, Armenian, ...). Derived from the
+    Unicode properties of the character itself -- no script list, no language
+    table.
+
+    Used to decide whether word-boundary logic is meaningful around a match.
+    Cased scripts in this pipeline are the space-segmented ones where "Dr"
+    must not match inside "Drake"; uncased scripts include the unsegmented
+    ones (Chinese, Japanese) where a substring match is the CORRECT behaviour
+    because there are no word boundaries to respect.
+    """
+    return ch.isalpha() and ch.lower() != ch.upper()
+
+
+def _match_respects_word_boundary(text, start, key):
+    """True when the occurrence of `key` at `text[start:]` is not embedded in
+    a larger word.
+
+    A boundary is only required on an edge where the KEY itself ends in a
+    cased letter or a digit: an entry like "Dr." ends in punctuation, so the
+    period is already the boundary, while a bare "Dr" must not fire inside
+    "Drake". An edge whose key character is an uncased letter imposes no
+    requirement, so unsegmented scripts keep substring semantics.
+
+    Only a SAME-CLASS neighbour blocks -- letter beside letter, digit beside
+    digit. A letter adjacent to a digit is a real boundary, which is what
+    keeps the common unit entry working: "km" must still fire in "5km", while
+    "Dr" must still not fire in "Drake".
+    """
+    end = start + len(key)
+
+    def blocks(edge_char, neighbour):
+        if _is_cased_letter(edge_char):
+            return _is_cased_letter(neighbour)
+        if edge_char.isdigit():
+            return neighbour.isdigit()
+        return False
+
+    if start > 0 and blocks(key[0], text[start - 1]):
+        return False
+    if end < len(text) and blocks(key[-1], text[end]):
+        return False
+    return True
+
+
+def _replace_on_boundaries(text, key, value):
+    """Replace every word-boundary-respecting occurrence of `key`. Returns the
+    new text. Scans left to right and never re-examines inserted text, so a
+    value containing its own key cannot loop.
+    """
+    out = []
+    index = 0
+    while True:
+        found = text.find(key, index)
+        if found == -1:
+            out.append(text[index:])
+            return "".join(out)
+        if _match_respects_word_boundary(text, found, key):
+            out.append(text[index:found])
+            out.append(value)
+            index = found + len(key)
+        else:
+            out.append(text[index:found + len(key)])
+            index = found + len(key)
+
+
 def _apply_pronunciation_dict(text, mapping):
+    """Apply the user's per-book pronunciation dictionary.
+
+    WORD-BOUNDARY AWARE. This was a raw ``str.replace``, which made the
+    user-facing pronunciation_dict.json a way to reintroduce exactly the
+    damage CLAUDE.md bans in the source pipeline: an entry of
+    ``{"Dr": "Doctor"}`` rewrote *Drake* to *Doctorake*, and *Elm St.* to
+    *Elm Saint.* if the user added "St". Longest-match-first ordering only
+    protects against a shorter key clobbering a longer phrase; it does
+    nothing about a key matching inside an unrelated word.
+
+    See _match_respects_word_boundary for the exact rule and why it is
+    derived from Unicode casedness rather than a script list.
+    """
     if not mapping:
         return text
     # Longest-match-first: "Marlborough Dr." must win over a shorter "Dr."
@@ -178,7 +258,7 @@ def _apply_pronunciation_dict(text, mapping):
     for key in sorted(mapping.keys(), key=len, reverse=True):
         if key and key in text:
             value = mapping[key]
-            new_text = text.replace(key, value)
+            new_text = _replace_on_boundaries(text, key, value)
             if new_text != text:
                 print(f"[tts-normalize] dict: {key!r} -> {value!r}")
             text = new_text

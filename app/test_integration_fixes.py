@@ -22,6 +22,8 @@ Run directly:
     python app/test_integration_fixes.py
 Exits 0 if all tests pass, non-zero otherwise.
 """
+import contextlib
+import io
 import os
 import sys
 import types
@@ -149,21 +151,111 @@ def test_resolve_voice_canonical_hit_narrator():
 
 def test_resolve_voice_canonicalized_key_scan():
     # Legacy voice_config keyed by a raw, non-canonical label ("Mr. Mark"),
-    # while the script/UI now uses the canonical speaker "MARK".
+    # while the script/UI uses the canonical speaker "MISTER MARK".
     voice_config = {"Mr. Mark": {"type": "custom", "voice": "Ryan"}}
     check_eq(
-        "canonicalized-key scan: canonical speaker 'MARK' resolves 'Mr. Mark' config",
-        resolve_voice(voice_config, "MARK"),
+        "canonicalized-key scan: canonical speaker 'MISTER MARK' resolves 'Mr. Mark' config",
+        resolve_voice(voice_config, "MISTER MARK"),
         "Mr. Mark",
     )
     # And the reverse direction: config already keyed canonically, raw
-    # honorific-prefixed speaker label should still resolve to it.
-    voice_config2 = {"MARK": {"type": "custom", "voice": "Ryan"}}
+    # title-prefixed speaker label should still resolve to it.
+    voice_config2 = {"MISTER MARK": {"type": "custom", "voice": "Ryan"}}
     check_eq(
-        "canonicalized-key scan (reverse): raw 'Mr. Mark' resolves 'MARK' config",
+        "canonicalized-key scan (reverse): raw 'Mr. Mark' resolves 'MISTER MARK' config",
         resolve_voice(voice_config2, "Mr. Mark"),
+        "MISTER MARK",
+    )
+
+
+# ---------------------------------------------------------------------------
+# resolve_voice strategy 4: the gendered-title migration shim.
+#
+# canonicalize() used to DROP Mr/Mrs/Mme/..., so a voice_config.json written
+# before the change keys "Mr. Mark" as "MARK". It now preserves them, so the
+# speaker arriving from the script is "MISTER MARK". Without a shim, every
+# line of every pre-existing project would miss its voice.
+# ---------------------------------------------------------------------------
+def test_resolve_voice_legacy_bare_config_voices_gendered_speaker():
+    # Direction 1, unguarded: a legacy config cannot contain a gendered rival,
+    # and refusing here would silently drop the character's lines.
+    voice_config = {"MARK": {"type": "custom", "voice": "Ryan"}}
+    check_eq(
+        "migration: legacy 'MARK' config voices 'Mr. Mark'",
+        resolve_voice(voice_config, "Mr. Mark"),
         "MARK",
     )
+    check_eq(
+        "migration: legacy 'MARK' config voices canonical 'MISTER MARK'",
+        resolve_voice(voice_config, "MISTER MARK"),
+        "MARK",
+    )
+
+
+def test_resolve_voice_migration_matrix_legacy_bare_config():
+    # One legacy key, three speaker spellings, all must render.
+    voice_config = {"SMITH": {"type": "custom", "voice": "Ryan"}}
+    for speaker in ("MISTER SMITH", "MISSUS SMITH", "SMITH"):
+        check_eq(
+            f"migration matrix: legacy {{SMITH}} config voices '{speaker}'",
+            resolve_voice(voice_config, speaker),
+            "SMITH",
+        )
+
+
+def test_resolve_voice_gendered_rival_does_not_unvoice_the_other():
+    # The regression that matters most: assigning a voice to MRS SMITH must
+    # not steal, or silence, MISTER SMITH's legacy bare entry.
+    voice_config = {"SMITH": {"voice": "a"}, "MRS SMITH": {"voice": "b"}}
+    check_eq(
+        "migration: 'MISTER SMITH' still resolves to legacy SMITH beside a MRS SMITH key",
+        resolve_voice(voice_config, "MISTER SMITH"),
+        "SMITH",
+    )
+    check_eq(
+        "migration: 'MRS SMITH' resolves to its own key",
+        resolve_voice(voice_config, "Mrs. Smith"),
+        "MRS SMITH",
+    )
+
+
+def test_resolve_voice_bare_speaker_finds_a_single_gendered_key():
+    # Direction 2, unambiguous: only one gendered key could be meant.
+    voice_config = {"MRS SMITH": {"voice": "b"}}
+    check_eq(
+        "migration: bare 'SMITH' resolves the single gendered key",
+        resolve_voice(voice_config, "SMITH"),
+        "MRS SMITH",
+    )
+
+
+def test_resolve_voice_bare_speaker_ambiguous_between_gendered_keys():
+    # Direction 2, guarded: two gendered rivals and no evidence which one an
+    # unqualified "SMITH" meant. Picking by insertion order would give a
+    # character the wrong person's voice, so refuse -- in BOTH orders.
+    forward = {"MR SMITH": {"voice": "a"}, "MRS SMITH": {"voice": "b"}}
+    backward = {"MRS SMITH": {"voice": "b"}, "MR SMITH": {"voice": "a"}}
+    check("migration: ambiguous bare 'SMITH' returns None (MR first)",
+          resolve_voice(forward, "SMITH") is None)
+    check("migration: ambiguous bare 'SMITH' returns None (MRS first)",
+          resolve_voice(backward, "SMITH") is None)
+
+    buffer = io.StringIO()
+    with contextlib.redirect_stdout(buffer):
+        resolve_voice(forward, "SMITH")
+    printed = buffer.getvalue()
+    check("migration: the ambiguous miss warns loudly and names the speaker",
+          "SMITH" in printed and "ambiguous" in printed.lower(),
+          f"stdout was {printed!r}")
+
+
+def test_resolve_voice_ignores_metadata_keys():
+    # "_canon_version" is file metadata, never a speaker.
+    voice_config = {"_canon_version": 2, "MARK": {"voice": "a"}}
+    check_eq("metadata: '_canon_version' is skipped by the key scan",
+             resolve_voice(voice_config, "MARK"), "MARK")
+    check("metadata: '_canon_version' is never returned as a resolved key",
+          resolve_voice(voice_config, "_canon_version") is None)
 
 
 def test_resolve_voice_miss_returns_none():
@@ -369,6 +461,118 @@ def test_join_newline_boundary_not_doubled():
 
 
 # ---------------------------------------------------------------------------
+# Over-long entry splitting (nothing between the script and the TTS call
+# bounded entry length before this; group_into_chunks capped MERGING only).
+#
+# Properties, not fixtures: every assertion below holds for any text, and the
+# inputs are generated rather than quoted from a book.
+# ---------------------------------------------------------------------------
+def test_split_long_text_join_is_byte_exact():
+    # THE fidelity property: choosing cut points must never change the text.
+    cap = 50
+    for text in (
+        "word " * 200,                      # whitespace everywhere
+        "Sentence one. Sentence two! " * 40,  # sentence enders
+        "para\n\nbreak\n\n" * 40,           # paragraph breaks
+        "x" * 500,                          # no boundary at all
+        "林" * 300,                     # unsegmented script, no spaces
+        "a",                                # shorter than the cap
+        "",                                 # empty
+    ):
+        pieces = project.split_long_text(text, cap)
+        check_eq(f"split join byte-exact for {text[:12]!r}", "".join(pieces), text)
+        check(
+            f"every piece within cap for {text[:12]!r}",
+            all(len(p) <= cap for p in pieces),
+        )
+
+
+def test_split_long_text_hard_cuts_unsegmented_script():
+    # Chinese/Japanese/Thai have no whitespace to cut at. A hard cut is the
+    # only option and must still bound the piece length rather than giving up
+    # and returning the whole string.
+    text = "林" * 260
+    pieces = project.split_long_text(text, 100)
+    check_eq("unsegmented text is split into bounded pieces", len(pieces), 3)
+    check_eq("unsegmented split is lossless", "".join(pieces), text)
+
+
+def test_split_long_text_prefers_natural_boundaries():
+    # A paragraph break inside the window wins over a mid-word cut.
+    text = "alpha beta\n\n" + ("gamma " * 40)
+    pieces = project.split_long_text(text, 30)
+    check("paragraph break is preferred as a cut point", pieces[0].endswith("\n\n"))
+
+    # With no line breaks, a sentence end beats an arbitrary space.
+    text = "One two three. Four five six seven eight nine ten eleven."
+    pieces = project.split_long_text(text, 20)
+    check("sentence end is preferred over a mid-clause space",
+          pieces[0].startswith("One two three."))
+
+
+def test_group_into_chunks_bounds_a_single_oversize_entry():
+    # Before the split, ONE entry longer than the cap passed through whole.
+    long_text = "This is a sentence. " * 60  # 1200 chars, one entry
+    entries = [{"speaker": "NARRATOR", "text": long_text, "instruct": "x"}]
+    chunks = group_into_chunks(entries)
+    check("an oversize entry is split into several chunks", len(chunks) > 1)
+    check(
+        "no chunk exceeds MAX_CHUNK_CHARS after grouping",
+        all(len(c["text"]) <= project.MAX_CHUNK_CHARS for c in chunks),
+    )
+    check_eq(
+        "splitting an oversize entry preserves its text exactly",
+        "".join(c["text"] for c in chunks),
+        long_text,
+    )
+
+
+def test_split_pieces_do_not_introduce_pauses():
+    # Same-speaker chunks get SAME_SPEAKER_PAUSE_MS between them, which would
+    # insert silence mid-sentence. Only the LAST piece keeps the original
+    # pause; the rest are pinned to 0 ("no gap" to combine_audio_with_pauses).
+    entries = [{
+        "speaker": "NARRATOR",
+        "text": "Filler sentence here. " * 60,
+        "instruct": "x",
+        "pause_after": 700,
+    }]
+    chunks = group_into_chunks(entries)
+    check("test needs a split to be meaningful", len(chunks) > 1)
+    check_eq(
+        "all but the last piece suppress the pause",
+        [c.get("pause_after") for c in chunks[:-1]],
+        [0] * (len(chunks) - 1),
+    )
+    check_eq("the last piece keeps the original pause",
+             chunks[-1].get("pause_after"), 700)
+
+
+def test_split_preserves_speaker_and_instruct():
+    entries = [{"speaker": "ALICE", "text": "Talking. " * 100, "instruct": "warm"}]
+    chunks = group_into_chunks(entries)
+    check("test needs a split to be meaningful", len(chunks) > 1)
+    check("every piece keeps the speaker, so the voice does not change mid-line",
+          all(c["speaker"] == "ALICE" for c in chunks))
+    check("every piece keeps the instruct",
+          all(c["instruct"] == "warm" for c in chunks))
+
+
+def test_grouping_is_unchanged_for_normal_entries():
+    # The split must be a no-op on anything already within the cap, so this
+    # change cannot perturb the overwhelming majority of chunks.
+    entries = [
+        {"speaker": "NARRATOR", "text": "Short one. ", "instruct": ""},
+        {"speaker": "ALICE", "text": "A line of dialogue.", "instruct": "warm"},
+        {"speaker": "NARRATOR", "text": " And narration after it.", "instruct": ""},
+    ]
+    chunks = group_into_chunks(entries)
+    check_eq("no-op on within-cap entries: chunk count", len(chunks), 3)
+    check("no-op on within-cap entries: no pause keys invented",
+          all("pause_after" not in c for c in chunks))
+
+
+# ---------------------------------------------------------------------------
 # app._process_completion_message tests
 # ---------------------------------------------------------------------------
 def test_process_completion_message_success():
@@ -418,6 +622,12 @@ def run():
         test_resolve_voice_raw_hit,
         test_resolve_voice_canonical_hit_narrator,
         test_resolve_voice_canonicalized_key_scan,
+        test_resolve_voice_legacy_bare_config_voices_gendered_speaker,
+        test_resolve_voice_migration_matrix_legacy_bare_config,
+        test_resolve_voice_gendered_rival_does_not_unvoice_the_other,
+        test_resolve_voice_bare_speaker_finds_a_single_gendered_key,
+        test_resolve_voice_bare_speaker_ambiguous_between_gendered_keys,
+        test_resolve_voice_ignores_metadata_keys,
         test_resolve_voice_miss_returns_none,
         test_resolve_voice_alias_chain,
         test_resolve_voice_alias_cycle_safe,
@@ -430,6 +640,13 @@ def run():
         test_join_verbatim_leading_space_on_second,
         test_join_legacy_stripped_entries_get_readable_join,
         test_join_newline_boundary_not_doubled,
+        test_split_long_text_join_is_byte_exact,
+        test_split_long_text_hard_cuts_unsegmented_script,
+        test_split_long_text_prefers_natural_boundaries,
+        test_group_into_chunks_bounds_a_single_oversize_entry,
+        test_split_pieces_do_not_introduce_pauses,
+        test_split_preserves_speaker_and_instruct,
+        test_grouping_is_unchanged_for_normal_entries,
         test_process_completion_message_success,
         test_process_completion_message_exit3_script_task,
         test_process_completion_message_other_nonzero_unchanged,
