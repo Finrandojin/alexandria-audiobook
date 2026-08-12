@@ -8,7 +8,7 @@ import soundfile as sf
 from pydub import AudioSegment
 
 from tts_normalizer import TTSNormalizer
-from speaker_canon import canonicalize
+from speaker_canon import canonicalize, GENDERED_TITLES
 
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
@@ -43,6 +43,26 @@ def resolve_voice(voice_config, raw_speaker):
          `canonicalize(raw_speaker)` (handles a "Mr. Mark"-keyed config
          resolving for a canonical "MARK" speaker, and vice versa).
          Insertion order wins ties.
+      4. Gendered-title migration shim, for voice_config.json files written
+         before `canonicalize()` started preserving Mr/Mrs/Mme/... (config
+         files stamped `"_canon_version": 2` by app.py were written after):
+           4a. Speaker HAS a gendered prefix, config key doesn't: strip the
+               prefix and retry 1-3 on the bare name, so a legacy {"SMITH"}
+               config still voices "MISTER SMITH". Unguarded on purpose --
+               a pre-migration config cannot contain a rival "MISSUS SMITH"
+               key (nothing could have produced one), and refusing here
+               would silently drop every line of a legacy project.
+           4b. Speaker is BARE, config keys are gendered: match config keys
+               whose canonical form is "<GENDERED TITLE> <speaker>". This
+               one IS guarded -- if two or more match (both "MISTER SMITH"
+               and "MISSUS SMITH" are configured), there is no evidence for
+               which one an unqualified "SMITH" meant, so it warns loudly
+               and returns None rather than picking by insertion order and
+               giving a character the wrong person's voice.
+         Exact equality of canonical forms throughout; nothing fuzzy.
+
+    Keys beginning with "_" are metadata (e.g. "_canon_version"), never
+    speakers, and are skipped by every scan here.
 
     Whichever key is found then has its `alias_of`/`alias` chain followed
     (same semantics as the legacy per-instance `_resolve_alias` helper in
@@ -56,19 +76,46 @@ def resolve_voice(voice_config, raw_speaker):
     if not raw_speaker or not voice_config:
         return None
 
+    def _speaker_keys():
+        return [k for k in voice_config if not k.startswith("_")]
+
+    def _find_canonical(canon):
+        """Strategies 1-3 for an already-canonical name (minus the raw-key
+        check, which only makes sense for the caller's own spelling)."""
+        if canon in voice_config and not canon.startswith("_"):
+            return canon
+        for key in _speaker_keys():
+            if canonicalize(key) == canon:
+                return key
+        return None
+
     def _find_key(name):
         if not name:
             return None
-        if name in voice_config:
+        if name in voice_config and not name.startswith("_"):
             return name
         canon = canonicalize(name)
         if not canon:
             return None
-        if canon in voice_config:
-            return canon
-        for key in voice_config:
-            if canonicalize(key) == canon:
-                return key
+        resolved = _find_canonical(canon)
+        if resolved is not None:
+            return resolved
+
+        # Strategy 4 -- gendered-title migration shim (see docstring).
+        parts = canon.split(" ")
+        if len(parts) > 1 and parts[0] in GENDERED_TITLES:
+            # 4a: gendered speaker -> bare legacy key. Unguarded.
+            return _find_canonical(" ".join(parts[1:]))
+
+        # 4b: bare legacy speaker -> gendered key(s). Collision-guarded.
+        wanted = {f"{title} {canon}" for title in GENDERED_TITLES}
+        matches = [key for key in _speaker_keys() if canonicalize(key) in wanted]
+        if len(matches) == 1:
+            return matches[0]
+        if matches:
+            print(f"Warning: Speaker '{name}' is ambiguous between gendered voice "
+                  f"configurations {sorted(matches)}; refusing to guess. Assign a "
+                  f"voice for '{canon}' directly, or alias it to one of them.")
         return None
 
     resolved = _find_key(raw_speaker)

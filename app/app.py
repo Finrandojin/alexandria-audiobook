@@ -29,7 +29,7 @@ from review_prompts import load_review_prompts
 from persona_prompts import load_persona_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
 from speaker_canon import (
-    remember_in_roster, roster_key, suggest_aliases,
+    remember_in_roster, roster_key, suggest_aliases, attest_label,
 )
 
 # Setup logging
@@ -240,6 +240,16 @@ class GenerationConfig(BaseModel):
     # on every user the moment they save the config, so keep it Optional and
     # excluded from output when None (see save_config).
     num_ctx: Optional[int] = None
+    # Attestation gate for speaker labels (generate_script.resolve_span_labels).
+    # DEFAULT FALSE: enabling it changes which labels survive and can turn a
+    # clean run into an exit-3 degraded run, so it must be an explicit opt-in.
+    # Measure a book first with tools/verify_attestation.py.
+    require_attested_speakers: bool = False
+    # Preceding source characters joined to the current chunk when attesting a
+    # speaker name. None/unset = fall back to chunk_size, so the default tracks
+    # the chunk size rather than pinning a second number that can disagree
+    # with it.
+    attestation_lookback_chars: Optional[int] = None
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -1019,6 +1029,10 @@ def build_voice_roster(script_data, voice_config):
             config_lookup[roster_name] = voice_config[roster_name]
             continue
         for key, value in voice_config.items():
+            # Keys beginning with "_" are file metadata (e.g. the
+            # "_canon_version" stamp), never speakers.
+            if key.startswith("_"):
+                continue
             # roster_key(): canonical form with boundary marks removed, so a
             # config entry saved under a drifted spelling of the same name
             # still resolves. Exact key equality, never fuzzy similarity.
@@ -1060,6 +1074,151 @@ async def get_voices():
             "persona_pending": voice_name not in config_lookup,
         })
     return result
+
+
+def _load_source_text():
+    """Best-effort load of the source text currently backing
+    annotated_script.json, using the same "current project" pointer
+    (state.json's input_file_path) that /api/generate_script reads.
+
+    Read-only, and deliberately forgiving: any failure (no state.json, no
+    input_file_path, missing file, unreadable epub) returns None rather than
+    raising, since this backs an advisory-only endpoint that must degrade to
+    "nothing to show" instead of an error.
+    """
+    state_path = os.path.join(ROOT_DIR, "state.json")
+    if not os.path.exists(state_path):
+        return None
+    try:
+        with open(state_path, "r", encoding="utf-8") as f:
+            state = json.load(f)
+    except (json.JSONDecodeError, ValueError, OSError):
+        return None
+
+    input_file = state.get("input_file_path")
+    if not input_file or not os.path.exists(input_file):
+        return None
+
+    try:
+        if input_file.lower().endswith(".epub"):
+            raw = extract_epub_text(input_file)
+        else:
+            with open(input_file, "r", encoding="utf-8") as f:
+                raw = f.read()
+    except Exception:
+        return None
+
+    # Apply the SAME mojibake fix generation applied (generate_script.main
+    # calls fix_mojibake before chunking). The entry texts in
+    # annotated_script.json were produced from the FIXED text, so
+    # _compute_label_flags' `source_text.find(entry_text)` misses on every
+    # entry of an affected book when this returns the raw bytes -- and a miss
+    # yields no attestation window, which attest_label reports as "not
+    # attested". The badge then flags every speaker in the book, which reads
+    # as total corruption rather than as a lookup failure.
+    #
+    # Imported lazily: this is the only place app.py needs it, and keeping the
+    # import inside the call leaves server startup untouched. A failure to
+    # import degrades to the raw text (today's behaviour) rather than losing
+    # the endpoint.
+    try:
+        from generate_script import fix_mojibake
+    except Exception:
+        return raw
+    return fix_mojibake(raw)
+
+
+# Bound search cost for speakers with very large entry counts: only the
+# first N entries per speaker are sampled for attestation windows. This is
+# advisory tooling, not a completeness guarantee -- a speaker attested as
+# missing here may simply not have been sampled, which is why the endpoint
+# reports counts alongside the flag rather than claiming exhaustiveness.
+_MAX_SAMPLED_ENTRIES_PER_SPEAKER = 20
+
+# Characters of source text included on each side of a sampled entry when
+# building its attestation window.
+_ATTESTATION_WINDOW_RADIUS = 400
+
+
+def _compute_label_flags(script_data, source_text):
+    """Pure(ish) computation backing GET /api/voices/label_flags.
+
+    Args:
+        script_data: list of annotated_script.json entries.
+        source_text: the full source text string, or None/"" if unavailable.
+
+    Returns:
+        A list of {"name", "entry_count", "attested", "missing_tokens"}
+        dicts, one per non-NARRATOR canonical speaker label present in
+        script_data, sorted by descending entry_count. Read-only: does not
+        write any file and does not mutate script_data or source_text.
+    """
+    if not script_data or not source_text:
+        return []
+
+    # Group verbatim entry texts by canonical speaker label. A single
+    # roster_index is shared across the loop (not a throwaway per entry) so
+    # boundary-mark consolidation matches _canonical_roster_names exactly.
+    roster_index = {}
+    by_speaker = {}
+    for entry in script_data:
+        raw_speaker = entry.get("speaker") or entry.get("type") or ""
+        canonical = remember_in_roster(roster_index, raw_speaker)
+        if not canonical or canonical == "NARRATOR":
+            continue
+        text = entry.get("text") or ""
+        by_speaker.setdefault(canonical, []).append(text)
+
+    flags = []
+    for name, texts in by_speaker.items():
+        entry_count = len(texts)
+        windows = []
+        for text in texts[:_MAX_SAMPLED_ENTRIES_PER_SPEAKER]:
+            if not text:
+                continue
+            occurrence = source_text.find(text)
+            if occurrence == -1:
+                continue
+            start = max(0, occurrence - _ATTESTATION_WINDOW_RADIUS)
+            end = min(len(source_text), occurrence + len(text) + _ATTESTATION_WINDOW_RADIUS)
+            windows.append(source_text[start:end])
+
+        result = attest_label(name, windows)
+        flags.append({
+            "name": name,
+            "entry_count": entry_count,
+            "attested": result["attested"],
+            "missing_tokens": result["missing_tokens"],
+        })
+
+    flags.sort(key=lambda f: f["entry_count"], reverse=True)
+    return flags
+
+
+@app.get("/api/voices/label_flags")
+async def get_voice_label_flags():
+    """Advisory, read-only attestation flags for the current voice roster.
+
+    For each non-NARRATOR canonical speaker label, samples up to
+    _MAX_SAMPLED_ENTRIES_PER_SPEAKER of its entries, builds a local source
+    window around each occurrence, and calls speaker_canon.attest_label to
+    check whether the label's own core name tokens appear near its lines.
+    Never merges, mutates, or writes anything -- purely advisory, for a
+    human reviewer via the Voices UI.
+
+    Degrades to an empty list with an explanatory `note` (not an HTTP
+    error) when there is no script or no source text available, since both
+    are normal, expected states (e.g. before a script has been generated).
+    """
+    script_data = _load_script_entries()
+    if not script_data:
+        return {"flags": [], "note": "no script/source available"}
+
+    source_text = _load_source_text()
+    if not source_text:
+        return {"flags": [], "note": "no script/source available"}
+
+    return {"flags": _compute_label_flags(script_data, source_text)}
 
 
 @app.get("/api/voices/alias_suggestions")
@@ -1142,6 +1301,14 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
     for voice_name, config in config_data.items():
         # Convert Pydantic model to dict
         current_config[voice_name] = config.model_dump()
+
+    # Stamp the canonicalization generation this file's keys were written
+    # under. Generation 2 is "canonicalize() preserves gender-marking titles",
+    # so "MISTER SMITH" and "MISSUS SMITH" are distinct keys; generation 1
+    # (unstamped) files key both of them as "SMITH". tts.resolve_voice's
+    # migration shim bridges the two. Underscore-prefixed keys are metadata and
+    # are skipped everywhere voice_config is scanned for speakers.
+    current_config["_canon_version"] = 2
 
     atomic_json_write(current_config, VOICE_CONFIG_PATH)
 

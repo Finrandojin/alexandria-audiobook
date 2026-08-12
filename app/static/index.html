@@ -1572,12 +1572,22 @@
             const config = voice.config || {};
             const voiceType = config.type || 'custom';
 
+            const flag = (window._labelFlagsMap || {})[voice.name];
+            const attestBadge = (flag && flag.attested === false)
+                ? `<span class="badge bg-warning text-dark ms-2" title="Missing near its lines: ${escapeHtml((flag.missing_tokens || []).join(', '))}">⚠ not found near its lines</span>`
+                : '';
+            const aliasHint = (window._aliasHintMap || {})[voice.name];
+            const aliasHintBadge = aliasHint
+                ? `<div class="form-text small text-muted mt-1">similar to ${escapeHtml(aliasHint)} — review</div>`
+                : '';
+
             return `
                 <div class="card voice-card mb-3" data-voice="${escapeHtml(voice.name)}">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <h5 class="card-title">${escapeHtml(voice.name)} ${config.alias_of ? `<span class="badge bg-info ms-2" title="Alias of ${escapeHtml(config.alias_of)}">${escapeHtml(config.alias_of)}</span>` : ''}</h5>
+                                <h5 class="card-title">${escapeHtml(voice.name)} ${config.alias_of ? `<span class="badge bg-info ms-2" title="Alias of ${escapeHtml(config.alias_of)}">${escapeHtml(config.alias_of)}</span>` : ''}${attestBadge}</h5>
+                                ${aliasHintBadge}
                                 <div class="form-text small text-muted mt-1">Alias of:</div>
                                 <select class="form-select form-select-sm alias-select mt-1" data-populated="false">
                                     <option value="">-- None --</option>
@@ -1760,12 +1770,89 @@
                 container.innerHTML = '<div class="alert alert-info">No voices found. Generate a script first.</div>';
                 return;
             }
+
+            // Fetch advisory label-attestation flags and alias suggestions ONCE
+            // per load (not per row) and index them by name for O(1) lookup
+            // while rendering -- mirrors the lazy alias-select population
+            // pattern above; never loop the roster doing per-row fetches/DOM work.
+            let labelFlags = [];
+            try {
+                const flagsResp = await API.get('/api/voices/label_flags');
+                labelFlags = flagsResp.flags || [];
+            } catch (e) { /* advisory only; ignore if unavailable */ }
+            window._labelFlagsMap = {};
+            labelFlags.forEach(f => { window._labelFlagsMap[f.name] = f; });
+
+            let aliasSuggestions = [];
+            try {
+                const aliasResp = await API.get('/api/voices/alias_suggestions');
+                aliasSuggestions = aliasResp.suggestions || [];
+            } catch (e) { /* advisory only; ignore if unavailable */ }
+            // Hint attaches to the shorter ("name") side of each suggestion pair.
+            window._aliasHintMap = {};
+            aliasSuggestions.forEach(s => { window._aliasHintMap[s.name] = s.alias_of; });
+
+            renderVoicesSummaryStrip(labelFlags, aliasSuggestions);
+
             container.innerHTML = voices.map((v, i) => createVoiceCard(v, i)).join('');
 
             // If any voice has no saved config, save defaults immediately
             if (voices.some(v => !v.config || Object.keys(v.config).length === 0)) {
                 debouncedSaveVoices();
             }
+        }
+
+        // Dismissable summary strip at the top of the Voices screen, combining
+        // attestation flags and alias suggestions, ordered by entry count
+        // descending (biggest-impact problems first). Purely informational --
+        // never pre-selects or auto-applies anything.
+        function renderVoicesSummaryStrip(labelFlags, aliasSuggestions) {
+            const existing = document.getElementById('voices-summary-strip');
+            if (existing) existing.remove();
+            if (sessionStorage.getItem('voicesSummaryDismissed') === '1') return;
+
+            const entryCountByName = {};
+            labelFlags.forEach(f => { entryCountByName[f.name] = f.entry_count; });
+
+            const problems = [];
+            labelFlags.filter(f => f.attested === false).forEach(f => {
+                problems.push({
+                    name: f.name,
+                    entry_count: f.entry_count,
+                    text: `${escapeHtml(f.name)}: not found near its lines`,
+                });
+            });
+            aliasSuggestions.forEach(s => {
+                problems.push({
+                    name: s.name,
+                    entry_count: entryCountByName[s.name] || 0,
+                    text: `${escapeHtml(s.name)}: similar to ${escapeHtml(s.alias_of)} — review`,
+                });
+            });
+            if (problems.length === 0) return;
+
+            problems.sort((a, b) => b.entry_count - a.entry_count);
+
+            const container = document.getElementById('voices-list');
+            const strip = document.createElement('div');
+            strip.id = 'voices-summary-strip';
+            strip.className = 'alert alert-warning d-flex justify-content-between align-items-start';
+            strip.innerHTML = `
+                <div>
+                    <strong>Flagged voices for review:</strong>
+                    <ul class="mb-0 small">
+                        ${problems.map(p => `<li>${p.text} (${p.entry_count} line${p.entry_count === 1 ? '' : 's'})</li>`).join('')}
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" aria-label="Dismiss" onclick="dismissVoicesSummaryStrip()"></button>
+            `;
+            container.parentNode.insertBefore(strip, container);
+        }
+
+        function dismissVoicesSummaryStrip() {
+            sessionStorage.setItem('voicesSummaryDismissed', '1');
+            const existing = document.getElementById('voices-summary-strip');
+            if (existing) existing.remove();
         }
 
         function collectVoiceConfig() {

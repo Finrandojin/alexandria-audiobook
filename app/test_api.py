@@ -42,6 +42,29 @@ try:
     from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
     from test_span_integration import FakeClient, FakeResponse, labels_for
     from test_epub_extract import make_epub, opf, extract_epub_text
+
+    # app.py pulls in `project` (-> tts.py -> numpy/torch/etc.) purely for
+    # unrelated TTS/project-management functionality this file's offline
+    # test does not exercise. Stub it out before importing, same pattern as
+    # test_canon_wiring.py, so this best-effort import block degrades
+    # gracefully rather than requiring torch just to test a read-only helper.
+    import types as _types
+    if 'project' not in sys.modules:
+        _fake_project = _types.ModuleType('project')
+
+        class _FakeProjectManager:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __getattr__(self, name):
+                def _noop(*args, **kwargs):
+                    return None
+                return _noop
+
+        _fake_project.ProjectManager = _FakeProjectManager
+        sys.modules['project'] = _fake_project
+
+    import app as app_module
 except Exception as _e:  # pragma: no cover - environment-dependent
     _PIPELINE_IMPORT_ERROR = _e
 
@@ -1600,6 +1623,67 @@ def test_real_annotated_script_word_coverage_if_present():
         )
 
 
+def test_label_flags_endpoint_logic_never_writes_files():
+    """The advisory GET /api/voices/label_flags endpoint (app.py's
+    _compute_label_flags, called directly here rather than over HTTP so this
+    stays offline) must never write or mutate voice_config.json or
+    annotated_script.json on disk -- it is READ-ONLY / advisory tooling per
+    CLAUDE.md's frozen contracts.
+    """
+    _require_pipeline_modules()
+
+    script_path = app_module.SCRIPT_PATH
+    voice_config_path = app_module.VOICE_CONFIG_PATH
+
+    def _snapshot(path):
+        if not os.path.exists(path):
+            return None
+        return (os.path.getmtime(path), os.path.getsize(path))
+
+    before_script = _snapshot(script_path)
+    before_voice_config = _snapshot(voice_config_path)
+
+    source_text = (
+        'Elena walked into the hall. "We should go," Elena said quietly. '
+        "A ghostly figure watched from the shadows without speaking."
+    )
+    script_data = [
+        {"speaker": "Elena", "text": "We should go,", "instruct": "quiet"},
+        # PHANTASMAGORIA never appears in source_text -> exercises the
+        # "flagged unattested" path too, not just the happy path.
+        {"speaker": "Phantasmagoria", "text": "A ghostly figure watched from the shadows", "instruct": "eerie"},
+    ]
+
+    flags = app_module._compute_label_flags(script_data, source_text)
+
+    after_script = _snapshot(script_path)
+    after_voice_config = _snapshot(voice_config_path)
+
+    if before_script != after_script:
+        raise TestFailure(
+            f"_compute_label_flags touched annotated_script.json on disk: "
+            f"before={before_script!r} after={after_script!r}"
+        )
+    if before_voice_config != after_voice_config:
+        raise TestFailure(
+            f"_compute_label_flags touched voice_config.json on disk: "
+            f"before={before_voice_config!r} after={after_voice_config!r}"
+        )
+
+    names = {f["name"] for f in flags}
+    if names != {"ELENA", "PHANTASMAGORIA"}:
+        raise TestFailure(f"expected flags for ELENA and PHANTASMAGORIA, got: {names!r}")
+
+    by_name = {f["name"]: f for f in flags}
+    if by_name["ELENA"]["attested"] is not True:
+        raise TestFailure(f"ELENA should be attested (appears near its own line): {by_name['ELENA']!r}")
+    if by_name["PHANTASMAGORIA"]["attested"] is not False:
+        raise TestFailure(
+            f"PHANTASMAGORIA should be flagged unattested (name never appears in source): "
+            f"{by_name['PHANTASMAGORIA']!r}"
+        )
+
+
 # ── Run all tests ────────────────────────────────────────────
 
 def run_all_tests():
@@ -1743,6 +1827,7 @@ def run_offline_invariant_tests():
     run_test("word_coverage_digits_and_abbreviations_survive_verbatim",
               test_word_coverage_digits_and_abbreviations_survive_verbatim)
     run_test("real_annotated_script_word_coverage_if_present", test_real_annotated_script_word_coverage_if_present)
+    run_test("label_flags_endpoint_logic_never_writes_files", test_label_flags_endpoint_logic_never_writes_files)
 
 
 # ── Cleanup ──────────────────────────────────────────────────

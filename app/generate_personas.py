@@ -61,6 +61,16 @@ def normalize_speaker_name(name):
     return s
 
 
+def _configured_speaker_names(voice_config):
+    """The voice_config keys that are speakers.
+
+    Keys beginning with "_" are file metadata (e.g. the "_canon_version" stamp
+    app.py writes when saving voice_config.json), never characters, and must
+    never be offered to the alias matcher as an existing name.
+    """
+    return [k for k in voice_config if not k.startswith("_")]
+
+
 def _token_jaccard(a: str, b: str) -> float:
     """Jaccard similarity on normalized name tokens."""
     norm_a = normalize_speaker_name(a)
@@ -740,7 +750,7 @@ def main():
     remaining_speakers = []
 
     for speaker in selected_speakers:
-        existing_names = [n for n in voice_config.keys() if n != speaker]
+        existing_names = [n for n in _configured_speaker_names(voice_config) if n != speaker]
         # Fast heuristic exact check
         norm_self = normalize_speaker_name(speaker)
         heuristic_alias = ""
@@ -777,7 +787,7 @@ def main():
                 }
             
             # Use current configured names plus any previously resolved canonical names as existing references
-            existing_configured = list(voice_config.keys()) + list(batch_mapping.values())
+            existing_configured = _configured_speaker_names(voice_config) + list(batch_mapping.values())
             
             print(f"Resolving alias batch {idx//chunk_size + 1} ({len(chunk)} speakers)...")
             chunk_mapping = _resolve_aliases_batch(client, model_name, speakers_info, existing_configured)
@@ -794,7 +804,7 @@ def main():
             resolved_name = normalized_mapping.get(norm_speaker, speaker)
             if resolved_name != speaker:
                 # LLM identified this as an alias!
-                all_possible = list(voice_config.keys()) + remaining_speakers
+                all_possible = _configured_speaker_names(voice_config) + remaining_speakers
                 canonical_target = _resolve_to_canonical(resolved_name, all_possible, threshold=0.6)
                 if canonical_target and canonical_target != speaker:
                     print(f"Batch LLM alias detected: {speaker} -> {canonical_target}")
