@@ -10,6 +10,11 @@ _ILLUSTRATION_CAPTION_RE = re.compile(
     r"Illustration from Volume\s+\d+\s*,\s*coloring by\s+[^\n]{1,100}?\s*"
     r"\(source\)\s*", re.IGNORECASE)
 
+_WORD_RE = re.compile(r"[^\W_]+(?:[’'][^\W_]+)?", re.UNICODE)
+EXTREME_PHRASE_REPEAT_MIN = 20
+EXTREME_PHRASE_REPEAT_KEEP = 3
+EXTREME_PHRASE_MAX_WORDS = 5
+
 
 def normalize_known_source_corruptions(text):
     """Return normalized text and location evidence without mutating its source file."""
@@ -40,6 +45,71 @@ def normalize_known_source_corruptions(text):
         return ""
 
     return _ILLUSTRATION_CAPTION_RE.sub(remove_caption, normalized), changes
+
+
+def normalize_extreme_phrase_repetitions(text):
+    """Collapse only measured token-loop traps, returning location evidence.
+
+    Ordinary emphasis and stutters stay untouched. Corpus calibration found a
+    legitimate maximum of 13 contiguous repeats, while runs of 25, 42 and 43
+    made the generation model loop to its token ceiling. A repeated unit may
+    contain one to five words, but separators must be whitespace so unrelated
+    prose cannot be joined into a match.
+    """
+    tokens = list(_WORD_RE.finditer(text))
+    candidates = []
+    for start in range(len(tokens)):
+        for width in range(1, EXTREME_PHRASE_MAX_WORDS + 1):
+            if start + width * EXTREME_PHRASE_REPEAT_MIN > len(tokens):
+                break
+            unit = [match.group(0).casefold()
+                    for match in tokens[start:start + width]]
+            repeats = 1
+            while start + (repeats + 1) * width <= len(tokens):
+                offset = start + repeats * width
+                next_unit = [match.group(0).casefold()
+                             for match in tokens[offset:offset + width]]
+                separator = text[tokens[offset - 1].end():tokens[offset].start()]
+                if next_unit != unit or not separator.isspace():
+                    break
+                repeats += 1
+            if repeats < EXTREME_PHRASE_REPEAT_MIN:
+                continue
+            end_index = start + repeats * width - 1
+            candidates.append((tokens[start].start(), tokens[end_index].end(),
+                               width, repeats))
+
+    selected = []
+    for candidate in sorted(candidates, key=lambda item: (item[0], -item[1])):
+        if selected and candidate[0] < selected[-1][1]:
+            continue
+        selected.append(candidate)
+    if not selected:
+        return text, []
+
+    changes = []
+    pieces = []
+    cursor = 0
+    for start, end, width, repeats in selected:
+        repeated = text[start:end]
+        repeated_tokens = list(_WORD_RE.finditer(repeated))
+        kept_end = repeated_tokens[width * EXTREME_PHRASE_REPEAT_KEEP - 1].end()
+        replacement = repeated[:kept_end] + "…"
+        pieces.extend((text[cursor:start], replacement))
+        line_start = text.rfind("\n", 0, start) + 1
+        changes.append({
+            "offset": start,
+            "line": text.count("\n", 0, start) + 1,
+            "column": start - line_start + 1,
+            "before": repeated,
+            "after": replacement,
+            "rule": "extreme_phrase_repetition",
+            "phrase_words": width,
+            "repetitions": repeats,
+        })
+        cursor = end
+    pieces.append(text[cursor:])
+    return "".join(pieces), changes
 
 
 # Cyrillic letters visually identical to Latin ones in upright fonts, per the

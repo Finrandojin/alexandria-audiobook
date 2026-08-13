@@ -6,7 +6,8 @@ from unittest.mock import patch
 
 from chunk_quality import validate_chunk_quality
 import generate_script
-from source_normalization import (normalize_homoglyph_words,
+from source_normalization import (normalize_extreme_phrase_repetitions,
+                                  normalize_homoglyph_words,
                                   normalize_known_source_corruptions)
 
 
@@ -47,6 +48,16 @@ class ChunkQualityTests(unittest.TestCase):
     def test_adaptive_split_refuses_short_or_boundaryless_chunk(self):
         self.assertEqual([], generate_script.split_failed_chunk("short text"))
         self.assertEqual([], generate_script.split_failed_chunk("x" * 2000))
+
+    def test_adaptive_split_handles_grimgar_sized_failure(self):
+        source = "\n\n".join((label + " " + "word " * 70).strip()
+                              for label in ("First", "Second", "Third", "Fourth"))
+
+        first, second = generate_script.split_failed_chunk(source)
+
+        self.assertGreaterEqual(len(first), 400)
+        self.assertGreaterEqual(len(second), 400)
+        self.assertEqual(source, first + "\n\n" + second)
 
     def test_retry_action_splits_only_repeated_severe_truncation(self):
         severe = {"metrics": {"output_source_ratio": 0.2}, "findings": [
@@ -237,6 +248,25 @@ class ChunkQualityTests(unittest.TestCase):
         self.assertEqual("Narration before. Subaru continued speaking.", normalized)
         self.assertEqual("illustration_caption", changes[0]["rule"])
         self.assertIn("Norvak", changes[0]["before"])
+
+    def test_extreme_phrase_repetition_is_collapsed_with_evidence(self):
+        source = "She cried, “" + " ".join(["to my someone"] * 43) + "!”"
+
+        normalized, changes = normalize_extreme_phrase_repetitions(source)
+
+        self.assertEqual(3, normalized.count("to my someone"))
+        self.assertEqual(43, changes[0]["repetitions"])
+        self.assertEqual(3, changes[0]["phrase_words"])
+        self.assertEqual("extreme_phrase_repetition", changes[0]["rule"])
+        self.assertTrue(normalized.endswith("someone…!”"))
+
+    def test_normal_repetition_and_authorial_elongation_are_untouched(self):
+        source = "No " * 13 + "deeeeeeeeeeeeeeeeeeep!"
+
+        normalized, changes = normalize_extreme_phrase_repetitions(source)
+
+        self.assertEqual(source, normalized)
+        self.assertEqual([], changes)
 
     def test_homoglyph_word_normalizes_with_location_evidence(self):
         padding = "The narrator continued speaking calmly for a while. " * 10
