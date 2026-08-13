@@ -15,7 +15,8 @@ from lmstudio_settings import (ensure_ideal_settings, get_effective_max_tokens,
                                get_next_retry_max_tokens)
 from repair_source_encoding import preflight_source
 from script_repair import build_deterministic_repair
-from source_normalization import (normalize_homoglyph_words,
+from source_normalization import (normalize_extreme_phrase_repetitions,
+                                  normalize_homoglyph_words,
                                   normalize_known_source_corruptions,
                                   strip_known_front_matter,
                                   strip_publisher_matter)
@@ -373,6 +374,25 @@ def fix_mojibake(text):
         text = text.replace(bad, good)
 
     return text
+
+
+def get_preprocessed_source(text, strip_front_matter=True):
+    """Return source text and cleanup reports exactly as generation uses them."""
+    text = fix_mojibake(text)
+    text, source_normalizations = normalize_known_source_corruptions(text)
+    text, homoglyph_normalizations = normalize_homoglyph_words(text)
+    source_normalizations.extend(homoglyph_normalizations)
+    text, repetition_normalizations = normalize_extreme_phrase_repetitions(text)
+    source_normalizations.extend(repetition_normalizations)
+    front_matter_removed = None
+    if strip_front_matter:
+        text, front_matter_removed = strip_known_front_matter(text)
+    text, publisher_matter = strip_publisher_matter(text)
+    return text, {
+        "source_normalizations": source_normalizations,
+        "front_matter_removed": front_matter_removed,
+        "publisher_matter": publisher_matter,
+    }
 
 def split_into_chunk_records(text, max_size=3000):
     """Split text with explicit oversized-paragraph continuation metadata."""
@@ -1077,7 +1097,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, params,
     return entries
 
 
-def split_failed_chunk(chunk, minimum_chars=800):
+def split_failed_chunk(chunk, minimum_chars=400):
     """Split near the midpoint at a natural boundary, or return [] if unsafe."""
     if len(chunk) < minimum_chars * 2:
         return []
@@ -1115,7 +1135,7 @@ def process_chunk_adaptively(client, model_name, chunk, chunk_num, total_chunks,
     identical retries -- not content-driven (the source text is unremarkable),
     so a smaller target has a real independent chance the original size didn't
     get. `split_failed_chunk`'s own minimum_chars floor (refuses to split
-    below 1,600 chars) already bounds the recursion depth, so no new depth
+    below 800 chars) already bounds the recursion depth, so no new depth
     limit is needed here.
     """
     # Captures the best full-chunk trigram-only near-miss (see
@@ -1217,24 +1237,20 @@ def main():
     with open(input_file_path, 'r', encoding='utf-8') as f:
         book_content = f.read()
 
-    # Fix encoding artifacts
-    book_content = fix_mojibake(book_content)
-    book_content, source_normalizations = normalize_known_source_corruptions(book_content)
-    book_content, homoglyph_normalizations = normalize_homoglyph_words(book_content)
-    source_normalizations.extend(homoglyph_normalizations)
+    book_content, preprocessing = get_preprocessed_source(
+        book_content, strip_front_matter=args.strip_front_matter)
+    source_normalizations = preprocessing["source_normalizations"]
     if source_normalizations:
         print(f"Normalized {len(source_normalizations)} known source corruption(s) in memory; "
               "the upload was not modified.")
-    front_matter_removed = None
-    if args.strip_front_matter:
-        book_content, front_matter_removed = strip_known_front_matter(book_content)
+    front_matter_removed = preprocessing["front_matter_removed"]
     # Publisher colophon: copyright page, ISBN/CIP block, imprint lines. The
     # three-pass path has always stripped this; the single-pass path did not,
     # so a published book's chunk 1 was its legal notice. The model has no way
     # to turn "This book is a work of fiction. Names, characters..." into
     # annotated dialogue, and the coverage gate then failed the chunk for not
     # reproducing it - index18 retried chunk 1 eight times before this.
-    book_content, publisher_matter = strip_publisher_matter(book_content)
+    publisher_matter = preprocessing["publisher_matter"]
     if publisher_matter["front_paragraphs"] or publisher_matter["back_paragraphs"]:
         print(f"Stripped publisher matter: "
               f"{publisher_matter['front_paragraphs']} paragraph(s) from the "

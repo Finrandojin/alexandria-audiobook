@@ -20,6 +20,7 @@ from generate_script import (call_llm_for_entries, split_into_chunks,
                              fix_mojibake, LLMGenParams,
                              split_failed_chunk, is_trigram_only_near_miss)
 from source_normalization import (neutralize_lossy_residue,
+                                  normalize_extreme_phrase_repetitions,
                                   normalize_known_source_corruptions,
                                   repair_lossy_replacements,
                                   strip_known_front_matter,
@@ -1406,6 +1407,7 @@ def main():
         print(f"Read {args.input_file} as {source_encoding} (not valid UTF-8)")
     book = fix_mojibake(book)
     book, _ = normalize_known_source_corruptions(book)
+    book, _ = normalize_extreme_phrase_repetitions(book)
     if args.strip_front_matter:
         book, _ = strip_known_front_matter(book)
     book, publisher = strip_publisher_matter(book)

@@ -168,7 +168,8 @@ class SourcePreprocessingAgreementTest(unittest.TestCase):
     duplicate-block rule: a capability living on one path only.
     """
 
-    PREPROCESSORS = ("strip_known_front_matter", "strip_publisher_matter")
+    PREPROCESSORS = ("normalize_extreme_phrase_repetitions",
+                     "strip_known_front_matter", "strip_publisher_matter")
 
     def test_both_generators_strip_the_same_things(self):
         for name in self.PREPROCESSORS:
@@ -186,7 +187,7 @@ class SourcePreprocessingAgreementTest(unittest.TestCase):
         Every published book has a colophon, so making it optional would leave
         the default path broken for the common case.
         """
-        source = inspect.getsource(generate_script.main)
+        source = inspect.getsource(generate_script.get_preprocessed_source)
         index = source.find("strip_publisher_matter(")
         self.assertGreater(index, 0)
         window = source[max(0, index - 200):index]

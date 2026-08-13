@@ -272,6 +272,7 @@
   ],
   "test_chunk_quality": [
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_fails_cleanly_when_both_halves_fail",
+    "test_chunk_quality.ChunkQualityTests.test_adaptive_split_handles_grimgar_sized_failure",
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_labels_full_and_split_attempt_telemetry",
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_recombines_and_carries_context",
     "test_chunk_quality.ChunkQualityTests.test_adaptive_split_recurses_when_a_half_itself_needs_splitting",
@@ -284,6 +285,7 @@
     "test_chunk_quality.ChunkQualityTests.test_complete_japanese_text_uses_character_units",
     "test_chunk_quality.ChunkQualityTests.test_complete_resegmented_response_passes_without_mutation",
     "test_chunk_quality.ChunkQualityTests.test_dropped_middle_paragraph_reports_missing_span",
+    "test_chunk_quality.ChunkQualityTests.test_extreme_phrase_repetition_is_collapsed_with_evidence",
     "test_chunk_quality.ChunkQualityTests.test_final_gate_requires_whole_book_quality_and_zero_blockers",
     "test_chunk_quality.ChunkQualityTests.test_final_repair_removes_unique_duplicate_across_chunk_boundary",
     "test_chunk_quality.ChunkQualityTests.test_generation_checkpoint_rejects_unvalidated_chunk",
@@ -300,6 +302,7 @@
     "test_chunk_quality.ChunkQualityTests.test_malformed_and_empty_entries_fail_structural_checks",
     "test_chunk_quality.ChunkQualityTests.test_missing_japanese_span_fails_recall",
     "test_chunk_quality.ChunkQualityTests.test_missing_japanese_span_reports_character_preview",
+    "test_chunk_quality.ChunkQualityTests.test_normal_repetition_and_authorial_elongation_are_untouched",
     "test_chunk_quality.ChunkQualityTests.test_passing_report_has_no_missing_spans",
     "test_chunk_quality.ChunkQualityTests.test_quality_manifest_persists_near_miss_accepted_chunks",
     "test_chunk_quality.ChunkQualityTests.test_quality_manifest_summarizes_chunks_without_copying_entries",
@@ -1338,6 +1341,7 @@
   ],
   "test_source_span_coverage": [
     "test_source_span_coverage.SourceSpanCoverageTests.test_complete_declarations_pass",
+    "test_source_span_coverage.SourceSpanCoverageTests.test_experiment_uses_production_preprocessing",
     "test_source_span_coverage.SourceSpanCoverageTests.test_missing_unknown_and_malformed_declarations_fail_loudly",
     "test_source_span_coverage.SourceSpanCoverageTests.test_spans_keep_order_and_stable_ids"
   ],

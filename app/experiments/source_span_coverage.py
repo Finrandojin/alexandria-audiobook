@@ -25,6 +25,14 @@ TAGGED SOURCE:
 {tagged_source}"""
 
 
+def get_experiment_chunks(book, chunk_size):
+    """Return chunks from the same source text production generation sees."""
+    from generate_script import get_preprocessed_source, split_into_chunks
+
+    book, _ = get_preprocessed_source(book)
+    return split_into_chunks(book, max_size=chunk_size)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--source", required=True)
@@ -35,8 +43,7 @@ def main():
 
     from openai import OpenAI
     from chunk_quality import validate_chunk_quality
-    from generate_script import (LLMGenParams, call_llm_for_entries, process_chunk,
-                                 split_into_chunks)
+    from generate_script import LLMGenParams, call_llm_for_entries, process_chunk
     from source_span_coverage import (format_tagged_source, get_source_spans,
                                       get_span_coverage_findings)
     from utils import atomic_json_write
@@ -46,7 +53,7 @@ def main():
     with open(os.path.join(APP, "config.json"), encoding="utf-8") as handle:
         config = json.load(handle)
     generation = config.get("generation") or {}
-    chunks = split_into_chunks(book, max_size=generation.get("chunk_size", 6000))
+    chunks = get_experiment_chunks(book, generation.get("chunk_size", 6000))
     if not 1 <= args.chunk <= len(chunks):
         raise SystemExit(f"chunk {args.chunk} outside 1..{len(chunks)}")
     source = chunks[args.chunk - 1]
