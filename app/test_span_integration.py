@@ -78,7 +78,7 @@ from generate_script import (  # noqa: E402
     looks_silently_truncated,
     strip_thinking_tags,
 )
-from speaker_canon import remember_in_roster
+from speaker_canon import remember_in_roster, source_word_index
 
 
 # --------------------------------------------------------------------------
@@ -646,6 +646,51 @@ class TestRoleMissingDegrades(unittest.TestCase):
         self.assertFalse(stats["degraded"])
 
 
+class TestUnknownLabelKeysAreVisible(unittest.TestCase):
+    """A key outside the schema is discarded -- but never silently.
+
+    Observed in production: the model wrote "instituct" instead of "instruct",
+    so the delivery direction vanished with no counter and no warning. Nothing
+    is repaired here (no fuzzy key matching); the discard is only reported.
+    """
+
+    def test_misspelled_key_is_counted_and_logged(self):
+        chunk = STRAIGHT_QUOTES
+        labels = labels_for(chunk)
+        for label in labels:
+            label["instituct"] = label.pop("instruct")
+        _, stats, output = run_chunk(FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        self.assertEqual(stats["unknown_key_labels"], len(labels))
+        self.assertEqual(stats["unknown_keys"], ["instituct"])
+        self.assertIn("instituct", output)
+        self.assertIn("Ignored unknown key", output)
+        self.assertEqual(stats["text_key_labels"], 0)
+
+    def test_known_schema_produces_no_warning(self):
+        chunk = STRAIGHT_QUOTES
+        labels = labels_for(chunk)
+        _, stats, output = run_chunk(FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        self.assertEqual(stats["unknown_key_labels"], 0)
+        self.assertEqual(stats["unknown_keys"], [])
+        self.assertEqual(stats["text_key_labels"], 0)
+        self.assertNotIn("Ignored unknown key", output)
+
+    def test_text_key_is_not_honoured_and_is_reported_on_its_own(self):
+        chunk = STRAIGHT_QUOTES
+        labels = labels_for(chunk)
+        for label in labels:
+            label["text"] = "MODEL-INVENTED PROSE"
+        entries, stats, output = run_chunk(FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        self.assertEqual(joined(entries), chunk, "prose must come from the source only")
+        for entry in entries:
+            self.assertNotIn("MODEL-INVENTED PROSE", entry["text"])
+        self.assertEqual(stats["text_key_labels"], len(labels))
+        self.assertIn('"text" key', output)
+
+
 class TestNoWhitespaceOnlyEntries(unittest.TestCase):
     """A paragraph break between two speakers must not become its own entry."""
 
@@ -964,6 +1009,65 @@ class TestRetryOnIncompleteLabels(unittest.TestCase):
         self.assertIn("unusable role", output)
         self.assertIn("neither \"dialogue\" nor \"narration\": 1", client.user_prompts[1])
 
+    def test_dialogue_without_speaker_is_retried(self):
+        # role is good and says "dialogue", but no name came with it. Before the
+        # predicate had a branch for it this was neither missing, nor bad-role,
+        # nor unattested, so the loop broke on attempt 1 and the span was
+        # narrated in silence -- 26/27 such labels on a live chunk, ZERO retries.
+        bad = self._labels([1, 2, 3, 4, 5, 6])
+        bad[0]["speaker"] = ""
+        client = FakeClient(
+            FakeResponse(json.dumps(bad)),
+            FakeResponse(self._json([1])),
+        )
+        entries, stats, output = run_chunk(client, self.CHUNK)
+
+        self.assertEqual(client.calls, 2, "the gap must be retried, not swallowed")
+        self.assertEqual(stats["dialogue_without_speaker"], 0, "the retry filled it")
+        self.assertFalse(stats["degraded"])
+        self.assertEqual(entries[0]["speaker"], "ELENA")
+        self.assertEqual(joined(entries), self.CHUNK)
+        self.assertIn("no speaker", output)
+        self.assertIn('no usable "speaker"', client.user_prompts[1])
+        self.assertIn("1", client.user_prompts[1])
+
+    def test_narrator_dialogue_label_is_not_retried(self):
+        # NARRATOR is a usable name, so resolve_span_labels does not count it as
+        # dialogue_without_speaker -- the predicate must not nag about it either.
+        labels = self._labels([1, 2, 3, 4, 5, 6], speaker="NARRATOR")
+        for label in labels:
+            label["role"] = "dialogue"
+        client = FakeClient(FakeResponse(json.dumps(labels)))
+        _, stats, _ = run_chunk(client, self.CHUNK)
+        self.assertEqual(client.calls, 1, "nothing to correct")
+        self.assertEqual(stats["dialogue_without_speaker"], 0)
+
+    def test_predicate_and_resolver_agree_on_every_label_shape(self):
+        # The recurring failure mode in this file: _incomplete_span_ids and
+        # resolve_span_labels drift apart, so a label is either nagged about
+        # without ever being counted, or counted without ever being retried.
+        # Property, not fixture: sweep the label shapes and assert agreement.
+        speakers = [None, "", "   ", "ELENA", "NARRATOR", "narrator", 7]
+        roles = [None, "", "dialogue", "DIALOGUE ", "narration", "thought"]
+        for speaker in speakers:
+            for role in roles:
+                label = {"id": 1}
+                if speaker is not None:
+                    label["speaker"] = speaker
+                if role is not None:
+                    label["role"] = role
+                with self.subTest(speaker=speaker, role=role):
+                    _, bad_role, no_speaker = generate_script._incomplete_span_ids(
+                        self.spans, {1: label}, source=self.CHUNK)
+                    _, stats = resolve_span_labels(
+                        self.spans, [label], source=self.CHUNK, roster={})
+                    self.assertEqual(
+                        1 in bad_role, bool(stats["role_missing"]),
+                        "bad_role must mirror role_missing exactly")
+                    self.assertEqual(
+                        1 in no_speaker, bool(stats["dialogue_without_speaker"]),
+                        "no_speaker must mirror dialogue_without_speaker exactly")
+
     # --- monotonicity: a retry can never make things worse ----------------
 
     def test_worse_retry_cannot_overwrite_good_labels(self):
@@ -1209,6 +1313,62 @@ class TestSalvageAndPayload(unittest.TestCase):
         text = '[{"id": 1, "speaker": "A", "role": "dialogue", "instruct": "x"}, {"id": 2, "speaker": "B"'
         labels = salvage_label_entries(text)
         self.assertEqual([label["id"] for label in labels], [1, 2])
+
+    # --- unquoted (bareword) values: complete output, invalid JSON ---------
+    #
+    # Observed live: {"id": 1, "speaker": KIT, "role": dialogue, "instruct": "x"}
+    # at finish_reason=stop. The quoted-only patterns dropped speaker and role in
+    # silence, collapsing whole chunks into a single NARRATOR entry.
+
+    def test_salvage_recovers_bareword_speaker_and_role(self):
+        text = '[{"id": 1, "speaker": KIT, "role": dialogue, "instruct": "Angry."}]'
+        labels = salvage_label_entries(text)
+        self.assertEqual(labels, [{"id": 1, "speaker": "KIT", "role": "dialogue",
+                                   "instruct": "Angry."}])
+
+    def test_bareword_value_does_not_bleed_into_the_next_key(self):
+        # The terminator rules are the whole safety story here: a greedy value
+        # would swallow `, "role": ...` and produce a speaker named after the
+        # rest of the object.
+        cases = [
+            '[{"id": 2, "speaker": ROSHAUN\'S FATHER, "role": dialogue, "instruct": "x"}]',
+            '[{"id": 2, "role": dialogue, "speaker": ROSHAUN\'S FATHER, "instruct": "x"}]',
+            '[{"id": 2, "instruct": "x", "role": dialogue, "speaker": ROSHAUN\'S FATHER}]',
+        ]
+        for text in cases:
+            with self.subTest(text=text):
+                label = salvage_label_entries(text)[0]
+                self.assertEqual(label["speaker"], "ROSHAUN'S FATHER")
+                self.assertEqual(label["role"], "dialogue")
+
+    def test_bareword_fallback_never_preempts_a_quoted_value(self):
+        text = '[{"id": 3, "speaker": "MARCUS", "role": "narration", "instruct": "Calm."}]'
+        self.assertEqual(
+            salvage_label_entries(text),
+            [{"id": 3, "speaker": "MARCUS", "role": "narration", "instruct": "Calm."}])
+
+    def test_bareword_json_literals_are_not_names(self):
+        text = '[{"id": 4, "speaker": null, "role": dialogue, "instruct": "x"}]'
+        label = salvage_label_entries(text)[0]
+        self.assertNotIn("speaker", label, "`null` means no answer, not a character")
+
+    def test_bareword_instruct_is_not_salvaged(self):
+        # Deliberate: instruct was always quoted in the logged failures, and it
+        # is free prose whose commas make an unterminated scan unsafe.
+        text = '[{"id": 5, "speaker": KIT, "role": dialogue, "instruct": Angry, loud.}]'
+        label = salvage_label_entries(text)[0]
+        self.assertEqual(label["speaker"], "KIT")
+        self.assertNotIn("instruct", label)
+
+    def test_bareword_salvage_is_announced(self):
+        chunk = '"One." said A.'
+        text = '[{"id": 1, "speaker": KIT, "role": dialogue, "instruct": "Angry."}]'
+        client = FakeClient(FakeResponse(text))
+        entries, _, output = run_chunk(client, chunk)
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual(entries[0]["speaker"], "KIT",
+                         "the cast must survive a model that forgot its quotes")
+        self.assertIn("Salvaged unquoted", output)
 
     def test_parse_label_response_handles_clean_json(self):
         text = '[{"id": 1, "speaker": "A", "role": "dialogue", "instruct": "x"}]'
@@ -1901,6 +2061,138 @@ class TestAttestationGate(unittest.TestCase):
                     bool(asked), bool(stats["unattested_rejected"]),
                     f"retry predicate and gate disagree for {speaker!r}: "
                     f"asked={len(asked)} rejected={stats['unattested_rejected']}")
+
+    def test_gate_and_retry_predicate_agree_on_repaired_labels_too(self):
+        # The same invariant with repair in play, which is exactly where it is
+        # easiest to break: a label the gate silently REPAIRS must not be one
+        # the retry predicate keeps nagging about, and vice versa. Both go
+        # through _gate_speaker, and this pins that they still do.
+        chunk = 'Marcus and Marcas leaned over the map. "Then go."\n'
+        spans = tokenize(chunk)
+        source_words = source_word_index(chunk)
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        # MARCVS repairs (unique candidate), MARCS is ambiguous (two roster
+        # names one edit away), ZZQXAL has no candidate at all.
+        ambiguous_roster = dict(roster)
+        remember_in_roster(ambiguous_roster, "MARCAS")
+        cases = [
+            ("MARCVS", roster, False),
+            ("MARCS", ambiguous_roster, True),
+            ("ZZQXAL", roster, True),
+            ("MARCUS", roster, False),
+        ]
+        for speaker, book_roster, expect_rejected in cases:
+            with self.subTest(speaker=speaker):
+                labels = labels_for(chunk, speaker_of=lambda s, t: speaker)
+                for label in labels:
+                    label["role"] = "dialogue"
+                merged = {generate_script._label_id(l): l for l in labels}
+
+                asked = generate_script._unattested_speaker_ids(
+                    spans, merged, source=chunk, roster=book_roster,
+                    attest_window=chunk, source_words=source_words)
+                _, stats = resolve_span_labels(
+                    spans, labels, source=chunk, roster=book_roster,
+                    attest_window=chunk, require_attested=True,
+                    source_words=source_words)
+
+                self.assertEqual(
+                    bool(asked), bool(stats["unattested_rejected"]),
+                    f"retry predicate and gate disagree for {speaker!r}: "
+                    f"asked={len(asked)} rejected={stats['unattested_rejected']}")
+                self.assertEqual(bool(stats["unattested_rejected"]), expect_rejected,
+                                 f"unexpected gate outcome for {speaker!r}")
+
+    def test_label_built_on_a_roster_name_is_accepted_as_unverifiable(self):
+        # Change 1: "<established name>'S FATHER" is not positive evidence of a
+        # WRONG label, so it must not be refused. The voice is kept and the
+        # acceptance is counted.
+        chunk = STRAIGHT_QUOTES  # names "Marcus"
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCUS'S FATHER"))))
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk,
+            roster=roster)
+        self.assertEqual(stats["unattested_rejected"], 0)
+        # Counted once: accepting it establishes it, and the second span then
+        # takes the established-roster shortcut.
+        self.assertEqual(stats["unverifiable_accepted"], 1)
+        self.assertIn("MARCUS'S FATHER", [e["speaker"] for e in entries])
+
+    def test_repair_keeps_the_voice_without_spending_a_retry(self):
+        # Change 2, and its whole economic argument: a misread spelling the
+        # book never uses, one edit from an established name that is right
+        # there in the window, is repaired in place -- ONE LLM call, no retry,
+        # and the line keeps a character voice instead of being narrated.
+        chunk = STRAIGHT_QUOTES  # names "Marcus", never "MARCVS"
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCVS"))))
+        entries, stats, output = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk,
+            roster=roster, source_words=source_word_index(chunk))
+
+        self.assertEqual(len(client.user_prompts), 1,
+                         "repair must not cost a retry")
+        self.assertIn("MARCUS", [e["speaker"] for e in entries])
+        self.assertNotIn("MARCVS", [e["speaker"] for e in entries])
+        self.assertEqual(stats["unattested_rejected"], 0)
+        self.assertEqual(stats["speakers_repaired"], 2)
+        self.assertEqual(stats["repairs"], [("MARCVS", "MARCUS")] * 2)
+        self.assertFalse(stats["degraded"])
+        # Contract 7: a rewritten name is never silent.
+        self.assertIn("REPAIRED", output)
+        self.assertIn("MARCVS", output)
+        # And prose is untouched, as under every other gate outcome.
+        self.assertEqual(joined(entries), chunk)
+
+    def test_repair_is_unavailable_without_a_book_word_index(self):
+        # The default is the old behaviour: no book index, no repair.
+        chunk = STRAIGHT_QUOTES
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCVS")))] * 3)
+        _, stats, _ = run_chunk(client, chunk, require_attested=True,
+                                attest_window=chunk, roster=roster)
+        self.assertEqual(stats["speakers_repaired"], 0)
+        self.assertEqual(stats["unattested_rejected"], 2)
+
+    def test_ambiguous_repair_is_refused_and_retried(self):
+        # Two established names one edit away: the evidence does not pick a
+        # winner, so the label is refused and the retry fires as before.
+        chunk = 'Marcus and Marcas leaned over the map. "Then go."\n'
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        remember_in_roster(roster, "MARCAS")
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCS")))] * 3)
+        entries, stats, _ = run_chunk(
+            client, chunk, require_attested=True, attest_window=chunk,
+            roster=roster, source_words=source_word_index(chunk))
+        self.assertEqual(stats["speakers_repaired"], 0)
+        self.assertGreater(stats["unattested_rejected"], 0)
+        self.assertGreater(len(client.user_prompts), 1, "a retry should have fired")
+        self.assertEqual(joined(entries), chunk)
+
+    def test_retry_nudge_offers_candidate_spellings_when_repair_declines(self):
+        # A free prompt hint, not a mechanism: the gate still re-checks
+        # whatever comes back.
+        chunk = 'Marcus and Marcas leaned over the map. "Then go."\n'
+        roster = {}
+        remember_in_roster(roster, "MARCUS")
+        remember_in_roster(roster, "MARCAS")
+        client = FakeClient(*[FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "MARCS")))] * 3)
+        run_chunk(client, chunk, require_attested=True, attest_window=chunk,
+                  roster=roster, source_words=source_word_index(chunk))
+        retry_prompt = client.user_prompts[1]
+        self.assertIn("did you mean", retry_prompt)
+        self.assertIn("MARCUS", retry_prompt)
 
     def test_no_window_means_no_confirmation(self):
         # Guards against a caller enabling the gate without supplying a window

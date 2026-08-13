@@ -39,6 +39,14 @@ Two tiers:
   caller that rejects labels must distinguish "refuted" from "our check does
   not apply here".
 
+  Tier 3b (repair_speaker): the ONE place in this module that rewrites a
+  speaker name. It fires only on a label Tier 3 already ruled UNATTESTED, and
+  only when the book's own text refutes that spelling outright and points at
+  exactly one established alternative. It is a policy argument, NOT a proof of
+  immunity to the fuzzy-merge ban -- read its docstring, including its list of
+  accepted limitations, before touching it. Roster-aware, and therefore takes
+  the roster as an explicit argument, exactly like Tier 1b.
+
 EVERY CHARACTER TEST IN THIS MODULE IS UNICODE, NOT ASCII, AND MUST STAY THAT
 WAY. The pipeline processes non-English books (French honorifics are listed
 below; span_tokenizer.PAIRED_QUOTES carries German, Russian and CJK quote
@@ -705,6 +713,21 @@ def _scan_tokens(text, join_hyphens):
 _CURLY_APOSTROPHE_RE = re.compile("[‘’]")
 
 
+def _split_possessive(word: str):
+    """Fold a single word and split off one trailing possessive "'S".
+
+    Returns ``(base, suffix)`` where ``suffix`` is "'S" or "". The suffix is
+    returned rather than discarded so a caller that REBUILDS a label (see
+    repair_speaker) can put it back: "KITT'S" must repair to "KITT'S", not to
+    a bare "KIT".
+    """
+    folded = _strip_accents(word)
+    folded = _CURLY_APOSTROPHE_RE.sub("'", folded).upper()
+    if folded.endswith("'S") and len(folded) > 2:
+        return folded[:-2], "'S"
+    return folded, ""
+
+
 def _fold_word(word: str) -> str:
     """Fold a single word for attestation comparison: accent-strip, curly
     apostrophes to straight, uppercase, then drop one trailing possessive
@@ -712,11 +735,7 @@ def _fold_word(word: str) -> str:
     apostrophes, so "O'BRIEN" stays "O'BRIEN" on both sides of the
     comparison -- only the glyph is normalized, not the character's presence.
     """
-    folded = _strip_accents(word)
-    folded = _CURLY_APOSTROPHE_RE.sub("'", folded).upper()
-    if folded.endswith("'S") and len(folded) > 2:
-        folded = folded[:-2]
-    return folded
+    return _split_possessive(word)[0]
 
 
 def _window_words(window: str) -> set:
@@ -833,7 +852,63 @@ UNATTESTED = "unattested"
 UNVERIFIABLE = "unverifiable"
 
 
-def attest_speaker(label, windows):
+def _roster_core_tokens(roster_index) -> frozenset:
+    """The union of the core tokens of every name established in ``roster_index``.
+
+    Roster-AWARE, and therefore deliberately NOT part of canonicalize(): the
+    roster arrives as an explicit argument, exactly like roster_key /
+    remember_in_roster / resolve_against_roster. Pure; ``roster_index`` is
+    read, never mutated.
+    """
+    tokens = set()
+    for established in (roster_index or {}).values():
+        tokens.update(_core_tokens(established))
+    return frozenset(tokens)
+
+
+def source_word_index(text: str) -> set:
+    """The set of folded whole words the SOURCE TEXT contains, for callers that
+    need book-wide (not window-local) evidence about a spelling.
+
+    Same folding and same tokenization as attestation windows (_window_words),
+    so a token looked up here compares like with like. Built once per book by
+    the caller and passed down; this module never reads a file.
+    """
+    return _window_words(text or "")
+
+
+def _is_distance_one(a: str, b: str) -> bool:
+    """True iff ``a`` and ``b`` differ by exactly one Levenshtein edit
+    (one substitution, one insertion, or one deletion).
+
+    An explicit BOUNDED predicate, not a similarity ratio and not a library
+    call: `difflib` and rapidfuzz both answer "how alike are these?", which is
+    the question the banned-approaches list forbids acting on. This answers
+    "is there exactly one edit between them?", which is decidable, exact, and
+    cheap -- it early-exits on a length gap of 2 and otherwise makes a single
+    linear pass. Compares Unicode code points, so it is script-agnostic.
+    """
+    if a == b:
+        return False
+    len_a, len_b = len(a), len(b)
+    if abs(len_a - len_b) > 1:
+        return False
+    if len_a == len_b:
+        differences = 0
+        for left, right in zip(a, b):
+            if left != right:
+                differences += 1
+                if differences > 1:
+                    return False
+        return differences == 1
+    shorter, longer = (a, b) if len_a < len_b else (b, a)
+    index = 0
+    while index < len(shorter) and shorter[index] == longer[index]:
+        index += 1
+    return shorter[index:] == longer[index + 1:]
+
+
+def attest_speaker(label, windows, roster_index=None):
     """Three-way attestation verdict for a speaker label: ATTESTED,
     UNATTESTED, or UNVERIFIABLE.
 
@@ -868,6 +943,29 @@ def attest_speaker(label, windows):
                     in any form. This is the only verdict that constitutes
                     positive evidence the label is wrong.
 
+    ROSTER-NAME PARTIAL ATTESTATION (only when ``roster_index`` is given). A
+    label with TWO OR MORE core tokens, at least one of which both (a) appears
+    as a whole word in a window and (b) is itself a core token of a name this
+    book has already established, is UNVERIFIABLE rather than UNATTESTED.
+    Rationale: UNATTESTED is defined as positive evidence that the label is
+    WRONG, and a label built around a name the book has established is not
+    positively wrong -- "KIT'S FATHER" describes a real person the text names
+    obliquely, and the honest answer is "cannot tell", not "refuted". The
+    weaker rule "any attested token" was rejected: it is satisfied by any
+    common noun the model copied out of the prose, which would gut the gate.
+    Requiring a ROSTER token is what keeps it narrow.
+
+    Its cost, stated plainly: the roster is not itself guaranteed clean, so a
+    junk name that reached the roster earlier (an UNVERIFIABLE acceptance, say)
+    lends its tokens to later multi-token labels. The failure is bounded --
+    those labels are ACCEPTED-and-counted rather than silently correct, and
+    prose is never involved -- but it is a real widening of the gate on a book
+    whose roster has already been polluted.
+
+    ``roster_index`` is an explicit argument, never module state: this function
+    stays a pure function of its inputs, and canonicalize() stays roster-free
+    (contract 6). Passing no roster reproduces the previous behaviour exactly.
+
     Deliberately NOT language detection. No script table, no language
     parameter, no per-language branch: the substring probe is a property of
     the text in front of it, so a book in an unsegmented script degrades to
@@ -892,6 +990,16 @@ def attest_speaker(label, windows):
     if result["attested"]:
         return ATTESTED
 
+    # Roster-name partial attestation (see docstring). Checked before the
+    # substring probe because it is the cheaper and more specific rule.
+    if roster_index and len(result["core_tokens"]) >= 2:
+        missing = set(result["missing_tokens"])
+        present = [token for token in result["core_tokens"] if token not in missing]
+        if present:
+            roster_tokens = _roster_core_tokens(roster_index)
+            if any(token in roster_tokens for token in present):
+                return UNVERIFIABLE
+
     # Fold each window once, the same way _fold_word folds a token, so the
     # substring probe compares like with like (accents stripped, curly
     # apostrophes straightened, uppercased) instead of comparing a folded
@@ -906,3 +1014,204 @@ def attest_speaker(label, windows):
             return UNATTESTED
 
     return UNVERIFIABLE
+
+
+# ---------------------------------------------------------------------------
+# Tier 3b: repair_speaker()
+#
+# HONEST FRAMING FIRST. This is a single-edit spelling repair, and it is NOT
+# structurally immune to the "no fuzzy auto-merging of speaker names" ban in
+# the same way roster_key() is. roster_key() cannot merge two names the book
+# supports, as a matter of arithmetic: they have different letters, so they
+# have different keys, full stop. Repair has no such proof available. The
+# argument for it is a POLICY argument -- that a spelling which the author's
+# text never uses is not a name the book supports, so folding it onto a
+# spelling the text does use is a correction rather than a merge -- and the
+# guards below are what make that argument hold often enough to be worth
+# shipping. Every one of them can be defeated by a book with the right shape,
+# and the ACCEPTED LIMITATIONS section names the shapes.
+# ---------------------------------------------------------------------------
+
+
+def _repair_candidate_pool(roster_index, window_words, source_words):
+    """Core tokens of established roster names that are ALSO attested as whole
+    words both in the label's own window and in the book at large.
+
+    The book-wide condition is amendment (b): a repair must never target a
+    roster name that was never source-attested, or roster pollution
+    self-propagates -- a junk name accepted once would then start rewriting
+    real names onto itself.
+    """
+    return {
+        token for token in _roster_core_tokens(roster_index)
+        if token in window_words and token in source_words
+    }
+
+
+def repair_speaker(canonical, windows, roster_index, source_words):
+    """Repair a REFUTED speaker label onto an established spelling, or refuse.
+
+    Call this ONLY on a label the attestation gate has already ruled
+    UNATTESTED. Returns the repaired canonical name, or ``None`` to refuse --
+    and refusing is the default: every condition below must hold.
+
+      1. The label is non-empty, is not NARRATOR, and is not itself an
+         established roster name (an established name is never refuted).
+      2. A roster and a book-wide word index are both available. With neither,
+         there is no evidence to repair from, so nothing is repaired.
+      3. THE BOOK NEVER SPELLS IT THAT WAY. Every token being repaired must be
+         absent, as a whole word, from the WHOLE BOOK -- not merely from the
+         label's own window. This is the load-bearing guard and it replaces
+         the minimum-token-length floor an earlier design proposed (see WHY NO
+         LENGTH FLOOR below).
+      4. Candidates are core tokens of names already established in this
+         book's roster that also occur as whole words in this label's own
+         attestation window AND in the book at large (_repair_candidate_pool).
+      5. Exactly ONE candidate lies at Levenshtein distance 1 (_is_distance_one
+         -- an exact bounded predicate, never a similarity ratio), AND no
+         OTHER roster token anywhere in the book's roster lies at distance 1
+         either. Two or more of either kind means the evidence does not pick a
+         winner, so it refuses.
+      6. Tokens that already attest are kept verbatim, in place, with their
+         possessive intact; only refuted tokens are substituted.
+      7. The rebuilt name must fully ATTEST against the same windows, or it is
+         refused. A repair that still would not pass the gate is not a repair.
+
+    WHY NO LENGTH FLOOR. A minimum token length ("only repair tokens of 4+
+    characters") is a constant with no general justification: it is only ever
+    chosen by measuring collisions on one book's roster, and it neither
+    protects a long name (ANDRE/ANDREA are both long) nor is needed by a short
+    one the book never spells (KITT). It was replaced by two guards that are
+    properties of whatever book is loaded, not of any particular one:
+      * condition 3 scales with the book: the shorter and more word-like a
+        token is, the likelier the author's own prose contains it, and the
+        likelier this guard fires. "TWIN" is refused on any book that uses the
+        word "twin"; a 12-letter invented misspelling is refused on any book
+        that happens to contain it. Nothing is tuned -- the book decides.
+      * condition 5 scales with the cast: ambiguity is measured against the
+        ENTIRE roster, not just the tokens visible in this window, so the
+        denser a book's name-space is, the more often repair declines. A book
+        with ANDREA and ANDRES in the cast repairs neither.
+    DEGRADATION ON UNLIKE BOOKS: on a book with a very small vocabulary
+    (short texts) guard 3 is weak because absence proves less; on a book whose
+    cast names are near-anagrams of ordinary words, repair simply stops firing
+    (a lost voice, never wrong prose). On a non-segmenting script (Chinese,
+    Japanese, Thai) whole-word evidence is unavailable, so the gate returns
+    UNVERIFIABLE and repair is never reached at all.
+
+    ACCEPTED LIMITATIONS (adversarial cases; not papered over):
+      * ANDRE -> ANDREA, where ANDRE is a real character who is never named in
+        his own window (pronoun-only attribution) but IS named elsewhere in the
+        book: PREVENTED by guard 3. If ANDRE is a real character whose name
+        appears NOWHERE in the entire book, the repair still fires and is
+        wrong. Accepted: the model cannot have read a name the book never
+        contains, so such a label is far likelier invention than knowledge --
+        but it can come from the model's memory of a famous text, and then this
+        is a genuine mis-attribution.
+      * MARIA -> MARIE with MARIE polluted into the roster by an earlier bad
+        label: PREVENTED by guard 4's book-wide condition whenever the junk
+        name is not a whole word of the book (which is how such names get in --
+        via UNVERIFIABLE substring-only matches). NOT prevented when the junk
+        target happens to be a genuine word of the book.
+      * ANDRE with an acute accent -> ANDREA: PREVENTED by guard 3. Accents are
+        folded on BOTH sides, so the accented spelling is found in the book's
+        own word index and the label is left alone.
+      * YUSUF -> YUSUP (transliteration variants): PREVENTED by guard 3 when
+        the book uses both spellings. When the book only ever spells YUSUP, the
+        repair fires -- and is then correct by construction, since the other
+        spelling is the model's own invention.
+      * TWIN -> TWINS (plural/singular): PREVENTED by guard 3 on any book that
+        uses the singular word anywhere. A book that writes only "twins", never
+        "twin", would repair it. Accepted, and bounded: the result is an
+        existing roster name, so the cost is one line in the wrong existing
+        voice, never a new voice and never altered prose.
+
+    Pure: no I/O, no globals, and neither ``windows``, ``roster_index`` nor
+    ``source_words`` is mutated. Deterministic and idempotent -- a repaired
+    name attests, so feeding it back returns None (nothing left to repair).
+
+    Args:
+        canonical: the canonical UPPERCASE label the gate refused.
+        windows: the label's own source windows (as passed to attest_speaker).
+        roster_index: {roster_key: established_spelling} for this book.
+        source_words: the whole book's folded word set (source_word_index()).
+
+    Returns:
+        The repaired canonical name, or None.
+    """
+    if not canonical or canonical == "NARRATOR":
+        return None
+    if not roster_index or not source_words:
+        return None
+    if roster_key(canonical) in roster_index:
+        return None
+
+    core_tokens = _core_tokens(canonical)
+    if not core_tokens:
+        return None
+
+    window_words = set()
+    for window in windows or []:
+        if window:
+            window_words |= _window_words(window)
+    if not window_words:
+        return None
+
+    refuted = [token for token in core_tokens if token not in window_words]
+    if not refuted:
+        return None
+
+    # Guard 3: never touch a spelling the author's own text uses.
+    if any(token in source_words for token in refuted):
+        return None
+
+    roster_tokens = _roster_core_tokens(roster_index)
+    pool = _repair_candidate_pool(roster_index, window_words, source_words)
+
+    substitutions = {}
+    for token in set(refuted):
+        near_roster = [c for c in roster_tokens if _is_distance_one(token, c)]
+        if len(near_roster) != 1:
+            return None
+        near_pool = [c for c in pool if _is_distance_one(token, c)]
+        if len(near_pool) != 1:
+            return None
+        substitutions[token] = near_pool[0]
+
+    rebuilt = []
+    for raw_token in canonical.split():
+        base, suffix = _split_possessive(raw_token)
+        rebuilt.append(substitutions[base] + suffix if base in substitutions else raw_token)
+
+    repaired = " ".join(rebuilt).strip()
+    if not repaired or repaired == canonical:
+        return None
+    if attest_speaker(repaired, windows) != ATTESTED:
+        return None
+    return repaired
+
+
+def near_spellings(canonical, windows, roster_index):
+    """Established roster spellings within one edit of a refuted label token,
+    for use as a PROMPT HINT when repair declines.
+
+    Advisory only and deliberately unguarded compared with repair_speaker: it
+    lists possibilities for the model to choose from (or ignore -- a prompt
+    cannot enforce anything), it never changes a label. Returns a sorted list
+    of candidate tokens, possibly empty. Pure; mutates nothing.
+    """
+    if not canonical or not roster_index:
+        return []
+    window_words = set()
+    for window in windows or []:
+        if window:
+            window_words |= _window_words(window)
+    roster_tokens = _roster_core_tokens(roster_index)
+    candidates = set()
+    for token in _core_tokens(canonical):
+        if token in window_words:
+            continue
+        for candidate in roster_tokens:
+            if _is_distance_one(token, candidate):
+                candidates.add(candidate)
+    return sorted(candidates)

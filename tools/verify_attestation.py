@@ -14,6 +14,13 @@ fabricated voice -- is only safe if the real-world rejection rate is known.
 That number cannot be obtained from an offline property test, because it
 depends entirely on the book and the model. This script measures it.
 
+The gate does not simply reject every UNATTESTED label: a refuted spelling the
+book never uses, one edit from an established name that is present in the
+label's own window, is REPAIRED onto that name (speaker_canon.repair_speaker).
+This report mirrors that, so the "would be rejected" number stays the number a
+real run would produce -- and it itemizes the repairs separately, because a
+repair silently changes who a line is attributed to and deserves an audit.
+
 Read-only: it opens annotated_script.json and the source text, writes nothing,
 calls no LLM and touches no network. Run it before enabling any gate, and
 again after, to see what changed.
@@ -51,6 +58,8 @@ from speaker_canon import (  # noqa: E402  (must follow the sys.path tweak)
     UNVERIFIABLE,
     attest_speaker,
     remember_in_roster,
+    repair_speaker,
+    source_word_index,
 )
 
 # Deliberately mirrors app.py's _compute_label_flags so this dry run measures
@@ -134,6 +143,11 @@ def analyze(script_data, source_text, max_sampled, radius):
             continue
         by_speaker.setdefault(canonical, []).append(entry.get("text") or "")
 
+    # Book-wide word index and full roster, so the dry run can mirror the
+    # generation-time gate INCLUDING its bounded repair step. Without these two
+    # the dry run would over-report rejections relative to what a real run does.
+    source_words = source_word_index(source_text)
+
     report = []
     for name, texts in by_speaker.items():
         windows = []
@@ -149,12 +163,27 @@ def analyze(script_data, source_text, max_sampled, radius):
             end = min(len(source_text), found + len(text) + radius)
             windows.append(source_text[start:end])
 
+        # The roster this label would face at generation time is not knowable
+        # after the fact, so the dry run uses the FULL roster of the finished
+        # script -- an upper bound on what was established, and therefore an
+        # upper bound on both partial attestation and repair.
+        # The label itself is excluded from that roster: at generation time an
+        # established name skips the gate entirely, so leaving it in would make
+        # every label trivially attested and the report useless.
+        others = {key: value for key, value in roster_index.items()
+                  if value != name}
+        verdict = attest_speaker(name, windows, roster_index=others)
+        repaired = None
+        if verdict == UNATTESTED:
+            repaired = repair_speaker(name, windows, others, source_words)
+
         report.append({
             "name": name,
             "entry_count": len(texts),
             "sampled": min(len(texts), max_sampled),
             "located": located,
-            "verdict": attest_speaker(name, windows),
+            "verdict": verdict,
+            "repaired_to": repaired,
         })
 
     report.sort(key=lambda row: (-row["entry_count"], row["name"]))
@@ -197,7 +226,20 @@ def summarize(report, script_data):
               f"{entries:>10} {pct(entries, dialogue_entries)}")
     print("-" * 72)
 
-    rejected = by_verdict[UNATTESTED]
+    repairable = [row for row in by_verdict[UNATTESTED] if row["repaired_to"]]
+    if repairable:
+        repaired_entries = sum(row["entry_count"] for row in repairable)
+        print()
+        print("Of the UNATTESTED labels, these would NOT be rejected: bounded")
+        print("repair folds them onto an established spelling the book actually")
+        print("uses (speaker_canon.repair_speaker), so they keep a voice -- but")
+        print("under a name the model did not emit. Audit them:")
+        print(f"    {len(repairable)} speakers, {repaired_entries} entries")
+        for row in sorted(repairable, key=lambda r: -r["entry_count"]):
+            print(f"      {row['entry_count']:>6}  \"{row['name']}\" -> "
+                  f"\"{row['repaired_to']}\"")
+
+    rejected = [row for row in by_verdict[UNATTESTED] if not row["repaired_to"]]
     rejected_entries = sum(row["entry_count"] for row in rejected)
     print()
     print("If a gate rejected only UNATTESTED labels (the only verdict that is")
@@ -224,8 +266,10 @@ def list_rows(by_verdict, which):
         print(f"--- {verdict} ({len(rows)} speakers, most entries first) ---")
         print(f"{'entries':>8}  {'located':>8}  name")
         for row in rows:
+            suffix = (f"  -> repaired to \"{row['repaired_to']}\""
+                      if row.get("repaired_to") else "")
             print(f"{row['entry_count']:>8}  "
-                  f"{row['located']:>3}/{row['sampled']:<4}  {row['name']}")
+                  f"{row['located']:>3}/{row['sampled']:<4}  {row['name']}{suffix}")
 
 
 def main():

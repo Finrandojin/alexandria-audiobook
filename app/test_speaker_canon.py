@@ -18,10 +18,13 @@ from speaker_canon import (
     suggest_aliases,
     attest_label,
     attest_speaker,
+    repair_speaker,
+    source_word_index,
     ATTESTED,
     UNATTESTED,
     UNVERIFIABLE,
     _core_tokens,
+    _is_distance_one,
 )
 
 _failures = []
@@ -979,6 +982,278 @@ def test_attest_speaker_verdicts_are_the_exported_constants():
     check_equal(UNVERIFIABLE, "unverifiable", "UNVERIFIABLE constant value")
 
 
+# ---------------------------------------------------------------------------
+# Roster-name partial attestation (attest_speaker's roster_index argument)
+# ---------------------------------------------------------------------------
+
+def _roster(*names):
+    """Build a roster index the way generate_script does."""
+    index = {}
+    for name in names:
+        remember_in_roster(index, name)
+    return index
+
+
+def test_partial_attestation_accepts_a_label_built_on_a_roster_name():
+    # "<name>'S FATHER" describes a real person the text names obliquely. The
+    # book has established the name, so the label is not positively WRONG --
+    # it is unconfirmable, which is what UNVERIFIABLE means.
+    windows = ["Brannoc ran ahead down the shingle, shouting."]
+    label = canonicalize("Brannoc's father")
+    check_equal(attest_speaker(label, windows), UNATTESTED,
+                "without a roster the label is still refuted")
+    check_equal(attest_speaker(label, windows, roster_index=_roster("BRANNOC")),
+                UNVERIFIABLE,
+                "an attested ROSTER token softens the verdict to unverifiable")
+
+
+def test_partial_attestation_requires_the_attested_token_to_be_a_roster_name():
+    # The rejected weaker rule ("any attested token") would be satisfied by any
+    # common noun copied out of the prose. This is what keeps it narrow.
+    windows = ["A heron lifted off the water."]
+    check_equal(
+        attest_speaker("TRANSFORMED HERON", windows, roster_index=_roster("BRANNOC")),
+        UNATTESTED,
+        "a common noun from the prose is not a roster name")
+
+
+def test_partial_attestation_needs_two_or_more_core_tokens():
+    windows = ["The lamp guttered and went out."]
+    check_equal(attest_speaker("BRANNOC", windows, roster_index=_roster("BRANNOC OF ESK")),
+                UNATTESTED,
+                "a single-token label is not partially attested")
+
+
+def test_partial_attestation_still_refutes_when_every_token_is_missing():
+    windows = ["The lamp guttered and went out."]
+    check_equal(
+        attest_speaker("BRANNOC ESKELLAN", windows, roster_index=_roster("BRANNOC")),
+        UNATTESTED,
+        "no attested token at all is still positive evidence")
+
+
+def test_attest_label_boolean_contract_is_unchanged_by_the_roster_rule():
+    # attest_label takes no roster and must keep its boolean meaning: the UI
+    # badge and the label_flags endpoint depend on it.
+    windows = ["Brannoc ran ahead down the shingle, shouting."]
+    result = attest_label(canonicalize("Brannoc's father"), windows)
+    check(result["attested"] is False, "attest_label stays False for a missing token")
+    check_equal(result["missing_tokens"], ["FATHER"], "attest_label still names the gap")
+
+
+# ---------------------------------------------------------------------------
+# repair_speaker(): the five adversarial cases FIRST
+#
+# These are the acceptance criteria for the repair design, not the clean
+# repairs it was built for. Every name and every sentence here is invented.
+# ---------------------------------------------------------------------------
+
+def _book(*sentences):
+    return source_word_index(" ".join(sentences))
+
+
+def test_repair_refuses_a_real_character_named_elsewhere_in_the_book():
+    # ADVERSARIAL 1 (ANDRE -> ANDREA). Veldor is a real character whose own
+    # scene attributes his lines with pronouns only, and Velder happens to be
+    # standing there. The whole-book guard is what stops the merge: the author
+    # spells "Veldor" somewhere, so it is not a refuted spelling.
+    windows = ['Velder set down the tray. "Then say it plainly," he answered.']
+    book = _book("Veldor had come down from the pass a week earlier.",
+                 "Velder set down the tray.")
+    roster = _roster("VELDER")
+    check_equal(attest_speaker("VELDOR", windows, roster_index=roster), UNATTESTED,
+                "the gate still refutes the label")
+    check_equal(repair_speaker("VELDOR", windows, roster, book), None,
+                "a spelling the book uses is never repaired")
+
+
+def test_repair_of_a_name_the_book_never_contains_is_an_accepted_limitation():
+    # The honest other half of ADVERSARIAL 1, pinned so nobody claims the
+    # design is airtight: if the character's name appears NOWHERE in the book,
+    # repair does fire and is wrong. Documented in repair_speaker's docstring.
+    windows = ['Velder set down the tray. "Then say it plainly," he answered.']
+    book = _book("Velder set down the tray.")
+    check_equal(repair_speaker("VELDOR", windows, _roster("VELDER"), book),
+                "VELDER",
+                "known limitation: a name absent from the whole book is repaired")
+
+
+def test_repair_refuses_a_target_the_source_never_attested():
+    # ADVERSARIAL 2 (MARIA -> MARIE with a polluted roster). "MIRVE" reached
+    # the roster from a substring-only (UNVERIFIABLE) acceptance -- the book
+    # contains "Mirvenholm", never the bare word. Amendment (b): a repair must
+    # not target a roster name that was itself never source-attested, or the
+    # pollution rewrites real names onto itself.
+    windows = ["The road out of Mirvenholm was flooded to the axles."]
+    book = _book("The road out of Mirvenholm was flooded to the axles.",
+                 "Mirva waited at the ford.")
+    roster = _roster("MIRVE")
+    check_equal(repair_speaker("MIRVA", windows, roster, book), None,
+                "a roster name the book never spells as a word is not a target")
+
+
+def test_repair_refuses_across_a_diacritic_fold():
+    # ADVERSARIAL 3 (ANDRÉ -> ANDREA). Accents fold on BOTH sides, so the
+    # accented spelling is found in the book's own word index and the two real
+    # people are left apart.
+    windows = ['Theona turned the key. "It was never locked," she said.']
+    book = _book("Thíona had carried the lamp up herself.",
+                 "Theona turned the key.")
+    check_equal(repair_speaker("THIONA", windows, _roster("THEONA"), book), None,
+                "an accented real name is protected by the folded word index")
+
+
+def test_repair_refuses_a_transliteration_variant_the_book_uses():
+    # ADVERSARIAL 4 (YUSUF -> YUSUP). Both spellings occur in the book, so
+    # neither is refuted.
+    windows = ['Yusap looked up. "Not today," he said.']
+    book = _book("Yusaf of the northern house signed the charter.",
+                 "Yusap looked up.")
+    check_equal(repair_speaker("YUSAF", windows, _roster("YUSAP"), book), None,
+                "a variant the book itself uses is never repaired")
+
+
+def test_repair_refuses_a_plural_singular_pair_the_book_uses():
+    # ADVERSARIAL 5 (TWIN -> TWINS). Any book that uses the singular word
+    # anywhere is protected; a book that never does is the documented residual.
+    # (A pair like this is doubly protected in practice: the singular is also a
+    # SUBSTRING of the plural, so the gate returns UNVERIFIABLE and never
+    # reaches repair at all. This asserts the repair guard directly.)
+    windows = ["The twins had not spoken since the crossing."]
+    book = _book("The twins had not spoken since the crossing.",
+                 "Each twin carried half the water.")
+    check_equal(repair_speaker("TWIN", windows, _roster("TWINS"), book), None,
+                "a singular the book uses as a word is never repaired")
+
+
+# ---------------------------------------------------------------------------
+# repair_speaker(): the guards
+# ---------------------------------------------------------------------------
+
+WINDOW_BRANNOC = ['Brannoc set down the lamp. "It is done," he said.']
+BOOK_BRANNOC = _book('Brannoc set down the lamp. "It is done," he said.',
+                     "Vella waited by the door.")
+
+
+def test_repair_folds_a_unique_distance_one_misspelling():
+    check_equal(repair_speaker("BRANOC", WINDOW_BRANNOC, _roster("BRANNOC"),
+                               BOOK_BRANNOC),
+                "BRANNOC",
+                "one refuted token, one established candidate one edit away")
+
+
+def test_repair_keeps_attested_tokens_verbatim():
+    windows = ["Brannoc of Esk set down the lamp."]
+    book = _book("Brannoc of Esk set down the lamp.")
+    check_equal(repair_speaker("BRANOC OF ESK", windows,
+                               _roster("BRANNOC", "ESK"), book),
+                "BRANNOC OF ESK",
+                "only the refuted token is substituted; the rest is untouched")
+
+
+def test_repair_refuses_when_two_candidates_are_one_edit_away():
+    windows = ["Brannoc and Brannic argued by the fire."]
+    book = _book("Brannoc and Brannic argued by the fire.")
+    check_equal(repair_speaker("BRANNC", windows, _roster("BRANNOC", "BRANNIC"),
+                               book),
+                None,
+                "ambiguity refuses -- the evidence does not pick a winner")
+
+
+def test_repair_refuses_when_the_ambiguity_is_only_visible_in_the_roster():
+    # The ambiguity guard is roster-WIDE, not window-local: a second candidate
+    # that is not in this window still blocks the repair. This is one of the
+    # two guards that replaced the proposed minimum-token-length floor.
+    windows = ["Brannoc argued by the fire."]
+    book = _book("Brannoc argued by the fire.", "Brannic kept the ledger.")
+    check_equal(repair_speaker("BRANNC", windows, _roster("BRANNOC", "BRANNIC"),
+                               book),
+                None,
+                "a distance-1 roster name outside the window still blocks")
+
+
+def test_repair_refuses_a_candidate_absent_from_the_window():
+    windows = ["The lamp guttered and went out."]
+    check_equal(repair_speaker("BRANOC", windows, _roster("BRANNOC"),
+                               BOOK_BRANNOC),
+                None,
+                "a candidate must be attested in the label's own window")
+
+
+def test_repair_refuses_a_window_word_that_is_not_a_roster_name():
+    check_equal(repair_speaker("BRANOC", WINDOW_BRANNOC, _roster("VELLA"),
+                               BOOK_BRANNOC),
+                None,
+                "candidates come from the roster, not from the prose at large")
+
+
+def test_repair_refuses_a_label_that_is_already_established():
+    roster = _roster("BRANOC", "BRANNOC")
+    check_equal(repair_speaker("BRANOC", WINDOW_BRANNOC, roster, BOOK_BRANNOC),
+                None,
+                "an established name is never repaired")
+
+
+def test_repair_refuses_at_distance_two():
+    check_equal(repair_speaker("BRENNIC", WINDOW_BRANNOC, _roster("BRANNOC"),
+                               BOOK_BRANNOC),
+                None,
+                "two edits is not a misspelling we can claim to have identified")
+
+
+def test_repair_refuses_without_a_roster_or_a_book_index():
+    check_equal(repair_speaker("BRANOC", WINDOW_BRANNOC, {}, BOOK_BRANNOC), None,
+                "an empty roster offers no candidates")
+    check_equal(repair_speaker("BRANOC", WINDOW_BRANNOC, _roster("BRANNOC"), set()),
+                None,
+                "no book index means no evidence, so no repair")
+    check_equal(repair_speaker("BRANOC", [], _roster("BRANNOC"), BOOK_BRANNOC),
+                None, "no window means no repair")
+    check_equal(repair_speaker("NARRATOR", WINDOW_BRANNOC, _roster("BRANNOC"),
+                               BOOK_BRANNOC),
+                None, "the narrator sentinel is never repaired")
+
+
+def test_repair_is_pure_idempotent_and_mutates_nothing():
+    roster = _roster("BRANNOC")
+    roster_before = copy.deepcopy(roster)
+    windows = copy.deepcopy(WINDOW_BRANNOC)
+    windows_before = copy.deepcopy(windows)
+    book = set(BOOK_BRANNOC)
+    book_before = set(book)
+
+    first = repair_speaker("BRANOC", windows, roster, book)
+    second = repair_speaker("BRANOC", windows, roster, book)
+    check_equal(first, second, "repair_speaker is deterministic")
+    check_equal(roster, roster_before, "repair_speaker does not mutate the roster")
+    check_equal(windows, windows_before, "repair_speaker does not mutate its windows")
+    check_equal(book, book_before, "repair_speaker does not mutate the word index")
+    # Idempotent in the sense that matters: a repaired name attests, so there
+    # is nothing left to repair and the second pass declines.
+    check_equal(repair_speaker(first, windows, roster, book), None,
+                "repairing a repaired name is a no-op")
+
+
+def test_repair_is_unreachable_for_an_unsegmented_script_label():
+    # A name present as a substring but not at a word boundary -- what a
+    # Chinese/Japanese/Thai book looks like to this tokenizer -- is
+    # UNVERIFIABLE, so the gate accepts it and repair is never consulted.
+    windows = ["リナは黙っていた。"]
+    check_equal(attest_speaker("リナ", windows), UNVERIFIABLE,
+                "an unsegmented-script label stays unverifiable")
+
+
+def test_distance_one_predicate_is_exact_and_bounded():
+    check(_is_distance_one("BRANOC", "BRANNOC"), "one insertion")
+    check(_is_distance_one("BRANNOC", "BRANOC"), "one deletion")
+    check(_is_distance_one("BRANNOC", "BRANNIC"), "one substitution")
+    check(not _is_distance_one("BRANNOC", "BRANNOC"), "zero edits is not distance 1")
+    check(not _is_distance_one("BRANNOC", "BRENNIC"), "two substitutions")
+    check(not _is_distance_one("BRANNOC", "BRAN"), "a length gap of 3")
+    check(_is_distance_one("ИРИНА", "ИРИН"),
+          "the predicate is code-point based, not ASCII")
+
+
 def main():
     tests = [
         test_basic_case_and_whitespace_normalization,
@@ -1049,6 +1324,29 @@ def main():
         test_attest_speaker_is_pure_and_idempotent,
         test_attest_speaker_handles_empty_and_missing_windows,
         test_attest_speaker_verdicts_are_the_exported_constants,
+        test_partial_attestation_accepts_a_label_built_on_a_roster_name,
+        test_partial_attestation_requires_the_attested_token_to_be_a_roster_name,
+        test_partial_attestation_needs_two_or_more_core_tokens,
+        test_partial_attestation_still_refutes_when_every_token_is_missing,
+        test_attest_label_boolean_contract_is_unchanged_by_the_roster_rule,
+        test_repair_refuses_a_real_character_named_elsewhere_in_the_book,
+        test_repair_of_a_name_the_book_never_contains_is_an_accepted_limitation,
+        test_repair_refuses_a_target_the_source_never_attested,
+        test_repair_refuses_across_a_diacritic_fold,
+        test_repair_refuses_a_transliteration_variant_the_book_uses,
+        test_repair_refuses_a_plural_singular_pair_the_book_uses,
+        test_repair_folds_a_unique_distance_one_misspelling,
+        test_repair_keeps_attested_tokens_verbatim,
+        test_repair_refuses_when_two_candidates_are_one_edit_away,
+        test_repair_refuses_when_the_ambiguity_is_only_visible_in_the_roster,
+        test_repair_refuses_a_candidate_absent_from_the_window,
+        test_repair_refuses_a_window_word_that_is_not_a_roster_name,
+        test_repair_refuses_a_label_that_is_already_established,
+        test_repair_refuses_at_distance_two,
+        test_repair_refuses_without_a_roster_or_a_book_index,
+        test_repair_is_pure_idempotent_and_mutates_nothing,
+        test_repair_is_unreachable_for_an_unsegmented_script_label,
+        test_distance_one_predicate_is_exact_and_bounded,
     ]
 
     for t in tests:

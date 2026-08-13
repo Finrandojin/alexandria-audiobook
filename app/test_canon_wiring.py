@@ -403,8 +403,34 @@ def test_label_flags_computation_never_mutates_entries_or_roster():
           by_name["ZORBLAX"]["attested"] is False, detail=repr(by_name["ZORBLAX"]))
 
 
+def test_generation_imports_the_repair_helpers_rather_than_reimplementing_them():
+    """Speaker repair -- and the edit-distance predicate it rests on -- lives in
+    speaker_canon, which is where the guards, the docstring and the tests are.
+    A local reimplementation in generate_script would drift from all three, and
+    is exactly how a bounded distance-1 check turns into an unbounded fuzzy
+    match. Assert the wiring, and assert that no distance/similarity logic was
+    copied into the caller."""
+    import inspect
+    import generate_script
+    import speaker_canon
+
+    check("generate_script imports repair_speaker from speaker_canon",
+          generate_script.repair_speaker is speaker_canon.repair_speaker)
+    check("generate_script imports source_word_index from speaker_canon",
+          generate_script.source_word_index is speaker_canon.source_word_index)
+    check("generate_script imports near_spellings from speaker_canon",
+          generate_script.near_spellings is speaker_canon.near_spellings)
+
+    source = inspect.getsource(generate_script)
+    for banned in ("difflib", "rapidfuzz", "def _is_distance_one",
+                   "levenshtein", "Levenshtein"):
+        check(f"generate_script does not reimplement matching ({banned})",
+              banned not in source)
+
+
 def main():
     tests = [
+        test_generation_imports_the_repair_helpers_rather_than_reimplementing_them,
         test_label_flags_computation_never_mutates_entries_or_roster,
         test_voices_roster_consolidates_whitespace_drift,
         test_voices_roster_selection_is_order_independent,

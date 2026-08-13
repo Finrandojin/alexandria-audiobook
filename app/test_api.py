@@ -1556,6 +1556,102 @@ def test_word_coverage_exact_one_across_failure_modes():
         raise TestFailure("WORD COVERAGE INVARIANT (== 1.0) VIOLATED: " + "; ".join(bad))
 
 
+def _legacy_split_into_chunks(text, max_size=3000):
+    """The pre-fix chunker, verbatim, kept ONLY so the test below can prove the
+    byte-fidelity assertion is failable (it drops a paragraph break at every
+    chunk seam). Not used by the pipeline."""
+    paragraphs = re.split(r'\n\s*\n', text)
+    chunks = []
+    current_chunk = ""
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+        if len(current_chunk) + len(para) + 2 > max_size:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = ""
+            if len(para) > max_size:
+                sentences = re.split(r'(?<=[.!?])\s+', para)
+                for sentence in sentences:
+                    if len(current_chunk) + len(sentence) + 1 > max_size:
+                        if current_chunk:
+                            chunks.append(current_chunk.strip())
+                        current_chunk = sentence
+                    else:
+                        current_chunk += " " + sentence if current_chunk else sentence
+            else:
+                current_chunk = para
+        else:
+            current_chunk += "\n\n" + para if current_chunk else para
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    return chunks
+
+
+# Synthetic, corpus-independent document exercising every whitespace edge the
+# chunker can meet: leading/trailing blank lines, a whitespace-only "paragraph"
+# (NBSP), CRLF, an indented paragraph, and an oversized paragraph that forces
+# the sentence-split path.
+CHUNK_FIDELITY_DOC = (
+    "\n\n  \n"
+    "Chapter One\n\n"
+    "He turned away.\n\n"
+    '"That\'s it," she said.\n\n'
+    " \n\n"
+    "   An indented paragraph follows a blank-ish one.\r\n\r\n"
+    + " ".join(f"Sentence number {i} runs on for a while here." for i in range(60))
+    + "\n\n"
+    "The end.\n \n\n"
+)
+
+
+def test_chunking_is_byte_lossless_over_source():
+    """INVARIANT (byte-verbatim, whole-document half of contract 4): the
+    concatenation of split_into_chunks() output must reproduce the source
+    file BYTE-FOR-BYTE. The existing word-coverage test cannot see a
+    violation here, because review_script.normalize_text() maps punctuation
+    to spaces before tokenizing and every chunk seam sits at punctuation --
+    so a lost paragraph break still scores 1.0. This asserts the raw bytes.
+
+    The paired counter-case runs the pre-fix chunker on the same document and
+    requires it to LOSE characters, proving the assertion is failable rather
+    than tautological.
+    """
+    _require_pipeline_modules()
+    doc = CHUNK_FIDELITY_DOC
+    bad = []
+
+    for max_size in (120, 300, 3000):
+        chunks = split_into_chunks(doc, max_size=max_size)
+        rejoined = "".join(chunks)
+        if rejoined != doc:
+            bad.append(
+                f"max_size={max_size}: rejoined chunks differ from source "
+                f"({len(rejoined)} chars vs {len(doc)}); "
+                f"first divergence at offset "
+                f"{next((i for i, (a, b) in enumerate(zip(rejoined, doc)) if a != b), min(len(doc), len(rejoined)))}"
+            )
+        if any(c == "" for c in chunks):
+            bad.append(f"max_size={max_size}: produced an empty chunk")
+
+    # Degenerate inputs must round-trip too.
+    for edge in ("", "   ", "\n\n\n", "one paragraph"):
+        if "".join(split_into_chunks(edge, max_size=50)) != edge:
+            bad.append(f"edge input {edge!r} did not round-trip")
+
+    if bad:
+        raise TestFailure("CHUNK BYTE-FIDELITY INVARIANT VIOLATED: " + "; ".join(bad))
+
+    # Counter-case: the old chunker must fail this same assertion.
+    legacy = "".join(_legacy_split_into_chunks(doc, max_size=300))
+    if legacy == doc:
+        raise TestFailure(
+            "CHUNK BYTE-FIDELITY test is not failable: the pre-fix chunker "
+            "round-tripped this fixture, so the fixture no longer exercises the bug"
+        )
+
+
 def test_word_coverage_digits_and_abbreviations_survive_verbatim():
     """INVARIANT (word coverage == 1.0) + verbatim: digits, currency, and
     abbreviations ("Dr. Smith owed $1,000 on Elm St.") survive into the
@@ -1824,6 +1920,7 @@ def run_offline_invariant_tests():
     run_test("epub_spine_item_under_200_chars_would_be_flagged",
               test_epub_spine_item_under_200_chars_would_be_flagged)
     run_test("word_coverage_exact_one_across_failure_modes", test_word_coverage_exact_one_across_failure_modes)
+    run_test("chunking_is_byte_lossless_over_source", test_chunking_is_byte_lossless_over_source)
     run_test("word_coverage_digits_and_abbreviations_survive_verbatim",
               test_word_coverage_digits_and_abbreviations_survive_verbatim)
     run_test("real_annotated_script_word_coverage_if_present", test_real_annotated_script_word_coverage_if_present)

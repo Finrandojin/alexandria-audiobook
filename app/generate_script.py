@@ -28,9 +28,12 @@ from speaker_canon import (
     UNVERIFIABLE,
     attest_speaker,
     canonicalize,
+    near_spellings,
     remember_in_roster,
+    repair_speaker,
     resolve_against_roster,
     roster_key,
+    source_word_index,
 )
 
 # Cap for single-speaker mode: entries at this size pass through
@@ -432,6 +435,29 @@ _LABEL_STRING_FIELD_RE = {
     "instruct": re.compile(r'"instruct"\s*:\s*"((?:[^"\\]|\\.)*)"'),
 }
 
+# Bareword fallback for models that emit complete-but-JSON-invalid output with
+# UNQUOTED values: {"id": 1, "speaker": KIT, "role": dialogue, "instruct": "..."}.
+# Observed live on 2 of 281 chunks (90 bareword values across them, all with
+# finish_reason=stop -- not truncation). Without this the quoted pattern simply
+# failed to match, the key was dropped in silence, and the whole chunk collapsed
+# into one NARRATOR entry, costing 53 dialogue labels their voice.
+#
+# Only "speaker" and "role" get the fallback. They are the two fields that decide
+# the cast, and in the logged responses they are exactly the two that appeared
+# unquoted; "instruct" was always quoted, and it is free prose whose commas and
+# braces make an unterminated bareword scan unsafe for no fidelity gain.
+#
+# The value stops at , } ] or a newline so it cannot swallow the following key,
+# and must not begin with a quote so a well-formed value never takes this path.
+_LABEL_BAREWORD_FIELD_RE = {
+    "speaker": re.compile(r'"speaker"\s*:\s*([^"\s,}\]\n][^,}\]\n]*)'),
+    "role": re.compile(r'"role"\s*:\s*([^"\s,}\]\n][^,}\]\n]*)'),
+}
+
+# JSON literals are not names. A bareword `null` means the model declined to
+# answer, not that the character is called "Null".
+_BAREWORD_NON_VALUES = {"null", "none", "nil", "undefined", "true", "false"}
+
 
 def _unescape_json_string(raw):
     """Decode a JSON string body (the bit between the quotes)."""
@@ -439,6 +465,11 @@ def _unescape_json_string(raw):
         return json.loads('"' + raw + '"')
     except (json.JSONDecodeError, ValueError):
         return raw.replace('\\"', '"').replace('\\n', '\n').replace('\\\\', '\\')
+
+
+# The entire label schema. Anything else the model sends is ignored on read;
+# resolve_span_labels counts it so the discard is visible in the run log.
+_LABEL_SCHEMA_KEYS = frozenset(("id", "speaker", "role", "instruct"))
 
 
 def _label_id(label):
@@ -467,6 +498,22 @@ def _extract_label_object(raw):
         match = pattern.search(raw)
         if match:
             label[key] = _unescape_json_string(match.group(1))
+            continue
+        # Quoted form wins; only an unquoted value reaches the fallback. The
+        # bareword is NOT run through _unescape_json_string, which assumes a
+        # JSON string body and would mangle a value containing a backslash.
+        bareword = _LABEL_BAREWORD_FIELD_RE.get(key)
+        if bareword is None:
+            continue
+        match = bareword.search(raw)
+        if match:
+            value = match.group(1).strip()
+            if value and value.lower() not in _BAREWORD_NON_VALUES:
+                label[key] = value
+                # Loud, not silent: this is how a recurring formatting failure
+                # stays visible instead of quietly costing labels again.
+                print(f'  Salvaged unquoted "{key}" value {value!r} from a '
+                      "malformed label object")
     return label
 
 
@@ -819,13 +866,21 @@ def _merge_label(old, new):
 
 
 def _incomplete_span_ids(spans, merged, source=None):
-    """Return ``(missing_ids, bad_role_ids)`` -- what a retry should ask for.
+    """Return ``(missing_ids, bad_role_ids, no_speaker_ids)`` -- what a retry asks for.
 
     Membership, never a count: live responses hallucinate ids past N (137
     labels for 41 spans in one logged response), so ``len(merged) >= len(spans)``
     would fake completeness. ``bad_role_ids`` mirrors resolve_span_labels'
-    role_missing condition exactly, so the retry predicate and the degradation
-    reason can never disagree.
+    role_missing condition exactly, and ``no_speaker_ids`` mirrors its
+    dialogue_without_speaker condition exactly, so the retry predicate and the
+    degradation reason can never disagree.
+
+    ``no_speaker_ids`` is the mirror image of ``bad_role_ids``: role is good and
+    says "dialogue", but no usable name came with it, so a voice is lost. Before
+    it existed such a label was neither missing, nor bad-role, nor unattested
+    (the attestation pass skips a label with no speaker), so the attempt loop
+    broke on attempt 1 and the span was narrated in silence -- observed on two
+    live chunks with 26/27 such labels and ZERO retry lines.
 
     When ``source`` is given, whitespace-only spans are skipped: the model was
     never shown them, so it cannot be "missing" one.
@@ -835,15 +890,26 @@ def _incomplete_span_ids(spans, merged, source=None):
 
     missing = [span.id for span in spans if span.id not in merged]
     bad_role = []
+    no_speaker = []
     for span in spans:
         label = merged.get(span.id)
-        if label is None or _usable_field("role", label.get("role")):
+        if label is None:
             continue
         raw_speaker = label.get("speaker")
         canonical = canonicalize(raw_speaker) if isinstance(raw_speaker, str) else ""
-        if canonical and canonical != NARRATOR:
-            bad_role.append(span.id)
-    return missing, bad_role
+        if not _usable_field("role", label.get("role")):
+            if canonical and canonical != NARRATOR:
+                bad_role.append(span.id)
+            continue
+        # Exactly resolve_span_labels' `role == "dialogue" and not canonical`
+        # branch, including its NARRATOR handling: NARRATOR canonicalizes to a
+        # truthy value, so a NARRATOR label is not asked about there and must
+        # not be asked about here either.
+        role = label.get("role")
+        role = role.strip().lower() if isinstance(role, str) else ""
+        if role == "dialogue" and not canonical:
+            no_speaker.append(span.id)
+    return missing, bad_role, no_speaker
 
 
 # Cap the id list in a nudge so a wholly-unlabelled chunk cannot balloon the prompt.
@@ -857,7 +923,8 @@ def _format_id_list(ids):
     return f"{head} (and {len(ids) - _NUDGE_ID_CAP} more)"
 
 
-def _retry_nudge(missing_ids, bad_role_ids, unattested=None):
+def _retry_nudge(missing_ids, bad_role_ids, unattested=None, no_speaker_ids=None,
+                 spelling_hints=None):
     """Correction text appended to the retry prompt.
 
     Appended AFTER .format(), so it cannot interact with the {context}/{chunk}
@@ -877,6 +944,12 @@ def _retry_nudge(missing_ids, bad_role_ids, unattested=None):
     if bad_role_ids:
         parts.append('These span ids had a "role" that was neither "dialogue" nor '
                      f'"narration": {_format_id_list(bad_role_ids)}.')
+    if no_speaker_ids:
+        parts.append('These span ids had role "dialogue" but no usable "speaker" '
+                     f'name: {_format_id_list(no_speaker_ids)}. For each one, give '
+                     "the speaking character's name exactly as the text spells it, "
+                     'or use "NARRATOR" with role "narration" if the span is not '
+                     "spoken dialogue.")
     if unattested:
         # Name the offending spelling AND say what to do instead. A bare "that
         # name is wrong" makes the model guess again; pointing it at the text
@@ -892,6 +965,21 @@ def _retry_nudge(missing_ids, bad_role_ids, unattested=None):
             'label the span "NARRATOR" with role "narration" if the text never '
             "names the speaker. Do not invent a name and do not guess at a "
             "spelling.")
+        # Candidate spellings, for the offenders where automatic repair DECLINED
+        # (an ambiguous or unsupported repair). A free hint, not a mechanism:
+        # per a28839d the prompt cannot enforce anything, so this only makes the
+        # right answer easier to find -- the gate still re-checks whatever comes
+        # back.
+        hints = []
+        for _, name in unattested:
+            candidates = (spelling_hints or {}).get(name) or []
+            if candidates:
+                hints.append(f'"{name}" (did you mean '
+                             + " or ".join(f'"{c}"' for c in candidates) + ")")
+        if hints:
+            parts.append("Established character spellings close to the rejected "
+                         "names, if one of them is who you meant: "
+                         + "; ".join(hints) + ".")
     parts.append("Return the JSON array again. It MUST contain one object for every id "
                  'listed above, and every "role" must be exactly "dialogue" or "narration".')
     return " ".join(parts)
@@ -928,23 +1016,70 @@ def _speaker_is_established(canonical, roster_index):
     return roster_key(canonical) in roster_index
 
 
-def _attestation_verdict(canonical, attest_window):
+def _attestation_verdict(canonical, attest_window, roster_index=None):
     """attest_speaker() over the one window the gate uses. Pure passthrough,
     factored out so the retry predicate and the acceptance gate cannot drift
     apart (the same mistake _incomplete_span_ids exists to prevent for roles).
+
+    ``roster_index`` enables speaker_canon's roster-name partial attestation:
+    a multi-token label built around an established name is UNVERIFIABLE
+    (accept-and-count) rather than refuted.
     """
-    return attest_speaker(canonical, [attest_window] if attest_window else [])
+    return attest_speaker(canonical, [attest_window] if attest_window else [],
+                          roster_index=roster_index)
+
+
+# Gate outcomes returned by _gate_speaker(). Named so the two call sites
+# compare against the same constants rather than re-spelling them.
+GATE_ESTABLISHED = "established"
+GATE_ATTESTED = "attested"
+GATE_UNVERIFIABLE = "unverifiable"
+GATE_REPAIRED = "repaired"
+GATE_REJECTED = "rejected"
+
+
+def _gate_speaker(canonical, attest_window, roster_index, source_words):
+    """THE attestation decision, in one place: ``(name, outcome)``.
+
+    Both the acceptance gate in resolve_span_labels and the retry predicate in
+    _unattested_speaker_ids call this and nothing else, so they cannot apply
+    different rules -- commit 2809180 exists because they once did, and a
+    property test now pins their agreement. Adding repair here rather than at
+    either call site is what keeps that property true for repaired labels too:
+    a label the gate silently repairs must NOT be one the retry nags about.
+
+    ``source_words`` is the whole book's folded word index; when it is empty
+    repair is simply unavailable and the outcome is a plain rejection, so a
+    caller that cannot supply it is never worse off than before.
+
+    Read-only: ``roster_index`` is not mutated here.
+    """
+    if _speaker_is_established(canonical, roster_index):
+        return canonical, GATE_ESTABLISHED
+    verdict = _attestation_verdict(canonical, attest_window, roster_index)
+    if verdict == UNATTESTED:
+        repaired = repair_speaker(
+            canonical, [attest_window] if attest_window else [],
+            roster_index or {}, source_words or set())
+        if repaired:
+            return repaired, GATE_REPAIRED
+        return canonical, GATE_REJECTED
+    if verdict == UNVERIFIABLE:
+        return canonical, GATE_UNVERIFIABLE
+    return canonical, GATE_ATTESTED
 
 
 def _unattested_speaker_ids(spans, merged, source=None, roster=None,
-                            attest_window=None):
+                            attest_window=None, source_words=None):
     """Return ``[(span_id, canonical_name), ...]`` for dialogue labels whose
     speaker the source does not support -- what a retry should ask about.
 
-    Mirrors the acceptance gate in resolve_span_labels exactly: same
-    established-roster shortcut, same verdict function, and only UNATTESTED
-    counts. UNVERIFIABLE never appears here, because a label our check cannot
-    evaluate is not something to nag the model about.
+    Mirrors the acceptance gate in resolve_span_labels exactly, because both go
+    through _gate_speaker(): same established-roster shortcut, same verdict,
+    same repair. Only a GATE_REJECTED outcome counts. UNVERIFIABLE never
+    appears here, because a label our check cannot evaluate is not something to
+    nag the model about -- and neither does a REPAIRED one, because the gate is
+    about to accept the repaired spelling.
 
     Read-only. Does not mutate ``roster``; a local copy tracks names accepted
     earlier in this same chunk so the shortcut behaves as it will at
@@ -969,17 +1104,53 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
             continue
         if is_placeholder_speaker(canonical):
             continue  # already rejected on its own terms
-        if _speaker_is_established(canonical, roster_index):
-            continue
-        if _attestation_verdict(canonical, attest_window) == UNATTESTED:
+        name, outcome = _gate_speaker(canonical, attest_window, roster_index,
+                                      source_words)
+        if outcome == GATE_REJECTED:
             offenders.append((span.id, canonical))
         else:
-            remember_in_roster(roster_index, canonical)
+            remember_in_roster(roster_index, name)
     return offenders
 
 
+def _report_repairs(chunk_num, total_chunks, repairs):
+    """Make every speaker repair visible: one console line per distinct repair
+    plus a per-repair record in the forensic log.
+
+    Contract 7 says degradation is loud, and a repair is the one gate outcome
+    that is neither a rejection nor an untouched acceptance: the script ends up
+    saying a name the model did not emit. A stat alone would leave an operator
+    unable to answer "where did this name come from?", so the original -> repaired
+    mapping goes into llm_responses.log next to the response it came from.
+    Never raises: a failure to WRITE the log must not lose a chunk's work.
+    """
+    if not repairs:
+        return
+
+    counts = {}
+    for original, repaired in repairs:
+        counts[(original, repaired)] = counts.get((original, repaired), 0) + 1
+
+    for (original, repaired), count in sorted(counts.items()):
+        print(f"  REPAIRED speaker label \"{original}\" -> \"{repaired}\" "
+              f"on {count} span(s): the book never spells it \"{original}\", and "
+              f"exactly one established name is one edit away")
+
+    try:
+        log_dir = llm_log_dir()
+        os.makedirs(log_dir, exist_ok=True)
+        with open(os.path.join(log_dir, "llm_responses.log"), "a",
+                  encoding="utf-8") as handle:
+            for (original, repaired), count in sorted(counts.items()):
+                handle.write(f"SPEAKER REPAIR | chunk {chunk_num}/{total_chunks} | "
+                             f"{original!r} -> {repaired!r} | {count} span(s)\n")
+    except OSError as exc:  # pragma: no cover - depends on the filesystem
+        print(f"  WARNING: could not record speaker repairs in the log ({exc})")
+
+
 def resolve_span_labels(spans, labels, source=None, roster=None,
-                        attest_window=None, require_attested=False):
+                        attest_window=None, require_attested=False,
+                        source_words=None):
     """Resolve each span to (span, speaker, instruct) using the LLM's labels.
 
     A span is NARRATOR unless a label exists for its id AND that label says
@@ -1027,6 +1198,17 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     designed to be paired with the retry nudge in process_chunk, which names
     the offending label and asks the model to copy the spelling from the text
     it was shown. Rejection is the fallback; re-asking is the fix.
+
+    BOUNDED REPAIR (``source_words``). Before refusing, a refuted label is
+    offered to speaker_canon.repair_speaker(), which folds it onto an already-
+    established spelling when -- and only when -- the whole book never uses the
+    label's spelling and exactly one roster name sits one edit away in the
+    label's own window. Repairs are reported in ``speakers_repaired`` and
+    itemized in ``repairs`` as (original, repaired) pairs; process_chunk prints
+    and logs each one, because rewriting a name the model did not emit must not
+    be silent (contract 7). ``source_words`` is speaker_canon.source_word_index()
+    over the whole book; without it repair is unavailable and the gate behaves
+    exactly as it did before.
     """
     valid_ids = {span.id for span in spans}
     # Local copy: never mutate the caller's roster index (see docstring).
@@ -1047,6 +1229,29 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
             continue
         by_id[label_id] = label
 
+    # Schema hygiene, counted once per label that is actually used (by_id is
+    # already deduplicated). Only the strict-JSON path can carry keys outside
+    # the schema -- _extract_label_object builds its dicts from a fixed list of
+    # field names -- so a clean run stays silent here. Observed in production:
+    # a misspelled "instituct" silently cost the delivery direction on four
+    # chunks. Nothing is repaired and no unknown key is ever read (no fuzzy key
+    # matching -- see the banned approaches); the discard is only made visible.
+    unknown_key_labels = 0
+    unknown_keys = set()
+    text_key_labels = 0
+    for label in by_id.values():
+        extra = {key for key in label if key not in _LABEL_SCHEMA_KEYS}
+        if not extra:
+            continue
+        unknown_key_labels += 1
+        unknown_keys |= extra
+        if "text" in extra:
+            # Contract 1: the model returns labels only. A "text" key is not a
+            # typo, it is the model trying to supply book prose. It is ignored
+            # exactly like any other unknown key (entry text is always
+            # source[span.start:span.end]) but it is reported separately.
+            text_key_labels += 1
+
     resolved = []
     labelled = 0
     role_missing = 0
@@ -1055,6 +1260,7 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     unattested_rejected = 0
     unverifiable_accepted = 0
     dialogue_without_speaker = 0
+    repairs = []
 
     for span in spans:
         if source is not None and is_whitespace_span(span, source):
@@ -1104,14 +1310,20 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
                 # which always skipped NARRATOR: the two must apply identical
                 # rules or the retry predicate and the degradation reason
                 # disagree, exactly as _incomplete_span_ids' docstring warns.
-                if (require_attested and canonical != NARRATOR
-                        and not _speaker_is_established(canonical, roster_index)):
-                    verdict = _attestation_verdict(canonical, attest_window)
-                    if verdict == UNATTESTED:
+                if require_attested and canonical != NARRATOR:
+                    name, outcome = _gate_speaker(
+                        canonical, attest_window, roster_index, source_words)
+                    if outcome == GATE_REJECTED:
                         accept = False
                         unattested_rejected += 1
-                    elif verdict == UNVERIFIABLE:
+                    elif outcome == GATE_UNVERIFIABLE:
                         unverifiable_accepted += 1
+                    elif outcome == GATE_REPAIRED:
+                        # Accepted, NOT counted as an offender -- but recorded,
+                        # because the script will now say a name the model
+                        # never wrote. process_chunk prints and logs these.
+                        repairs.append((canonical, name))
+                        canonical = name
 
                 if accept:
                     if roster_index is not None:
@@ -1148,7 +1360,12 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
         "placeholder_rejected": placeholder_rejected,
         "unattested_rejected": unattested_rejected,
         "unverifiable_accepted": unverifiable_accepted,
+        "speakers_repaired": len(repairs),
+        "repairs": repairs,
         "dialogue_without_speaker": dialogue_without_speaker,
+        "unknown_key_labels": unknown_key_labels,
+        "unknown_keys": sorted(unknown_keys),
+        "text_key_labels": text_key_labels,
     }
 
 
@@ -1282,39 +1499,65 @@ def fix_mojibake(text):
     return text
 
 
+def _split_keeping_separators(text, separator_pattern):
+    """Split `text` on `separator_pattern`, keeping each separator attached to
+    the piece that PRECEDES it, so that ``"".join(pieces) == text`` exactly.
+
+    Lossless splitting is the whole point: the previous implementation used a
+    plain ``re.split`` + ``strip()``, which discarded the separator entirely on
+    the chunk-boundary path (the "\\n\\n" was only re-inserted when a paragraph
+    was appended to a chunk already in progress). That made the concatenation of
+    all chunks -- and therefore annotated_script.json -- differ from the source
+    file by one paragraph break per chunk seam. No prose was lost (every dropped
+    character was whitespace) but the paragraph-break signal at each seam was,
+    which the TTS layer hears as a missing pause.
+    """
+    pieces = []
+    pos = 0
+    for match in re.finditer(separator_pattern, text):
+        # A zero-width match cannot carry text forward; skip it.
+        if match.end() == pos:
+            continue
+        pieces.append(text[pos:match.end()])
+        pos = match.end()
+    if pos < len(text):
+        pieces.append(text[pos:])
+    return pieces
+
+
 def split_into_chunks(text, max_size=3000):
-    """Split text into chunks at paragraph/sentence boundaries."""
-    paragraphs = re.split(r'\n\s*\n', text)
+    """Split text into chunks at paragraph/sentence boundaries.
+
+    LOSSLESS: ``"".join(split_into_chunks(t)) == t`` for any input, including
+    leading/trailing whitespace, whitespace-only paragraphs and NBSPs. Every
+    character of the source ends up in exactly one chunk, in order; separators
+    ride along at the end of the paragraph they follow. Enforced by
+    test_api.py::test_chunking_is_byte_lossless_over_source.
+    """
+    # Paragraphs, each carrying its own trailing blank-line separator.
+    paragraphs = _split_keeping_separators(text, r'\n\s*\n')
 
     chunks = []
     current_chunk = ""
 
     for para in paragraphs:
-        para = para.strip()
-        if not para:
-            continue
+        if current_chunk and len(current_chunk) + len(para) > max_size:
+            chunks.append(current_chunk)
+            current_chunk = ""
 
-        if len(current_chunk) + len(para) + 2 > max_size:
-            if current_chunk:
-                chunks.append(current_chunk.strip())
-                current_chunk = ""
-
-            if len(para) > max_size:
-                sentences = re.split(r'(?<=[.!?])\s+', para)
-                for sentence in sentences:
-                    if len(current_chunk) + len(sentence) + 1 > max_size:
-                        if current_chunk:
-                            chunks.append(current_chunk.strip())
-                        current_chunk = sentence
-                    else:
-                        current_chunk += " " + sentence if current_chunk else sentence
-            else:
-                current_chunk = para
+        if len(para) > max_size:
+            # Oversized paragraph: fall back to sentence boundaries, again
+            # keeping the inter-sentence whitespace attached.
+            for sentence in _split_keeping_separators(para, r'(?<=[.!?])\s+'):
+                if current_chunk and len(current_chunk) + len(sentence) > max_size:
+                    chunks.append(current_chunk)
+                    current_chunk = ""
+                current_chunk += sentence
         else:
-            current_chunk += "\n\n" + para if current_chunk else para
+            current_chunk += para
 
     if current_chunk:
-        chunks.append(current_chunk.strip())
+        chunks.append(current_chunk)
 
     return chunks
 
@@ -1387,7 +1630,7 @@ def build_context(chunk_num, total_chunks, previous_entries=None,
     return "\n".join(context_parts)
 
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False, reasoning_effort=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False, reasoning_effort=None, source_words=None):
     """Classify one chunk's spans and rebuild its script entries verbatim.
 
     Returns ``(entries, stats)``. ``stats`` reports span counts and whether the
@@ -1597,14 +1840,16 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 reason = "no usable labels recovered from LLM response"
             break  # keep whatever earlier attempts recovered
 
-        missing_ids, bad_role_ids = _incomplete_span_ids(spans, merged_labels, source=chunk)
+        missing_ids, bad_role_ids, no_speaker_ids = _incomplete_span_ids(
+            spans, merged_labels, source=chunk)
         unattested = (
             _unattested_speaker_ids(spans, merged_labels, source=chunk,
-                                    roster=roster, attest_window=attest_window)
+                                    roster=roster, attest_window=attest_window,
+                                    source_words=source_words)
             if require_attested else []
         )
 
-        if not missing_ids and not bad_role_ids and not unattested:
+        if not missing_ids and not bad_role_ids and not no_speaker_ids and not unattested:
             if attempt > 0:
                 print(f"  Succeeded on retry {attempt + 1} -- all {len(spans)} spans labelled")
             break
@@ -1620,13 +1865,22 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 gaps.append(f"{len(missing_ids)} span(s) unlabelled")
             if bad_role_ids:
                 gaps.append(f"{len(bad_role_ids)} label(s) with an unusable role")
+            if no_speaker_ids:
+                gaps.append(f"{len(no_speaker_ids)} dialogue label(s) with no speaker")
             if unattested:
                 gaps.append(f"{len(unattested)} speaker name(s) absent from the text "
                             f"({', '.join(name for _, name in unattested[:3])}"
                             f"{', ...' if len(unattested) > 3 else ''})")
             print(f"  {' and '.join(gaps)} -- retrying (attempt {attempt + 2}"
                   f"/{max_retries + 1}), naming the gaps")
-            retry_nudge = _retry_nudge(missing_ids, bad_role_ids, unattested)
+            spelling_hints = {
+                name: near_spellings(
+                    name, [attest_window] if attest_window else [], roster or {})
+                for _, name in unattested
+            }
+            retry_nudge = _retry_nudge(missing_ids, bad_role_ids, unattested,
+                                       no_speaker_ids=no_speaker_ids,
+                                       spelling_hints=spelling_hints)
             # Clear the refused speakers so the retry's answer can actually
             # land. _merge_label deliberately never overwrites a usable field
             # -- that is what makes "a retry can never make things worse" a
@@ -1651,7 +1905,9 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     # on purpose: resolve_span_labels discards and counts them (once each).
     resolved, stats = resolve_span_labels(
         spans, list(merged_labels.values()), source=chunk, roster=roster,
-        attest_window=attest_window, require_attested=require_attested)
+        attest_window=attest_window, require_attested=require_attested,
+        source_words=source_words)
+    _report_repairs(chunk_num, total_chunks, stats.get("repairs"))
     entries = build_entries(resolved, chunk)
     _assert_chunk_verbatim(entries, chunk, chunk_num)
 
@@ -1689,6 +1945,15 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
     if stats["discarded"]:
         print(f"  Discarded {stats['discarded']} label(s) referring to nonexistent span ids")
+    if stats.get("unknown_key_labels"):
+        print(f"  Ignored unknown key(s) on {stats['unknown_key_labels']} label(s): "
+              + ", ".join(f'"{key}"' for key in stats["unknown_keys"])
+              + " -- not in the schema (id, speaker, role, instruct), so their "
+              "values were discarded (a misspelled key costs that field)")
+    if stats.get("text_key_labels"):
+        print(f"  {stats['text_key_labels']} label(s) carried a \"text\" key -- IGNORED. "
+              "The model must return labels only; entry text is always taken "
+              "verbatim from the source")
     if stats["role_missing"]:
         print(f"  {stats['role_missing']} label(s) named a speaker without role=\"dialogue\" "
               "-- narrated instead (schema violation by the model)")
@@ -1880,6 +2145,14 @@ def main():
 
     print(f"Split into {total_chunks} chunks at paragraph/sentence boundaries")
 
+    # Book-wide word index, built ONCE and only when the gate is on. It is what
+    # lets speaker_canon.repair_speaker() ask "does the author ever spell it
+    # this way?" -- a question a per-chunk window cannot answer, and the guard
+    # that keeps repair off real names that simply are not in their own window.
+    source_words = source_word_index(book_content) if require_attested else None
+    if require_attested:
+        print(f"Attestation gate ON; book word index: {len(source_words)} distinct words")
+
     all_entries = []
     # Roster index of speaker spellings established so far, threaded into every
     # chunk so a later spelling variant is snapped onto the established name
@@ -1892,6 +2165,8 @@ def main():
     total_placeholders = 0
     total_unattested = 0
     total_unverifiable = 0
+    total_repaired = 0
+    repair_mappings = {}
     truncation_events = 0
     prompt_samples = []
 
@@ -1927,6 +2202,7 @@ def main():
             attest_window=attest_window,
             require_attested=require_attested,
             reasoning_effort=reasoning_effort,
+            source_words=source_words,
         )
         all_entries.extend(entries)
         for entry in entries:
@@ -1938,6 +2214,10 @@ def main():
         total_placeholders += stats.get("placeholder_rejected", 0)
         total_unattested += stats.get("unattested_rejected", 0)
         total_unverifiable += stats.get("unverifiable_accepted", 0)
+        total_repaired += stats.get("speakers_repaired", 0)
+        for original, repaired in stats.get("repairs") or []:
+            repair_mappings[(original, repaired)] = (
+                repair_mappings.get((original, repaired), 0) + 1)
         truncation_events += stats.get("prompt_truncation_events", 0)
         if stats.get("prompt_tokens"):
             prompt_samples.append((stats.get("prompt_chars", 0), stats["prompt_tokens"]))
@@ -1966,6 +2246,13 @@ def main():
               "(name absent from the text near its own lines)")
         print(f"  Unverifiable speakers accepted: {total_unverifiable} "
               "(attestation does not apply to this text)")
+        # Loud by design (contract 7): these labels say a name the model never
+        # emitted. Not a degradation -- no voice was lost -- but an operator
+        # must be able to see, and audit, every rewrite.
+        print(f"  Speaker labels repaired:  {total_repaired} "
+              "(refuted spelling folded onto an established name)")
+        for (original, repaired), count in sorted(repair_mappings.items()):
+            print(f"    - \"{original}\" -> \"{repaired}\" ({count} span(s))")
     else:
         print("  Attestation gate:        off "
               "(generation.require_attested_speakers)")
