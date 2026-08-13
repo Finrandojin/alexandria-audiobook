@@ -13,6 +13,11 @@ verbatim from the source string by span offsets. Consequences:
   warning.
 * Degradation is never silent: it is counted, summarised, and surfaced as
   exit code 3 (see the exit site in main()).
+* A misspelled schema KEY is recovered (_recover_label_keys), a misspelled
+  speaker NAME is not (that is speaker_canon's job, under much tighter rules).
+  Keys come from this module's own four-word vocabulary; names come from the
+  book, where two near-identical spellings are routinely two people. "text" is
+  never a recovery target, so key recovery can never admit model prose.
 """
 
 import os
@@ -21,6 +26,7 @@ import json
 import re
 import argparse
 from openai import OpenAI
+from rapidfuzz.distance import Levenshtein
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
 from span_tokenizer import tokenize, validate_spans
 from speaker_canon import (
@@ -471,6 +477,64 @@ def _unescape_json_string(raw):
 # resolve_span_labels counts it so the discard is visible in the run log.
 _LABEL_SCHEMA_KEYS = frozenset(("id", "speaker", "role", "instruct"))
 
+# Keys a misspelling may be recovered onto. "text" is deliberately absent: under
+# contract 1 it is never read, so no recovery path can resurrect model-supplied
+# prose no matter what the model calls the field.
+_RECOVERABLE_LABEL_KEYS = ("id", "speaker", "role", "instruct")
+
+# Distance budget per target key: one edit per four characters, so the budget
+# grows with the room a key has to be misspelled in. "instruct" gets 2, "role"
+# and "speaker" get 1, "id" gets 0 -- "in" must never be recovered as "id".
+_KEY_EDIT_BUDGET = {key: len(key) // 4 for key in _RECOVERABLE_LABEL_KEYS}
+
+_NON_ALNUM_RE = re.compile(r"[^0-9a-z]+")
+
+
+def _normalize_key(key):
+    """Fold a key for comparison: case, spacing and punctuation are noise."""
+    return _NON_ALNUM_RE.sub("", key.lower())
+
+
+def _recover_label_keys(labels):
+    """Fold misspelled schema keys back onto the key they can only have meant.
+
+    This is NOT the banned fuzzy merging of speaker names. Names come from the
+    book and two near-identical ones are routinely two different people
+    (JON/JOHN); schema keys come from a four-word vocabulary this code publishes
+    in its own prompt, so a near miss has exactly one possible intended meaning.
+    The rule mirrors ``repair_speaker``: a bounded, exact edit distance (never a
+    similarity ratio), and a uniqueness guard -- a key near two schema keys, or
+    near none, is left alone for the unknown-key report in resolve_span_labels.
+
+    Measured cost of not doing this: in one 281-chunk run, 31 labels across 13
+    spellings ("instructor", "instruc", "in instruct", "instituct", ...) each
+    silently lost their delivery direction.
+    """
+    recovered = {}
+    for label in labels:
+        if not isinstance(label, dict):
+            continue
+        for key in [k for k in label if isinstance(k, str) and k not in _LABEL_SCHEMA_KEYS]:
+            normalized = _normalize_key(key)
+            if not normalized:
+                continue
+            near = [
+                target for target in _RECOVERABLE_LABEL_KEYS
+                if Levenshtein.distance(
+                    normalized, target, score_cutoff=_KEY_EDIT_BUDGET[target]
+                ) <= _KEY_EDIT_BUDGET[target]
+            ]
+            if len(near) != 1 or near[0] in label:
+                continue
+            label[near[0]] = label.pop(key)
+            recovered[(key, near[0])] = recovered.get((key, near[0]), 0) + 1
+
+    # Loud, not silent -- same reason as the salvaged-bareword print above.
+    for (key, target), count in sorted(recovered.items()):
+        print(f'  Recovered misspelled key "{key}" as "{target}" on '
+              f"{count} label(s)")
+    return labels
+
 
 def _label_id(label):
     """Return a label's span id as an int, or None if it has no usable id."""
@@ -564,7 +628,8 @@ def parse_label_array(json_text):
 
 def parse_label_response(json_text):
     """Parse classifier output into label dicts. Returns a list or None."""
-    return parse_label_array(json_text) or salvage_label_entries(json_text)
+    labels = parse_label_array(json_text) or salvage_label_entries(json_text)
+    return _recover_label_keys(labels) if labels else labels
 
 
 def _find_balanced(text, opener, closer):
@@ -719,7 +784,18 @@ def extract_labels(text):
     Tried in descending fidelity: the requested JSON array, an id-keyed JSON
     object, regex salvage of individual JSON objects (this is what survives a
     truncation), then markdown blocks. ``(None, None)`` when nothing is usable.
+
+    Misspelled schema keys are recovered here, at the one point every parse mode
+    passes through, so the retry predicate and the resolver always see the same
+    labels -- they have diverged twice before, and a key recovered on only one
+    side would be a third divergence.
     """
+    labels, mode = _extract_labels(text)
+    return (_recover_label_keys(labels) if labels else labels), mode
+
+
+def _extract_labels(text):
+    """extract_labels() without key recovery. See its docstring."""
     if not text:
         return None, None
 
@@ -1232,10 +1308,10 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     # Schema hygiene, counted once per label that is actually used (by_id is
     # already deduplicated). Only the strict-JSON path can carry keys outside
     # the schema -- _extract_label_object builds its dicts from a fixed list of
-    # field names -- so a clean run stays silent here. Observed in production:
-    # a misspelled "instituct" silently cost the delivery direction on four
-    # chunks. Nothing is repaired and no unknown key is ever read (no fuzzy key
-    # matching -- see the banned approaches); the discard is only made visible.
+    # field names -- so a clean run stays silent here. What reaches this point
+    # is what _recover_label_keys could NOT place: a key near two schema keys,
+    # or near none ("inquest", "infty"). Those are still never read; the discard
+    # is only made visible, so the residue of key recovery stays measurable.
     unknown_key_labels = 0
     unknown_keys = set()
     text_key_labels = 0

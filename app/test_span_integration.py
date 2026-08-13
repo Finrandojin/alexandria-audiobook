@@ -649,21 +649,22 @@ class TestRoleMissingDegrades(unittest.TestCase):
 class TestUnknownLabelKeysAreVisible(unittest.TestCase):
     """A key outside the schema is discarded -- but never silently.
 
-    Observed in production: the model wrote "instituct" instead of "instruct",
-    so the delivery direction vanished with no counter and no warning. Nothing
-    is repaired here (no fuzzy key matching); the discard is only reported.
+    What reaches this path is the residue _recover_label_keys could not place:
+    a key too far from every schema key, or near two of them. Nothing is
+    repaired here; the discard is only reported, so that residue stays
+    measurable rather than becoming invisible once recovery exists.
     """
 
-    def test_misspelled_key_is_counted_and_logged(self):
+    def test_unplaceable_key_is_counted_and_logged(self):
         chunk = STRAIGHT_QUOTES
         labels = labels_for(chunk)
         for label in labels:
-            label["instituct"] = label.pop("instruct")
+            label["subtext"] = label.pop("instruct")
         _, stats, output = run_chunk(FakeClient(FakeResponse(json.dumps(labels))), chunk)
 
         self.assertEqual(stats["unknown_key_labels"], len(labels))
-        self.assertEqual(stats["unknown_keys"], ["instituct"])
-        self.assertIn("instituct", output)
+        self.assertEqual(stats["unknown_keys"], ["subtext"])
+        self.assertIn("subtext", output)
         self.assertIn("Ignored unknown key", output)
         self.assertEqual(stats["text_key_labels"], 0)
 
@@ -689,6 +690,78 @@ class TestUnknownLabelKeysAreVisible(unittest.TestCase):
             self.assertNotIn("MODEL-INVENTED PROSE", entry["text"])
         self.assertEqual(stats["text_key_labels"], len(labels))
         self.assertIn('"text" key', output)
+
+
+class TestMisspelledKeyRecovery(unittest.TestCase):
+    """A misspelled schema key is folded back onto the key it can only mean.
+
+    Properties, not a table of observed spellings: the rule must hold for any
+    misspelling within the budget, and must never reach "text" or "id".
+    """
+
+    @staticmethod
+    def _recovered(key):
+        label = {"id": 1, key: "value"}
+        with redirect_stdout(io.StringIO()):
+            generate_script._recover_label_keys([label])
+        return {k for k in label if k != "id"}
+
+    def test_every_single_edit_of_a_long_key_is_recovered(self):
+        # Exhaustive over one edit, so this cannot be fitted to any one book's
+        # model output. Substitutions, deletions and insertions all count.
+        target = "instruct"
+        variants = {target[:i] + target[i + 1:] for i in range(len(target))}
+        variants |= {target[:i] + "x" + target[i + 1:] for i in range(len(target))}
+        variants |= {target[:i] + "x" + target[i:] for i in range(len(target) + 1)}
+        for variant in sorted(variants - {target}):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._recovered(variant), {target})
+
+    def test_separators_and_case_are_not_misspellings(self):
+        for variant in ("Instruct", "IN_STRUCT", "in instruct", " instruct "):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._recovered(variant), {"instruct"})
+
+    def test_nothing_ever_becomes_text(self):
+        # Contract 1: the model never supplies prose. "text" is not a recovery
+        # target, so no spelling of it -- however close -- can be honoured.
+        for variant in ("text", "texts", "tex", "txt", "Text", "te xt", "textt"):
+            with self.subTest(variant=variant):
+                # Left exactly as sent: still unknown, still discarded, still
+                # reported. Never turned INTO the schema's "text".
+                self.assertEqual(self._recovered(variant), {variant})
+
+    def test_short_keys_stay_strict(self):
+        # "id" has a budget of zero: near-misses are common English words and
+        # recovering them would invent span ids.
+        for variant in ("in", "is", "if", "idx", "od"):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._recovered(variant), {variant})
+
+    def test_ambiguity_and_distance_leave_the_key_alone(self):
+        for variant in ("inquest", "infty", "commentary"):
+            with self.subTest(variant=variant):
+                self.assertEqual(self._recovered(variant), {variant})
+
+    def test_a_correct_key_is_never_overwritten(self):
+        label = {"id": 1, "instruct": "real", "instructor": "guess"}
+        with redirect_stdout(io.StringIO()):
+            generate_script._recover_label_keys([label])
+        self.assertEqual(label["instruct"], "real")
+
+    def test_recovery_reaches_the_pipeline_and_is_logged(self):
+        chunk = STRAIGHT_QUOTES
+        labels = labels_for(chunk)
+        for label in labels:
+            label["instructor"] = label.pop("instruct")
+        entries, stats, output = run_chunk(
+            FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual(stats["unknown_key_labels"], 0)
+        self.assertIn("Recovered misspelled key", output)
+        for entry in entries:
+            self.assertNotEqual(entry["instruct"], "")
 
 
 class TestNoWhitespaceOnlyEntries(unittest.TestCase):

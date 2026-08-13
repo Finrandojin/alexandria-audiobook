@@ -422,10 +422,30 @@ def test_generation_imports_the_repair_helpers_rather_than_reimplementing_them()
           generate_script.near_spellings is speaker_canon.near_spellings)
 
     source = inspect.getsource(generate_script)
-    for banned in ("difflib", "rapidfuzz", "def _is_distance_one",
-                   "levenshtein", "Levenshtein"):
+    for banned in ("difflib", "def _is_distance_one",
+                   "from rapidfuzz import fuzz", "ratio("):
         check(f"generate_script does not reimplement matching ({banned})",
               banned not in source)
+
+    # generate_script may measure exact edit distance for ONE purpose: folding a
+    # misspelled JSON schema key back onto the fixed four-word key vocabulary.
+    # That vocabulary is this code's own, not the book's, so a near miss there
+    # has one possible meaning -- unlike JON/JOHN. Keeping the measurement
+    # confined to that function is what stops it from drifting onto names, so
+    # pin the location rather than the mere absence of the word.
+    key_recovery = inspect.getsource(generate_script._recover_label_keys)
+    distance_lines = [line for line in source.splitlines()
+                      if "Levenshtein" in line and not line.lstrip().startswith("#")]
+    check("generate_script measures edit distance only for schema-key recovery",
+          all(line in key_recovery or line.startswith("from rapidfuzz")
+              for line in distance_lines),
+          detail=repr([line for line in distance_lines
+                       if line not in key_recovery
+                       and not line.startswith("from rapidfuzz")]))
+    check("schema-key recovery never targets the 'text' key",
+          "text" not in generate_script._RECOVERABLE_LABEL_KEYS)
+    check("speaker names are still matched only by speaker_canon",
+          "Levenshtein" not in inspect.getsource(generate_script.resolve_span_labels))
 
 
 def main():
