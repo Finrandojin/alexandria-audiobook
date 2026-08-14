@@ -581,6 +581,11 @@
     "test_generate_personas.RosterAmbiguityTest.test_an_ordinary_roster_is_not",
     "test_generate_personas.RosterAmbiguityTest.test_empty_and_none_are_safe"
   ],
+  "test_generation_failure_experiments": [
+    "test_generation_failure_experiments.GenerationFailureExperimentTests.test_floor_splitter_binds_each_arm_independently",
+    "test_generation_failure_experiments.GenerationFailureExperimentTests.test_missing_passage_is_empty_for_complete_conversion",
+    "test_generation_failure_experiments.GenerationFailureExperimentTests.test_missing_passage_preserves_exact_omitted_sentence"
+  ],
   "test_generation_guard": [
     "test_generation_guard.TestDispatch.test_clone_routes_to_clone",
     "test_generation_guard.TestDispatch.test_custom_is_the_fallback",
