@@ -90,12 +90,16 @@ quote non-dialogue, which is the unsafe direction. They stay narration.
 
 SINGLE-QUOTE DISAMBIGUATION RULE (the ambiguous case, documented exactly)
 ------------------------------------------------------------------------
-``‘`` (left single curly) is unambiguous and ALWAYS opens a span.
-
 ``'`` (U+0027) and ``’`` (right single curly) are ambiguous -- they are
-also the apostrophe character. Such a character opens a quoted span only when
-ALL FIVE of the following hold; otherwise it is treated as an apostrophe and
-stays inside the surrounding UNQUOTED span:
+also the apostrophe character. ``‘`` (left single curly) is *direction*-
+unambiguous but, measured against real ebooks, is NOT guaranteed to be a
+correctly paired opener (see "‘ is not exempt" below).
+
+A single-quote character opens a quoted span only when ALL FIVE of the
+following hold; otherwise it is treated as an apostrophe and stays inside the
+surrounding UNQUOTED span. Rules 2-4 ask what FOLLOWS the mark in order to
+tell an apostrophe from a quote, so they apply to the ambiguous glyphs only;
+rules 1 and 5 apply to ``‘`` as well:
 
 1. It is at start-of-text, or the preceding character is whitespace, or the
    preceding character is opening punctuation (one of ``([{<"“”«—–-*_~``).
@@ -131,8 +135,47 @@ stays inside the surrounding UNQUOTED span:
    runaway. Single-quoted dialogue longer than that, or spanning a paragraph
    break, is rare enough that narrator fallback is the right trade.
 
-   Rule 5 applies ONLY to the ambiguous glyphs. ``‘`` is unambiguous and is
-   not subject to it -- neither bound constrains ``‘`` dialogue.
+``‘`` IS NOT EXEMPT (rules 1 and 5) -- superseded rationale, with evidence
+--------------------------------------------------------------------------
+This module used to state that ``‘`` "is unambiguous and ALWAYS opens a span"
+and exempted it from all five rules. Measurement disproves the premise. In a
+794K-character trade ebook (281 chunks at the configured ``chunk_size`` 3000)
+``‘`` opened 8 quoted spans with a median length of 906 characters and a max
+of 2289; 6 exceeded 500. Against 4552 ``“`` spans of median length 33, every
+one of those 8 is a false quotation: 2.58% of the book was typed ``kind=
+"quoted"`` -- offered to the classifier as dialogue -- while being plain
+third-person narration, with attribution tags and paragraph breaks dragged
+inside one span where ``build_entries`` cannot separate them.
+
+Two causes, both real and neither book-specific:
+
+* **Wrong-direction smart apostrophe.** Word processors and EPUB converters
+  emit ``‘`` where an apostrophe was meant (``mochteroof‘s``, ``cousins‘?``).
+  6 of the book's 163 ``‘`` were preceded by a letter. Rule 1 exists exactly
+  to reject ``O'Brien`` / ``Jones'`` and was simply never applied here.
+  Applying it is language-neutral and needs no lexicon: a single quote
+  directly after a letter is never an opening quote in any convention.
+* **Leading-elision proper noun.** An elided name (``'Mela`` for Carmela) is
+  whitespace-preceded, so it passes rule 1, and with no bound it ran to the
+  next stray apostrophe -- 945, 977 and 844 characters in three chunks. No
+  lexicon can fix this: adding the name would be corpus-fitting. Rule 5's
+  bounds are the general answer, and the argument that once justified the
+  exemption ("``‘`` is unambiguous") is the thing measurement falsified. What
+  ``‘`` guarantees is *direction*, not correct pairing; a mark whose partner
+  never arrives inside a paragraph or 500 characters is not behaving as a
+  quote regardless of which glyph it is.
+
+Rules 2-4 still do NOT apply to ``‘``: they discriminate apostrophe from
+quote by the following character, a question ``‘`` does not raise, and
+imposing them would narrate legitimate ``‘'Tis...’`` or ``‘1984 was...’``.
+
+Cost to a legitimately single-quoted (British / Commonwealth) book, where
+``‘ ... ’`` is the primary dialogue convention: none for ordinary dialogue,
+which is whitespace- or open-punctuation-preceded and closes well inside one
+paragraph. The two losses are the same ones already accepted for ``'``: a
+single-quoted speech longer than ``MAX_AMBIGUOUS_SINGLE_SPAN``, and one
+continued across a paragraph break without an intervening closer. Both become
+narration -- no text is lost, and NARRATOR is the safe fallback.
 
 A ``'`` or ``’`` closes an open single-quoted span only when the preceding
 character is a non-space AND the following character is end-of-input,
@@ -149,9 +192,9 @@ KNOWN, ACCEPTED LIMITATIONS
 * A plural possessive inside single-quoted dialogue (``'the dogs' tails,' he
   said``) closes the quotation early at ``dogs'``. The remaining text becomes
   narration -- again the safe direction, and no text is lost.
-* Straight-single-quoted dialogue that continues across a paragraph break, or
-  that runs longer than ``MAX_AMBIGUOUS_SINGLE_SPAN``, is read as narration
-  (rule 5's two bounds). ``‘`` dialogue is unaffected by both.
+* Single-quoted dialogue that continues across a paragraph break, or that runs
+  longer than ``MAX_AMBIGUOUS_SINGLE_SPAN``, is read as narration (rule 5's
+  two bounds). This now includes ``‘`` dialogue.
 """
 
 from bisect import bisect_left, bisect_right
@@ -199,11 +242,11 @@ SINGLE_CLOSERS = "'’"            # '  and  ’
 # Characters that may legitimately sit immediately before an opening quote.
 OPEN_CONTEXT_CHARS = "([{<\"“”«—–-*_~" + "".join(PAIRED_QUOTES)
 
-# Longest span an AMBIGUOUS single quote (' or ’) may open. Matches
-# MAX_CHUNK_CHARS in project.py: a quotation longer than the pipeline's own
-# chunk cap is split downstream anyway, so accepting one buys nothing and
-# risks a stray apostrophe swallowing a page of narration. Does not apply to
-# the unambiguous ‘.
+# Longest span ANY single quote (' ’ ‘) may open. Matches MAX_CHUNK_CHARS in
+# project.py: a quotation longer than the pipeline's own chunk cap is split
+# downstream anyway, so accepting one buys nothing and risks a stray
+# apostrophe swallowing a page of narration. Name kept for compatibility; ‘
+# is subject to it too since measurement showed ‘ runaways in real ebooks.
 MAX_AMBIGUOUS_SINGLE_SPAN = 500
 
 # Alphabetic runs that follow a leading apostrophe in an elision. A quote
@@ -329,23 +372,30 @@ def _find_single_closer(source, open_index, closers=None):
     return -1
 
 
-def _is_single_opener(source, index, closers=None, breaks=None):
-    """Apply the five-part ambiguous-single-quote rule (see module docstring)."""
+def _is_single_opener(source, index, closers=None, breaks=None, unambiguous=False):
+    """Apply the single-quote opener rules (see module docstring).
+
+    ``unambiguous=True`` is the ``‘`` case: rules 2-4 exist only to tell an
+    apostrophe from a quote mark by what FOLLOWS it, and ``‘`` needs no such
+    test. Rules 1 and 5 still apply -- ``‘`` is direction-unambiguous, not
+    guaranteed to be a correctly paired opener.
+    """
     # 1. preceded by start-of-text, whitespace or opening punctuation
     if index > 0:
         prev = source[index - 1]
         if not (prev.isspace() or prev in OPEN_CONTEXT_CHARS):
             return False
-    # 2. not the final character
-    nxt_index = index + 1
-    if nxt_index >= len(source):
-        return False
-    # 3. followed by a letter (digits rejected: '90s is an elision)
-    if not source[nxt_index].isalpha():
-        return False
-    # 4. not a known elision ('tis, 'twas, 'em ...)
-    if _alpha_run(source, nxt_index) in ELISIONS:
-        return False
+    if not unambiguous:
+        # 2. not the final character
+        nxt_index = index + 1
+        if nxt_index >= len(source):
+            return False
+        # 3. followed by a letter (digits rejected: '90s is an elision)
+        if not source[nxt_index].isalpha():
+            return False
+        # 4. not a known elision ('tis, 'twas, 'em ...)
+        if _alpha_run(source, nxt_index) in ELISIONS:
+            return False
     # 5. a valid closer must exist, and must land before BOTH the next
     #    paragraph break and the span-length cap -- otherwise a stray opener
     #    plus a distant possessive swallows a page of narration
@@ -399,9 +449,12 @@ def tokenize(source):
                 state = _IN_PAIRED
                 pending_closers = PAIRED_QUOTES[ch]
                 quote_start = i
-            elif ch == SINGLE_UNAMBIGUOUS_OPENER or (
-                ch in SINGLE_AMBIGUOUS
-                and _is_single_opener(source, i, closers, breaks)
+            elif (
+                ch == SINGLE_UNAMBIGUOUS_OPENER
+                or ch in SINGLE_AMBIGUOUS
+            ) and _is_single_opener(
+                source, i, closers, breaks,
+                unambiguous=(ch == SINGLE_UNAMBIGUOUS_OPENER),
             ):
                 emit(segment_start, i, UNQUOTED)
                 state = _IN_SINGLE

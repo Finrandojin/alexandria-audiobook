@@ -387,15 +387,61 @@ class TestRunawayOpenerBounds(unittest.TestCase):
         source = "She said '" + body + "end.' He nodded."
         self.assertEqual(segments(source), [(UNQUOTED, source)])
 
-    def test_unambiguous_curly_single_is_exempt_from_both_bounds(self):
+    def test_curly_single_is_subject_to_both_bounds_too(self):
+        # ‘ used to be exempt. Measured on a real ebook, that let a wrong-way
+        # smart apostrophe or an elided name open page-long "quotations".
         long_body = "word " * 200
         source = "She said ‘" + long_body + "end.’ He nodded."
-        spans = tokenize(source)
-        self.assertEqual(spans[1].kind, QUOTED)
-        self.assertGreater(spans[1].end - spans[1].start, MAX_AMBIGUOUS_SINGLE_SPAN)
+        self.assertEqual(segments(source), [(UNQUOTED, source)])
 
         across = "She said ‘no more and left.\n\nThe rain kept on.’ He nodded."
-        self.assertEqual(tokenize(across)[1].kind, QUOTED)
+        self.assertEqual(segments(across), [(UNQUOTED, across)])
+
+    def test_curly_single_after_a_letter_never_opens(self):
+        # Wrong-direction smart apostrophe: rule 1 rejects it exactly as it
+        # rejects O'Brien / Jones'. No lexicon involved.
+        source = "The cousins‘ tails wagged and the valuta‘s value fell."
+        self.assertEqual(segments(source), [(UNQUOTED, source)])
+
+    def test_curly_single_bounded_but_not_subject_to_rules_2_to_4(self):
+        # Rules 2-4 read the FOLLOWING character to tell apostrophe from
+        # quote -- a question ‘ does not raise. Elisions and digits still open.
+        self.assertEqual(
+            segments("‘Tis done,’ he said."),
+            [(QUOTED, "‘Tis done,’"), (UNQUOTED, " he said.")],
+        )
+        self.assertEqual(
+            segments("‘1984 was the year,’ she said."),
+            [(QUOTED, "‘1984 was the year,’"), (UNQUOTED, " she said.")],
+        )
+
+
+class TestBritishSingleQuotedDialogue(unittest.TestCase):
+    """Regression guard: books using ‘ … ’ as the PRIMARY dialogue mark."""
+
+    def test_ordinary_single_quoted_dialogue_tokenizes(self):
+        source = (
+            "‘Hello,’ he said. ‘I did not expect you.’\n\n"
+            "She shrugged. ‘Nor did I,’ she answered, ‘but here we are.’"
+        )
+        quoted = [t for kind, t in segments(source) if kind == QUOTED]
+        self.assertEqual(
+            quoted,
+            [
+                "‘Hello,’",
+                "‘I did not expect you.’",
+                "‘Nor did I,’",
+                "‘but here we are.’",
+            ],
+        )
+        self.assertEqual("".join(t for _, t in segments(source)), source)
+
+    def test_apostrophes_inside_single_quoted_dialogue_do_not_close_it(self):
+        source = "‘It doesn’t matter,’ she said."
+        self.assertEqual(
+            segments(source),
+            [(QUOTED, "‘It doesn’t matter,’"), (UNQUOTED, " she said.")],
+        )
 
     def test_double_quotes_are_exempt_from_both_bounds(self):
         long_body = "word " * 200
@@ -454,11 +500,11 @@ class TestUnterminatedQuotes(unittest.TestCase):
             [(UNQUOTED, "He said, "), (QUOTED, "“I am leaving")],
         )
 
-    def test_unterminated_curly_single_runs_to_end(self):
-        self.assertEqual(
-            segments("He said, ‘I am leaving"),
-            [(UNQUOTED, "He said, "), (QUOTED, "‘I am leaving")],
-        )
+    def test_unterminated_curly_single_stays_unquoted(self):
+        # Rule 5 now covers ‘ as well: with no closer at all, narration is the
+        # safer reading. Text is intact either way.
+        source = "He said, ‘I am leaving"
+        self.assertEqual(segments(source), [(UNQUOTED, source)])
 
     def test_unterminated_ambiguous_single_stays_unquoted(self):
         # Rule 5: with no valid closer, apostrophe is the safer reading and
