@@ -32,6 +32,7 @@ from pitch_quality_probe import resolve  # noqa: E402
 BAND = (0.90, 1.10)
 LANGUAGES = {"en": "ljspeech_generate.json",
              "ja": "kokoro_generate.json",
+             "ja_same_speaker": "kokoro_same_speaker_generate.json",
              "zh": "aishell3_generate.json"}
 
 
@@ -89,6 +90,8 @@ def main():
             rows = json.load(handle)["rows"]
         result["languages"][lang] = {}
         for arm in ("lora_wav", "clone_wav"):
+            if not any(row.get(arm) for row in rows):
+                continue
             result["languages"][lang][arm] = run(rows, arm, args.lines)
             print(f"  {lang} {arm} done", flush=True)
 

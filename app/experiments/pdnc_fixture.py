@@ -35,11 +35,19 @@ SPECIAL = {"UNKNOWN", "UNNAMED", "NOT_DIALOGUE"}
 
 
 def load_novel(folder, name):
-    quotes = list(csv.DictReader(open(os.path.join(folder, f"{name}_quotes.csv"),
-                                      encoding="utf-8")))
-    chars = list(csv.DictReader(open(os.path.join(folder, f"{name}_chars.csv"),
-                                     encoding="utf-8")))
-    text = open(os.path.join(folder, f"{name}.txt"), encoding="utf-8").read()
+    legacy = os.path.join(folder, f"{name}_quotes.csv")
+    if os.path.exists(legacy):
+        quote_path = legacy
+        char_path = os.path.join(folder, f"{name}_chars.csv")
+        text_path = os.path.join(folder, f"{name}.txt")
+    else:
+        novel_dir = os.path.join(folder, name)
+        quote_path = os.path.join(novel_dir, "quotation_info.csv")
+        char_path = os.path.join(novel_dir, "character_info.csv")
+        text_path = os.path.join(novel_dir, "novel_text.txt")
+    quotes = list(csv.DictReader(open(quote_path, encoding="utf-8")))
+    chars = list(csv.DictReader(open(char_path, encoding="utf-8")))
+    text = open(text_path, encoding="utf-8").read()
     return quotes, chars, text
 
 

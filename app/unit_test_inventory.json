@@ -960,6 +960,11 @@
     "test_pass_quality.SegmentQualityTests.test_rejects_narration_combined_with_quoted_dialogue",
     "test_pass_quality.SegmentQualityTests.test_severe_truncation_fails_recall"
   ],
+  "test_pdnc_failure_telemetry": [
+    "test_pdnc_failure_telemetry.PdncFailureTelemetryTests.test_failure_class_precedence",
+    "test_pdnc_failure_telemetry.PdncFailureTelemetryTests.test_load_novel_accepts_native_pdnc_layout",
+    "test_pdnc_failure_telemetry.PdncFailureTelemetryTests.test_roster_and_alias_context_matching"
+  ],
   "test_pitch_profile_matrix": [
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_load_adapters_accepts_complete_manifest_entries",
     "test_pitch_profile_matrix.PitchProfileMatrixTests.test_locked_fixture_matches_six_distinct_source_passages",
