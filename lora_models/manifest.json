@@ -170,9 +170,9 @@
       "3": 4.329,
       "4": 4.0725
     },
-    "final_loss": 4.07250118970871,
-    "best_loss": 4.328963549137115,
-    "sample_count": 200,
+    "final_loss": 4.302345824241638,
+    "best_loss": 4.302345824241638,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -188,7 +188,9 @@
       "smoothness": 0.646,
       "flatness": 0.0356,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
-    }
+    },
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6983
   },
   {
     "id": "warm_baritone_30s_m_2",
@@ -264,9 +266,9 @@
       "2": 4.3491,
       "3": 4.0659
     },
-    "final_loss": 4.065893648862839,
-    "best_loss": 4.349122470617294,
-    "sample_count": 200,
+    "final_loss": 4.022227218416002,
+    "best_loss": 4.022227218416002,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -282,7 +284,9 @@
       "smoothness": 0.496,
       "flatness": 0.3244,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
-    }
+    },
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6545
   },
   {
     "id": "warm_mezzo_20s_f_anime",
@@ -588,9 +592,9 @@
       "3": 4.1574,
       "4": 3.9969
     },
-    "final_loss": 3.9968889927864075,
-    "best_loss": 4.157353231906891,
-    "sample_count": 200,
+    "final_loss": 4.131259330113729,
+    "best_loss": 4.131259330113729,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -606,7 +610,9 @@
       "flatness": 0.0331,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm rich baritone, measured and profoundly dramatic \u2014 best for 40s\u201360s ancient vampire lords and brooding romantic leads"
+    "description": "Warm rich baritone, measured and profoundly dramatic \u2014 best for 40s\u201360s ancient vampire lords and brooding romantic leads",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6521
   },
   {
     "id": "velvety_mezzo_30s_f_gothic",
@@ -651,9 +657,9 @@
       "2": 4.3007,
       "3": 4.1109
     },
-    "final_loss": 4.110913591384888,
-    "best_loss": 4.110913591384888,
-    "sample_count": 200,
+    "final_loss": 4.049729478359223,
+    "best_loss": 4.049729478359223,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -669,7 +675,9 @@
       "flatness": 0.0079,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm rounded mezzo, earnest and resolute \u2014 best for 30s\u201340s adventurous fantasy explorers or steadfast partners"
+    "description": "Warm rounded mezzo, earnest and resolute \u2014 best for 30s\u201340s adventurous fantasy explorers or steadfast partners",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6555
   },
   {
     "id": "silky_mezzo_30s_f_fantasy",
@@ -780,9 +788,9 @@
       "3": 4.2822,
       "4": 4.0399
     },
-    "final_loss": 4.039902466535568,
-    "best_loss": 4.282218991518021,
-    "sample_count": 200,
+    "final_loss": 4.251587047841814,
+    "best_loss": 4.251587047841814,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -798,7 +806,9 @@
       "flatness": 0.0223,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm bright alto, measured and commanding \u2014 best for 50s+ Isekai Empress or seasoned Guild Master figure"
+    "description": "Warm bright alto, measured and commanding \u2014 best for 50s+ Isekai Empress or seasoned Guild Master figure",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7002
   },
   {
     "id": "warm_baritone_40s_m_3",
@@ -976,9 +986,9 @@
       "2": 4.3171,
       "3": 4.1083
     },
-    "final_loss": 4.108289730548859,
-    "best_loss": 4.108289730548859,
-    "sample_count": 200,
+    "final_loss": 4.070069922341241,
+    "best_loss": 4.070069922341241,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -994,7 +1004,9 @@
       "smoothness": 0.303,
       "flatness": 0.011,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
-    }
+    },
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.5634
   },
   {
     "id": "warm_tenor_30s_m_1",
@@ -1009,9 +1021,9 @@
       "4": 4.1856,
       "5": 4.0117
     },
-    "final_loss": 4.011736381053924,
-    "best_loss": 4.185591386556625,
-    "sample_count": 200,
+    "final_loss": 4.336548882060581,
+    "best_loss": 4.336548882060581,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1027,7 +1039,9 @@
       "flatness": 0.0169,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm rounded tenor, rapid-fire and evocative of deep lore \u2014 best for 30s\u201345s adventurous, worldly magic-users."
+    "description": "Warm rounded tenor, rapid-fire and evocative of deep lore \u2014 best for 30s\u201345s adventurous, worldly magic-users.",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7124
   },
   {
     "id": "husky_baritone_40s_m_scifi",
@@ -1231,9 +1245,9 @@
       "3": 4.2919,
       "4": 4.0676
     },
-    "final_loss": 4.067560068368912,
-    "best_loss": 4.291917643547058,
-    "sample_count": 200,
+    "final_loss": 4.2520931204160055,
+    "best_loss": 4.2520931204160055,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1249,7 +1263,9 @@
       "flatness": 0.1233,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Breathy rough tenor, alert and measured \u2014 best for 20s\u201330s wilderness archers or watchful fantasy scouts"
+    "description": "Breathy rough tenor, alert and measured \u2014 best for 20s\u201330s wilderness archers or watchful fantasy scouts",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6737
   },
   {
     "id": "warm_tenor_20s_m_scifi",
@@ -1294,9 +1310,9 @@
       "3": 4.2311,
       "4": 4.0163
     },
-    "final_loss": 4.016311911344528,
-    "best_loss": 4.2311321175098415,
-    "sample_count": 200,
+    "final_loss": 4.174490072992113,
+    "best_loss": 4.174490072992113,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1312,7 +1328,9 @@
       "flatness": 0.1858,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Breathy full mezzo, urgent and atmospheric \u2014 best for 20s\u201330s high-stakes sci-fi operatives and determined heroines"
+    "description": "Breathy full mezzo, urgent and atmospheric \u2014 best for 20s\u201330s high-stakes sci-fi operatives and determined heroines",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.5955
   },
   {
     "id": "bright_tenor_30s_m",
@@ -1421,9 +1439,9 @@
       "3": 4.3096,
       "4": 4.0827
     },
-    "final_loss": 4.082703914642334,
-    "best_loss": 4.309632482528687,
-    "sample_count": 200,
+    "final_loss": 4.268293261528015,
+    "best_loss": 4.268293261528015,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1439,7 +1457,9 @@
       "flatness": 0.1388,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Breathy rough-edged baritone, weighty and appreciative \u2014 best for 40s\u201350s military or historical fiction narrating seasoned leaders and comrades."
+    "description": "Breathy rough-edged baritone, weighty and appreciative \u2014 best for 40s\u201350s military or historical fiction narrating seasoned leaders and comrades.",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7135
   },
   {
     "id": "warm_alto_40s_f_1",
@@ -1453,9 +1473,9 @@
       "3": 4.2013,
       "4": 3.9916
     },
-    "final_loss": 3.9915803349018097,
-    "best_loss": 4.201339836120606,
-    "sample_count": 200,
+    "final_loss": 4.15631791220771,
+    "best_loss": 4.15631791220771,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1471,7 +1491,9 @@
       "flatness": 0.0287,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm rich alto, narrative and authoritative \u2014 best for 40s\u201360s historical romance heroines and stately narrators"
+    "description": "Warm rich alto, narrative and authoritative \u2014 best for 40s\u201360s historical romance heroines and stately narrators",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6087
   },
   {
     "id": "crisp_mezzo_30s_f",
@@ -1710,9 +1732,9 @@
       "3": 4.1842,
       "4": 3.9396
     },
-    "final_loss": 3.9396031498908997,
-    "best_loss": 4.184227986335754,
-    "sample_count": 200,
+    "final_loss": 4.135305349032084,
+    "best_loss": 4.135305349032084,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1728,7 +1750,9 @@
       "flatness": 0.1789,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Silky bright mezzo, plaintive and immediate \u2014 best for 10s\u201320s earnest, introspective young heroines in high fantasy."
+    "description": "Silky bright mezzo, plaintive and immediate \u2014 best for 10s\u201320s earnest, introspective young heroines in high fantasy.",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6624
   },
   {
     "id": "warm_baritone_30s_m_fantasy_2",
@@ -1742,9 +1766,9 @@
       "3": 4.2058,
       "4": 3.9653
     },
-    "final_loss": 3.965348478555679,
-    "best_loss": 4.205785884857177,
-    "sample_count": 200,
+    "final_loss": 4.188185796472761,
+    "best_loss": 4.188185796472761,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1760,7 +1784,9 @@
       "flatness": 0.1681,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm airy baritone, grounded and slightly startled \u2014 best for 30s\u201340s adventurous protagonists in high-stakes fantasy."
+    "description": "Warm airy baritone, grounded and slightly startled \u2014 best for 30s\u201340s adventurous protagonists in high-stakes fantasy.",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7084
   },
   {
     "id": "breathy_baritone_30s_m_fantasy",
@@ -1870,9 +1896,9 @@
       "3": 4.3597,
       "4": 4.1286
     },
-    "final_loss": 4.128625519275666,
-    "best_loss": 4.128625519275666,
-    "sample_count": 200,
+    "final_loss": 4.317043258084191,
+    "best_loss": 4.317043258084191,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1888,7 +1914,9 @@
       "flatness": 0.044,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Bright crisp tenor, sweeping and urgent \u2014 best for 30s\u201340s courtly fantasy chroniclers and watchful guardsmen"
+    "description": "Bright crisp tenor, sweeping and urgent \u2014 best for 30s\u201340s courtly fantasy chroniclers and watchful guardsmen",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.5597
   },
   {
     "id": "warm_baritone_40s_m_military",
@@ -1902,9 +1930,9 @@
       "3": 4.2626,
       "4": 4.0525
     },
-    "final_loss": 4.05254498720169,
-    "best_loss": 4.262629247903824,
-    "sample_count": 200,
+    "final_loss": 4.224999701976776,
+    "best_loss": 4.224999701976776,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1920,7 +1948,9 @@
       "flatness": 0.0591,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Warm smooth baritone, briskly authoritative and tactical \u2014 best for 40s\u201350s military strategists or seasoned adventure protagonists"
+    "description": "Warm smooth baritone, briskly authoritative and tactical \u2014 best for 40s\u201350s military strategists or seasoned adventure protagonists",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6906
   },
   {
     "id": "husky_tenor_30s_m_fantasy",
@@ -1934,9 +1964,9 @@
       "3": 4.2839,
       "4": 4.0432
     },
-    "final_loss": 4.0431518661975865,
-    "best_loss": 4.283894429206848,
-    "sample_count": 200,
+    "final_loss": 4.259476069609324,
+    "best_loss": 4.259476069609324,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1952,7 +1982,9 @@
       "flatness": 0.0694,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Husky powerful tenor, commanding and visceral \u2014 best for 30s\u201345s gritty fantasy warriors and grizzled protagonists"
+    "description": "Husky powerful tenor, commanding and visceral \u2014 best for 30s\u201345s gritty fantasy warriors and grizzled protagonists",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7053
   },
   {
     "id": "crisp_tenor_20s_m",
@@ -1966,9 +1998,9 @@
       "3": 4.2134,
       "4": 4.0103
     },
-    "final_loss": 4.0103046679496765,
-    "best_loss": 4.213384453058243,
-    "sample_count": 200,
+    "final_loss": 4.2167138126161365,
+    "best_loss": 4.2167138126161365,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -1984,7 +2016,9 @@
       "flatness": 0.0384,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Bright crisp tenor, earnest and reflective \u2014 best for 20s\u201330s college student navigating poignant coming-of-age romance"
+    "description": "Bright crisp tenor, earnest and reflective \u2014 best for 20s\u201330s college student navigating poignant coming-of-age romance",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7218
   },
   {
     "id": "silky_alto_40s_f_literary_1",
@@ -2030,9 +2064,9 @@
       "3": 4.3204,
       "4": 4.1239
     },
-    "final_loss": 4.123898839950561,
-    "best_loss": 4.123898839950561,
-    "sample_count": 200,
+    "final_loss": 4.266026922067007,
+    "best_loss": 4.266026922067007,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -2048,7 +2082,9 @@
       "flatness": 0.0251,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Silky bright alto, briskly reflective and emotionally nuanced \u2014 best for 40s\u201360s university students navigating complex coming-of-age dramas."
+    "description": "Silky bright alto, briskly reflective and emotionally nuanced \u2014 best for 40s\u201360s university students navigating complex coming-of-age dramas.",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.7117
   },
   {
     "id": "warm_tenor_20s_m",
@@ -2092,9 +2128,9 @@
       "2": 4.3209,
       "3": 4.1271
     },
-    "final_loss": 4.127107691764832,
-    "best_loss": 4.127107691764832,
-    "sample_count": 200,
+    "final_loss": 4.0766892552375795,
+    "best_loss": 4.0766892552375795,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -2110,7 +2146,9 @@
       "flatness": 0.1076,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
     },
-    "description": "Breathy bright baritone, thoughtful and reflective \u2014 best for 40s\u201350s literary fiction narrating introspective young adult experiences"
+    "description": "Breathy bright baritone, thoughtful and reflective \u2014 best for 40s\u201350s literary fiction narrating introspective young adult experiences",
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6845
   },
   {
     "id": "warm_tenor_25s_m_military",
@@ -2291,9 +2329,9 @@
       "3": 4.3413,
       "4": 4.1117
     },
-    "final_loss": 4.111713767051697,
-    "best_loss": 4.111713767051697,
-    "sample_count": 200,
+    "final_loss": 4.297352133856879,
+    "best_loss": 4.297352133856879,
+    "sample_count": 180,
     "lora_r": 64,
     "lr": 1e-06,
     "target_loss": 4.15,
@@ -2309,7 +2347,9 @@
       "smoothness": 0.364,
       "flatness": 0.0454,
       "mean_f0_caveat": "indicative only: profiled before the 2026-08-04 seed fix, so each value is a mean over independent draws of the voice. Measured error against seeded generation is 12.9 Hz mean / 29.7 Hz worst, against a within-voice spread of 32.4 Hz median (range 14.4-71.9). Usable to RANK voices; not precise enough to compute pairwise separation or to gate casting by number. Re-profile seeded before using numerically."
-    }
+    },
+    "retrained_at": "20260815_152050",
+    "gate_ecapa": 0.6537
   },
   {
     "id": "silky_baritone_40s_m_scifi",

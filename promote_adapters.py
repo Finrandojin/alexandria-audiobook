@@ -28,6 +28,7 @@ REPO = os.path.dirname(os.path.abspath(__file__))
 MODELS = os.path.join(REPO, "lora_models")
 GATES = os.path.join(REPO, "ab_test_runtime", "experiments")
 SOURCE = os.path.join(REPO, "ab_test_runtime", "retrain_honest")
+DECONTAMINATE_SOURCE = os.path.join(REPO, "ab_test_runtime", "decontaminate")
 BACKUPS = os.path.join(REPO, "ab_test_runtime", "promotion_backups")
 
 MIN_ECAPA = 0.45
@@ -40,12 +41,41 @@ PROMOTE_FILES = ("adapter_config.json", "adapter_model.safetensors",
                  "training_meta.json", "README.md", "ref_sample.wav")
 
 
+def get_adapter_source(name):
+    """Return the gated retrained adapter directory, across supported runs."""
+    gate = gate_result(name)
+    gated_path = gate.get("adapter") if gate else None
+    if gated_path:
+        candidate = os.path.realpath(
+            gated_path if os.path.isabs(gated_path)
+            else os.path.join(REPO, gated_path))
+        roots = (os.path.realpath(SOURCE), os.path.realpath(DECONTAMINATE_SOURCE))
+        if (os.path.isdir(candidate)
+                and any(os.path.commonpath((candidate, root)) == root
+                        for root in roots)):
+            return candidate
+    legacy = os.path.join(SOURCE, name, "adapter")
+    if os.path.isdir(legacy):
+        return legacy
+    import glob
+    matches = sorted(glob.glob(os.path.join(
+        DECONTAMINATE_SOURCE, "batch*", name, "adapter")))
+    return matches[0] if len(matches) == 1 else None
+
+
 def shipped_scores():
-    """Adapter -> the score the shipped weights earned, from the n=10 run."""
+    """Adapter -> best recorded score for the weights currently shipped."""
     path = os.path.join(GATES, "library_voice_fidelity_n10.json")
     with open(path, encoding="utf-8") as handle:
-        return {r["adapter"]: r.get("ecapa")
-                for r in json.load(handle)["results"]}
+        scores = {r["adapter"]: r.get("ecapa")
+                  for r in json.load(handle)["results"]}
+    manifest = os.path.join(MODELS, "manifest.json")
+    if os.path.exists(manifest):
+        with open(manifest, encoding="utf-8") as handle:
+            for entry in json.load(handle):
+                if entry.get("gate_ecapa") is not None:
+                    scores[entry["id"]] = entry["gate_ecapa"]
+    return scores
 
 
 def gate_result(name):
@@ -75,7 +105,7 @@ def check(name, before):
         return False, score, "no shipped score to compare against"
     if score <= old:
         return False, score, f"gate {score:.3f} does not beat shipped {old:.3f}"
-    if not os.path.isdir(os.path.join(SOURCE, name, "adapter")):
+    if get_adapter_source(name) is None:
         return False, score, "no retrained adapter on disk"
     if not os.path.isdir(os.path.join(MODELS, name)):
         return False, score, "no shipped adapter to replace"
@@ -112,7 +142,7 @@ def promote(names, stamp, dry_run):
 
     print("installing")
     for name, score, _reason in plan:
-        src = os.path.join(SOURCE, name, "adapter")
+        src = get_adapter_source(name)
         dst = os.path.join(MODELS, name)
         for filename in PROMOTE_FILES:
             source_file = os.path.join(src, filename)
@@ -147,7 +177,8 @@ def update_manifest(promoted, stamp):
         score = promoted.get(entry.get("id"))
         if score is None:
             continue
-        meta = os.path.join(SOURCE, entry["id"], "adapter", "training_meta.json")
+        source = get_adapter_source(entry["id"])
+        meta = os.path.join(source, "training_meta.json") if source else ""
         if os.path.exists(meta):
             with open(meta, encoding="utf-8") as handle:
                 fresh = json.load(handle)
@@ -155,6 +186,8 @@ def update_manifest(promoted, stamp):
                           "best_loss", "sample_count", "lora_r", "lr"):
                 if field in fresh:
                     entry[field] = fresh[field]
+            if "num_samples" in fresh:
+                entry["sample_count"] = fresh["num_samples"]
         entry["retrained_at"] = stamp
         entry["gate_ecapa"] = score
     with open(path, "w", encoding="utf-8") as handle:

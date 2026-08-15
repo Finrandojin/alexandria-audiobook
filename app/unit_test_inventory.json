@@ -1039,6 +1039,13 @@
     "test_project_chunks.UnspeakablePassthroughTest.test_leading_scene_break_makes_no_orphan_pause",
     "test_project_chunks.UnspeakablePassthroughTest.test_symbol_is_verbalized"
   ],
+  "test_promote_adapters": [
+    "test_promote_adapters.AdapterSourceTests.test_gate_path_wins_over_same_named_legacy_source",
+    "test_promote_adapters.AdapterSourceTests.test_installed_gate_score_overrides_stale_baseline",
+    "test_promote_adapters.AdapterSourceTests.test_manifest_maps_training_num_samples_to_sample_count",
+    "test_promote_adapters.AdapterSourceTests.test_refuses_ambiguous_decontamination_sources",
+    "test_promote_adapters.AdapterSourceTests.test_resolves_one_decontamination_batch"
+  ],
   "test_pronunciation": [
     "test_pronunciation.LexiconTest.test_a_malformed_lexicon_degrades_to_no_substitution",
     "test_pronunciation.LexiconTest.test_a_missing_lexicon_is_not_an_error",
