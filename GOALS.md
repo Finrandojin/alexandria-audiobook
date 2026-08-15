@@ -392,24 +392,26 @@ attribution work should improve selection/context use and keep batch-failure
 recovery measurable; constrained output alone can address at most the smaller
 invalid-answer class.
 
-**First-person narrator intervention, 2026-08-15.** A same-run controlled
-comparison on 120 quotations from each of two weak first-person books found a
-specific, correctable selection failure (`pdnc_narrator_prior__local-llamacpp.json`).
+**First-person narrator intervention, 2026-08-15.** A clean same-run controlled
+comparison on 120 quotations from each of three first-person books found a
+specific, correctable selection failure (`pdnc_narrator_prior__clean-3book.json`).
 Supplying the narrator's exact character identity raised *The Gambler* from
-**62/120 (51.7%) to 93/120 (77.5%)** and *The Sun Also Rises* from **65/120
-(54.2%) to 91/120 (75.8%)**. On quotations owned by the narrator, the changes
-were **0/56 to 38/56** for ALEXIS IVANOVITCH and **28/60 to 44/60** for JAKE
-BARNES. The paired changes were +38/−7 and +29/−3 respectively.
+**60/120 (50.0%) to 93/120 (77.5%)**, *The Sun Also Rises* from **65/120
+(54.2%) to 91/120 (75.8%)**, and the stronger *Mysterious Affair at Styles*
+control from **97/120 (80.8%) to 102/120 (85.0%)**. The combined result is
+**222/360 (61.7%) to 286/360 (79.4%)**, within 4.2 points of the 83.6%
+development figure. Paired changes were +40/−7, +29/−3, and +6/−1; the first
+two are decisive (p=1.1e-6 and 2.6e-6), while the smaller control gain is not
+significant (p=0.125).
 
 The generic control, which told the model to infer a first-person narrator but
 did not supply the name, was neutral on *The Gambler* and slightly worse on
 *The Sun Also Rises* (`pdnc_narrator_prior__local-llamacpp-generic.json`). The
 gain therefore comes from the explicit book-level identity, not generic prompt
-wording. This supports the optional narrator hint now implemented in PR #299,
-but does **not** close this goal: only two books and 120 rows per book were
-tested, the audit classifies both artifacts as provisional because their
-recorded worktree was dirty, and the target requires a clean held-out result on
-at least three books.
+wording. The clean three-book run validates the optional narrator hint now
+implemented in PR #299 and meets this intervention's stated evidence target.
+It does **not** erase the broader 28-book generalisation gap: narrator metadata
+must be known and supplied, and not every weak book is first-person.
 
 **Target — a clean held-out number on ≥ 3 books, within 5 points of the
 development books' figure.**
@@ -590,6 +592,15 @@ The old 0.758 result was therefore dominated by reader/session pace mismatch,
 not evidence for language-specific time stretching. Evidence:
 `kokoro_same_speaker_generate.json` and
 `duration_probe_same_speaker_20260815.json`.
+
+**Outlier analysis, 2026-08-15.** Reading the 30 generated WAVs directly found
+that ratio variation tracks text length more than source duration: Spearman
+correlation is +0.486 with non-space character count, +0.407 with the human's
+characters/second, +0.226 with punctuation, and only +0.184 with human clip
+duration. The shortest-text tertile has median ratio **0.845**, versus **0.962**
+for the longest. This is a targeting clue, not a causal result at n=30; a
+length-controlled intervention is the next duration experiment. Evidence:
+`duration_outlier_analysis.json`.
 
 | arm | median ratio | p10–p90 | clips outside band |
 |---|---|---|---|
@@ -816,16 +827,16 @@ which arm failed.
 **Metric** — adapters whose training set includes their validation split.
 **Current** — every dataset zip splits **180 train / 20 val with zero
 overlap**, and the trainer now uses the split, but the live manifest still
-contains **47 of 75 shipped adapters trained on all 200 clips**. **OPEN**, last
-audited 2026-08-15 from each adapter's own recorded sample count.
+contains **40 of 75 shipped adapters trained on all 200 clips**. **OPEN**, last
+audited 2026-08-15 from each adapter's own training metadata.
 
 | trained on | adapters |
 |---|---|
-| all 200 clips, including its own val split | **47** |
-| 180, the train split only | 20 |
+| all 200 clips, including its own val split | **40** |
+| 180, the train split only | 27 |
 | some other count (24, 81, 88, 116, 130, 170, 188) | 8 |
 
-The remaining 47 adapters' held-out scores are measured partly on clips they
+The remaining 40 adapters' held-out scores are measured partly on clips they
 were trained on, and should be read as an upper bound rather than a held-out
 result.
 
@@ -849,8 +860,11 @@ shipped, so they were installed with receipt and rollback backup
 the current library and one failed identity at 0.393. Exact-source hash checks
 confirmed every installed adapter matches the path recorded by its gate.
 
-The live manifest now reports **47 of 75 adapters still trained on 200 clips**,
-with 20 on the clean 180-clip split and eight at other sample counts. The goal
+The live manifest now reports **40 of 75 adapters still trained on 200 clips**,
+with 27 on the clean 180-clip split and eight at other sample counts. Seven
+2026-08-08 promotions already contained clean 180-sample weights but retained
+stale 200-sample manifest counts; reconciling those counts removed the apparent
+disagreement with each adapter's `training_meta.json`. The goal
 remains **OPEN**, but deployment—not merely retraining evidence—has removed
 contamination from 20 shipped voices.
 
@@ -1064,6 +1078,18 @@ after adaptive splitting. Retrying either unchanged is not a new measurement.
 The current overall status is therefore **OPEN**: the development books are
 100%, but the shipped model does not generalise that reliability to these
 unseen formats.
+
+**Both blockers are now diagnosed without retrying them unchanged.** Arc4's
+source contained extreme repeated phrases (up to 41 repeats) and confusable
+Cyrillic characters. Source normalization collapsed the pathological repeats;
+the completed artifact now records **154/154**, with chunk 133 accepted on its
+first attempt at 99.1% source-token recall. Grimgar's single-pass outputs ended
+normally but repeatedly omitted the same prose: full-chunk recall stayed
+82.7–85.8%, and recursive halves/quarters were no more reliable, ruling out a
+context ceiling. The production three-pass path deterministically presegments
+quotes and completed the entire **71,602-word, 3,305-entry** book across 142
+chunks. This establishes a working escape path, but a four-book current-path
+rerun is still required to call the 99% reliability target met.
 
 **The qwen2.5-14b figures this goal used to quote are still not in the evidence
 tree**, and the 15 historical failures remain unattributable - their manifests
@@ -1405,6 +1431,18 @@ within tolerance. Better transcription cannot repair boundaries that were never
 found, and no combination of these two checkpoints will fix Japanese. That
 needs a different segmenter, not a different pairing.
 
+A first language-independent energy-VAD arm was measured 2026-08-15 and failed:
+it oversegmented internal pauses (23 segments for 10 clips), with **510 ms**
+median boundary error and only **20%** within tolerance. A Silero neural-VAD arm
+was then tuned on clips 1–10, checked on 11–20, and frozen before the untouched
+21–30 holdout. With 400 ms minimum silence and 250 ms speech padding, that
+holdout reached **39 ms median**, **226 ms p90**, and **90% within 300 ms**,
+meeting the boundary target (`asr_silero_vad_ja_holdout.json`). It still emits
+14 segments for 10 clips, so neural VAD solves boundary placement but needs a
+coalescing rule before production. Silero is not installed in either configured
+environment; this result used an isolated temporary install and does not claim
+the app dependency is ready.
+
 **A note on reproducing this.** The first run of the comparison omitted
 `--build`, silently scored a different clip set, and produced base 58.0% /
 large-v3 67.0% — which read as "the goal's table does not reproduce". It did
@@ -1515,7 +1553,7 @@ If only three things get worked on:
    median is 0.927 and meets the goal, disproving the earlier cross-reader
    0.758 diagnosis. However, 43% of individual Japanese clips remain outside
    the band, similar to the other language arms.
-3. **Train/val contamination (2.7)** — 47 of 75 shipped adapters trained on
+3. **Train/val contamination (2.7)** — 40 of 75 shipped adapters trained on
    their own val split. The trainer is fixed; the library is not, and every
    held-out score from a contaminated adapter is an upper bound.
 

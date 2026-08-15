@@ -32,6 +32,7 @@ about the models.
 """
 import argparse
 import json
+import math
 import os
 import re
 import statistics
@@ -213,6 +214,80 @@ def run_sensevoice(wav, model_dir="iic/SenseVoiceSmall", language="auto", _cache
     return text, segs
 
 
+def run_energy_vad(wav, frame_ms=20, min_silence_ms=300,
+                   min_speech_ms=100):
+    """Language-independent boundary baseline using short-time audio energy.
+
+    This deliberately returns no transcript. It tests whether the Japanese
+    alignment gap is in Whisper's timestamp decoder rather than in the audio:
+    a production ASR can transcribe the windows after a VAD finds them.
+    """
+    import numpy as np
+    import soundfile as sf
+
+    audio, rate = sf.read(wav, dtype="float32", always_2d=True)
+    mono = audio.mean(axis=1)
+    frame = max(1, round(rate * frame_ms / 1000))
+    count = math.ceil(len(mono) / frame)
+    padded = np.pad(mono, (0, count * frame - len(mono)))
+    rms = np.sqrt(np.mean(padded.reshape(count, frame) ** 2, axis=1))
+    floor = float(np.percentile(rms, 10))
+    ceiling = float(np.percentile(rms, 90))
+    threshold = max(floor * 4, floor + 0.08 * (ceiling - floor), 1e-4)
+    active = rms >= threshold
+    max_gap = max(1, round(min_silence_ms / frame_ms))
+    # Fill only short silent runs. The inserted 500 ms probe gaps stay split.
+    index = 0
+    while index < len(active):
+        if active[index]:
+            index += 1
+            continue
+        end = index
+        while end < len(active) and not active[end]:
+            end += 1
+        if index and end < len(active) and end - index < max_gap:
+            active[index:end] = True
+        index = end
+
+    minimum = max(1, round(min_speech_ms / frame_ms))
+    segments, index = [], 0
+    while index < len(active):
+        if not active[index]:
+            index += 1
+            continue
+        end = index
+        while end < len(active) and active[end]:
+            end += 1
+        if end - index >= minimum:
+            segments.append((index * frame / rate,
+                             min(len(mono), end * frame) / rate, ""))
+        index = end
+    return "", segments
+
+
+def run_silero_vad(wav, _cache={}):
+    """Neural, language-independent segmentation candidate (no transcript)."""
+    import numpy as np
+    import soundfile as sf
+    import torch
+    from scipy.signal import resample_poly
+    from silero_vad import get_speech_timestamps, load_silero_vad
+
+    if "model" not in _cache:
+        _cache["model"] = load_silero_vad()
+    audio, rate = sf.read(wav, dtype="float32", always_2d=True)
+    mono = audio.mean(axis=1)
+    if rate != 16000:
+        common = math.gcd(rate, 16000)
+        mono = resample_poly(mono, 16000 // common, rate // common)
+    audio = torch.from_numpy(np.asarray(mono, dtype="float32"))
+    timestamps = get_speech_timestamps(
+        audio, _cache["model"], sampling_rate=16000,
+        min_silence_duration_ms=400, speech_pad_ms=250,
+        return_seconds=True)
+    return "", [(item["start"], item["end"], "") for item in timestamps]
+
+
 def build_alignment_probe(rows, out_wav, gap=0.5):
     """Concatenate clips with silence between, returning exact boundary times.
 
@@ -285,6 +360,8 @@ def main():
     ap.add_argument("--backends", nargs="+",
                     default=["whisper_cpp", "transformers_whisper"])
     ap.add_argument("--limit", type=int, default=50)
+    ap.add_argument("--row-offset", type=int, default=0,
+                    help="start row for an untouched validation partition")
     ap.add_argument("--align-clips", type=int, default=12,
                     help="clips concatenated into the alignment probe")
     ap.add_argument("--whisper-cpp-bin", default=os.path.join(
@@ -298,7 +375,7 @@ def main():
     args = ap.parse_args()
 
     build = json.load(open(args.build, encoding="utf-8"))
-    rows = build["test"][:args.limit]
+    rows = build["test"][args.row_offset:args.row_offset + args.limit]
     if not rows:
         sys.exit("no test rows")
 
@@ -325,6 +402,10 @@ def main():
         if name == "sensevoice":
             sv = {"en": "en", "ja": "ja", "zh": "zh"}.get(args.lang, "auto")
             return lambda w: run_sensevoice(w, language=sv)
+        if name == "energy_vad":
+            return run_energy_vad
+        if name == "silero_vad":
+            return run_silero_vad
         raise SystemExit(f"unknown backend {name}")
 
     import soundfile as sf
@@ -348,11 +429,14 @@ def main():
                 no_ts += 1
             info = sf.info(wav)
             audio_secs.append(info.frames / float(info.samplerate))
-            w = word_error_rate(row["text"], text)
-            if w is not None:
-                wers.append(w)
+            if name not in {"energy_vad", "silero_vad"}:
+                w = word_error_rate(row["text"], text)
+                if w is not None:
+                    wers.append(w)
         rec = {"n": len(wers), "failures": failures[:6],
                "failed": len(failures), "clips_without_timestamps": no_ts}
+        if name in {"energy_vad", "silero_vad"}:
+            rec["transcription"] = "not provided; segmentation-only arm"
         if wers:
             rec.update({
                 "wer_mean": round(statistics.mean(wers), 4),
@@ -363,6 +447,8 @@ def main():
         if wers:
             print(f"  {name:22} WER {rec['wer_mean']*100:5.1f}%  "
                   f"RTF {rec['rtf']:.3f}  n={rec['n']}  failed={rec['failed']}")
+        elif name in {"energy_vad", "silero_vad"}:
+            print(f"  {name:22} SEGMENTATION ONLY  failed={rec['failed']}")
         else:
             print(f"  {name:22} PRODUCED NOTHING  failed={rec['failed']}"
                   f"  first={failures[0]['error'][:70] if failures else ''}")
@@ -373,7 +459,7 @@ def main():
     probe_dir = os.path.join(REPO, "ab_test_runtime", "asr_bench")
     os.makedirs(probe_dir, exist_ok=True)
     probe_wav, truth = build_alignment_probe(
-        build["test"][:args.align_clips], os.path.join(probe_dir, "probe.wav"))
+        rows[:args.align_clips], os.path.join(probe_dir, "probe.wav"))
     alignment = {}
     if probe_wav:
         total = truth[-1]["end"] if truth else 0
@@ -413,7 +499,8 @@ def main():
     print(f"\nwrote {args.out}")
 
     # A run where every backend failed is a failed run, not a published zero.
-    if not any(r.get("n") for r in results.values()):
+    if not (any(r.get("n") for r in results.values())
+            or any(r.get("scored") for r in alignment.values())):
         sys.exit(3)
 
 

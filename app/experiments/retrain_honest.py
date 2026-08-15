@@ -144,14 +144,24 @@ def main():
                 meta_rel = os.path.join(ddir, "metadata.jsonl")
             drows = [json.loads(l) for l in open(meta_rel, encoding="utf-8")
                      if l.strip()][:args.medoid_clips]
-            cand = [os.path.join(ddir, r["audio_filepath"]) for r in drows
-                    if os.path.exists(os.path.join(ddir, r["audio_filepath"]))]
+            candidate_rows = [(os.path.join(ddir, r["audio_filepath"]), r)
+                              for r in drows
+                              if os.path.exists(os.path.join(
+                                  ddir, r["audio_filepath"]))]
+            cand = [path for path, _row in candidate_rows]
             pick, score = select_reference_sample(cand, max_clips=args.medoid_clips)
             if pick is not None:
                 import shutil as _sh
                 _sh.copy2(cand[pick], os.path.join(ddir, "ref.wav"))
+                ref_text = str(candidate_rows[pick][1].get("text") or "").strip()
+                if not ref_text:
+                    raise ValueError("selected medoid has no transcript")
+                with open(os.path.join(ddir, "ref_text.txt"), "w",
+                          encoding="utf-8") as handle:
+                    handle.write(ref_text)
                 ref_note = {"clip": os.path.basename(cand[pick]),
-                            "similarity": score}
+                            "similarity": score,
+                            "text": ref_text}
                 print(f"    reference: {ref_note['clip']} "
                       f"(similarity {score})")
             else:
