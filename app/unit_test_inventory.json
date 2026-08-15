@@ -581,6 +581,12 @@
     "test_generate_personas.RosterAmbiguityTest.test_an_ordinary_roster_is_not",
     "test_generate_personas.RosterAmbiguityTest.test_empty_and_none_are_safe"
   ],
+  "test_generation_dispatch": [
+    "test_generation_dispatch.GenerationDispatchTests.test_batch_generation_uses_same_dispatch_with_output",
+    "test_generation_dispatch.GenerationDispatchTests.test_default_output_and_stale_chunks_share_runtime_data_directory",
+    "test_generation_dispatch.GenerationDispatchTests.test_explicit_batch_output_does_not_clear_active_book_chunks",
+    "test_generation_dispatch.GenerationDispatchTests.test_single_generation_uses_production_three_pass_fallback"
+  ],
   "test_generation_failure_experiments": [
     "test_generation_failure_experiments.GenerationFailureExperimentTests.test_floor_splitter_binds_each_arm_independently",
     "test_generation_failure_experiments.GenerationFailureExperimentTests.test_missing_passage_is_empty_for_complete_conversion",
