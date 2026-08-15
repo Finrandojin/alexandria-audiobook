@@ -999,23 +999,24 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
     # Latest attempt seen by call_llm_for_entries, so a failure record can say
     # why the batch failed instead of only which entry it was.
     last_attempts = {}
+    attempts = []
 
     reasoning_allowance = ReasoningAllowance()
 
-    def record_attempt(attempt):
-        last_attempts["latest"] = attempt
+    def record_attempt(pass_name, attempt):
+        recorded = {**attempt, "pass": pass_name}
+        attempts.append(recorded)
+        last_attempts["latest"] = recorded
         # Size the next call from what this model has actually shown. Stays at
         # zero for a model that never reports reasoning_tokens, so a
         # non-reasoning model keeps exactly today's ceiling.
         reasoning_allowance.observe(
-            attempt.get("reasoning_tokens"),
-            truncated=attempt.get("finish_reason") == "length")
+            recorded.get("reasoning_tokens"),
+            truncated=recorded.get("finish_reason") == "length")
         params.reasoning_allowance = reasoning_allowance.current()
 
     def last_attempt_for(_index):
         return last_attempts.get("latest")
-    attempts = []
-
     def save(stage):
         if output_path:
             _save_three_pass_checkpoint(output_path, fingerprint, stage,
@@ -1081,6 +1082,7 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                                        attempt_sink=attempts,
                                        quote_analysis=quote_analyses[i])
         for attempt in attempts[observed_attempts:]:
+            attempt.setdefault("pass", "segment")
             reasoning_allowance.observe(
                 attempt.get("reasoning_tokens"),
                 truncated=attempt.get("finish_reason") == "length")
@@ -1153,7 +1155,8 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                         votes=attribution_votes,
                         vote_temperature=vote_temperature,
                         on_exhaustion=on_exhaustion, neighbor_contexts=contexts,
-                        attempt_observer=record_attempt,
+                        attempt_observer=lambda attempt: record_attempt(
+                            "attribute", attempt),
                         source_text=source_text)
                 except PassExhausted:
                     if len(current) == 1:
@@ -1239,7 +1242,9 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
             exhausted = []
             new_annotated = instruct_batch(
                 client, model_name, batch, params, neighbor_contexts=contexts,
-                exhaustion_sink=exhausted, attempt_observer=record_attempt)
+                exhaustion_sink=exhausted,
+                attempt_observer=lambda attempt: record_attempt(
+                    "instruct", attempt))
             if exhausted and collect_all_failures and len(current) > 1:
                 midpoint = len(current) // 2
                 print(f"  Instruction batch exhausted; subdividing "
@@ -1259,8 +1264,28 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                           "status": ("incomplete" if any(
                               f["pass"] == "instruct" for f in diagnostic_failures)
                               else "complete")}
+    unavailable_passes = [
+        pass_name for pass_name in ("attribute", "instruct")
+        if any(attempt.get("pass") == pass_name for attempt in attempts)
+        and all(attempt.get("outcome") == "api_error"
+                for attempt in attempts if attempt.get("pass") == pass_name)
+    ]
+    if unavailable_passes:
+        failed_pass = unavailable_passes[0]
+        if collect_all_failures:
+            # Diagnostic mode deliberately returns partial output so callers
+            # can inspect every recorded failure. Keep it visibly incomplete;
+            # production mode below still refuses fallback-only publication.
+            passes[failed_pass]["status"] = "incomplete"
+        else:
+            passes[failed_pass]["status"] = "failed"
+            save(f"{failed_pass}_unavailable")
+            emit_manifest("failed", failed_pass=failed_pass)
+            raise RuntimeError(
+                f"{failed_pass} LLM unavailable; refusing to publish fallback-only output")
     save("done")
-    emit_manifest("incomplete" if diagnostic_failures else "complete")
+    emit_manifest("incomplete" if diagnostic_failures or unavailable_passes
+                  else "complete")
     return [entry for entry in annotated if isinstance(entry, dict)]
 
 

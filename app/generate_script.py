@@ -697,7 +697,6 @@ def call_llm_for_entries(client, model_name, sys_prompt, user_prompt, params,
                           f"temperature 0; further retries cannot differ",
                           flush=True)
                     break
-                attempted_prompts.add(attempt_prompt)
             effective_max = get_effective_max_tokens(
                 requested_max, params.context_length, messages,
                 params.hard_max_tokens, scale_to_context=False)
@@ -710,6 +709,10 @@ def call_llm_for_entries(client, model_name, sys_prompt, user_prompt, params,
                 max_tokens=effective_max,
                 extra_body=build_extra_body(params)
             )
+            if not params.temperature:
+                # Only a real response proves this deterministic prompt cannot
+                # differ. Connection/API failures must retain their retry budget.
+                attempted_prompts.add(attempt_prompt)
 
             choice = response.choices[0]
             # An OpenAI-compatible server may return JSON null for content when

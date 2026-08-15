@@ -829,6 +829,7 @@ class ManifestTests(unittest.TestCase):
             tp.run_three_pass(client, "m", source, params, chunk_size=6000, output_path=out)
             man = json.load(open(tp.three_pass_manifest_path(out)))
         self.assertEqual("complete", man["status"])
+        self.assertEqual(3, man["progress"]["llm_calls"])
         self.assertEqual("clean", man["chunks"][0]["resolution"])
         self.assertEqual(0, man["counts"]["context_rescued"])
         self.assertEqual(0, man["counts"]["near_miss_accepted"])
@@ -849,6 +850,31 @@ class ManifestTests(unittest.TestCase):
             man = json.load(open(tp.three_pass_manifest_path(out)))
         self.assertEqual("failed", man["status"])
         self.assertEqual("attribute", man["failed_pass"])
+
+    def test_fallback_refuses_output_when_llm_is_unavailable(self):
+        source = 'The room was cold. "Tell me the truth."'
+
+        def unavailable(**_kwargs):
+            raise ConnectionError("offline")
+
+        client = SimpleNamespace(chat=SimpleNamespace(
+            completions=SimpleNamespace(create=unavailable)))
+        params = LLMGenParams(max_tokens=500, temperature=0.1,
+                              presegment_quotes=True)
+        with tempfile.TemporaryDirectory() as d:
+            out = os.path.join(d, "book.json")
+            with self.assertRaisesRegex(RuntimeError, "LLM unavailable"):
+                tp.run_three_pass(
+                    client, "m", source, params, chunk_size=6000,
+                    output_path=out, on_exhaustion="fallback")
+            man = json.load(open(tp.three_pass_manifest_path(out)))
+
+        self.assertEqual("failed", man["status"])
+        self.assertEqual("attribute", man["failed_pass"])
+        self.assertGreater(man["progress"]["llm_calls"], 0)
+        self.assertEqual(
+            man["progress"]["llm_calls"],
+            man["progress"]["failure_codes"]["api_error"])
 
     def test_resolution_sink_records_near_miss(self):
         words = [f"word{i}" for i in range(100)]
