@@ -7,7 +7,7 @@ target is a commitment. Where there is no baseline yet, the goal is *to take
 the measurement*, and it says so — an unmeasured target is a wish, and this
 document does not contain wishes.
 
-**Last updated:** 2026-08-06
+**Last updated:** 2026-08-15
 
 ## How to read this
 
@@ -380,6 +380,37 @@ attribution. They do not: books at ≥50% implicit quotes median **73.3%**, book
 below 50% median **73.3%** — identical. Whatever drives a 41-point spread
 between novels, it is not the quote-type mix.
 
+**Failure telemetry, 2026-08-15.** Joining the saved base predictions to the
+candidate rosters and context windows for the five weakest books explains all
+272 errors (`pdnc_failure_telemetry.py`). Gold candidate recall is **100%**:
+no error is caused by a missing gold speaker. The dominant class is choosing a
+different valid candidate (**149, 54.8%**), followed by missing a gold alias
+explicitly present in the supplied context (**59, 21.7%**), invalid/out-of-
+roster answers (**39, 14.3%**), and one 25-row block with no saved predictions
+(**9.2%**). Candidate expansion is therefore the wrong intervention. The next
+attribution work should improve selection/context use and keep batch-failure
+recovery measurable; constrained output alone can address at most the smaller
+invalid-answer class.
+
+**First-person narrator intervention, 2026-08-15.** A same-run controlled
+comparison on 120 quotations from each of two weak first-person books found a
+specific, correctable selection failure (`pdnc_narrator_prior__local-llamacpp.json`).
+Supplying the narrator's exact character identity raised *The Gambler* from
+**62/120 (51.7%) to 93/120 (77.5%)** and *The Sun Also Rises* from **65/120
+(54.2%) to 91/120 (75.8%)**. On quotations owned by the narrator, the changes
+were **0/56 to 38/56** for ALEXIS IVANOVITCH and **28/60 to 44/60** for JAKE
+BARNES. The paired changes were +38/−7 and +29/−3 respectively.
+
+The generic control, which told the model to infer a first-person narrator but
+did not supply the name, was neutral on *The Gambler* and slightly worse on
+*The Sun Also Rises* (`pdnc_narrator_prior__local-llamacpp-generic.json`). The
+gain therefore comes from the explicit book-level identity, not generic prompt
+wording. This supports the optional narrator hint now implemented in PR #299,
+but does **not** close this goal: only two books and 120 rows per book were
+tested, the audit classifies both artifacts as provisional because their
+recorded worktree was dirty, and the target requires a clean held-out result on
+at least three books.
+
 **Target — a clean held-out number on ≥ 3 books, within 5 points of the
 development books' figure.**
 
@@ -534,8 +565,31 @@ this. Protected by the gate plus `app/test_training_defaults.py`.
 > specific case to investigate, not a broad weakness.
 
 **Metric** — mean `dur_ratio` across held-out lines (1.00 = matches the human).
-**Current** — 100 clips per language, both arms, 2026-08-08
-(`duration_probe.py`). **OPEN, confirmed.**
+**Current** — 100 clips per language, both arms, 2026-08-08, plus the
+narrator-controlled Japanese clone replication below (`duration_probe.py`).
+**MET at the median; per-line spread remains a quality opportunity.**
+
+Reproduced unchanged on 2026-08-12 in
+`duration_probe_20260811_overnight.json`: Japanese clone median **0.7584**
+with **94.0%** of clips outside the band. This confirms the baseline; it is
+not an intervention or an improvement.
+
+**Diagnosed 2026-08-15: the comparison does not isolate a duration defect.**
+The Japanese clone's generated pace matches the pace implied by its reference
+clip: generated duration / reference-rate-predicted duration has median
+**1.023** across the same 100 lines. The reference reads 38 non-space
+characters in 5.166 s (7.36 chars/s), while the held-out book's human is about
+26% slower. Slowing production output to match that different reading would
+erase the cloned speaker's pace.
+
+The valid same-speaker measurement was completed 2026-08-15. Thirty held-out
+clips and the excluded reference all come from the same *Kokoro* LibriVox
+recording, whose 103 chapters are read by ekzemplaro. Japanese clone median is
+**0.9269**, inside the 0.90–1.10 target (p10–p90 **0.78–1.05**, 43.3% outside).
+The old 0.758 result was therefore dominated by reader/session pace mismatch,
+not evidence for language-specific time stretching. Evidence:
+`kokoro_same_speaker_generate.json` and
+`duration_probe_same_speaker_20260815.json`.
 
 | arm | median ratio | p10–p90 | clips outside band |
 |---|---|---|---|
@@ -543,6 +597,7 @@ this. Protected by the gate plus `app/test_training_defaults.py`.
 | English clone | 1.018 | 0.85–1.17 | 35% |
 | Japanese LoRA | 0.929 | 0.78–1.15 | 57% |
 | Japanese clone | **0.758** | 0.65–0.86 | **94%** |
+| Japanese clone, same narrator/book | **0.927** | 0.78–1.05 | 43% |
 | Chinese LoRA | 0.935 | 0.83–1.10 | 45% |
 | Chinese clone | **0.896** | 0.78–1.03 | 57% |
 
@@ -787,6 +842,19 @@ bound**: it is measured on material the model has heard. It can still rank
 adapters, because all are contaminated identically — a voice that scores badly
 on its own training data is genuinely bad.
 
+**Twenty clean retrains promoted 2026-08-15.** All 26 candidates that cleared
+the retraining summary were independently regenerated and identity-gated on
+six held-out lines. Twenty passed the 0.45 gate and beat the weights currently
+shipped, so they were installed with receipt and rollback backup
+`promotion_backups/20260815_152050.json`; five passed identity but did not beat
+the current library and one failed identity at 0.393. Exact-source hash checks
+confirmed every installed adapter matches the path recorded by its gate.
+
+The live manifest now reports **47 of 75 adapters still trained on 200 clips**,
+down from 67 before the seven earlier clean promotions and these twenty. The
+goal remains **OPEN**, but deployment—not merely retraining evidence—has now
+removed contamination from 20 additional shipped voices.
+
 #### The reference clip is CAUSAL — established by intervention, not correlation
 
 > **What this is.** Before training a voice, the pipeline picks one recording
@@ -963,8 +1031,8 @@ recording `total_chunks`, `accepted_chunk_count` and, on newer runs,
 **MET on the only model that can be attributed** — gemma-4-e4b completes every
 chunk of every book, 1313 for 1313, against a 99% target.
 
-**MET ON THE SHIPPED MODEL, 2026-08-10.** All four development books now
-complete every chunk on qwen3-14b:
+**The development set is MET, but broader shipped-model reliability is OPEN.**
+All four development books completed every chunk on qwen3-14b on 2026-08-10:
 
 | book | chunks | completion |
 |---|---|---|
@@ -980,6 +1048,24 @@ own repeated title; index18 was refused at the source gate over 6,662
 replacement characters. Both are fixed, and grimgar03 was run twice because one
 success does not distinguish a reliable book from a lucky one.
 
+The unseen-book run on 2026-08-12 then found two new deterministic blockers:
+
+| book | accepted chunks | result |
+|---|---:|---|
+| mushoku18 | 58/58 | written |
+| mushoku23 | 120/120 | written, 11,387 entries |
+| arc4_volume10wn | 132/154 | failed at chunk 133 |
+| grimgar06 | 24/70 | failed at chunk 25 |
+
+That is **334/402 = 83.1%** completion across the four unseen books, below the
+99% target. Both failures exhausted the fixed retry policy and preserve valid
+checkpoints. `arc4` repeatedly expanded a short repetitive passage until the
+16,384-token ceiling; `grimgar06` repeatedly omitted parts of one passage even
+after adaptive splitting. Retrying either unchanged is not a new measurement.
+The current overall status is therefore **OPEN**: the development books are
+100%, but the shipped model does not generalise that reliability to these
+unseen formats.
+
 **The qwen2.5-14b figures this goal used to quote are still not in the evidence
 tree**, and the 15 historical failures remain unattributable - their manifests
 record no model. That is now impossible for new runs, since both failure call
@@ -992,15 +1078,6 @@ to 33 attempts — genuine exhaustion, not interrupted runs. None records
 them names a model either: they record chunk, attempt, finish_reason and token
 counts only. So the worst generation failures this app has ever produced are
 permanently unattributable.
-
-**The goal's original question is still unanswered.** It asks for ≥99% *on the
-shipped model*, and no book in the saved record was generated with qwen3-14b at
-all. The 2026-08-06 qwen2.5-14b figures this goal previously quoted are not in
-the evidence tree.
-
-**Status: OPEN, for want of a measurement rather than a fix.** Generating one
-book end to end on qwen3-14b would answer it, and `model_name` is now recorded,
-so the next failure will be attributable even if this one never can be.
 
 ### 3.2 Every generated file is real audio
 
@@ -1435,9 +1512,10 @@ If only three things get worked on:
    never seen against 83.6% on the three it quotes, a −12.6 point gap against
    a target of 5. The three quoted books rank #2, #8 and #9 of 28. This is now
    the largest known overstatement in the document.
-2. **Duration fidelity (2.4)** — the Japanese clone arm runs at 0.758 with 94%
-   of clips outside the band, confirmed at n=100. The one twelve-clip finding
-   that survived re-measurement.
+2. **Per-line duration spread (2.4)** — the narrator-controlled Japanese clone
+   median is 0.927 and meets the goal, disproving the earlier cross-reader
+   0.758 diagnosis. However, 43% of individual Japanese clips remain outside
+   the band, similar to the other language arms.
 3. **Train/val contamination (2.7)** — 60 of 75 shipped adapters trained on
    their own val split. The trainer is fixed; the library is not, and every
    held-out score from a contaminated adapter is an upper bound.
@@ -1447,7 +1525,9 @@ If only three things get worked on:
 before working on them has now twice been worth more than working on them.
 
 Then: the three-pass baseline (5.3), and the CJK transcription gap (5.4) if
-Voice Lab is ever pointed at a non-English audiobook.
+Voice Lab is ever pointed at a non-English audiobook. Reliability 3.1 is also
+OPEN again on unseen books: diagnose the fixed failures at arc4 chunk 133 and
+grimgar06 chunk 25 before spending another run on either unchanged.
 
 ## Rules for changing this file
 

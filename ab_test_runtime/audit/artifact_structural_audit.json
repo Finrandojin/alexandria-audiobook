@@ -3,7 +3,7 @@
   "summary": {
     "supported_structure": 65,
     "exploratory": 144,
-    "provisional": 112
+    "provisional": 114
   },
   "artifacts": [
     {
@@ -2720,6 +2720,32 @@
       "identity_contract": "none",
       "classification": "exploratory",
       "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp-generic.json",
+      "bytes": 316345,
+      "sha256": "c428935dd2e445896a1b132743a79287b612ffc36b3ec5cccc78b889fb904315",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "experiment_meta",
+      "commit": "06aa78478de69452d693511a6d9b620528563993",
+      "dirty": true,
+      "classification": "provisional",
+      "reason": "older metadata contract; semantic/manual review required"
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp.json",
+      "bytes": 631725,
+      "sha256": "71793d54c12071e65198a9ce8e6d3cc4b1d28cec108cd039d1f3f6fa44ecbc35",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "experiment_meta",
+      "commit": "06aa78478de69452d693511a6d9b620528563993",
+      "dirty": true,
+      "classification": "provisional",
+      "reason": "older metadata contract; semantic/manual review required"
     },
     {
       "artifact": "pitch_profile_matrix.json",

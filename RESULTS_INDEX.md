@@ -1,6 +1,6 @@
 # Results index
 
-Generated 2026-08-10 11:57 from `ab_test_runtime/experiments/` — 321 artifacts, 521 arms.
+Generated 2026-08-15 16:28 from `ab_test_runtime/experiments/` — 323 artifacts, 527 arms.
 
 Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_index.csv`.
 
@@ -434,6 +434,17 @@ Regenerate with `python3 collect_results.py`. Machine-readable copy in `results_
 | mushoku16 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 16384 | narrator | 139 | 56.1% | supported_measurement | ok | False | 842.4s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | baseline | 162 | 38.3% | supported_measurement | ok | False | 1783.8s |
 | owarimonogatari3 | qwen3-14b | local-llamacpp-hip | llama.cpp-hip | 32768 | narrator | 162 | 38.9% | supported_measurement | ok | False | 1783.8s |
+
+## pdnc_narrator_prior
+
+| book | model | env | backend | ctx | arm | n | acc | evidence | valid | dirty | elapsed |
+|---|---|---|---|---:|---|---:|---:|---|---|---|---:|
+| TheGambler | qwen3-14b | local-lmstudio | lmstudio | 32768 | baseline | 120 | 51.7% | provisional | ok | True | 294.0s |
+| TheGambler | qwen3-14b | local-lmstudio | lmstudio | 32768 | generic | 120 | 51.7% | provisional | ok | True | 140.0s |
+| TheGambler | qwen3-14b | local-lmstudio | lmstudio | 32768 | narrator | 120 | 77.5% | provisional | ok | True | 294.0s |
+| TheSunAlsoRises | qwen3-14b | local-lmstudio | lmstudio | 32768 | baseline | 120 | 54.2% | provisional | ok | True | 294.0s |
+| TheSunAlsoRises | qwen3-14b | local-lmstudio | lmstudio | 32768 | generic | 120 | 53.3% | provisional | ok | True | 140.0s |
+| TheSunAlsoRises | qwen3-14b | local-lmstudio | lmstudio | 32768 | narrator | 120 | 75.8% | provisional | ok | True | 294.0s |
 
 ## pipeline_repeat
 
