@@ -11,7 +11,10 @@ discouraged:
     entry, never from the LLM's response. Only "speaker" (canonicalized)
     and "instruct" are taken from the LLM, matched positionally. A count
     mismatch between batch and corrected returns None -- the caller must
-    treat that as a failed batch and keep the originals.
+    treat that as a failed batch and keep the originals. So does a
+    same-length but MISALIGNED response (the model duplicated one entry and
+    dropped another): count is not alignment, and a shift files correct
+    labels against the wrong entries.
   - _join_narrator_texts()/merge_consecutive_narrators(): the narrator-merge
     join no longer unconditionally inserts a space -- it only does so when
     neither side already carries boundary whitespace, so verbatim entries
@@ -27,6 +30,7 @@ Exits 0 if all tests pass, non-zero otherwise.
 """
 import inspect
 import io
+import json
 import os
 import sys
 import traceback
@@ -67,11 +71,15 @@ def test_overlay_preserves_text_applies_speaker_and_instruct():
         {"speaker": "narrator", "text": "  He lit a cigarette. ", "instruct": "Neutral, even narration."},
         {"speaker": "HOLMES", "text": "Quite so, he answered.", "instruct": "flat"},
     ]
-    # The LLM tries to rewrite text (attribution-strip / rephrase) -- must
-    # be discarded entirely. It also fixes a speaker and an instruct.
+    # The LLM echoes the text back with whitespace drift (a leading space,
+    # a collapsed run) -- still the same entries, so the corrections apply,
+    # and the accepted text must come byte-for-byte from the ORIGINAL batch.
+    # A materially REWRITTEN echo is no longer merely ignored: it is
+    # indistinguishable from a dropped/duplicated entry, so it now fails the
+    # whole batch (see test_overlay_shifted_same_length_response_rejected).
     corrected = [
-        {"speaker": "NARRATOR", "text": "He lit a cigarette and threw himself into an armchair.", "instruct": "Neutral, even narration."},
-        {"speaker": "holmes", "text": "Quite so.", "instruct": "Quietly analytical, dry amusement."},
+        {"speaker": "NARRATOR", "text": "He lit a  cigarette.", "instruct": "Neutral, even narration."},
+        {"speaker": "holmes", "text": " Quite so, he answered. ", "instruct": "Quietly analytical, dry amusement."},
     ]
 
     accepted = apply_positional_overlay(batch, corrected)
@@ -129,7 +137,7 @@ def test_overlay_empty_corrected_speaker_keeps_original():
     ]
     for label, bad_speaker in cases:
         batch = [{"speaker": "mark", "text": "Stop right there.", "instruct": "Firm, commanding."}]
-        corrected = [{"speaker": bad_speaker, "text": "irrelevant", "instruct": "Firm, commanding."}]
+        corrected = [{"speaker": bad_speaker, "instruct": "Firm, commanding."}]
         accepted = apply_positional_overlay(batch, corrected)
         check(
             f"overlay: corrected speaker ({label}) -> original speaker retained (canonical)",
@@ -164,7 +172,7 @@ def test_overlay_invalid_corrected_instruct_keeps_original():
     ]
     for label, bad_instruct in cases:
         batch = [{"speaker": "NARRATOR", "text": "It was raining.", "instruct": "Neutral, even narration."}]
-        corrected = [{"speaker": "NARRATOR", "text": "irrelevant", "instruct": bad_instruct}]
+        corrected = [{"speaker": "NARRATOR", "instruct": bad_instruct}]
         accepted = apply_positional_overlay(batch, corrected)
         check(
             f"overlay: corrected instruct ({label}) -> original instruct retained",
@@ -177,7 +185,7 @@ def test_overlay_valid_string_instruct_still_applied():
     """Sanity check that the N2 fix didn't overcorrect: a genuine non-empty
     string instruct from the LLM must still be applied."""
     batch = [{"speaker": "NARRATOR", "text": "It was raining.", "instruct": "Neutral, even narration."}]
-    corrected = [{"speaker": "NARRATOR", "text": "irrelevant", "instruct": "Tense, clipped narration."}]
+    corrected = [{"speaker": "NARRATOR", "instruct": "Tense, clipped narration."}]
     accepted = apply_positional_overlay(batch, corrected)
     check(
         "overlay: valid string instruct is still applied",
@@ -291,7 +299,7 @@ def test_narrator_casing_canonicalized_by_overlay():
     canonicalize() call must normalize it so downstream `!= "NARRATOR"`
     comparisons (e.g. in merge_consecutive_narrators) stay reliable."""
     batch = [{"speaker": "Narrator", "text": "Once upon a time.", "instruct": "calm"}]
-    corrected = [{"speaker": "NaRrAtOr", "text": "irrelevant, discarded", "instruct": "Neutral, even narration."}]
+    corrected = [{"speaker": "NaRrAtOr", "instruct": "Neutral, even narration."}]
     accepted = apply_positional_overlay(batch, corrected)
     check(
         "overlay: odd-cased NARRATOR from the LLM is canonicalized",
@@ -622,7 +630,7 @@ def test_overlay_target_batch_text_unaffected_by_context_truncation():
     routes through the context-truncation helper."""
     long_text = "Y" * 500
     batch = [{"speaker": "NARRATOR", "text": long_text, "instruct": "Neutral, even narration."}]
-    corrected = [{"speaker": "NARRATOR", "text": "irrelevant, discarded", "instruct": "Tense, clipped narration."}]
+    corrected = [{"speaker": "NARRATOR", "instruct": "Tense, clipped narration."}]
     accepted = apply_positional_overlay(batch, corrected)
     check(
         "overlay: target batch text stays full-length/byte-identical (never context-truncated)",
@@ -763,8 +771,172 @@ def test_build_script_roster_shape():
 
 
 
+# ---------------------------------------------------------------------------
+# Alignment: same length is not the same as same entries
+# ---------------------------------------------------------------------------
+
+def test_overlay_shifted_same_length_response_rejected():
+    """The regression that matters: the model duplicates one entry and drops
+    another, so the count still matches but every later label is filed one
+    slot early. Text stays verbatim either way, so only the echoed-text
+    check can catch it."""
+    batch = [
+        {"speaker": "NARRATOR", "text": "He crossed the yard.", "instruct": "neutral"},
+        {"speaker": "A", "text": "\"Wait,\" she said.", "instruct": "urgent"},
+        {"speaker": "B", "text": "\"For what?\" he asked.", "instruct": "flat"},
+    ]
+    # slot 0 echoed twice, slot 2's text never echoed -> slots 1,2 shifted.
+    corrected = [
+        {"speaker": "NARRATOR", "text": "He crossed the yard.", "instruct": "neutral"},
+        {"speaker": "NARRATOR", "text": "He crossed the yard.", "instruct": "neutral"},
+        {"speaker": "A", "text": "\"Wait,\" she said.", "instruct": "urgent"},
+    ]
+    accepted = apply_positional_overlay(batch, corrected)
+    check(
+        "overlay: same-length but shifted response is rejected (returns None)",
+        accepted is None,
+        detail=repr(accepted),
+    )
+
+
+def test_overlay_whitespace_differing_echo_still_applied():
+    """Guard against over-tightening: models routinely echo the text with a
+    leading space or collapsed newlines. That is still the same entry and
+    its correction must be applied."""
+    batch = [
+        {"speaker": "NARRATOR", "text": "  He crossed\n the yard. ", "instruct": "neutral"},
+        {"speaker": "NARRATOR", "text": "\"Wait,\" she said.", "instruct": "flat"},
+    ]
+    corrected = [
+        {"speaker": "NARRATOR", "text": " He crossed the yard.", "instruct": "wry"},
+        {"speaker": "MARA", "text": "\"Wait,\" she said. ", "instruct": "urgent"},
+    ]
+    accepted = apply_positional_overlay(batch, corrected)
+    check(
+        "overlay: whitespace-only differing echo is still accepted",
+        accepted is not None,
+        detail=repr(accepted),
+    )
+    if accepted:
+        check(
+            "overlay: whitespace-echo corrections applied, text byte-identical",
+            accepted[0]["instruct"] == "wry"
+            and accepted[1]["speaker"] == "MARA"
+            and accepted[0]["text"] == "  He crossed\n the yard. "
+            and accepted[1]["text"] == "\"Wait,\" she said.",
+            detail=repr(accepted),
+        )
+
+
+def test_overlay_absent_or_blank_echo_still_applied():
+    """A response that omits "text" carries no alignment evidence -- the
+    reviewer is asked for labels only. Those have always been accepted
+    positionally and must stay accepted."""
+    batch = [{"speaker": "NARRATOR", "text": "He crossed the yard.", "instruct": "neutral"}]
+    for corrected in ([{"speaker": "MARA"}], [{"speaker": "MARA", "text": ""}],
+                      [{"speaker": "MARA", "text": None}]):
+        accepted = apply_positional_overlay(batch, corrected)
+        check(
+            f"overlay: missing/blank echo does not discard the correction ({corrected!r})",
+            accepted is not None and accepted[0]["speaker"] == "MARA",
+            detail=repr(accepted),
+        )
+
+
+# ---------------------------------------------------------------------------
+# review_batch(): a wrong-length response must consume its retries
+# ---------------------------------------------------------------------------
+
+class _FakeLLMClient:
+    """Minimal stand-in for the OpenAI client: replays canned response
+    bodies, one per attempt, and records how many calls it received."""
+
+    def __init__(self, bodies):
+        self._bodies = list(bodies)
+        self.calls = 0
+        self.chat = self
+
+    @property
+    def completions(self):
+        return self
+
+    def create(self, **kwargs):
+        body = self._bodies[min(self.calls, len(self._bodies) - 1)]
+        self.calls += 1
+        message = type("M", (), {"content": body})()
+        choice = type("C", (), {"message": message, "finish_reason": "stop"})()
+        return type("R", (), {"choices": [choice], "usage": None})()
+
+
+def _review_batch_with(bodies, batch):
+    """Run review_batch against a fake client, with logging redirected into
+    a temp dir (review_script logs relative to its own __file__)."""
+    import tempfile
+    client = _FakeLLMClient(bodies)
+    original_file = review_script_module.__file__
+    with tempfile.TemporaryDirectory() as tmp:
+        review_script_module.__file__ = os.path.join(tmp, "review_script.py")
+        try:
+            with redirect_stdout(io.StringIO()) as buffer:
+                result = review_script_module.review_batch(
+                    client, "fake-model", batch, 1, 1)
+        finally:
+            review_script_module.__file__ = original_file
+    return result, client.calls, buffer.getvalue()
+
+
+_RB_BATCH = [
+    {"speaker": "NARRATOR", "text": "He crossed the yard.", "instruct": "neutral"},
+    {"speaker": "A", "text": "\"Wait,\" she said.", "instruct": "urgent"},
+]
+_RB_SHORT = json.dumps([{"speaker": "NARRATOR", "instruct": "neutral"}])
+_RB_FULL = json.dumps([{"speaker": "NARRATOR", "instruct": "neutral"},
+                       {"speaker": "MARA", "instruct": "urgent"}])
+
+
+def test_review_batch_retries_wrong_length_and_succeeds():
+    result, calls, output = _review_batch_with([_RB_SHORT, _RB_FULL], _RB_BATCH)
+    check(
+        "review_batch: a wrong-length response retries instead of returning",
+        calls == 2, detail=f"calls={calls}\n{output}",
+    )
+    check(
+        "review_batch: the retry's correct-length response is returned",
+        result is not None and len(result) == len(_RB_BATCH),
+        detail=repr(result),
+    )
+
+
+def test_review_batch_wrong_length_every_attempt_fails_as_before():
+    result, calls, output = _review_batch_with([_RB_SHORT], _RB_BATCH)
+    check(
+        "review_batch: exhausts all attempts (1 + max_retries) on repeated wrong length",
+        calls == 3, detail=f"calls={calls}\n{output}",
+    )
+    check(
+        "review_batch: on exhaustion still returns the mismatched array for the caller's count check",
+        result is not None and len(result) != len(_RB_BATCH),
+        detail=repr(result),
+    )
+
+
+def test_review_batch_correct_length_does_not_retry():
+    result, calls, _ = _review_batch_with([_RB_FULL], _RB_BATCH)
+    check(
+        "review_batch: a correct-length response is returned on the first attempt",
+        calls == 1 and result is not None and len(result) == 2,
+        detail=f"calls={calls} result={result!r}",
+    )
+
+
 def main():
     tests = [
+        test_overlay_shifted_same_length_response_rejected,
+        test_overlay_whitespace_differing_echo_still_applied,
+        test_overlay_absent_or_blank_echo_still_applied,
+        test_review_batch_retries_wrong_length_and_succeeds,
+        test_review_batch_wrong_length_every_attempt_fails_as_before,
+        test_review_batch_correct_length_does_not_retry,
         test_review_roster_snaps_drifted_spelling,
         test_review_roster_is_built_order_independently,
         test_review_overlay_conforms_to_the_established_spelling,

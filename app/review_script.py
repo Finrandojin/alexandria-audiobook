@@ -97,9 +97,45 @@ def apply_positional_overlay(batch, corrected, roster=None):
     remove entries -- a count mismatch means its response can't be aligned
     positionally, so the caller must treat this as a failed batch (keep the
     original entries) rather than guessing an alignment.
+
+    Returns None ALSO when any slot's echoed "text" does not match the
+    original entry's text (whitespace-normalized). Count alone is not
+    alignment: a response that duplicates one entry and drops another has
+    the right length but shifts every later label one slot left, filing
+    correct labels against the wrong entries. Measured on a real review run:
+    34 misaligned slots, 13 of them one contiguous off-by-one run inside a
+    single batch, silently demoting a whole conversation to NARRATOR. Text
+    stayed verbatim (that guarantee is structural), so nothing else could
+    detect it -- check_text_loss compares the accepted entries against the
+    batch they were built FROM, which is a tautology.
+
+    Whole-batch rejection rather than per-slot skipping: a shift means every
+    slot after the drop point is wrong, and the slots whose text happens to
+    coincide again are exactly the ones that would silently take a
+    neighbour's label. Rejecting only the provably-mismatched slots would
+    still apply garbage to the coincidences. A failed batch keeps its
+    original labels, which is the safe direction.
+
+    Comparison is whitespace-normalized, not exact: models routinely echo
+    the text with a leading/collapsed space (41 correctly-aligned slots in
+    that same run, against 7097 exact echoes), and an exact compare would
+    reject all of them.
+    A missing/blank/non-string "text" is NOT treated as a mismatch -- the
+    reviewer is asked for labels only, and a response that omits the echo
+    entirely carries no alignment evidence either way; those responses have
+    always been accepted positionally and stay accepted.
     """
     if len(corrected) != len(batch):
         return None
+
+    for orig, corr in zip(batch, corrected):
+        if not isinstance(corr, dict):
+            continue
+        echoed = corr.get("text")
+        if not isinstance(echoed, str) or not echoed.strip():
+            continue
+        if " ".join(echoed.split()) != " ".join(str(orig.get("text", "")).split()):
+            return None
 
     accepted = []
     for orig, corr in zip(batch, corrected):
@@ -426,7 +462,26 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
 
         if entries and len(entries) > 0:
             if len(entries) != len(batch_entries):
+                # Valid JSON, wrong length -- measured as the ONLY failure
+                # mode that actually happens (33 of 34 failed batches in a
+                # full run; all finish_reason=stop, max completion 2966 of
+                # 4096 tokens, so not truncation). It used to return here,
+                # which made the two paid-for retries unreachable for it and
+                # left ~10% of the book unreviewed; the drops are
+                # temperature noise and do not repeat across attempts, so a
+                # retry is the cheap fix. The truncation hint is kept (it is
+                # a pure diagnostic and still the right message when a
+                # server silently truncates its context) but is now known to
+                # be a red herring for this particular symptom.
+                print(f"Warning: batch {batch_num} returned {len(entries)} entries for a "
+                      f"{len(batch_entries)}-entry batch (attempt {attempt + 1})")
                 _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
+                if attempt < max_retries:
+                    print("Retrying...")
+                    continue
+                # Retries exhausted: return the mismatched array unchanged so
+                # the caller's own count check reports and discards the batch
+                # exactly as it did before.
             if attempt > 0:
                 print(f"  Succeeded on retry {attempt + 1}")
             return entries
@@ -700,6 +755,14 @@ def main():
 
             accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
 
+            if accepted is None:
+                print(f"  FAILED — reviewer's echoed text does not align with the batch "
+                      f"(dropped/duplicated entry); keeping original entries for batch {batch_index}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
             # Safety net only: the positional overlay always takes "text"
             # from the original batch, so this can never actually fail. If
             # it does, that's a structural bug -- surface it loudly instead
@@ -771,6 +834,14 @@ def main():
                 continue
 
             accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
+
+            if accepted is None:
+                print(f"  FAILED — reviewer's echoed text does not align with the batch "
+                      f"(dropped/duplicated entry); keeping original entries for batch {i}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
 
             # Safety net only: the positional overlay always takes "text"
             # from the original batch, so this can never actually fail. If
