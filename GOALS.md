@@ -815,20 +815,19 @@ which arm failed.
 
 **Metric** — adapters whose training set includes their validation split.
 **Current** — every dataset zip splits **180 train / 20 val with zero
-overlap**, but `train_lora.py` loads the *root* `metadata.jsonl`, which is all
-200. **OPEN — 60 of 75 shipped adapters are contaminated**, audited
-2026-08-08 from each adapter's own `training_meta.json`.
+overlap**, and the trainer now uses the split, but the live manifest still
+contains **47 of 75 shipped adapters trained on all 200 clips**. **OPEN**, last
+audited 2026-08-15 from each adapter's own recorded sample count.
 
 | trained on | adapters |
 |---|---|
-| all 200 clips, including its own val split | **60** |
-| 180, the train split only | 7 |
+| all 200 clips, including its own val split | **47** |
+| 180, the train split only | 20 |
 | some other count (24, 81, 88, 116, 130, 170, 188) | 8 |
 
-The clean 7 are exactly the seven retrained and promoted on 2026-08-08; every
-adapter predating that fix is contaminated. Their held-out scores are therefore
-measured partly on clips they were trained on, and should be read as an upper
-bound rather than a held-out result.
+The remaining 47 adapters' held-out scores are measured partly on clips they
+were trained on, and should be read as an upper bound rather than a held-out
+result.
 
 One trap for anyone re-running this audit: the retrained adapters record
 `num_samples` while the older ones record `sample_count`. Two field names for
@@ -851,9 +850,9 @@ the current library and one failed identity at 0.393. Exact-source hash checks
 confirmed every installed adapter matches the path recorded by its gate.
 
 The live manifest now reports **47 of 75 adapters still trained on 200 clips**,
-down from 67 before the seven earlier clean promotions and these twenty. The
-goal remains **OPEN**, but deployment—not merely retraining evidence—has now
-removed contamination from 20 additional shipped voices.
+with 20 on the clean 180-clip split and eight at other sample counts. The goal
+remains **OPEN**, but deployment—not merely retraining evidence—has removed
+contamination from 20 shipped voices.
 
 #### The reference clip is CAUSAL — established by intervention, not correlation
 
@@ -1516,7 +1515,7 @@ If only three things get worked on:
    median is 0.927 and meets the goal, disproving the earlier cross-reader
    0.758 diagnosis. However, 43% of individual Japanese clips remain outside
    the band, similar to the other language arms.
-3. **Train/val contamination (2.7)** — 60 of 75 shipped adapters trained on
+3. **Train/val contamination (2.7)** — 47 of 75 shipped adapters trained on
    their own val split. The trainer is fixed; the library is not, and every
    held-out score from a contaminated adapter is an upper bound.
 
@@ -1524,10 +1523,11 @@ If only three things get worked on:
 29.9% it was built on came from a model that does not ship. Re-measuring goals
 before working on them has now twice been worth more than working on them.
 
-Then: the three-pass baseline (5.3), and the CJK transcription gap (5.4) if
-Voice Lab is ever pointed at a non-English audiobook. Reliability 3.1 is also
-OPEN again on unseen books: diagnose the fixed failures at arc4 chunk 133 and
-grimgar06 chunk 25 before spending another run on either unchanged.
+Then: the Japanese transcription gap (5.4) if Voice Lab is pointed at a
+Japanese audiobook. The three-pass baseline (5.3) is already answered and
+should not be listed as pending. Reliability 3.1 is also OPEN again on unseen
+books: diagnose the fixed failures at arc4 chunk 133 and grimgar06 chunk 25
+before spending another run on either unchanged.
 
 ## Rules for changing this file
 

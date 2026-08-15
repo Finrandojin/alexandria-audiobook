@@ -33,7 +33,8 @@ from three_pass_generate import attribute_batch  # noqa: E402
 
 
 NARRATORS = {"TheGambler": "ALEXIS IVANOVITCH",
-             "TheSunAlsoRises": "JAKE BARNES"}
+             "TheSunAlsoRises": "JAKE BARNES",
+             "TheMysteriousAffairAtStyles": "MR. HASTINGS"}
 BATCH = 25
 
 
