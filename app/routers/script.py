@@ -19,6 +19,7 @@ from pydantic import BaseModel
 from config_settings import load_app_config
 from generate_script import fix_mojibake
 from lmstudio_settings import (ensure_ideal_settings, get_planned_ideal_settings)
+from narrator_prompt import get_valid_narrator_name, is_narrator_attested
 from script_preflight import audit_unicode_text
 from source_normalization import normalize_known_source_corruptions
 from three_pass_generate import (build_three_pass_request_preflight,
@@ -519,10 +520,12 @@ async def upload_file(file: UploadFile = File(...)):
 
 class GenerateScriptRequest(BaseModel):
     strip_front_matter: bool = True
+    first_person_narrator: Optional[str] = None
 
 
 def build_generate_script_command(input_file: str, output_path: Optional[str] = None,
-                                  strip_front_matter: bool = True) -> List[str]:
+                                  strip_front_matter: bool = True,
+                                  first_person_narrator: Optional[str] = None) -> List[str]:
     """Build the one production command used by single and batch generation."""
     command = [sys.executable, "-u", os.path.join(BASE_DIR, "three_pass_generate.py"),
                input_file, "--pass2-on-exhaustion", "fallback"]
@@ -530,6 +533,9 @@ def build_generate_script_command(input_file: str, output_path: Optional[str] = 
         command.extend(["--output", output_path])
     if not strip_front_matter:
         command.append("--no-strip-front-matter")
+    narrator = get_valid_narrator_name(first_person_narrator)
+    if narrator:
+        command.extend(["--first-person-narrator", narrator])
     return command
 
 
@@ -549,12 +555,16 @@ async def generate_script(background_tasks: BackgroundTasks,
          raise HTTPException(status_code=400, detail="No input file found in state")
 
     check_global_gpu_lock("script")
-
+    try:
+        command = build_generate_script_command(
+            input_file,
+            strip_front_matter=request is None or request.strip_front_matter,
+            first_person_narrator=(request.first_person_narrator
+                                   if request is not None else None),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     claim_gpu_task("script")
-    command = build_generate_script_command(
-        input_file,
-        strip_front_matter=request is None or request.strip_front_matter,
-    )
     background_tasks.add_task(run_process, command, "script")
     return {"status": "started"}
 
@@ -972,6 +982,7 @@ async def review_script_batch_resume():
 
 class BatchScriptTask(BaseModel):
     filename: str  # filename inside uploads/
+    first_person_narrator: Optional[str] = None
 
 class BatchScriptRequest(BaseModel):
     tasks: List[BatchScriptTask]
@@ -1034,6 +1045,19 @@ def _resolve_batch_script_input(filename: str) -> str:
     return input_path
 
 
+def _read_and_validate_batch_script_source(job):
+    """Read one batch source and reject unattested narrator metadata."""
+    with open(job["input_path"], encoding="utf-8") as source:
+        text = fix_mojibake(source.read())
+    text, normalization_count = normalize_known_source_corruptions(text)
+    narrator = job.get("first_person_narrator")
+    if narrator and not is_narrator_attested(narrator, text):
+        raise ValueError(
+            f"{job['filename']}: first-person narrator must appear by name "
+            "at least three times in the source")
+    return text, normalization_count
+
+
 def build_batch_script_preflight(jobs):
     """Build the shared read-only sizing report used by the UI and dispatcher."""
     config = load_app_config(CONFIG_PATH)
@@ -1048,9 +1072,7 @@ def build_batch_script_preflight(jobs):
     context_windows = generation.get("context_rescue_windows")
     books = []
     for job in jobs:
-        with open(job["input_path"], encoding="utf-8") as source:
-            text = fix_mojibake(source.read())
-        text, normalization_count = normalize_known_source_corruptions(text)
+        text, normalization_count = _read_and_validate_batch_script_source(job)
         report = build_three_pass_request_preflight(
             text, settings, context, 1, context_windows=context_windows)
         unicode_report = audit_unicode_text(text)
@@ -1092,7 +1114,9 @@ async def generate_script_batch_preflight(request: BatchScriptRequest):
         raise HTTPException(status_code=400, detail="No files provided.")
     try:
         jobs = [{"filename": task.filename,
-                 "input_path": _resolve_batch_script_input(task.filename)}
+                 "input_path": _resolve_batch_script_input(task.filename),
+                 "first_person_narrator": get_valid_narrator_name(
+                     task.first_person_narrator)}
                 for task in request.tasks]
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
@@ -1112,6 +1136,7 @@ def _run_batch_script_job(job, state, log_path, total):
     command = build_generate_script_command(
         job["input_path"], output_path=job["output_path"],
         strip_front_matter=job.get("strip_front_matter", True),
+        first_person_narrator=job.get("first_person_narrator"),
     )
     rc, _ = _stream_subprocess_to_logs(
         command, BASE_DIR, state, log_prefix=f"[{index + 1}] ",
@@ -1129,9 +1154,20 @@ def _run_batch_script_job(job, state, log_path, total):
 @router.post("/api/generate_script/batch/start")
 async def generate_script_batch_start(request: BatchScriptRequest, background_tasks: BackgroundTasks):
     """Process multiple text/EPUB files sequentially through generate_script.py."""
-    check_global_gpu_lock("batch_script")
     if not request.tasks:
         raise HTTPException(status_code=400, detail="No files provided.")
+    try:
+        narrators = [get_valid_narrator_name(task.first_person_narrator)
+                     for task in request.tasks]
+        for task, narrator in zip(request.tasks, narrators):
+            _read_and_validate_batch_script_source({
+                "filename": task.filename,
+                "input_path": _resolve_batch_script_input(task.filename),
+                "first_person_narrator": narrator,
+            })
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    check_global_gpu_lock("batch_script")
 
     def _run():
         state = process_state["batch_script"]
@@ -1182,7 +1218,8 @@ async def generate_script_batch_start(request: BatchScriptRequest, background_ta
             reserved_outputs.add(output_path)
             jobs.append({"index": i, "filename": task.filename, "input_path": input_path,
                          "output_path": output_path, "safe_stem": safe_stem,
-                         "strip_front_matter": request.strip_front_matter})
+                         "strip_front_matter": request.strip_front_matter,
+                         "first_person_narrator": narrators[i]})
 
         if jobs and not state.get("cancel"):
             config = load_app_config(CONFIG_PATH)

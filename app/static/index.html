@@ -808,6 +808,9 @@
                                 <option value="">Choose an existing TXT/MD file…</option>
                             </select>
                             <div id="upload-status" class="mt-2"></div>
+                            <label class="form-label mt-3" for="script-first-person-narrator">First-person narrator (optional)</label>
+                            <input class="form-control" id="script-first-person-narrator" maxlength="100" placeholder="e.g. ALEXIS IVANOVITCH">
+                            <div class="form-text">Enter the narrator's exact character name only when the book is narrated in first person.</div>
                         </div>
                     </div>
 
@@ -846,7 +849,7 @@
                             <div class="table-responsive border rounded">
                                 <table class="table table-sm table-hover mb-0" style="font-size:0.85rem;">
                                     <thead class="table-light">
-                                        <tr><th>File</th><th style="width:110px;">Status</th></tr>
+                                        <tr><th>File</th><th>First-person narrator (optional)</th><th style="width:110px;">Status</th></tr>
                                     </thead>
                                     <tbody id="script-batch-queue-body"></tbody>
                                 </table>

@@ -797,7 +797,11 @@
             _resetPauseBtn('btn-pause-script');
 
             try {
-                await API.post('/api/generate_script', { strip_front_matter: _isStripFrontMatterChecked() });
+                await API.post('/api/generate_script', {
+                    strip_front_matter: _isStripFrontMatterChecked(),
+                    first_person_narrator:
+                        document.getElementById('script-first-person-narrator').value.trim() || null,
+                });
                 pollLogs('script', 'script-logs', () => {
                     if (!scriptBatchPoller) { genBtn.disabled = false; }
                     cancelBtn.style.display = 'none';
@@ -958,6 +962,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="text-truncate" style="max-width:350px;">${escapeHtml(file.name)}</td>
+                    <td><input class="form-control form-control-sm" id="script-batch-narrator-${i}" maxlength="100" placeholder="Exact character name"></td>
                     <td id="script-batch-status-${i}"><span class="badge bg-secondary">Pending</span></td>
                 `;
                 tbody.appendChild(row);
@@ -968,6 +973,7 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td class="text-truncate" style="max-width:350px;">${escapeHtml(checkbox.dataset.name)} <span class="text-muted">(existing)</span></td>
+                    <td><input class="form-control form-control-sm" id="script-batch-narrator-${i}" maxlength="100" placeholder="Exact character name"></td>
                     <td id="script-batch-status-${i}"><span class="badge bg-secondary">Pending</span></td>
                 `;
                 tbody.appendChild(row);
@@ -1021,11 +1027,21 @@
 
             try {
                 // Upload files in parallel; map preserves queue order for `tasks`.
-                const tasks = await Promise.all(scriptBatchQueue.map(async (item) => {
-                    if (item.storedFilename) { return { filename: item.storedFilename }; }
+                const tasks = await Promise.all(scriptBatchQueue.map(async (item, index) => {
+                    const firstPersonNarrator =
+                        document.getElementById(`script-batch-narrator-${index}`).value.trim() || null;
+                    if (item.storedFilename) {
+                        return {
+                            filename: item.storedFilename,
+                            first_person_narrator: firstPersonNarrator,
+                        };
+                    }
                     const res = await API.upload(item.file);
                     // Use stored_filename if provided (handles epub→txt), otherwise fall back
-                    return { filename: res.stored_filename || res.filename };
+                    return {
+                        filename: res.stored_filename || res.filename,
+                        first_person_narrator: firstPersonNarrator,
+                    };
                 }));
 
                 const collisionPolicy = document.getElementById('script-collision-policy').value;
@@ -3264,4 +3280,3 @@
                 }
             });
         }
-

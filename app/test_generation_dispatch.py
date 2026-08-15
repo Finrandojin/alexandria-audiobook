@@ -28,6 +28,18 @@ class GenerationDispatchTests(unittest.TestCase):
              "--output", "scripts/book.json", "--no-strip-front-matter"],
             command[3:])
 
+    def test_narrator_metadata_uses_same_dispatch_and_is_normalized(self):
+        command = build_generate_script_command(
+            "book.txt", first_person_narrator="  Alexis   Ivanovitch ")
+
+        self.assertEqual(
+            ["--first-person-narrator", "ALEXIS IVANOVITCH"], command[-2:])
+
+    def test_placeholder_narrator_is_rejected_before_dispatch(self):
+        with self.assertRaisesRegex(ValueError, "exact character name"):
+            build_generate_script_command(
+                "book.txt", first_person_narrator="NARRATOR")
+
     def test_default_output_and_stale_chunks_share_runtime_data_directory(self):
         output, chunks = get_output_paths("/runtime/data")
 

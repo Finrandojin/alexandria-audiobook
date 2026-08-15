@@ -493,6 +493,8 @@ class LLMGenParams:
     # differs, no seed varies. That is what lets sampled voting stay
     # reproducible instead of trading determinism for accuracy.
     seed: int = None
+    # Kept at the end so legacy positional constructors retain their meaning.
+    attribute_system_prompt: str = None
 
 
 def _rotate_log_if_large(log_path, max_bytes=10 * 1024 * 1024):

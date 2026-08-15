@@ -62,6 +62,30 @@ class BatchScriptConcurrencyTests(unittest.TestCase):
         self.assertEqual(32768, report["context_length"])
         self.assertEqual(16384, report["per_slot_context"])
 
+    def test_batch_source_rejects_unattested_narrator_before_gpu_work(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp, "book.txt")
+            path.write_text("Alexis entered. Alexis spoke.", encoding="utf-8")
+            job = {"filename": "book.txt", "input_path": str(path),
+                   "first_person_narrator": "ALEXIS"}
+
+            with self.assertRaisesRegex(ValueError, "at least three times"):
+                script._read_and_validate_batch_script_source(job)
+
+    def test_batch_source_accepts_attested_narrator(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp, "book.txt")
+            path.write_text(
+                "Alexis entered. Alexis spoke. Alexis left.", encoding="utf-8")
+            job = {"filename": "book.txt", "input_path": str(path),
+                   "first_person_narrator": "ALEXIS"}
+
+            text, normalization_count = (
+                script._read_and_validate_batch_script_source(job))
+
+        self.assertIn("Alexis left", text)
+        self.assertEqual([], normalization_count)
+
     def test_preflight_uses_three_pass_model_profile_settings(self):
         observed = {}
 

@@ -237,6 +237,17 @@
           "filename": {
             "title": "Filename",
             "type": "string"
+          },
+          "first_person_narrator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Person Narrator"
           }
         },
         "required": [
@@ -755,6 +766,17 @@
       },
       "GenerateScriptRequest": {
         "properties": {
+          "first_person_narrator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Person Narrator"
+          },
           "strip_front_matter": {
             "default": true,
             "title": "Strip Front Matter",

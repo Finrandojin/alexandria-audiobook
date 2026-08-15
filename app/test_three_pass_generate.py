@@ -43,6 +43,19 @@ class PassHelperTests(unittest.TestCase):
                    {"speaker": "MARCUS"}, {"speaker": "ELENA"}, {"speaker": "UNKNOWN"}]
         self.assertEqual(["ELENA", "MARCUS"], tp.build_roster(entries))
 
+    def test_attribute_specific_prompt_does_not_override_other_passes(self):
+        params = LLMGenParams(
+            max_tokens=500, system_prompt="shared override",
+            attribute_system_prompt="attribute override")
+
+        attribute_system, _ = tp.build_attribute_request(
+            [{"type": "SPOKEN", "text": "Hello."}], params, ["ALICE"])
+        instruct_system, _ = tp.build_instruct_request(
+            [{"speaker": "ALICE", "text": "Hello."}], params)
+
+        self.assertEqual("attribute override", attribute_system)
+        self.assertEqual("shared override", instruct_system)
+
     def test_default_instruct_by_type(self):
         self.assertEqual("Neutral, even narration.",
                          tp.default_instruct({"speaker": "NARRATOR", "text": "x"}))
@@ -428,6 +441,58 @@ class EndToEndTests(unittest.TestCase):
         self.assertEqual({"speaker", "text", "instruct"}, set(entries[0].keys()))
         self.assertEqual("ELENA", entries[1]["speaker"])
         self.assertEqual("Firm, quiet demand.", entries[1]["instruct"])
+
+    def test_first_person_narrator_is_seeded_into_attribution_roster(self):
+        source = "Alexis spoke. Alexis waited. Alexis answered."
+        segmented = [{"type": "SPOKEN", "text": source}]
+        named = [{"speaker": "ALEXIS", "text": source}]
+        instructed = [{"speaker": "ALEXIS", "text": source,
+                       "instruct": "Reflective."}]
+        observed = {}
+
+        def attribute(*args, **kwargs):
+            observed["roster"] = list(kwargs["roster"])
+            return named, [1.0]
+
+        with patch.object(tp, "segment_chunk_adaptively",
+                          return_value=segmented), \
+             patch.object(tp, "attribute_batch_voted", side_effect=attribute), \
+             patch.object(tp, "instruct_batch", return_value=instructed):
+            entries = tp.run_three_pass(
+                object(), "m", source,
+                LLMGenParams(max_tokens=500, temperature=0.1),
+                chunk_size=6000, first_person_narrator="alexis")
+
+        self.assertEqual("ALEXIS", observed["roster"][0])
+        self.assertEqual("ALEXIS", entries[0]["speaker"])
+
+    def test_fallback_roster_rebuild_keeps_first_person_narrator(self):
+        segmented = [{"type": "SPOKEN", "text": f"Alexis line {i}."}
+                     for i in range(26)]
+        source = " ".join(entry["text"] for entry in segmented)
+        observed_rosters = []
+
+        def attribute(_client, _model, batch, _params, **kwargs):
+            observed_rosters.append(list(kwargs["roster"]))
+            return ([{"speaker": "UNKNOWN", "text": entry["text"]}
+                     for entry in batch], [1.0] * len(batch))
+
+        def instruct(_client, _model, batch, _params, **_kwargs):
+            return [{**entry, "instruct": "Natural."} for entry in batch]
+
+        with patch.object(tp, "segment_chunk_adaptively",
+                          return_value=segmented), \
+             patch.object(tp, "attribute_batch_voted", side_effect=attribute), \
+             patch.object(tp, "instruct_batch", side_effect=instruct):
+            tp.run_three_pass(
+                object(), "m", source,
+                LLMGenParams(max_tokens=500, temperature=0.1),
+                chunk_size=6000, on_exhaustion="fallback",
+                first_person_narrator="alexis")
+
+        self.assertEqual(2, len(observed_rosters))
+        self.assertTrue(all(roster[0] == "ALEXIS"
+                            for roster in observed_rosters))
 
     def test_fallback_mode_completes_and_rebuilds_roster(self):
         # Exercises on_exhaustion="fallback": an unnameable SPOKEN line degrades
