@@ -32,6 +32,8 @@ from repair_source_encoding import preflight_source
 from script_repair import build_deterministic_repair
 from default_prompts import (load_segment_prompts, load_attribute_prompts,
                              load_instruct_prompts)
+from narrator_prompt import (add_narrator_prior, get_valid_narrator_name,
+                             is_narrator_attested, normalize_narrator_name)
 from pass_quality import (is_attested_name,
                           validate_segment_quality, validate_attribution,
                           validate_instruct, index_head_check,
@@ -231,7 +233,9 @@ def build_attribute_request(frozen_batch, params, roster,
                             neighbor_contexts=None):
     """Build the canonical pass-2 system and user prompts."""
     sys_prompt, usr_template = load_attribute_prompts()
-    if params.system_prompt:
+    if params.attribute_system_prompt:
+        sys_prompt = params.attribute_system_prompt
+    elif params.system_prompt:
         sys_prompt = params.system_prompt
     if params.user_prompt_template:
         usr_template = params.user_prompt_template
@@ -927,7 +931,8 @@ def three_pass_fingerprint(source_text, model_name, chunk_size, params=None,
     }
     if params is not None:
         settings.update({name: getattr(params, name, None) for name in (
-            "system_prompt", "user_prompt_template", "max_tokens", "temperature",
+            "system_prompt", "attribute_system_prompt", "user_prompt_template",
+            "max_tokens", "temperature",
             "top_p", "top_k", "min_p", "presence_penalty", "banned_tokens",
             "context_length", "hard_max_tokens", "segment_temperature",
             "attribute_temperature", "instruct_temperature",
@@ -961,12 +966,14 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                    context_windows=None, context_rescue_retries=None, endpoint=None,
                    collect_all_failures=False, thinking_mode=None,
                    unicode_report=None, attribution_votes=1,
-                   vote_temperature=0.3):
+                   vote_temperature=0.3, first_person_narrator=None):
     """Full flow. Returns the assembled [{speaker,text,instruct}] list, or raises
-    RuntimeError if pass 1 exhausts a chunk. When output_path is given, saves a
+    RuntimeError if pass 1 exhausts a chunk. first_person_narrator optionally
+    seeds that exact character into the pass-2 roster. When output_path is given, saves a
     checkpoint after each pass-1 chunk and each pass-2/3 batch and resumes from
     it; when None, runs purely in memory. context_windows / context_rescue_retries
     override the context-rescue defaults (finding #12)."""
+    narrator = normalize_narrator_name(first_person_narrator)
     chunk_records = split_into_chunk_records(source_text, max_size=chunk_size)
     chunks = [record["text"] for record in chunk_records]
     quote_analyses = []
@@ -1031,6 +1038,7 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
         _write_manifest(output_path, fingerprint, resolutions, passes, status,
                         telemetry={
                             "model_name": model_name,
+                            "first_person_narrator": narrator or None,
                             "thinking_mode": thinking_mode or "default",
                             "unicode": dict(unicode_report or {}),
                             "failure_reasons": dict(Counter(
@@ -1128,8 +1136,14 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
         if named[index] is not None:
             continue
         named[index] = get_deterministic_named_entry(entry)
-    roster = build_roster(
-        (entry for entry in named if isinstance(entry, dict)), source_text)
+    def get_attribution_roster():
+        current = build_roster(
+            (entry for entry in named if isinstance(entry, dict)), source_text)
+        if narrator and narrator not in current:
+            current.insert(0, narrator)
+        return current
+
+    roster = get_attribution_roster()
     roster_seen = set(roster)
     attr_start = time.time()
     attr_base = elapsed_s.get("attribute", 0)
@@ -1183,9 +1197,7 @@ def run_three_pass(client, model_name, source_text, params, chunk_size,
                                      vote_confidences[position], 3)}
                     named[index] = entry
                 if on_exhaustion == "fallback":
-                    roster = build_roster(
-                        (entry for entry in named if isinstance(entry, dict)),
-                        source_text)
+                    roster = get_attribution_roster()
                     roster_seen = set(roster)
                 else:
                     # Same admission gate as build_roster above, applied
@@ -1560,6 +1572,9 @@ def main():
     parser.add_argument("--reasoning-effort", default=None,
                         help="Pass through to the model (e.g. 'none' to "
                              "disable thinking on a reasoning model).")
+    parser.add_argument(
+        "--first-person-narrator", default=None,
+        help="Exact character name of this book's first-person narrator.")
     parser.add_argument("--collect-all-failures", action="store_true",
                         help="Diagnostic mode: record exhausted work, continue, "
                              "write only a .partial.json result, and exit nonzero.")
@@ -1589,6 +1604,14 @@ def main():
         print(f"Repaired {unicode_report['repaired']} destroyed character(s); "
               f"neutralized {unicode_report['residual']} unrecoverable one(s). "
               "The source file was not modified.")
+    try:
+        narrator = get_valid_narrator_name(args.first_person_narrator)
+    except ValueError as exc:
+        parser.error(str(exc))
+    if narrator and not is_narrator_attested(narrator, book):
+        parser.error(
+            "first-person narrator must appear by name at least three times "
+            "in the prepared source")
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     app_dir = os.path.dirname(__file__)
@@ -1637,6 +1660,10 @@ def main():
         segment_output_ratio=generation_settings["segment_output_ratio"],
         presegment_quotes=generation_settings["presegment_quotes"],
         reasoning_effort=args.reasoning_effort)
+    if narrator:
+        attribute_system_prompt, _ = load_attribute_prompts()
+        params.attribute_system_prompt = add_narrator_prior(
+            attribute_system_prompt, narrator)
     client = OpenAI(base_url=base_url, api_key=llm.get("api_key", "local"))
 
     # Context-rescue tuning (finding #12): config-overridable, else defaults.
@@ -1657,7 +1684,8 @@ def main():
                     on_exhaustion=args.pass2_on_exhaustion, output_path=sample_out,
                     context_windows=context_windows,
                     context_rescue_retries=context_rescue_retries,
-                    endpoint=base_url)
+                    endpoint=base_url,
+                    first_person_narrator=narrator)
                 atomic_json_write(sample_entries, sample_out)
                 summary["samples"].append({"label": label, "chunk_index": index,
                                            "status": "complete",
@@ -1680,7 +1708,8 @@ def main():
                                  unicode_report=unicode_report,
                                  thinking_mode=args.reasoning_effort,
                                  attribution_votes=args.attribution_votes,
-                                 vote_temperature=args.vote_temperature)
+                                 vote_temperature=args.vote_temperature,
+                                 first_person_narrator=narrator)
     except (RuntimeError, PassExhausted) as exc:
         print(f"Error: {exc}")
         sys.exit(1)

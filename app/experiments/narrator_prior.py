@@ -51,6 +51,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from openai import OpenAI
 from default_prompts import load_attribute_prompts
 from experiments.manifest import ExperimentRecord
+from narrator_prompt import add_narrator_prior
 from experiments.stats import clopper_pearson, paired
 from generate_script import LLMGenParams
 from three_pass_generate import (attribute_batch, build_roster,
@@ -102,11 +103,7 @@ print(f"roster {len(roster)} | {len(want)} lines | narrator {NARRATOR} "
       f"speaks {share:.0f}% of them", flush=True)
 
 BASE_SYSTEM, _ = load_attribute_prompts()
-NARRATOR_SYSTEM = BASE_SYSTEM.rstrip() + (
-    f"\n\nThis book is narrated in the first person by {NARRATOR}. The "
-    f"narration is {NARRATOR}'s own voice, so lines of interior thought or "
-    f"unmarked commentary are usually {NARRATOR} speaking. Other characters "
-    f"are normally introduced by name or by who is being addressed.")
+NARRATOR_SYSTEM = add_narrator_prior(BASE_SYSTEM, NARRATOR)
 ARMS = {"baseline": BASE_SYSTEM, "narrator": NARRATOR_SYSTEM}
 _want = [a.strip() for a in os.environ.get("EXPERIMENT_ARMS", "").split(",") if a.strip()]
 if _want:

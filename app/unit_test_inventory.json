@@ -83,6 +83,8 @@
     "test_attribution_voting.VotedAttributionTest.test_single_vote_delegates_to_greedy"
   ],
   "test_batch_script_concurrency": [
+    "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_batch_source_accepts_attested_narrator",
+    "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_batch_source_rejects_unattested_narrator_before_gpu_work",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_preflight_uses_planned_runtime_profile",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_preflight_uses_three_pass_model_profile_settings",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_serializes_when_per_slot_context_is_too_small",
@@ -588,6 +590,8 @@
     "test_generation_dispatch.GenerationDispatchTests.test_batch_generation_uses_same_dispatch_with_output",
     "test_generation_dispatch.GenerationDispatchTests.test_default_output_and_stale_chunks_share_runtime_data_directory",
     "test_generation_dispatch.GenerationDispatchTests.test_explicit_batch_output_does_not_clear_active_book_chunks",
+    "test_generation_dispatch.GenerationDispatchTests.test_narrator_metadata_uses_same_dispatch_and_is_normalized",
+    "test_generation_dispatch.GenerationDispatchTests.test_placeholder_narrator_is_rejected_before_dispatch",
     "test_generation_dispatch.GenerationDispatchTests.test_single_generation_uses_production_three_pass_fallback"
   ],
   "test_generation_failure_experiments": [
@@ -879,6 +883,12 @@
   "test_multi_process_state": [
     "test_multi_process_state.MultiProcessStateTests.test_batch_cancel_signals_every_process",
     "test_multi_process_state.MultiProcessStateTests.test_pause_and_resume_signal_every_process"
+  ],
+  "test_narrator_prompt": [
+    "test_narrator_prompt.NarratorPromptTests.test_attestation_requires_three_source_mentions",
+    "test_narrator_prompt.NarratorPromptTests.test_placeholder_labels_are_not_character_names",
+    "test_narrator_prompt.NarratorPromptTests.test_prior_names_narrator_without_mutating_base_prompt",
+    "test_narrator_prompt.NarratorPromptTests.test_valid_name_is_canonical_and_blank_disables_hint"
   ],
   "test_no_machine_paths": [
     "test_no_machine_paths.TestNoMachinePaths.test_allowed_files_take_an_environment_override",
@@ -1494,6 +1504,8 @@
     "test_three_pass_generate.ContextBleedTests.test_context_rescue_rejects_bleeding_output",
     "test_three_pass_generate.EndToEndTests.test_attribution_exhaustion_subdivides_and_completes",
     "test_three_pass_generate.EndToEndTests.test_fallback_mode_completes_and_rebuilds_roster",
+    "test_three_pass_generate.EndToEndTests.test_fallback_roster_rebuild_keeps_first_person_narrator",
+    "test_three_pass_generate.EndToEndTests.test_first_person_narrator_is_seeded_into_attribution_roster",
     "test_three_pass_generate.EndToEndTests.test_repeated_omission_stops_same_chunk_retry_early",
     "test_three_pass_generate.EndToEndTests.test_segment_accepts_trigram_only_near_miss_on_exhaustion",
     "test_three_pass_generate.EndToEndTests.test_segment_completion_budget_is_bounded_from_source_size",
@@ -1517,6 +1529,7 @@
     "test_three_pass_generate.Pass3Tests.test_falls_back_to_default_instruct_on_exhaustion",
     "test_three_pass_generate.PassHelperTests.test_all_caps_heading_is_not_treated_as_source_speaker_label",
     "test_three_pass_generate.PassHelperTests.test_ambiguous_stray_closing_quote_drops_only_delimiter",
+    "test_three_pass_generate.PassHelperTests.test_attribute_specific_prompt_does_not_override_other_passes",
     "test_three_pass_generate.PassHelperTests.test_context_rescue_is_not_used_for_omission_or_quote_structure",
     "test_three_pass_generate.PassHelperTests.test_default_instruct_by_type",
     "test_three_pass_generate.PassHelperTests.test_emotional_laughter_with_decorative_closers_stays_spoken",
