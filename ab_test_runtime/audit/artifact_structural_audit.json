@@ -1,9 +1,9 @@
 {
   "scope": "structural audit only; classifications do not validate scientific conclusions",
   "summary": {
-    "supported_structure": 65,
-    "exploratory": 144,
-    "provisional": 112
+    "supported_structure": 72,
+    "exploratory": 174,
+    "provisional": 114
   },
   "artifacts": [
     {
@@ -1887,6 +1887,84 @@
       "reason": "embedded provenance and identifiable harness"
     },
     {
+      "artifact": "decontaminate_batch1.json",
+      "bytes": 5975,
+      "sha256": "ffb9e5f852e806fc87075c35a6fb54247612560113802ed4c667fa65067eef0a",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "decontaminate_batch2.json",
+      "bytes": 5878,
+      "sha256": "9bd83f34c63d7cb60229f34e5968ebd8b3d78f6e1b83114a4d4688ffff319e63",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "decontaminate_batch3.json",
+      "bytes": 5940,
+      "sha256": "ea5adb471911049eed8673778c24bbb0df5374cb8398a3654f80fe06bc1ca78b",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "decontaminate_batch4.json",
+      "bytes": 5901,
+      "sha256": "a68b80e91b33f9233c70060dc34f889edb5d8723f78ba19acb4ed050d3cedc89",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "decontaminate_batch5.json",
+      "bytes": 5900,
+      "sha256": "53bac2620cf4e18c1da072e06b168ae3b1274c2c5c3685c3b19dbd6afdefbd9b",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "decontaminate_batch6.json",
+      "bytes": 5928,
+      "sha256": "77921d2ccdbbfe2fb990b624179ddec3a0b1a307ff97a6d21272b503f67ac1bd",
+      "seed": 1234,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "tts_provenance",
+      "commit": "cbb14502bbc375e2ac4932756010641f199edfeb",
+      "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
       "artifact": "distill_eval__mixed_register.json",
       "bytes": 665516,
       "sha256": "8dc845e6832acbd9d6775815a6f68a8bccb20afe1bb4c063868a0ccd08914e65",
@@ -1950,6 +2028,39 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "duration_probe_20260811_overnight.json",
+      "bytes": 1640,
+      "sha256": "2f534a24b4bdce43f33ca97666bc93b26a180a2ccc90079119c9a057265f8b44",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "duration_probe_20260811_rerun.json",
+      "bytes": 1640,
+      "sha256": "2f534a24b4bdce43f33ca97666bc93b26a180a2ccc90079119c9a057265f8b44",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "duration_probe_same_speaker_20260815.json",
+      "bytes": 1909,
+      "sha256": "78393660399232c8a461d177260820b334c49ea28b18fd3fa9f05895a323e6aa",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "fallback_policy.json",
       "bytes": 1845,
       "sha256": "a48d2494ea8639ecbb10baf0202b3c71534430a355fc2939613ac4ee0c2e5f1f",
@@ -1990,9 +2101,86 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "gate_promote__breathy_alto_50s_f_fantasy.json",
+      "bytes": 417,
+      "sha256": "14c196b092db15ef1bb11aea0edb24fbad81ab09fd08c16451181f44aab9a820",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__breathy_baritone_40s_m_literary.json",
+      "bytes": 263,
+      "sha256": "faecfd6235346a0c547c879476ca72129650e65b7c93eaee893d62700ac23154",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__breathy_baritone_40s_m_military_1.json",
+      "bytes": 265,
+      "sha256": "dae26d3b51de82f1d537ba248ce46adac4590f6561fb5ca976c389ebf1ab63d1",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__breathy_mezzo_20s_f_scifi.json",
+      "bytes": 257,
+      "sha256": "c639c25c87724192ff9e6e451f3e2215388ca38e860d10b911b10a50e10fb819",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "gate_promote__breathy_tenor_18s_m_supernatural.json",
       "bytes": 259,
       "sha256": "dda7c9249277cc0dfeef313693547cfea8507fe9da0331aba65c140e99872e1e",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__breathy_tenor_20s_m_fantasy.json",
+      "bytes": 259,
+      "sha256": "1302a344369abb9e1442aed0252ecd68970a10193d72272981c2190d3f5ba68b",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__crisp_tenor_20s_m.json",
+      "bytes": 249,
+      "sha256": "9eb978513e401923d41be39f910ac54b27194dbef3564d08c69f00cde2a37f53",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__crisp_tenor_30s_m_fantasy.json",
+      "bytes": 257,
+      "sha256": "c823073a06d3bb79bbe5c2ee18b0056d8c0cb1141b1e747dc84ce1dd51fbbc0e",
       "seed": null,
       "status": null,
       "has_rows": false,
@@ -2023,6 +2211,61 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "gate_promote__husky_baritone_50s_m_military.json",
+      "bytes": 261,
+      "sha256": "fd1f8b798cc178b91d5de0404a0e54715794ebfd6e59eddc8f21ef26744cea35",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__husky_soprano_20s_f.json",
+      "bytes": 250,
+      "sha256": "66f7429408d57a5d9fb3ea6e5173cb1041da42d8fc3cd375cea67b6258cf33dd",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__husky_tenor_30s_m_fantasy.json",
+      "bytes": 257,
+      "sha256": "72ee77c1611bf8b9ae283666f08f716112523c172b8aa467361ceb900a0c7f74",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__silky_alto_40s_f.json",
+      "bytes": 248,
+      "sha256": "74611b4403fc43c88cc725c51740b3bdb18eacfb4cedf40f06a821e647ea059f",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__silky_alto_40s_f_cyberpunk.json",
+      "bytes": 258,
+      "sha256": "87e1a5cbe55305c0b73f1546f1f191c1e455e30722b7dbcfc2fe5b85c78a3406",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "gate_promote__silky_baritone_30s_m.json",
       "bytes": 247,
       "sha256": "db2ffe30c47f936badc3c37bb088b54da6d8646368799288b164f2eace17f0cb",
@@ -2034,9 +2277,141 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "gate_promote__silky_mezzo_10s_f_fantasy.json",
+      "bytes": 257,
+      "sha256": "121c981a7a9c860770d2d80c2da4a319cee8d95db6f86fa8d950296fcf120943",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_alto_40s_f_1.json",
+      "bytes": 249,
+      "sha256": "a4279a77f539d435900ae3c45f25e39775e3968df0592b4871e3ab2ed89244a4",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_alto_50s_f_anime.json",
+      "bytes": 253,
+      "sha256": "5d278c6243a85e6f0755aa3448432a717642aaa545def3291d934b43e762e276",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_30s_m_2.json",
+      "bytes": 253,
+      "sha256": "4fe85cd65a97bd49b7ff0c3b1c4f1846e059ce87ae5441063fc556184fe7992a",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_30s_m_3.json",
+      "bytes": 253,
+      "sha256": "73088d575b8845ae20203e679f7fc79d0b85ea9e1f447ec366721262da3b7cbe",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_30s_m_fantasy_1.json",
+      "bytes": 261,
+      "sha256": "1b53d8193f6cb2b6535a7172d45f14477f50adeff5b01d44aa554477034f00b8",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_30s_m_fantasy_2.json",
+      "bytes": 261,
+      "sha256": "c2a2906c9812411729778dc3b2a5e8b23f33a7401dfab377b2824d67e827aba3",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_40s_m_1.json",
+      "bytes": 253,
+      "sha256": "a4a569d789da65a1ee92de7fad66197e73cefaf9419a431624bd89dd2b25cce9",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "gate_promote__warm_baritone_40s_m_fantasy.json",
       "bytes": 254,
       "sha256": "dee42f233ecfa862f5acd3709a7eeb0fda093ac2768553c943e43016b0d46533",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_40s_m_military.json",
+      "bytes": 260,
+      "sha256": "2b22eb27d70018090123753f81254780eb8adc68b01bfb25a926cbbe940a3575",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_baritone_50s_m_gothic.json",
+      "bytes": 258,
+      "sha256": "10ec94bc07c800f2227a3f739fdcfe0403eb7fef1cbf10de142b86c6abc8eacc",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_mezzo_30s_f.json",
+      "bytes": 248,
+      "sha256": "b6cfbf162bf98b0995bc8fc06826a001fc21cbdceab8a9e490d20ac1746718b6",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_mezzo_30s_f_fantasy_1.json",
+      "bytes": 258,
+      "sha256": "892ef6999be9bd74ea4b163bd71c702d6f306d0027d4fd19c12a01687618d496",
       "seed": null,
       "status": null,
       "has_rows": false,
@@ -2059,6 +2434,28 @@
       "artifact": "gate_promote__warm_tenor_25s_m_military.json",
       "bytes": 252,
       "sha256": "27b194e8b9e6cc3609a8a9f14b1e5e92e8e4342d67e481ff932369afb8192103",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_tenor_30s_m_1.json",
+      "bytes": 250,
+      "sha256": "bd28c68b15dde90b6f04e3afbff02cb8a3f75795f56dcc3e0410494df12b6fdd",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "gate_promote__warm_tenor_30s_m_gothic.json",
+      "bytes": 255,
+      "sha256": "66cfb42575320244a367e20c761640caca89a02cfe0df05e23028502d5a6b464",
       "seed": null,
       "status": null,
       "has_rows": false,
@@ -2287,6 +2684,19 @@
       "identity_contract": "tts_provenance",
       "commit": "41095b491ecd7432beb5863c5a649edc8af3d806",
       "dirty": false,
+      "classification": "supported_structure",
+      "reason": "embedded provenance and identifiable harness"
+    },
+    {
+      "artifact": "kokoro_same_speaker_generate.json",
+      "bytes": 16503,
+      "sha256": "8182aa82a17293954f514e41ff3040c6bc4989e7f813c0895bf0883a57f4d89b",
+      "seed": 1234,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "tts_provenance",
+      "commit": "d750a6c16265f6440b324acbfa838199ca01ab8f",
+      "dirty": true,
       "classification": "supported_structure",
       "reason": "embedded provenance and identifiable harness"
     },
@@ -2711,6 +3121,17 @@
       "reason": "no embedded provenance or experiment metadata"
     },
     {
+      "artifact": "pdnc_failure_telemetry.json",
+      "bytes": 439222,
+      "sha256": "040ff2ea2e37c84896879b042a123bd097f0daa82242792abd8f103db66f8da2",
+      "seed": null,
+      "status": null,
+      "has_rows": false,
+      "identity_contract": "none",
+      "classification": "exploratory",
+      "reason": "no embedded provenance or experiment metadata"
+    },
+    {
       "artifact": "pdnc_generalisation.json",
       "bytes": 5603,
       "sha256": "79b8e52fb73a3c8d157bfa5e66a17586b827b7300291f04a465da8a0799cea7d",
@@ -2720,6 +3141,32 @@
       "identity_contract": "none",
       "classification": "exploratory",
       "reason": "no embedded provenance or experiment metadata"
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp-generic.json",
+      "bytes": 316345,
+      "sha256": "c428935dd2e445896a1b132743a79287b612ffc36b3ec5cccc78b889fb904315",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "experiment_meta",
+      "commit": "06aa78478de69452d693511a6d9b620528563993",
+      "dirty": true,
+      "classification": "provisional",
+      "reason": "older metadata contract; semantic/manual review required"
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp.json",
+      "bytes": 631725,
+      "sha256": "71793d54c12071e65198a9ce8e6d3cc4b1d28cec108cd039d1f3f6fa44ecbc35",
+      "seed": null,
+      "status": null,
+      "has_rows": true,
+      "identity_contract": "experiment_meta",
+      "commit": "06aa78478de69452d693511a6d9b620528563993",
+      "dirty": true,
+      "classification": "provisional",
+      "reason": "older metadata contract; semantic/manual review required"
     },
     {
       "artifact": "pitch_profile_matrix.json",
