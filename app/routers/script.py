@@ -17,12 +17,12 @@ from fastapi import APIRouter, BackgroundTasks, File, HTTPException, UploadFile
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from config_settings import load_app_config
-from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
-from generate_script import (build_book_request_preflight, fix_mojibake,
-                             split_into_chunks)
+from generate_script import fix_mojibake
 from lmstudio_settings import (ensure_ideal_settings, get_planned_ideal_settings)
 from script_preflight import audit_unicode_text
 from source_normalization import normalize_known_source_corruptions
+from three_pass_generate import (build_three_pass_request_preflight,
+                                 resolve_three_pass_generation_settings)
 
 from core import (
     BASE_DIR,
@@ -1044,17 +1044,15 @@ def build_batch_script_preflight(jobs):
     parallel = max(1, int(status.get("parallel") or 1))
     context = int(status.get("context_length") or 0)
     generation = config.get("generation") or {}
-    prompts = config.get("prompts") or {}
+    settings = resolve_three_pass_generation_settings(config)
+    context_windows = generation.get("context_rescue_windows")
     books = []
     for job in jobs:
         with open(job["input_path"], encoding="utf-8") as source:
             text = fix_mojibake(source.read())
         text, normalization_count = normalize_known_source_corruptions(text)
-        chunks = split_into_chunks(text, generation.get("chunk_size", 3000))
-        report = build_book_request_preflight(
-            chunks, prompts.get("system_prompt") or DEFAULT_SYSTEM_PROMPT,
-            prompts.get("user_prompt") or DEFAULT_USER_PROMPT,
-            generation.get("max_tokens", 4096), context, 1)
+        report = build_three_pass_request_preflight(
+            text, settings, context, 1, context_windows=context_windows)
         unicode_report = audit_unicode_text(text)
         books.append({
             "filename": job["filename"],
