@@ -678,12 +678,23 @@ async def save_config(config: AppConfig):
     return {"status": "saved"}
 
 class _HTMLTextExtractor(HTMLParser):
-    """Strip HTML tags from EPUB content, preserving block-level structure."""
+    """Strip HTML tags from EPUB content, preserving block-level structure.
+
+    `title` is skipped because HTMLParser reports <head><title> text through
+    handle_data like any other text, so the per-chapter document title (often
+    a generic converter artifact such as "Unknown") was being spliced into the
+    book body and read aloud by the narrator. Only `title` is skipped, not
+    `head` wholesale: this parser closes a skip region on the explicit end tag
+    and never implicitly closes <head> at <body>, so a document with an
+    unclosed <head> would silently lose its entire chapter. Measured on a real
+    23-chapter EPUB, skipping `head` and skipping `title` produce byte-identical
+    text, so `title` buys the same fix with a far smaller blast radius.
+    """
     BLOCK_TAGS = frozenset({
         'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'li', 'blockquote', 'br', 'hr', 'tr', 'section', 'article',
     })
-    SKIP_TAGS = frozenset({'style', 'script'})
+    SKIP_TAGS = frozenset({'style', 'script', 'title'})
 
     def __init__(self):
         super().__init__()

@@ -195,6 +195,47 @@ def test_paragraph_structure_preserved():
         )
 
 
+def test_head_title_not_in_body_text():
+    """<head><title> is document metadata, not book text.
+
+    HTMLParser reports it through handle_data like any other text, so an
+    unskipped <title> gets spliced into the narration. The body's own
+    heading must survive untouched.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        epub_path = os.path.join(tmp, "book.epub")
+        manifest_items = [
+            ("ch1", "ch1.xhtml", "application/xhtml+xml", None),
+        ]
+        opf_xml = opf(manifest_items, ["ch1"])
+        files = {
+            "OEBPS/ch1.xhtml": (
+                "<html><head><title>Document Metadata Title</title>"
+                "<meta charset=\"utf-8\"/></head><body>"
+                "<h1>3: Initial Reconnaissance</h1>"
+                "<p>The body paragraph survives.</p>"
+                "</body></html>"
+            ),
+        }
+        make_epub(epub_path, opf_xml, files)
+        text = extract_epub_text(epub_path)
+        check(
+            "head_title: <title> text is not extracted",
+            "Document Metadata Title" not in text,
+            detail=repr(text),
+        )
+        check(
+            "head_title: body heading survives",
+            "3: Initial Reconnaissance" in text,
+            detail=repr(text),
+        )
+        check(
+            "head_title: body paragraph survives",
+            "The body paragraph survives." in text,
+            detail=repr(text),
+        )
+
+
 def test_nav_doc_skipped():
     with tempfile.TemporaryDirectory() as tmp:
         epub_path = os.path.join(tmp, "book.epub")
@@ -325,6 +366,7 @@ def main():
         test_href_resolution_percent_and_traversal,
         test_case_variant_href,
         test_paragraph_structure_preserved,
+        test_head_title_not_in_body_text,
         test_nav_doc_skipped,
         test_broken_href_raises_valueerror,
         test_non_html_spine_item_skipped,
