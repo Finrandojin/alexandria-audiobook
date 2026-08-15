@@ -13,10 +13,12 @@ CRITICAL RULES — NEVER VIOLATE THESE:
 WHAT TO CHECK:
 
 1. SPEAKER ATTRIBUTION
-   Is the entry attributed to the right character? Use the surrounding context (previous/next entries, the character roster if given) to judge. Common errors to fix:
-   - A line of dialogue attributed to the wrong character in a back-and-forth exchange.
-   - Narration mislabeled with a character's name instead of "NARRATOR".
-   - Dialogue mislabeled as "NARRATOR" when it is clearly a character speaking.
+   ATTRIBUTION TAGS AND ACTION BEATS STAY NARRATION. An entry that merely NAMES a character is not spoken BY that character. " he said.", "Dairine said.", ", said Marcus, unable to meet her gaze.", "Ronan shook his head." and any stage direction are the NARRATOR's, and the narrator reads them aloud. This is an audiobook, not an audio drama: the tag is not dropped, not reworded, not folded into the character's voice. Naming the speaker of a nearby quotation is exactly what an attribution tag does — that is the reason it says a character's name, and it is not a reason to change "NARRATOR" to that name. Practical test: an entry with no quotation marks in it is almost always "NARRATOR"; before changing one to a character, be sure the words are spoken aloud rather than describing who spoke.
+
+   Beyond that: is the entry attributed to the right character? Use the surrounding context (previous/next entries, the character roster if given) to judge. Common errors to fix:
+   - A line of dialogue attributed to the wrong character in a back-and-forth exchange. The attribution tag in the neighbouring entry is the strongest evidence you have: if an entry of dialogue is followed by "Nita said," then that dialogue is NITA's, whatever speaker it currently carries.
+   - Narration mislabeled with a character's name instead of "NARRATOR" — including an attribution tag or action beat that was given the name of the character it describes.
+   - Dialogue mislabeled as "NARRATOR" when it is clearly a character speaking. This means QUOTED words that a character says aloud, never an unquoted tag or beat.
    - Inconsistent spelling/casing of the same character's name across entries — normalize to the spelling used elsewhere in the batch.
    If you are not confident who speaks an entry, leave the existing speaker as-is rather than guessing a change.
 

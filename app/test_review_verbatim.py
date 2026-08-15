@@ -397,6 +397,36 @@ def test_shipped_review_prompts_pass_their_own_guard():
     )
 
 
+def test_shipped_review_prompt_states_the_attribution_tag_rule():
+    """The reviewer must be told that an attribution tag stays narration.
+
+    Measured cost of its absence: a full-book review made 58 NARRATOR ->
+    character changes, 57 of them on entries containing no quotation mark at
+    all -- "Dairine said.", "Ronan shook his head." and the like handed to
+    character voices. Entries with no quotes voiced by a character nearly
+    doubled (63 -> 119). The model was not malfunctioning; it was reading a
+    tag that names a character as evidence the character speaks it, which is
+    the one rule this fork exists to enforce and the only rule the review
+    prompt did not state. default_prompts.txt carries it as its rule 2; both
+    stages need it, so pin it here rather than relying on prose surviving an
+    edit.
+    """
+    lowered = REVIEW_SYSTEM_PROMPT.lower()
+    check(
+        "review prompt: says attribution tags/action beats stay narration",
+        "attribution tag" in lowered and "action beat" in lowered,
+        detail=repr(REVIEW_SYSTEM_PROMPT[:200]),
+    )
+    check(
+        "review prompt: distinguishes an audiobook from an audio drama",
+        "audio drama" in lowered,
+    )
+    check(
+        "review prompt: says naming a character is not the same as speaking",
+        "he said" in lowered or "said." in lowered,
+    )
+
+
 def test_normalize_text_no_fusion_at_punctuation_quote_boundary():
     """F10: normalize_text() used to delete punctuation outright
     (`re.sub(r'[^\\w\\s]', '', text)`), so a quote/dash mark that directly
@@ -758,6 +788,7 @@ def main():
         test_select_review_prompt_marker_bearing_custom_used_as_is,
         test_select_review_prompt_absent_or_blank_uses_default_silently,
         test_shipped_review_prompts_pass_their_own_guard,
+        test_shipped_review_prompt_states_the_attribution_tag_rule,
         test_normalize_text_no_fusion_at_punctuation_quote_boundary,
         test_check_text_loss_whole_vs_entry_split_agree_on_fused_quote_fixture,
         test_build_review_batches_splits_on_char_budget,
