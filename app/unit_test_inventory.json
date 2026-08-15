@@ -37,6 +37,9 @@
     "test_artifact_structural_audit.StructuralAuditTests.test_classifies_all_identity_contracts_without_scientific_claims",
     "test_artifact_structural_audit.StructuralAuditTests.test_unreadable_json_is_visible_not_skipped"
   ],
+  "test_asr_energy_vad": [
+    "test_asr_energy_vad.EnergyVadTests.test_splits_long_silence_but_keeps_short_pause"
+  ],
   "test_attribution_accuracy": [
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_book_and_entry_index_are_unique_in_every_fixture",
     "test_attribution_accuracy.GoldFixtureIntegrityTest.test_every_entry_has_an_expected_speaker",
@@ -403,6 +406,10 @@
     "test_duplicate_classification.SourceOccurrenceTest.test_text_present_once_is_counted_once",
     "test_duplicate_classification.UnderscoreMarkupTest.test_a_real_underscore_word_still_tokenizes",
     "test_duplicate_classification.UnderscoreMarkupTest.test_emphasis_markers_do_not_change_a_word"
+  ],
+  "test_duration_outlier_analysis": [
+    "test_duration_outlier_analysis.DurationOutlierAnalysisTests.test_ranks_average_ties",
+    "test_duration_outlier_analysis.DurationOutlierAnalysisTests.test_spearman_detects_monotonic_directions"
   ],
   "test_env_doctor": [
     "test_env_doctor.EvaluateEnvTests.test_all_required_present_is_ok",
@@ -1138,6 +1145,9 @@
     "test_release_verifier.ReleaseVerifierTests.test_keyboard_interrupt_stops_child_group_before_propagating",
     "test_release_verifier.ReleaseVerifierTests.test_python_compilation_includes_nonignored_untracked_files",
     "test_release_verifier.ReleaseVerifierTests.test_unittest_summary_rejects_skips_and_missing_success"
+  ],
+  "test_repair_candidate_reference_text": [
+    "test_repair_candidate_reference_text.RepairCandidateReferenceTextTests.test_returns_copy_with_matching_text"
   ],
   "test_repair_structural_check": [
     "test_repair_structural_check.InlineQuotePairingTest.test_a_mid_sentence_quoted_phrase_gets_its_opener",

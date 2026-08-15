@@ -827,16 +827,16 @@ which arm failed.
 **Metric** — adapters whose training set includes their validation split.
 **Current** — every dataset zip splits **180 train / 20 val with zero
 overlap**, and the trainer now uses the split, but the live manifest still
-contains **40 of 75 shipped adapters trained on all 200 clips**. **OPEN**, last
+contains **21 of 75 shipped adapters trained on all 200 clips**. **OPEN**, last
 audited 2026-08-15 from each adapter's own training metadata.
 
 | trained on | adapters |
 |---|---|
-| all 200 clips, including its own val split | **40** |
-| 180, the train split only | 27 |
+| all 200 clips, including its own val split | **21** |
+| 180, the train split only | 46 |
 | some other count (24, 81, 88, 116, 130, 170, 188) | 8 |
 
-The remaining 40 adapters' held-out scores are measured partly on clips they
+The remaining 21 adapters' held-out scores are measured partly on clips they
 were trained on, and should be read as an upper bound rather than a held-out
 result.
 
@@ -860,13 +860,22 @@ shipped, so they were installed with receipt and rollback backup
 the current library and one failed identity at 0.393. Exact-source hash checks
 confirmed every installed adapter matches the path recorded by its gate.
 
-The live manifest now reports **40 of 75 adapters still trained on 200 clips**,
-with 27 on the clean 180-clip split and eight at other sample counts. Seven
+The live manifest now reports **21 of 75 adapters still trained on 200 clips**,
+with 46 on the clean 180-clip split and eight at other sample counts. Seven
 2026-08-08 promotions already contained clean 180-sample weights but retained
 stale 200-sample manifest counts; reconciling those counts removed the apparent
 disagreement with each adapter's `training_meta.json`. The goal
 remains **OPEN**, but deployment—not merely retraining evidence—has removed
 contamination from 20 shipped voices.
+
+**Nineteen more clean retrains promoted 2026-08-15.** The first decontamination
+run paired copied medoid audio with the first sample's unrelated transcript at
+inference time. Repairing that metadata changed 52 candidates; all 40 remaining
+candidates were then independently regenerated on six held-out lines. Thirty-
+two passed the ≥0.45 identity floor and 19 also beat the shipped weights, so
+only those 19 were installed. Seven failed identity and 14 passed identity but
+did not beat the shipped voice; all 21 were left untouched. Receipt and rollback
+backup: `promotion_backups/20260815_175016.json`.
 
 #### The reference clip is CAUSAL — established by intervention, not correlation
 
@@ -1553,7 +1562,7 @@ If only three things get worked on:
    median is 0.927 and meets the goal, disproving the earlier cross-reader
    0.758 diagnosis. However, 43% of individual Japanese clips remain outside
    the band, similar to the other language arms.
-3. **Train/val contamination (2.7)** — 40 of 75 shipped adapters trained on
+3. **Train/val contamination (2.7)** — 21 of 75 shipped adapters trained on
    their own val split. The trainer is fixed; the library is not, and every
    held-out score from a contaminated adapter is an upper bound.
 
