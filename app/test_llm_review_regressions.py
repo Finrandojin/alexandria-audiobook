@@ -119,6 +119,28 @@ class LlmReviewTests(unittest.TestCase):
         self.assertEqual("quality_rejected", attempts[0]["outcome"])
         self.assertIn("low_source_token_recall", attempts[0]["failure_codes"])
 
+    def test_deterministic_api_errors_retain_the_retry_budget(self):
+        calls = []
+        attempts = []
+
+        def unavailable(**_kwargs):
+            calls.append(True)
+            raise ConnectionError("offline")
+
+        client = SimpleNamespace(chat=SimpleNamespace(
+            completions=SimpleNamespace(create=unavailable)))
+        result = generate_script.call_llm_for_entries(
+            client, "model", "system", "user",
+            generate_script.LLMGenParams(max_tokens=100, temperature=0.0),
+            "llm_responses.log", "TEST", max_retries=2,
+            attempt_observer=attempts.append)
+
+        self.assertEqual([], result)
+        self.assertEqual(3, len(calls))
+        self.assertEqual(3, len(attempts))
+        self.assertTrue(all(
+            attempt["outcome"] == "api_error" for attempt in attempts))
+
     def test_chunk_quality_exhaustion_returns_failure_even_with_stop_reason(self):
         source = " ".join(f"word{index}" for index in range(20))
         incomplete = json.dumps([{"speaker": "NARRATOR", "text": "word0", "instruct": "neutral"}])
