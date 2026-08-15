@@ -84,8 +84,11 @@
   ],
   "test_batch_script_concurrency": [
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_preflight_uses_planned_runtime_profile",
+    "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_preflight_uses_three_pass_model_profile_settings",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_serializes_when_per_slot_context_is_too_small",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_status_omits_all_live_process_objects",
+    "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_three_pass_estimator_covers_each_llm_stage",
+    "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_three_pass_estimator_includes_context_rescue_for_unknown_split",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_two_workers_when_every_book_fits",
     "test_batch_script_concurrency.BatchScriptConcurrencyTests.test_worker_compatibility_helper_uses_shared_report",
     "test_batch_script_concurrency.ResolveBatchOutputPathTests.test_cancel_policy_skips_on_reserved_collision",

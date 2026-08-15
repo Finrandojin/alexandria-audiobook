@@ -109,6 +109,27 @@ def resolve_chunk_size(cli_value, config_value, model_value=None):
     return chunk_size
 
 
+def resolve_three_pass_generation_settings(config, chunk_size_override=None):
+    """Resolve model-profile-sensitive settings shared by runtime and preflight."""
+    llm = config.get("llm") or {}
+    gen = config.get("generation") or {}
+    model_name = llm.get("model_name")
+    model_profile = resolve_model_profile(
+        model_name, gen.get("three_pass_model_profiles"),
+        load_default_model_profiles())
+    return {
+        "model_profile": model_profile,
+        "chunk_size": resolve_chunk_size(
+            chunk_size_override, gen.get("three_pass_chunk_size", 3000),
+            model_profile.get("chunk_size")),
+        "max_tokens": gen.get("max_tokens", 10000),
+        "segment_output_ratio": model_profile.get(
+            "segment_output_ratio", gen.get("three_pass_segment_output_ratio", 3.0)),
+        "presegment_quotes": model_profile.get(
+            "presegment_quotes", gen.get("three_pass_presegment_quotes", True)),
+    }
+
+
 def iter_unique_entry_batches(entries, batch_size=BATCH_SIZE):
     """Yield index/entry batches with unique normalized text.
 
@@ -206,13 +227,9 @@ class PassExhausted(Exception):
     failure rate is visible."""
 
 
-def attribute_batch(client, model_name, frozen_batch, params, roster,
-                    max_retries=3, on_exhaustion="fail", neighbor_contexts=None,
-                    attempt_observer=None, source_text=None):
-    """Assign speakers to one batch of frozen {type,text} entries. Enforces the
-    text freeze; retries on invalid output. On exhaustion: 'fail' raises
-    PassExhausted (testing default); 'fallback' keeps frozen text and labels
-    unresolved SPOKEN spans UNKNOWN via stabilize_speaker_identities."""
+def build_attribute_request(frozen_batch, params, roster,
+                            neighbor_contexts=None):
+    """Build the canonical pass-2 system and user prompts."""
     sys_prompt, usr_template = load_attribute_prompts()
     if params.system_prompt:
         sys_prompt = params.system_prompt
@@ -222,8 +239,19 @@ def attribute_batch(client, model_name, frozen_batch, params, roster,
     batch_json = json.dumps([
         {"n": i, "type": e["type"], "text": e["text"], **neighbor_contexts[i]}
         for i, e in enumerate(frozen_batch)], ensure_ascii=False)
-    user_prompt = usr_template.format(roster=", ".join(roster) or "(none yet)",
-                                      batch=batch_json)
+    return sys_prompt, usr_template.format(
+        roster=", ".join(roster) or "(none yet)", batch=batch_json)
+
+
+def attribute_batch(client, model_name, frozen_batch, params, roster,
+                    max_retries=3, on_exhaustion="fail", neighbor_contexts=None,
+                    attempt_observer=None, source_text=None):
+    """Assign speakers to one batch of frozen {type,text} entries. Enforces the
+    text freeze; retries on invalid output. On exhaustion: 'fail' raises
+    PassExhausted (testing default); 'fallback' keeps frozen text and labels
+    unresolved SPOKEN spans UNKNOWN via stabilize_speaker_identities."""
+    sys_prompt, user_prompt = build_attribute_request(
+        frozen_batch, params, roster, neighbor_contexts)
     validated = {}
 
     def validate(entries):
@@ -566,6 +594,111 @@ _CONTEXT_SEGMENT_USER = (
     '{{"type","text"}} units. Your output must cover exactly the SOURCE TEXT and '
     "nothing from the context.\n\nSOURCE TEXT:\n{chunk}"
 )
+
+
+def build_three_pass_request_preflight(source_text, settings, context_length,
+                                       parallel, context_windows=None,
+                                       reserve=512):
+    """Estimate the real three-pass prompt shapes for context-slot planning."""
+    chunk_size = settings["chunk_size"]
+    params = LLMGenParams(
+        max_tokens=settings["max_tokens"], context_length=context_length,
+        segment_output_ratio=settings["segment_output_ratio"],
+        presegment_quotes=settings["presegment_quotes"])
+    records = split_into_chunk_records(source_text, max_size=chunk_size)
+    chunks = [record["text"] for record in records]
+    predicted_entries = []
+    unresolved_chunks = []
+    quote_depth = 0
+    for index, chunk in enumerate(chunks):
+        analysis = analyze_outer_quote_regions(
+            chunk, initial_depth=quote_depth,
+            allow_open_end=index < len(chunks) - 1)
+        quote_depth = analysis["final_depth"]
+        regions = analysis["regions"]
+        if (settings["presegment_quotes"] and len(regions) > 1
+                and validate_segment_quality(
+                    chunk, regions, quote_analysis=analysis)["passed"]):
+            predicted_entries.extend(regions)
+        else:
+            # Unknown pass-1 output: SPOKEN exercises both later LLM passes and
+            # is more conservative than assuming deterministic narration.
+            predicted_entries.append({"type": "SPOKEN", "text": chunk})
+            unresolved_chunks.append(chunk)
+
+    requests = []
+
+    def add_request(stage, system_prompt, user_prompt, completion_tokens):
+        prompt_tokens = math.ceil((len(system_prompt) + len(user_prompt)) / 3)
+        total = prompt_tokens + int(completion_tokens) + reserve
+        requests.append({"stage": stage, "prompt_tokens": prompt_tokens,
+                         "predicted_completion_tokens": int(completion_tokens),
+                         "predicted_total_tokens": total})
+
+    segment_system, segment_template = load_segment_prompts()
+    for chunk in unresolved_chunks:
+        completion = min(
+            int(settings["max_tokens"]),
+            resolve_completion_ceiling(
+                max(1, len(chunk.split())), params))
+        add_request("segment", segment_system,
+                    segment_template.format(chunk=chunk), completion)
+        windows = tuple(context_windows or _CONTEXT_RESCUE_WINDOWS)
+        if windows:
+            window = max(windows)
+            rescue_user = _CONTEXT_SEGMENT_USER.format(
+                before="x" * window, after="x" * window, chunk=chunk)
+            add_request("segment_context_rescue", segment_system,
+                        rescue_user, completion)
+
+    roster_chars = min(4096, 32 * sum(
+        entry.get("type") == "SPOKEN" for entry in predicted_entries))
+    estimated_roster = ["R" * roster_chars] if roster_chars else []
+    for indexed_batch in iter_unique_entry_batches(predicted_entries):
+        pending = [(index, entry) for index, entry in indexed_batch
+                   if entry.get("type") == "SPOKEN"]
+        if not pending:
+            continue
+        batch = [entry for _, entry in pending]
+        contexts = [{
+            "previous_context": predicted_entries[index - 1] if index else None,
+            "next_context": (predicted_entries[index + 1]
+                             if index + 1 < len(predicted_entries) else None),
+        } for index, _ in pending]
+        system_prompt, user_prompt = build_attribute_request(
+            batch, params, estimated_roster, contexts)
+        add_request("attribute", system_prompt, user_prompt,
+                    max(256, 24 * len(batch)))
+
+    named_entries = [{"speaker": ("UNKNOWN" if entry.get("type") == "SPOKEN"
+                                   else "NARRATOR"),
+                      "text": entry["text"]}
+                     for entry in predicted_entries]
+    for indexed_batch in iter_unique_entry_batches(named_entries):
+        batch = [entry for _, entry in indexed_batch]
+        contexts = [{
+            "previous_context": named_entries[index - 1] if index else None,
+            "next_context": (named_entries[index + 1]
+                             if index + 1 < len(named_entries) else None),
+        } for index, _ in indexed_batch]
+        system_prompt, user_prompt = build_instruct_request(
+            batch, params, contexts)
+        add_request("instruct", system_prompt, user_prompt,
+                    max(256, 48 * len(batch)))
+
+    totals = sorted(request["predicted_total_tokens"] for request in requests)
+    per_slot = int(context_length or 0) // max(1, int(parallel or 1))
+    worst = totals[-1] if totals else 0
+    p95 = totals[max(0, math.ceil(len(totals) * 0.95) - 1)] if totals else 0
+    return {
+        "chunk_count": len(chunks), "context_length": context_length,
+        "parallel": parallel, "per_slot_context": per_slot,
+        "worst_predicted_tokens": worst, "p95_predicted_tokens": p95,
+        "average_predicted_tokens": (
+            round(sum(totals) / len(totals), 1) if totals else 0),
+        "predicted_fits": bool(per_slot and worst <= per_slot),
+        "requests": requests,
+    }
 
 
 _CONTEXT_BLEED_MIN_CHARS = 40
@@ -1439,16 +1572,14 @@ def main():
     llm = config.get("llm", {})
     gen = config.get("generation") or {}
     model_name = llm.get("model_name")
-    model_profile = resolve_model_profile(
-        model_name, gen.get("three_pass_model_profiles"),
-        load_default_model_profiles())
     try:
-        chunk_size = resolve_chunk_size(
-            args.chunk_size, gen.get("three_pass_chunk_size", 3000),
-            model_profile.get("chunk_size"))
+        generation_settings = resolve_three_pass_generation_settings(
+            config, args.chunk_size)
     except ValueError as exc:
         print(f"Error: {exc}")
         sys.exit(1)
+    model_profile = generation_settings["model_profile"]
+    chunk_size = generation_settings["chunk_size"]
     base_url = llm.get("base_url", "http://localhost:1234/v1")
     llm_mode = config.get("llm_mode", "local")
     # Self-heal LM Studio: load model_name at its verified context if nothing is
@@ -1458,7 +1589,7 @@ def main():
         llm_mode, base_url, model_name, ssh_alias=config.get("llm_remote_ssh"))
     print(heal_msg)
     params = LLMGenParams(
-        max_tokens=gen.get("max_tokens", 10000),
+        max_tokens=generation_settings["max_tokens"],
         temperature=gen.get("temperature", 0.6),
         top_p=gen.get("top_p", 0.8),
         top_k=gen.get("top_k"), min_p=gen.get("min_p"),
@@ -1478,10 +1609,8 @@ def main():
             "attribute_temperature", gen.get("three_pass_attribute_temperature", 0.0)),
         instruct_temperature=model_profile.get(
             "instruct_temperature", gen.get("three_pass_instruct_temperature", 0.1)),
-        segment_output_ratio=model_profile.get(
-            "segment_output_ratio", gen.get("three_pass_segment_output_ratio", 3.0)),
-        presegment_quotes=model_profile.get(
-            "presegment_quotes", gen.get("three_pass_presegment_quotes", True)),
+        segment_output_ratio=generation_settings["segment_output_ratio"],
+        presegment_quotes=generation_settings["presegment_quotes"],
         reasoning_effort=args.reasoning_effort)
     client = OpenAI(base_url=base_url, api_key=llm.get("api_key", "local"))
 
