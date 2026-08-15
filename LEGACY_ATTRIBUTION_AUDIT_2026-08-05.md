@@ -1,12 +1,12 @@
 # Legacy attribution audit — 2026-08-05
 
-All 112 legacy-metadata artifacts are listed exactly once. Classification describes whether the recorded measurement can be used with today's fixtures; it does not turn accuracy into a product or perceptual conclusion.
+All 114 legacy-metadata artifacts are listed exactly once. Classification describes whether the recorded measurement can be used with today's fixtures; it does not turn accuracy into a product or perceptual conclusion.
 
 ## Counts
 
 - `exploratory`: 9
 - `historical_only`: 38
-- `provisional`: 19
+- `provisional`: 21
 - `supported_measurement`: 46
 
 `historical_only` means current-gold rescoring changes at least one judgment or cannot map at least one row. Original files remain preserved; their saved summaries were not rewritten.
@@ -90,6 +90,8 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 | `narrator_prior__index18__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 198 | 0 | 0 | False |  |
 | `narrator_prior__mushoku16__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 278 | 0 | 0 | False |  |
 | `narrator_prior__owarimonogatari3__qwen__qwen3-14b__local-llamacpp.json` | narrator_prior | supported_measurement | 324 | 0 | 0 | False |  |
+| `pdnc_narrator_prior__local-llamacpp-generic.json` | pdnc_narrator_prior | provisional | 240 | None | None | True |  |
+| `pdnc_narrator_prior__local-llamacpp.json` | pdnc_narrator_prior | provisional | 480 | None | None | True |  |
 | `reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json` | reasoning_arms | historical_only | 2000 | 111 | 20 | False |  |
 | `reasoning_arms__grimgar03__qwen__qwen3-14b.json` | reasoning_arms | historical_only | 2000 | 79 | 20 | True |  |
 | `reasoning_arms__index18__qwen__qwen3-14b__local-llamacpp.json` | reasoning_arms | supported_measurement | 495 | 0 | 0 | False |  |
@@ -142,6 +144,7 @@ All 112 legacy-metadata artifacts are listed exactly once. Classification descri
 - `joint_scene`: Joint and shuffled controls answer ordering only within the tested fixtures.
 - `lora_serving_eval`: Two gold books and one serving stack; not a universal adapter claim.
 - `narrator_prior`: A predeclared book-contrast test, not a general narrator rule.
+- `pdnc_narrator_prior`: Two books and 120 rows per book with an explicitly supplied narrator identity; not a general held-out attribution result.
 - `reasoning_arms`: Reasoning/justification settings are model- and serving-stack-specific.
 - `reasoning_check`: Justification disagreement is a routing signal, not calibrated confidence.
 - `reexamine`: Selected previously negative results; selection prevents broad inference.

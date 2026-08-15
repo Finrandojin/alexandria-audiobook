@@ -1,10 +1,10 @@
 {
   "scope": "legacy ExperimentRecord artifacts; integrity and current-gold compatibility, not perceptual evidence",
-  "source_structural_sha256": "3b7c32355445990ba2d9bfb9fd56560149264a9e835342c11d36760cb5653b14",
+  "source_structural_sha256": "848c43fda25d82455d218e20bbbccd7c87a1894aee5e66aae2b231e8a37447fa",
   "summary": {
     "exploratory": 9,
     "historical_only": 38,
-    "provisional": 19,
+    "provisional": 21,
     "supported_measurement": 46
   },
   "artifacts": [
@@ -1682,6 +1682,45 @@
         "line_count_changed": false
       },
       "semantic_limit": "A predeclared book-contrast test, not a general narrator rule."
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp-generic.json",
+      "family": "pdnc_narrator_prior",
+      "rows": 240,
+      "arms": [
+        "generic"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": false,
+        "hash_changed": null,
+        "missing_rows": null,
+        "expected_changed_rows": null,
+        "correctness_changed_rows": null
+      },
+      "semantic_limit": "Two books and 120 rows per book with an explicitly supplied narrator identity; not a general held-out attribution result."
+    },
+    {
+      "artifact": "pdnc_narrator_prior__local-llamacpp.json",
+      "family": "pdnc_narrator_prior",
+      "rows": 480,
+      "arms": [
+        "baseline",
+        "narrator"
+      ],
+      "classification": "provisional",
+      "dirty": true,
+      "problems": [],
+      "current_gold": {
+        "available": false,
+        "hash_changed": null,
+        "missing_rows": null,
+        "expected_changed_rows": null,
+        "correctness_changed_rows": null
+      },
+      "semantic_limit": "Two books and 120 rows per book with an explicitly supplied narrator identity; not a general held-out attribution result."
     },
     {
       "artifact": "reasoning_arms__grimgar03__google__gemma-3-27b__thunder-a6000.json",

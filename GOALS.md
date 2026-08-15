@@ -407,8 +407,9 @@ did not supply the name, was neutral on *The Gambler* and slightly worse on
 gain therefore comes from the explicit book-level identity, not generic prompt
 wording. This supports the optional narrator hint now implemented in PR #299,
 but does **not** close this goal: only two books and 120 rows per book were
-tested, the artifacts are not yet structurally audited, and the target requires
-a clean held-out result on at least three books.
+tested, the audit classifies both artifacts as provisional because their
+recorded worktree was dirty, and the target requires a clean held-out result on
+at least three books.
 
 **Target — a clean held-out number on ≥ 3 books, within 5 points of the
 development books' figure.**
