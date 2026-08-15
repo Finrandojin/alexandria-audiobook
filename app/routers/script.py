@@ -520,6 +520,19 @@ async def upload_file(file: UploadFile = File(...)):
 class GenerateScriptRequest(BaseModel):
     strip_front_matter: bool = True
 
+
+def build_generate_script_command(input_file: str, output_path: Optional[str] = None,
+                                  strip_front_matter: bool = True) -> List[str]:
+    """Build the one production command used by single and batch generation."""
+    command = [sys.executable, "-u", os.path.join(BASE_DIR, "three_pass_generate.py"),
+               input_file, "--pass2-on-exhaustion", "fallback"]
+    if output_path is not None:
+        command.extend(["--output", output_path])
+    if not strip_front_matter:
+        command.append("--no-strip-front-matter")
+    return command
+
+
 @router.post("/api/generate_script")
 async def generate_script(background_tasks: BackgroundTasks,
                            request: Optional[GenerateScriptRequest] = None):
@@ -538,9 +551,10 @@ async def generate_script(background_tasks: BackgroundTasks,
     check_global_gpu_lock("script")
 
     claim_gpu_task("script")
-    command = [sys.executable, "-u", "generate_script.py", input_file]
-    if request is not None and not request.strip_front_matter:
-        command.append("--no-strip-front-matter")
+    command = build_generate_script_command(
+        input_file,
+        strip_front_matter=request is None or request.strip_front_matter,
+    )
     background_tasks.add_task(run_process, command, "script")
     return {"status": "started"}
 
@@ -1097,10 +1111,10 @@ def _run_batch_script_job(job, state, log_path, total):
     env = os.environ.copy()
     if state.get("run_id"):
         env["ALEXANDRIA_RUN_ID"] = state["run_id"]
-    command = [sys.executable, "-u", os.path.join(BASE_DIR, "generate_script.py"),
-               job["input_path"], "--output", job["output_path"]]
-    if not job.get("strip_front_matter", True):
-        command.append("--no-strip-front-matter")
+    command = build_generate_script_command(
+        job["input_path"], output_path=job["output_path"],
+        strip_front_matter=job.get("strip_front_matter", True),
+    )
     rc, _ = _stream_subprocess_to_logs(
         command, BASE_DIR, state, log_prefix=f"[{index + 1}] ",
         log_file=log_path, env=env)

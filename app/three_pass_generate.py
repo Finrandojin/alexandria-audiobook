@@ -1,6 +1,5 @@
 """Three-pass script generation orchestrator (segment -> attribute -> instruct).
-A side-by-side alternative to generate_script.py's single pass; the single-pass
-path is untouched. See docs/superpowers/specs/2026-07-21-three-pass-script-generation-design.md."""
+See docs/superpowers/specs/2026-07-21-three-pass-script-generation-design.md."""
 
 import argparse
 import hashlib
@@ -1356,6 +1355,14 @@ def prepare_source_text(book):
                   "scripts": report["scripts"], "is_nfc": report["is_nfc"]}
 
 
+def get_output_paths(data_dir, requested_output=None):
+    """Resolve output and stale-chunk paths for CLI and application runs."""
+    if requested_output is not None:
+        return requested_output, None
+    return (os.path.join(data_dir, "annotated_script.json"),
+            os.path.join(data_dir, "chunks.json"))
+
+
 def main():
     parser = argparse.ArgumentParser(description="Three-pass annotated script generation.")
     parser.add_argument("input_file")
@@ -1470,7 +1477,7 @@ def main():
     context_windows = tuple(cfg_windows) if cfg_windows else None
     context_rescue_retries = gen.get("context_rescue_retries")
 
-    output_path = args.output or os.path.join(root, "annotated_script.json")
+    output_path, chunks_path = get_output_paths(data_dir, args.output)
     print(f"Three-pass generation: {len(book)} chars, chunk_size={chunk_size}, "
           f"model={model_name}, pass2_on_exhaustion={args.pass2_on_exhaustion}")
     if args.preflight:
@@ -1520,6 +1527,9 @@ def main():
         sys.exit(1)
     atomic_json_write(entries, output_path)
     print(f"Wrote {len(entries)} entries to {output_path}")
+    if chunks_path is not None and os.path.exists(chunks_path):
+        os.remove(chunks_path)
+        print("Cleared old chunks.json")
 
 
 if __name__ == "__main__":
