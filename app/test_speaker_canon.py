@@ -819,6 +819,123 @@ def test_attest_label_matches_hyphenated_token_against_space_variant():
 
 
 # ---------------------------------------------------------------------------
+# PHRASE ADJACENCY for multi-token labels.
+#
+# THE DEFECT: per-token set membership attests any label whose tokens each turn
+# up SOMEWHERE in the window, so a name recombined from two different real
+# characters' name parts passes, enters the roster, and is then never
+# re-checked. All fixtures below are synthesized -- invented names and English
+# orthography only; nothing is taken from any book.
+# ---------------------------------------------------------------------------
+
+
+def test_recombined_multi_token_label_is_refused():
+    # Both parts present, never together: the whole point.
+    windows = ["Then Verrin spoke, and Calder answered him from the doorway."]
+    result = attest_label("VERRIN CALDER", windows)
+    check(result["attested"] is False, "a recombined two-name label is not attested")
+    check_equal(result["missing_tokens"], [],
+                "nothing is 'missing' -- the tokens are present, just not adjacent")
+    check_equal(result.get("note"), "tokens_not_adjacent", "the non-adjacency is reported")
+    check_equal(attest_speaker("VERRIN CALDER", windows), UNATTESTED,
+                "non-adjacency is positive evidence, so the verdict is UNATTESTED")
+
+
+def test_genuine_phrase_label_still_attests():
+    windows = ["Then Verrin Calder spoke from the doorway."]
+    check(attest_label("VERRIN CALDER", windows)["attested"] is True,
+          "a label the source spells as a phrase still attests")
+
+
+def test_phrase_check_folds_case_and_internal_capitals():
+    # Property 1: the label is uppercase, the source carries internal capitals.
+    windows = ["Then Verrin McCalder spoke from the doorway."]
+    check(attest_label("VERRIN MCCALDER", windows)["attested"] is True,
+          "a medial capital in the source does not break the phrase match")
+
+
+def test_phrase_check_folds_apostrophe_glyphs():
+    # Property 2: U+2019 in the source, U+0027 in the label (or the reverse).
+    check(attest_label("VER'RIN CALDER", ["Then Ver’rin Calder spoke."])["attested"] is True,
+          "a curly source apostrophe matches a straight label apostrophe")
+    check(attest_label("VER’RIN CALDER", ["Then Ver'rin Calder spoke."])["attested"] is True,
+          "a straight source apostrophe matches a curly label apostrophe")
+
+
+def test_possessive_composition_is_exempt_from_the_phrase_rule():
+    # Property 3, and the highest-cost trap: "X'S <relation>" is a description
+    # of a person, not a name, and the source usually refers to that person by
+    # pronoun near their own speech. Requiring the phrase in the window would
+    # refuse a large number of correctly-attributed entries.
+    adjacent = ["Then Verrin's father spoke from the doorway."]
+    check(attest_label("VERRIN'S FATHER", adjacent)["attested"] is True,
+          "a possessive composition spelled adjacently attests")
+    scattered = ["Verrin looked up. Some while later, his father spoke."]
+    check(attest_label("VERRIN'S FATHER", scattered)["attested"] is True,
+          "a possessive composition attests on per-token evidence alone")
+    # The named half must still be there: the exemption is not a free pass.
+    check_equal(attest_speaker("CALDER'S FATHER", scattered), UNATTESTED,
+                "an unattested name in a possessive composition is still refuted")
+
+
+def test_leading_article_is_invisible_to_the_phrase_rule():
+    # Property 4, in both directions: the label may carry an article the source
+    # lowercases, or omit one the source includes.
+    windows = ["It was the lone power that answered."]
+    check(attest_label("THE LONE POWER", windows)["attested"] is True,
+          "a label carrying the article matches a lowercase source article")
+    check(attest_label("LONE POWER", windows)["attested"] is True,
+          "a label omitting the article matches a source that includes one")
+    check(attest_label("THE LONE POWER", ["Only the lone one answered the power."])["attested"] is False,
+          "the article rule does not license non-adjacent tokens")
+
+
+def test_internal_stopword_does_not_break_the_phrase():
+    windows = ["The Mother of Monsters raised her head."]
+    check(attest_label("MOTHER OF MONSTERS", windows)["attested"] is True,
+          "a stopword the label drops may still sit between the source tokens")
+
+
+def test_a_conjunction_between_the_tokens_is_not_skippable():
+    # "and"/"or" joins two DIFFERENT entities -- exactly the recombination the
+    # phrase rule refuses -- so it is not in the skippable set.
+    windows = ["The Verrin and Calder devices hummed together."]
+    check(attest_label("VERRIN CALDER", windows)["attested"] is False,
+          "a conjunction between the tokens does not make a phrase")
+
+
+def test_hyphen_is_split_on_both_sides_of_the_phrase_check():
+    check(attest_label("SUN-WALKER GUILD", ["The sun walker guild convened."])["attested"] is True,
+          "a hyphenated label token matches a spaced source phrase")
+    # The reverse direction (spaced label, hyphenated source) is limited by the
+    # PRE-EXISTING per-token check, which folds a hyphenated source word into a
+    # single "SUN-WALKER" token: "SUN" is then missing and the label fails
+    # before adjacency is ever consulted. Unchanged by this rule, and pinned
+    # here so it is not mistaken for an adjacency regression later.
+    spaced = attest_label("SUN WALKER GUILD", ["The sun-walker guild convened."])
+    check(spaced["attested"] is False, "spaced label vs hyphenated source fails on tokens")
+    check_equal(spaced.get("note"), None, "and it fails on missing tokens, not on adjacency")
+
+
+def test_single_token_labels_are_unaffected_by_the_phrase_rule():
+    windows = ["Then Calder spoke from the doorway."]
+    check(attest_label("CALDER", windows)["attested"] is True,
+          "a single-token label still attests on whole-word presence")
+    check(attest_label("MISTER CALDER", windows)["attested"] is True,
+          "a title leaves only one core token, so no phrase is required")
+    check(attest_label("THE CALDER", windows)["attested"] is True,
+          "an article leaves only one core token, so no phrase is required")
+
+
+def test_unsegmented_script_label_is_still_unverifiable_not_refuted():
+    # The adjacency rule must never fire on a script whose tokens cannot be
+    # found as whole words at all -- those take the substring probe as before.
+    windows = ["リナカルデルが話した。"]
+    check_equal(attest_speaker("リナ カルデル", windows), UNVERIFIABLE,
+                "an unsegmented-script label is unverifiable, never refuted")
+
+
+# ---------------------------------------------------------------------------
 # Unicode coverage of the character classes, and attest_speaker()'s three-way
 # verdict.
 #
@@ -1423,6 +1540,17 @@ def main():
         test_attest_label_distinct_apostrophe_names_stay_distinct,
         test_attest_label_matches_hyphenated_token_verbatim,
         test_attest_label_matches_hyphenated_token_against_space_variant,
+        test_recombined_multi_token_label_is_refused,
+        test_genuine_phrase_label_still_attests,
+        test_phrase_check_folds_case_and_internal_capitals,
+        test_phrase_check_folds_apostrophe_glyphs,
+        test_possessive_composition_is_exempt_from_the_phrase_rule,
+        test_leading_article_is_invisible_to_the_phrase_rule,
+        test_internal_stopword_does_not_break_the_phrase,
+        test_a_conjunction_between_the_tokens_is_not_skippable,
+        test_hyphen_is_split_on_both_sides_of_the_phrase_check,
+        test_single_token_labels_are_unaffected_by_the_phrase_rule,
+        test_unsegmented_script_label_is_still_unverifiable_not_refuted,
         test_canonicalize_preserves_non_latin_names,
         test_canonicalize_is_idempotent_for_non_latin_names,
         test_non_latin_names_do_not_collide_on_one_roster_key,

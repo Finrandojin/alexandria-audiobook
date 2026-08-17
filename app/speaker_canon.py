@@ -32,7 +32,10 @@ Two tiers:
   Tier 3 (attest_label / attest_speaker): advisory local-window attestation
   -- flags labels whose core name tokens don't appear near the label's own
   entries in the source, catching drift/invention the LLM produces (e.g.
-  transposed letters, invented names). READ-ONLY / advisory: never mutates
+  transposed letters, invented names). A MULTI-token label must occur as a
+  PHRASE, not merely as tokens scattered through the window, or a name
+  recombined from two real characters' name parts attests. READ-ONLY /
+  advisory: never mutates
   anything. attest_label() returns the boolean detail record the Voices UI
   badge consumes; attest_speaker() returns the three-way ATTESTED /
   UNATTESTED / UNVERIFIABLE verdict a would-be *gate* needs, because a
@@ -765,6 +768,101 @@ def _window_words(window: str) -> set:
     return words
 
 
+def _window_token_sequence(window: str) -> list:
+    """The ORDERED list of folded word tokens in a source window.
+
+    Companion to _window_words (which is an unordered set): adjacency cannot be
+    decided from a set, and a multi-token label is only attested when its parts
+    occur next to each other -- see _phrase_present.
+
+    Hyphens are split, not joined, on BOTH sides of the comparison (here and in
+    _phrase_present's label side), so "ARCH-VOTARY" and a source "Arch votary"
+    or "Arch-votary" all reduce to the same two-element run. Folding is
+    _fold_word, so case, accents, curly apostrophes and one trailing possessive
+    are already normalized -- which is what makes "X'S DAD" match a source
+    "X's dad" without any possessive-specific rule here.
+    """
+    sequence = []
+    for raw_token in _scan_tokens(window, join_hyphens=False):
+        folded = _fold_word(raw_token)
+        if folded:
+            sequence.extend(part for part in folded.split("-") if part)
+    return sequence
+
+
+# Source words allowed to sit BETWEEN two core tokens without breaking the
+# phrase: the words _core_tokens drops from the label, MINUS the conjunctions,
+# so a label and the source phrase it came from stay comparable ("MOTHER OF
+# MONSTERS" matches "Mother of Monsters"; a leading article or title either
+# side carries or omits is invisible to both).
+#
+# CONJUNCTIONS ARE EXCLUDED ON PURPOSE. "and"/"or" is precisely the shape that
+# joins two DIFFERENT entities -- "the TV and the DVD", "Kit and Nita" -- so
+# skipping them would re-admit the recombined label this rule exists to refuse.
+# MEASURED: keeping them let 2 of the 5 fabricated labels back through.
+_PHRASE_SKIPPABLE = (
+    (_CORE_TOKEN_STOPWORDS - {"AND", "OR"}) | _CORE_TOKEN_TITLES
+)
+
+
+def _phrase_present(core_tokens: list, windows: list) -> bool:
+    """True iff ``core_tokens`` occur ADJACENT and IN ORDER in some window.
+
+    "Adjacent" tolerates only _PHRASE_SKIPPABLE words in between. Nothing fuzzy:
+    every token must match exactly after folding.
+    """
+    # ponytail: adjacency is measured in WORDS, so punctuation and even a
+    # sentence break between two tokens is invisible ("...the TV. The news...")
+    # -- it only ever makes the gate more permissive, never less. Track
+    # sentence boundaries here if a real book is measured slipping through.
+    wanted = []
+    for token in core_tokens:
+        wanted.extend(part for part in token.split("-") if part)
+    if not wanted:
+        return False
+
+    for window in windows or []:
+        if not window:
+            continue
+        sequence = _window_token_sequence(window)
+        for start in range(len(sequence)):
+            index = start
+            matched = 0
+            while index < len(sequence) and matched < len(wanted):
+                if sequence[index] == wanted[matched]:
+                    matched += 1
+                elif matched == 0 or sequence[index] not in _PHRASE_SKIPPABLE:
+                    break
+                index += 1
+            if matched == len(wanted):
+                return True
+    return False
+
+
+def _is_possessive_composition(label: str) -> bool:
+    """True when the label carries a possessive token -- "X'S DAD", "X'S
+    FATHER": a RELATION described in terms of a named person, not a name.
+
+    Such labels are EXEMPT from the phrase requirement, and the exemption is
+    load-bearing rather than cosmetic. MEASURED: on one 8,081-entry artifact
+    "NITA'S DAD" carries 50 correctly-attributed entries, and the source spells
+    that phrase just 5 times in 790,543 characters -- the character is
+    overwhelmingly referred to by pronoun near his own speech, so demanding the
+    phrase inside his own attestation window refuses 50 good entries to catch
+    none. (A label built on a name the book names OFTEN, "ROSHAUN'S FATHER"
+    with 25 occurrences, happens to survive the phrase rule -- which is exactly
+    the point: without the exemption the verdict depends on how chatty the
+    narrator is, not on whether the label is real.)
+
+    Safe against the recombination the phrase rule exists to catch: an invented
+    name is assembled from two NAME parts ("<first> <surname-of-someone-else>")
+    and carries no possessive. The residual cost is stated in attest_label.
+
+    A property of how labels are composed in English, not of any book.
+    """
+    return any(_split_possessive(token)[1] for token in (label or "").split())
+
+
 def _core_tokens(label: str) -> list:
     """Extract the "core" identifying tokens from a canonical speaker label.
 
@@ -802,9 +900,32 @@ def attest_label(label: str, windows: list) -> dict:
     Returns:
         {"attested": bool, "missing_tokens": [str, ...], "core_tokens": [str, ...]}
 
-        A label is attested=True iff EVERY core token extracted from it
-        appears (accent-folded, case-insensitive, possessive-stripped) as a
-        whole word in at least one window.
+        A SINGLE-core-token label is attested=True iff that token appears
+        (accent-folded, case-insensitive, possessive-stripped) as a whole word
+        in at least one window.
+
+        A MULTI-core-token label must additionally occur as a PHRASE: its
+        tokens adjacent and in order in one window, with only stopwords/titles
+        allowed between them (_phrase_present). Per-token set membership alone
+        attests any label whose parts merely appear somewhere nearby, which is
+        how a plausible-looking name assembled from two different characters'
+        name parts passed the gate, entered the roster, and was then never
+        re-checked for the rest of the book. Measured on one clean 8,081-entry
+        artifact: 5 such labels carrying 11 entries occur nowhere in the
+        790,543-character book as a phrase, while all 16 legitimate multi-token
+        labels do and still pass.
+
+        EXEMPT from the phrase requirement: a possessive composition ("X'S
+        DAD"), which is a relation, not a name -- see _is_possessive_composition
+        for the measurement that forces the exemption. The cost of the
+        exemption is that a possessive label whose relation word is invented
+        ("X'S FATHER" where the book only ever says "X's dad") still attests on
+        per-token evidence; bounded, because the named half must still attest.
+
+        When every token is present but not adjacent, missing_tokens is []
+        and note="tokens_not_adjacent" -- attested=False with nothing missing.
+        Callers must not read an empty missing_tokens as "nothing wrong"; that
+        distinction is what attest_speaker turns into UNATTESTED.
 
         If the label has ZERO core tokens (e.g. it is only a title, or only
         stopwords -- "MISTER", "NARRATOR"-like edge cases), this is treated
@@ -838,10 +959,21 @@ def attest_label(label: str, windows: list) -> dict:
 
     missing = [token for token in core_tokens if token not in words_seen]
 
+    if missing or len(core_tokens) < 2 or _is_possessive_composition(label):
+        return {
+            "attested": not missing,
+            "missing_tokens": missing,
+            "core_tokens": core_tokens,
+        }
+
+    if _phrase_present(core_tokens, windows or []):
+        return {"attested": True, "missing_tokens": [], "core_tokens": core_tokens}
+
     return {
-        "attested": len(missing) == 0,
-        "missing_tokens": missing,
+        "attested": False,
+        "missing_tokens": [],
         "core_tokens": core_tokens,
+        "note": "tokens_not_adjacent",
     }
 
 
@@ -926,7 +1058,9 @@ def attest_speaker(label, windows, roster_index=None):
     scripts this module cannot tokenize.
 
     Verdicts:
-      ATTESTED      every core token appears as a whole word in some window.
+      ATTESTED      every core token appears as a whole word in some window,
+                    AND (for a multi-token label) they appear there adjacent
+                    and in order -- see attest_label.
       UNVERIFIABLE  the label yields no core tokens at all (it is only
                     titles/stopwords), or every otherwise-missing token IS
                     present in a window but not at a word boundary. The
@@ -955,12 +1089,16 @@ def attest_speaker(label, windows, roster_index=None):
     common noun the model copied out of the prose, which would gut the gate.
     Requiring a ROSTER token is what keeps it narrow.
 
-    Its cost, stated plainly: the roster is not itself guaranteed clean, so a
-    junk name that reached the roster earlier (an UNVERIFIABLE acceptance, say)
-    lends its tokens to later multi-token labels. The failure is bounded --
-    those labels are ACCEPTED-and-counted rather than silently correct, and
-    prose is never involved -- but it is a real widening of the gate on a book
-    whose roster has already been polluted.
+    Its cost, stated plainly, and NARROWED but not closed by the adjacency
+    rule: a label whose tokens all occur nearby but never adjacently is now
+    refuted before this rule is consulted, so the commonest abuse -- a name
+    recombined from two established characters' name parts -- no longer reaches
+    it. What remains: a label with a token that occurs NOWHERE in the window is
+    still rescued to UNVERIFIABLE by one roster token that does, and the roster
+    is not itself guaranteed clean, so a junk name accepted earlier lends its
+    tokens onward. The failure stays bounded -- such labels are
+    ACCEPTED-and-counted rather than silently correct, and prose is never
+    involved -- but it is a real widening of the gate on a polluted roster.
 
     ``roster_index`` is an explicit argument, never module state: this function
     stays a pure function of its inputs, and canonicalize() stays roster-free
@@ -989,6 +1127,16 @@ def attest_speaker(label, windows, roster_index=None):
         return UNVERIFIABLE
     if result["attested"]:
         return ATTESTED
+
+    # Non-adjacency is positive evidence, not absence of evidence: every token
+    # IS in the window as a whole word, and the book still never puts them
+    # together. Refuted outright, and deliberately BEFORE the roster path --
+    # the recombined label's parts are usually roster names (that is what makes
+    # it plausible), so letting the roster rule see it would rescue exactly the
+    # case this refutes. Unsegmented scripts never reach here: their tokens are
+    # individually missing, so they take the substring probe below as before.
+    if result.get("note") == "tokens_not_adjacent":
+        return UNATTESTED
 
     # Roster-name partial attestation (see docstring). Checked before the
     # substring probe because it is the cheaper and more specific rule.

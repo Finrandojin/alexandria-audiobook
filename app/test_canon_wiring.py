@@ -448,8 +448,50 @@ def test_generation_imports_the_repair_helpers_rather_than_reimplementing_them()
           "Levenshtein" not in inspect.getsource(generate_script.resolve_span_labels))
 
 
+def test_gate_refuses_a_recombined_multi_token_label():
+    """The gate, not just the detector: a label whose parts each appear in the
+    window but never adjacently must be REJECTED, and the retry predicate must
+    agree with the gate about it (they share _gate_speaker).
+
+    Synthesized fixture -- invented names, no book.
+    """
+    import generate_script
+
+    window = "Then Verrin spoke, and Calder answered him from the doorway."
+    roster = {}
+    generate_script.remember_in_roster(roster, "VERRIN")
+    generate_script.remember_in_roster(roster, "CALDER")
+
+    name, outcome = generate_script._gate_speaker(
+        "VERRIN CALDER", window, roster, generate_script.source_word_index(window))
+    check("a recombined label is rejected by the gate",
+          outcome == generate_script.GATE_REJECTED, detail=f"{name!r} {outcome!r}")
+
+    # And the established-roster shortcut must not have let it in first.
+    check("the recombined label is not treated as established",
+          not generate_script._speaker_is_established("VERRIN CALDER", roster))
+
+    # A label the source actually spells as a phrase still passes.
+    good_window = "Then Verrin Calder spoke from the doorway."
+    _, good = generate_script._gate_speaker(
+        "VERRIN CALDER", good_window, roster,
+        generate_script.source_word_index(good_window))
+    check("a genuine phrase label still passes the gate",
+          good == generate_script.GATE_ATTESTED, detail=repr(good))
+
+    # A possessive composition must survive on per-token evidence: this is the
+    # high-volume shape (a relation named obliquely near its own speech).
+    scattered = "Verrin looked up. Some while later, his father spoke."
+    _, poss = generate_script._gate_speaker(
+        "VERRIN'S FATHER", scattered, roster,
+        generate_script.source_word_index(scattered))
+    check("a possessive composition is not rejected for non-adjacency",
+          poss != generate_script.GATE_REJECTED, detail=repr(poss))
+
+
 def main():
     tests = [
+        test_gate_refuses_a_recombined_multi_token_label,
         test_generation_imports_the_repair_helpers_rather_than_reimplementing_them,
         test_label_flags_computation_never_mutates_entries_or_roster,
         test_voices_roster_consolidates_whitespace_drift,
