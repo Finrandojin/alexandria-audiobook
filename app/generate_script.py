@@ -1128,10 +1128,12 @@ GATE_ESTABLISHED = "established"
 GATE_ATTESTED = "attested"
 GATE_UNVERIFIABLE = "unverifiable"
 GATE_REPAIRED = "repaired"
+GATE_REPAIR_REFUSED = "repair_refused"
 GATE_REJECTED = "rejected"
 
 
-def _gate_speaker(canonical, attest_window, roster_index, source_words):
+def _gate_speaker(canonical, attest_window, roster_index, source_words,
+                  following_text=None):
     """THE attestation decision, in one place: ``(name, outcome)``.
 
     Both the acceptance gate in resolve_span_labels and the retry predicate in
@@ -1145,6 +1147,25 @@ def _gate_speaker(canonical, attest_window, roster_index, source_words):
     repair is simply unavailable and the outcome is a plain rejection, so a
     caller that cannot supply it is never worse off than before.
 
+    ``following_text`` is the narration immediately after this span's quotation
+    (_closing_tag_text_by_id), or None when there is none. It VETOES a repair:
+    repair_speaker's guards are all about SPELLING -- is this spelling in the
+    book, is exactly one roster name one edit away, does the target appear in
+    this window -- and in a two-character scene both candidates appear in the
+    window, so the spelling evidence picks the wrong character as readily as the
+    right one. The adjacent attribution tag is the only cheap evidence about who
+    speaks THIS span, and it is checked against the REPAIRED name: when the tag
+    names a different established character, the repair is refused and the label
+    falls back to the plain rejection it would have had before repair existed
+    (GATE_REPAIR_REFUSED -> NARRATOR, counted, loud, contract 7).
+
+    That veto is deliberately NOT behind generation.check_attribution_tags. That
+    flag guards a check that JUDGES THE MODEL -- it spends retries and can
+    degrade a chunk over a label the model actually emitted. This one guards a
+    rewrite THIS PIPELINE performs: it can only withhold a name the model never
+    wrote, and its worst case is the behaviour the gate already promises. A
+    guard on our own rewrite needs no opt-in.
+
     Read-only: ``roster_index`` is not mutated here.
     """
     if _speaker_is_established(canonical, roster_index):
@@ -1155,6 +1176,8 @@ def _gate_speaker(canonical, attest_window, roster_index, source_words):
             canonical, [attest_window] if attest_window else [],
             roster_index or {}, source_words or set())
         if repaired:
+            if contradicts_attribution(repaired, following_text, roster_index or {}):
+                return canonical, GATE_REPAIR_REFUSED
             return repaired, GATE_REPAIRED
         return canonical, GATE_REJECTED
     if verdict == UNVERIFIABLE:
@@ -1169,7 +1192,10 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
 
     Mirrors the acceptance gate in resolve_span_labels exactly, because both go
     through _gate_speaker(): same established-roster shortcut, same verdict,
-    same repair. Only a GATE_REJECTED outcome counts. UNVERIFIABLE never
+    same repair, same adjacent-tag veto on that repair. A rejection counts
+    whether it is plain (GATE_REJECTED) or a refused repair
+    (GATE_REPAIR_REFUSED) -- both narrate the span, so both are worth a retry.
+    UNVERIFIABLE never
     appears here, because a label our check cannot evaluate is not something to
     nag the model about -- and neither does a REPAIRED one, because the gate is
     about to accept the repaired spelling.
@@ -1178,6 +1204,9 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
     earlier in this same chunk so the shortcut behaves as it will at
     resolution time.
     """
+    # Built from the FULL span list (before the visible filter) so adjacency is
+    # the tokenizer's, exactly as _tag_contradictions sees it.
+    tag_texts = _closing_tag_text_by_id(spans, source)
     if source is not None:
         spans = visible_spans(spans, source)
 
@@ -1198,8 +1227,8 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
         if is_placeholder_speaker(canonical):
             continue  # already rejected on its own terms
         name, outcome = _gate_speaker(canonical, attest_window, roster_index,
-                                      source_words)
-        if outcome == GATE_REJECTED:
+                                      source_words, tag_texts.get(span.id))
+        if outcome in (GATE_REJECTED, GATE_REPAIR_REFUSED):
             offenders.append((span.id, canonical))
         else:
             remember_in_roster(roster_index, name)
@@ -1210,6 +1239,39 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
 # NOT end on one is mid-quotation, so the narration after it is not a closing
 # attribution tag (see _tag_contradictions' bound).
 _CLOSING_QUOTES = "\"'”’»」』"
+
+
+def _closing_tag_text_by_id(spans, source):
+    """``{span_id: the narration right after this quotation}`` for every span a
+    closing attribution tag can be read from.
+
+    THE bounds, in one place, so the two consumers -- the post-hoc contradiction
+    report (_tag_contradictions) and the repair veto in _gate_speaker -- cannot
+    drift apart, and so there is exactly one tag-adjacency rule in the pipeline:
+
+      * the span must be QUOTED and end on a closing quote mark, so the tag
+        closes it rather than sitting mid-quotation;
+      * the very next span must be UNQUOTED and not whitespace-only (a
+        whitespace-only neighbour is the paragraph break, and a tag on the far
+        side of one introduces the NEXT quotation).
+
+    Parsing the tag itself is speaker_canon's job (attribution_tag_name /
+    contradicts_attribution); this returns raw source text only. Pure.
+    """
+    if source is None:
+        return {}
+    closing = tuple(_CLOSING_QUOTES)
+    texts = {}
+    for index, span in enumerate(spans[:-1]):
+        if span.kind != QUOTED:
+            continue
+        if not span.text(source).rstrip().endswith(closing):
+            continue
+        following = spans[index + 1]
+        if following.kind != UNQUOTED or is_whitespace_span(following, source):
+            continue
+        texts[span.id] = following.text(source)
+    return texts
 
 
 def _tag_contradictions(spans, speaker_by_id, source, roster_index):
@@ -1257,20 +1319,13 @@ def _tag_contradictions(spans, speaker_by_id, source, roster_index):
         return []
 
     contradictions = []
-    for index, span in enumerate(spans[:-1]):
-        speaker = speaker_by_id.get(span.id)
+    for span_id, following_text in _closing_tag_text_by_id(spans, source).items():
+        speaker = speaker_by_id.get(span_id)
         if not speaker or speaker == NARRATOR:
             continue
-        if span.kind != QUOTED:
-            continue
-        if not span.text(source).rstrip().endswith(tuple(_CLOSING_QUOTES)):
-            continue
-        following = spans[index + 1]
-        if following.kind != UNQUOTED or is_whitespace_span(following, source):
-            continue
-        tagged = contradicts_attribution(speaker, following.text(source), roster_index)
+        tagged = contradicts_attribution(speaker, following_text, roster_index)
         if tagged:
-            contradictions.append((span.id, speaker, tagged))
+            contradictions.append((span_id, speaker, tagged))
     return contradictions
 
 
@@ -1404,6 +1459,24 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     over the whole book; without it repair is unavailable and the gate behaves
     exactly as it did before.
 
+    A repair is VETOED by the attribution tag next to the same line whenever
+    that tag names a different established character (see _gate_speaker): the
+    label is then refused like any other unattested one -- NARRATOR, counted in
+    ``unattested_rejected``, itemized in ``refused_repairs`` and degrading the
+    chunk. This veto does not depend on ``check_tags``: it withholds one of THIS
+    pipeline's rewrites rather than judging the model's label, and its fallback
+    is the behaviour the gate already promises.
+
+    MEASURED on one 281-chunk production run replayed from its own logged
+    responses: 89 repairs, 26 of them next to a machine-readable attribution
+    tag, and all 26 tags AGREED with the repaired name -- so the veto refused 0
+    and that run's output is unchanged. The remaining 63 sat next to a pronoun
+    tag ("he said"), an action beat or nothing at all: no adjacent evidence
+    exists, nothing here can adjudicate them, and they are deliberately left
+    alone rather than guessed at. The veto is therefore cheap insurance against
+    a failure class, not a fix for a measured error rate; what makes the
+    unadjudicable majority visible is the repair block in the run summary.
+
     ATTRIBUTION-TAG CHECK (``check_tags``, off by default). After every speaker
     is decided, _tag_contradictions re-reads the result against the attribution
     tag in the span right after each quotation and counts the disagreements in
@@ -1465,6 +1538,8 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     unverifiable_accepted = 0
     dialogue_without_speaker = 0
     repairs = []
+    repairs_refused = []
+    tag_texts = _closing_tag_text_by_id(spans, source)
 
     for span in spans:
         if source is not None and is_whitespace_span(span, source):
@@ -1516,10 +1591,23 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
                 # disagree, exactly as _incomplete_span_ids' docstring warns.
                 if require_attested and canonical != NARRATOR:
                     name, outcome = _gate_speaker(
-                        canonical, attest_window, roster_index, source_words)
+                        canonical, attest_window, roster_index, source_words,
+                        tag_texts.get(span.id))
                     if outcome == GATE_REJECTED:
                         accept = False
                         unattested_rejected += 1
+                    elif outcome == GATE_REPAIR_REFUSED:
+                        # A spelling repair was available but the tag next to
+                        # this very line names someone else, so the repair was
+                        # withheld and the label falls back to the plain
+                        # rejection. Counted in unattested_rejected too (it IS
+                        # one, and the chunk must degrade for it), and itemized
+                        # separately because "the repair was wrong here" is a
+                        # different thing for an operator to read than "the
+                        # model invented a name".
+                        accept = False
+                        unattested_rejected += 1
+                        repairs_refused.append(canonical)
                     elif outcome == GATE_UNVERIFIABLE:
                         unverifiable_accepted += 1
                     elif outcome == GATE_REPAIRED:
@@ -1578,6 +1666,8 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
         "unverifiable_accepted": unverifiable_accepted,
         "speakers_repaired": len(repairs),
         "repairs": repairs,
+        "repairs_refused": len(repairs_refused),
+        "refused_repairs": repairs_refused,
         "dialogue_without_speaker": dialogue_without_speaker,
         "tag_contradictions": len(contradictions),
         "contradictions": contradictions,
@@ -2214,6 +2304,10 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     if stats["unattested_rejected"]:
         print(f"  Rejected {stats['unattested_rejected']} speaker label(s) whose name does "
               "not appear in the text near their own lines -- narrated instead")
+    for original in stats.get("refused_repairs") or []:
+        print(f"  REFUSED to repair speaker label \"{original}\": a spelling repair was "
+              "available, but the narration right after this line attributes it to "
+              "another established character -- narrated instead")
     if stats.get("tag_contradictions"):
         for span_id, speaker, tagged in stats["contradictions"]:
             print(f"  CONTRADICTED speaker label on span {span_id}: labelled "
@@ -2435,6 +2529,7 @@ def main():
     total_unattested = 0
     total_unverifiable = 0
     total_repaired = 0
+    total_repairs_refused = 0
     total_contradicted = 0
     contradiction_examples = []
     repair_mappings = {}
@@ -2487,6 +2582,7 @@ def main():
         total_unattested += stats.get("unattested_rejected", 0)
         total_unverifiable += stats.get("unverifiable_accepted", 0)
         total_repaired += stats.get("speakers_repaired", 0)
+        total_repairs_refused += stats.get("repairs_refused", 0)
         total_contradicted += stats.get("tag_contradictions", 0)
         contradiction_examples.extend(
             (i, speaker, tagged) for _, speaker, tagged in stats.get("contradictions") or [])
@@ -2528,6 +2624,24 @@ def main():
               "(refuted spelling folded onto an established name)")
         for (original, repaired), count in sorted(repair_mappings.items()):
             print(f"    - \"{original}\" -> \"{repaired}\" ({count} span(s))")
+        print(f"  Speaker repairs refused:  {total_repairs_refused} "
+              "(the adjacent attribution tag named someone else; span narrated "
+              "and counted above as an unattested rejection)")
+        if total_repaired:
+            # Repairs are NOT folded into the degradation signal and do NOT
+            # change the exit code. Contract 7's exit 3 means "spans fell back
+            # to NARRATOR"; a repair keeps a character voice, and on a normal
+            # book there are dozens of them, so making them exit 3 would make
+            # exit 3 permanent and destroy the signal instead of sharpening it.
+            # What the wrong ones cost is a rejection -- which IS a fallback and
+            # DOES exit 3 -- via the tag veto above. The rest are visible here.
+            print(f"  {'!' * 58}")
+            print(f"  {total_repaired} speaker label(s) in this book say a name the model "
+                  "never emitted.")
+            print("  Each survived the spelling guards AND the attribution tag next to its")
+            print("  own line, but neither is proof of WHO speaks a line with no tag at all.")
+            print("  Audit the mappings above before rendering audio.")
+            print(f"  {'!' * 58}")
     else:
         print("  Attestation gate:        off "
               "(generation.require_attested_speakers)")

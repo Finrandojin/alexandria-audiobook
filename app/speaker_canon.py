@@ -1225,6 +1225,21 @@ def repair_speaker(canonical, windows, roster_index, source_words):
       7. The rebuilt name must fully ATTEST against the same windows, or it is
          refused. A repair that still would not pass the gate is not a repair.
 
+    WHAT THESE GUARDS DO NOT COVER -- and who covers it. Every condition above
+    is about SPELLING: is this spelling in the book, is exactly one roster name
+    one edit away, does that name appear in this window. None of them is
+    evidence about who speaks THIS span, and guard 4 is weakest exactly where it
+    matters: in a two-character scene both candidates appear in the window, so
+    the wrong one satisfies it as easily as the right one. Measured across
+    production runs of one book, repairs were POSITIVELY correlated with
+    attribution error -- the model misspells names in the same chunks where it
+    is unsure who is talking. The caller therefore applies an eighth condition
+    this function cannot: generate_script._gate_speaker vetoes the repair when
+    contradicts_attribution() finds the attribution tag beside that very line
+    naming a different established character, and the label falls back to the
+    plain rejection it would have had if repair did not exist. Keep that veto at
+    the call site: it needs span adjacency, and this function stays pure.
+
     WHY NO LENGTH FLOOR. A minimum token length ("only repair tokens of 4+
     characters") is a constant with no general justification: it is only ever
     chosen by measuring collisions on one book's roster, and it neither

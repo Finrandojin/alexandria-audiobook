@@ -489,8 +489,70 @@ def test_gate_refuses_a_recombined_multi_token_label():
           poss != generate_script.GATE_REJECTED, detail=repr(poss))
 
 
+def test_adjacent_tag_vetoes_a_spelling_repair():
+    """A repair the spelling guards accept is REFUSED when the attribution tag
+    beside that very line names a different established character -- and kept
+    when the tag agrees or is absent. Independent of check_attribution_tags:
+    _gate_speaker takes the tag text directly.
+
+    Synthesized fixture -- invented names, no book.
+    """
+    import generate_script as gs
+
+    window = ("Verrin and Calder stood in the doorway. “Then we go,” "
+              "Calder said. “Not yet,” Verrin said.")
+    roster = {}
+    gs.remember_in_roster(roster, "VERRIN")
+    gs.remember_in_roster(roster, "CALDER")
+    words = gs.source_word_index(window)
+
+    # VERRAN: absent from the book, exactly one roster name one edit away.
+    name, outcome = gs._gate_speaker("VERRAN", window, roster, words)
+    check("a refuted spelling still repairs with no tag evidence",
+          (name, outcome) == ("VERRIN", gs.GATE_REPAIRED),
+          detail=f"{name!r} {outcome!r}")
+
+    name, outcome = gs._gate_speaker("VERRAN", window, roster, words,
+                                     " Verrin said, and stepped back.")
+    check("an agreeing tag leaves the repair alone",
+          (name, outcome) == ("VERRIN", gs.GATE_REPAIRED),
+          detail=f"{name!r} {outcome!r}")
+
+    name, outcome = gs._gate_speaker("VERRAN", window, roster, words,
+                                     " Calder said, and stepped back.")
+    check("a contradicting tag refuses the repair",
+          (name, outcome) == ("VERRAN", gs.GATE_REPAIR_REFUSED),
+          detail=f"{name!r} {outcome!r}")
+
+    # The veto must never rewrite the label onto the tagged name (that would be
+    # a second repair_speaker) and must never promote a non-repair to a refusal.
+    name, outcome = gs._gate_speaker("CALDER", window, roster, words,
+                                     " Verrin said, and stepped back.")
+    check("an established name is untouched by the veto",
+          outcome == gs.GATE_ESTABLISHED, detail=f"{name!r} {outcome!r}")
+
+
+def test_tag_adjacency_bounds_have_one_definition():
+    """_tag_contradictions and the repair veto must read tag text through the
+    same helper, or the two can disagree about which narration closes a line."""
+    import inspect
+    import generate_script
+
+    source = inspect.getsource(generate_script._tag_contradictions)
+    check("_tag_contradictions uses _closing_tag_text_by_id",
+          "_closing_tag_text_by_id" in source)
+    check("_tag_contradictions has no second adjacency rule",
+          "_CLOSING_QUOTES" not in source, detail=source)
+    for func in (generate_script.resolve_span_labels,
+                 generate_script._unattested_speaker_ids):
+        check(f"{func.__name__} feeds the gate tag text from the shared helper",
+              "_closing_tag_text_by_id" in inspect.getsource(func))
+
+
 def main():
     tests = [
+        test_adjacent_tag_vetoes_a_spelling_repair,
+        test_tag_adjacency_bounds_have_one_definition,
         test_gate_refuses_a_recombined_multi_token_label,
         test_generation_imports_the_repair_helpers_rather_than_reimplementing_them,
         test_label_flags_computation_never_mutates_entries_or_roster,
