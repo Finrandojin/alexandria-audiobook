@@ -1191,6 +1191,170 @@ def repair_speaker(canonical, windows, roster_index, source_words):
     return repaired
 
 
+# ---------------------------------------------------------------------------
+# Tier 3c: attribution-tag agreement
+#
+# THE DEFECT THIS ANSWERS. Attestation asks "does this NAME occur somewhere
+# nearby?". It never asks "is it the name the adjacent attribution tag actually
+# gives". Measured on one clean 8,081-entry production artifact: of 1,117
+# dialogue spans followed by a machine-checkable name tag, 60 (5.4%) were
+# labelled with a DIFFERENT established character than the tag names -- every
+# one of them attested, so no existing check saw them.
+#
+# DETECT, NEVER REWRITE. These functions are read-only and return evidence.
+# Relabelling a span from the tag would be a second repair_speaker: nearby
+# evidence silently overriding the model. The caller routes a detection into
+# the retry path (ask the model again, naming the tag) and, failing that, into
+# the degradation report.
+#
+# ENGLISH-ONLY, BY CONSTRUCTION, AND IT DEGRADES TO SILENCE. Recognizing an
+# attribution tag requires recognizing a speech verb, and there is no
+# language-neutral way to do that -- so _SPEECH_VERBS below is an English word
+# list, in the same acknowledged-limitation class as _RANK_TITLES (English
+# titles) and span_tokenizer's quote-mark table. On a French or Japanese book
+# NOTHING in the tag pattern matches: no token equals "said"/"asked"/..., so
+# attribution_tag_name() returns None for every span, contradicts_attribution()
+# returns None for every span, and the caller's counters stay at zero. The
+# failure mode is zero detections -- never a false accusation and never a
+# wrong retry. It is not book-fitted: it contains no name, idiom or phrasing
+# from any particular novel, only the verbs any English narration uses.
+# ---------------------------------------------------------------------------
+
+# English speech verbs that introduce or close an attribution tag. Deliberately
+# SHORT and unambiguous: every entry is a verb whose subject is the speaker of
+# the adjacent quotation. Verbs that are commonly NOT attributive ("continued",
+# "went on", "laughed") are left out -- this list is tuned for precision,
+# because a false detection costs a wasted retry and a false degradation.
+_SPEECH_VERBS = frozenset({
+    "said", "says", "asked", "asks", "replied", "answered", "called",
+    "shouted", "whispered", "murmured", "added", "muttered", "agreed",
+    "snapped", "told",
+})
+
+# A word for tag-matching purposes: a letter-initial token, apostrophes and
+# internal hyphens included ("O'Brien", "Jean-Luc", "Nita's"). `[^\W\d_]` is
+# "any letter in any script", same intent as _is_name_char.
+_TAG_WORD = r"[^\W\d_][\w'‘’\-]*"
+
+# The two shapes an attribution tag takes right after a quotation:
+# "<Name> said ..." and "said <Name> ...". Leading whitespace, commas, colons
+# and dashes are skipped; anything else means this is not a tag.
+_TAG_RE = re.compile(
+    r"^[\s,;:\-–—]*(" + _TAG_WORD + r")\s+(" + _TAG_WORD + r")",
+    re.UNICODE,
+)
+
+# A blank line before the tag means the narration starts a new paragraph, so it
+# belongs to what FOLLOWS, not to the quotation before it.
+_PARAGRAPH_BREAK_RE = re.compile(r"^[^\S\n]*\n\s*\n")
+
+# Only the first line or so can hold the tag; scanning further invites matches
+# deep inside unrelated narration.
+_TAG_SCAN_CHARS = 120
+
+
+def attribution_tag_name(text):
+    """The proper-name word of an attribution tag at the START of ``text``.
+
+    ``text`` is the narration immediately following a quotation. Returns the
+    name as it is spelled in the source ("Nita", "McAllister"), or None when
+    there is no recognizable tag. Pure, read-only, English-only (see the
+    section comment: a non-English book yields None for every span).
+
+    Refuses -- returns None -- in every ambiguous case:
+
+      * a blank line before the tag (the narration is a new paragraph, so the
+        tag introduces the NEXT quotation rather than closing the previous one);
+      * no ``_SPEECH_VERBS`` verb adjacent to the candidate word;
+      * a candidate that is not capitalized ("said the man", "said his
+        mother") -- a common noun is not a name;
+      * a POSSESSIVE candidate ("said Nita's dad"), where the name is a
+        modifier of somebody else. This case is the reason the check needs a
+        possessive test at all: the label "NITA'S DAD" is correct there, and a
+        naive name-grab reads the tag as NITA and reports a contradiction.
+    """
+    if not text:
+        return None
+    if _PARAGRAPH_BREAK_RE.match(text):
+        return None
+
+    match = _TAG_RE.match(text[:_TAG_SCAN_CHARS])
+    if not match:
+        return None
+
+    first, second = match.group(1), match.group(2)
+    if first.lower() in _SPEECH_VERBS:
+        candidate = second
+    elif second.lower() in _SPEECH_VERBS:
+        candidate = first
+    else:
+        return None
+
+    if candidate.lower() in _SPEECH_VERBS:
+        return None
+    if not candidate[:1].isupper():
+        return None
+    if _split_possessive(candidate)[1]:
+        return None
+    return candidate
+
+
+def contradicts_attribution(speaker, following_text, roster_index):
+    """The established roster name an attribution tag gives, when it CONTRADICTS
+    ``speaker``. Returns None whenever the two are compatible, or whenever the
+    evidence does not decide -- which is most of the time, by design.
+
+    ``speaker`` is a canonical label; ``following_text`` is the narration span
+    immediately after that speaker's quotation; ``roster_index`` is a
+    ``{roster_key: spelling}`` index (see remember_in_roster) used to turn a tag
+    word into an established name. Roster-aware and therefore explicit-argument,
+    like every other roster consumer here; nothing is mutated.
+
+    Compatible -- and so NOT reported -- includes:
+
+      * case and apostrophe-glyph differences (MCALLISTER vs McAllister,
+        SKER'RET vs Sker’ret): both sides go through _fold_word;
+      * GRANULARITY variants (TOM vs TOM SWALE, DARRYL vs DARRYL MCALLISTER):
+        the label and the tagged name sharing any core token is agreement about
+        a person, not a contradiction;
+      * an AMBIGUOUS tag word matching two or more roster names (two characters
+        sharing a first name): discarded, never guessed;
+      * a tag word the roster does not know at all. Recall is deliberately
+        sacrificed here: an unknown word cannot be compared with a label
+        without guessing, and a guess is what this check exists to avoid.
+    """
+    if not speaker or speaker == "NARRATOR" or not roster_index:
+        return None
+
+    word = attribution_tag_name(following_text)
+    if not word:
+        return None
+
+    base = _fold_word(word)
+    if not base:
+        return None
+
+    speaker_tokens = set(_core_tokens(speaker))
+    if base in speaker_tokens:
+        return None
+
+    tagged = {name for name in roster_index.values() if base in _core_tokens(name)}
+    if len(tagged) > 1:
+        # A bare tag word that IS an established name in its own right resolves
+        # to that name, even though longer names contain it too: a roster
+        # holding both "NITA" and "NITA'S DAD" is not ambiguous about who
+        # "Nita said" means. Two names merely CONTAINING the word and neither
+        # equal to it (two characters sharing a first name) stays ambiguous.
+        tagged = {name for name in tagged if _core_tokens(name) == [base]}
+    if len(tagged) != 1:
+        return None
+
+    tagged_name = next(iter(tagged))
+    if speaker_tokens & set(_core_tokens(tagged_name)):
+        return None
+    return tagged_name
+
+
 def near_spellings(canonical, windows, roster_index):
     """Established roster spellings within one edit of a refuted label token,
     for use as a PROMPT HINT when repair declines.

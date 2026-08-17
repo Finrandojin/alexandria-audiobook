@@ -28,12 +28,13 @@ import argparse
 from openai import OpenAI
 from rapidfuzz.distance import Levenshtein
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
-from span_tokenizer import tokenize, validate_spans
+from span_tokenizer import tokenize, validate_spans, QUOTED, UNQUOTED
 from speaker_canon import (
     UNATTESTED,
     UNVERIFIABLE,
     attest_speaker,
     canonicalize,
+    contradicts_attribution,
     near_spellings,
     remember_in_roster,
     repair_speaker,
@@ -1000,7 +1001,7 @@ def _format_id_list(ids):
 
 
 def _retry_nudge(missing_ids, bad_role_ids, unattested=None, no_speaker_ids=None,
-                 spelling_hints=None):
+                 spelling_hints=None, contradicted=None):
     """Correction text appended to the retry prompt.
 
     Appended AFTER .format(), so it cannot interact with the {context}/{chunk}
@@ -1056,6 +1057,22 @@ def _retry_nudge(missing_ids, bad_role_ids, unattested=None, no_speaker_ids=None
             parts.append("Established character spellings close to the rejected "
                          "names, if one of them is who you meant: "
                          + "; ".join(hints) + ".")
+    if contradicted:
+        # Same shape as the unattested hint above -- name the id, name what was
+        # said, and point at the evidence in the text the model was shown --
+        # because the same thing is true here: a bare "that is wrong" makes the
+        # model guess again. The tag is NOT asserted to be the answer; the
+        # model may re-state its label, and nothing here rewrites it.
+        detail = "; ".join(
+            f'id {span_id}: you said "{speaker}", but the narration right after '
+            f'it attributes the line to "{tagged}"'
+            for span_id, speaker, tagged in contradicted)
+        parts.append(
+            "These spans disagree with their own attribution tag: "
+            f"{detail}. Re-read the narration immediately following each of "
+            "these quotations and give the speaker the text attributes it to. "
+            "If the tag belongs to a DIFFERENT quotation and your original "
+            "answer was right, repeat it.")
     parts.append("Return the JSON array again. It MUST contain one object for every id "
                  'listed above, and every "role" must be exactly "dialogue" or "narration".')
     return " ".join(parts)
@@ -1189,6 +1206,107 @@ def _unattested_speaker_ids(spans, merged, source=None, roster=None,
     return offenders
 
 
+# Closing quote marks a quotation span may end on. A dialogue span that does
+# NOT end on one is mid-quotation, so the narration after it is not a closing
+# attribution tag (see _tag_contradictions' bound).
+_CLOSING_QUOTES = "\"'”’»」』"
+
+
+def _tag_contradictions(spans, speaker_by_id, source, roster_index):
+    """``[(span_id, speaker, tagged_name), ...]`` for dialogue spans whose label
+    is contradicted by the attribution tag in the very next span.
+
+    THE GAP THIS CLOSES. Attestation asks whether the chosen name occurs
+    somewhere nearby; nothing asked whether it is the name the adjacent tag
+    gives. Measured on one clean 8,081-entry artifact: 60 of 1,117 checkable
+    dialogue+tag pairs (5.4%) named a different established character than the
+    tag did, all of them attested and none of them detected.
+
+    DETECTS, NEVER REWRITES. A hit is routed exactly like an unattested
+    speaker: into the retry nudge first (process_chunk), and into the
+    degradation report if the retry does not resolve it (resolve_span_labels).
+    Relabelling the span from the tag would be a second repair_speaker --
+    nearby evidence silently overruling the model -- which is the failure this
+    pipeline keeps trying to eliminate, not add.
+
+    BOUNDS, chosen for PRECISION over recall (a false accusation costs a wasted
+    retry and a false exit-3, which is what erodes trust in exit 3):
+
+      * the labelled span must be a QUOTED span ending on a closing quote mark,
+        so the tag closes it rather than sitting mid-quotation;
+      * the tag must be in the IMMEDIATELY NEXT span, and that span must be
+        UNQUOTED and not whitespace-only. A whitespace-only span between them
+        is the paragraph break, and a tag on the far side of one introduces the
+        NEXT quotation instead of closing this one;
+      * speaker_canon.contradicts_attribution supplies the rest: no possessive
+        tag, no uncapitalized/common-noun tag, no ambiguous name, and
+        granularity/case/apostrophe variants are agreement, not conflict.
+
+    Bound (4) is not perfect: an attributive-looking tag can be a verb with an
+    object ("Kit said the last couple of words of the spell") and is then a
+    false hit. Hand-checking a random 25 of the 64 hits on the artifact above
+    found exactly one such case -- 24/25 genuine.
+
+    ENGLISH-ONLY, degrading to silence: the tag pattern needs an English speech
+    verb, so on a non-English book nothing matches and this returns [] for
+    every span. See speaker_canon's Tier 3c section comment.
+
+    Pure and read-only: ``roster_index`` is not mutated.
+    """
+    if source is None or not roster_index:
+        return []
+
+    contradictions = []
+    for index, span in enumerate(spans[:-1]):
+        speaker = speaker_by_id.get(span.id)
+        if not speaker or speaker == NARRATOR:
+            continue
+        if span.kind != QUOTED:
+            continue
+        if not span.text(source).rstrip().endswith(tuple(_CLOSING_QUOTES)):
+            continue
+        following = spans[index + 1]
+        if following.kind != UNQUOTED or is_whitespace_span(following, source):
+            continue
+        tagged = contradicts_attribution(speaker, following.text(source), roster_index)
+        if tagged:
+            contradictions.append((span.id, speaker, tagged))
+    return contradictions
+
+
+def _contradicted_speaker_ids(spans, merged, source=None, roster=None):
+    """The retry-offender view of _tag_contradictions: run it over the labels a
+    chunk currently holds, before they are resolved.
+
+    Mirrors _unattested_speaker_ids' shape and contract (read-only, dialogue
+    labels only, NARRATOR skipped) so the retry predicate and the degradation
+    count in resolve_span_labels apply the same rule -- the drift
+    _incomplete_span_ids' docstring warns about.
+
+    The roster used is the book's roster PLUS every canonical dialogue name in
+    this chunk, so a character first named in this very chunk can still be the
+    name a tag resolves to.
+    """
+    speaker_by_id = {}
+    roster_index = dict(roster) if roster else {}
+    for span in spans:
+        label = merged.get(span.id)
+        if not isinstance(label, dict):
+            continue
+        role = label.get("role")
+        role = role.strip().lower() if isinstance(role, str) else ""
+        if role != "dialogue":
+            continue
+        raw_speaker = label.get("speaker")
+        canonical = canonicalize(raw_speaker) if isinstance(raw_speaker, str) else ""
+        if not canonical or canonical == NARRATOR or is_placeholder_speaker(canonical):
+            continue
+        speaker_by_id[span.id] = canonical
+        remember_in_roster(roster_index, canonical)
+
+    return _tag_contradictions(spans, speaker_by_id, source, roster_index)
+
+
 def _report_repairs(chunk_num, total_chunks, repairs):
     """Make every speaker repair visible: one console line per distinct repair
     plus a per-repair record in the forensic log.
@@ -1226,7 +1344,7 @@ def _report_repairs(chunk_num, total_chunks, repairs):
 
 def resolve_span_labels(spans, labels, source=None, roster=None,
                         attest_window=None, require_attested=False,
-                        source_words=None):
+                        source_words=None, check_tags=False):
     """Resolve each span to (span, speaker, instruct) using the LLM's labels.
 
     A span is NARRATOR unless a label exists for its id AND that label says
@@ -1285,6 +1403,16 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
     be silent (contract 7). ``source_words`` is speaker_canon.source_word_index()
     over the whole book; without it repair is unavailable and the gate behaves
     exactly as it did before.
+
+    ATTRIBUTION-TAG CHECK (``check_tags``, off by default). After every speaker
+    is decided, _tag_contradictions re-reads the result against the attribution
+    tag in the span right after each quotation and counts the disagreements in
+    ``tag_contradictions`` (itemized in ``contradictions``). Counted ONLY --
+    the label is left exactly as the model gave it, because relabelling a span
+    from adjacent evidence is repair_speaker's job description and this check
+    exists to make wrong answers loud, not to invent new ones. process_chunk
+    asks the model again first; what survives that lands here and degrades the
+    chunk.
     """
     valid_ids = {span.id for span in spans}
     # Local copy: never mutate the caller's roster index (see docstring).
@@ -1425,6 +1553,18 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
 
         resolved.append((span, speaker, instruct))
 
+    # Tag agreement, on the FINAL speakers (post-gate, post-roster-resolution),
+    # so it judges what the script will actually say. Read-only.
+    contradictions = []
+    if check_tags:
+        tag_roster = dict(roster_index) if roster_index else {}
+        speaker_by_id = {}
+        for span, speaker, _ in resolved:
+            if speaker and speaker != NARRATOR:
+                speaker_by_id[span.id] = speaker
+                remember_in_roster(tag_roster, speaker)
+        contradictions = _tag_contradictions(spans, speaker_by_id, source, tag_roster)
+
     return resolved, {
         # Inclusive of auto-resolved whitespace spans, so callers keep the
         # `labelled + fallback == spans` accounting invariant.
@@ -1439,6 +1579,8 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
         "speakers_repaired": len(repairs),
         "repairs": repairs,
         "dialogue_without_speaker": dialogue_without_speaker,
+        "tag_contradictions": len(contradictions),
+        "contradictions": contradictions,
         "unknown_key_labels": unknown_key_labels,
         "unknown_keys": sorted(unknown_keys),
         "text_key_labels": text_key_labels,
@@ -1706,7 +1848,7 @@ def build_context(chunk_num, total_chunks, previous_entries=None,
     return "\n".join(context_parts)
 
 
-def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False, reasoning_effort=None, source_words=None):
+def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_entries=None, max_retries=2, system_prompt=None, user_prompt_template=None, max_tokens=4096, temperature=0.6, top_p=0.8, top_k=0, min_p=0, presence_penalty=0.0, banned_tokens=None, roster=None, max_context_roster_names=None, num_ctx=None, attest_window=None, require_attested=False, reasoning_effort=None, source_words=None, check_tags=False):
     """Classify one chunk's spans and rebuild its script entries verbatim.
 
     Returns ``(entries, stats)``. ``stats`` reports span counts and whether the
@@ -1924,8 +2066,14 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                                     source_words=source_words)
             if require_attested else []
         )
+        contradicted = (
+            _contradicted_speaker_ids(spans, merged_labels, source=chunk,
+                                      roster=roster)
+            if check_tags else []
+        )
 
-        if not missing_ids and not bad_role_ids and not no_speaker_ids and not unattested:
+        if (not missing_ids and not bad_role_ids and not no_speaker_ids
+                and not unattested and not contradicted):
             if attempt > 0:
                 print(f"  Succeeded on retry {attempt + 1} -- all {len(spans)} spans labelled")
             break
@@ -1943,6 +2091,11 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
                 gaps.append(f"{len(bad_role_ids)} label(s) with an unusable role")
             if no_speaker_ids:
                 gaps.append(f"{len(no_speaker_ids)} dialogue label(s) with no speaker")
+            if contradicted:
+                gaps.append(f"{len(contradicted)} speaker label(s) contradicted by "
+                            "their own attribution tag "
+                            f"({', '.join(f'{s}/{t}' for _, s, t in contradicted[:3])}"
+                            f"{', ...' if len(contradicted) > 3 else ''})")
             if unattested:
                 gaps.append(f"{len(unattested)} speaker name(s) absent from the text "
                             f"({', '.join(name for _, name in unattested[:3])}"
@@ -1956,7 +2109,8 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             }
             retry_nudge = _retry_nudge(missing_ids, bad_role_ids, unattested,
                                        no_speaker_ids=no_speaker_ids,
-                                       spelling_hints=spelling_hints)
+                                       spelling_hints=spelling_hints,
+                                       contradicted=contradicted)
             # Clear the refused speakers so the retry's answer can actually
             # land. _merge_label deliberately never overwrites a usable field
             # -- that is what makes "a retry can never make things worse" a
@@ -1968,6 +2122,19 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
             # supplies nothing, the field stays blank and the span is narrated
             # and counted (see dialogue_without_speaker), so the outcome is
             # never quieter than a plain rejection.
+            # Same reason for the tag contradictions, with one difference worth
+            # stating: our check has NOT ruled the value unusable, only that it
+            # disagrees with the adjacent tag. Clearing it is still what makes
+            # the retry able to answer at all (_merge_label never overwrites a
+            # usable field), and the nudge tells the model to repeat its answer
+            # if it was right -- which re-fills the field. The residual cost of
+            # a FALSE detection is therefore one span narrated (loud, counted
+            # as dialogue_without_speaker) when the retry supplies nothing at
+            # all; prose is untouched either way.
+            for span_id, _, _ in contradicted:
+                label = merged_labels.get(span_id)
+                if isinstance(label, dict):
+                    label.pop("speaker", None)
             for span_id, _ in unattested:
                 label = merged_labels.get(span_id)
                 if isinstance(label, dict):
@@ -1982,7 +2149,7 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     resolved, stats = resolve_span_labels(
         spans, list(merged_labels.values()), source=chunk, roster=roster,
         attest_window=attest_window, require_attested=require_attested,
-        source_words=source_words)
+        source_words=source_words, check_tags=check_tags)
     _report_repairs(chunk_num, total_chunks, stats.get("repairs"))
     entries = build_entries(resolved, chunk)
     _assert_chunk_verbatim(entries, chunk, chunk_num)
@@ -2001,6 +2168,14 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
         # the run would exit 0 with silently narrated dialogue.
         reason = (f"{stats['unattested_rejected']} speaker label(s) named a "
                   "character the source text does not support")
+    if reason is None and stats.get("tag_contradictions", 0) > 0:
+        # The retry did not resolve it, so the script will say a name the
+        # neighbouring attribution tag disagrees with. Nothing was rewritten;
+        # this is the operator's pointer to where to look (contract 7).
+        detail = ", ".join(f"span {span_id}: {speaker} vs tag {tagged}"
+                           for span_id, speaker, tagged in stats["contradictions"][:5])
+        reason = (f"{stats['tag_contradictions']} speaker label(s) contradicted "
+                  f"by the attribution tag next to them ({detail})")
     if reason is None and stats["dialogue_without_speaker"] > 0:
         reason = (f"{stats['dialogue_without_speaker']} label(s) claimed "
                   "role=dialogue with no usable speaker name")
@@ -2039,6 +2214,12 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
     if stats["unattested_rejected"]:
         print(f"  Rejected {stats['unattested_rejected']} speaker label(s) whose name does "
               "not appear in the text near their own lines -- narrated instead")
+    if stats.get("tag_contradictions"):
+        for span_id, speaker, tagged in stats["contradictions"]:
+            print(f"  CONTRADICTED speaker label on span {span_id}: labelled "
+                  f"\"{speaker}\", but the narration right after it attributes "
+                  f"the line to \"{tagged}\" -- label KEPT as the model gave it, "
+                  "reported for review")
     if stats["unverifiable_accepted"]:
         print(f"  Accepted {stats['unverifiable_accepted']} speaker label(s) the source "
               "cannot confirm or refute (attestation does not apply to this text)")
@@ -2178,6 +2359,18 @@ def main():
     # tools/verify_attestation.py, which reports the would-be rejection rate
     # without running the model at all.
     require_attested = bool(generation_config.get("require_attested_speakers", False))
+    # Attribution-tag agreement check. DEFAULT OFF for the same reason as the
+    # attestation gate: it spends extra retries and can turn an exit-0 run into
+    # exit 3. Independent of that gate -- a contradicted label is usually a
+    # perfectly attested name, just the wrong one -- so it has its own key.
+    #
+    # The English speech-verb lexicon it needs is NOT config-exposed. It is a
+    # LANGUAGE property, not a per-book tunable, and a per-book verb list is
+    # precisely the book-fitting this pipeline avoids; a wrong entry there
+    # would produce false accusations, which is the one failure this check must
+    # not have. A non-English book needs no setting: no verb matches, so the
+    # check finds nothing and costs nothing.
+    check_tags = bool(generation_config.get("check_attribution_tags", False))
     # How much preceding source text joins the current chunk as the
     # attestation window. Defaults to one chunk, so a name introduced in the
     # sentence before the chunk boundary still attests. The failure direction
@@ -2242,6 +2435,8 @@ def main():
     total_unattested = 0
     total_unverifiable = 0
     total_repaired = 0
+    total_contradicted = 0
+    contradiction_examples = []
     repair_mappings = {}
     truncation_events = 0
     prompt_samples = []
@@ -2279,6 +2474,7 @@ def main():
             require_attested=require_attested,
             reasoning_effort=reasoning_effort,
             source_words=source_words,
+            check_tags=check_tags,
         )
         all_entries.extend(entries)
         for entry in entries:
@@ -2291,6 +2487,9 @@ def main():
         total_unattested += stats.get("unattested_rejected", 0)
         total_unverifiable += stats.get("unverifiable_accepted", 0)
         total_repaired += stats.get("speakers_repaired", 0)
+        total_contradicted += stats.get("tag_contradictions", 0)
+        contradiction_examples.extend(
+            (i, speaker, tagged) for _, speaker, tagged in stats.get("contradictions") or [])
         for original, repaired in stats.get("repairs") or []:
             repair_mappings[(original, repaired)] = (
                 repair_mappings.get((original, repaired), 0) + 1)
@@ -2332,6 +2531,16 @@ def main():
     else:
         print("  Attestation gate:        off "
               "(generation.require_attested_speakers)")
+    if check_tags:
+        print(f"  Attribution-tag contradictions: {total_contradicted} "
+              "(label kept; the tag next to the line names someone else)")
+        for chunk_num, speaker, tagged in contradiction_examples[:10]:
+            print(f"    - chunk {chunk_num}: labelled \"{speaker}\", tag says \"{tagged}\"")
+        if len(contradiction_examples) > 10:
+            print(f"    - (and {len(contradiction_examples) - 10} more)")
+    else:
+        print("  Attribution-tag check:   off "
+              "(generation.check_attribution_tags)")
     print(f"  Prompt-truncation warnings: {truncation_events}")
     flatline = detect_flatlined_prompt_tokens(prompt_samples)
     if flatline:

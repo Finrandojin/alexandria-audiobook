@@ -20,6 +20,8 @@ from speaker_canon import (
     attest_speaker,
     repair_speaker,
     source_word_index,
+    attribution_tag_name,
+    contradicts_attribution,
     ATTESTED,
     UNATTESTED,
     UNVERIFIABLE,
@@ -1254,6 +1256,116 @@ def test_distance_one_predicate_is_exact_and_bounded():
           "the predicate is code-point based, not ASCII")
 
 
+# ---------------------------------------------------------------------------
+# Tier 3c: attribution-tag agreement. Properties only -- every fixture is
+# synthesized here and none of it comes from any particular book.
+# ---------------------------------------------------------------------------
+
+def _roster(*names):
+    index = {}
+    for name in names:
+        remember_in_roster(index, name)
+    return index
+
+
+def test_tag_contradiction_is_detected():
+    roster = _roster("ANNIKA", "BOREL")
+    check_equal(
+        contradicts_attribution("BOREL", " Annika said.", roster),
+        "ANNIKA", "a tag naming another established character contradicts")
+    check_equal(
+        contradicts_attribution("BOREL", ", said Annika, turning away.", roster),
+        "ANNIKA", "the verb-first tag shape is recognized too")
+
+
+def test_tag_agreeing_with_the_label_is_not_a_contradiction():
+    roster = _roster("ANNIKA", "BOREL")
+    check_equal(contradicts_attribution("ANNIKA", " Annika said.", roster),
+                None, "the tag naming the labelled speaker is agreement")
+
+
+def test_possessive_tag_is_not_a_contradiction():
+    # "said Annika's father" attributes the line to a DIFFERENT person whose
+    # label legitimately contains the name. Reading the tag as ANNIKA here is
+    # the single most likely false accusation.
+    roster = _roster("ANNIKA", "ANNIKA'S FATHER")
+    check_equal(
+        contradicts_attribution("ANNIKA'S FATHER", ", said Annika's father.", roster),
+        None, "straight-apostrophe possessive tag")
+    check_equal(
+        contradicts_attribution("ANNIKA'S FATHER", ", said Annika’s father.", roster),
+        None, "curly-apostrophe possessive tag")
+
+
+def test_case_and_apostrophe_variants_are_not_contradictions():
+    roster = _roster("MCALLISTER", "SKER'RET")
+    check_equal(contradicts_attribution("MCALLISTER", " McAllister said.", roster),
+                None, "label/source differ only in case")
+    check_equal(contradicts_attribution("SKER'RET", " Sker’ret said.", roster),
+                None, "label/source differ only in apostrophe glyph")
+
+
+def test_granularity_variant_is_not_a_contradiction():
+    roster = _roster("ANNIKA BOREL")
+    check_equal(contradicts_attribution("ANNIKA BOREL", " Annika said.", roster),
+                None, "a first-name tag does not contradict the full name")
+    check_equal(contradicts_attribution("ANNIKA", " Borel said.", _roster("ANNIKA BOREL")),
+                None, "a surname tag does not contradict the first name")
+
+
+def test_ambiguous_tag_word_is_discarded():
+    # Two characters share a first name: the tag cannot pick one, so nothing
+    # is reported rather than something guessed.
+    roster = _roster("ANNIKA BOREL", "ANNIKA VOSS", "TEODOR")
+    check_equal(contradicts_attribution("TEODOR", " Annika said.", roster),
+                None, "an ambiguous tag word is never guessed at")
+
+
+def test_unknown_and_common_noun_tags_are_ignored():
+    roster = _roster("ANNIKA", "BOREL")
+    check_equal(contradicts_attribution("BOREL", " Teodor said.", roster),
+                None, "a name the roster does not know is not compared")
+    check_equal(contradicts_attribution("BOREL", " her mother said.", roster),
+                None, "an uncapitalized common noun is not a name")
+    check_equal(contradicts_attribution("BOREL", " Annika nodded.", roster),
+                None, "no speech verb, no tag")
+
+
+def test_tag_after_a_paragraph_break_is_ignored():
+    # The tag on the far side of a blank line introduces the NEXT quotation.
+    roster = _roster("ANNIKA", "BOREL")
+    check_equal(contradicts_attribution("BOREL", "\n\nAnnika said,", roster),
+                None, "a tag in a new paragraph is not this quotation's")
+
+
+def test_non_english_text_produces_no_detections():
+    # THE language property: the tag pattern needs an English speech verb, so
+    # a French or Japanese book yields nothing at all -- no false accusation,
+    # no wrong retry -- rather than misfiring.
+    roster = _roster("ANNIKA", "BOREL")
+    for following in (
+        ", dit Annika en se levant.",          # French
+        ", sagte Annika.",                     # German
+        "とアンニカは言った。",  # Japanese
+        ", сказала Анника.",  # Russian
+    ):
+        check_equal(attribution_tag_name(following), None,
+                    f"no English speech verb in {following!r}")
+        check_equal(contradicts_attribution("BOREL", following, roster), None,
+                    f"no detection for {following!r}")
+
+
+def test_contradiction_check_mutates_nothing_and_needs_a_roster():
+    roster = _roster("ANNIKA", "BOREL")
+    before = copy.deepcopy(roster)
+    contradicts_attribution("BOREL", " Annika said.", roster)
+    check_equal(roster, before, "roster index is read-only here")
+    check_equal(contradicts_attribution("BOREL", " Annika said.", {}), None,
+                "no roster means no detection")
+    check_equal(contradicts_attribution("NARRATOR", " Annika said.", roster), None,
+                "NARRATOR is never contradicted")
+
+
 def main():
     tests = [
         test_basic_case_and_whitespace_normalization,
@@ -1347,6 +1459,16 @@ def main():
         test_repair_is_pure_idempotent_and_mutates_nothing,
         test_repair_is_unreachable_for_an_unsegmented_script_label,
         test_distance_one_predicate_is_exact_and_bounded,
+        test_tag_contradiction_is_detected,
+        test_tag_agreeing_with_the_label_is_not_a_contradiction,
+        test_possessive_tag_is_not_a_contradiction,
+        test_case_and_apostrophe_variants_are_not_contradictions,
+        test_granularity_variant_is_not_a_contradiction,
+        test_ambiguous_tag_word_is_discarded,
+        test_unknown_and_common_noun_tags_are_ignored,
+        test_tag_after_a_paragraph_break_is_ignored,
+        test_non_english_text_produces_no_detections,
+        test_contradiction_check_mutates_nothing_and_needs_a_roster,
     ]
 
     for t in tests:

@@ -2280,6 +2280,126 @@ class TestAttestationGate(unittest.TestCase):
         self.assertTrue(stats["degraded"])
 
 
+# Two lines, each closed by its own attribution tag. Synthesized: no book's
+# names, no book's phrasing -- only the shape English narration always uses.
+TAGGED_DIALOGUE = (
+    '"Yeah," Annika said.\n'
+    '\n'
+    '"No," Borel said.\n'
+)
+
+
+def _tagged_roster():
+    roster = {}
+    remember_in_roster(roster, "ANNIKA")
+    remember_in_roster(roster, "BOREL")
+    return roster
+
+
+def _label_first_quote(name):
+    """Label the first quoted span `name` and the second one BOREL."""
+    seen = []
+
+    def speaker_of(span, text):
+        seen.append(span.id)
+        return name if len(seen) == 1 else "BOREL"
+
+    return speaker_of
+
+
+class TestAttributionTagCheck(unittest.TestCase):
+    """A speaker label that contradicts the attribution tag beside it is
+    retried, then reported -- and never rewritten.
+
+    Properties only; the fixtures are built here. The check is OFF by default,
+    so the first test is the one that protects existing users.
+    """
+
+    def test_check_is_off_by_default(self):
+        chunk = TAGGED_DIALOGUE
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=_label_first_quote("BOREL")))))
+        entries, stats, _ = run_chunk(client, chunk, roster=_tagged_roster())
+        self.assertEqual(stats.get("tag_contradictions", 0), 0)
+        self.assertEqual(len(client.user_prompts), 1, "no retry when off")
+        self.assertEqual(joined(entries), chunk)
+
+    def test_contradiction_becomes_a_retry_offender(self):
+        chunk = TAGGED_DIALOGUE  # line one is tagged "Annika said"
+        bad = json.dumps(labels_for(chunk, speaker_of=_label_first_quote("BOREL")))
+        client = FakeClient(*[FakeResponse(bad)] * 3)
+        run_chunk(client, chunk, check_tags=True, roster=_tagged_roster())
+        self.assertGreater(len(client.user_prompts), 1, "a retry should have fired")
+        retry_prompt = client.user_prompts[1]
+        self.assertIn("attribution tag", retry_prompt)
+        self.assertIn("ANNIKA", retry_prompt)
+
+    def test_a_corrected_retry_clears_it(self):
+        chunk = TAGGED_DIALOGUE
+        bad = json.dumps(labels_for(chunk, speaker_of=_label_first_quote("BOREL")))
+        good = json.dumps(labels_for(chunk, speaker_of=_label_first_quote("ANNIKA")))
+        client = FakeClient(FakeResponse(bad), FakeResponse(good))
+        entries, stats, _ = run_chunk(chunk=chunk, client=client, check_tags=True,
+                                      roster=_tagged_roster())
+        self.assertEqual(stats["tag_contradictions"], 0)
+        self.assertFalse(stats["degraded"])
+        self.assertIn("ANNIKA", [e["speaker"] for e in entries])
+
+    def test_unresolved_contradiction_degrades_but_never_rewrites(self):
+        # DETECT, DO NOT AUTO-REWRITE: the model's label survives verbatim and
+        # the operator is told where to look (contract 7).
+        chunk = TAGGED_DIALOGUE
+        bad = json.dumps(labels_for(chunk, speaker_of=_label_first_quote("BOREL")))
+        client = FakeClient(*[FakeResponse(bad)] * 3)
+        entries, stats, output = run_chunk(client, chunk, check_tags=True,
+                                           roster=_tagged_roster())
+        self.assertEqual(joined(entries), chunk, "prose is never the price")
+        self.assertEqual(stats["tag_contradictions"], 1)
+        self.assertTrue(stats["degraded"])
+        self.assertIn("contradicted by the attribution tag", stats["reason"])
+        self.assertIn("BOREL", [e["speaker"] for e in entries])
+        self.assertNotIn("ANNIKA", [e["speaker"] for e in entries],
+                         "the tag's name must NOT be imposed on the label")
+        self.assertIn("CONTRADICTED", output)
+
+    def test_agreeing_labels_are_never_flagged(self):
+        chunk = TAGGED_DIALOGUE
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=_label_first_quote("ANNIKA")))))
+        entries, stats, _ = run_chunk(client, chunk, check_tags=True,
+                                      roster=_tagged_roster())
+        self.assertEqual(stats["tag_contradictions"], 0)
+        self.assertFalse(stats["degraded"])
+
+    def test_a_non_english_book_produces_no_detections(self):
+        # The lexicon is English-only and DEGRADES TO DOING NOTHING: with a
+        # deliberately wrong label on every line, a French chunk still yields
+        # zero detections, zero retries and no degradation.
+        chunk = (
+            '"Oui," dit Annika.\n'
+            '\n'
+            '"Non," dit Borel.\n'
+        )
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=_label_first_quote("BOREL")))))
+        entries, stats, _ = run_chunk(client, chunk, check_tags=True,
+                                      roster=_tagged_roster())
+        self.assertEqual(stats["tag_contradictions"], 0)
+        self.assertEqual(len(client.user_prompts), 1, "no retry on a French book")
+        self.assertEqual(joined(entries), chunk)
+
+    def test_possessive_tag_is_not_flagged_end_to_end(self):
+        # The false-positive class that a naive name-grab gets wrong: the label
+        # naming a person via another character is CORRECT.
+        chunk = '"Sit down," said Annika\'s father.\n'
+        roster = _tagged_roster()
+        remember_in_roster(roster, "ANNIKA'S FATHER")
+        client = FakeClient(FakeResponse(json.dumps(
+            labels_for(chunk, speaker_of=lambda span, text: "ANNIKA'S FATHER"))))
+        entries, stats, _ = run_chunk(client, chunk, check_tags=True, roster=roster)
+        self.assertEqual(stats["tag_contradictions"], 0)
+        self.assertEqual(joined(entries), chunk)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)

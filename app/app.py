@@ -272,6 +272,13 @@ class GenerationConfig(BaseModel):
     # clean run into an exit-3 degraded run, so it must be an explicit opt-in.
     # Measure a book first with tools/verify_attestation.py.
     require_attested_speakers: bool = False
+    # Adjacent-attribution-tag check (generate_script._tag_contradictions).
+    # DEFAULT FALSE for the same reason as require_attested_speakers: it spends
+    # retries and can turn a clean run into an exit-3 degraded run, so it is an
+    # explicit opt-in. It only ever flags and retries -- it never rewrites a
+    # label -- and it degrades to doing nothing on a non-English book, whose
+    # attribution tags carry none of the English speech verbs it recognizes.
+    check_attribution_tags: bool = False
     # Preceding source characters joined to the current chunk when attesting a
     # speaker name. None/unset = fall back to chunk_size, so the default tracks
     # the chunk size rather than pinning a second number that can disagree
