@@ -750,13 +750,27 @@ def main():
 
     print(f"Processing {len(selected_speakers)} speakers")
 
-    # Step 1: Pre-process with exact heuristic + high-confidence fuzzy matching
+    # Step 1: Pre-process with an EXACT normalized-name check only.
+    #
+    # A fuzzy pass (rapidfuzz at 0.8) used to run here and decided identity
+    # between two roster entries on similarity alone. That is the banned
+    # approach: measured on one book it merged 31 pairs, including NITA ->
+    # NITA'S DAD, KIT -> KIT'S MOTHER and ROSHAUN -> ROSHAUN'S FATHER -- a
+    # possessive relation scores high against the person it refers to while
+    # being a different character. It was also cyclic (SWALE -> TOM SWALE and
+    # TOM SWALE -> SWALE), so the winner depended on iteration order. Every
+    # merged speaker is SKIPPED here, so it silently left 28 of 65 speakers
+    # with no voice at all, ROSHAUN's 272 lines among them.
+    #
+    # Exact equality after normalization is the same rule the rest of the
+    # pipeline uses (speaker_canon.roster_key). Genuine aliases that differ by
+    # more than that are a human decision: suggest_aliases() offers them and
+    # nothing acts on them automatically.
     resolved_aliases = {}
     remaining_speakers = []
 
     for speaker in selected_speakers:
         existing_names = [n for n in _configured_speaker_names(voice_config) if n != speaker]
-        # Fast heuristic exact check
         norm_self = normalize_speaker_name(speaker)
         heuristic_alias = ""
         for candidate in existing_names:
@@ -764,12 +778,8 @@ def main():
                 heuristic_alias = candidate
                 break
 
-        if not heuristic_alias and existing_names:
-            # High-confidence fuzzy check
-            heuristic_alias = _resolve_to_canonical(speaker, existing_names, threshold=0.8)
-
         if heuristic_alias:
-            print(f"Fast heuristic/fuzzy alias detected: {speaker} -> {heuristic_alias}")
+            print(f"Exact-name alias detected: {speaker} -> {heuristic_alias}")
             resolved_aliases[speaker] = heuristic_alias
         else:
             remaining_speakers.append(speaker)
