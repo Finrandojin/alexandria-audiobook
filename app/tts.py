@@ -1,4 +1,5 @@
 import os
+import sys
 import re
 import json
 import threading
@@ -12,6 +13,58 @@ from speaker_canon import canonicalize, GENDERED_TITLES
 
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
+
+
+def _configure_ffmpeg():
+    """Point pydub at an ffmpeg binary it can't find by itself.
+
+    pydub only looks on PATH, and the final audiobook is exported as mp3, so a
+    missing ffmpeg fails at the LAST step -- after every line has been
+    synthesized. Found the expensive way: a full render's worth of work ending
+    in FileNotFoundError from AudioSegment.export.
+
+    Search order, all generic:
+      1. ALEXANDRIA_FFMPEG, for an operator who keeps ffmpeg somewhere of their
+         own choosing.
+      2. PATH, which is what pydub would have done anyway.
+      3. ``Library/bin`` under this interpreter's prefix and its base prefix --
+         the standard conda/miniforge layout on Windows. A conda-installed
+         ffmpeg lives there and is invisible to PATH inside a venv.
+
+    No path is hardcoded: every candidate is derived from the environment or
+    from the running interpreter, so this works for any conda-based install
+    rather than one machine's.
+    """
+    from pydub import utils as _pydub_utils
+
+    override = os.environ.get("ALEXANDRIA_FFMPEG", "").strip()
+    candidates = [override] if override else []
+    for tool in ("ffmpeg", "ffprobe"):
+        found = _pydub_utils.which(tool)
+        if found:
+            candidates.append(found)
+            break
+    exe = "ffmpeg.exe" if os.name == "nt" else "ffmpeg"
+    for base in (sys.prefix, getattr(sys, "base_prefix", sys.prefix)):
+        candidates.append(os.path.join(base, "Library", "bin", exe))
+        candidates.append(os.path.join(base, "bin", exe))
+
+    for candidate in candidates:
+        if candidate and os.path.isfile(candidate):
+            AudioSegment.converter = candidate
+            probe = os.path.join(os.path.dirname(candidate),
+                                 "ffprobe.exe" if os.name == "nt" else "ffprobe")
+            if os.path.isfile(probe):
+                AudioSegment.ffprobe = probe
+            return candidate
+    return None
+
+
+_FFMPEG_PATH = _configure_ffmpeg()
+if not _FFMPEG_PATH:
+    print("WARNING: no ffmpeg found (checked ALEXANDRIA_FFMPEG, PATH, and the "
+          "interpreter's Library/bin). WAV output will work; the final mp3 "
+          "export will fail. Set ALEXANDRIA_FFMPEG to an ffmpeg binary.")
 
 
 def sanitize_filename(name):
