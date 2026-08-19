@@ -35,15 +35,13 @@ def _configure_ffmpeg():
     from the running interpreter, so this works for any conda-based install
     rather than one machine's.
     """
-    from pydub import utils as _pydub_utils
-
     override = os.environ.get("ALEXANDRIA_FFMPEG", "").strip()
     candidates = [override] if override else []
-    for tool in ("ffmpeg", "ffprobe"):
-        found = _pydub_utils.which(tool)
-        if found:
-            candidates.append(found)
-            break
+    # shutil.which, not pydub.utils.which: a test that stubs out pydub would
+    # otherwise fail at import here, and the stdlib answers the same question.
+    found = shutil.which("ffmpeg")
+    if found:
+        candidates.append(found)
     exe = "ffmpeg.exe" if os.name == "nt" else "ffmpeg"
     for base in (sys.prefix, getattr(sys, "base_prefix", sys.prefix)):
         candidates.append(os.path.join(base, "Library", "bin", exe))
@@ -51,11 +49,16 @@ def _configure_ffmpeg():
 
     for candidate in candidates:
         if candidate and os.path.isfile(candidate):
-            AudioSegment.converter = candidate
-            probe = os.path.join(os.path.dirname(candidate),
-                                 "ffprobe.exe" if os.name == "nt" else "ffprobe")
-            if os.path.isfile(probe):
-                AudioSegment.ffprobe = probe
+            try:
+                AudioSegment.converter = candidate
+                probe = os.path.join(os.path.dirname(candidate),
+                                     "ffprobe.exe" if os.name == "nt" else "ffprobe")
+                if os.path.isfile(probe):
+                    AudioSegment.ffprobe = probe
+            except Exception:
+                # A stubbed/partial pydub (some test suites replace it) must not
+                # stop this module from importing.
+                pass
             return candidate
     return None
 
