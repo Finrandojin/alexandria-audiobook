@@ -303,6 +303,15 @@ class AppConfig(BaseModel):
     generation: Optional[GenerationConfig] = None
 
 class VoiceConfigItem(BaseModel):
+    # Same reason as the other config models in this file: without
+    # extra="allow", save_voice_config's model_dump() silently DROPS any key
+    # this model does not declare. That is not hypothetical -- "alias_of" was
+    # dropped on every save, so the Voices UI's alias dropdown appeared to do
+    # nothing and an alias set outside the UI was erased the next time the page
+    # autosaved. Declare new keys explicitly anyway, so they get a documented
+    # default.
+    model_config = ConfigDict(extra="allow")
+
     type: str = "custom"
     voice: Optional[str] = "Ryan"
     character_style: Optional[str] = ""
@@ -313,6 +322,13 @@ class VoiceConfigItem(BaseModel):
     adapter_id: Optional[str] = None
     adapter_path: Optional[str] = None
     description: Optional[str] = ""  # voice description (for design type)
+    # Point this speaker at another speaker's voice. tts.resolve_voice follows
+    # the chain (cycle-safe). None/unset means the speaker has its own voice;
+    # excluded from output when None so an unaliased entry stays clean.
+    alias_of: Optional[str] = None
+    # Set by generate_personas when a speaker got no persona and fell back to
+    # the narrator's voice, so the operator can find them in the Voices UI.
+    defaulted_from_narrator: Optional[bool] = None
 
 class ChunkUpdate(BaseModel):
     text: Optional[str] = None
@@ -1344,8 +1360,14 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 
     # Update current config with new data
     for voice_name, config in config_data.items():
-        # Convert Pydantic model to dict
-        current_config[voice_name] = config.model_dump()
+        # Convert Pydantic model to dict. Optional-by-absence keys (alias_of,
+        # defaulted_from_narrator) are excluded when None so clearing an alias
+        # in the UI removes the key rather than writing a null one.
+        entry = config.model_dump()
+        for optional_key in ("alias_of", "defaulted_from_narrator"):
+            if entry.get(optional_key) is None:
+                entry.pop(optional_key, None)
+        current_config[voice_name] = entry
 
     # Stamp the canonicalization generation this file's keys were written
     # under. Generation 2 is "canonicalize() preserves gender-marking titles",
