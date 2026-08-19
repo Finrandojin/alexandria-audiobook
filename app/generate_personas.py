@@ -787,6 +787,16 @@ def main():
     remaining_speakers = []
 
     for speaker in selected_speakers:
+        # An alias the operator already set is a decision, not a candidate.
+        # Honour it and skip: generating a persona would overwrite the entry
+        # and give this speaker its own voice again.
+        preset = (voice_config.get(speaker) or {}).get("alias_of") \
+            or (voice_config.get(speaker) or {}).get("alias")
+        if preset:
+            print(f"Existing alias kept: {speaker} -> {preset}")
+            resolved_aliases[speaker] = preset
+            continue
+
         existing_names = [n for n in _configured_speaker_names(voice_config) if n != speaker]
         norm_self = normalize_speaker_name(speaker)
         heuristic_alias = ""
@@ -925,7 +935,13 @@ def main():
         for speaker in selected_speakers:
             if speaker == NARRATOR_KEY or speaker in resolved_aliases:
                 continue
-            if _entry_has_voice(voice_config.get(speaker)):
+            existing = voice_config.get(speaker) or {}
+            # An operator-set alias points deliberately at another speaker's
+            # voice. It has no voice of its own by design, and must not be
+            # mistaken for a persona failure and overwritten.
+            if existing.get("alias_of") or existing.get("alias"):
+                continue
+            if _entry_has_voice(existing):
                 continue
             entry = dict(narrator_entry)
             entry["defaulted_from_narrator"] = True
