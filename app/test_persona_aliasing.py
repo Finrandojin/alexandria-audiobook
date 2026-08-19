@@ -70,11 +70,38 @@ def test_merging_is_symmetric():
               merges(a, b) == merges(b, a))
 
 
+
+def test_narrator_default_is_not_an_alias():
+    """A speaker with no persona defaults to the NARRATOR's voice settings but
+    KEEPS its own entry. An alias_of would fold it into NARRATOR, and nothing
+    in this pipeline can split a merged entry back apart."""
+    from generate_personas import _entry_has_voice
+
+    narrator = {"type": "clone", "voice": "Ryan", "ref_audio": "designed_voices/n.wav"}
+    check("default: narrator entry counts as having a voice", _entry_has_voice(narrator))
+    check("default: missing entry has no voice", not _entry_has_voice(None))
+    check("default: empty entry has no voice", not _entry_has_voice({}))
+    check("default: entry with only blank fields has no voice",
+          not _entry_has_voice({"voice": "  ", "ref_audio": ""}))
+    check("default: an aliased entry is not a usable voice",
+          not _entry_has_voice({"alias_of": "NARRATOR", "voice": "Ryan"}))
+
+    # The defaulting step copies settings, so the speaker still has its own key
+    # and can be overridden; it must not gain an alias_of.
+    entry = dict(narrator)
+    entry["defaulted_from_narrator"] = True
+    check("default: defaulted entry carries no alias_of", "alias_of" not in entry)
+    check("default: defaulted entry is usable for synthesis", _entry_has_voice(entry))
+    check("default: defaulted entry is marked for the operator",
+          entry.get("defaulted_from_narrator") is True)
+
+
 for fn in [test_relation_is_not_the_person,
            test_shared_surname_is_not_the_same_person,
            test_similar_but_distinct_names_stay_apart,
            test_exact_after_normalization_still_merges,
-           test_merging_is_symmetric]:
+           test_merging_is_symmetric,
+           test_narrator_default_is_not_an_alias]:
     fn()
 
 print(f"\n{'FAILED: ' + ', '.join(failures) if failures else 'All persona-aliasing checks passed'}")

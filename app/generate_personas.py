@@ -13,6 +13,23 @@ from utils import atomic_json_write as _atomic_json_write
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 
 
+# Canonical narrator label. Matches generate_script.NARRATOR; casing is
+# load-bearing across the pipeline.
+NARRATOR_KEY = "NARRATOR"
+
+
+def _entry_has_voice(entry):
+    """True if a voice_config entry can actually synthesize something.
+
+    A cloned/designed entry carries ref_audio; a built-in one carries a voice
+    name. An entry that is missing, empty, or aliased away has neither.
+    """
+    if not isinstance(entry, dict) or entry.get("alias_of"):
+        return False
+    return bool(str(entry.get("ref_audio") or "").strip()
+                or str(entry.get("voice") or "").strip())
+
+
 def extract_json_object(text):
     # Find first JSON object in text
     start = text.find('{')
@@ -891,6 +908,41 @@ def main():
 
         except Exception as e:
             print(f"Unhandled error for {speaker}: {e}")
+
+    # Any speaker still without a voice gets the NARRATOR's, as a DEFAULT rather
+    # than an alias: it keeps its own voice_config key, so the operator can
+    # override it in the Voices UI. An alias would fold the entry into NARRATOR,
+    # and nothing in this pipeline can split a merged entry back apart.
+    #
+    # Reading a character's lines in the narrator's voice is the safe failure for
+    # an audiobook -- it is what an unlabelled span already does -- whereas no
+    # entry at all means the renderer falls through to whatever default voice it
+    # happens to have. Loud, not silent: a persona failure on a major character
+    # is worth seeing before rendering, not after.
+    narrator_entry = voice_config.get(NARRATOR_KEY) or {}
+    defaulted = []
+    if _entry_has_voice(narrator_entry):
+        for speaker in selected_speakers:
+            if speaker == NARRATOR_KEY or speaker in resolved_aliases:
+                continue
+            if _entry_has_voice(voice_config.get(speaker)):
+                continue
+            entry = dict(narrator_entry)
+            entry["defaulted_from_narrator"] = True
+            voice_config[speaker] = entry
+            defaulted.append(speaker)
+
+    if defaulted:
+        print("!" * 58)
+        print(f"{len(defaulted)} speaker(s) got no persona and now default to the "
+              f"NARRATOR's voice:")
+        print("  " + ", ".join(sorted(defaulted)))
+        print("They keep their own voice_config entry -- assign a voice in the "
+              "Voices UI to override.")
+        print("!" * 58)
+    elif not _entry_has_voice(narrator_entry):
+        print("Note: NARRATOR has no usable voice entry, so no default could be "
+              "applied to speakers that failed persona generation.")
 
     # Persist voice_config
     try:
