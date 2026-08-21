@@ -55,6 +55,16 @@ def _configure_ffmpeg():
                                      "ffprobe.exe" if os.name == "nt" else "ffprobe")
                 if os.path.isfile(probe):
                     AudioSegment.ffprobe = probe
+                # Setting the attributes is not enough. pydub calls its own
+                # which("ffprobe") whenever it LOADS a file (mediainfo_json),
+                # ignoring AudioSegment.ffprobe -- so exporting worked while
+                # reading an mp3 back still died with FileNotFoundError. That
+                # is the merge path (AudioSegment.from_file per voiceline), so
+                # it would have failed only after every chunk was synthesized.
+                # Putting the directory on PATH fixes every lookup pydub makes.
+                bin_dir = os.path.dirname(candidate)
+                if bin_dir not in os.environ.get("PATH", "").split(os.pathsep):
+                    os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
             except Exception:
                 # A stubbed/partial pydub (some test suites replace it) must not
                 # stop this module from importing.
