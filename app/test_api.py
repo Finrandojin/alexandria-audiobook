@@ -1556,6 +1556,42 @@ def test_word_coverage_exact_one_across_failure_modes():
         raise TestFailure("WORD COVERAGE INVARIANT (== 1.0) VIOLATED: " + "; ".join(bad))
 
 
+def test_no_character_entry_mixes_quotation_and_narration():
+    """INVARIANT (one entry, one kind of text): the renderer gives an entry a
+    single voice, so a character-voiced entry holding both a quotation and the
+    narration around it means the narration is spoken by the character.
+
+    Measured on one 8,083-entry artifact before the fix: 13,337 chars of
+    narration read in a character voice, 73 entries mixing the two kinds. The
+    model is simulated at its worst here -- EVERY span, quoted or not, labelled
+    with the same character -- which is exactly how attribution tags ("said
+    Marcus") got swallowed into the preceding line.
+    """
+    _require_pipeline_modules()
+    from span_tokenizer import tokenize as _tokenize
+
+    bad = []
+    for name, chunk in PIPELINE_FIXTURES.items():
+        labels = [
+            {"id": span.id, "speaker": "ELENA", "role": "dialogue", "instruct": "Flat."}
+            for span in _tokenize(chunk)
+        ]
+        entries, _stats = _sc_run_chunk(
+            FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        if "".join(entry["text"] for entry in entries) != chunk:
+            bad.append(f"{name}: text is no longer byte-identical")
+        for entry in entries:
+            if entry["speaker"] == "NARRATOR":
+                continue
+            kinds = {span.kind for span in _tokenize(entry["text"])
+                     if entry["text"][span.start:span.end].strip()}
+            if len(kinds) > 1:
+                bad.append(f"{name}: character entry mixes {sorted(kinds)}: {entry['text']!r}")
+    if bad:
+        raise TestFailure("ONE-ENTRY-ONE-KIND INVARIANT VIOLATED: " + "; ".join(bad))
+
+
 def _legacy_split_into_chunks(text, max_size=3000):
     """The pre-fix chunker, verbatim, kept ONLY so the test below can prove the
     byte-fidelity assertion is failable (it drops a paragraph break at every
@@ -1920,6 +1956,7 @@ def run_offline_invariant_tests():
     run_test("epub_spine_item_under_200_chars_would_be_flagged",
               test_epub_spine_item_under_200_chars_would_be_flagged)
     run_test("word_coverage_exact_one_across_failure_modes", test_word_coverage_exact_one_across_failure_modes)
+    run_test("no_character_entry_mixes_quotation_and_narration", test_no_character_entry_mixes_quotation_and_narration)
     run_test("chunking_is_byte_lossless_over_source", test_chunking_is_byte_lossless_over_source)
     run_test("word_coverage_digits_and_abbreviations_survive_verbatim",
               test_word_coverage_digits_and_abbreviations_survive_verbatim)

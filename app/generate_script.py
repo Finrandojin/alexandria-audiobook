@@ -1172,6 +1172,15 @@ def _gate_speaker(canonical, attest_window, roster_index, source_words,
         return canonical, GATE_ESTABLISHED
     verdict = _attestation_verdict(canonical, attest_window, roster_index)
     if verdict == UNATTESTED:
+        # REJECTED WHEN THE REST OF THE GATE CANNOT SAVE IT. A "rescue the
+        # label when its refuted tokens are words the book uses somewhere" rule
+        # was tried here and reverted: checking tokens INDIVIDUALLY against the
+        # whole book is weaker than the window test it bypasses, so it admitted
+        # fabricated names built from real words -- TRANSFORMED PIG (the book
+        # has "Transcendent Pig"; "transformed pig" appears zero times) and the
+        # bare prose word DRAINED, each becoming a character with its own
+        # voice. That is the recombination the phrase-adjacency rule in
+        # attest_label exists to refuse, so a second path must not re-admit it.
         repaired = repair_speaker(
             canonical, [attest_window] if attest_window else [],
             roster_index or {}, source_words or set())
@@ -1435,6 +1444,7 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
             range), OR
         (2) attest_speaker() over ``attest_window`` does not return UNATTESTED.
 
+
     UNVERIFIABLE is ACCEPTED and counted separately: it means the check does
     not apply to this text (a title-only label, or a name present but not at a
     word boundary, as in unsegmented scripts), and rejecting on it would
@@ -1678,16 +1688,83 @@ def resolve_span_labels(spans, labels, source=None, roster=None,
 
 
 def _merge_same_speaker(groups):
-    """Collapse adjacent [speaker, text, instruct] groups sharing a speaker."""
+    """Collapse adjacent [speaker, text, instruct, kind] groups sharing a speaker.
+
+    KIND-AWARE, and that is the point. Two adjacent QUOTED spans by one
+    character are one continuous line and merging them is pure win (one TTS
+    call instead of two). A QUOTED span merged with an adjacent UNQUOTED one is
+    a different animal: the entry now holds a quotation AND the narration
+    around it, and the renderer gives the whole entry ONE voice, so the
+    narration is spoken by the character. So a non-NARRATOR group only absorbs
+    a group of the SAME kind; NARRATOR merges freely, since every kind of text
+    a narrator reads is read in the narrator voice anyway.
+
+    A merged group keeps the kind of its first member, which is well defined
+    precisely because only same-kind groups merge (NARRATOR's kind is never
+    consulted again).
+    """
     merged = []
-    for speaker, text, instruct in groups:
-        if merged and merged[-1][0] == speaker:
+    for speaker, text, instruct, kind in groups:
+        if merged and merged[-1][0] == speaker and (
+            speaker == NARRATOR or merged[-1][3] == kind
+        ):
             merged[-1][1] += text
             if merged[-1][2] is None:
                 merged[-1][2] = instruct
         else:
-            merged.append([speaker, text, instruct])
+            merged.append([speaker, text, instruct, kind])
     return merged
+
+
+def _narrate_attribution_spans(resolved):
+    """Force an UNQUOTED span to NARRATOR when it sits immediately beside a
+    QUOTED span carrying the SAME character label.
+
+    WHY THIS AND NOT "UNQUOTED IMPLIES NARRATOR". The classifier sometimes
+    extends a character label off the end of the quotation and onto the
+    attribution tag or action beat next to it ("said Marcus", " Nita said.").
+    That text is narration and must be narrated. But a blanket
+    unquoted-implies-narrator rule is WRONG and was rejected before: books
+    legitimately contain unquoted character speech -- telepathy, silent speech,
+    an animal's voice, interior monologue -- written with no quote marks at
+    all. Measured on one 8,083-entry artifact: of 65 character-voiced entries
+    containing no quotation mark, roughly 29 were genuine unquoted speech. A
+    blanket rule destroys those.
+
+    ADJACENCY IS THE ONLY STRUCTURAL SIGNAL THAT SEPARATES THEM, and it only
+    separates one of the two cases. An unquoted span pressed directly against a
+    quotation the model gave the same speaker is that quotation's tag or beat;
+    a STANDALONE unquoted span labelled with a character has no structural
+    tell distinguishing "narration the model mislabelled" from "unquoted speech
+    the author wrote". Nothing here guesses at the standalone case: it is left
+    with its label, and the damage is bounded instead by _merge_same_speaker
+    refusing to let it swallow an adjacent quotation.
+
+    A whitespace-only span between the two blocks adjacency, because it is a
+    paragraph break -- the same bound _closing_tag_text_by_id draws for the
+    same reason. Whitespace spans already resolve to NARRATOR, so this falls
+    out of the speaker comparison for free.
+
+    MEASURED on the artifact above: 13,337 chars of narration were read in a
+    character voice; this rule and the kind-aware merge together bring that to
+    8,220 (-38%) and remove every entry that mixes quotation with narration
+    under a character voice (73 -> 0), for +98 entries (+1.2%).
+
+    Text is untouched (contract 2/4) -- only the speaker label changes.
+    """
+    narrated = []
+    for index, (span, speaker, instruct) in enumerate(resolved):
+        if speaker != NARRATOR and span.kind == UNQUOTED:
+            neighbours = (
+                resolved[index - 1] if index else None,
+                resolved[index + 1] if index + 1 < len(resolved) else None,
+            )
+            if any(other and other[0].kind == QUOTED and other[1] == speaker
+                   for other in neighbours):
+                speaker = NARRATOR
+                instruct = None
+        narrated.append((span, speaker, instruct))
+    return narrated
 
 
 def _absorb_whitespace_groups(groups):
@@ -1698,6 +1775,10 @@ def _absorb_whitespace_groups(groups):
     entry it is an unspeakable NARRATOR line that the editor UI can never
     finish rendering -- hundreds per book. It belongs on the PRECEDING entry
     (or the following one when it comes first), which changes no bytes.
+
+    The absorbing group keeps its own kind. That matters: it is what stops the
+    second _merge_same_speaker pass from using an absorbed paragraph break as a
+    bridge between a character's quotation and the narration after it.
     """
     absorbed = []
     for group in groups:
@@ -1720,9 +1801,15 @@ def build_entries(resolved, source):
     Text is the exact concatenation of the group's source slices: quotes,
     attribution tags and whitespace all survive untouched. No entry is ever
     whitespace-only (see _absorb_whitespace_groups).
+
+    Merging is quoted/unquoted aware so that no character-voiced entry ends up
+    holding both a quotation and the narration around it -- see
+    _merge_same_speaker and _narrate_attribution_spans for the evidence. Only
+    speaker labels move; not one byte of text changes.
     """
     groups = _merge_same_speaker(
-        [[speaker, span.text(source), instruct] for span, speaker, instruct in resolved]
+        [[speaker, span.text(source), instruct, span.kind]
+         for span, speaker, instruct in _narrate_attribution_spans(resolved)]
     )
     # Absorbing a whitespace group can make two same-speaker groups adjacent,
     # so merge once more afterwards.
@@ -1737,7 +1824,7 @@ def build_entries(resolved, source):
                 else DEFAULT_CHARACTER_INSTRUCT
             ),
         }
-        for speaker, text, instruct in groups
+        for speaker, text, instruct, _kind in groups
     ]
 
 
@@ -2528,6 +2615,7 @@ def main():
     total_placeholders = 0
     total_unattested = 0
     total_unverifiable = 0
+    source_word_names = {}
     total_repaired = 0
     total_repairs_refused = 0
     total_contradicted = 0
@@ -2617,6 +2705,8 @@ def main():
               "(name absent from the text near its own lines)")
         print(f"  Unverifiable speakers accepted: {total_unverifiable} "
               "(attestation does not apply to this text)")
+        for name, count in sorted(source_word_names.items()):
+            print(f"    - \"{name}\" ({count} span(s))")
         # Loud by design (contract 7): these labels say a name the model never
         # emitted. Not a degradation -- no voice was lost -- but an operator
         # must be able to see, and audit, every rewrite.

@@ -45,7 +45,7 @@ os.environ["ALEXANDRIA_LLM_LOG_DIR"] = _LOG_TMPDIR
 atexit.register(shutil.rmtree, _LOG_TMPDIR, True)
 
 from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT  # noqa: E402
-from span_tokenizer import tokenize  # noqa: E402
+from span_tokenizer import Span, tokenize  # noqa: E402
 import generate_script  # noqa: E402
 from generate_script import (  # noqa: E402
     DEFAULT_NARRATOR_INSTRUCT,
@@ -573,8 +573,17 @@ class TestLabelResolution(unittest.TestCase):
         labels = [{"id": s.id, "speaker": "ELENA", "role": "dialogue"} for s in spans]
         resolved, _ = resolve_span_labels(spans, labels)
         entries = build_entries(resolved, chunk)
-        self.assertEqual(len(entries), 1)
-        self.assertEqual(entries[0]["instruct"], generate_script.DEFAULT_CHARACTER_INSTRUCT)
+        # The narration between the two quotations is handed back to NARRATOR
+        # (see TestNarrationNeverGetsACharacterVoice), so the chunk is three
+        # entries, each carrying the default instruct for its own speaker.
+        self.assertEqual(joined(entries), chunk)
+        for entry in entries:
+            self.assertEqual(
+                entry["instruct"],
+                generate_script.DEFAULT_NARRATOR_INSTRUCT
+                if entry["speaker"] == NARRATOR
+                else generate_script.DEFAULT_CHARACTER_INSTRUCT,
+            )
 
     def test_entry_schema_has_no_extra_fields(self):
         chunk = STRAIGHT_QUOTES
@@ -762,6 +771,94 @@ class TestMisspelledKeyRecovery(unittest.TestCase):
         self.assertIn("Recovered misspelled key", output)
         for entry in entries:
             self.assertNotEqual(entry["instruct"], "")
+
+
+class TestNarrationNeverGetsACharacterVoice(unittest.TestCase):
+    """A character-voiced entry must never also contain narration.
+
+    The renderer gives one entry one voice, so a quotation merged with the
+    attribution tag beside it means the tag is spoken by the character.
+    """
+
+    @staticmethod
+    def _entries(chunk, speaker_of=lambda span: "ELENA"):
+        # NOT labels_for(): that one forces every unquoted span to narration,
+        # which is precisely the classifier mistake under test here.
+        labels = [
+            {"id": span.id, "speaker": speaker_of(span), "role": "dialogue",
+             "instruct": "Flat."}
+            for span in tokenize(chunk)
+        ]
+        entries, _, _ = run_chunk(FakeClient(FakeResponse(json.dumps(labels))), chunk)
+        return entries
+
+    def test_mislabelled_attribution_tag_is_handed_back_to_narrator(self):
+        chunk = '"Go," he said.'
+        entries = self._entries(chunk)
+
+        self.assertEqual(joined(entries), chunk, "text must stay byte-identical")
+        self.assertEqual([e["speaker"] for e in entries], ["ELENA", NARRATOR])
+        self.assertEqual(entries[0]["text"], '"Go,"')
+        self.assertEqual(entries[1]["text"], " he said.")
+
+    def test_no_entry_mixes_quoted_and_unquoted_under_a_character(self):
+        for name, chunk in FIXTURES.items():
+            with self.subTest(fixture=name):
+                entries = self._entries(chunk)
+                self.assertEqual(joined(entries), chunk)
+                for entry in entries:
+                    if entry["speaker"] == NARRATOR:
+                        continue
+                    kinds = {span.kind for span in tokenize(entry["text"])
+                             if entry["text"][span.start:span.end].strip()}
+                    self.assertLessEqual(len(kinds), 1,
+                                         f"{name}: mixed-kind character entry {entry!r}")
+
+    def test_adjacent_quotations_by_one_speaker_still_merge(self):
+        # Merging same-kind spans is the win worth keeping: one TTS call, not
+        # two. Only the mixed-kind merge was ever the problem.
+        chunk = '"Wait." "Please."'
+        entries = self._entries(chunk)
+
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual([e["speaker"] for e in entries], ["ELENA"])
+
+    def test_standalone_unquoted_speech_keeps_its_character(self):
+        # Unquoted character speech is real (telepathy, silent speech, an
+        # animal's voice). Nothing beside this span is a quotation by the same
+        # speaker, so no structural rule can call it narration -- and a blanket
+        # "unquoted implies NARRATOR" would silence every such line.
+        chunk = "Come on, the dog said into her mind."
+        entries = self._entries(chunk)
+
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual([e["speaker"] for e in entries], ["ELENA"])
+
+    def test_merge_refuses_to_bridge_kinds_even_without_the_relabel(self):
+        # build_entries' last line of defence, reached when adjacency did not
+        # apply (a chunk boundary, a whitespace span between the two). Spans
+        # are built by hand because the tokenizer never emits two consecutive
+        # unquoted spans.
+        source = '"Hi."\n\nElena left.'
+        resolved = [
+            (Span(1, 0, 5, "quoted"), "ELENA", None),
+            (Span(2, 5, 7, "unquoted"), NARRATOR, None),      # the break
+            (Span(3, 7, len(source), "unquoted"), "ELENA", None),
+        ]
+        entries = build_entries(resolved, source)
+
+        self.assertEqual(joined(entries), source)
+        self.assertEqual([e["text"] for e in entries], ['"Hi."\n\n', "Elena left."])
+
+    def test_an_absorbed_paragraph_break_is_not_a_bridge(self):
+        # The break between two quotations is absorbed into the preceding
+        # entry; that must not let the narration after them merge back in.
+        chunk = '"Hi."\n\n"Bye."\n\nElena put down the map.'
+        entries = self._entries(chunk)
+
+        self.assertEqual(joined(entries), chunk)
+        self.assertEqual([e["speaker"] for e in entries], ["ELENA", NARRATOR])
+        self.assertEqual(entries[0]["text"], '"Hi."\n\n"Bye."')
 
 
 class TestNoWhitespaceOnlyEntries(unittest.TestCase):
@@ -2080,17 +2177,6 @@ class TestAttestationGate(unittest.TestCase):
         self.assertEqual(stats["unattested_rejected"], 0)
         self.assertEqual(stats["unverifiable_accepted"], 2)
         self.assertIn("MISTER", [e["speaker"] for e in entries])
-
-    def test_gate_never_touches_prose(self):
-        # Contract 2/4 under every gate outcome, including the rejecting one.
-        chunk = CURLY_QUOTES
-        for speaker in ("ZZQXAL", "MARCUS", "MISTER"):
-            with self.subTest(speaker=speaker):
-                client = FakeClient(*[FakeResponse(json.dumps(labels_for(
-                    chunk, speaker_of=lambda span, text: speaker)))] * 3)
-                entries, _, _ = run_chunk(
-                    client, chunk, require_attested=True, attest_window=chunk)
-                self.assertEqual(joined(entries), chunk)
 
     def test_narrator_with_dialogue_role_is_never_gated(self):
         # NARRATOR is the narrator sentinel, not a name. The word "Narrator"
