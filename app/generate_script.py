@@ -2534,16 +2534,30 @@ def main():
     # Optional, best-effort serving-context-window request. Left as None when
     # unset so the outgoing request is unchanged for existing users.
     num_ctx = generation_config.get("num_ctx")
-    # Attestation gate. DEFAULT OFF: it changes which labels survive and can
-    # turn an exit-0 run into exit 3 (degraded), so it is opt-in rather than a
-    # behaviour change existing users get silently. Measure a book first with
-    # tools/verify_attestation.py, which reports the would-be rejection rate
-    # without running the model at all.
-    require_attested = bool(generation_config.get("require_attested_speakers", False))
-    # Attribution-tag agreement check. DEFAULT OFF for the same reason as the
-    # attestation gate: it spends extra retries and can turn an exit-0 run into
-    # exit 3. Independent of that gate -- a contradicted label is usually a
-    # perfectly attested name, just the wrong one -- so it has its own key.
+    # Attestation gate. DEFAULT ON: it refuses a label the book does not
+    # support near its own lines, which is what stops the classifier inventing
+    # a character out of words the prose supplies. The cost is real and worth
+    # knowing: a real speaker named with a descriptor the book does not use
+    # nearby is refused, and those lines are NARRATED -- 1 span in one run of a
+    # novel, 21 in another, the variance being the model's rather than the
+    # gate's. Rejections are named by chunk and span. Set false to accept every
+    # label the model offers, fabricated ones included. Measure a book first
+    # with tools/verify_attestation.py, which reports the would-be rejection
+    # rate without running the model at all. This default must match
+    # GenerationConfig in app.py -- the UI writes config.json but this
+    # subprocess reads it directly, so a disagreement silently changes
+    # behaviour depending on whether the key was ever saved.
+    require_attested = bool(generation_config.get("require_attested_speakers", True))
+    # Attribution-tag agreement check. DEFAULT ON: the book names the speaker
+    # in the narration beside the line and nothing used to read it -- 5.4% of
+    # checkable pairs carried a label their own tag contradicted, on a run that
+    # reported success; with this on, 0.90%. It costs retries (84 -> 143 on one
+    # book) and reports survivors by chunk and span instead of passing them
+    # silently. Independent of the attestation gate -- a contradicted label is
+    # usually a perfectly attested name, just the wrong one -- so it keeps its
+    # own key. This default must match GenerationConfig in app.py: the UI writes
+    # config.json but this subprocess reads it directly, so a disagreement here
+    # silently changes behaviour depending on whether the key was ever saved.
     #
     # The English speech-verb lexicon it needs is NOT config-exposed. It is a
     # LANGUAGE property, not a per-book tunable, and a per-book verb list is
@@ -2551,7 +2565,7 @@ def main():
     # would produce false accusations, which is the one failure this check must
     # not have. A non-English book needs no setting: no verb matches, so the
     # check finds nothing and costs nothing.
-    check_tags = bool(generation_config.get("check_attribution_tags", False))
+    check_tags = bool(generation_config.get("check_attribution_tags", True))
     # How much preceding source text joins the current chunk as the
     # attestation window. Defaults to one chunk, so a name introduced in the
     # sentence before the chunk boundary still attests. The failure direction

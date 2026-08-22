@@ -268,17 +268,35 @@ class GenerationConfig(BaseModel):
     # excluded from output when None (see save_config).
     num_ctx: Optional[int] = None
     # Attestation gate for speaker labels (generate_script.resolve_span_labels).
-    # DEFAULT FALSE: enabling it changes which labels survive and can turn a
-    # clean run into an exit-3 degraded run, so it must be an explicit opt-in.
-    # Measure a book first with tools/verify_attestation.py.
-    require_attested_speakers: bool = False
+    # DEFAULT TRUE. It refuses a label the book does not support near its own
+    # lines, which is what stops the classifier inventing a character by
+    # recombining words the prose supplies -- measured on one novel: 5
+    # fabricated labels refused, including a plausible full personal name
+    # assembled from two different characters' name parts, while all 16
+    # legitimate multi-token labels passed.
+    #
+    # THE COST, STATED PLAINLY: when the model names a real speaker with a
+    # descriptor the book does not use near that line ("FATHER" beside prose
+    # that only ever says "her dad"), the label is refused and those lines are
+    # NARRATED. Measured across two runs of the same book that cost 1 span in
+    # one run and 21 in the other -- the variance is the model's, not the
+    # gate's. Rejections are named by chunk and span, so they are auditable.
+    # Set false to accept every label the model offers, fabricated ones
+    # included. Measure a book first with tools/verify_attestation.py.
+    require_attested_speakers: bool = True
     # Adjacent-attribution-tag check (generate_script._tag_contradictions).
-    # DEFAULT FALSE for the same reason as require_attested_speakers: it spends
-    # retries and can turn a clean run into an exit-3 degraded run, so it is an
-    # explicit opt-in. It only ever flags and retries -- it never rewrites a
-    # label -- and it degrades to doing nothing on a non-English book, whose
-    # attribution tags carry none of the English speech verbs it recognizes.
-    check_attribution_tags: bool = False
+    # DEFAULT TRUE. The book names the speaker in the narration beside the
+    # line, and nothing used to read it: measured 60 of 1,117 checkable pairs
+    # (5.4%) carried a label their own attribution tag contradicted, on a run
+    # that reported success. With the check on, that fell to 0.90%.
+    #
+    # It only ever flags and retries -- it never rewrites a label. Cost is
+    # retries: 84 -> 143 on one book, so generation is slower, and surviving
+    # contradictions are reported by chunk and span (exit 3) rather than
+    # passing silently. On a non-English book it degrades to doing nothing
+    # rather than misfiring, since the tags carry none of the English speech
+    # verbs it recognizes.
+    check_attribution_tags: bool = True
     # Preceding source characters joined to the current chunk when attesting a
     # speaker name. None/unset = fall back to chunk_size, so the default tracks
     # the chunk size rather than pinning a second number that can disagree
