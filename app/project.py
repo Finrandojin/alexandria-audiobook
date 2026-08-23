@@ -554,7 +554,28 @@ class ProjectManager:
         )
 
     def _load_chunks_with_audio(self):
-        """Load chunks and pair each with its AudioSegment. Returns list of (chunk, segment)."""
+        """Load chunks and pair each with its AudioSegment. Returns list of (chunk, segment).
+
+        The format is passed explicitly instead of letting pydub probe for it.
+        A bare ``from_file()`` calls ``mediainfo_json()``, which spawns an
+        ffprobe subprocess PER FILE -- on a book-length script that is one
+        subprocess per line, ~8,700 of them, purely to re-discover that a file
+        this pipeline wrote itself is the format its own extension says.
+
+        That probe is also where a merge hung. Observed on Windows: the reader
+        thread inside ``subprocess.communicate()`` waited forever on an ffprobe
+        that had already exited but whose pipe handles were never released --
+        the process showed as a zombie, unkillable, so the whole merge stalled
+        with no timeout and no log line after every chunk had been synthesized.
+        The same file parsed in milliseconds from a shell and had merged
+        successfully in an earlier run, so the fault is the subprocess churn,
+        not the audio.
+
+        pydub skips the probe entirely when a codec is given (``if codec: info
+        = None`` in AudioSegment.from_file), so naming both removes the whole
+        class of failure and halves the subprocesses a merge spawns. Falls back
+        to the probing path for an unrecognized extension rather than guessing.
+        """
         chunks = self.load_chunks()
         result = []
         for chunk in chunks:
@@ -564,8 +585,12 @@ class ProjectManager:
             full_path = os.path.join(self.root_dir, path)
             if not os.path.exists(full_path):
                 continue
+            extension = os.path.splitext(full_path)[1].lstrip(".").lower()
+            load_kwargs = {}
+            if extension in ("mp3", "wav", "flac", "ogg"):
+                load_kwargs = {"format": extension, "codec": extension}
             try:
-                segment = AudioSegment.from_file(full_path)
+                segment = AudioSegment.from_file(full_path, **load_kwargs)
                 result.append((chunk, segment))
             except Exception as e:
                 print(f"Error loading audio segment {path}: {e}")
