@@ -12,3 +12,5 @@ transformers==4.57.3
 peft==0.18.1
 python-multipart==0.0.27
 aiofiles==24.1.0
+rapidfuzz==3.14.5
+wetext==0.1.6

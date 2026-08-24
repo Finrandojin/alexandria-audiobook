@@ -8,7 +8,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional, Dict
 import re
 import time
@@ -28,6 +28,9 @@ from default_prompts import load_default_prompts
 from review_prompts import load_review_prompts
 from persona_prompts import load_persona_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
+from speaker_canon import (
+    remember_in_roster, roster_key, suggest_aliases, attest_label,
+)
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -193,11 +196,40 @@ async def get_system_stats():
 
 # Data Models
 class LLMConfig(BaseModel):
+    # extra="allow" to match GenerationConfig/TTSConfig/AppConfig. Without it
+    # this section silently DROPPED any key it did not declare on save, which
+    # is the bug class already fixed for the other sections.
+    model_config = ConfigDict(extra="allow")
+
     base_url: str
     api_key: str
     model_name: str
+    # Per-request timeout, in seconds, for LLM calls. None/unset = use the
+    # OpenAI SDK default (600s), so existing installs are unchanged.
+    #
+    # Why this is configurable: local inference speed varies by orders of
+    # magnitude, and the SDK default is a hard ceiling with no override. On a
+    # measured local setup (27.9B Q4 model, 8GB card, so most weights in system
+    # RAM) generation ran at 9.5 tok/s, which means a 8192-token completion
+    # needs ~861s and dies at 600s having produced nothing usable. Capping
+    # generation.max_tokens is the better primary fix, but a machine slow
+    # enough still needs the ceiling raised.
+    timeout: Optional[float] = None
+    # Reasoning suppression for "thinking" models, passed through to the API as
+    # the standard OpenAI `reasoning_effort` field. None/unset = send nothing.
+    #
+    # Why this exists: a reasoning model can spend its ENTIRE completion budget
+    # thinking and return an empty message body, which yields zero labels and
+    # narrates every span in the chunk. Measured on Ollama /v1 with a 27.9B
+    # thinking model: 4096 completion tokens, empty content, three attempts in a
+    # row. reasoning_effort="none" removed reasoning entirely (498 chars -> 0,
+    # 118 completion tokens -> 63 on the same probe); Ollama's native
+    # `"think": false` was silently IGNORED on the /v1 path.
+    reasoning_effort: Optional[str] = None
 
 class TTSConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     mode: str = "local"  # "local" or "external"
     url: str = "http://127.0.0.1:7860"  # external mode only
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
@@ -212,8 +244,11 @@ class TTSConfig(BaseModel):
     batch_group_by_type: bool = False  # group chunks by voice type for efficient batching
     pause_between_speakers_ms: int = 500  # silence (ms) between different speakers during merge
     pause_same_speaker_ms: int = 250  # silence (ms) when same speaker continues during merge
+    enable_nemo_normalization: bool = False  # run NeMo text normalization before TTS
 
 class GenerationConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     chunk_size: int = 3000
     max_tokens: int = 4096
     temperature: float = 0.6
@@ -223,6 +258,50 @@ class GenerationConfig(BaseModel):
     presence_penalty: float = 0.0
     banned_tokens: List[str] = []
     merge_narrators: bool = False
+    max_context_roster_names: int = 50  # cap on named characters included in LLM context
+    review_batch_size: int = 25  # entries per review batch
+    review_batch_char_budget: int = 12000  # char budget per review batch
+    # Server context window (Ollama num_ctx) to request. None/unset = do not
+    # send an options.num_ctx override; the server's own default is used.
+    # Declaring a concrete default here would start forcing a context window
+    # on every user the moment they save the config, so keep it Optional and
+    # excluded from output when None (see save_config).
+    num_ctx: Optional[int] = None
+    # Attestation gate for speaker labels (generate_script.resolve_span_labels).
+    # DEFAULT TRUE. It refuses a label the book does not support near its own
+    # lines, which is what stops the classifier inventing a character by
+    # recombining words the prose supplies -- measured on one novel: 5
+    # fabricated labels refused, including a plausible full personal name
+    # assembled from two different characters' name parts, while all 16
+    # legitimate multi-token labels passed.
+    #
+    # THE COST, STATED PLAINLY: when the model names a real speaker with a
+    # descriptor the book does not use near that line ("FATHER" beside prose
+    # that only ever says "her dad"), the label is refused and those lines are
+    # NARRATED. Measured across two runs of the same book that cost 1 span in
+    # one run and 21 in the other -- the variance is the model's, not the
+    # gate's. Rejections are named by chunk and span, so they are auditable.
+    # Set false to accept every label the model offers, fabricated ones
+    # included. Measure a book first with tools/verify_attestation.py.
+    require_attested_speakers: bool = True
+    # Adjacent-attribution-tag check (generate_script._tag_contradictions).
+    # DEFAULT TRUE. The book names the speaker in the narration beside the
+    # line, and nothing used to read it: measured 60 of 1,117 checkable pairs
+    # (5.4%) carried a label their own attribution tag contradicted, on a run
+    # that reported success. With the check on, that fell to 0.90%.
+    #
+    # It only ever flags and retries -- it never rewrites a label. Cost is
+    # retries: 84 -> 143 on one book, so generation is slower, and surviving
+    # contradictions are reported by chunk and span (exit 3) rather than
+    # passing silently. On a non-English book it degrades to doing nothing
+    # rather than misfiring, since the tags carry none of the English speech
+    # verbs it recognizes.
+    check_attribution_tags: bool = True
+    # Preceding source characters joined to the current chunk when attesting a
+    # speaker name. None/unset = fall back to chunk_size, so the default tracks
+    # the chunk size rather than pinning a second number that can disagree
+    # with it.
+    attestation_lookback_chars: Optional[int] = None
 
 class PromptConfig(BaseModel):
     system_prompt: Optional[str] = None
@@ -234,12 +313,23 @@ class PromptConfig(BaseModel):
     persona_advanced_prompt: Optional[str] = None
 
 class AppConfig(BaseModel):
+    model_config = ConfigDict(extra="allow")
+
     llm: LLMConfig
     tts: TTSConfig
     prompts: Optional[PromptConfig] = None
     generation: Optional[GenerationConfig] = None
 
 class VoiceConfigItem(BaseModel):
+    # Same reason as the other config models in this file: without
+    # extra="allow", save_voice_config's model_dump() silently DROPS any key
+    # this model does not declare. That is not hypothetical -- "alias_of" was
+    # dropped on every save, so the Voices UI's alias dropdown appeared to do
+    # nothing and an alias set outside the UI was erased the next time the page
+    # autosaved. Declare new keys explicitly anyway, so they get a documented
+    # default.
+    model_config = ConfigDict(extra="allow")
+
     type: str = "custom"
     voice: Optional[str] = "Ryan"
     character_style: Optional[str] = ""
@@ -250,6 +340,13 @@ class VoiceConfigItem(BaseModel):
     adapter_id: Optional[str] = None
     adapter_path: Optional[str] = None
     description: Optional[str] = ""  # voice description (for design type)
+    # Point this speaker at another speaker's voice. tts.resolve_voice follows
+    # the chain (cycle-safe). None/unset means the speaker has its own voice;
+    # excluded from output when None so an unaliased entry stays clean.
+    alias_of: Optional[str] = None
+    # Set by generate_personas when a speaker got no persona and fell back to
+    # the narrator's voice, so the operator can find them in the Voices UI.
+    defaulted_from_narrator: Optional[bool] = None
 
 class ChunkUpdate(BaseModel):
     text: Optional[str] = None
@@ -368,6 +465,32 @@ process_state = {
     "batch_preparer": {"running": False, "logs": [], "cancel": False, "tasks": [], "current_task_idx": -1},
 }
 
+
+# Task families where generate_script.py's exit code 3 ("output written,
+# but one or more spans fell back to NARRATOR -- review recommended") can
+# be reached. Distinct from a genuine failure: the script file was written
+# successfully and is usable, just degraded. See generate_script.py's
+# EXIT_DEGRADED constant / module docstring for the exit-code contract.
+_DEGRADED_EXIT_CODE = 3
+_SCRIPT_TASK_NAMES = {"script"}
+
+
+def _process_completion_message(task_name: str, return_code: int) -> str:
+    """Choose the log line for a finished (non-cancelled) task.
+
+    Factored out from run_process so the exit-code-3 special case is
+    independently testable without spinning up a real subprocess.
+    """
+    if return_code == 0:
+        return f"Task {task_name} completed successfully."
+    if return_code == _DEGRADED_EXIT_CODE and task_name in _SCRIPT_TASK_NAMES:
+        return (
+            f"Task {task_name} completed with degradations (return code 3): "
+            f"output was written; some spans fell back to NARRATOR — check the log above."
+        )
+    return f"Task {task_name} failed with return code {return_code}."
+
+
 def run_process(command: List[str], task_name: str):
     """Run a subprocess and stream its output into process_state logs."""
     state = process_state[task_name]
@@ -381,10 +504,8 @@ def run_process(command: List[str], task_name: str):
 
         if state.get("cancel"):
             state["logs"].append(f"Task {task_name} cancelled.")
-        elif return_code == 0:
-            state["logs"].append(f"Task {task_name} completed successfully.")
         else:
-            state["logs"].append(f"Task {task_name} failed with return code {return_code}.")
+            state["logs"].append(_process_completion_message(task_name, return_code))
 
     except Exception as e:
         logger.error(f"Error running {task_name}: {e}")
@@ -592,18 +713,29 @@ async def get_default_prompts():
 async def save_config(config: AppConfig):
     os.makedirs(os.path.dirname(CONFIG_PATH) or ".", exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
-        json.dump(config.model_dump(), f, indent=2, ensure_ascii=False)
+        json.dump(config.model_dump(exclude_none=True), f, indent=2, ensure_ascii=False)
     # Reset engine so it picks up new TTS settings on next use
     project_manager.engine = None
     return {"status": "saved"}
 
 class _HTMLTextExtractor(HTMLParser):
-    """Strip HTML tags from EPUB content, preserving block-level structure."""
+    """Strip HTML tags from EPUB content, preserving block-level structure.
+
+    `title` is skipped because HTMLParser reports <head><title> text through
+    handle_data like any other text, so the per-chapter document title (often
+    a generic converter artifact such as "Unknown") was being spliced into the
+    book body and read aloud by the narrator. Only `title` is skipped, not
+    `head` wholesale: this parser closes a skip region on the explicit end tag
+    and never implicitly closes <head> at <body>, so a document with an
+    unclosed <head> would silently lose its entire chapter. Measured on a real
+    23-chapter EPUB, skipping `head` and skipping `title` produce byte-identical
+    text, so `title` buys the same fix with a far smaller blast radius.
+    """
     BLOCK_TAGS = frozenset({
         'p', 'div', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'li', 'blockquote', 'br', 'hr', 'tr', 'section', 'article',
     })
-    SKIP_TAGS = frozenset({'style', 'script'})
+    SKIP_TAGS = frozenset({'style', 'script', 'title'})
 
     def __init__(self):
         super().__init__()
@@ -626,12 +758,20 @@ class _HTMLTextExtractor(HTMLParser):
         if self._skip_depth > 0:
             return
         if self._pending_newline and self.parts:
-            self.parts.append('\n')
+            self.parts.append('\n\n')
             self._pending_newline = False
         self.parts.append(data)
 
     def get_text(self):
-        return ''.join(self.parts)
+        text = ''.join(self.parts)
+        # Normalize intra-line whitespace noise from source indentation
+        # (e.g. pretty-printed XHTML) without disturbing paragraph breaks.
+        text = re.sub(r'[ \t]+', ' ', text)
+        text = re.sub(r' *\n *', '\n', text)
+        # Collapse any run of 3+ newlines (from adjacent/nested block tags)
+        # down to a single blank line so paragraph structure stays uniform.
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        return text.strip()
 
 
 def extract_epub_text(epub_path: str) -> str:
@@ -639,7 +779,20 @@ def extract_epub_text(epub_path: str) -> str:
 
     Parses the EPUB ZIP structure directly using stdlib only:
     META-INF/container.xml -> .opf manifest+spine -> XHTML content files.
+
+    Hrefs are resolved robustly against the OPF directory: percent-encoding
+    is decoded and '../'-style traversal is normalized before matching
+    against the archive's actual member names. If normalization doesn't
+    find a match, a case-insensitive lookup is tried, followed by an
+    unambiguous basename match. Any spine item that still can't be
+    resolved raises ValueError instead of being silently skipped. The
+    EPUB3 navigation document (manifest item with properties="nav") is
+    excluded from the extracted text. A per-chapter char-count report is
+    printed to stdout.
     """
+    import posixpath
+    from urllib.parse import unquote
+
     with zipfile.ZipFile(epub_path, 'r') as zf:
         # 1. Find the OPF file path from container.xml
         container_xml = zf.read('META-INF/container.xml')
@@ -656,15 +809,51 @@ def extract_epub_text(epub_path: str) -> str:
         # Detect OPF namespace (varies between EPUB 2 and 3)
         opf_ns = opf.tag.split('}')[0] + '}' if '}' in opf.tag else ''
 
-        # Build manifest: id -> href (resolve relative to OPF directory)
         opf_dir = opf_path.rsplit('/', 1)[0] + '/' if '/' in opf_path else ''
+
+        # Build a normalized index of every member in the archive so hrefs
+        # can be matched regardless of percent-encoding, '../' segments,
+        # or case differences.
+        normalized_index = {}   # normalized path -> actual member name
+        ci_index = {}            # lowercased normalized path -> actual member name
+        basename_index = {}      # lowercased basename -> [actual member names]
+        for name in zf.namelist():
+            norm = posixpath.normpath(name)
+            normalized_index.setdefault(norm, name)
+            ci_index.setdefault(norm.lower(), name)
+            basename_index.setdefault(posixpath.basename(norm).lower(), []).append(name)
+
+        def resolve_href(href, item_id):
+            joined = posixpath.normpath(unquote(opf_dir + href))
+            candidate = normalized_index.get(joined)
+            if candidate is None:
+                candidate = ci_index.get(joined.lower())
+            if candidate is None:
+                base = posixpath.basename(joined).lower()
+                matches = basename_index.get(base, [])
+                if len(matches) == 1:
+                    candidate = matches[0]
+            if candidate is None:
+                raise ValueError(
+                    f"EPUB spine item '{item_id}' references href '{href}' "
+                    f"(resolved to '{joined}') which does not match any file "
+                    f"in the archive."
+                )
+            return candidate
+
+        # Build manifest: id -> (href, media_type, is_nav_doc).
+        # Include ALL manifest items regardless of media type -- the spine
+        # may legally reference non-HTML content (e.g. an SVG cover page),
+        # and that's not the silent-skip bug class this fix targets. Only a
+        # genuinely absent manifest item should raise.
         manifest = {}
         for item in opf.findall(f'.//{opf_ns}item'):
             item_id = item.get('id')
             href = item.get('href')
             media_type = item.get('media-type', '')
-            if item_id and href and 'html' in media_type:
-                manifest[item_id] = opf_dir + href
+            properties = (item.get('properties') or '').split()
+            if item_id and href:
+                manifest[item_id] = (href, media_type, 'nav' in properties)
 
         # Get spine order
         spine_ids = []
@@ -675,20 +864,35 @@ def extract_epub_text(epub_path: str) -> str:
 
         # 3. Extract text from each spine item in order
         chapters = []
+        report = []
         for item_id in spine_ids:
-            href = manifest.get(item_id)
-            if href is None:
+            entry = manifest.get(item_id)
+            if entry is None:
+                raise ValueError(
+                    f"EPUB spine references idref '{item_id}' which has no "
+                    f"corresponding manifest item."
+                )
+            href, media_type, is_nav = entry
+            if is_nav:
+                continue  # EPUB3 navigation document isn't chapter content
+            if 'html' not in media_type:
+                # Legally spineable non-text content (e.g. an SVG cover
+                # page). Not a silent-skip bug -- intentionally excluded.
+                print(f"[extract_epub_text] skipping non-text spine item '{item_id}' ({media_type})")
                 continue
-            try:
-                html_bytes = zf.read(href)
-            except KeyError:
-                continue
+            member_name = resolve_href(href, item_id)
+            html_bytes = zf.read(member_name)
             html_content = html_bytes.decode('utf-8', errors='replace')
             extractor = _HTMLTextExtractor()
             extractor.feed(html_content)
             text = extractor.get_text().strip()
             if text:
                 chapters.append(text)
+                report.append((len(chapters), href, len(text)))
+
+    print(f"[extract_epub_text] {epub_path}: extracted {len(chapters)} chapter(s)")
+    for idx, href, char_count in report:
+        print(f"  chapter {idx}: {href} -> {char_count} chars")
 
     return '\n\n'.join(chapters)
 
@@ -830,24 +1034,100 @@ async def get_status(task_name: str):
     state.pop("process", None)
     return state
 
+def _load_script_entries():
+    """Read annotated_script.json the same way the voices endpoints do:
+    a missing file or malformed JSON both silently resolve to an empty
+    list rather than raising, since "no script yet" is a normal, expected
+    state for these read-only roster views -- not an error.
+    """
+    if not os.path.exists(SCRIPT_PATH):
+        return []
+    try:
+        with open(SCRIPT_PATH, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, ValueError):
+        return []
+
+
+def _canonical_roster_names(script_data):
+    """Dedupe + canonicalize + sort every speaker/type label in
+    `script_data` into the fragment-free voice roster.
+
+    Pure, and deliberately does NOT touch voice_config or alias
+    suggestions -- shared by build_voice_roster() (which adds config
+    resolution) and the on-demand alias-suggestions endpoint (which adds
+    fuzzy-similarity suggestions), so each caller only pays for the work
+    it actually needs.
+
+    Spellings that drifted only in their boundary marks are consolidated: a
+    legacy script containing both "ABBE MARIGNAN" and the drifted
+    "ABBEMARIGNAN" (or "O'BRIEN" and "OBRIEN") displays, and assigns a voice
+    to, one name -- the more-punctuated one, regardless of which appears
+    first. Exact roster-key equality only -- names that are merely similar
+    (JON/JOHN, ELLA/BELLA) stay distinct entries and are surfaced, if at all,
+    as advisory alias suggestions.
+    """
+    roster_index = {}
+    for entry in script_data:
+        raw_speaker = entry.get("speaker") or entry.get("type") or ""
+        remember_in_roster(roster_index, raw_speaker)
+    return sorted(roster_index.values())
+
+
+def build_voice_roster(script_data, voice_config):
+    """Build a canonical, fragment-free voice roster from script entries.
+
+    Args:
+        script_data: list of annotated_script.json entries (each with a
+            "speaker" and/or legacy "type" field). Speaker labels are only
+            ever read here -- never mutated, and entry "text" is untouched.
+        voice_config: dict loaded from voice_config.json, possibly keyed by
+            older non-canonical speaker names (e.g. "Mr. Mark").
+
+    Returns:
+        (roster_names, config_lookup):
+          - roster_names: sorted list of deduped canonical speaker names.
+          - config_lookup: dict mapping each canonical roster name to the
+            voice_config entry that resolves for it (exact key match first,
+            falling back to scanning voice_config keys for one whose
+            roster_key() equals the roster name's; first match wins). Names
+            with no resolvable config are simply absent from this dict.
+
+    Deliberately does NOT compute alias suggestions. suggest_aliases() is
+    O(n^2) in roster size and was previously run unconditionally on every
+    GET /api/voices call even though the frontend never read its output
+    (measured on a real 589-speaker roster: ~52ms of an ~80ms request,
+    plus ~160KB of unused response payload). Alias suggestions are now
+    computed on demand only, via GET /api/voices/alias_suggestions.
+    """
+    roster_names = _canonical_roster_names(script_data)
+
+    config_lookup = {}
+    for roster_name in roster_names:
+        if roster_name in voice_config:
+            config_lookup[roster_name] = voice_config[roster_name]
+            continue
+        for key, value in voice_config.items():
+            # Keys beginning with "_" are file metadata (e.g. the
+            # "_canon_version" stamp), never speakers.
+            if key.startswith("_"):
+                continue
+            # roster_key(): canonical form with boundary marks removed, so a
+            # config entry saved under a drifted spelling of the same name
+            # still resolves. Exact key equality, never fuzzy similarity.
+            if roster_key(key) == roster_key(roster_name):
+                config_lookup[roster_name] = value
+                break
+
+    return roster_names, config_lookup
+
+
 @app.get("/api/voices")
 async def get_voices():
     # Parse voices directly from the current script (no stale cache)
-    voices_list = []
-    if os.path.exists(SCRIPT_PATH):
-        try:
-            with open(SCRIPT_PATH, "r", encoding="utf-8") as f:
-                script_data = json.load(f)
-            voices_set = set()
-            for entry in script_data:
-                speaker = (entry.get("speaker") or entry.get("type") or "").strip()
-                if speaker:
-                    voices_set.add(speaker)
-            voices_list = sorted(voices_set)
-        except (json.JSONDecodeError, ValueError):
-            pass
+    script_data = _load_script_entries()
 
-    if not voices_list:
+    if not script_data:
         return []
 
     # Combine with config
@@ -859,17 +1139,182 @@ async def get_voices():
         except (json.JSONDecodeError, ValueError):
             voice_config = {}
 
-    missing_speakers = {voice_name for voice_name in voices_list if voice_name not in voice_config}
+    roster_names, config_lookup = build_voice_roster(script_data, voice_config)
+
+    if not roster_names:
+        return []
 
     result = []
-    for voice_name in voices_list:
-        config = voice_config.get(voice_name, {})
+    for voice_name in roster_names:
+        config = config_lookup.get(voice_name, {})
         result.append({
             "name": voice_name,
             "config": config,
-            "persona_pending": voice_name in missing_speakers
+            "persona_pending": voice_name not in config_lookup,
         })
     return result
+
+
+def _load_source_text():
+    """Best-effort load of the source text currently backing
+    annotated_script.json, using the same "current project" pointer
+    (state.json's input_file_path) that /api/generate_script reads.
+
+    Read-only, and deliberately forgiving: any failure (no state.json, no
+    input_file_path, missing file, unreadable epub) returns None rather than
+    raising, since this backs an advisory-only endpoint that must degrade to
+    "nothing to show" instead of an error.
+    """
+    state_path = os.path.join(ROOT_DIR, "state.json")
+    if not os.path.exists(state_path):
+        return None
+    try:
+        with open(state_path, "r", encoding="utf-8") as f:
+            state = json.load(f)
+    except (json.JSONDecodeError, ValueError, OSError):
+        return None
+
+    input_file = state.get("input_file_path")
+    if not input_file or not os.path.exists(input_file):
+        return None
+
+    try:
+        if input_file.lower().endswith(".epub"):
+            raw = extract_epub_text(input_file)
+        else:
+            with open(input_file, "r", encoding="utf-8") as f:
+                raw = f.read()
+    except Exception:
+        return None
+
+    # Apply the SAME mojibake fix generation applied (generate_script.main
+    # calls fix_mojibake before chunking). The entry texts in
+    # annotated_script.json were produced from the FIXED text, so
+    # _compute_label_flags' `source_text.find(entry_text)` misses on every
+    # entry of an affected book when this returns the raw bytes -- and a miss
+    # yields no attestation window, which attest_label reports as "not
+    # attested". The badge then flags every speaker in the book, which reads
+    # as total corruption rather than as a lookup failure.
+    #
+    # Imported lazily: this is the only place app.py needs it, and keeping the
+    # import inside the call leaves server startup untouched. A failure to
+    # import degrades to the raw text (today's behaviour) rather than losing
+    # the endpoint.
+    try:
+        from generate_script import fix_mojibake
+    except Exception:
+        return raw
+    return fix_mojibake(raw)
+
+
+# Bound search cost for speakers with very large entry counts: only the
+# first N entries per speaker are sampled for attestation windows. This is
+# advisory tooling, not a completeness guarantee -- a speaker attested as
+# missing here may simply not have been sampled, which is why the endpoint
+# reports counts alongside the flag rather than claiming exhaustiveness.
+_MAX_SAMPLED_ENTRIES_PER_SPEAKER = 20
+
+# Characters of source text included on each side of a sampled entry when
+# building its attestation window.
+_ATTESTATION_WINDOW_RADIUS = 400
+
+
+def _compute_label_flags(script_data, source_text):
+    """Pure(ish) computation backing GET /api/voices/label_flags.
+
+    Args:
+        script_data: list of annotated_script.json entries.
+        source_text: the full source text string, or None/"" if unavailable.
+
+    Returns:
+        A list of {"name", "entry_count", "attested", "missing_tokens"}
+        dicts, one per non-NARRATOR canonical speaker label present in
+        script_data, sorted by descending entry_count. Read-only: does not
+        write any file and does not mutate script_data or source_text.
+    """
+    if not script_data or not source_text:
+        return []
+
+    # Group verbatim entry texts by canonical speaker label. A single
+    # roster_index is shared across the loop (not a throwaway per entry) so
+    # boundary-mark consolidation matches _canonical_roster_names exactly.
+    roster_index = {}
+    by_speaker = {}
+    for entry in script_data:
+        raw_speaker = entry.get("speaker") or entry.get("type") or ""
+        canonical = remember_in_roster(roster_index, raw_speaker)
+        if not canonical or canonical == "NARRATOR":
+            continue
+        text = entry.get("text") or ""
+        by_speaker.setdefault(canonical, []).append(text)
+
+    flags = []
+    for name, texts in by_speaker.items():
+        entry_count = len(texts)
+        windows = []
+        for text in texts[:_MAX_SAMPLED_ENTRIES_PER_SPEAKER]:
+            if not text:
+                continue
+            occurrence = source_text.find(text)
+            if occurrence == -1:
+                continue
+            start = max(0, occurrence - _ATTESTATION_WINDOW_RADIUS)
+            end = min(len(source_text), occurrence + len(text) + _ATTESTATION_WINDOW_RADIUS)
+            windows.append(source_text[start:end])
+
+        result = attest_label(name, windows)
+        flags.append({
+            "name": name,
+            "entry_count": entry_count,
+            "attested": result["attested"],
+            "missing_tokens": result["missing_tokens"],
+        })
+
+    flags.sort(key=lambda f: f["entry_count"], reverse=True)
+    return flags
+
+
+@app.get("/api/voices/label_flags")
+async def get_voice_label_flags():
+    """Advisory, read-only attestation flags for the current voice roster.
+
+    For each non-NARRATOR canonical speaker label, samples up to
+    _MAX_SAMPLED_ENTRIES_PER_SPEAKER of its entries, builds a local source
+    window around each occurrence, and calls speaker_canon.attest_label to
+    check whether the label's own core name tokens appear near its lines.
+    Never merges, mutates, or writes anything -- purely advisory, for a
+    human reviewer via the Voices UI.
+
+    Degrades to an empty list with an explanatory `note` (not an HTTP
+    error) when there is no script or no source text available, since both
+    are normal, expected states (e.g. before a script has been generated).
+    """
+    script_data = _load_script_entries()
+    if not script_data:
+        return {"flags": [], "note": "no script/source available"}
+
+    source_text = _load_source_text()
+    if not source_text:
+        return {"flags": [], "note": "no script/source available"}
+
+    return {"flags": _compute_label_flags(script_data, source_text)}
+
+
+@app.get("/api/voices/alias_suggestions")
+async def get_voice_alias_suggestions():
+    """On-demand fuzzy-similarity alias suggestions for the current voice
+    roster (e.g. JON/JOHN), advisory-only -- never merges anything.
+
+    Split out from GET /api/voices because suggest_aliases() is O(n^2) in
+    roster size and the frontend never read this field when it was inlined
+    there (see build_voice_roster's docstring). Computed fresh on every
+    call by design, same as GET /api/voices -- no cache, since both
+    endpoints deliberately re-read the current script rather than serving
+    a possibly-stale cached roster.
+    """
+    script_data = _load_script_entries()
+    roster_names = _canonical_roster_names(script_data)
+    return {"suggestions": suggest_aliases(roster_names)}
 
 
 @app.post("/api/generate_personas")
@@ -933,8 +1378,22 @@ async def save_voice_config(config_data: Dict[str, VoiceConfigItem]):
 
     # Update current config with new data
     for voice_name, config in config_data.items():
-        # Convert Pydantic model to dict
-        current_config[voice_name] = config.model_dump()
+        # Convert Pydantic model to dict. Optional-by-absence keys (alias_of,
+        # defaulted_from_narrator) are excluded when None so clearing an alias
+        # in the UI removes the key rather than writing a null one.
+        entry = config.model_dump()
+        for optional_key in ("alias_of", "defaulted_from_narrator"):
+            if entry.get(optional_key) is None:
+                entry.pop(optional_key, None)
+        current_config[voice_name] = entry
+
+    # Stamp the canonicalization generation this file's keys were written
+    # under. Generation 2 is "canonicalize() preserves gender-marking titles",
+    # so "MISTER SMITH" and "MISSUS SMITH" are distinct keys; generation 1
+    # (unstamped) files key both of them as "SMITH". tts.resolve_voice's
+    # migration shim bridges the two. Underscore-prefixed keys are metadata and
+    # are skipped everywhere voice_config is scanned for speakers.
+    current_config["_canon_version"] = 2
 
     atomic_json_write(current_config, VOICE_CONFIG_PATH)
 

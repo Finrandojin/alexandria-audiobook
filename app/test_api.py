@@ -4,20 +4,75 @@
 Usage:
     python test_api.py                    # Quick tests only
     python test_api.py --full             # Include TTS/LLM-dependent tests
+    python test_api.py --offline          # Offline pipeline-invariant tests only
+                                           # (no server, no LLM; alias: --offline-only)
     python test_api.py --url http://host:port
 """
 
 import argparse
 import io
 import json
+import os
+import re
 import sys
+import tempfile
 import time
+from contextlib import redirect_stdout
+
 import requests
+
+# ── Offline pipeline invariant tests: optional local imports ────────────────
+#
+# Section 15 below (Pipeline Invariants) exercises the span-classifier
+# pipeline modules directly -- no live server, no live LLM. Those modules
+# pull in heavier local/optional dependencies (openai, rapidfuzz, fastapi,
+# aiofiles, ...) that the rest of this file has never required: historically
+# test_api.py only needs `requests` and can run from a minimal environment
+# against a remote deployed server. To avoid regressing that use case, these
+# imports are best-effort: if they fail, Section 15's tests SKIP individually
+# (via the usual "SKIP:" TestFailure convention) instead of the whole script
+# refusing to import.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+_PIPELINE_IMPORT_ERROR = None
+try:
+    from span_tokenizer import tokenize, reassemble, validate_spans
+    from generate_script import process_chunk, split_into_chunks
+    from review_script import normalize_text, check_text_loss
+    from default_prompts import DEFAULT_SYSTEM_PROMPT, DEFAULT_USER_PROMPT
+    from test_span_integration import FakeClient, FakeResponse, labels_for
+    from test_epub_extract import make_epub, opf, extract_epub_text
+
+    # app.py pulls in `project` (-> tts.py -> numpy/torch/etc.) purely for
+    # unrelated TTS/project-management functionality this file's offline
+    # test does not exercise. Stub it out before importing, same pattern as
+    # test_canon_wiring.py, so this best-effort import block degrades
+    # gracefully rather than requiring torch just to test a read-only helper.
+    import types as _types
+    if 'project' not in sys.modules:
+        _fake_project = _types.ModuleType('project')
+
+        class _FakeProjectManager:
+            def __init__(self, *args, **kwargs):
+                pass
+
+            def __getattr__(self, name):
+                def _noop(*args, **kwargs):
+                    return None
+                return _noop
+
+        _fake_project.ProjectManager = _FakeProjectManager
+        sys.modules['project'] = _fake_project
+
+    import app as app_module
+except Exception as _e:  # pragma: no cover - environment-dependent
+    _PIPELINE_IMPORT_ERROR = _e
 
 # ── Global state ─────────────────────────────────────────────
 
 BASE_URL = ""
 FULL_MODE = False
+OFFLINE_ONLY = False
 TEST_PREFIX = "_test_"
 
 results = {"passed": 0, "failed": 0, "skipped": 0}
@@ -1208,6 +1263,559 @@ def test_dataset_builder_generate_sample():
     delete(f"/api/dataset_builder/{TEST_PREFIX}gen_proj")
 
 
+# ── Section 15: Pipeline Invariants (Offline, no server/LLM) ───────────────
+#
+# The span-classifier audiobook pipeline (span_tokenizer.py, generate_script.py,
+# app.extract_epub_text) makes three promises that must never regress:
+#
+#   1. REASSEMBLY: span reassembly is byte-identical to the source text.
+#   2. SPINE YIELD (>200 chars): every EPUB spine item yields more than 200
+#      characters of extracted text.
+#   3. WORD COVERAGE (== 1.0): source -> annotated_script.json word coverage
+#      is exactly 1.0 -- not a tolerance band.
+#
+# These tests build their own fixtures with tempfile/zipfile and a fake LLM
+# client (see test_span_integration.FakeClient), so they need neither a live
+# server nor a live LLM, and MUST pass even when every server-dependent test
+# above is failing/skipping for lack of a running server.
+
+def _require_pipeline_modules():
+    if _PIPELINE_IMPORT_ERROR is not None:
+        raise TestFailure(f"SKIP: offline pipeline modules unavailable ({_PIPELINE_IMPORT_ERROR})")
+
+
+# --- fixtures ----------------------------------------------------------------
+
+PIPELINE_FIXTURE_MIXED_QUOTES = (
+    '"You are certain?" Elena asked.\n'
+    '\n'
+    '“I am,” Marcus replied, “completely certain.”\n'
+)
+
+PIPELINE_FIXTURE_ATTRIBUTION_TAGS = (
+    '"We should leave," he said, pulling on his coat, "now, before they notice."'
+)
+
+PIPELINE_FIXTURE_EM_DASH_DIALOGUE = (
+    "—Are you coming with us? Elena asked, not turning around.\n"
+    "\n"
+    "—Not yet, Marcus said, still watching the door.\n"
+)
+
+PIPELINE_FIXTURE_MULTI_PARAGRAPH = (
+    "The rain had not stopped for three days.\n"
+    "\n"
+    '"I told you it would flood," Elena said, arms crossed.\n'
+    "\n"
+    "Marcus said nothing. He watched the water climb the third step, then the fourth.\n"
+    "\n"
+    '"We should go," she said again, quieter this time.\n'
+)
+
+# At least 4 fixtures: mixed straight/curly quotes, attribution tags,
+# em-dash dialogue, multi-paragraph.
+PIPELINE_FIXTURES = {
+    "mixed_quotes": PIPELINE_FIXTURE_MIXED_QUOTES,
+    "attribution_tags": PIPELINE_FIXTURE_ATTRIBUTION_TAGS,
+    "em_dash_dialogue": PIPELINE_FIXTURE_EM_DASH_DIALOGUE,
+    "multi_paragraph": PIPELINE_FIXTURE_MULTI_PARAGRAPH,
+}
+
+PIPELINE_DIGITS_ABBREV_FIXTURE = (
+    'Dr. Smith owed $1,000 on Elm St. by noon, or so Mrs. Vance claimed.'
+)
+
+
+# --- helpers -------------------------------------------------------------
+
+def _sc_run_chunk(client, chunk, **kwargs):
+    """process_chunk with the real default prompts, stdout suppressed.
+
+    `client` stands in for the LLM (test_span_integration.FakeClient) --
+    no network I/O happens here.
+    """
+    buffer = io.StringIO()
+    options = dict(system_prompt=DEFAULT_SYSTEM_PROMPT, user_prompt_template=DEFAULT_USER_PROMPT, max_retries=1)
+    options.update(kwargs)
+    with redirect_stdout(buffer):
+        entries, stats = process_chunk(client, "fake-model", chunk, 1, 1, **options)
+    return entries, stats
+
+
+def _sc_modes_for(chunk):
+    """The three LLM behaviors the span classifier must survive without losing prose."""
+    full = json.dumps(labels_for(chunk))
+    return {
+        "full_labels": FakeResponse(full),
+        "truncated_finish_length": FakeResponse(full[:max(1, len(full) // 2)], finish_reason="length"),
+        "total_failure": RuntimeError("connection refused (fake)"),
+    }
+
+
+def _sc_coverage(source_text, entries):
+    """(ratio, sequence_identical, orig_words, corr_words) using review_script's
+    OWN normalize_text/check_text_loss (lowercase, strip [^\\w\\s], collapse
+    whitespace, split to words) -- so this enforces the exact same definition
+    the review stage uses, rather than a reimplementation that could drift.
+    """
+    _passed, orig_joined, corr_joined, ratio = check_text_loss(
+        [{"text": source_text}], entries, threshold=1.0, upper_bound=1.0
+    )
+    return ratio, orig_joined == corr_joined, orig_joined, corr_joined
+
+
+# --- Invariant 1: reassembly byte-identity --------------------------------
+
+def test_span_tokenizer_reassembly_is_byte_identical():
+    """INVARIANT (reassembly): tokenize()+reassemble() reproduce the source
+    byte-for-byte for every fixture, independent of the LLM entirely."""
+    _require_pipeline_modules()
+    bad = []
+    for name, text in PIPELINE_FIXTURES.items():
+        spans = tokenize(text)
+        try:
+            validate_spans(spans, text)
+        except ValueError as e:
+            bad.append(f"{name}: span tiling invalid ({e})")
+            continue
+        if reassemble(spans, text) != text:
+            bad.append(f"{name}: reassemble() != source")
+    if bad:
+        raise TestFailure("REASSEMBLY INVARIANT VIOLATED: " + "; ".join(bad))
+
+
+def test_process_chunk_reassembly_byte_identical_across_fixtures_and_modes():
+    """INVARIANT (reassembly): whatever the LLM does -- labels everything,
+    truncates mid-response, or fails every attempt -- process_chunk's entries
+    concatenate back to the exact source chunk. Covers >=4 distinct fixtures
+    (mixed straight/curly quotes, attribution tags, em-dash dialogue,
+    multi-paragraph) x 3 failure modes = 12 cases.
+    """
+    _require_pipeline_modules()
+    bad = []
+    for fixture_name, chunk in PIPELINE_FIXTURES.items():
+        for mode_name, response in _sc_modes_for(chunk).items():
+            client = FakeClient(response)
+            entries, stats = _sc_run_chunk(client, chunk)
+            rebuilt = "".join(e["text"] for e in entries)
+            if rebuilt != chunk:
+                bad.append(f"{fixture_name}/{mode_name}: reassembled text != source chunk")
+            elif stats["labelled"] + stats["fallback"] != stats["spans"]:
+                bad.append(
+                    f"{fixture_name}/{mode_name}: span accounting mismatch "
+                    f"(labelled={stats['labelled']} fallback={stats['fallback']} spans={stats['spans']})"
+                )
+    if bad:
+        raise TestFailure("REASSEMBLY INVARIANT VIOLATED: " + "; ".join(bad))
+
+
+# --- Invariant 2: EPUB spine yield > 200 chars ----------------------------
+
+def test_epub_spine_items_yield_over_200_chars():
+    """INVARIANT (spine yield > 200 chars): every EPUB spine item yields more
+    than 200 characters of extracted text.
+
+    Reads the per-chapter char-count report app.extract_epub_text() prints to
+    stdout, rather than re-deriving counts by splitting the joined return
+    value on '\\n\\n': that join is not a reliable per-chapter delimiter,
+    since a chapter's own paragraphs are blank-line-separated too. Capturing
+    stdout instead exercises the actual reporting mechanism a human/CI
+    consumer of this function reads.
+    """
+    _require_pipeline_modules()
+    chapter_bodies = {
+        "ch1.xhtml": (
+            "The lighthouse keeper had not seen another soul in eleven weeks, "
+            "and the silence had started to sound like company. Every morning "
+            "he counted the gulls circling the rocks below, and every evening "
+            "he wrote the count in a ledger nobody would ever read."
+        ),
+        "ch2.xhtml": (
+            '"You are certain no one is coming?" she asked, not for the first time. '
+            '"Certain," he said. "The last supply boat won\'t be back until spring, '
+            'and even then only if the ice breaks early enough to matter. We will '
+            'simply have to wait it out, the way we always do."'
+        ),
+        "ch3.xhtml": (
+            "Three winters had passed since the keeper first climbed the tower "
+            "stairs, and each one had carved a little more silence into him. "
+            "He no longer minded it. The lamp still turned, the gulls still "
+            "circled, and somewhere past the horizon, ships still needed the light."
+        ),
+    }
+    for href, body in chapter_bodies.items():
+        if len(body) <= 200:
+            raise TestFailure(f"test fixture bug: '{href}' body is only {len(body)} chars, need > 200")
+
+    with tempfile.TemporaryDirectory() as tmp:
+        epub_path = os.path.join(tmp, "book.epub")
+        manifest_items = [
+            (f"ch{i}", href, "application/xhtml+xml", None)
+            for i, href in enumerate(chapter_bodies, start=1)
+        ]
+        spine = [item_id for item_id, _, _, _ in manifest_items]
+        opf_xml = opf(manifest_items, spine)
+        files = {
+            f"OEBPS/{href}": f"<html><body><p>{body}</p></body></html>"
+            for href, body in chapter_bodies.items()
+        }
+        make_epub(epub_path, opf_xml, files)
+
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            text = extract_epub_text(epub_path)
+        report = buffer.getvalue()
+
+    missing = [href for href, body in chapter_bodies.items() if body not in text]
+    if missing:
+        raise TestFailure(f"SPINE YIELD INVARIANT: chapter text missing from extracted output for: {missing}")
+
+    counts = dict(re.findall(r'chapter \d+: (.+?) -> (\d+) chars', report))
+    if len(counts) != len(chapter_bodies):
+        raise TestFailure(
+            f"SPINE YIELD INVARIANT (>200 chars): expected {len(chapter_bodies)} per-chapter "
+            f"report lines, parsed {len(counts)} from stdout: {report!r}"
+        )
+    at_or_under_200 = {href: int(n) for href, n in counts.items() if int(n) <= 200}
+    if at_or_under_200:
+        raise TestFailure(
+            f"SPINE YIELD INVARIANT (>200 chars) VIOLATED: spine item(s) at/under the "
+            f"200-char floor: {at_or_under_200}"
+        )
+
+
+def test_epub_spine_item_under_200_chars_would_be_flagged():
+    """INVARIANT (spine yield > 200 chars) counter-case: a legitimate short
+    front-matter page (a bare title) yields fewer than 200 chars. This
+    documents that the floor is a real, failable signal for genuine front
+    matter -- not a tautology every fixture trivially satisfies -- by
+    asserting the fixture's own reported count is <= 200, i.e. exactly the
+    condition a real ">200 chars per spine item" gate would flag.
+    """
+    _require_pipeline_modules()
+    short_body = "Moonrise"  # a bare, single-word title page: far under 200 chars
+
+    with tempfile.TemporaryDirectory() as tmp:
+        epub_path = os.path.join(tmp, "book.epub")
+        manifest_items = [("front", "front.xhtml", "application/xhtml+xml", None)]
+        opf_xml = opf(manifest_items, ["front"])
+        files = {"OEBPS/front.xhtml": f"<html><body><p>{short_body}</p></body></html>"}
+        make_epub(epub_path, opf_xml, files)
+
+        buffer = io.StringIO()
+        with redirect_stdout(buffer):
+            extract_epub_text(epub_path)
+        report = buffer.getvalue()
+
+    matches = re.findall(r'chapter \d+: (.+?) -> (\d+) chars', report)
+    if not matches:
+        raise TestFailure(
+            f"SPINE YIELD INVARIANT: expected a per-chapter report line for the front-matter "
+            f"fixture, got: {report!r}"
+        )
+    _href, count = matches[0]
+    count = int(count)
+    if count > 200:
+        raise TestFailure(
+            f"SPINE YIELD INVARIANT fixture is broken: front-matter body yielded {count} chars "
+            "(> 200); this test needs a genuinely short fixture to demonstrate the floor is failable"
+        )
+    # `count` (<= 200) IS the FAIL signal a real ">200 chars per spine item"
+    # gate would raise for this legitimate short front-matter page.
+
+
+# --- Invariant 3: word coverage == 1.0 exact -------------------------------
+
+def test_word_coverage_exact_one_across_failure_modes():
+    """INVARIANT (word coverage == 1.0): source -> script word coverage is
+    exactly 1.0 in every LLM failure mode (full labels, truncated, total
+    failure) -- the entire point of the span-classifier design is that
+    labels can be lost, but not a single source word can be. Word SEQUENCE
+    identity is checked too, not just counts.
+    """
+    _require_pipeline_modules()
+    source_text = "\n\n".join(PIPELINE_FIXTURES.values())
+    bad = []
+    for mode in ("full_labels", "truncated_finish_length", "total_failure"):
+        chunks = split_into_chunks(source_text, max_size=300)
+        if len(chunks) < 2:
+            raise TestFailure(f"test fixture bug: expected multiple chunks, got {len(chunks)}")
+        all_entries = []
+        for chunk in chunks:
+            response = _sc_modes_for(chunk)[mode]
+            client = FakeClient(response)
+            entries, _stats = _sc_run_chunk(client, chunk)
+            all_entries.extend(entries)
+
+        ratio, seq_match, _orig_words, _corr_words = _sc_coverage(source_text, all_entries)
+        if ratio != 1.0:
+            bad.append(f"{mode}: coverage ratio={ratio!r} (expected exactly 1.0)")
+        if not seq_match:
+            bad.append(f"{mode}: word sequence differs from source (counts may match but order/content does not)")
+    if bad:
+        raise TestFailure("WORD COVERAGE INVARIANT (== 1.0) VIOLATED: " + "; ".join(bad))
+
+
+def test_no_character_entry_mixes_quotation_and_narration():
+    """INVARIANT (one entry, one kind of text): the renderer gives an entry a
+    single voice, so a character-voiced entry holding both a quotation and the
+    narration around it means the narration is spoken by the character.
+
+    Measured on one 8,083-entry artifact before the fix: 13,337 chars of
+    narration read in a character voice, 73 entries mixing the two kinds. The
+    model is simulated at its worst here -- EVERY span, quoted or not, labelled
+    with the same character -- which is exactly how attribution tags ("said
+    Marcus") got swallowed into the preceding line.
+    """
+    _require_pipeline_modules()
+    from span_tokenizer import tokenize as _tokenize
+
+    bad = []
+    for name, chunk in PIPELINE_FIXTURES.items():
+        labels = [
+            {"id": span.id, "speaker": "ELENA", "role": "dialogue", "instruct": "Flat."}
+            for span in _tokenize(chunk)
+        ]
+        entries, _stats = _sc_run_chunk(
+            FakeClient(FakeResponse(json.dumps(labels))), chunk)
+
+        if "".join(entry["text"] for entry in entries) != chunk:
+            bad.append(f"{name}: text is no longer byte-identical")
+        for entry in entries:
+            if entry["speaker"] == "NARRATOR":
+                continue
+            kinds = {span.kind for span in _tokenize(entry["text"])
+                     if entry["text"][span.start:span.end].strip()}
+            if len(kinds) > 1:
+                bad.append(f"{name}: character entry mixes {sorted(kinds)}: {entry['text']!r}")
+    if bad:
+        raise TestFailure("ONE-ENTRY-ONE-KIND INVARIANT VIOLATED: " + "; ".join(bad))
+
+
+def _legacy_split_into_chunks(text, max_size=3000):
+    """The pre-fix chunker, verbatim, kept ONLY so the test below can prove the
+    byte-fidelity assertion is failable (it drops a paragraph break at every
+    chunk seam). Not used by the pipeline."""
+    paragraphs = re.split(r'\n\s*\n', text)
+    chunks = []
+    current_chunk = ""
+    for para in paragraphs:
+        para = para.strip()
+        if not para:
+            continue
+        if len(current_chunk) + len(para) + 2 > max_size:
+            if current_chunk:
+                chunks.append(current_chunk.strip())
+                current_chunk = ""
+            if len(para) > max_size:
+                sentences = re.split(r'(?<=[.!?])\s+', para)
+                for sentence in sentences:
+                    if len(current_chunk) + len(sentence) + 1 > max_size:
+                        if current_chunk:
+                            chunks.append(current_chunk.strip())
+                        current_chunk = sentence
+                    else:
+                        current_chunk += " " + sentence if current_chunk else sentence
+            else:
+                current_chunk = para
+        else:
+            current_chunk += "\n\n" + para if current_chunk else para
+    if current_chunk:
+        chunks.append(current_chunk.strip())
+    return chunks
+
+
+# Synthetic, corpus-independent document exercising every whitespace edge the
+# chunker can meet: leading/trailing blank lines, a whitespace-only "paragraph"
+# (NBSP), CRLF, an indented paragraph, and an oversized paragraph that forces
+# the sentence-split path.
+CHUNK_FIDELITY_DOC = (
+    "\n\n  \n"
+    "Chapter One\n\n"
+    "He turned away.\n\n"
+    '"That\'s it," she said.\n\n'
+    " \n\n"
+    "   An indented paragraph follows a blank-ish one.\r\n\r\n"
+    + " ".join(f"Sentence number {i} runs on for a while here." for i in range(60))
+    + "\n\n"
+    "The end.\n \n\n"
+)
+
+
+def test_chunking_is_byte_lossless_over_source():
+    """INVARIANT (byte-verbatim, whole-document half of contract 4): the
+    concatenation of split_into_chunks() output must reproduce the source
+    file BYTE-FOR-BYTE. The existing word-coverage test cannot see a
+    violation here, because review_script.normalize_text() maps punctuation
+    to spaces before tokenizing and every chunk seam sits at punctuation --
+    so a lost paragraph break still scores 1.0. This asserts the raw bytes.
+
+    The paired counter-case runs the pre-fix chunker on the same document and
+    requires it to LOSE characters, proving the assertion is failable rather
+    than tautological.
+    """
+    _require_pipeline_modules()
+    doc = CHUNK_FIDELITY_DOC
+    bad = []
+
+    for max_size in (120, 300, 3000):
+        chunks = split_into_chunks(doc, max_size=max_size)
+        rejoined = "".join(chunks)
+        if rejoined != doc:
+            bad.append(
+                f"max_size={max_size}: rejoined chunks differ from source "
+                f"({len(rejoined)} chars vs {len(doc)}); "
+                f"first divergence at offset "
+                f"{next((i for i, (a, b) in enumerate(zip(rejoined, doc)) if a != b), min(len(doc), len(rejoined)))}"
+            )
+        if any(c == "" for c in chunks):
+            bad.append(f"max_size={max_size}: produced an empty chunk")
+
+    # Degenerate inputs must round-trip too.
+    for edge in ("", "   ", "\n\n\n", "one paragraph"):
+        if "".join(split_into_chunks(edge, max_size=50)) != edge:
+            bad.append(f"edge input {edge!r} did not round-trip")
+
+    if bad:
+        raise TestFailure("CHUNK BYTE-FIDELITY INVARIANT VIOLATED: " + "; ".join(bad))
+
+    # Counter-case: the old chunker must fail this same assertion.
+    legacy = "".join(_legacy_split_into_chunks(doc, max_size=300))
+    if legacy == doc:
+        raise TestFailure(
+            "CHUNK BYTE-FIDELITY test is not failable: the pre-fix chunker "
+            "round-tripped this fixture, so the fixture no longer exercises the bug"
+        )
+
+
+def test_word_coverage_digits_and_abbreviations_survive_verbatim():
+    """INVARIANT (word coverage == 1.0) + verbatim: digits, currency, and
+    abbreviations ("Dr. Smith owed $1,000 on Elm St.") survive into the
+    script UNTOUCHED in every failure mode, and still contribute exactly to
+    word coverage.
+    """
+    _require_pipeline_modules()
+    source_text = PIPELINE_DIGITS_ABBREV_FIXTURE
+    bad = []
+    for mode in ("full_labels", "truncated_finish_length", "total_failure"):
+        client = FakeClient(_sc_modes_for(source_text)[mode])
+        entries, _stats = _sc_run_chunk(client, source_text)
+
+        rebuilt = "".join(e["text"] for e in entries)
+        if rebuilt != source_text:
+            bad.append(f"{mode}: reassembly not verbatim: {rebuilt!r} != {source_text!r}")
+            continue
+        for literal in ("Dr. Smith", "$1,000", "Elm St.", "Mrs. Vance"):
+            if literal not in rebuilt:
+                bad.append(f"{mode}: '{literal}' altered or lost")
+
+        ratio, seq_match, _orig_words, _corr_words = _sc_coverage(source_text, entries)
+        if ratio != 1.0 or not seq_match:
+            bad.append(f"{mode}: coverage ratio={ratio!r} sequence_match={seq_match} (expected ratio==1.0 and match)")
+    if bad:
+        raise TestFailure(
+            "WORD COVERAGE INVARIANT (== 1.0) / REASSEMBLY INVARIANT VIOLATED on "
+            "digits/abbreviations fixture: " + "; ".join(bad)
+        )
+
+
+def test_real_annotated_script_word_coverage_if_present():
+    """Opportunistic: if a real annotated_script.json + its resolvable source
+    input exist on disk (the live-artifact path from a prior
+    /api/generate_script run), check INVARIANT (word coverage == 1.0)
+    against them. Skips cleanly when either artifact is absent -- this is
+    the common case for a fresh checkout.
+    """
+    _require_pipeline_modules()
+    repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    script_path = os.path.join(repo_root, "annotated_script.json")
+    state_path = os.path.join(repo_root, "state.json")
+
+    if not os.path.exists(script_path):
+        raise TestFailure("SKIP: no annotated_script.json at repo root")
+    if not os.path.exists(state_path):
+        raise TestFailure("SKIP: no state.json to locate the source input file")
+
+    with open(state_path, "r", encoding="utf-8") as f:
+        state = json.load(f)
+    input_file = state.get("input_file_path")
+    if not input_file or not os.path.exists(input_file):
+        raise TestFailure("SKIP: state.json has no resolvable input_file_path")
+
+    with open(script_path, "r", encoding="utf-8") as f:
+        entries = json.load(f)
+    with open(input_file, "r", encoding="utf-8") as f:
+        source_text = f.read()
+
+    ratio, seq_match, _orig_words, _corr_words = _sc_coverage(source_text, entries)
+    if ratio != 1.0 or not seq_match:
+        raise TestFailure(
+            f"WORD COVERAGE INVARIANT (== 1.0) VIOLATED on real artifacts: "
+            f"ratio={ratio!r} sequence_match={seq_match}"
+        )
+
+
+def test_label_flags_endpoint_logic_never_writes_files():
+    """The advisory GET /api/voices/label_flags endpoint (app.py's
+    _compute_label_flags, called directly here rather than over HTTP so this
+    stays offline) must never write or mutate voice_config.json or
+    annotated_script.json on disk -- it is READ-ONLY / advisory tooling per
+    CLAUDE.md's frozen contracts.
+    """
+    _require_pipeline_modules()
+
+    script_path = app_module.SCRIPT_PATH
+    voice_config_path = app_module.VOICE_CONFIG_PATH
+
+    def _snapshot(path):
+        if not os.path.exists(path):
+            return None
+        return (os.path.getmtime(path), os.path.getsize(path))
+
+    before_script = _snapshot(script_path)
+    before_voice_config = _snapshot(voice_config_path)
+
+    source_text = (
+        'Elena walked into the hall. "We should go," Elena said quietly. '
+        "A ghostly figure watched from the shadows without speaking."
+    )
+    script_data = [
+        {"speaker": "Elena", "text": "We should go,", "instruct": "quiet"},
+        # PHANTASMAGORIA never appears in source_text -> exercises the
+        # "flagged unattested" path too, not just the happy path.
+        {"speaker": "Phantasmagoria", "text": "A ghostly figure watched from the shadows", "instruct": "eerie"},
+    ]
+
+    flags = app_module._compute_label_flags(script_data, source_text)
+
+    after_script = _snapshot(script_path)
+    after_voice_config = _snapshot(voice_config_path)
+
+    if before_script != after_script:
+        raise TestFailure(
+            f"_compute_label_flags touched annotated_script.json on disk: "
+            f"before={before_script!r} after={after_script!r}"
+        )
+    if before_voice_config != after_voice_config:
+        raise TestFailure(
+            f"_compute_label_flags touched voice_config.json on disk: "
+            f"before={before_voice_config!r} after={after_voice_config!r}"
+        )
+
+    names = {f["name"] for f in flags}
+    if names != {"ELENA", "PHANTASMAGORIA"}:
+        raise TestFailure(f"expected flags for ELENA and PHANTASMAGORIA, got: {names!r}")
+
+    by_name = {f["name"]: f for f in flags}
+    if by_name["ELENA"]["attested"] is not True:
+        raise TestFailure(f"ELENA should be attested (appears near its own line): {by_name['ELENA']!r}")
+    if by_name["PHANTASMAGORIA"]["attested"] is not False:
+        raise TestFailure(
+            f"PHANTASMAGORIA should be flagged unattested (name never appears in source): "
+            f"{by_name['PHANTASMAGORIA']!r}"
+        )
+
+
 # ── Run all tests ────────────────────────────────────────────
 
 def run_all_tests():
@@ -1331,6 +1939,30 @@ def run_all_tests():
     section("Dataset Builder Generate (TTS)")
     run_test("dataset_builder_generate_sample", test_dataset_builder_generate_sample, requires_full=True)
 
+    run_offline_invariant_tests()
+
+
+def run_offline_invariant_tests():
+    """The genuinely server-free subset of the suite: Section 15's pipeline
+    invariants. No network I/O happens in here -- safe (and fast) to run with
+    `--offline` / `--offline-only` when no server is up, and also called from
+    run_all_tests() above so default behavior is unchanged.
+    """
+    section("Pipeline Invariants (Offline, no server/LLM)")
+    run_test("span_tokenizer_reassembly_byte_identical", test_span_tokenizer_reassembly_is_byte_identical)
+    run_test("process_chunk_reassembly_byte_identical_across_fixtures_and_modes",
+              test_process_chunk_reassembly_byte_identical_across_fixtures_and_modes)
+    run_test("epub_spine_items_yield_over_200_chars", test_epub_spine_items_yield_over_200_chars)
+    run_test("epub_spine_item_under_200_chars_would_be_flagged",
+              test_epub_spine_item_under_200_chars_would_be_flagged)
+    run_test("word_coverage_exact_one_across_failure_modes", test_word_coverage_exact_one_across_failure_modes)
+    run_test("no_character_entry_mixes_quotation_and_narration", test_no_character_entry_mixes_quotation_and_narration)
+    run_test("chunking_is_byte_lossless_over_source", test_chunking_is_byte_lossless_over_source)
+    run_test("word_coverage_digits_and_abbreviations_survive_verbatim",
+              test_word_coverage_digits_and_abbreviations_survive_verbatim)
+    run_test("real_annotated_script_word_coverage_if_present", test_real_annotated_script_word_coverage_if_present)
+    run_test("label_flags_endpoint_logic_never_writes_files", test_label_flags_endpoint_logic_never_writes_files)
+
 
 # ── Cleanup ──────────────────────────────────────────────────
 
@@ -1381,26 +2013,42 @@ def cleanup():
 # ── Main ─────────────────────────────────────────────────────
 
 def main():
-    global BASE_URL, FULL_MODE
+    global BASE_URL, FULL_MODE, OFFLINE_ONLY
 
     parser = argparse.ArgumentParser(description="Alexandria API test suite")
     parser.add_argument("--url", default="http://127.0.0.1:4200",
                         help="Server URL (default: http://127.0.0.1:4200)")
     parser.add_argument("--full", action="store_true",
                         help="Include TTS/LLM-dependent tests")
+    parser.add_argument("--offline", "--offline-only", dest="offline", action="store_true",
+                        help="Run ONLY the offline pipeline-invariant tests (Section 15): "
+                             "no server, no LLM, no network calls at all. Ignores --full and "
+                             "--url. Use this to check the span-classifier invariants in "
+                             "seconds instead of waiting through connection-refused timeouts "
+                             "on every server-dependent test.")
     args = parser.parse_args()
 
     BASE_URL = args.url.rstrip("/")
     FULL_MODE = args.full
+    OFFLINE_ONLY = args.offline
 
     print(f"Alexandria API Tests")
-    print(f"Server: {BASE_URL}")
-    print(f"Mode:   {'FULL (includes TTS/LLM tests)' if FULL_MODE else 'QUICK (no TTS/LLM)'}")
+    if OFFLINE_ONLY:
+        print(f"Mode:   OFFLINE ONLY (pipeline invariants; no server, no LLM, no network)")
+    else:
+        print(f"Server: {BASE_URL}")
+        print(f"Mode:   {'FULL (includes TTS/LLM tests)' if FULL_MODE else 'QUICK (no TTS/LLM)'}")
 
-    try:
-        run_all_tests()
-    finally:
-        cleanup()
+    if OFFLINE_ONLY:
+        # Genuinely server-free: skip run_all_tests() (which would otherwise
+        # dial out to BASE_URL for ~90 tests first) and skip cleanup() too,
+        # since it only deletes server-side test fixtures via HTTP.
+        run_offline_invariant_tests()
+    else:
+        try:
+            run_all_tests()
+        finally:
+            cleanup()
 
     # Summary
     total = results["passed"] + results["failed"] + results["skipped"]

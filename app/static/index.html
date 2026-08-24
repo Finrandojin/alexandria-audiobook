@@ -266,7 +266,30 @@
                             <div class="mb-3">
                                 <label class="form-label">Banned Tokens</label>
                                 <input type="text" class="form-control" id="banned-tokens" placeholder="e.g. <think>, <reasoning>">
-                                <div class="form-text">Comma-separated tokens the LLM is forbidden from generating. Use to disable thinking mode (e.g. <code>&lt;think&gt;</code>).</div>
+                                <div class="form-text">
+                                    Comma-separated tokens the LLM is forbidden from generating.
+                                    <strong>Ignored by Ollama</strong>, which implements no token-banning
+                                    parameter and does not support <code>logit_bias</code> either, so this
+                                    cannot disable thinking mode there &mdash; use Reasoning Effort below.
+                                    Kept for backends that do honour it.
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Reasoning Effort</label>
+                                <select class="form-select" id="reasoning-effort">
+                                    <option value="">Server default (thinking models reason freely)</option>
+                                    <option value="none">none &mdash; disable thinking</option>
+                                    <option value="low">low</option>
+                                    <option value="medium">medium</option>
+                                    <option value="high">high</option>
+                                    <option value="max">max</option>
+                                </select>
+                                <div class="form-text">
+                                    The reliable way to disable thinking mode on Ollama's OpenAI-compatible
+                                    endpoint. A reasoning model can spend its <em>entire</em> token budget
+                                    thinking and return an empty response, which labels nothing and narrates
+                                    the whole chunk. Set <code>none</code> if your model reasons.
+                                </div>
                             </div>
                             <div class="mb-3 form-check form-switch">
                                 <input class="form-check-input" type="checkbox" id="merge-narrators">
@@ -1176,6 +1199,9 @@
                 document.getElementById('llm-url').value = config.llm.base_url;
                 document.getElementById('llm-key').value = config.llm.api_key;
                 document.getElementById('llm-model').value = config.llm.model_name;
+                // "" is a meaningful value here: it means "send nothing", which
+                // leaves the server's own thinking default in place.
+                document.getElementById('reasoning-effort').value = config.llm.reasoning_effort || '';
                 document.getElementById('tts-mode').value = config.tts.mode || 'external';
                 document.getElementById('tts-url').value = config.tts.url || 'http://127.0.0.1:7860';
                 document.getElementById('tts-device').value = config.tts.device || 'auto';
@@ -1326,6 +1352,10 @@
             document.getElementById('min-p').value = 0;
             document.getElementById('presence-penalty').value = 0;
             document.getElementById('banned-tokens').value = '';
+            // Reset to "server default", matching LLMConfig.reasoning_effort's
+            // None default -- resetting must not start sending a field that was
+            // previously absent.
+            document.getElementById('reasoning-effort').value = '';
             document.getElementById('merge-narrators').checked = false;
         };
 
@@ -1351,7 +1381,11 @@
                 llm: {
                     base_url: document.getElementById('llm-url').value,
                     api_key: document.getElementById('llm-key').value,
-                    model_name: document.getElementById('llm-model').value
+                    model_name: document.getElementById('llm-model').value,
+                    // null (not "") when unset, so the key is dropped by
+                    // save_config's exclude_none and the request keeps the
+                    // server default rather than sending an empty string.
+                    reasoning_effort: document.getElementById('reasoning-effort').value || null
                 },
                 tts: {
                     mode: document.getElementById('tts-mode').value,
@@ -1572,19 +1606,26 @@
             const config = voice.config || {};
             const voiceType = config.type || 'custom';
 
+            const flag = (window._labelFlagsMap || {})[voice.name];
+            const attestBadge = (flag && flag.attested === false)
+                ? `<span class="badge bg-warning text-dark ms-2" title="Missing near its lines: ${escapeHtml((flag.missing_tokens || []).join(', '))}">⚠ not found near its lines</span>`
+                : '';
+            const aliasHint = (window._aliasHintMap || {})[voice.name];
+            const aliasHintBadge = aliasHint
+                ? `<div class="form-text small text-muted mt-1">similar to ${escapeHtml(aliasHint)} — review</div>`
+                : '';
+
             return `
                 <div class="card voice-card mb-3" data-voice="${escapeHtml(voice.name)}">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3">
-                                <h5 class="card-title">${escapeHtml(voice.name)} ${config.alias_of ? `<span class="badge bg-info ms-2" title="Alias of ${escapeHtml(config.alias_of)}">${escapeHtml(config.alias_of)}</span>` : ''}</h5>
+                                <h5 class="card-title">${escapeHtml(voice.name)} ${config.alias_of ? `<span class="badge bg-info ms-2" title="Alias of ${escapeHtml(config.alias_of)}">${escapeHtml(config.alias_of)}</span>` : ''}${attestBadge}</h5>
+                                ${aliasHintBadge}
                                 <div class="form-text small text-muted mt-1">Alias of:</div>
-                                <select class="form-select form-select-sm alias-select mt-1">
+                                <select class="form-select form-select-sm alias-select mt-1" data-populated="false">
                                     <option value="">-- None --</option>
-                                    ${(() => {
-                                        const names = (window._voicesNames || []).filter(n => n !== voice.name);
-                                        return names.map(n => `<option value="${escapeHtml(n)}" ${config.alias_of === n ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('');
-                                    })()}
+                                    ${config.alias_of ? `<option value="${escapeHtml(config.alias_of)}" selected>${escapeHtml(config.alias_of)}</option>` : ''}
                                 </select>
                             </div>
                             <div class="col-md-9">
@@ -1717,6 +1758,22 @@
             `;
         }
 
+        // Lazily populate the "Alias of" select's full option list only when the user
+        // actually opens it. With large rosters (n voices), building n options per card
+        // up front is O(n^2) DOM nodes on load; this defers that work to a one-time,
+        // per-select population on first interaction.
+        function populateAliasSelect(select) {
+            if (!select || select.dataset.populated === 'true') return;
+            select.dataset.populated = 'true';
+            const card = select.closest('.voice-card');
+            const voiceName = card ? card.dataset.voice : null;
+            const currentValue = select.value;
+            const names = (window._voicesNames || []).filter(n => n !== voiceName);
+            const optionsHtml = names.map(n => `<option value="${escapeHtml(n)}" ${n === currentValue ? 'selected' : ''}>${escapeHtml(n)}</option>`).join('');
+            select.innerHTML = `<option value="">-- None --</option>${optionsHtml}`;
+            select.value = currentValue;
+        }
+
         window.toggleVoiceType = (radio) => {
             const card = radio.closest('.card-body');
             card.querySelector('.custom-opts').style.display = radio.value === 'custom' ? 'block' : 'none';
@@ -1747,12 +1804,89 @@
                 container.innerHTML = '<div class="alert alert-info">No voices found. Generate a script first.</div>';
                 return;
             }
+
+            // Fetch advisory label-attestation flags and alias suggestions ONCE
+            // per load (not per row) and index them by name for O(1) lookup
+            // while rendering -- mirrors the lazy alias-select population
+            // pattern above; never loop the roster doing per-row fetches/DOM work.
+            let labelFlags = [];
+            try {
+                const flagsResp = await API.get('/api/voices/label_flags');
+                labelFlags = flagsResp.flags || [];
+            } catch (e) { /* advisory only; ignore if unavailable */ }
+            window._labelFlagsMap = {};
+            labelFlags.forEach(f => { window._labelFlagsMap[f.name] = f; });
+
+            let aliasSuggestions = [];
+            try {
+                const aliasResp = await API.get('/api/voices/alias_suggestions');
+                aliasSuggestions = aliasResp.suggestions || [];
+            } catch (e) { /* advisory only; ignore if unavailable */ }
+            // Hint attaches to the shorter ("name") side of each suggestion pair.
+            window._aliasHintMap = {};
+            aliasSuggestions.forEach(s => { window._aliasHintMap[s.name] = s.alias_of; });
+
+            renderVoicesSummaryStrip(labelFlags, aliasSuggestions);
+
             container.innerHTML = voices.map((v, i) => createVoiceCard(v, i)).join('');
 
             // If any voice has no saved config, save defaults immediately
             if (voices.some(v => !v.config || Object.keys(v.config).length === 0)) {
                 debouncedSaveVoices();
             }
+        }
+
+        // Dismissable summary strip at the top of the Voices screen, combining
+        // attestation flags and alias suggestions, ordered by entry count
+        // descending (biggest-impact problems first). Purely informational --
+        // never pre-selects or auto-applies anything.
+        function renderVoicesSummaryStrip(labelFlags, aliasSuggestions) {
+            const existing = document.getElementById('voices-summary-strip');
+            if (existing) existing.remove();
+            if (sessionStorage.getItem('voicesSummaryDismissed') === '1') return;
+
+            const entryCountByName = {};
+            labelFlags.forEach(f => { entryCountByName[f.name] = f.entry_count; });
+
+            const problems = [];
+            labelFlags.filter(f => f.attested === false).forEach(f => {
+                problems.push({
+                    name: f.name,
+                    entry_count: f.entry_count,
+                    text: `${escapeHtml(f.name)}: not found near its lines`,
+                });
+            });
+            aliasSuggestions.forEach(s => {
+                problems.push({
+                    name: s.name,
+                    entry_count: entryCountByName[s.name] || 0,
+                    text: `${escapeHtml(s.name)}: similar to ${escapeHtml(s.alias_of)} — review`,
+                });
+            });
+            if (problems.length === 0) return;
+
+            problems.sort((a, b) => b.entry_count - a.entry_count);
+
+            const container = document.getElementById('voices-list');
+            const strip = document.createElement('div');
+            strip.id = 'voices-summary-strip';
+            strip.className = 'alert alert-warning d-flex justify-content-between align-items-start';
+            strip.innerHTML = `
+                <div>
+                    <strong>Flagged voices for review:</strong>
+                    <ul class="mb-0 small">
+                        ${problems.map(p => `<li>${p.text} (${p.entry_count} line${p.entry_count === 1 ? '' : 's'})</li>`).join('')}
+                    </ul>
+                </div>
+                <button type="button" class="btn-close" aria-label="Dismiss" onclick="dismissVoicesSummaryStrip()"></button>
+            `;
+            container.parentNode.insertBefore(strip, container);
+        }
+
+        function dismissVoicesSummaryStrip() {
+            sessionStorage.setItem('voicesSummaryDismissed', '1');
+            const existing = document.getElementById('voices-summary-strip');
+            if (existing) existing.remove();
         }
 
         function collectVoiceConfig() {
@@ -1840,22 +1974,75 @@
             debouncedSaveVoices();
         });
 
+        // Populate an "Alias of" select's full option list on first interaction (mouse
+        // open or keyboard focus) instead of at initial render — see populateAliasSelect.
+        document.getElementById('voices-list').addEventListener('mousedown', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('alias-select')) {
+                populateAliasSelect(e.target);
+            }
+        });
+        document.getElementById('voices-list').addEventListener('focusin', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('alias-select')) {
+                populateAliasSelect(e.target);
+            }
+        });
+
         // --- Editor Tab ---
         let isPlayingSequence = false;
         let isRenderingAll = false;
         let cachedChunks = []; // Cache to track changes
 
-        function buildSpeakerSelect(chunk) {
+        // Render the speaker select with only its current value (plus a neutral
+        // placeholder when unset) instead of the full roster. With thousands of chunk
+        // rows, building the entire voice roster as <option>s per row up front is
+        // O(rows * roster) DOM nodes; this defers that to a one-time, per-select
+        // population on first interaction (see populateSpeakerSelect).
+        // `knownVoiceSet` is an optional pre-built Set of trimmed voice names, computed
+        // once per table redraw (not per row) so the "(custom)" hint still works cheaply.
+        function buildSpeakerSelect(chunk, knownVoiceSet) {
             const current = (chunk.speaker || '').trim();
+            let currentOption;
+            if (!current) {
+                currentOption = `<option value="" selected>-- Select speaker --</option>`;
+            } else {
+                const isKnown = knownVoiceSet ? knownVoiceSet.has(current) : true;
+                currentOption = `<option value="${escapeHtml(current)}" selected>${escapeHtml(current)}${isKnown ? '' : ' (custom)'}</option>`;
+            }
+
+            return `<select class="form-select form-select-sm chunk-speaker-select" data-populated="false" onchange="updateChunk(${chunk.id}, 'speaker', this.value)">${currentOption}</select>`;
+        }
+
+        // One-time full population of a speaker select's option list, triggered on
+        // first interaction (mouse open or keyboard focus) instead of at render time.
+        function populateSpeakerSelect(select) {
+            if (!select || select.dataset.populated === 'true') return;
+            select.dataset.populated = 'true';
+            const currentValue = select.value;
             const names = Array.isArray(window._voicesNames) ? window._voicesNames : [];
             const normalized = [...new Set(names.map(n => (n || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-            const options = normalized.map(name => `<option value="${escapeHtml(name)}" ${name === current ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('');
-            const unknownOption = current && !normalized.includes(current)
-                ? `<option value="${escapeHtml(current)}" selected>${escapeHtml(current)} (custom)</option>`
+            const options = normalized.map(name => `<option value="${escapeHtml(name)}" ${name === currentValue ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('');
+            const unknownOption = currentValue && !normalized.includes(currentValue)
+                ? `<option value="${escapeHtml(currentValue)}" selected>${escapeHtml(currentValue)} (custom)</option>`
                 : '';
-
-            return `<select class="form-select form-select-sm" onchange="updateChunk(${chunk.id}, 'speaker', this.value)">${unknownOption}${options}</select>`;
+            select.innerHTML = `${unknownOption}${options}`;
+            select.value = currentValue;
         }
+
+        // Populate a chunk row's speaker select's full option list on first interaction
+        // (mouse open or keyboard focus) instead of at render time — see
+        // populateSpeakerSelect. Attached once to the table body, which survives the
+        // tbody.innerHTML full-redraw in loadChunks (same delegation pattern used for
+        // #voices-list's alias-select).
+        document.getElementById('chunks-table-body').addEventListener('mousedown', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('chunk-speaker-select')) {
+                populateSpeakerSelect(e.target);
+            }
+        });
+        document.getElementById('chunks-table-body').addEventListener('focusin', (e) => {
+            if (e.target && e.target.classList && e.target.classList.contains('chunk-speaker-select')) {
+                populateSpeakerSelect(e.target);
+            }
+        });
 
         // Check if any audio is currently playing
         function isAudioPlaying() {
@@ -1983,6 +2170,14 @@
                     });
                 } else {
                     // Full redraw needed
+                    // Build the "known voice" lookup once for the whole redraw (not per
+                    // row) so buildSpeakerSelect's "(custom)" hint stays O(1) per row
+                    // instead of re-scanning the full roster for every chunk.
+                    const knownVoiceSet = new Set(
+                        (Array.isArray(window._voicesNames) ? window._voicesNames : [])
+                            .map(n => (n || '').trim())
+                            .filter(Boolean)
+                    );
                     tbody.innerHTML = chunks.map(chunk => {
                         const statusColor = chunk.status === 'done' ? 'success' :
                                           chunk.status === 'generating' ? 'warning' :
@@ -2003,7 +2198,7 @@
                                 <td class="text-center align-middle" style="white-space:nowrap;">
                                     <button class="chunk-action-btn chunk-toggle-btn" onclick="toggleChunkExpand(this)" title="Expand/collapse"><i class="fas fa-chevron-down"></i></button><button class="chunk-action-btn" onclick="insertChunkAfter(${chunk.id})" title="Insert line below"><i class="fas fa-plus"></i></button><button class="chunk-action-btn" onclick="deleteChunk(${chunk.id})" title="Delete line"><i class="fas fa-trash" style="color:#dc3545;"></i></button>
                                 </td>
-                                <td>${buildSpeakerSelect(chunk)}</td>
+                                <td>${buildSpeakerSelect(chunk, knownVoiceSet)}</td>
                                 <td><textarea class="form-control form-control-sm chunk-text" rows="2" onchange="updateChunk(${chunk.id}, 'text', this.value)">${escapeHtml(chunk.text)}</textarea></td>
                                 <td>
                                     <textarea class="form-control form-control-sm chunk-instruct" rows="2" onchange="updateChunk(${chunk.id}, 'instruct', this.value)" title="Short TTS direction (3-8 words)">${escapeHtml(chunk.instruct || '')}</textarea>
@@ -2865,6 +3060,9 @@
                     if (card) {
                         const aliasSel = card.querySelector('.alias-select');
                         if (aliasSel) {
+                            // Ensure the full option list exists before assigning a value that
+                            // may not be among the lazily-rendered options yet.
+                            populateAliasSelect(aliasSel);
                             aliasSel.value = selectedAlias || '';
                             // Trigger save via existing auto-save debounce
                             debouncedSaveVoices();
