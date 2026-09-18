@@ -13,6 +13,23 @@ from utils import atomic_json_write as _atomic_json_write
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
 
 
+# Canonical narrator label. Matches generate_script.NARRATOR; casing is
+# load-bearing across the pipeline.
+NARRATOR_KEY = "NARRATOR"
+
+
+def _entry_has_voice(entry):
+    """True if a voice_config entry can actually synthesize something.
+
+    A cloned/designed entry carries ref_audio; a built-in one carries a voice
+    name. An entry that is missing, empty, or aliased away has neither.
+    """
+    if not isinstance(entry, dict) or entry.get("alias_of"):
+        return False
+    return bool(str(entry.get("ref_audio") or "").strip()
+                or str(entry.get("voice") or "").strip())
+
+
 def extract_json_object(text):
     # Find first JSON object in text
     start = text.find('{')
@@ -59,6 +76,16 @@ def normalize_speaker_name(name):
     s = re.sub(r'[^a-z0-9\s]', '', s)
     s = re.sub(r'\s+', ' ', s).strip()
     return s
+
+
+def _configured_speaker_names(voice_config):
+    """The voice_config keys that are speakers.
+
+    Keys beginning with "_" are file metadata (e.g. the "_canon_version" stamp
+    app.py writes when saving voice_config.json), never characters, and must
+    never be offered to the alias matcher as an existing name.
+    """
+    return [k for k in voice_config if not k.startswith("_")]
 
 
 def _token_jaccard(a: str, b: str) -> float:
@@ -677,7 +704,12 @@ def main():
     api_key = llm_cfg.get("api_key", "local")
     model_name = llm_cfg.get("model_name", "richardyoung/qwen3-14b-abliterated:Q8_0")
 
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    # llm.timeout: see generate_script.main. Omitted when unset.
+    _client_kwargs = {"base_url": base_url, "api_key": api_key}
+    _timeout = llm_cfg.get("timeout")
+    if _timeout:
+        _client_kwargs["timeout"] = _timeout
+    client = OpenAI(**_client_kwargs)
 
     # Load persona prompts from config, fall back to defaults
     prompts_cfg = config.get("prompts", {})
@@ -735,13 +767,37 @@ def main():
 
     print(f"Processing {len(selected_speakers)} speakers")
 
-    # Step 1: Pre-process with exact heuristic + high-confidence fuzzy matching
+    # Step 1: Pre-process with an EXACT normalized-name check only.
+    #
+    # A fuzzy pass (rapidfuzz at 0.8) used to run here and decided identity
+    # between two roster entries on similarity alone. That is the banned
+    # approach: measured on one book it merged 31 pairs, including NITA ->
+    # NITA'S DAD, KIT -> KIT'S MOTHER and ROSHAUN -> ROSHAUN'S FATHER -- a
+    # possessive relation scores high against the person it refers to while
+    # being a different character. It was also cyclic (SWALE -> TOM SWALE and
+    # TOM SWALE -> SWALE), so the winner depended on iteration order. Every
+    # merged speaker is SKIPPED here, so it silently left 28 of 65 speakers
+    # with no voice at all, ROSHAUN's 272 lines among them.
+    #
+    # Exact equality after normalization is the same rule the rest of the
+    # pipeline uses (speaker_canon.roster_key). Genuine aliases that differ by
+    # more than that are a human decision: suggest_aliases() offers them and
+    # nothing acts on them automatically.
     resolved_aliases = {}
     remaining_speakers = []
 
     for speaker in selected_speakers:
-        existing_names = [n for n in voice_config.keys() if n != speaker]
-        # Fast heuristic exact check
+        # An alias the operator already set is a decision, not a candidate.
+        # Honour it and skip: generating a persona would overwrite the entry
+        # and give this speaker its own voice again.
+        preset = (voice_config.get(speaker) or {}).get("alias_of") \
+            or (voice_config.get(speaker) or {}).get("alias")
+        if preset:
+            print(f"Existing alias kept: {speaker} -> {preset}")
+            resolved_aliases[speaker] = preset
+            continue
+
+        existing_names = [n for n in _configured_speaker_names(voice_config) if n != speaker]
         norm_self = normalize_speaker_name(speaker)
         heuristic_alias = ""
         for candidate in existing_names:
@@ -749,12 +805,8 @@ def main():
                 heuristic_alias = candidate
                 break
 
-        if not heuristic_alias and existing_names:
-            # High-confidence fuzzy check
-            heuristic_alias = _resolve_to_canonical(speaker, existing_names, threshold=0.8)
-
         if heuristic_alias:
-            print(f"Fast heuristic/fuzzy alias detected: {speaker} -> {heuristic_alias}")
+            print(f"Exact-name alias detected: {speaker} -> {heuristic_alias}")
             resolved_aliases[speaker] = heuristic_alias
         else:
             remaining_speakers.append(speaker)
@@ -777,7 +829,7 @@ def main():
                 }
             
             # Use current configured names plus any previously resolved canonical names as existing references
-            existing_configured = list(voice_config.keys()) + list(batch_mapping.values())
+            existing_configured = _configured_speaker_names(voice_config) + list(batch_mapping.values())
             
             print(f"Resolving alias batch {idx//chunk_size + 1} ({len(chunk)} speakers)...")
             chunk_mapping = _resolve_aliases_batch(client, model_name, speakers_info, existing_configured)
@@ -794,7 +846,7 @@ def main():
             resolved_name = normalized_mapping.get(norm_speaker, speaker)
             if resolved_name != speaker:
                 # LLM identified this as an alias!
-                all_possible = list(voice_config.keys()) + remaining_speakers
+                all_possible = _configured_speaker_names(voice_config) + remaining_speakers
                 canonical_target = _resolve_to_canonical(resolved_name, all_possible, threshold=0.6)
                 if canonical_target and canonical_target != speaker:
                     print(f"Batch LLM alias detected: {speaker} -> {canonical_target}")
@@ -866,6 +918,47 @@ def main():
 
         except Exception as e:
             print(f"Unhandled error for {speaker}: {e}")
+
+    # Any speaker still without a voice gets the NARRATOR's, as a DEFAULT rather
+    # than an alias: it keeps its own voice_config key, so the operator can
+    # override it in the Voices UI. An alias would fold the entry into NARRATOR,
+    # and nothing in this pipeline can split a merged entry back apart.
+    #
+    # Reading a character's lines in the narrator's voice is the safe failure for
+    # an audiobook -- it is what an unlabelled span already does -- whereas no
+    # entry at all means the renderer falls through to whatever default voice it
+    # happens to have. Loud, not silent: a persona failure on a major character
+    # is worth seeing before rendering, not after.
+    narrator_entry = voice_config.get(NARRATOR_KEY) or {}
+    defaulted = []
+    if _entry_has_voice(narrator_entry):
+        for speaker in selected_speakers:
+            if speaker == NARRATOR_KEY or speaker in resolved_aliases:
+                continue
+            existing = voice_config.get(speaker) or {}
+            # An operator-set alias points deliberately at another speaker's
+            # voice. It has no voice of its own by design, and must not be
+            # mistaken for a persona failure and overwritten.
+            if existing.get("alias_of") or existing.get("alias"):
+                continue
+            if _entry_has_voice(existing):
+                continue
+            entry = dict(narrator_entry)
+            entry["defaulted_from_narrator"] = True
+            voice_config[speaker] = entry
+            defaulted.append(speaker)
+
+    if defaulted:
+        print("!" * 58)
+        print(f"{len(defaulted)} speaker(s) got no persona and now default to the "
+              f"NARRATOR's voice:")
+        print("  " + ", ".join(sorted(defaulted)))
+        print("They keep their own voice_config entry -- assign a voice in the "
+              "Voices UI to override.")
+        print("!" * 58)
+    elif not _entry_has_voice(narrator_entry):
+        print("Note: NARRATOR has no usable voice entry, so no default could be "
+              "applied to speakers that failed persona generation.")
 
     # Persist voice_config
     try:

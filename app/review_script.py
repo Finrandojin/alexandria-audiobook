@@ -6,6 +6,171 @@ import argparse
 from openai import OpenAI
 from review_prompts import REVIEW_SYSTEM_PROMPT, REVIEW_USER_PROMPT
 from generate_script import clean_json_string, repair_json_array, salvage_json_entries
+from speaker_canon import canonicalize, remember_in_roster, resolve_against_roster
+
+# Marker embedded in both halves of review_prompts.txt (see the file itself)
+# identifying prompts written for the current positional-overlay review
+# schema: the reviewer only ever corrects "speaker"/"instruct" and must
+# return exactly as many entries as it was given. This is review_script.py's
+# own equivalent of generate_script.py's PROMPT_SCHEMA_MARKER
+# ("span-labels-v1") for the classifier stage -- kept separate (rather than
+# sharing generate_script.select_prompt) because that marker is specific to
+# the span-classifier schema, not the review schema, and generate_script.py
+# is out of scope for this fix.
+REVIEW_PROMPT_SCHEMA_MARKER = "verbatim-review-v1"
+
+
+def select_review_prompt(custom_prompt, default_prompt, config_key):
+    """Choose between a saved custom review prompt and the built-in default.
+
+    A custom prompt is honoured only when it carries
+    REVIEW_PROMPT_SCHEMA_MARKER, i.e. when it was written for the current
+    verbatim/positional-overlay review schema (speaker/instruct-only
+    corrections, same entry count out as in). A prompt saved before that
+    refactor still instructs the old "strip attribution tags, rephrase,
+    split/merge, rewrite front-matter" methodology -- the overlay makes that
+    incapable of damaging annotated_script.json's text, but it still causes
+    entry-count mismatches (failed batches) and degrades speaker/instruct
+    fixes, so a stale prompt is rejected loudly rather than used silently.
+    """
+    if not custom_prompt or not custom_prompt.strip():
+        return default_prompt
+
+    if REVIEW_PROMPT_SCHEMA_MARKER in custom_prompt:
+        return custom_prompt
+
+    print(f"  {'!' * 60}")
+    print(f"  WARNING: saved custom prompt '{config_key}' predates the verbatim-review")
+    print(f"  pipeline (missing '{REVIEW_PROMPT_SCHEMA_MARKER}' marker) -- using the built-in")
+    print("  default instead. Re-customize starting from the new default if needed.")
+    print(f"  {'!' * 60}")
+    return default_prompt
+
+
+def _canonicalize_speakers(entries):
+    """Return a copy of `entries` with each "speaker" field canonicalized.
+
+    Never touches "text" -- only the speaker label. Safety net against
+    casing/formatting drift introduced by the review LLM (or older,
+    pre-canonicalization scripts) so the `!= "NARRATOR"` checks in
+    merge_consecutive_narrators stay reliable.
+    """
+    result = []
+    for entry in entries:
+        new_entry = dict(entry)
+        if "speaker" in new_entry:
+            new_entry["speaker"] = canonicalize(new_entry["speaker"])
+        result.append(new_entry)
+    return result
+
+
+def build_script_roster(entries):
+    """Roster index of the speaker spellings already present in a script.
+
+    Spelling collisions are settled by remember_in_roster's rule (most
+    boundary marks wins, ties to the incumbent), which is
+    order-independent -- so this roster and generation's agree even though
+    they are built in different orders. Pass the result to
+    apply_positional_overlay so a reviewer's spelling variant is snapped back
+    onto the established name instead of forking the roster.
+    """
+    index = {}
+    for entry in entries or ():
+        speaker = entry.get("speaker") if isinstance(entry, dict) else None
+        if speaker:
+            remember_in_roster(index, speaker)
+    return index
+
+
+def apply_positional_overlay(batch, corrected, roster=None):
+    """Overlay LLM speaker/instruct corrections onto the ORIGINAL batch text.
+
+    This is the hard, structural guarantee against text damage: "text" is
+    ALWAYS taken from the original entry, never from the LLM's output, so no
+    amount of accidental rewording/splitting/merging/attribution-stripping in
+    a model response can touch the verbatim script. Only "speaker"
+    (canonicalized) and "instruct" are taken from the LLM's corresponding
+    entry, matched positionally (same index in `batch` and `corrected`).
+
+    Returns None if `corrected` has a different number of entries than
+    `batch`. The reviewer is no longer allowed to split, merge, add, or
+    remove entries -- a count mismatch means its response can't be aligned
+    positionally, so the caller must treat this as a failed batch (keep the
+    original entries) rather than guessing an alignment.
+
+    Returns None ALSO when any slot's echoed "text" does not match the
+    original entry's text (whitespace-normalized). Count alone is not
+    alignment: a response that duplicates one entry and drops another has
+    the right length but shifts every later label one slot left, filing
+    correct labels against the wrong entries. Measured on a real review run:
+    34 misaligned slots, 13 of them one contiguous off-by-one run inside a
+    single batch, silently demoting a whole conversation to NARRATOR. Text
+    stayed verbatim (that guarantee is structural), so nothing else could
+    detect it -- check_text_loss compares the accepted entries against the
+    batch they were built FROM, which is a tautology.
+
+    Whole-batch rejection rather than per-slot skipping: a shift means every
+    slot after the drop point is wrong, and the slots whose text happens to
+    coincide again are exactly the ones that would silently take a
+    neighbour's label. Rejecting only the provably-mismatched slots would
+    still apply garbage to the coincidences. A failed batch keeps its
+    original labels, which is the safe direction.
+
+    Comparison is whitespace-normalized, not exact: models routinely echo
+    the text with a leading/collapsed space (41 correctly-aligned slots in
+    that same run, against 7097 exact echoes), and an exact compare would
+    reject all of them.
+    A missing/blank/non-string "text" is NOT treated as a mismatch -- the
+    reviewer is asked for labels only, and a response that omits the echo
+    entirely carries no alignment evidence either way; those responses have
+    always been accepted positionally and stay accepted.
+    """
+    if len(corrected) != len(batch):
+        return None
+
+    for orig, corr in zip(batch, corrected):
+        if not isinstance(corr, dict):
+            continue
+        echoed = corr.get("text")
+        if not isinstance(echoed, str) or not echoed.strip():
+            continue
+        if " ".join(echoed.split()) != " ".join(str(orig.get("text", "")).split()):
+            return None
+
+    accepted = []
+    for orig, corr in zip(batch, corrected):
+        new_entry = dict(orig)
+        corr = corr if isinstance(corr, dict) else {}
+
+        # Speaker: prefer the LLM's correction, but only if it canonicalizes
+        # to something non-empty. An empty string, None, or a value that
+        # canonicalizes to "" (e.g. a stray "(shouting)") must NOT blank out
+        # a good original label -- that would silently drop the entry from
+        # the voices roster and mute it at render time. Fall back to the
+        # original (canonicalized) speaker whenever the correction is empty,
+        # not only when the "speaker" key is absent entirely.
+        #
+        # `roster` (optional, see build_script_roster) additionally snaps a
+        # correction onto an established spelling from the same script when
+        # the two differ only in their boundary marks -- whitespace, hyphens,
+        # apostrophes ("ABBEMARIGNAN" -> "ABBE MARIGNAN", "OBRIEN" ->
+        # "O'BRIEN"). Exact roster-key equality only -- similar-but-distinct
+        # names (JON/JOHN, ELLA/BELLA) are never merged.
+        corrected_speaker = resolve_against_roster(corr.get("speaker") or "", roster or {})
+        new_entry["speaker"] = corrected_speaker or resolve_against_roster(
+            orig.get("speaker", ""), roster or {})
+
+        # Instruct: only accept a non-empty string from the LLM. None, a
+        # list/dict, or a whitespace-only string is rejected in favor of the
+        # original instruct (already present via dict(orig) above) rather
+        # than writing a malformed value into annotated_script.json.
+        corrected_instruct = corr.get("instruct")
+        if isinstance(corrected_instruct, str) and corrected_instruct.strip():
+            new_entry["instruct"] = corrected_instruct
+
+        new_entry["text"] = orig.get("text", "")
+        accepted.append(new_entry)
+    return accepted
 
 
 def _is_section_break(text):
@@ -18,6 +183,24 @@ def _is_section_break(text):
     if stripped == stripped.upper() and len(stripped) < 80 and stripped.isascii():
         return True
     return False
+
+
+def _join_narrator_texts(left, right):
+    """Join two narrator texts across a merge boundary.
+
+    Verbatim entries already carry their own boundary whitespace (a
+    trailing/leading space or newline copied straight from the source), so
+    unconditionally inserting an extra " " would introduce a byte that was
+    never in the original text. Only inject a space when NEITHER side
+    already has boundary whitespace -- this keeps legacy scripts (older
+    annotated_script.json files whose entries were .strip()'d) merging
+    readably, while verbatim entries stay byte-exact.
+    """
+    if not left or not right:
+        return left + right
+    if left[-1].isspace() or right[0].isspace():
+        return left + right
+    return left + " " + right
 
 
 def merge_consecutive_narrators(entries, max_merged_length=800):
@@ -54,7 +237,7 @@ def merge_consecutive_narrators(entries, max_merged_length=800):
                 break
             if _is_section_break(next_entry.get("text", "")):
                 break
-            candidate = combined_text + " " + next_entry["text"]
+            candidate = _join_narrator_texts(combined_text, next_entry["text"])
             if len(candidate) > max_merged_length:
                 break
             combined_text = candidate
@@ -73,11 +256,113 @@ def merge_consecutive_narrators(entries, max_merged_length=800):
     return merged, merges
 
 
+def _rendered_len(entries_list):
+    """Length (chars) of the JSON that would actually be sent to the LLM for
+    this list of entries -- i.e. exactly what review_batch() renders via
+    `json.dumps(entries_list, indent=2, ensure_ascii=False)`."""
+    return len(json.dumps(entries_list, indent=2, ensure_ascii=False))
+
+
+def build_review_batches(entries, batch_size, char_budget):
+    """Split entries into review batches bounded by BOTH entry count and
+    rendered JSON size.
+
+    A fixed entry-count batch (the old behavior) can silently overflow a
+    small LLM serving context window when individual entries are unusually
+    large (e.g. huge Gutenberg front-matter blocks) -- the server then
+    truncates the prompt instead of erroring, the model never sees its
+    instructions or most of its entries, and review silently becomes a
+    no-op on exactly the batches with the longest entries.
+
+    Entries accumulate into the current batch until EITHER:
+      - the batch already has `batch_size` entries, or
+      - adding the next entry would push the batch's rendered
+        `json.dumps(batch, indent=2, ensure_ascii=False)` length past
+        `char_budget`,
+    whichever comes first. A single entry never gets split across batches
+    -- if one entry's own rendered size alone exceeds `char_budget`, it
+    becomes a singleton batch by itself (the positional-overlay review
+    contract requires each entry to survive review as one unit; splitting
+    an entry is not an option).
+    """
+    if not entries:
+        return []
+
+    batches = []
+    current = []
+    for entry in entries:
+        candidate = current + [entry]
+        if current and (len(candidate) > batch_size or _rendered_len(candidate) > char_budget):
+            batches.append(current)
+            current = [entry]
+        else:
+            current = candidate
+    if current:
+        batches.append(current)
+    return batches
+
+
+def _truncate_context_entry(entry, max_text_chars=300):
+    """Return a copy of `entry` for CONTEXT-ONLY display, with "text" capped
+    to `max_text_chars` (plus an ellipsis) so a single giant neighbor entry
+    (e.g. a huge front-matter block sitting just outside the target batch)
+    can't blow the prompt's char budget from the context side.
+
+    NEVER apply this to the target batch itself -- only to the +/-N
+    neighbor entries shown for context in contextual review mode. The
+    reviewer never edits context entries anyway (only the TARGET BATCH is
+    returned), so truncating their display text has no effect on output
+    correctness, only on prompt size.
+    """
+    text = entry.get("text", "")
+    if isinstance(text, str) and len(text) > max_text_chars:
+        truncated = dict(entry)
+        truncated["text"] = text[:max_text_chars] + "..."
+        return truncated
+    return entry
+
+
+# Best-effort truncation-tripwire heuristic (see _maybe_print_truncation_hint):
+# English text averages roughly this many characters per token. If the
+# actual rendered prompt is more than _TRUNCATION_HINT_MULTIPLIER times this
+# baseline ratio away from what the reported prompt_tokens would imply, the
+# server is probably silently truncating its context window rather than
+# processing the whole prompt.
+_CHARS_PER_TOKEN_BASELINE = 4.0
+_TRUNCATION_HINT_MULTIPLIER = 3.5
+
+
+def _maybe_print_truncation_hint(prompt_chars, prompt_tokens):
+    """Print a one-line, best-effort hint when a response looks unusable
+    because the LLM server silently truncated its context window.
+
+    Symptom (observed in production on a 494k-word script): a locally
+    served model (e.g. Ollama) with a serving context window smaller than
+    the actual prompt truncates the prompt instead of erroring. The model
+    never sees its instructions/entries and returns garbage (wrong format,
+    wrong entry count) -- the overlay keeps annotated_script.json safe
+    either way, but review silently becomes a no-op on exactly the batches
+    containing the longest entries. The signature: reported prompt_tokens
+    stays roughly flat across wildly different batch sizes, because the
+    server only counts what it kept after truncating.
+
+    This is purely a diagnostic print -- it never changes control flow or
+    what gets returned/written.
+    """
+    if not prompt_tokens:
+        return
+    if prompt_chars > _TRUNCATION_HINT_MULTIPLIER * _CHARS_PER_TOKEN_BASELINE * prompt_tokens:
+        print(f"  HINT: response unusable and prompt_tokens ({prompt_tokens}) far below prompt "
+              f"size ({prompt_chars} chars) -- the LLM server may be truncating its context "
+              f"window; reduce review_batch_char_budget or raise the server's context length.")
+
+
 def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                  previous_tail=None, source_context=None, max_retries=2,
                  system_prompt=None, user_prompt_template=None,
                  max_tokens=8000, temperature=0.4, top_p=0.8, top_k=20,
-                 min_p=0, presence_penalty=0.0, banned_tokens=None):
+                 min_p=0, presence_penalty=0.0, banned_tokens=None,
+                 reasoning_effort=None):
     """Send a batch of script entries through the LLM for review and correction."""
     sys_prompt = system_prompt or REVIEW_SYSTEM_PROMPT
     usr_template = user_prompt_template or REVIEW_USER_PROMPT
@@ -98,7 +383,9 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
     context = "\n".join(context_parts)
     batch_json = json.dumps(batch_entries, indent=2, ensure_ascii=False)
     user_prompt = usr_template.format(context=context, batch=batch_json)
+    prompt_chars = len(sys_prompt) + len(user_prompt)
 
+    usage = None
     for attempt in range(max_retries + 1):
         try:
             response = client.chat.completions.create(
@@ -116,12 +403,17 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
                         "top_k": top_k,
                         "min_p": min_p,
                         "banned_tokens": banned_tokens if banned_tokens else None,
+                        # See generate_script.process_chunk: omitted when unset,
+                        # so the request is unchanged for existing users.
+                        "reasoning_effort": reasoning_effort or None,
                     }.items() if v is not None
                 }
             )
 
             choice = response.choices[0]
-            text = choice.message.content.strip()
+            # `or ""`: a reasoning model returns content=None when it never
+            # leaves the reasoning phase, which would crash .strip().
+            text = (choice.message.content or "").strip()
             finish_reason = choice.finish_reason
             usage = getattr(response, 'usage', None)
 
@@ -155,17 +447,41 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
         # Clean and parse JSON response
         json_text = clean_json_string(text)
 
+        prompt_tokens = getattr(usage, 'prompt_tokens', None) if usage else None
+
         if not json_text:
             print(f"Warning: Could not find JSON array in batch {batch_num} response (attempt {attempt + 1})")
             if attempt < max_retries:
                 print("Retrying...")
                 continue
             print(f"Response preview: {text[:300]}...")
+            _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
             return None
 
         entries = repair_json_array(json_text)
 
         if entries and len(entries) > 0:
+            if len(entries) != len(batch_entries):
+                # Valid JSON, wrong length -- measured as the ONLY failure
+                # mode that actually happens (33 of 34 failed batches in a
+                # full run; all finish_reason=stop, max completion 2966 of
+                # 4096 tokens, so not truncation). It used to return here,
+                # which made the two paid-for retries unreachable for it and
+                # left ~10% of the book unreviewed; the drops are
+                # temperature noise and do not repeat across attempts, so a
+                # retry is the cheap fix. The truncation hint is kept (it is
+                # a pure diagnostic and still the right message when a
+                # server silently truncates its context) but is now known to
+                # be a red herring for this particular symptom.
+                print(f"Warning: batch {batch_num} returned {len(entries)} entries for a "
+                      f"{len(batch_entries)}-entry batch (attempt {attempt + 1})")
+                _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
+                if attempt < max_retries:
+                    print("Retrying...")
+                    continue
+                # Retries exhausted: return the mismatched array unchanged so
+                # the caller's own count check reports and discards the batch
+                # exactly as it did before.
             if attempt > 0:
                 print(f"  Succeeded on retry {attempt + 1}")
             return entries
@@ -179,15 +495,33 @@ def review_batch(client, model_name, batch_entries, batch_num, total_batches,
         salvaged = salvage_json_entries(json_text)
         if salvaged:
             print(f"Regex-salvaged {len(salvaged)} entries from malformed response")
+            if len(salvaged) != len(batch_entries):
+                _maybe_print_truncation_hint(prompt_chars, prompt_tokens)
             return salvaged
 
+    _maybe_print_truncation_hint(prompt_chars, getattr(usage, 'prompt_tokens', None) if usage else None)
     return None
 
 
 def normalize_text(text):
-    """Normalize text for comparison: lowercase, collapse whitespace, strip punctuation."""
+    """Normalize text for comparison: lowercase, collapse whitespace, strip punctuation.
+
+    Punctuation is replaced with a SPACE (not deleted outright) before the
+    whitespace collapse. Deleting it outright used to fuse words across a
+    punctuation boundary that abuts two words with no space of its own
+    (e.g. `he said:--"Sicut` -> `saidsicut`). That fusion happens
+    differently depending on whether the text was normalized as one long
+    string (whole source) or as separately-normalized, then word-joined,
+    entries (per span) -- because entry/span boundaries often fall exactly
+    at a quote mark. The mismatch is a false alarm: no characters are
+    actually gained or lost, only whether two words end up glued together
+    by this normalization. Replacing with a space first means both sides of
+    every comparison tokenize identically regardless of where the
+    normalization boundary falls, since a punctuation mark that used to
+    silently disappear now always leaves a token separator behind.
+    """
     text = text.lower()
-    text = re.sub(r'[^\w\s]', '', text)
+    text = re.sub(r'[^\w\s]', ' ', text)
     text = re.sub(r'\s+', ' ', text).strip()
     return text
 
@@ -265,6 +599,11 @@ def main():
 
     print(f"Loaded {len(entries)} script entries for review")
 
+    # Established speaker spellings for this script, built once. Threaded
+    # into every apply_positional_overlay() call so a reviewer's spelling
+    # variant is snapped back onto the name the script already uses.
+    script_roster = build_script_roster(entries)
+
     # Load source text if provided (mode 2 prep)
     source_text = None
     if args.source:
@@ -294,11 +633,22 @@ def main():
 
     # Load custom review prompts or use defaults from review_prompts.txt
     prompts_config = config.get("prompts", {})
-    review_sys = prompts_config.get("review_system_prompt") or REVIEW_SYSTEM_PROMPT
-    review_usr = prompts_config.get("review_user_prompt") or REVIEW_USER_PROMPT
+    review_sys = select_review_prompt(
+        prompts_config.get("review_system_prompt"), REVIEW_SYSTEM_PROMPT, "review_system_prompt"
+    )
+    review_usr = select_review_prompt(
+        prompts_config.get("review_user_prompt"), REVIEW_USER_PROMPT, "review_user_prompt"
+    )
 
     generation_config = config.get("generation", {})
     batch_size = generation_config.get("review_batch_size", 25)
+    # Dual-budget batching: a fixed entry count alone can silently overflow
+    # a small LLM serving context window when individual entries are huge
+    # (e.g. Gutenberg front-matter). 12000 chars (~3k tokens) is
+    # conservative -- it leaves room for the system prompt plus contextual
+    # neighbor windows even inside a 4096-token serving window. See
+    # build_review_batches().
+    batch_char_budget = generation_config.get("review_batch_char_budget", 12000)
     max_tokens = generation_config.get("max_tokens", 8000)
     temperature = generation_config.get("temperature", 0.4)
     top_p = generation_config.get("top_p", 0.8)
@@ -309,47 +659,68 @@ def main():
 
     print(f"Connecting to: {base_url}")
     print(f"Using model: {model_name}")
-    print(f"Batch size: {batch_size} entries, Max tokens: {max_tokens}")
+    print(f"Batch size: up to {batch_size} entries or {batch_char_budget:,} chars per batch, Max tokens: {max_tokens}")
     if banned_tokens:
         print(f"Banned tokens: {banned_tokens}")
 
-    client = OpenAI(base_url=base_url, api_key=api_key)
+    # llm.timeout: same override as generate_script.main, for the same reason
+    # (slow local inference vs the SDK's fixed 600s ceiling). Omitted from the
+    # call when unset so the client is unchanged for existing installs.
+    _client_kwargs = {"base_url": base_url, "api_key": api_key}
+    _timeout = llm_config.get("timeout")
+    if _timeout:
+        _client_kwargs["timeout"] = _timeout
+    client = OpenAI(**_client_kwargs)
+    # llm.reasoning_effort: see generate_script.process_chunk. Review is the
+    # same shape of call against the same model, so it has the same exposure to
+    # a thinking model burning its budget and returning nothing.
+    reasoning_effort = llm_config.get("reasoning_effort")
 
     all_corrected = []
+    # "text_changed"/"entries_added"/"entries_removed" are intentionally
+    # absent: the positional overlay (apply_positional_overlay) guarantees
+    # every accepted entry keeps its original text and every accepted batch
+    # keeps its original entry count, so those counters could only ever be
+    # 0 on batches that made it through. A batch that would have caused
+    # either is instead rejected outright and counted in batches_failed.
     total_stats = {
-        "text_changed": 0,
         "speaker_changed": 0,
         "instruct_changed": 0,
-        "entries_added": 0,
-        "entries_removed": 0,
         "batches_failed": 0,
     }
 
     if args.context_window and args.context_window > 0:
         window = max(1, args.context_window)
-        total_batches = max(1, (len(entries) + batch_size - 1) // batch_size)
-        print(f"Contextual review mode enabled: batching ~{batch_size} entries per LLM call with +/-{window} neighbors")
+        batches = build_review_batches(entries, batch_size, batch_char_budget)
+        total_batches = len(batches)
+        print(f"Contextual review mode enabled: batching up to {batch_size} entries or "
+              f"{batch_char_budget:,} chars per LLM call, with +/-{window} neighbors "
+              f"({total_batches} batches)")
 
         previous_tail = None
-        for batch_index, start in enumerate(range(0, len(entries), batch_size), 1):
-            end = min(len(entries), start + batch_size)
-            batch = entries[start:end]
+        pos = 0
+        for batch_index, batch in enumerate(batches, 1):
+            start = pos
+            end = start + len(batch)
+            pos = end
             before = entries[max(0, start - window):start]
             after = entries[end:min(len(entries), end + window)]
 
-            print(f"\nReviewing batch {batch_index}/{total_batches} ({len(batch)} entries)...")
+            batch_chars = _rendered_len(batch)
+            print(f"\nReviewing batch {batch_index}/{total_batches} ({len(batch)} entries, {batch_chars:,} chars)...")
 
             contextual_lines = [
                 "Contextual batch review mode.",
                 "The 'SCRIPT ENTRIES TO REVIEW' below is your TARGET BATCH.",
                 "Use the following PREVIOUS and NEXT entries for context, but DO NOT include them in your output. Only return the corrected TARGET BATCH.",
+                "Context entries' \"text\" may be truncated with '...' for brevity -- that truncation applies ONLY to this context section, never to your TARGET BATCH.",
             ]
             if before:
                 contextual_lines.append("\n--- PREVIOUS ENTRIES (Context Only) ---")
-                contextual_lines.extend(json.dumps(e, ensure_ascii=False) for e in before)
+                contextual_lines.extend(json.dumps(_truncate_context_entry(e), ensure_ascii=False) for e in before)
             if after:
                 contextual_lines.append("\n--- NEXT ENTRIES (Context Only) ---")
-                contextual_lines.extend(json.dumps(e, ensure_ascii=False) for e in after)
+                contextual_lines.extend(json.dumps(_truncate_context_entry(e), ensure_ascii=False) for e in after)
 
             corrected = review_batch(
                 client, model_name, batch, batch_index, total_batches,
@@ -363,65 +734,73 @@ def main():
                 top_k=top_k,
                 min_p=min_p,
                 presence_penalty=presence_penalty,
-                banned_tokens=banned_tokens
+                banned_tokens=banned_tokens,
+                reasoning_effort=reasoning_effort
             )
 
             if corrected is None:
                 print(f"  FAILED — keeping original entries for batch {batch_index}")
-                all_corrected.extend(batch)
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            passed, orig_text, corr_text, ratio = check_text_loss(batch, corrected, threshold=0.95, upper_bound=1.15)
+            if len(corrected) != len(batch):
+                print(f"  FAILED — reviewer returned {len(corrected)} entries for a {len(batch)}-entry "
+                      f"batch (splitting/merging is not permitted); keeping original entries for batch {batch_index}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
+
+            if accepted is None:
+                print(f"  FAILED — reviewer's echoed text does not align with the batch "
+                      f"(dropped/duplicated entry); keeping original entries for batch {batch_index}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            # Safety net only: the positional overlay always takes "text"
+            # from the original batch, so this can never actually fail. If
+            # it does, that's a structural bug -- surface it loudly instead
+            # of silently keeping originals.
+            passed, orig_text, corr_text, ratio = check_text_loss(batch, accepted, threshold=1.0, upper_bound=1.0)
             if not passed:
-                print(f"  WARNING: Text length mismatch (loss or gain)! Word ratio: {ratio:.2f} (acceptable range: 0.95-1.15)")
-                print(f"  Original words: {len(orig_text.split())}, Corrected words: {len(corr_text.split())}")
-                print(f"  Keeping original entries for batch {batch_index} to prevent data corruption.")
-                all_corrected.extend(batch)
+                print(f"  BUG: text-loss safety net tripped despite positional overlay (ratio {ratio:.4f})! "
+                      f"Keeping original entries for batch {batch_index}.")
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            stats = diff_entries(batch, corrected)
-            entry_diff = len(corrected) - len(batch)
-
-            if entry_diff > 0:
-                total_stats["entries_added"] += entry_diff
-            elif entry_diff < 0:
-                total_stats["entries_removed"] += abs(entry_diff)
-
-            total_stats["text_changed"] += stats["text_changed"]
+            stats = diff_entries(batch, accepted)
             total_stats["speaker_changed"] += stats["speaker_changed"]
             total_stats["instruct_changed"] += stats["instruct_changed"]
 
-            changes = stats["text_changed"] + stats["speaker_changed"] + stats["instruct_changed"]
-            if changes > 0 or entry_diff != 0:
-                print(f"  Changes: {stats['text_changed']} text, {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct", end="")
-                if entry_diff > 0:
-                    print(f", +{entry_diff} entries (split)")
-                elif entry_diff < 0:
-                    print(f", {entry_diff} entries (merge)")
-                else:
-                    print()
+            changes = stats["speaker_changed"] + stats["instruct_changed"]
+            if changes > 0:
+                print(f"  Changes: {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct")
             else:
                 print("  No changes")
 
-            all_corrected.extend(corrected)
-            previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
+            all_corrected.extend(accepted)
+            previous_tail = accepted[-2:] if len(accepted) >= 2 else accepted
     else:
-        # Split entries into batches
-        batches = []
-        for i in range(0, len(entries), batch_size):
-            batches.append(entries[i:i + batch_size])
+        # Split entries into batches, bounded by both count and rendered
+        # JSON size (see build_review_batches).
+        batches = build_review_batches(entries, batch_size, batch_char_budget)
 
         total_batches = len(batches)
-        print(f"Split into {total_batches} batches of ~{batch_size} entries")
+        print(f"Split into {total_batches} batches (up to {batch_size} entries or {batch_char_budget:,} chars each)")
 
         previous_tail = None
 
         for i, batch in enumerate(batches, 1):
-            print(f"\nReviewing batch {i}/{total_batches} ({len(batch)} entries)...")
+            batch_chars = _rendered_len(batch)
+            print(f"\nReviewing batch {i}/{total_batches} ({len(batch)} entries, {batch_chars:,} chars)...")
 
             corrected = review_batch(
                 client, model_name, batch, i, total_batches,
@@ -435,54 +814,61 @@ def main():
                 top_k=top_k,
                 min_p=min_p,
                 presence_penalty=presence_penalty,
-                banned_tokens=banned_tokens
+                banned_tokens=banned_tokens,
+                reasoning_effort=reasoning_effort
             )
 
             if corrected is None:
                 print(f"  FAILED — keeping original entries for batch {i}")
-                all_corrected.extend(batch)
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
-            # Text-loss safety check
-            passed, orig_text, corr_text, ratio = check_text_loss(batch, corrected)
+            if len(corrected) != len(batch):
+                print(f"  FAILED — reviewer returned {len(corrected)} entries for a {len(batch)}-entry "
+                      f"batch (splitting/merging is not permitted); keeping original entries for batch {i}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            accepted = apply_positional_overlay(batch, corrected, roster=script_roster)
+
+            if accepted is None:
+                print(f"  FAILED — reviewer's echoed text does not align with the batch "
+                      f"(dropped/duplicated entry); keeping original entries for batch {i}")
+                all_corrected.extend(_canonicalize_speakers(batch))
+                total_stats["batches_failed"] += 1
+                previous_tail = batch[-2:] if len(batch) >= 2 else batch
+                continue
+
+            # Safety net only: the positional overlay always takes "text"
+            # from the original batch, so this can never actually fail. If
+            # it does, that's a structural bug -- surface it loudly instead
+            # of silently keeping originals.
+            passed, orig_text, corr_text, ratio = check_text_loss(batch, accepted, threshold=1.0, upper_bound=1.0)
             if not passed:
-                print(f"  WARNING: Text length mismatch (loss or gain)! Word ratio: {ratio:.2f} (acceptable range: 0.95-1.05)")
-                print(f"  Original words: {len(orig_text.split())}, Corrected words: {len(corr_text.split())}")
-                print(f"  Keeping original entries for batch {i} to prevent data corruption.")
-                all_corrected.extend(batch)
+                print(f"  BUG: text-loss safety net tripped despite positional overlay (ratio {ratio:.4f})! "
+                      f"Keeping original entries for batch {i}.")
+                all_corrected.extend(_canonicalize_speakers(batch))
                 total_stats["batches_failed"] += 1
                 previous_tail = batch[-2:] if len(batch) >= 2 else batch
                 continue
 
             # Diff stats
-            stats = diff_entries(batch, corrected)
-            entry_diff = len(corrected) - len(batch)
-
-            if entry_diff > 0:
-                total_stats["entries_added"] += entry_diff
-            elif entry_diff < 0:
-                total_stats["entries_removed"] += abs(entry_diff)
-
-            total_stats["text_changed"] += stats["text_changed"]
+            stats = diff_entries(batch, accepted)
             total_stats["speaker_changed"] += stats["speaker_changed"]
             total_stats["instruct_changed"] += stats["instruct_changed"]
 
-            changes = stats["text_changed"] + stats["speaker_changed"] + stats["instruct_changed"]
-            if changes > 0 or entry_diff != 0:
-                print(f"  Changes: {stats['text_changed']} text, {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct", end="")
-                if entry_diff > 0:
-                    print(f", +{entry_diff} entries (splits)")
-                elif entry_diff < 0:
-                    print(f", {entry_diff} entries (merges)")
-                else:
-                    print()
+            changes = stats["speaker_changed"] + stats["instruct_changed"]
+            if changes > 0:
+                print(f"  Changes: {stats['speaker_changed']} speaker, {stats['instruct_changed']} instruct")
             else:
                 print(f"  No changes")
 
-            all_corrected.extend(corrected)
-            previous_tail = corrected[-2:] if len(corrected) >= 2 else corrected
+            all_corrected.extend(accepted)
+            previous_tail = accepted[-2:] if len(accepted) >= 2 else accepted
 
     # Post-processing: merge consecutive NARRATOR entries with same instruct
     merge_narrators_enabled = generation_config.get("merge_narrators", False)
@@ -507,17 +893,17 @@ def main():
         print("Cleared old chunks.json")
 
     # Final summary
-    total_changes = (total_stats["text_changed"] + total_stats["speaker_changed"] +
-                     total_stats["instruct_changed"] + total_stats["entries_added"] +
-                     total_stats["entries_removed"] + narrator_merges)
+    # Text-loss and entry-count changes are structurally impossible on
+    # accepted batches (see apply_positional_overlay / total_stats comment
+    # above), so they're not tracked here -- only speaker/instruct edits and
+    # narrator merges count as "changes".
+    total_changes = (total_stats["speaker_changed"] +
+                     total_stats["instruct_changed"] + narrator_merges)
 
     print(f"\n{'='*60}")
     print(f"Review complete: {len(entries)} -> {len(all_corrected)} entries")
-    print(f"  Text changed:    {total_stats['text_changed']}")
     print(f"  Speaker changed: {total_stats['speaker_changed']}")
     print(f"  Instruct changed:{total_stats['instruct_changed']}")
-    print(f"  Entries added:   {total_stats['entries_added']}")
-    print(f"  Entries removed: {total_stats['entries_removed']}")
     print(f"  Narrators merged:{narrator_merges}")
     if total_stats["batches_failed"] > 0:
         print(f"  Batches failed:  {total_stats['batches_failed']}")
