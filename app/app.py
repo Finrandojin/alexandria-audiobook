@@ -39,13 +39,16 @@ app = FastAPI(title="Alexandria Audiobook")
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)
 CONFIG_PATH = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(BASE_DIR, "config.json")
-VOICE_CONFIG_PATH = os.path.join(ROOT_DIR, "voice_config.json")
-SCRIPT_PATH = os.path.join(ROOT_DIR, "annotated_script.json")
-AUDIOBOOK_PATH = os.path.join(ROOT_DIR, "cloned_audiobook.mp3")
-M4B_PATH = os.path.join(ROOT_DIR, "audiobook.m4b")
+# Working state (script, chunks, voice config, rendered audiobooks); mount this in Docker to persist it
+STATE_DIR = os.environ.get("ALEXANDRIA_STATE_DIR") or ROOT_DIR
+os.makedirs(STATE_DIR, exist_ok=True)
+VOICE_CONFIG_PATH = os.path.join(STATE_DIR, "voice_config.json")
+SCRIPT_PATH = os.path.join(STATE_DIR, "annotated_script.json")
+AUDIOBOOK_PATH = os.path.join(STATE_DIR, "cloned_audiobook.mp3")
+M4B_PATH = os.path.join(STATE_DIR, "audiobook.m4b")
 UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
 SCRIPTS_DIR = os.path.join(ROOT_DIR, "scripts")
-CHUNKS_PATH = os.path.join(ROOT_DIR, "chunks.json")
+CHUNKS_PATH = os.path.join(STATE_DIR, "chunks.json")
 DESIGNED_VOICES_DIR = os.path.join(ROOT_DIR, "designed_voices")
 CLONE_VOICES_DIR = os.path.join(ROOT_DIR, "clone_voices")
 LORA_MODELS_DIR = os.path.join(ROOT_DIR, "lora_models")
@@ -335,6 +338,7 @@ class ContextualReviewRequest(BaseModel):
 class GeneratePersonasRequest(BaseModel):
     advanced: bool = False
     batch_size: int = 40
+    new_only: bool = False
 
 class PreparerConfig(BaseModel):
     audio_filename: str
@@ -553,7 +557,7 @@ async def get_config():
                 pass
 
     # Include current input file info if available
-    state_path = os.path.join(ROOT_DIR, "state.json")
+    state_path = os.path.join(STATE_DIR, "state.json")
     if os.path.exists(state_path):
         try:
             with open(state_path, "r", encoding="utf-8") as sf:
@@ -716,7 +720,7 @@ async def upload_file(file: UploadFile = File(...)):
         file_path = txt_path
 
     # Save input path to state.json to be compatible with original scripts if needed
-    state_path = os.path.join(ROOT_DIR, "state.json")
+    state_path = os.path.join(STATE_DIR, "state.json")
     state = {}
     if os.path.exists(state_path):
         with open(state_path, "r", encoding="utf-8") as f:
@@ -739,7 +743,7 @@ class GenerateScriptRequest(BaseModel):
 @app.post("/api/generate_script")
 async def generate_script(background_tasks: BackgroundTasks, request: GenerateScriptRequest = GenerateScriptRequest()):
     # Get input file from state.json
-    state_path = os.path.join(ROOT_DIR, "state.json")
+    state_path = os.path.join(STATE_DIR, "state.json")
     if not os.path.exists(state_path):
         raise HTTPException(status_code=400, detail="No input file selected")
 
@@ -897,6 +901,8 @@ async def generate_personas(background_tasks: BackgroundTasks, request: Generate
     if request.advanced:
         batch_size = max(1, min(int(request.batch_size or 40), 200))
         command.extend(["--advanced", "--batch-size", str(batch_size)])
+    if request.new_only:
+        command.append("--new-only")
     background_tasks.add_task(run_process, command, "persona")
     return {"status": "started", "advanced": request.advanced}
 
@@ -1069,7 +1075,7 @@ async def export_audacity_endpoint(background_tasks: BackgroundTasks):
 
 @app.get("/api/export_audacity")
 async def get_audacity_export():
-    zip_path = os.path.join(ROOT_DIR, "audacity_export.zip")
+    zip_path = os.path.join(STATE_DIR, "audacity_export.zip")
     if not os.path.exists(zip_path):
         raise HTTPException(status_code=404, detail="Audacity export not found. Generate it first.")
     return FileResponse(zip_path, filename="audacity_export.zip", media_type="application/zip")
@@ -1097,7 +1103,7 @@ async def merge_m4b_endpoint(request: M4bExportRequest, background_tasks: Backgr
                 "narrator": request.narrator,
                 "year": request.year,
                 "description": request.description,
-                "cover_path": os.path.join(ROOT_DIR, "m4b_cover.jpg") if os.path.exists(os.path.join(ROOT_DIR, "m4b_cover.jpg")) else "",
+                "cover_path": os.path.join(STATE_DIR, "m4b_cover.jpg") if os.path.exists(os.path.join(STATE_DIR, "m4b_cover.jpg")) else "",
             }
             success, msg = project_manager.merge_m4b(per_chunk_chapters=request.per_chunk_chapters, metadata=meta)
             if success:
@@ -1123,7 +1129,7 @@ async def upload_m4b_cover(file: UploadFile = File(...)):
     """Upload a cover image for M4B export."""
     if not file.content_type or not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-    cover_path = os.path.join(ROOT_DIR, "m4b_cover.jpg")
+    cover_path = os.path.join(STATE_DIR, "m4b_cover.jpg")
     content = await file.read()
     with open(cover_path, "wb") as f:
         f.write(content)
@@ -1132,7 +1138,7 @@ async def upload_m4b_cover(file: UploadFile = File(...)):
 @app.delete("/api/m4b_cover")
 async def delete_m4b_cover():
     """Remove the uploaded cover image."""
-    cover_path = os.path.join(ROOT_DIR, "m4b_cover.jpg")
+    cover_path = os.path.join(STATE_DIR, "m4b_cover.jpg")
     if os.path.exists(cover_path):
         os.remove(cover_path)
     return {"status": "removed"}

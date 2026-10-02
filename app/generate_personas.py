@@ -6,11 +6,23 @@ import re
 import argparse
 import shutil
 import tempfile
-from openai import OpenAI
+from openai import OpenAI, BadRequestError
 
 from tts import TTSEngine, sanitize_filename
 from utils import atomic_json_write as _atomic_json_write
 from persona_prompts import PERSONA_SYSTEM_PROMPT, PERSONA_USER_PROMPT, PERSONA_ADVANCED_PROMPT
+
+
+# Qwen3 & co. otherwise spend the token budget on reasoning and leave content empty
+NO_THINKING = {"chat_template_kwargs": {"enable_thinking": False}}
+
+
+def _chat_completion(client, **kwargs):
+    """Chat completion with thinking disabled; retries without the hint if the endpoint rejects it."""
+    try:
+        return client.chat.completions.create(extra_body=NO_THINKING, **kwargs)
+    except BadRequestError:
+        return client.chat.completions.create(**kwargs)
 
 
 def extract_json_object(text):
@@ -209,7 +221,8 @@ def _resolve_aliases_batch(client, model_name, speakers_info, existing_names):
     )
 
     try:
-        response = client.chat.completions.create(
+        response = _chat_completion(
+            client,
             model=model_name,
             messages=[
                 {"role": "system", "content": "You are a precise casting director. You output ONLY valid JSON."},
@@ -218,7 +231,7 @@ def _resolve_aliases_batch(client, model_name, speakers_info, existing_names):
             temperature=0.1,
             max_tokens=max(1500, len(speakers_info) * 80),
         )
-        result = extract_json_object(response.choices[0].message.content.strip())
+        result = extract_json_object((response.choices[0].message.content or "").strip())
         if isinstance(result, dict):
             # Normalize keys and values to match exact input names casing
             resolved = {}
@@ -480,25 +493,17 @@ def _save_generated_preview(root, engine, voice_config, speaker, description, re
                 except Exception:
                     manifest = []
 
-            stale_entries = [entry for entry in manifest if entry.get("name") == speaker]
-            manifest = [entry for entry in manifest if entry.get("name") != speaker]
-            for stale in stale_entries:
-                stale_filename = stale.get("filename") or ""
-                if stale_filename:
-                    stale_path = os.path.join(dest_dir, stale_filename)
-                    if os.path.exists(stale_path) and os.path.abspath(stale_path) != os.path.abspath(dest_path):
-                        try:
-                            os.remove(stale_path)
-                        except OSError:
-                            pass
-                stale_meta = stale.get("id")
-                if stale_meta:
-                    stale_meta_path = os.path.join(dest_dir, f"{stale_meta}_meta.json")
-                    if os.path.exists(stale_meta_path):
-                        try:
-                            os.remove(stale_meta_path)
-                        except OSError:
-                            pass
+            # Keep earlier voices (WAV + meta) so they stay selectable; just label them with their creation time
+            for entry in manifest:
+                if entry.get("name") == speaker and entry.get("id"):
+                    try:
+                        stamp = int(str(entry["id"]).rsplit("_", 1)[-1])
+                        if stamp > 1e12:  # persona ids use time_ns(), WebUI-saved ids use seconds
+                            stamp /= 1e9
+                        created = time.strftime("%Y-%m-%d %H:%M", time.localtime(stamp))
+                    except (ValueError, OverflowError):
+                        created = str(entry["id"])
+                    entry["name"] = f"{speaker} ({created})"
 
             manifest.append({
                 "id": voice_id,
@@ -535,7 +540,8 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
         prompt = _build_batch_discovery_prompt(batch_start, batch, selected_speakers)
         print(f"Advanced discovery batch {batch_number}/{len(batches)} ({len(batch)} entries)")
         try:
-            response = client.chat.completions.create(
+            response = _chat_completion(
+                client,
                 model=model_name,
                 messages=[
                     {"role": "system", "content": "You produce concise JSON only."},
@@ -544,7 +550,7 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
                 temperature=0.2,
                 max_tokens=4000,
             )
-            raw_content = response.choices[0].message.content.strip()
+            raw_content = (response.choices[0].message.content or "").strip()
             parsed = extract_json_object(raw_content)
             characters = []
             if isinstance(parsed, dict):
@@ -589,7 +595,8 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
         description = ""
         ref_text = ""
         try:
-            response = client.chat.completions.create(
+            response = _chat_completion(
+                client,
                 model=model_name,
                 messages=[
                     {"role": "system", "content": system_prompt or "You produce concise JSON only."},
@@ -598,7 +605,7 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
                 temperature=0.25,
                 max_tokens=600,
             )
-            parsed = extract_json_object(response.choices[0].message.content.strip())
+            parsed = extract_json_object((response.choices[0].message.content or "").strip())
             if parsed:
                 description = str(parsed.get("description", "") or "").strip()
                 ref_text = str(parsed.get("ref_text", "") or "").strip()
@@ -625,6 +632,20 @@ def run_advanced_persona_generation(script, selected_speakers, samples, voice_co
 # _atomic_json_write imported from utils
 
 
+def _has_usable_voice(entry, root):
+    """True if a speaker already has a voice that new-only mode should keep."""
+    if not isinstance(entry, dict):
+        return False
+    ref_audio = entry.get("ref_audio")
+    if ref_audio and os.path.exists(os.path.join(root, ref_audio)):
+        return True
+    if entry.get("type") == "design" and (entry.get("description") or "").strip():
+        return True
+    if entry.get("type") == "lora" and (entry.get("adapter_path") or entry.get("adapter_id")):
+        return True
+    return False
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generate personas for speakers in annotated script")
     parser.add_argument("--new-only", action="store_true", help="Process only speakers missing from voice_config.json")
@@ -636,9 +657,10 @@ def main():
     args = parser.parse_args()
 
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    script_path = os.path.join(root, "annotated_script.json")
-    voice_config_path = os.path.join(root, "voice_config.json")
-    app_config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    state_dir = os.environ.get("ALEXANDRIA_STATE_DIR") or root
+    script_path = os.path.join(state_dir, "annotated_script.json")
+    voice_config_path = os.path.join(state_dir, "voice_config.json")
+    app_config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(os.path.dirname(__file__), "config.json")
 
     if not os.path.exists(script_path):
         print(f"Error: {script_path} not found. Generate script first.")
@@ -703,7 +725,8 @@ def main():
 
     selected_speakers = list(samples.keys())
     if args.new_only:
-        selected_speakers = [s for s in selected_speakers if s not in voice_config]
+        selected_speakers = [s for s in selected_speakers if not _has_usable_voice(voice_config.get(s), root)]
+        print(f"New-only mode: {len(selected_speakers)} speaker(s) without a voice")
     if args.speakers.strip():
         allow = {s.strip() for s in args.speakers.split(",") if s.strip()}
         selected_speakers = [s for s in selected_speakers if s in allow]
@@ -830,7 +853,8 @@ def main():
                 sample_lines=sample_text
             )
 
-            response = client.chat.completions.create(
+            response = _chat_completion(
+                client,
                 model=model_name,
                 messages=[
                     {"role": "system", "content": persona_system},
@@ -840,7 +864,7 @@ def main():
                 max_tokens=400,
             )
 
-            text = response.choices[0].message.content.strip()
+            text = (response.choices[0].message.content or "").strip()
             parsed = extract_json_object(text)
             description = ""
             ref_text = ""

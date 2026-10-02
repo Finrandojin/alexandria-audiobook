@@ -6,6 +6,10 @@ services:
     environment:
       # Store WebUI settings on a mounted volume so they survive container restarts
       - ALEXANDRIA_CONFIG_PATH=/alexandria/config/config.json
+      # Working state (annotated script, chunks, voice config, state.json, rendered audiobooks)
+      - ALEXANDRIA_STATE_DIR=/alexandria/state
+      # Keep torch.compile results (compile_codec) across restarts - first compile takes many minutes
+      - TORCHINDUCTOR_CACHE_DIR=/alexandria/torch_cache
     volumes:
       # Persist HuggingFace model cache (~3.5 GB per model, downloaded on first use)
       - hf_cache:/root/.cache/huggingface
@@ -19,6 +23,11 @@ services:
       - ./data/scripts:/alexandria/scripts
       # Persist WebUI settings (OpenAI endpoint, prompts, TTS mode, etc.)
       - ./data/config:/alexandria/config
+      # Persist working state (see ALEXANDRIA_STATE_DIR)
+      - ./data/state:/alexandria/state
+      - ./data/persona_refs:/alexandria/persona_refs
+      - ./data/preparer_output:/alexandria/preparer_output
+      - ./data/torch_cache:/alexandria/torch_cache
       # Persist audiobook output
       - ./data/output:/alexandria/voicelines
     deploy:

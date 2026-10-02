@@ -89,13 +89,17 @@ def group_into_chunks(script_entries, max_chars=MAX_CHUNK_CHARS):
 
 logger = logging.getLogger(__name__)
 
+# pydub/ffmpeg default for 24 kHz mono is only 32 kbit/s; 160k is the MP3 maximum at 24 kHz (MPEG-2)
+MP3_BITRATE = os.environ.get("ALEXANDRIA_MP3_BITRATE", "160k")
+
 class ProjectManager:
     def __init__(self, root_dir):
         self.root_dir = root_dir
-        self.script_path = os.path.join(root_dir, "annotated_script.json")
-        self.chunks_path = os.path.join(root_dir, "chunks.json")
+        self.state_dir = os.environ.get("ALEXANDRIA_STATE_DIR") or root_dir
+        self.script_path = os.path.join(self.state_dir, "annotated_script.json")
+        self.chunks_path = os.path.join(self.state_dir, "chunks.json")
         self.voicelines_dir = os.path.join(root_dir, "voicelines")
-        self.voice_config_path = os.path.join(root_dir, "voice_config.json")
+        self.voice_config_path = os.path.join(self.state_dir, "voice_config.json")
         self.config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(root_dir, "app", "config.json")
 
         # Ensure voicelines dir exists
@@ -364,7 +368,7 @@ class ProjectManager:
                     mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
 
                     # This might fail if ffmpeg is missing or lacks MP3 encoder
-                    segment.export(mp3_filepath, format="mp3")
+                    segment.export(mp3_filepath, format="mp3", bitrate=MP3_BITRATE)
 
                     # Validate: conda ffmpeg often lacks libmp3lame, producing
                     # a tiny (~428 byte) header-only file without raising an error
@@ -455,8 +459,8 @@ class ProjectManager:
             audio_segments, speakers, pause_ms, same_speaker_pause_ms, pause_overrides
         )
         output_filename = "cloned_audiobook.mp3"
-        output_path = os.path.join(self.root_dir, output_filename)
-        final_audio.export(output_path, format="mp3")
+        output_path = os.path.join(self.state_dir, output_filename)
+        final_audio.export(output_path, format="mp3", bitrate=MP3_BITRATE)
 
         return True, output_filename
 
@@ -525,7 +529,7 @@ class ProjectManager:
         labels_content = "\n".join(label_lines) + "\n"
 
         # Phase 4 — Zip everything
-        zip_path = os.path.join(self.root_dir, "audacity_export.zip")
+        zip_path = os.path.join(self.state_dir, "audacity_export.zip")
         with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
             zf.writestr("project.lof", lof_content)
             zf.writestr("labels.txt", labels_content)
@@ -576,7 +580,7 @@ class ProjectManager:
 
         temp_wav = os.path.join(self.root_dir, "temp_m4b_combined.wav")
         meta_path = os.path.join(self.root_dir, "temp_m4b_meta.txt")
-        output_path = os.path.join(self.root_dir, "audiobook.m4b")
+        output_path = os.path.join(self.state_dir, "audiobook.m4b")
 
         try:
             final_audio.export(temp_wav, format="wav")
@@ -948,7 +952,7 @@ class ProjectManager:
 
                         mp3_filename = f"{filename_base}.mp3"
                         mp3_filepath = os.path.join(self.voicelines_dir, mp3_filename)
-                        segment.export(mp3_filepath, format="mp3")
+                        segment.export(mp3_filepath, format="mp3", bitrate=MP3_BITRATE)
 
                         # Validate: conda ffmpeg often lacks libmp3lame, producing
                         # a tiny (~428 byte) header-only file without raising an error
