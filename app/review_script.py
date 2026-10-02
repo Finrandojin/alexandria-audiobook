@@ -255,7 +255,7 @@ def main():
     args = parser.parse_args()
 
     # Locate annotated_script.json
-    script_path = os.path.join(os.path.dirname(__file__), "..", "annotated_script.json")
+    script_path = os.path.join(os.environ.get("ALEXANDRIA_STATE_DIR") or os.path.join(os.path.dirname(__file__), ".."), "annotated_script.json")
     if not os.path.exists(script_path):
         print("Error: annotated_script.json not found. Generate a script first.")
         sys.exit(1)
@@ -276,7 +276,7 @@ def main():
             print(f"Warning: Source file not found: {args.source}")
 
     # Load config
-    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(os.path.dirname(__file__), "config.json")
     config = {}
     if os.path.exists(config_path):
         try:
@@ -501,7 +501,7 @@ def main():
         json.dump(all_corrected, f, indent=2, ensure_ascii=False)
 
     # Delete chunks.json so editor regenerates
-    chunks_path = os.path.join(os.path.dirname(__file__), "..", "chunks.json")
+    chunks_path = os.path.join(os.environ.get("ALEXANDRIA_STATE_DIR") or os.path.join(os.path.dirname(__file__), ".."), "chunks.json")
     if os.path.exists(chunks_path):
         os.remove(chunks_path)
         print("Cleared old chunks.json")

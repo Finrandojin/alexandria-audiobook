@@ -4,13 +4,16 @@ WORKDIR /alexandria
 
 # Install system dependencies for audio processing
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ffmpeg libsndfile1 && \
+    apt-get install -y --no-install-recommends ffmpeg libsndfile1 sox && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY app/requirements.txt /alexandria/app/requirements.txt
 RUN pip install --no-cache-dir -r app/requirements.txt && \
     pip install --no-cache-dir qwen-tts==0.1.1
+
+# flash-attn: prebuilt wheel matching the base image (py3.11, torch 2.8, CUDA 12, cxx11abi) - the runtime image has no nvcc to compile it
+RUN pip install --no-cache-dir https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.8cxx11abiTRUE-cp311-cp311-linux_x86_64.whl
 
 # Copy application code
 COPY app/ /alexandria/app/

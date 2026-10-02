@@ -352,11 +352,12 @@ def process_chunk(client, model_name, chunk, chunk_num, total_chunks, previous_e
 
 def _write_script_output(all_entries):
     """Write annotated_script.json and clear stale chunks.json."""
-    output_path = os.path.join("..", "annotated_script.json")
+    state_dir = os.environ.get("ALEXANDRIA_STATE_DIR") or ".."
+    output_path = os.path.join(state_dir, "annotated_script.json")
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(all_entries, f, indent=2, ensure_ascii=False)
 
-    chunks_path = os.path.join("..", "chunks.json")
+    chunks_path = os.path.join(state_dir, "chunks.json")
     if os.path.exists(chunks_path):
         os.remove(chunks_path)
         print("Cleared old chunks.json")
@@ -418,7 +419,7 @@ def main():
         return
 
     # Load LLM config
-    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(os.path.dirname(__file__), "config.json")
     config = {}
     if os.path.exists(config_path):
         try:

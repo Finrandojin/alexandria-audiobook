@@ -418,6 +418,10 @@
                             <input class="form-check-input" type="checkbox" id="advanced-persona-toggle" onchange="toggleAdvancedPersonaOptions()">
                             <label class="form-check-label" for="advanced-persona-toggle">Advanced</label>
                         </div>
+                        <div class="form-check form-switch m-0" title="Only create voices for speakers that don't have one yet; existing voices stay untouched">
+                            <input class="form-check-input" type="checkbox" id="new-only-persona-toggle">
+                            <label class="form-check-label" for="new-only-persona-toggle">New only</label>
+                        </div>
                         <div class="input-group input-group-sm" id="advanced-persona-options" style="width: 135px; display:none;">
                             <span class="input-group-text">Batch</span>
                             <input class="form-control" id="persona-batch-size" type="number" min="1" max="200" value="40">
@@ -1496,13 +1500,14 @@
             const advancedToggle = document.getElementById('advanced-persona-toggle');
             const batchInput = document.getElementById('persona-batch-size');
             const advanced = !!(advancedToggle && advancedToggle.checked);
+            const newOnly = !!document.getElementById('new-only-persona-toggle')?.checked;
             const batchSize = Math.max(1, Math.min(parseInt(batchInput?.value || '40', 10) || 40, 200));
             try {
                 statusSpan.innerHTML = `<i class="fas fa-spinner fa-spin me-1"></i>${advanced ? 'Starting advanced...' : 'Starting...'}`;
                 if (cancelButton) {
                     cancelButton.style.display = '';
                 }
-                await API.post('/api/generate_personas', { advanced, batch_size: batchSize });
+                await API.post('/api/generate_personas', { advanced, batch_size: batchSize, new_only: newOnly });
                 pollPersonaStatus();
             } catch (e) {
                 showToast('Failed to start persona generation: ' + e.message, 'error');
