@@ -890,6 +890,45 @@ class ProjectManager:
         # Split indices into batches
         batches = [indices[i:i + batch_size] for i in range(0, len(indices), batch_size)]
         print(f"Processing {len(batches)} batches...")
+        streamed_indices = set()
+        stream_lock = threading.Lock()
+
+        def stream_result(index, audio, error):
+            """Persist a streaming TTS result immediately after its request returns."""
+            if error:
+                self._update_chunk_fields(index, status="error")
+                return
+            current = self.load_chunks()
+            if not (0 <= index < len(current)):
+                return
+            temp_path = os.path.join(self.root_dir, f"temp_batch_{index}.wav")
+            try:
+                with open(temp_path, "wb") as output:
+                    output.write(audio)
+                speaker = current[index].get("speaker", "unknown")
+                filename_base = f"voiceline_{index+1:04d}_{sanitize_filename(speaker)}"
+                try:
+                    segment = AudioSegment.from_file(temp_path)
+                    mp3_name = f"{filename_base}.mp3"
+                    mp3_path = os.path.join(self.voicelines_dir, mp3_name)
+                    segment.export(mp3_path, format="mp3")
+                    if os.path.getsize(mp3_path) < 1024:
+                        os.remove(mp3_path)
+                        raise RuntimeError("invalid mp3")
+                    audio_path = f"voicelines/{mp3_name}"
+                except Exception:
+                    wav_name = f"{filename_base}.wav"
+                    shutil.copy(temp_path, os.path.join(self.voicelines_dir, wav_name))
+                    audio_path = f"voicelines/{wav_name}"
+                self._update_chunk_fields(index, audio_path=audio_path, status="done")
+                with stream_lock:
+                    streamed_indices.add(index)
+            except Exception as exc:
+                self._update_chunk_fields(index, status="error")
+                print(f"Failed to persist chunk {index}: {exc}")
+            finally:
+                if os.path.exists(temp_path):
+                    os.remove(temp_path)
 
         cancelled = False
         for batch_num, batch_indices in enumerate(batches):
@@ -916,12 +955,20 @@ class ProjectManager:
                     })
 
             # Call batch TTS with single seed
-            batch_results = engine.generate_batch(batch_chunks, voice_config, self.root_dir, batch_seed)
+            batch_results = engine.generate_batch(
+                batch_chunks, voice_config, self.root_dir, batch_seed,
+                progress_callback=progress_callback,
+                result_callback=stream_result if engine.mode == "openai_compatible" else None,
+            )
 
             # Process completed chunks - convert to MP3 and update status
             chunks = self.load_chunks()  # Reload for each batch
 
             for idx in batch_results["completed"]:
+                with stream_lock:
+                    if idx in streamed_indices:
+                        results["completed"].append(idx)
+                        continue
                 if not (0 <= idx < len(chunks)):
                     print(f"Chunk {idx} skipped: index out of range (chunks changed during generation?)")
                     results["failed"].append((idx, "Index out of range after reload"))
@@ -995,7 +1042,7 @@ class ProjectManager:
 
             self.save_chunks(chunks)
 
-            if progress_callback:
+            if progress_callback and engine.mode != "openai_compatible":
                 progress_callback(len(results["completed"]), len(results["failed"]), total)
 
         # Reset remaining "generating" chunks to "pending" on cancel or completion

@@ -638,7 +638,9 @@ def main():
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     script_path = os.path.join(root, "annotated_script.json")
     voice_config_path = os.path.join(root, "voice_config.json")
-    app_config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    app_config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(
+        os.path.dirname(__file__), "config.json"
+    )
 
     if not os.path.exists(script_path):
         print(f"Error: {script_path} not found. Generate script first.")

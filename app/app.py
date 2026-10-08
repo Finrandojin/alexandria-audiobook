@@ -8,7 +8,7 @@ from fastapi import FastAPI, UploadFile, File, Form, HTTPException, BackgroundTa
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
 import re
 import time
@@ -25,6 +25,7 @@ from math import ceil
 # Import ProjectManager
 from project import ProjectManager
 from default_prompts import load_default_prompts
+from openai_tts import OpenAITTS
 from review_prompts import load_review_prompts
 from persona_prompts import load_persona_prompts
 from hf_utils import fetch_builtin_manifest, download_builtin_adapter, is_adapter_downloaded
@@ -197,9 +198,20 @@ class LLMConfig(BaseModel):
     api_key: str
     model_name: str
 
+class OpenAIConfig(BaseModel):
+    base_url: str = "http://localhost:8000/v1"
+    api_key: str = ""
+    model: str = ""
+    model_type: str = "design"
+    # Must be declared here or saving the settings from the UI would silently drop
+    # it -- pydantic only serialises declared fields.
+    response_format: str = "pcm"
+    concurrency: int = Field(default=16, ge=1, le=32)
+
 class TTSConfig(BaseModel):
-    mode: str = "local"  # "local" or "external"
+    mode: str = "local"  # "local", "external", or "openai_compatible"
     url: str = "http://127.0.0.1:7860"  # external mode only
+    openai_compatible: OpenAIConfig = Field(default_factory=OpenAIConfig)
     device: str = "auto"  # local mode: "auto", "cuda:0", "cpu", etc.
     language: str = "English"  # TTS language
     parallel_workers: int = 2  # concurrent TTS workers
@@ -1155,7 +1167,6 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
 
     indices = request.indices
     total = len(indices)
-
     def progress_callback(completed, failed, total):
         """Update logs with progress."""
         process_state["audio"]["logs"].append(
@@ -1195,12 +1206,28 @@ async def generate_batch_endpoint(request: BatchGenerateRequest, background_task
     background_tasks.add_task(task)
     return {"status": "started", "workers": workers, "total_chunks": total}
 
+
 @app.post("/api/generate_batch_fast")
 async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background_tasks: BackgroundTasks):
     """Generate multiple chunks using batch TTS API with single seed. Faster but less flexible.
     Requires custom Qwen3-TTS with /generate_batch endpoint."""
     if process_state["audio"]["running"]:
         raise HTTPException(status_code=400, detail="Audio generation already running")
+
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            if json.load(f).get("tts", {}).get("mode") == "openai_compatible":
+                # Fail fast when the endpoint is unreachable, rather than letting
+                # every chunk in the batch report the same connection error.
+                engine = project_manager.get_engine()
+                if engine is None or engine.mode != "openai_compatible":
+                    raise HTTPException(
+                        status_code=409,
+                        detail="OpenAI Compatible mode is selected but not active yet.")
+                try:
+                    engine._openai_tts.status()
+                except Exception as exc:
+                    raise HTTPException(status_code=409, detail=str(exc))
 
     # Load batch_seed and batch_size from config
     batch_seed = -1
@@ -1221,6 +1248,12 @@ async def generate_batch_fast_endpoint(request: BatchGenerateRequest, background
 
     indices = request.indices
     total = len(indices)
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
+            if json.load(f).get("tts", {}).get("mode") == "openai_compatible":
+                # This path submits one speech request per chunk, so keep a single
+                # outer group rather than sub-batching again.
+                batch_size = total
 
     def progress_callback(completed, failed, total):
         process_state["audio"]["logs"].append(

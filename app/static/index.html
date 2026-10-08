@@ -119,8 +119,9 @@
                                 <select class="form-select" id="tts-mode" onchange="toggleTTSMode()">
                                     <option value="external">External Server</option>
                                     <option value="local">Local Model</option>
+                                    <option value="openai_compatible">OpenAI Compatible</option>
                                 </select>
-                                <div class="form-text">Local loads model in-process; External connects to a Gradio TTS server</div>
+                                <div class="form-text">External Server uses Gradio; OpenAI Compatible uses the /v1/audio/speech API.</div>
                             </div>
                             <div class="col-md-5" id="tts-url-group">
                                 <label class="form-label">TTS Server URL</label>
@@ -154,7 +155,7 @@
                                 </select>
                                 <div class="form-text">Language for audio synthesis only. To generate scripts in another language, edit the prompts under Prompt Settings (Advanced).</div>
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-2" id="parallel-workers-group">
                                 <label class="form-label">Parallel Workers</label>
                                 <input type="number" class="form-control" id="parallel-workers" value="2" min="1">
                                 <div class="form-text">Concurrent TTS requests</div>
@@ -163,6 +164,51 @@
                                 <label class="form-label">Batch Seed</label>
                                 <input type="number" class="form-control" id="batch-seed" placeholder="-1 (random)">
                                 <div class="form-text">Seed for reproducibility</div>
+                            </div>
+                        </div>
+                        <div class="row mb-3" id="openai-options" style="display:none;">
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-url">API URL</label>
+                                <input type="text" class="form-control" id="openai-url" value="http://localhost:8000/v1">
+                                <div class="form-text">Base URL of the OpenAI-compatible server, including /v1</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-model">Model Name</label>
+                                <input type="text" class="form-control" id="openai-model">
+                                <div class="form-text">Model ID as returned by /v1/models</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-key">API Key</label>
+                                <input type="password" class="form-control" id="openai-key" autocomplete="off">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-type">
+                                    Model Type
+                                    <i class="fas fa-circle-question text-muted ms-1"
+                                       data-bs-toggle="tooltip" data-bs-placement="right"
+                                       title="Only some services need this. A self-hosted vLLM-Omni serving Qwen3-TTS, for example, keeps its variants as separate models and does not auto-select between them. Gateways such as OpenRouter ignore the field, so Auto is right there. The same client works against both."></i>
+                                </label>
+                                <select class="form-select" id="openai-type">
+                                    <option value="">Auto — send nothing</option>
+                                    <option value="custom">CustomVoice — preset voice lookup</option>
+                                    <option value="clone">Base — voice cloning</option>
+                                    <option value="design">VoiceDesign — voice from description</option>
+                                </select>
+                                <div class="form-text">Leave on Auto unless the service documents a value.</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-concurrency">Concurrent Requests</label>
+                                <input type="number" class="form-control" id="openai-concurrency" min="1" max="32" value="16">
+                                <div class="form-text">Maximum simultaneous /v1/audio/speech requests</div>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label" for="openai-format">Response Format</label>
+                                <select class="form-select" id="openai-format">
+                                    <option value="pcm">pcm</option>
+                                    <option value="mp3">mp3</option>
+                                    <option value="wav">wav</option>
+                                </select>
+                                <div class="form-text">pcm fits almost every service. Sent as-is — no fallback.</div>
                             </div>
                         </div>
                         <div class="row mb-3" id="tts-local-options" style="display:none;">
@@ -1121,6 +1167,13 @@
         });
 
         // --- API Helpers ---
+        // Preferred speech response format. Deliberately not exposed in the UI: PCM is
+        // lossless, universally accepted and costs the server nothing to emit, so there
+        // is no meaningful choice for the user to make. The client falls back to mp3 and
+        // then wav on its own if a service rejects PCM. Edit it in config.json to force
+        // a different starting point.
+        let openaiTtsFormat = 'pcm';
+
         const API = {
             _handleError: async (res) => {
                 if (res.ok) return;
@@ -1165,6 +1218,12 @@
             document.getElementById('tts-url-group').style.display = mode === 'external' ? '' : 'none';
             document.getElementById('tts-device-group').style.display = mode === 'local' ? '' : 'none';
             document.getElementById('tts-local-options').style.display = mode === 'local' ? '' : 'none';
+            document.getElementById('openai-options').style.display = mode === 'openai_compatible' ? '' : 'none';
+            document.getElementById('parallel-workers-group').style.display = mode === 'openai_compatible' ? 'none' : '';
+            // Hide TTS Language for OpenAI-compatible mode: the language is inferred by
+            // the model, the field is not part of the OpenAI spec, and some backends
+            // (e.g. BreezeTTS2) reject it outright.
+            document.getElementById('tts-language-group').style.display = mode === 'openai_compatible' ? 'none' : '';
         }
 
         async function loadConfig() {
@@ -1178,6 +1237,14 @@
                 document.getElementById('llm-model').value = config.llm.model_name;
                 document.getElementById('tts-mode').value = config.tts.mode || 'external';
                 document.getElementById('tts-url').value = config.tts.url || 'http://127.0.0.1:7860';
+                const openaiTts = config.tts.openai_compatible || {};
+                document.getElementById('openai-url').value = openaiTts.base_url || 'http://localhost:8000/v1';
+                document.getElementById('openai-model').value = openaiTts.model || '';
+                document.getElementById('openai-key').value = openaiTts.api_key || '';
+                openaiTtsFormat = openaiTts.response_format || 'pcm';
+                document.getElementById('openai-type').value = openaiTts.model_type || '';
+                document.getElementById('openai-concurrency').value = openaiTts.concurrency || 16;
+                document.getElementById('openai-format').value = openaiTts.response_format || 'pcm';
                 document.getElementById('tts-device').value = config.tts.device || 'auto';
                 document.getElementById('tts-language').value = config.tts.language || 'English';
                 document.getElementById('parallel-workers').value = config.tts.parallel_workers || 2;
@@ -1356,6 +1423,15 @@
                 tts: {
                     mode: document.getElementById('tts-mode').value,
                     url: document.getElementById('tts-url').value,
+                    openai_compatible: {
+                        base_url: document.getElementById('openai-url').value.trim(),
+                        api_key: document.getElementById('openai-key').value.trim(),
+                        model: document.getElementById('openai-model').value.trim(),
+                        model_type: document.getElementById('openai-type').value,
+                        response_format: openaiTtsFormat,
+                        concurrency: Math.max(1, Math.min(32, parseInt(document.getElementById('openai-concurrency').value) || 16)),
+                        response_format: document.getElementById('openai-format').value
+                    },
                     device: document.getElementById('tts-device').value,
                     language: document.getElementById('tts-language').value,
                     parallel_workers: parallelWorkers,
@@ -1414,6 +1490,11 @@
                 statusEl.innerHTML = `<span class="text-danger"><i class="fas fa-times me-1"></i>Failed to load file: ${escapeHtml(e.message)}</span>`;
             }
         });
+
+        // Bootstrap tooltips are opt-in: the data-bs-toggle attributes do nothing
+        // until each element is instantiated.
+        document.querySelectorAll('[data-bs-toggle="tooltip"]')
+            .forEach(el => new bootstrap.Tooltip(el));
 
         document.getElementById('single-speaker-toggle').addEventListener('change', (e) => {
             const on = e.target.checked;
@@ -1571,6 +1652,12 @@
         function createVoiceCard(voice, index) {
             const config = voice.config || {};
             const voiceType = config.type || 'custom';
+            // Every OpenAI-compatible provider has its own voice names -- Gemini wants
+            // "Kore", Fish Audio wants "alloy", and so on. There is no shared catalogue,
+            // so in that mode the voice is a free-text field instead of a dropdown
+            // preloaded with one vendor's presets.
+            const freeTextVoice =
+                (document.getElementById('tts-mode') || {}).value === 'openai_compatible';
 
             return `
                 <div class="card voice-card mb-3" data-voice="${escapeHtml(voice.name)}">
@@ -1615,9 +1702,14 @@
                                 <div class="custom-opts" style="display: ${voiceType === 'custom' ? 'block' : 'none'}">
                                     <div class="row g-2">
                                         <div class="col-md-6">
-                                            <select class="form-select voice-select">
-                                                ${AVAILABLE_VOICES.map(v => `<option value="${v}" ${config.voice === v ? 'selected' : ''}>${v}</option>`).join('')}
-                                            </select>
+                                            ${freeTextVoice
+                                              ? `<input type="text" class="form-control voice-select"
+                                                        placeholder="Voice name your provider accepts (e.g. Kore, alloy)"
+                                                        value="${escapeHtml(config.voice || '')}">
+                                                 <div class="form-text">Whatever the service's own docs list — passed through unchanged.</div>`
+                                              : `<select class="form-select voice-select">
+                                                     ${AVAILABLE_VOICES.map(v => `<option value="${v}" ${config.voice === v ? 'selected' : ''}>${v}</option>`).join('')}
+                                                 </select>`}
                                         </div>
                                         <div class="col-md-6">
                                             <input type="text" class="form-control character-style" placeholder="Character style (e.g. refined aristocratic tone, heavy Scottish accent)" value="${escapeHtml(config.character_style || config.default_style || '')}">

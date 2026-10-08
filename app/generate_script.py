@@ -418,7 +418,9 @@ def main():
         return
 
     # Load LLM config
-    config_path = os.path.join(os.path.dirname(__file__), "config.json")
+    config_path = os.environ.get("ALEXANDRIA_CONFIG_PATH") or os.path.join(
+        os.path.dirname(__file__), "config.json"
+    )
     config = {}
     if os.path.exists(config_path):
         try:

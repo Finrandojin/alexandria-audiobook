@@ -6,6 +6,7 @@ import shutil
 import numpy as np
 import soundfile as sf
 from pydub import AudioSegment
+from openai_tts import OpenAITTS
 
 DEFAULT_PAUSE_MS = 500  # Pause between different speakers
 SAME_SPEAKER_PAUSE_MS = 250  # Shorter pause for same speaker continuing
@@ -86,11 +87,12 @@ def compute_timeline(chunks_with_audio, pause_ms=DEFAULT_PAUSE_MS,
 
 
 class TTSEngine:
-    """TTS engine supporting local (qwen-tts) and external (Gradio) backends.
+    """TTS engine supporting local, Gradio, and OpenAI-compatible backends.
 
     Mode is determined by config["tts"]["mode"]:
       - "local": Loads Qwen3TTSModel directly. No external server needed.
       - "external": Connects via Gradio client to a running TTS server.
+      - "openai_compatible": Uses an OpenAI-compatible /v1/audio/speech endpoint.
 
     Models and clients are lazily initialized on first use.
     """
@@ -99,6 +101,7 @@ class TTSEngine:
         tts_config = config.get("tts", {})
         self._mode = tts_config.get("mode", "external")
         self._url = tts_config.get("url", "http://127.0.0.1:7860")
+        self._openai_tts = OpenAITTS(tts_config.get("openai_compatible", {})) if self._mode == "openai_compatible" else None
         self._device = tts_config.get("device", "auto")
         self._compile_codec_enabled = tts_config.get("compile_codec", False)
 
@@ -706,6 +709,8 @@ class TTSEngine:
 
     def generate_custom_voice(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate audio using CustomVoice model. Returns True on success."""
+        if self._mode == "openai_compatible":
+            return self._generate_openai_voice(text, instruct_text, speaker, voice_config, output_path)
         if self._mode == "local":
             return self._local_generate_custom(text, instruct_text, speaker, voice_config, output_path)
         else:
@@ -713,6 +718,8 @@ class TTSEngine:
 
     def generate_clone_voice(self, text, speaker, voice_config, output_path):
         """Generate audio using voice cloning. Returns True on success."""
+        if self._mode == "openai_compatible":
+            return self._generate_openai_voice(text, "", speaker, voice_config, output_path)
         if self._mode == "local":
             return self._local_generate_clone(text, speaker, voice_config, output_path)
         else:
@@ -720,6 +727,8 @@ class TTSEngine:
 
     def generate_voice(self, text, instruct_text, speaker, voice_config, output_path):
         """Generate audio using the appropriate method based on voice type config."""
+        if self._mode == "openai_compatible":
+            return self._generate_openai_voice(text, instruct_text, speaker, voice_config, output_path)
         voice_data = voice_config.get(speaker)
         if not voice_data:
             print(f"Warning: No voice configuration for '{speaker}'. Skipping.")
@@ -938,7 +947,8 @@ class TTSEngine:
 
     # ── Batch generation ─────────────────────────────────────────
 
-    def generate_batch(self, chunks, voice_config, output_dir, batch_seed=-1):
+    def generate_batch(self, chunks, voice_config, output_dir, batch_seed=-1,
+                       progress_callback=None, result_callback=None):
         """Generate multiple audio files.
 
         Local mode: uses native list-based batch API for custom voices.
@@ -957,6 +967,12 @@ class TTSEngine:
 
         if not chunks:
             return results
+
+        if self._mode == "openai_compatible":
+            return self._generate_openai_batch(
+                chunks, voice_config, output_dir, batch_seed,
+                progress_callback, result_callback,
+            )
 
         # Reset torch.compile state to prevent progressive slowdown
         # from dynamo guard accumulation across batches
@@ -1065,6 +1081,43 @@ class TTSEngine:
                 except Exception as e:
                     results["failed"].append((idx, str(e)))
 
+        return results
+
+    def _generate_openai_voice(self, text, instruct_text, speaker, voice_config, output_path):
+        audio = self._openai_tts.generate_one(
+            {"index": 0, "speaker": speaker, "text": text, "instruct": instruct_text},
+            voice_config,
+        )
+        with open(output_path, "wb") as output:
+            output.write(audio)
+        return True
+
+    def _generate_openai_batch(self, chunks, voice_config, output_dir, batch_seed,
+                               progress_callback=None, result_callback=None):
+        results = {"completed": [], "failed": []}
+        generated = self._openai_tts.generate_batch(
+            chunks, voice_config, batch_seed,
+            on_progress=progress_callback, on_result=result_callback,
+        )
+        for chunk in chunks:
+            index = chunk["index"]
+            audio, error = generated.get(index, (None, "Missing TTS result"))
+            if error:
+                results["failed"].append((index, error))
+                continue
+            # With a result_callback the audio was already persisted -- and its temp
+            # file already deleted -- by the callback. Writing it again here would
+            # leave that temp file behind, because project.py skips streamed indices
+            # entirely and so never reaches its own delete step.
+            if result_callback is not None:
+                results["completed"].append(index)
+                continue
+            try:
+                with open(os.path.join(output_dir, f"temp_batch_{index}.wav"), "wb") as output:
+                    output.write(audio)
+                results["completed"].append(index)
+            except OSError as exc:
+                results["failed"].append((index, str(exc)))
         return results
 
     # ── Connection test ──────────────────────────────────────────
