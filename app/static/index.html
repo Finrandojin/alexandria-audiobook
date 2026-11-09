@@ -1928,6 +1928,14 @@
             return true;
         }
 
+        // Keep at most one pending poll. Render Pending / Regenerate All call loadChunks() every 2 s;
+        // previously each call started its own self-re-arming setTimeout chain, so chains piled up.
+        var chunkPollTimer = null;
+        function scheduleChunkPoll() {
+            if (chunkPollTimer) return;
+            chunkPollTimer = setTimeout(() => { chunkPollTimer = null; loadChunks(false); }, 2000);
+        }
+
         async function loadChunks(forceFullRedraw = false) {
             const tbody = document.getElementById('chunks-table-body');
 
@@ -1963,7 +1971,7 @@
 
                     // Continue polling if generating
                     if (chunks.some(c => c.status === 'generating')) {
-                        setTimeout(() => loadChunks(false), 2000);
+                        scheduleChunkPoll();
                     }
                     return;
                 }
@@ -2028,7 +2036,7 @@
 
                 // If any chunk is generating, poll (without full redraw)
                 if (chunks.some(c => c.status === 'generating')) {
-                    setTimeout(() => loadChunks(false), 2000);
+                    scheduleChunkPoll();
                 }
 
             } catch (e) {
