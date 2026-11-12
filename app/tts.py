@@ -1516,16 +1516,22 @@ class TTSEngine:
                     results["failed"].append((chunk["index"], str(e)))
                 continue
 
-            character_style = voice_data.get("character_style", "") or voice_data.get("default_style", "")
+            # Several speakers can share one adapter (e.g. the built-in voices with
+            # different character styles), so look up each chunk's own speaker style.
+            def speaker_style(chunk):
+                vd = voice_config.get(chunk["speaker"], {})
+                return vd.get("character_style", "") or vd.get("default_style", "")
 
             texts = [c["text"] for c in group]
             instructs_raw = [c.get("instruct", "") for c in group]
+            styles = [speaker_style(c) for c in group]
             indices = [c["index"] for c in group]
 
             # Sort by text length
             sort_order = sorted(range(len(texts)), key=lambda i: len(texts[i]))
             texts = [texts[i] for i in sort_order]
             instructs_raw = [instructs_raw[i] for i in sort_order]
+            styles = [styles[i] for i in sort_order]
             indices = [indices[i] for i in sort_order]
 
             # Estimate max batch size from VRAM + clone prompt overhead
@@ -1542,6 +1548,7 @@ class TTSEngine:
             for sb_idx, (start, end) in enumerate(sub_batches):
                 sb_texts = texts[start:end]
                 sb_instructs = instructs_raw[start:end]
+                sb_styles = styles[start:end]
                 sb_indices = indices[start:end]
 
                 print(f"  Sub-batch {sb_idx+1}/{len(sub_batches)}: {len(sb_texts)} chunks "
@@ -1550,7 +1557,7 @@ class TTSEngine:
                 try:
                     # Build instruct_ids list for this sub-batch
                     instruct_ids = []
-                    for inst in sb_instructs:
+                    for inst, character_style in zip(sb_instructs, sb_styles):
                         instruct = inst or ""
                         if character_style:
                             instruct = f"{instruct} {character_style}".strip()
