@@ -909,6 +909,10 @@ class TTSEngine:
                 instruct_formatted = f"<|im_start|>user\n{instruct}<|im_end|>\n"
                 gen_extra["instruct_ids"] = model._tokenize_texts([instruct_formatted])
 
+            seed = int(voice_data.get("seed", -1))
+            if seed >= 0:
+                torch.manual_seed(seed)
+
             t_start = time.time()
             wavs, sr = model.generate_voice_clone(
                 text=text,
@@ -1019,7 +1023,7 @@ class TTSEngine:
         # Process LoRA voice chunks (batched by adapter in local mode)
         if lora_chunks:
             if self._mode == "local":
-                batch_results = self._local_batch_lora(lora_chunks, voice_config, output_dir)
+                batch_results = self._local_batch_lora(lora_chunks, voice_config, output_dir, batch_seed)
             else:
                 batch_results = {"completed": [], "failed": []}
                 for chunk in lora_chunks:
@@ -1428,7 +1432,7 @@ class TTSEngine:
 
         return results
 
-    def _local_batch_lora(self, chunks, voice_config, output_dir):
+    def _local_batch_lora(self, chunks, voice_config, output_dir, batch_seed=-1):
         """Batch generate LoRA voices, grouped by adapter.
 
         Chunks sharing the same adapter are batched together through
@@ -1570,6 +1574,9 @@ class TTSEngine:
                     gen_extra = {}
                     if any(iid is not None for iid in instruct_ids):
                         gen_extra["instruct_ids"] = instruct_ids
+
+                    if batch_seed >= 0:
+                        torch.manual_seed(batch_seed)
 
                     t_start = time.time()
                     wavs_list, sr = model.generate_voice_clone(
